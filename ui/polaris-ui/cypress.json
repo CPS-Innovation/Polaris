@@ -1,0 +1,11 @@
+{
+  "baseUrl": "http://127.0.0.1:3000",
+  "video": true,
+  "reporter": "junit",
+  "reporterOptions": {
+    "mochaFile": "report-cypress/test-results-[hash].xml",
+    "attachments": true
+  },
+  "viewportHeight": 1000,
+  "viewportWidth": 1500
+}

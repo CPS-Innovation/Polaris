@@ -1,0 +1,6 @@
+.pdfViewer {
+  height: 84vh;
+  max-height: 1500px; // to prevent zooming out overly elongating the pdf
+  width: 100%;
+  position: relative;
+}

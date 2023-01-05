@@ -1,0 +1,48 @@
+$govuk-assets-path: "~govuk-frontend/govuk/assets/";
+
+/* replacement fonts */
+@import url("//hello.myfonts.net/count/413f20");
+
+@font-face {
+  font-family: "TransportNew";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  size-adjust: 90%;
+  src: url("./fonts/TransportNewLight/font.woff2") format("woff2"),
+    url("./fonts/TransportNewLight/font.woff") format("woff");
+}
+
+@font-face {
+  font-family: "TransportNew";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  size-adjust: 86.5%;
+  src: url("./fonts/TransportNewHeavy/font.woff2") format("woff2"),
+    url("./fonts/TransportNewHeavy/font.woff") format("woff");
+}
+
+$govuk-font-family: "TransportNew", "Arial", sans-serif;
+
+@import "~govuk-frontend/govuk/all";
+
+body {
+  margin: 0;
+}
+
+// todo: not sure why hyperlink color is not working out of the box?
+a {
+  color: $govuk-link-colour;
+}
+
+.perma-scrollbar::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+  height: 7px;
+}
+.perma-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}

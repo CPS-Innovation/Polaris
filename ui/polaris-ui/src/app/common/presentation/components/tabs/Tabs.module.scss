@@ -1,0 +1,59 @@
+@import "../../../../../styles.scss";
+// essentially an override of the GDS Tabs styling to make our pdf tabs look and act as we need
+.tabs {
+  :global(.govuk-tabs__list) {
+    display: flex;
+
+    overflow-y: hidden;
+    overflow-x: auto;
+    padding-top: 5px;
+  }
+
+  :global(.govuk-tabs__panel) {
+    padding: 0 !important;
+  }
+
+  :global(.govuk-tabs__list-item) {
+    // make inactive tabs touch the top of the content, rather than have a separation
+    padding-bottom: 12px !important;
+    display: flex;
+    :global(.govuk-tabs__tab) {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 180px;
+
+      // the GDS styling uses an ::after set of rules to make the standard hyperlink's
+      //  click area expand to fill the entire area of the containing tab.  We now have the "close"
+      //  icon so we switch away from pinning the hyperlink's footprint to the right-hand edge to only going up
+      //  to 50 px from the edge, giving the close button a chance to accept mouse click.
+      &::after {
+        right: 50px;
+      }
+    }
+  }
+
+  :global(.govuk-tabs__list-item--selected) span {
+    display: inline-block;
+    margin-left: 10px;
+    button {
+      background: none;
+      color: inherit;
+      border: none;
+      padding: 0;
+      font: inherit;
+      cursor: pointer;
+
+      svg {
+        cursor: pointer;
+        height: 28px;
+        width: 28px;
+        circle {
+          stroke: white;
+          fill: $govuk-border-colour;
+        }
+      }
+    }
+  }
+}

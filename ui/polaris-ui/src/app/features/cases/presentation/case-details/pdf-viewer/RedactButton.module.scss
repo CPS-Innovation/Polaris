@@ -1,0 +1,25 @@
+.button {
+  font-family: "TransportNew", "Arial", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 19px;
+  cursor: pointer;
+  background-color: #00703c;
+  color: white;
+  padding: 15px 20px;
+  margin-bottom: -2px;
+  margin-top: -10px;
+}
+
+.button:after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 10px);
+  background: #00703c;
+  width: 20px;
+  height: 10px;
+
+  /* The points are: (left top: x y, right top: x y, center bottom: x y) */
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}

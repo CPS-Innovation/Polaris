@@ -1,0 +1,73 @@
+.accordion-controls {
+  text-align: right;
+}
+
+.accordion-expand-all {
+  display: inline;
+  background: transparent;
+  border-width: 0;
+  font-size: 16px;
+  color: #005ea5;
+  cursor: pointer;
+}
+
+.accordion .accordion-section[aria-expanded="false"] .accordion-section-body {
+  display: none;
+}
+
+.accordion {
+  border-bottom-width: 1px;
+  border-bottom-color: #bfc1c3;
+  border-bottom-style: solid;
+}
+
+.accordion .accordion-section {
+  border-top-width: 1px;
+  border-top-color: #bfc1c3;
+  border-top-style: solid;
+}
+
+.accordion h2 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.accordion .accordion-section-header {
+  cursor: pointer;
+  position: relative;
+  padding-top: 14px;
+  padding-bottom: 12px;
+}
+
+.accordion .accordion-section-header h2 {
+  color: #005ea5;
+}
+
+.accordion .accordion-section-header:hover {
+  background-color: #f8f8f8;
+}
+
+.accordion .icon {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  height: 16px;
+  width: 16px;
+  margin-top: -8px;
+  /* Note: you may have to update these URL paths */
+  /* PNG fallback for SVG */
+  background-image: url("icon-plus-minus.png");
+  /* SVG sprite */
+  background: url("icon-plus-minus.svg"),
+    linear-gradient(transparent, transparent);
+  background-repeat: no-repeat;
+  background-position: 0 -16px;
+}
+
+.accordion .accordion-section[aria-expanded="true"] .icon {
+  background-position: 0 0;
+}
+
+.date {
+  white-space: nowrap;
+}

@@ -1,0 +1,53 @@
+.uniqueReferenceNumber {
+  margin-bottom: 10px !important;
+}
+
+.namesub {
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.mainContent {
+  margin-top: -25px;
+}
+
+.leftColumn {
+  padding-right: 50px !important;
+  overflow-y: auto;
+  height: calc(100vh - 55px);
+}
+
+.rightColumn {
+  /* to compensate for the back link height pushing our right column content down*/
+  margin-top: -55px;
+  height: 100vh;
+}
+
+.pdfViewer {
+  height: 84vh;
+  max-height: 1500px; // to prevent zooming out overly elongating the pdf
+  width: 100%;
+  position: relative;
+}
+
+.charges {
+  min-height: 200px;
+  margin-top: 20px;
+  background-color: #1d70b8;
+  color: white;
+  padding: 20px;
+
+  * {
+    color: white !important;
+  }
+  ul {
+    margin: 0;
+    list-style-type: disc !important;
+    padding: 0 10px;
+  }
+  li {
+    margin: 0;
+
+    padding: 0;
+  }
+}

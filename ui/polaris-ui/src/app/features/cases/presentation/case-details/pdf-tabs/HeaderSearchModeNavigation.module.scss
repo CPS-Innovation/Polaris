@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+}
+
+.next,
+.previous {
+  text-align: center;
+  user-select: none;
+}
+.next {
+  width: 50px;
+}
+
+.numbers {
+  margin: 0 10px 0 5px;
+  width: 48px;
+  text-align: right;
+  user-select: none;
+  font-weight: bold;
+}

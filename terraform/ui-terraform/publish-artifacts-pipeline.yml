@@ -1,0 +1,16 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - "terraform/*"
+
+steps:
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Terraform Artifacts'
+    inputs:
+      targetPath: '$(Pipeline.Workspace)/s/terraform/'
+      artifact: 'terraform-files'
+      publishLocation: 'pipeline'

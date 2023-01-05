@@ -1,0 +1,15 @@
+node_modules
+
+# Ignore artifacts:
+build
+coverage
+build-cypress
+coverage-cypress
+coverage-merged
+report
+report-cypress
+.nyc_output
+
+public/mockServiceWorker.js
+src/react-pdf-highlighter
+src/mock-api/data/pdfs/pdf-strings.json

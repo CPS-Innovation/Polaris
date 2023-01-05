@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "baseUrl": "../node_modules",
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    // be explicit about types included
+    // to avoid clashing with Jest types
+    "types": ["cypress", "@testing-library/cypress"]
+  },
+  "include": ["./**/*.ts"]
+}

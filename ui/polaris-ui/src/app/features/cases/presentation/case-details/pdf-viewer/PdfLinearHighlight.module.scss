@@ -1,0 +1,28 @@
+.Highlight {
+  position: absolute;
+}
+
+.Highlight__parts {
+  opacity: 1;
+}
+
+.Highlight__part__search {
+  cursor: pointer;
+  position: absolute;
+  background: rgba(255, 226, 143, 1);
+
+  transition: background 0.3s;
+}
+
+.Highlight__part__redaction {
+  cursor: pointer;
+  position: absolute;
+  background: black;
+  margin-top: -1px;
+  transition: background 0.3s;
+}
+
+.Highlight--scrolledTo .Highlight__part__search,
+.Highlight--scrolledTo .Highlight__part__redaction {
+  background: #ff4141;
+}

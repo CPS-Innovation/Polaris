@@ -1,0 +1,24 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  height: 70px;
+  background: white;
+  width: 100%;
+  border-top: 4px solid #b1b4b6;
+  z-index: 4;
+}
+
+.removeButton {
+  margin: 0 20px;
+}
+
+.summary {
+  margin-left: auto;
+}
+
+.saveButton {
+  margin: 0 20px !important;
+}

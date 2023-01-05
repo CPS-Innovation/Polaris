@@ -1,0 +1,28 @@
+.container {
+  margin-top: 25px;
+}
+
+.suffix {
+  padding: 0 !important;
+  position: relative;
+  border: none;
+}
+
+.button {
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  width: 41px;
+  height: 40px;
+  border: none;
+  overflow: hidden;
+  color: #fff;
+  background-color: #1d70b8;
+  background-image: url(./search-button.png);
+  background-repeat: no-repeat;
+  background-position: -3.5% 50%;
+}
+
+.button:disabled {
+  background-color: #cccccc;
+}

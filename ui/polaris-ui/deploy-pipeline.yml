@@ -1,0 +1,125 @@
+trigger:
+  branches:
+    include:
+      - main
+
+  paths:
+    include:
+      - "rumpole-ui"
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  REACT_APP_BUILD_NUMBER: $(Build.BuildNumber)
+
+steps:
+  # We want to rely only on the .env.production file, anything in .env is still included
+  #  if not overwritten by .env.production.  For safety, just delete .env
+  - task: DeleteFiles@1
+    displayName: "Remove .env file"
+    inputs:
+      contents: |
+        rumpole-ui/.env
+
+  - task: Npm@1
+    inputs:
+      command: "install"
+      workingDir: "rumpole-ui"
+    displayName: "npm install"
+
+  - task: Npm@1
+    inputs:
+      command: "custom"
+      workingDir: "rumpole-ui"
+      customCommand: "run prettier"
+    displayName: "npm prettier"
+
+  - task: Npm@1
+    inputs:
+      command: "custom"
+      workingDir: "rumpole-ui"
+      customCommand: "run test:ci"
+    displayName: "npm test"
+
+  - task: Npm@1
+    inputs:
+      command: "custom"
+      workingDir: "rumpole-ui"
+      customCommand: "run cy:ci"
+    displayName: "cypress run tests"
+
+  - task: Npm@1
+    inputs:
+      command: "custom"
+      workingDir: "rumpole-ui"
+      customCommand: "run build"
+    displayName: "npm build"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "rumpole-ui/build"
+      ArtifactName: "rumpole-ui-drop"
+      publishLocation: "Container"
+
+  - task: Npm@1
+    inputs:
+      command: "custom"
+      workingDir: "rumpole-ui"
+      customCommand: "run coverage"
+    displayName: "combine unit and cypress coverage"
+
+  - task: PublishBuildArtifacts@1
+    condition: always() # this step will always run, helpful to diagnose failing cypress testts
+    inputs:
+      PathtoPublish: "rumpole-ui/cypress/videos"
+      ArtifactName: "Cypress failure vidoes"
+      publishLocation: "Container"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "rumpole-ui/report"
+      ArtifactName: "Unit test report"
+      publishLocation: "Container"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "rumpole-ui/report-cypress"
+      ArtifactName: "Cypress test report"
+      publishLocation: "Container"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "rumpole-ui/coverage"
+      ArtifactName: "Unit test coverage report"
+      publishLocation: "Container"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "rumpole-ui/coverage-cypress"
+      ArtifactName: "Cypress coverage report"
+      publishLocation: "Container"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "rumpole-ui/coverage-merged"
+      ArtifactName: "Merged coverage report"
+      publishLocation: "Container"
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: "JUnit"
+      testResultsFiles: "rumpole-ui/report/*.xml"
+      testRunTitle: "Unit tests"
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: "JUnit"
+      testResultsFiles: "rumpole-ui/report-cypress/test-*.xml"
+      testRunTitle: "Cypress tests"
+      mergeTestResults: true
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: "Cobertura"
+      summaryFileLocation: "$(System.DefaultWorkingDirectory)/rumpole-ui/coverage-merged/cobertura-coverage.xml"

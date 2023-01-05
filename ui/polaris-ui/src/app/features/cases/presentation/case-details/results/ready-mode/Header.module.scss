@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.textSection {
+  padding-top: 10px;
+}
+
+.select {
+  margin-bottom: 0;
+}
+
+.singleWordSearchWarning {
+  margin: 0 40px 20px 0;
+  font-weight: bold;
+}
