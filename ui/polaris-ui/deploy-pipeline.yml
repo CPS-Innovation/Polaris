@@ -5,7 +5,7 @@ trigger:
 
   paths:
     include:
-      - "polaris-ui"
+      - "ui/polaris-ui"
 
 pool:
   vmImage: ubuntu-latest
@@ -20,106 +20,106 @@ steps:
     displayName: "Remove .env file"
     inputs:
       contents: |
-        polaris-ui/.env
+        ui/polaris-ui/.env
 
   - task: Npm@1
     inputs:
       command: "install"
-      workingDir: "polaris-ui"
+      workingDir: "ui/polaris-ui"
     displayName: "npm install"
 
   - task: Npm@1
     inputs:
       command: "custom"
-      workingDir: "polaris-ui"
+      workingDir: "ui/polaris-ui"
       customCommand: "run prettier"
     displayName: "npm prettier"
 
   - task: Npm@1
     inputs:
       command: "custom"
-      workingDir: "polaris-ui"
+      workingDir: "ui/polaris-ui"
       customCommand: "run test:ci"
     displayName: "npm test"
 
   - task: Npm@1
     inputs:
       command: "custom"
-      workingDir: "polaris-ui"
+      workingDir: "ui/polaris-ui"
       customCommand: "run cy:ci"
     displayName: "cypress run tests"
 
   - task: Npm@1
     inputs:
       command: "custom"
-      workingDir: "polaris-ui"
+      workingDir: "ui/polaris-ui"
       customCommand: "run build"
     displayName: "npm build"
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "polaris-ui/build"
+      PathtoPublish: "ui/polaris-ui/build"
       ArtifactName: "polaris-ui-drop"
       publishLocation: "Container"
 
   - task: Npm@1
     inputs:
       command: "custom"
-      workingDir: "polaris-ui"
+      workingDir: "ui/polaris-ui"
       customCommand: "run coverage"
     displayName: "combine unit and cypress coverage"
 
   - task: PublishBuildArtifacts@1
     condition: always() # this step will always run, helpful to diagnose failing cypress testts
     inputs:
-      PathtoPublish: "polaris-ui/cypress/videos"
+      PathtoPublish: "ui/polaris-ui/cypress/videos"
       ArtifactName: "Cypress failure vidoes"
       publishLocation: "Container"
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "polaris-ui/report"
+      PathtoPublish: "ui/polaris-ui/report"
       ArtifactName: "Unit test report"
       publishLocation: "Container"
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "polaris-ui/report-cypress"
+      PathtoPublish: "ui/polaris-ui/report-cypress"
       ArtifactName: "Cypress test report"
       publishLocation: "Container"
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "polaris-ui/coverage"
+      PathtoPublish: "ui/polaris-ui/coverage"
       ArtifactName: "Unit test coverage report"
       publishLocation: "Container"
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "polaris-ui/coverage-cypress"
+      PathtoPublish: "ui/polaris-ui/coverage-cypress"
       ArtifactName: "Cypress coverage report"
       publishLocation: "Container"
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "polaris-ui/coverage-merged"
+      PathtoPublish: "ui/polaris-ui/coverage-merged"
       ArtifactName: "Merged coverage report"
       publishLocation: "Container"
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: "JUnit"
-      testResultsFiles: "polaris-ui/report/*.xml"
+      testResultsFiles: "ui/polaris-ui/report/*.xml"
       testRunTitle: "Unit tests"
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: "JUnit"
-      testResultsFiles: "polaris-ui/report-cypress/test-*.xml"
+      testResultsFiles: "ui/polaris-ui/report-cypress/test-*.xml"
       testRunTitle: "Cypress tests"
       mergeTestResults: true
 
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: "Cobertura"
-      summaryFileLocation: "$(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml"
+      summaryFileLocation: "$(System.DefaultWorkingDirectory)/ui/polaris-ui/coverage-merged/cobertura-coverage.xml"
