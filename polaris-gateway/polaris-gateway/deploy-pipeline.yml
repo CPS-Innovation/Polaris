@@ -7,7 +7,7 @@ trigger:
 
     paths:
         include:
-            - "ui/polaris-gateway/*"
+            - "polaris-gateway/polaris-gateway/*"
 
 pool:
     vmImage: "ubuntu-latest"
@@ -27,14 +27,14 @@ steps:
     - task: DotNetCoreCLI@2
       inputs:
           command: "build"
-          projects: "ui/$(functionName)/$(functionName).csproj"
+          projects: "$(functionName)/$(functionName)/$(functionName).csproj"
           arguments: "--configuration $(buildConfiguration)"
       displayName: "Build"
 
     - task: DotNetCoreCLI@2
       inputs:
           command: "test"
-          projects: "ui/$(functionName)*tests/$(functionName)*tests.csproj"
+          projects: "$(functionName)/$(functionName)*tests/$(functionName)*tests.csproj"
           publishTestResults: true
           arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
       displayName: "Run tests"
@@ -49,7 +49,7 @@ steps:
       inputs:
           command: publish
           publishWebProjects: false
-          projects: "ui/$(functionName)/$(functionName).csproj"
+          projects: "$(functionName)/$(functionName)/$(functionName).csproj"
           arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
           zipAfterPublish: False
       displayName: "Publish"
@@ -57,5 +57,5 @@ steps:
     - task: PublishBuildArtifacts@1
       inputs:
           pathtoPublish: "$(Build.ArtifactStagingDirectory)"
-          artifactName: "polaris-gateway-drop"
+          artifactName: "$(functionName)-drop"
           publishLocation: "Container"
