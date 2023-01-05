@@ -1,5 +1,0 @@
-.terraform
-.terraform.lock.hcl
-main.local.tf_
-main.local.tf
-*.tf_
