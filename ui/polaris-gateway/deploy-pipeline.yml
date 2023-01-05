@@ -27,14 +27,14 @@ steps:
     - task: DotNetCoreCLI@2
       inputs:
           command: "build"
-          projects: "$(functionName)/$(functionName).csproj"
+          projects: "ui/$(functionName)/$(functionName).csproj"
           arguments: "--configuration $(buildConfiguration)"
       displayName: "Build"
 
     - task: DotNetCoreCLI@2
       inputs:
           command: "test"
-          projects: "$(functionName)*tests/$(functionName)*tests.csproj"
+          projects: "ui/$(functionName)*tests/$(functionName)*tests.csproj"
           publishTestResults: true
           arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
       displayName: "Run tests"
@@ -49,7 +49,7 @@ steps:
       inputs:
           command: publish
           publishWebProjects: false
-          projects: "$(functionName)/$(functionName).csproj"
+          projects: "ui/$(functionName)/$(functionName).csproj"
           arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
           zipAfterPublish: False
       displayName: "Publish"
