@@ -25,12 +25,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.tests", "Common.test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "text-extractor.tests", "text-extractor.tests\text-extractor.tests.csproj", "{7118044D-9181-4171-8580-92C195779901}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "document-evaluator", "document-evaluator", "{A81DCB92-9634-4621-B33B-B93DB1C5B1D4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "document-evaluator", "document-evaluator\document-evaluator.csproj", "{B7A97DC6-12BA-4914-9EF6-9D9C0FA5D896}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "document-evaluator.tests", "document-evaluator.tests\document-evaluator.tests.csproj", "{31EC44C0-E22C-460F-9480-06F631EBCC44}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
