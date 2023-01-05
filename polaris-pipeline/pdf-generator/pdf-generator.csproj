@@ -1,0 +1,87 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <RootNamespace>pdf_generator</RootNamespace>
+    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+  </PropertyGroup>
+  <ItemGroup>
+
+    <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
+
+    <PackageReference Include="Aspose.Words" Version="22.2.0" />
+
+    <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
+
+    <PackageReference Include="FluentValidation" Version="11.2.0" />
+
+    <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.0" />
+
+    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
+
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.7.0" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.2" />
+    <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
+
+    <PackageReference Include="Aspose.Cells" Version="22.3.0" />
+    <PackageReference Include="Aspose.Slides.NET" Version="22.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.17" />
+    <PackageReference Include="Aspose.Imaging" Version="22.3.0" />
+    <PackageReference Include="Aspose.Diagram" Version="22.3.0" />
+    <PackageReference Include="Aspose.PDF" Version="22.3.0" />
+    <PackageReference Include="Aspose.Email" Version="22.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Domain\Requests\" />
+    <None Remove="Domain\Responses\" />
+    <None Remove="Handlers\" />
+    <None Remove="Domain\Exceptions\" />
+    <None Remove="Services\DocumentExtractionService\" />
+    <None Remove="Factories\" />
+    <None Remove="Microsoft.Extensions.Http" />
+    <None Remove="Aspose.Imaging" />
+    <None Remove="Aspose.Diagram" />
+    <None Remove="Aspose.HTML" />
+    <None Remove="Aspose.PDF" />
+    <None Remove="Aspose.Email" />
+    <None Remove="Microsoft.Extensions.Azure" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+   </None>
+    <None Update="Aspose.Total.NET.lic">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Handlers\" />
+    <Folder Include="Domain\Exceptions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Azure.Storage.Queues">
+      <HintPath>..\..\..\..\..\Users\marki\.nuget\packages\azure.storage.queues\12.12.0\lib\netstandard2.1\Azure.Storage.Queues.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
+    <ItemGroup>
+      <NativeAssetToCopy Include="$(PublishDir)bin\runtimes\win-x86\native\libSkiaSharp.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(PublishDir)bin" />
+    <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
+
+  </Target>
+</Project>

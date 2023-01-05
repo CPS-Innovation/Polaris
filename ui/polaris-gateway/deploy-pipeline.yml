@@ -1,0 +1,62 @@
+trigger:
+    branches:
+        include:
+            - main
+            - release/*
+            - bug/*
+
+    paths:
+        include:
+            - "rumpole-gateway/*"
+            - "RumpoleGateway/*"
+
+pool:
+    vmImage: "ubuntu-latest"
+
+variables:
+    functionName: "rumpole-gateway"
+    appName: "fa-rumpole-gateway"
+    buildConfiguration: "Release"
+
+steps:
+    - task: UseDotNet@2
+      displayName: "Use .NET Core sdk"
+      inputs:
+          packageType: "sdk"
+          version: "6.0.x"
+          includePreviewVersions: true
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: "build"
+          projects: "$(functionName)/$(functionName).csproj"
+          arguments: "--configuration $(buildConfiguration)"
+      displayName: "Build"
+
+    # - task: DotNetCoreCLI@2
+    #   inputs:
+    #       command: "test"
+    #       projects: "$(functionName)*tests/$(functionName)*tests.csproj"
+    #       publishTestResults: true
+    #       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+    #   displayName: "Run tests"
+
+    # - task: PublishCodeCoverageResults@1
+    #   inputs:
+    #       codeCoverageTool: "Cobertura"
+    #       summaryFileLocation: "**/*coverage.cobertura.xml"
+    #   displayName: "Publish code coverage results"
+
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: publish
+          publishWebProjects: false
+          projects: "$(functionName)/$(functionName).csproj"
+          arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
+          zipAfterPublish: False
+      displayName: "Publish"
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+          pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+          artifactName: "rumpole-gateway-drop"
+          publishLocation: "Container"
