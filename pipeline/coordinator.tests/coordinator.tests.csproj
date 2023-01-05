@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Factories\" />
+    <None Remove="Functions\" />
+    <None Remove="Functions\ActivityFunctions\" />
+    <None Remove="Functions\SubOrchestrators\" />
+    <None Remove="Handlers\" />
+    <None Remove="Moq" />
+    <None Remove="xunit" />
+    <None Remove="FluentAssertions" />
+    <None Remove="xunit.runner.visualstudio" />
+    <None Remove="AutoFixture" />
+    <None Remove="Microsoft.NET.Test.Sdk" />
+    <None Remove="Domain\" />
+    <None Remove="Domain\Tracker\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Factories\" />
+    <Folder Include="Functions\" />
+    <Folder Include="Functions\ActivityFunctions\" />
+    <Folder Include="Functions\SubOrchestrators\" />
+    <Folder Include="Domain\" />
+    <Folder Include="Domain\Tracker\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\coordinator\coordinator.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
+    <PackageReference Include="coverlet.msbuild" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="FluentAssertions" Version="6.7.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="AutoFixture" Version="4.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
+  </ItemGroup>
+</Project>
