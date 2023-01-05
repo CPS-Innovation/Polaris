@@ -2,26 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.CaseData;
-using RumpoleGateway.Domain.CaseData.Args;
-using RumpoleGateway.Factories;
-using RumpoleGateway.CaseDataImplementations.Tde.Clients;
-using RumpoleGateway.Services;
-using RumpoleGateway.CaseDataImplementations.Tde.Mappers;
-using RumpoleGateway.Domain.Exceptions;
+using PolarisGateway.Domain.CaseData;
+using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.Factories;
+using PolarisGateway.CaseDataImplementations.Ddei.Clients;
+using PolarisGateway.Services;
+using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
+using PolarisGateway.Domain.Exceptions;
 using System.IO;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Services
+namespace PolarisGateway.CaseDataImplementations.Ddei.Services
 {
-    public class TdeService : ICaseDataService, IDocumentService
+    public class DdeiService : ICaseDataService, IDocumentService
     {
-        private readonly ITdeClient _tdeClient;
+        private readonly IDdeiClient _tdeClient;
         private readonly ICaseDataArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
         private readonly ICaseDocumentsMapper _caseDocumentsMapper;
 
-        public TdeService(
-            ITdeClient tdeClient,
+        public DdeiService(
+            IDdeiClient tdeClient,
             ICaseDataArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
             ICaseDocumentsMapper caseDocumentsMapper)
@@ -72,7 +72,7 @@ namespace RumpoleGateway.CaseDataImplementations.Tde.Services
 
                 return documents
                     .Select(document => _caseDocumentsMapper.MapDocumentDetails(document))
-                    // todo: we get empty filenames coming back from TDE
+                    // todo: we get empty filenames coming back from DDEI
                     .Where(document => !string.IsNullOrWhiteSpace(document.FileName));
             }
 

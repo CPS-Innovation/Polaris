@@ -5,32 +5,31 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using RumpoleGateway.Clients.OnBehalfOfTokenClient;
+using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using RumpoleGateway.CaseDataImplementations.Tde.Options;
-using RumpoleGateway.Domain.CaseData;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Extensions;
-using RumpoleGateway.Services;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Domain.Exceptions;
-using RumpoleGateway.Helpers.Extension;
+using PolarisGateway.CaseDataImplementations.Ddei.Options;
+using PolarisGateway.Domain.CaseData;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Extensions;
+using PolarisGateway.Services;
+using PolarisGateway.Factories;
+using PolarisGateway.Domain.Exceptions;
 
-namespace RumpoleGateway.Functions.CaseDataApi.Case
+namespace PolarisGateway.Functions.CaseDataApi.Case
 {
-    public class CaseDataApiCaseDetails : BaseRumpoleFunction
+    public class CaseDataApiCaseDetails : BasePolarisFunction
     {
         private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly ICaseDataService _caseDataService;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly ILogger<CaseDataApiCaseDetails> _logger;
-        private readonly TdeOptions _tdeOptions;
+        private readonly DdeiOptions _tdeOptions;
 
         public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, ICaseDataService caseDataService,
-                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<TdeOptions> options)
+                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
         : base(logger, tokenValidator)
         {
             _onBehalfOfTokenClient = onBehalfOfTokenClient;

@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 using FuzzySharp;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Extensions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Extensions;
 
-namespace RumpoleGateway.Mappers
+namespace PolarisGateway.Mappers
 {
     public class StreamlinedSearchWordMapper : IStreamlinedSearchWordMapper
     {

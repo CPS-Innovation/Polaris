@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 
-namespace RumpoleGateway.Mappers
+namespace PolarisGateway.Mappers
 {
 	public interface ITrackerUrlMapper
 	{

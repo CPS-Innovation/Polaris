@@ -1,8 +1,8 @@
 ﻿// using System.Collections.Generic;
-// using RumpoleGateway.Domain.CaseData;
-// using RumpoleGateway.Domain.CoreDataApi.ResponseTypes;
+// using PolarisGateway.Domain.CaseData;
+// using PolarisGateway.Domain.CoreDataApi.ResponseTypes;
 
-// namespace RumpoleGateway.Tests.FakeData
+// namespace PolarisGateway.Tests.FakeData
 // {
 //     public class ResponseCaseDetailsFake
 //     {

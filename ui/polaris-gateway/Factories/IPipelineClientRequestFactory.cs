@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
 	public interface IPipelineClientRequestFactory
 	{

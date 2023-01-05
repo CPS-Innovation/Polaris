@@ -1,20 +1,20 @@
 using System.Net.Http;
 using Microsoft.Extensions.Options;
-using RumpoleGateway.Domain.CaseData.Args;
-using RumpoleGateway.CaseDataImplementations.Tde.Options;
+using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using System.IO;
 using System.Net.Http.Headers;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Factories
+namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
 {
-    public class TdeClientRequestFactory : ITdeClientRequestFactory
+    public class DdeiClientRequestFactory : IDdeiClientRequestFactory
     {
         private const string _correlationId = "Correlation-Id";
         private const string _functionKey = "x-functions-key";
 
-        private readonly TdeOptions _options;
+        private readonly DdeiOptions _options;
 
-        public TdeClientRequestFactory(IOptions<TdeOptions> tdeOptions)
+        public DdeiClientRequestFactory(IOptions<DdeiOptions> tdeOptions)
         {
             _options = tdeOptions.Value;
         }

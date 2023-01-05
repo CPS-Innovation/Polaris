@@ -4,19 +4,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using RumpoleGateway.Domain.Exceptions;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.Validation;
-using RumpoleGateway.Domain.Validators;
+using PolarisGateway.Domain.Exceptions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validation;
+using PolarisGateway.Domain.Validators;
 
-namespace RumpoleGateway.Functions
+namespace PolarisGateway.Functions
 {
-    public abstract class BaseRumpoleFunction
+    public abstract class BasePolarisFunction
     {
         private readonly ILogger _logger;
         private readonly IAuthorizationValidator _tokenValidator;
 
-        protected BaseRumpoleFunction(ILogger logger, IAuthorizationValidator tokenValidator)
+        protected BasePolarisFunction(ILogger logger, IAuthorizationValidator tokenValidator)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _tokenValidator = tokenValidator ?? throw new ArgumentNullException(nameof(tokenValidator));
@@ -29,7 +29,7 @@ namespace RumpoleGateway.Functions
             try
             {
                 result.CurrentCorrelationId = EstablishCorrelation(req);
-                // todo: only TDE-bound requests need to have an upstream token
+                // todo: only DDEI-bound requests need to have an upstream token
                 result.UpstreamToken = EstablishUpstreamToken(req);
                 result.AccessTokenValue = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
             }

@@ -4,32 +4,32 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Clients.RumpolePipeline;
+using PolarisGateway.Clients.PolarisPipeline;
 using System;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.Validators;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validators;
 
-namespace RumpoleGateway.Functions.RumpolePipeline
+namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class RumpolePipelineGetPdf : BaseRumpoleFunction
+    public class PolarisPipelineGetPdf : BasePolarisFunction
     {
         private readonly IBlobStorageClient _blobStorageClient;
-        private readonly ILogger<RumpolePipelineGetPdf> _logger;
+        private readonly ILogger<PolarisPipelineGetPdf> _logger;
 
-        public RumpolePipelineGetPdf(IBlobStorageClient blobStorageClient, ILogger<RumpolePipelineGetPdf> logger, IAuthorizationValidator tokenValidator)
+        public PolarisPipelineGetPdf(IBlobStorageClient blobStorageClient, ILogger<PolarisPipelineGetPdf> logger, IAuthorizationValidator tokenValidator)
         : base(logger, tokenValidator)
         {
             _blobStorageClient = blobStorageClient;
             _logger = logger;
         }
 
-        [FunctionName("RumpolePipelineGetPdf")]
+        [FunctionName("PolarisPipelineGetPdf")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pdfs/{*blobName}")] HttpRequest req, string blobName)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RumpolePipelineGetPdf - Run";
+            const string loggingName = "PolarisPipelineGetPdf - Run";
 
             try
             {

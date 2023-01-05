@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using RumpoleGateway.Domain.CaseData;
+using PolarisGateway.Domain.CaseData;
 
-namespace RumpoleGateway.Tests.FakeData
+namespace PolarisGateway.Tests.FakeData
 {
     public class CaseInformationFake
     {

@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using RumpoleGateway.Clients.DocumentRedaction;
-using RumpoleGateway.Domain.DocumentRedaction;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Functions.DocumentRedaction;
+using PolarisGateway.Clients.DocumentRedaction;
+using PolarisGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Functions.DocumentRedaction;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Functions.DocumentRedaction
+namespace PolarisGateway.Tests.Functions.DocumentRedaction
 {
     public class DocumentRedactionCheckInTests : SharedMethods.SharedMethods
     {

@@ -35,7 +35,7 @@ export interface ScaledPosition {
   usePdfCoordinates?: boolean;
 }
 
-// Note: for Rumpole we have no interest in content or comments etc for our
+// Note: for Polaris we have no interest in content or comments etc for our
   //  search highlihgts or redactions 
 
   // export interface Content {

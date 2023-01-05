@@ -2,14 +2,14 @@
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
-using RumpoleGateway.Domain.DocumentRedaction;
-using RumpoleGateway.Mappers;
+using PolarisGateway.Domain.DocumentRedaction;
+using PolarisGateway.Mappers;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Mappers
+namespace PolarisGateway.Tests.Mappers
 {
     public class RedactPdfRequestMapperTests
     {

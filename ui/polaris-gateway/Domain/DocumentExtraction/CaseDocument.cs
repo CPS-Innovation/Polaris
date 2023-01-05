@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace RumpoleGateway.Domain.DocumentExtraction
+namespace PolarisGateway.Domain.DocumentExtraction
 {
 	public class CaseDocument
 	{

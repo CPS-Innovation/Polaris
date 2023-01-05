@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace RumpoleGateway.Services
+namespace PolarisGateway.Services
 {
     public interface ISasGeneratorService
     {

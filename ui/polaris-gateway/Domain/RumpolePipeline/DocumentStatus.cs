@@ -1,4 +1,4 @@
-﻿namespace RumpoleGateway.Domain.RumpolePipeline
+﻿namespace PolarisGateway.Domain.PolarisPipeline
 {
 	public enum DocumentStatus
 	{

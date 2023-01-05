@@ -1,4 +1,4 @@
-﻿namespace RumpoleGateway;
+﻿namespace PolarisGateway;
 
 public static class ConfigurationKeys
 {
@@ -12,12 +12,12 @@ public static class ConfigurationKeys
     public const string ValidAudience = "CallingAppValidAudience";
     public const string CoreDataApiScope = "CoreDataApiScope";
     public const string StubBlobStorageConnectionString = "StubBlobStorageConnectionString";
-    public const string PipelineCoordinatorBaseUrl = "RumpolePipelineCoordinatorBaseUrl";
-    public const string PipelineCoordinatorFunctionAppKey = "RumpolePipelineCoordinatorFunctionAppKey";
-    public const string PipelineCoordinatorScope = "RumpolePipelineCoordinatorScope";
-    public const string PipelineRedactPdfScope = "RumpolePipelineRedactPdfScope";
-    public const string PipelineRedactPdfBaseUrl = "RumpolePipelineRedactPdfBaseUrl";
-    public const string PipelineRedactPdfFunctionAppKey = "RumpolePipelineRedactPdfFunctionAppKey";
+    public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
+    public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
+    public const string PipelineCoordinatorScope = "PolarisPipelineCoordinatorScope";
+    public const string PipelineRedactPdfScope = "PolarisPipelineRedactPdfScope";
+    public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
+    public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
 }
 
 public static class AuthenticationKeys

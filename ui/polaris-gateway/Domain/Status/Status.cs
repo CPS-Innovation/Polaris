@@ -1,4 +1,4 @@
-﻿namespace RumpoleGateway.Domain.Status
+﻿namespace PolarisGateway.Domain.Status
 {
 
 	public class Status

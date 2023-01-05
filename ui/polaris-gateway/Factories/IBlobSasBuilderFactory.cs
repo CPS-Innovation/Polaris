@@ -1,7 +1,7 @@
 ﻿using System;
 using Azure.Storage.Sas;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
     public interface IBlobSasBuilderFactory
     {

@@ -9,15 +9,15 @@
 // using GraphQL.Client.Http;
 // using Microsoft.Extensions.Logging;
 // using Moq;
-// using RumpoleGateway.Clients.CoreDataApi;
-// using RumpoleGateway.Domain.CaseData;
-// using RumpoleGateway.Domain.CoreDataApi.ResponseTypes;
-// using RumpoleGateway.Extensions;
-// using RumpoleGateway.Factories.AuthenticatedGraphQLHttpRequestFactory;
-// using RumpoleGateway.Tests.FakeData;
+// using PolarisGateway.Clients.CoreDataApi;
+// using PolarisGateway.Domain.CaseData;
+// using PolarisGateway.Domain.CoreDataApi.ResponseTypes;
+// using PolarisGateway.Extensions;
+// using PolarisGateway.Factories.AuthenticatedGraphQLHttpRequestFactory;
+// using PolarisGateway.Tests.FakeData;
 // using Xunit;
 
-// namespace RumpoleGateway.Tests.Clients.CoreDataApi
+// namespace PolarisGateway.Tests.Clients.CoreDataApi
 // {
 //     public class CoreDataApiClientTests : IClassFixture<ResponseCaseDetailsFake>
 //     {

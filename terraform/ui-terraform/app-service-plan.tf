@@ -1,9 +1,9 @@
 #################### App Service Plan ####################
 
-resource "azurerm_service_plan" "asp_rumpole" {
+resource "azurerm_service_plan" "asp_polaris" {
   name                = "asp-${local.resource_name}"
-  location            = azurerm_resource_group.rg_rumpole.location
-  resource_group_name = azurerm_resource_group.rg_rumpole.name
+  location            = azurerm_resource_group.rg_polaris.location
+  resource_group_name = azurerm_resource_group.rg_polaris.name
   os_type             = "Linux"
   sku_name            = var.app_service_plan_sku.size
 
@@ -12,14 +12,14 @@ resource "azurerm_service_plan" "asp_rumpole" {
   }
 }
 
-resource "azurerm_monitor_autoscale_setting" "amas_rumpole" {
+resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
   name                = "amas-${local.resource_name}"
   count               = var.app_service_plan_sku.tier != "Basic" ? 1 : 0
-  resource_group_name = azurerm_resource_group.rg_rumpole.name
-  location            = azurerm_resource_group.rg_rumpole.location
-  target_resource_id  = azurerm_service_plan.asp_rumpole.id
+  resource_group_name = azurerm_resource_group.rg_polaris.name
+  location            = azurerm_resource_group.rg_polaris.location
+  target_resource_id  = azurerm_service_plan.asp_polaris.id
   profile {
-    name = "Rumpole Performance Scaling Profile"
+    name = "Polaris Performance Scaling Profile"
     capacity {
       default = 1
       minimum = 1
@@ -28,7 +28,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_rumpole" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_service_plan.asp_rumpole.id
+        metric_resource_id = azurerm_service_plan.asp_polaris.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -46,7 +46,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_rumpole" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_service_plan.asp_rumpole.id
+        metric_resource_id = azurerm_service_plan.asp_polaris.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"

@@ -10,13 +10,13 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Wrappers;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Factories;
+using PolarisGateway.Wrappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Clients.RumpolePipeline
+namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
 	public class PipelineClientTests
 	{
@@ -26,7 +26,7 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
 		private readonly string _upstreamToken;
 		private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _getTrackerHttpResponseMessage;
-		private readonly string _rumpolePipelineFunctionAppKey;
+		private readonly string _polarisPipelineFunctionAppKey;
 		private readonly Tracker _tracker;
 		private readonly Guid _correlationId;
 
@@ -50,7 +50,7 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
 			{
 				Content = new StringContent(JsonConvert.SerializeObject(_tracker))
 			};
-			_rumpolePipelineFunctionAppKey = fixture.Create<string>();
+			_polarisPipelineFunctionAppKey = fixture.Create<string>();
 
 			var mockTriggerCoordinatorHttpMessageHandler = new Mock<HttpMessageHandler>();
 			mockTriggerCoordinatorHttpMessageHandler.Protected()
@@ -70,10 +70,10 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
 
 			var mockPipelineClientLogger = new Mock<ILogger<PipelineClient>>();
 
-			mockConfiguration.Setup(config => config[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]).Returns(_rumpolePipelineFunctionAppKey);
+			mockConfiguration.Setup(config => config[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]).Returns(_polarisPipelineFunctionAppKey);
 
-			_mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_rumpolePipelineFunctionAppKey}", _accessToken, _upstreamToken, It.IsAny<Guid>())).Returns(_httpRequestMessage);
-			_mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}/tracker?code={_rumpolePipelineFunctionAppKey}", _accessToken, It.IsAny<Guid>())).Returns(_httpRequestMessage);
+			_mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}", _accessToken, _upstreamToken, It.IsAny<Guid>())).Returns(_httpRequestMessage);
+			_mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}/tracker?code={_polarisPipelineFunctionAppKey}", _accessToken, It.IsAny<Guid>())).Returns(_httpRequestMessage);
 
 			var stringContent = _getTrackerHttpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 			mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<Tracker>(stringContent, It.IsAny<Guid>())).Returns(_tracker);
@@ -87,13 +87,13 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
 		{
 			await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _accessToken, _upstreamToken, false, _correlationId);
 
-			_mockRequestFactory.Verify(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_rumpolePipelineFunctionAppKey}", _accessToken, _upstreamToken, _correlationId));
+			_mockRequestFactory.Verify(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}", _accessToken, _upstreamToken, _correlationId));
 		}
 
 		[Fact]
 		public async Task TriggerCoordinator_UrlHasForceQueryWhenForceIsTrue()
 		{
-			var url = $"cases/{_caseUrn}/{_caseId}?code={_rumpolePipelineFunctionAppKey}&&force=true";
+			var url = $"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}&&force=true";
 			_mockRequestFactory.Setup(factory => factory.CreateGet(url, _accessToken, _upstreamToken, It.IsAny<Guid>())).Returns(_httpRequestMessage);
 
 			await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _accessToken, _upstreamToken, true, _correlationId);

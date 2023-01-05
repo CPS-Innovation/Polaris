@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace RumpoleGateway.Extensions;
+namespace PolarisGateway.Extensions;
 
 public static class JsonExtensions
 {

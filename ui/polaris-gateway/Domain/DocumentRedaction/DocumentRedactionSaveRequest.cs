@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace RumpoleGateway.Domain.DocumentRedaction
+namespace PolarisGateway.Domain.DocumentRedaction
 {
     public class DocumentRedactionSaveRequest
     {

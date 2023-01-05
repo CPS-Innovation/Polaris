@@ -5,13 +5,13 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Extensions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Extensions;
 
-namespace RumpoleGateway.Functions.Status
+namespace PolarisGateway.Functions.Status
 {
-	public class Status : BaseRumpoleFunction
+	public class Status : BasePolarisFunction
 	{
 		private readonly ILogger<Status> _logger;
 		

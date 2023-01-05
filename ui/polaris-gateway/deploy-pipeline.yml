@@ -7,15 +7,15 @@ trigger:
 
     paths:
         include:
-            - "rumpole-gateway/*"
-            - "RumpoleGateway/*"
+            - "polaris-gateway/*"
+            - "PolarisGateway/*"
 
 pool:
     vmImage: "ubuntu-latest"
 
 variables:
-    functionName: "rumpole-gateway"
-    appName: "fa-rumpole-gateway"
+    functionName: "polaris-gateway"
+    appName: "fa-polaris-gateway"
     buildConfiguration: "Release"
 
 steps:
@@ -58,5 +58,5 @@ steps:
     - task: PublishBuildArtifacts@1
       inputs:
           pathtoPublish: "$(Build.ArtifactStagingDirectory)"
-          artifactName: "rumpole-gateway-drop"
+          artifactName: "polaris-gateway-drop"
           publishLocation: "Container"

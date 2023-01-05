@@ -10,12 +10,12 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Services;
-using RumpoleGateway.Wrappers;
+using PolarisGateway.Factories;
+using PolarisGateway.Services;
+using PolarisGateway.Wrappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Services
+namespace PolarisGateway.Tests.Services
 {
     public class SasGeneratorServiceTests
     {

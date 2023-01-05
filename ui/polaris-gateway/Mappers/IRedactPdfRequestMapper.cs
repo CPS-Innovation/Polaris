@@ -1,7 +1,7 @@
 ﻿using System;
-using RumpoleGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.DocumentRedaction;
 
-namespace RumpoleGateway.Mappers
+namespace PolarisGateway.Mappers
 {
     public interface IRedactPdfRequestMapper
     {

@@ -1,7 +1,7 @@
-using BusinessDomain = RumpoleGateway.Domain.CaseData;
-using ApiDomain = RumpoleGateway.CaseDataImplementations.Tde.Domain;
+using BusinessDomain = PolarisGateway.Domain.CaseData;
+using ApiDomain = PolarisGateway.CaseDataImplementations.Ddei.Domain;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Mappers
+namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
     public interface ICaseDetailsMapper
     {

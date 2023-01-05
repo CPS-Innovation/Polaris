@@ -1,7 +1,7 @@
 
 using System.Collections.Generic;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Domain
+namespace PolarisGateway.CaseDataImplementations.Ddei.Domain
 {
     public class CaseDefendant
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using FluentValidation.Results;
 
-namespace RumpoleGateway.Domain.Validation
+namespace PolarisGateway.Domain.Validation
 {
     public class ValidatableRequest<T>
     {

@@ -4,9 +4,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
+using PolarisGateway.Domain.Logging;
 
-namespace RumpoleGateway.Clients.OnBehalfOfTokenClient
+namespace PolarisGateway.Clients.OnBehalfOfTokenClient
 {
     [ExcludeFromCodeCoverage]
     public class OnBehalfOfTokenClient : IOnBehalfOfTokenClient

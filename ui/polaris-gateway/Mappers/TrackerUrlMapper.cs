@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
+using PolarisGateway.Domain.Logging;
 
-namespace RumpoleGateway.Mappers
+namespace PolarisGateway.Mappers
 {
 	public class TrackerUrlMapper : ITrackerUrlMapper
 	{

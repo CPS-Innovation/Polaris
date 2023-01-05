@@ -68,8 +68,7 @@ namespace coordinator.tests.Functions
             
             _mockTracker.Setup(tracker => tracker.GetDocuments()).ReturnsAsync(_trackerDocuments);
             _mockTracker.Setup(tracker => tracker.IsStale(false)).ReturnsAsync(true); //default, marked as Stale to perform a new run
-            _mockTracker.Setup(tracker => tracker.RegisterDocumentIds(It.IsAny<RegisterDocumentIdsArg>())).ReturnsAsync(documentEvaluationActivityPayload);
-
+            
             _mockDurableOrchestrationContext.Setup(context => context.GetInput<CoordinatorOrchestrationPayload>())
                 .Returns(_payload);
             _mockDurableOrchestrationContext.Setup(context => context.InstanceId)

@@ -3,25 +3,25 @@ using Azure.Search.Documents;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
-using RumpoleGateway.Factories;
+using PolarisGateway.Factories;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Factories
+namespace PolarisGateway.Tests.Factories
 {
 	public class SearchClientFactoryTests
 	{
-        private readonly Domain.RumpolePipeline.SearchClientOptions _searchClientOptions;
+        private readonly Domain.PolarisPipeline.SearchClientOptions _searchClientOptions;
 
         private readonly ISearchClientFactory _searchClientFactory;
 
 		public SearchClientFactoryTests()
 		{
             var fixture = new Fixture();
-			_searchClientOptions = fixture.Build<Domain.RumpolePipeline.SearchClientOptions>()
+			_searchClientOptions = fixture.Build<Domain.PolarisPipeline.SearchClientOptions>()
 									.With(o => o.EndpointUrl, "https://www.google.co.uk")
 									.Create();
 
-            var mockSearchClientOptions = new Mock<IOptions<Domain.RumpolePipeline.SearchClientOptions>>();
+            var mockSearchClientOptions = new Mock<IOptions<Domain.PolarisPipeline.SearchClientOptions>>();
 
 			mockSearchClientOptions.Setup(options => options.Value).Returns(_searchClientOptions);
 

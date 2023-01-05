@@ -2,9 +2,9 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
+using PolarisGateway.Domain.Logging;
 
-namespace RumpoleGateway.Wrappers
+namespace PolarisGateway.Wrappers
 {
     public class BlobSasBuilderWrapper : IBlobSasBuilderWrapper
     {

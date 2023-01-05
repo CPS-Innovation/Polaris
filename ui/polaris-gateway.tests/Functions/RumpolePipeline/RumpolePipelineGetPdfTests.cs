@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Functions.RumpolePipeline;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Functions.PolarisPipeline;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Functions.RumpolePipeline
+namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
-	public class RumpolePipelineGetPdfTests : SharedMethods.SharedMethods
+	public class PolarisPipelineGetPdfTests : SharedMethods.SharedMethods
 	{
         private readonly string _blobName;
 		private readonly Stream _blobStream;
@@ -23,29 +23,29 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		private readonly Mock<IBlobStorageClient> _mockBlobStorageClient;
 		private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
 
-        private readonly RumpolePipelineGetPdf _rumpolePipelineGetPdf;
+        private readonly PolarisPipelineGetPdf _polarisPipelineGetPdf;
 
-		public RumpolePipelineGetPdfTests()
+		public PolarisPipelineGetPdfTests()
 		{
             var fixture = new Fixture();
 			_blobName = fixture.Create<string>();
 			_blobStream = new MemoryStream();
 
 			_mockBlobStorageClient = new Mock<IBlobStorageClient>();
-            var mockLogger = new Mock<ILogger<RumpolePipelineGetPdf>>();
+            var mockLogger = new Mock<ILogger<PolarisPipelineGetPdf>>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
 
             _mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>())).ReturnsAsync(_blobStream);
 
-			_rumpolePipelineGetPdf = new RumpolePipelineGetPdf(_mockBlobStorageClient.Object, mockLogger.Object, _mockTokenValidator.Object);
+			_polarisPipelineGetPdf = new PolarisPipelineGetPdf(_mockBlobStorageClient.Object, mockLogger.Object, _mockTokenValidator.Object);
 		}
 		
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessCorrelationIdIsMissing()
 		{
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequestWithoutCorrelationId(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutCorrelationId(), _blobName);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -53,7 +53,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessTokenIsMissing()
 		{
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequestWithoutToken(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutToken(), _blobName);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -62,7 +62,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
         {
 	        _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName);
 
 			response.Should().BeOfType<UnauthorizedObjectResult>();
 		}
@@ -73,7 +73,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[InlineData(" ")]
 		public async Task Run_ReturnsBadRequestWhenBlobNameIsInvalid(string blobName)
 		{
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequest(), blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), blobName);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -83,7 +83,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		{
 			_mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>())).ReturnsAsync(default(Stream));
 
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName);
 
 			response.Should().BeOfType<NotFoundObjectResult>();
 		}
@@ -91,7 +91,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsOk()
 		{
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName);
 
 			response.Should().BeOfType<OkObjectResult>();
 		}
@@ -99,7 +99,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsBlobStream()
 		{
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequest(), _blobName) as OkObjectResult;
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName) as OkObjectResult;
 
 			response?.Value.Should().Be(_blobStream);
 		}
@@ -110,7 +110,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 			_mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>()))
 				.ThrowsAsync(new RequestFailedException(500, "Test request failed exception"));
 
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequest(), _blobName) as ObjectResult;
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName) as ObjectResult;
 
 			response?.StatusCode.Should().Be(500);
 		}
@@ -121,7 +121,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 			_mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>()))
 				.ThrowsAsync(new Exception());
 
-			var response = await _rumpolePipelineGetPdf.Run(CreateHttpRequest(), _blobName) as ObjectResult;
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName) as ObjectResult;
 
 			response?.StatusCode.Should().Be(500);
 		}

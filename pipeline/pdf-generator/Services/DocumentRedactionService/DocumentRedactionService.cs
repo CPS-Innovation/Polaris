@@ -46,7 +46,7 @@ namespace pdf_generator.Services.DocumentRedactionService
             var fileNameWithoutExtension = fileName.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) > -1 ? fileName.Split(".pdf", StringSplitOptions.RemoveEmptyEntries)[0] : fileName;
 
             var newFileName = $"{fileNameWithoutExtension}_{DateTime.Now.Ticks.GetHashCode().ToString("x").ToUpper()}.pdf"; //restore save redaction to same storage for now, but with additional randomised identifier
-            //this will be replaced shortly by the TDE upload call
+            //this will be replaced shortly by the DDEI upload call
 
             //2. Apply UI instructions by drawing boxes according to co-ordinate data onto existing PDF
             _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), "Apply UI instructions by drawing boxes according to co-ordinate data onto existing PDF");

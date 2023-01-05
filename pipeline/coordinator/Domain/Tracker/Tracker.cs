@@ -53,7 +53,7 @@ namespace coordinator.Domain.Tracker
             return Task.CompletedTask;
         }
 
-        public Task<DocumentEvaluationActivityPayload> RegisterDocumentIds(RegisterDocumentIdsArg arg)
+        public Task RegisterDocumentIds(RegisterDocumentIdsArg arg)
         {
             var evaluationResults = new DocumentEvaluationActivityPayload(arg.CaseUrn, arg.CaseId, arg.CorrelationId);
             if (Documents.Count == 0) //no documents yet loaded in the tracker for this case, grab them all
@@ -92,7 +92,7 @@ namespace coordinator.Domain.Tracker
                 }
             }
 
-            return Task.FromResult(evaluationResults);
+            return Task.CompletedTask;
         }
 
         public Task ProcessEvaluatedDocuments()

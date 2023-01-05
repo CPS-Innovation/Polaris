@@ -8,8 +8,8 @@ app_service_plan_sku = {
     tier = "Basic"
 }
 
-rumpole_webapp_details = {
-    valid_audience = "https://CPSGOVUK.onmicrosoft.com/fa-rumpole-qa-gateway"
+polaris_webapp_details = {
+    valid_audience = "https://CPSGOVUK.onmicrosoft.com/fa-polaris-qa-gateway"
     valid_scopes = "user_impersonation"
     valid_roles = ""
 }

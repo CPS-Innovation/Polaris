@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
+using PolarisGateway.Domain.Logging;
 
-namespace RumpoleGateway.Clients.RumpolePipeline
+namespace PolarisGateway.Clients.PolarisPipeline
 {
 	public class BlobStorageClient : IBlobStorageClient
 	{

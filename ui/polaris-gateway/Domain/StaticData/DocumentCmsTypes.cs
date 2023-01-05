@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using RumpoleGateway.Domain.CaseData;
+using PolarisGateway.Domain.CaseData;
 
-namespace RumpoleGateway.Domain.StaticData
+namespace PolarisGateway.Domain.StaticData
 {
     public static class DocumentCmsTypes
     {

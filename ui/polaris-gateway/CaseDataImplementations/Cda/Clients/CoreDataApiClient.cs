@@ -1,18 +1,18 @@
 ﻿using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
-using RumpoleGateway.CaseDataImplementations.Cda.Domain.ResponseTypes;
-using RumpoleGateway.CaseDataImplementations.Cda.Domain.CaseDetails;
+using PolarisGateway.CaseDataImplementations.Cda.Domain.ResponseTypes;
+using PolarisGateway.CaseDataImplementations.Cda.Domain.CaseDetails;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Extensions;
-using RumpoleGateway.CaseDataImplementations.Cda.Factories;
-using RumpoleGateway.CaseDataImplementations.Cda.Exceptions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Extensions;
+using PolarisGateway.CaseDataImplementations.Cda.Factories;
+using PolarisGateway.CaseDataImplementations.Cda.Exceptions;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Clients
+namespace PolarisGateway.CaseDataImplementations.Cda.Clients
 {
     public class CoreDataApiClient : ICoreDataApiClient
     {

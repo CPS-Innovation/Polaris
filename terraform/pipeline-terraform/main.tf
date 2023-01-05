@@ -35,7 +35,7 @@ terraform {
     resource_group_name  = "rg-terraform"
     //storage_account_name = "cpsqastorageterraform" //QA
     storage_account_name = "cpsdevstorageterraform" //DEV
-    container_name       = "terraform-rumpole-pipeline"
+    container_name       = "terraform-polaris-pipeline"
     key                  = "terraform.tfstate"
     access_key           = "[manually assigned]"
   }*/

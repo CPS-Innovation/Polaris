@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Factories;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Factories;
 
-namespace RumpoleGateway.Services
+namespace PolarisGateway.Services
 {
     public class SasGeneratorService : ISasGeneratorService
     {

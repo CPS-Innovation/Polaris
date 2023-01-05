@@ -1,10 +1,10 @@
 using System.Linq;
-using BusinessDomain = RumpoleGateway.Domain.CaseData;
-using ApiDomain = RumpoleGateway.CaseDataImplementations.Tde.Domain;
+using BusinessDomain = PolarisGateway.Domain.CaseData;
+using ApiDomain = PolarisGateway.CaseDataImplementations.Ddei.Domain;
 using System;
-using RumpoleGateway.Domain.StaticData;
+using PolarisGateway.Domain.StaticData;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Mappers
+namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
     public class CaseDocumentsMapper : ICaseDocumentsMapper
     {

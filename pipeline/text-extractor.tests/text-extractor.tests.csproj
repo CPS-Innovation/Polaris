@@ -22,7 +22,6 @@
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
     <PackageReference Include="AutoFixture.AutoMoq" Version="4.17.0" />
-    <PackageReference Include="Azure.Storage.Queues" Version="12.12.0" />
     <PackageReference Include="coverlet.msbuild" Version="3.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

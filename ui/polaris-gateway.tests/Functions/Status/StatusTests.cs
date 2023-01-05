@@ -4,14 +4,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NSubstitute;
-using RumpoleGateway.Domain.Validators;
+using PolarisGateway.Domain.Validators;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Functions.Status
+namespace PolarisGateway.Tests.Functions.Status
 {
 	public class CoreDataApiCaseInformationByUrnFunctionTests : SharedMethods.SharedMethods
 	{
-		private readonly ILogger<RumpoleGateway.Functions.Status.Status> _mockLogger = Substitute.For<ILogger<RumpoleGateway.Functions.Status.Status>>();
+		private readonly ILogger<PolarisGateway.Functions.Status.Status> _mockLogger = Substitute.For<ILogger<PolarisGateway.Functions.Status.Status>>();
 		private readonly IAuthorizationValidator _mockTokenValidator = Substitute.For<IAuthorizationValidator>();
 
 		public CoreDataApiCaseInformationByUrnFunctionTests()
@@ -72,9 +72,9 @@ namespace RumpoleGateway.Tests.Functions.Status
 			Assert.Equal(200, results?.StatusCode);
 		}
 
-		private RumpoleGateway.Functions.Status.Status GetStatusFunction()
+		private PolarisGateway.Functions.Status.Status GetStatusFunction()
 		{
-			return new RumpoleGateway.Functions.Status.Status(_mockLogger, _mockTokenValidator);
+			return new PolarisGateway.Functions.Status.Status(_mockLogger, _mockTokenValidator);
 		}
 
 	}

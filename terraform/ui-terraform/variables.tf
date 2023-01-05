@@ -2,7 +2,7 @@
 
 variable "resource_name_prefix" {
   type = string
-  default = "rumpole"
+  default = "polaris"
 }
 
 variable "polaris_resource_name_prefix" {
@@ -40,7 +40,7 @@ variable "environment_tag" {
   description = "Environment tag value"
 }
 
-variable "rumpole_webapp_details" {
+variable "polaris_webapp_details" {
   type = object({
     valid_audience = string
     valid_scopes = string

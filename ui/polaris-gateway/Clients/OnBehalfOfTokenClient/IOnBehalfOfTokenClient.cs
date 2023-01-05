@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace RumpoleGateway.Clients.OnBehalfOfTokenClient
+namespace PolarisGateway.Clients.OnBehalfOfTokenClient
 {
     public interface IOnBehalfOfTokenClient
     {

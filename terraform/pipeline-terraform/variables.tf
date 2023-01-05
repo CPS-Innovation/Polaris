@@ -2,7 +2,7 @@
 
 variable "resource_name_prefix" {
   type = string
-  default = "rumpole-pipeline"
+  default = "polaris-pipeline"
 }
 
 variable "env" {
@@ -21,12 +21,5 @@ variable "ddei_config" {
     base_url = string
     list_documents_function_key = string
     get_document_function_key = string
-  })
-}
-
-variable "queue_config" {
-  type = object({
-    update_search_index_by_version_queue_name = string
-    update_search_index_by_blob_name_queue_name = string
   })
 }

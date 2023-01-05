@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
-namespace RumpoleGateway.Domain.Validators
+namespace PolarisGateway.Domain.Validators
 {
     public interface IAuthorizationValidator
     {

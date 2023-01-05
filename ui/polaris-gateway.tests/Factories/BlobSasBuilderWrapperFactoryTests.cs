@@ -3,11 +3,11 @@ using Azure.Storage.Sas;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Wrappers;
+using PolarisGateway.Factories;
+using PolarisGateway.Wrappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Factories
+namespace PolarisGateway.Tests.Factories
 {
     public class BlobSasBuilderWrapperFactoryTests
     {

@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 using Azure.Messaging.EventGrid;
 using Azure.Messaging.EventGrid.SystemEvents;
 using Common.Constants;
-using Common.Domain.QueueItems;
 using Common.Logging;
-using Common.Services.StorageQueueService.Contracts;
-using Common.Wrappers;
+using Common.Services.SearchIndexService.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace text_extractor.Functions;
@@ -20,17 +17,12 @@ namespace text_extractor.Functions;
 public class HandleDocumentDeletedEvent
 {
     private readonly ILogger<HandleDocumentDeletedEvent> _logger;
-    private readonly IJsonConvertWrapper _jsonConvertWrapper;
-    private readonly IConfiguration _configuration;
-    private readonly IStorageQueueService _storageQueueService;
+    private readonly ISearchIndexService _searchIndexService;
     
-    public HandleDocumentDeletedEvent(ILogger<HandleDocumentDeletedEvent> logger, IJsonConvertWrapper jsonConvertWrapper, 
-        IConfiguration configuration, IStorageQueueService storageQueueService)
+    public HandleDocumentDeletedEvent(ILogger<HandleDocumentDeletedEvent> logger, ISearchIndexService searchIndexService)
     {
         _logger = logger;
-        _jsonConvertWrapper = jsonConvertWrapper;
-        _configuration = configuration;
-        _storageQueueService = storageQueueService;
+        _searchIndexService = searchIndexService;
     }
 
     /// <summary>
@@ -69,11 +61,10 @@ public class HandleDocumentDeletedEvent
                 var caseId = long.Parse(blobDetails[2]);
                 var blobName = blobDetails[4];
                 
-                await _storageQueueService.AddNewMessageAsync(_jsonConvertWrapper.SerializeObject(new UpdateSearchIndexByBlobNameQueueItem(caseId, 
-                    blobName, correlationId)), _configuration[ConfigKeys.SharedKeys.UpdateSearchIndexByBlobNameQueueName]);
-                
-                var searchIndexUpdated = $"The search index update was queued and should remove any joint references to caseId: {caseId} and blobName: '{blobName}'";
+                var searchIndexUpdated = $"The search index update event was received and should remove any joint references to caseId: {caseId} and blobName: '{blobName}'";
                 _logger.LogMethodFlow(correlationId, loggerSource, searchIndexUpdated);
+                
+                await _searchIndexService.RemoveResultsByBlobNameAsync(caseId, blobName, correlationId);
             }
             else
             {

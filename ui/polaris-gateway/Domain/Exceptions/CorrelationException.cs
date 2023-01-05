@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RumpoleGateway.Domain.Exceptions;
+namespace PolarisGateway.Domain.Exceptions;
 
 [Serializable]
 public class CorrelationException : Exception

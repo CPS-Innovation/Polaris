@@ -4,11 +4,11 @@
 // using Microsoft.Extensions.Logging;
 // using Moq;
 // using Newtonsoft.Json;
-// using RumpoleGateway.Domain.CoreDataApi.ResponseTypes;
-// using RumpoleGateway.Wrappers;
+// using PolarisGateway.Domain.CoreDataApi.ResponseTypes;
+// using PolarisGateway.Wrappers;
 // using Xunit;
 
-// namespace RumpoleGateway.tests.Wrappers
+// namespace PolarisGateway.tests.Wrappers
 // {
 //     public class JsonConvertWrapperTests
 //     {

@@ -5,24 +5,24 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using RumpoleGateway.Clients.OnBehalfOfTokenClient;
-using RumpoleGateway.Domain.DocumentRedaction;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Helpers.Extension;
+using PolarisGateway.Clients.OnBehalfOfTokenClient;
+using PolarisGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Helpers.Extension;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Extensions;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Mappers;
-using RumpoleGateway.Services;
-using RumpoleGateway.Domain.CaseData;
-using RumpoleGateway.Domain.CaseData.Args;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Extensions;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Mappers;
+using PolarisGateway.Services;
+using PolarisGateway.Domain.CaseData;
+using PolarisGateway.Domain.CaseData.Args;
 
-namespace RumpoleGateway.Functions.DocumentRedaction
+namespace PolarisGateway.Functions.DocumentRedaction
 {
-    public class DocumentRedactionSaveRedactions : BaseRumpoleFunction
+    public class DocumentRedactionSaveRedactions : BasePolarisFunction
     {
         private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly IRedactionClient _redactionClient;

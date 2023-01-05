@@ -1,4 +1,4 @@
-﻿// using RumpoleGateway.Extensions;
+﻿// using PolarisGateway.Extensions;
 // using System;
 // using System.Linq;
 // using AutoFixture;
@@ -8,7 +8,7 @@
 // using GraphQL.Client.Serializer.Newtonsoft;
 // using Xunit;
 
-// namespace RumpoleGateway.Tests.Extensions
+// namespace PolarisGateway.Tests.Extensions
 // {
 //     public class AuthenticatedGraphQlHttpRequestTests
 //     {

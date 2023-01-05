@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace RumpoleGateway.Domain.Logging;
+namespace PolarisGateway.Domain.Logging;
 
 public static class LoggingExtensions
 {

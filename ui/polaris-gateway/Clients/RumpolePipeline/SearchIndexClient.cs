@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure.Search.Documents;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Factories;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Factories;
 
-namespace RumpoleGateway.Clients.RumpolePipeline
+namespace PolarisGateway.Clients.PolarisPipeline
 {
 	public class SearchIndexClient : ISearchIndexClient
 	{

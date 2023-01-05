@@ -1,10 +1,10 @@
 using System.IO;
 using System.Net.Http;
-using RumpoleGateway.Domain.CaseData.Args;
+using PolarisGateway.Domain.CaseData.Args;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Factories
+namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
 {
-    public interface ITdeClientRequestFactory
+    public interface IDdeiClientRequestFactory
     {
         HttpRequestMessage CreateListCasesRequest(UrnArg arg);
 

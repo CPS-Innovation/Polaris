@@ -14,7 +14,7 @@ resource "azurerm_function_app" "fa_pdf_generator" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"     = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"         = ""
     "AzureWebJobsStorage"                     = azurerm_storage_account.sa.primary_connection_string
-    "BlobServiceUrl"                          = "https://sacps${var.env != "prod" ? var.env : ""}rumpolepipeline.blob.core.windows.net/"
+    "BlobServiceUrl"                          = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                = "documents"
     "CallingAppTenantId"                      = data.azurerm_client_config.current.tenant_id
     "CallingAppValidAudience"                 = "api://fa-${local.resource_name}-pdf-generator"
@@ -141,7 +141,7 @@ resource "azuread_service_principal_password" "sp_fa_pdf_generator_pw" {
   service_principal_id = module.azurerm_service_principal_fa_pdf_generator.object_id
 }
 
-resource "azuread_service_principal_delegated_permission_grant" "rumpole_pdf_generator_grant_access_to_msgraph" {
+resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_generator_grant_access_to_msgraph" {
   service_principal_object_id          = module.azurerm_service_principal_fa_pdf_generator.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]

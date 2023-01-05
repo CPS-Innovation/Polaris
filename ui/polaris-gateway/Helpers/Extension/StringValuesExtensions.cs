@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Primitives;
 
-namespace RumpoleGateway.Helpers.Extension
+namespace PolarisGateway.Helpers.Extension
 {
     [ExcludeFromCodeCoverage]
     public static class StringValuesExtensions

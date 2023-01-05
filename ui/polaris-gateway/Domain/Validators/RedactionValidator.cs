@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using RumpoleGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.DocumentRedaction;
 
-namespace RumpoleGateway.Domain.Validators
+namespace PolarisGateway.Domain.Validators
 {
     public class RedactionValidator : AbstractValidator<RedactionDefinition>
     {

@@ -1,11 +1,11 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Mappers;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Mappers;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
 	public class TriggerCoordinatorResponseFactory : ITriggerCoordinatorResponseFactory
 	{

@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>RumpoleGateway.Tests</RootNamespace>
+    <RootNamespace>PolarisGateway.Tests</RootNamespace>
 
     <IsPackable>false</IsPackable>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,11 +39,11 @@
     <PackageReference Include="AutoFixture" Version="4.17.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\rumpole-gateway\rumpole-gateway.csproj" />
+    <ProjectReference Include="..\polaris-gateway\polaris-gateway.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Functions\RumpolePipeline\" />
-    <None Remove="Clients\RumpolePipeline\" />
+    <None Remove="Functions\PolarisPipeline\" />
+    <None Remove="Clients\PolarisPipeline\" />
     <None Remove="Functions\DocumentExtraction\" />
     <None Remove="Mappers\" />
   </ItemGroup>

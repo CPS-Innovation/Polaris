@@ -4,19 +4,19 @@
 // using Moq;
 // using NSubstitute;
 // using NSubstitute.ExceptionExtensions;
-// using RumpoleGateway.Clients.CoreDataApi;
-// using RumpoleGateway.Clients.OnBehalfOfTokenClient;
-// using RumpoleGateway.Domain.CaseData;
-// using RumpoleGateway.Tests.FakeData;
+// using PolarisGateway.Clients.CoreDataApi;
+// using PolarisGateway.Clients.OnBehalfOfTokenClient;
+// using PolarisGateway.Domain.CaseData;
+// using PolarisGateway.Tests.FakeData;
 // using Xunit;
 // using Microsoft.Extensions.Configuration;
 // using Microsoft.Identity.Client;
-// using RumpoleGateway.Domain.CoreDataApi;
+// using PolarisGateway.Domain.CoreDataApi;
 // using System;
-// using RumpoleGateway.Domain.Validators;
-// using RumpoleGateway.Functions.CoreDataApi.Case;
+// using PolarisGateway.Domain.Validators;
+// using PolarisGateway.Functions.CoreDataApi.Case;
 
-// namespace RumpoleGateway.Tests.Functions.CoreDataApi
+// namespace PolarisGateway.Tests.Functions.CoreDataApi
 // {
 //     public class CoreDataApiCaseDetailsFunctionTests : SharedMethods.SharedMethods, IClassFixture<CaseInformationFake>
 //     {

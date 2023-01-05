@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Domain.CaseDetails
+namespace PolarisGateway.CaseDataImplementations.Cda.Domain.CaseDetails
 {
     public class CaseDetails
     {

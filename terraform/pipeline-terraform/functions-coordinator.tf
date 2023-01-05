@@ -27,8 +27,6 @@ resource "azurerm_function_app" "fa_coordinator" {
     "CallingAppValidAudience"                 = "api://fa-${local.resource_name}-coordinator"
     "DocumentsRepositoryBaseUrl"              = var.ddei_config.base_url
     "ListDocumentsUrl"                        = "urns/{0}/cases/{1}/documents?code=${var.ddei_config.list_documents_function_key}"
-    "DocumentEvaluatorScope"                  = "api://fa-${local.resource_name}-document-evaluator/.default"
-    "DocumentEvaluatorUrl"                    = "https://fa-${local.resource_name}-document-evaluator.azurewebsites.net/api/processEvaluatedDocuments?code=${data.azurerm_function_app_host_keys.ak_document_evaluator.default_function_key}"
   }
   https_only                 = true
 
@@ -149,19 +147,19 @@ resource "azuread_application_password" "faap_fa_coordinator_app_service" {
   end_date_relative     = "17520h"
 }
 
-resource "azuread_service_principal_delegated_permission_grant" "rumpole_coordinator_grant_access" {
+resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access" {
   service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
   resource_service_principal_object_id = module.azurerm_service_principal_fa_pdf_generator.object_id
   claim_values                         = ["user_impersonation"]
 }
 
-resource "azuread_service_principal_delegated_permission_grant" "rumpole_document_evaluator_grant_access" {
+resource "azuread_service_principal_delegated_permission_grant" "polaris_document_evaluator_grant_access" {
   service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
   resource_service_principal_object_id = module.azurerm_service_principal_fa_document_evaluator.object_id
   claim_values                         = ["user_impersonation"]
 }
 
-resource "azuread_service_principal_delegated_permission_grant" "rumpole_coordinator_grant_access_to_msgraph" {
+resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_msgraph" {
   service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]

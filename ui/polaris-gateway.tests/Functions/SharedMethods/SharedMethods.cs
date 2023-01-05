@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace RumpoleGateway.Tests.Functions.SharedMethods
+namespace PolarisGateway.Tests.Functions.SharedMethods
 {
 
     public class SharedMethods

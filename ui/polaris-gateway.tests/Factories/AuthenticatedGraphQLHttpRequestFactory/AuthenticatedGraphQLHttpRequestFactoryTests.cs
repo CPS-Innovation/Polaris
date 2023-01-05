@@ -4,10 +4,10 @@
 // using GraphQL.Client.Http;
 // using Microsoft.Extensions.Logging;
 // using Moq;
-// using RumpoleGateway.Extensions;
+// using PolarisGateway.Extensions;
 // using Xunit;
 
-// namespace RumpoleGateway.tests.Factories.AuthenticatedGraphQLHttpRequestFactory
+// namespace PolarisGateway.tests.Factories.AuthenticatedGraphQLHttpRequestFactory
 // {
 //     // ReSharper disable once InconsistentNaming
 //     public class AuthenticatedGraphQLHttpRequestFactoryTests
@@ -17,9 +17,9 @@
 //         {
 //             var fixture = new Fixture();
 //             var correlationId = fixture.Create<Guid>();
-//             var loggerMock = new Mock<ILogger<RumpoleGateway.Factories.AuthenticatedGraphQLHttpRequestFactory.AuthenticatedGraphQLHttpRequestFactory>>();
+//             var loggerMock = new Mock<ILogger<PolarisGateway.Factories.AuthenticatedGraphQLHttpRequestFactory.AuthenticatedGraphQLHttpRequestFactory>>();
 
-//             var factory = new RumpoleGateway.Factories.AuthenticatedGraphQLHttpRequestFactory.AuthenticatedGraphQLHttpRequestFactory(loggerMock.Object);
+//             var factory = new PolarisGateway.Factories.AuthenticatedGraphQLHttpRequestFactory.AuthenticatedGraphQLHttpRequestFactory(loggerMock.Object);
 
 //             var authenticatedRequest = factory.Create( "accessToken", new GraphQLHttpRequest(), correlationId);
 

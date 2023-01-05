@@ -4,12 +4,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Wrappers;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Factories;
+using PolarisGateway.Wrappers;
 
-namespace RumpoleGateway.Clients.RumpolePipeline
+namespace PolarisGateway.Clients.PolarisPipeline
 {
     public class PipelineClient : IPipelineClient
     {

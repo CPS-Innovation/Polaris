@@ -1,8 +1,8 @@
 ﻿using System;
 using GraphQL.Client.Http;
-using RumpoleGateway.CaseDataImplementations.Cda.Extensions;
+using PolarisGateway.CaseDataImplementations.Cda.Extensions;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Factories
+namespace PolarisGateway.CaseDataImplementations.Cda.Factories
 {
     public interface IAuthenticatedGraphQLHttpRequestFactory
     {

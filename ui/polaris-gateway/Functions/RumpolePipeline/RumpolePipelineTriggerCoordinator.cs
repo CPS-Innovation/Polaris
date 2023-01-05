@@ -5,28 +5,28 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using RumpoleGateway.Clients.OnBehalfOfTokenClient;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Helpers.Extension;
+using PolarisGateway.Clients.OnBehalfOfTokenClient;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Factories;
+using PolarisGateway.Helpers.Extension;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.Validators;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validators;
 using System.Net;
 
-namespace RumpoleGateway.Functions.RumpolePipeline
+namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class RumpolePipelineTriggerCoordinator : BaseRumpoleFunction
+    public class PolarisPipelineTriggerCoordinator : BasePolarisFunction
     {
         private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly IPipelineClient _pipelineClient;
         private readonly IConfiguration _configuration;
         private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
-        private readonly ILogger<RumpolePipelineTriggerCoordinator> _logger;
+        private readonly ILogger<PolarisPipelineTriggerCoordinator> _logger;
 
-        public RumpolePipelineTriggerCoordinator(ILogger<RumpolePipelineTriggerCoordinator> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient,
+        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient,
                                  IPipelineClient pipelineClient, IConfiguration configuration,
                                  ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory, IAuthorizationValidator tokenValidator)
         : base(logger, tokenValidator)
@@ -38,12 +38,12 @@ namespace RumpoleGateway.Functions.RumpolePipeline
             _logger = logger;
         }
 
-        [FunctionName("RumpolePipelineTriggerCoordinator")]
+        [FunctionName("PolarisPipelineTriggerCoordinator")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "urns/{urn}/cases/{caseId}")] HttpRequest req, string urn, int caseId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RumpolePipelineTriggerCoordinator - Run";
+            const string loggingName = "PolarisPipelineTriggerCoordinator - Run";
 
             try
             {

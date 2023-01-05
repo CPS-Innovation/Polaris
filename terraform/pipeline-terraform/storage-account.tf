@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "sa" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}rumpolepipeline"
+  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
@@ -19,7 +19,7 @@ resource "azurerm_storage_account" "sa" {
   }
 }
 
-resource "azurerm_storage_account_customer_managed_key" "rumpole_storage_pipeline_cmk" {
+resource "azurerm_storage_account_customer_managed_key" "polaris_storage_pipeline_cmk" {
   storage_account_id = azurerm_storage_account.sa.id
   key_vault_id       = azurerm_key_vault.kv.id
   key_name           = azurerm_key_vault_key.kvap_sa_customer_managed_key.name
@@ -56,18 +56,6 @@ resource "azurerm_role_assignment" "ra_blob_data_contributor_text_extractor" {
   principal_id         = azurerm_function_app.fa_text_extractor.identity[0].principal_id
 }
 
-resource "azurerm_role_assignment" "ra_queue_data_message_sender_text_extractor" {
-  scope                = azurerm_storage_container.container.resource_manager_id
-  role_definition_name = "Storage Queue Data Message Sender"
-  principal_id         = azurerm_function_app.fa_text_extractor.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "ra_queue_data_contributor_document_evaluator" {
-  scope                = azurerm_storage_container.container.resource_manager_id
-  role_definition_name = "Storage Queue Data Contributor"
-  principal_id         = azurerm_function_app.fa_document_evaluator.identity[0].principal_id
-}
-
 resource "azurerm_storage_management_policy" "pipeline-documents-lifecycle" {
   storage_account_id   = azurerm_storage_account.sa.id
   
@@ -92,20 +80,6 @@ data "azurerm_function_app_host_keys" "fa_text_extractor_generator_host_keys" {
   resource_group_name = azurerm_resource_group.rg.name
   
   depends_on = [azurerm_function_app.fa_text_extractor]
-}
-
-resource "azurerm_storage_queue" "update_search_index_by_version" {
-  name                 = "update-search-index-by-version"
-  storage_account_name = azurerm_storage_account.sa.name
-
-  depends_on = [azurerm_storage_account.sa]
-}
-
-resource "azurerm_storage_queue" "update_search_index_by_blob_name" {
-  name                 = "update-search-index-by-blob-name"
-  storage_account_name = azurerm_storage_account.sa.name
-
-  depends_on = [azurerm_storage_account.sa]
 }
 
 resource "azurerm_eventgrid_system_topic" "pipeline_document_deleted_topic" {

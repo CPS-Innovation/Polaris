@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Newtonsoft.Json;
 
-namespace RumpoleGateway.Domain.RumpolePipeline
+namespace PolarisGateway.Domain.PolarisPipeline
 {
     public class SearchLine : Line
     {

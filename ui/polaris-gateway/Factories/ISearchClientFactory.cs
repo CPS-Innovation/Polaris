@@ -1,6 +1,6 @@
 ﻿using Azure.Search.Documents;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
 	public interface ISearchClientFactory
 	{

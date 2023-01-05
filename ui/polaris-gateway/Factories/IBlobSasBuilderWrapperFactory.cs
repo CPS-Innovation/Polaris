@@ -1,8 +1,8 @@
 ﻿using System;
 using Azure.Storage.Sas;
-using RumpoleGateway.Wrappers;
+using PolarisGateway.Wrappers;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
     public interface IBlobSasBuilderWrapperFactory
     {

@@ -6,31 +6,31 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Services;
-using RumpoleGateway.Domain.Validators;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Services;
+using PolarisGateway.Domain.Validators;
 
-namespace RumpoleGateway.Functions.RumpolePipeline
+namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class RumpolePipelineGetSasUrl : BaseRumpoleFunction
+    public class PolarisPipelineGetSasUrl : BasePolarisFunction
     {
         private readonly ISasGeneratorService _sasGeneratorService;
-        private readonly ILogger<RumpolePipelineGetSasUrl> _logger;
+        private readonly ILogger<PolarisPipelineGetSasUrl> _logger;
 
-        public RumpolePipelineGetSasUrl(IAuthorizationValidator tokenValidator, ILogger<RumpolePipelineGetSasUrl> logger, ISasGeneratorService sasGeneratorService)
+        public PolarisPipelineGetSasUrl(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetSasUrl> logger, ISasGeneratorService sasGeneratorService)
             : base(logger, tokenValidator)
         {
             _sasGeneratorService = sasGeneratorService ?? throw new ArgumentNullException(nameof(sasGeneratorService));
             _logger = logger;
         }
 
-        [FunctionName("RumpolePipelineGetSasUrl")]
+        [FunctionName("PolarisPipelineGetSasUrl")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pdf/sasUrl/{*blobName}")]
             HttpRequest req, string blobName)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RumpolePipelineGetSasUrl - Run";
+            const string loggingName = "PolarisPipelineGetSasUrl - Run";
 
             try
             {

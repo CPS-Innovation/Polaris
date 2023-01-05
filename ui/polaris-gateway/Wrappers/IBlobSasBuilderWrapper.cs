@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 
-namespace RumpoleGateway.Wrappers
+namespace PolarisGateway.Wrappers
 {
     public interface IBlobSasBuilderWrapper
     {

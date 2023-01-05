@@ -20,7 +20,7 @@ resource "azurerm_monitor_autoscale_setting" "amas" {
   location            = azurerm_resource_group.rg.location
   target_resource_id  = azurerm_app_service_plan.asp.id
   profile {
-    name = "Rumpole Pipeline Performance Scaling Profile"
+    name = "Polaris Pipeline Performance Scaling Profile"
     capacity {
       default = 1
       minimum = 1

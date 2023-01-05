@@ -1,4 +1,4 @@
-namespace RumpoleGateway.Domain.CaseData.Args
+namespace PolarisGateway.Domain.CaseData.Args
 {
     public class CaseArg : UrnArg
     {

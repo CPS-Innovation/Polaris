@@ -1,6 +1,6 @@
 using Ardalis.SmartEnum;
 
-namespace RumpoleGateway.Domain.Logging;
+namespace PolarisGateway.Domain.Logging;
 
 public sealed class LoggingEvent : SmartEnum<LoggingEvent>
 {

@@ -10,7 +10,7 @@ terraform {
     resource_group_name  = "rg-terraform"
     storage_account_name = "cpsdevstorageterraform" //DEV
     //storage_account_name = "cpsqastorageterraform" //QA
-    container_name       = "terraform-rumpole"
+    container_name       = "terraform-polaris"
     key                  = "terraform.tfstate"
     access_key           = "[Manually Enter]"
   }*/

@@ -4,10 +4,10 @@ using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Factories;
+using PolarisGateway.Factories;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Factories
+namespace PolarisGateway.Tests.Factories
 {
     public class PipelineClientRequestFactoryTests
     {

@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace RumpoleGateway.Domain.RumpolePipeline
+namespace PolarisGateway.Domain.PolarisPipeline
 {
 	public class Tracker
 	{

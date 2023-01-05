@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace RumpoleGateway.Domain.RumpolePipeline
+namespace PolarisGateway.Domain.PolarisPipeline
 {
 	public class Log
 	{

@@ -6,12 +6,12 @@ using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Mappers;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Factories;
+using PolarisGateway.Mappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Factories;
+namespace PolarisGateway.Tests.Factories;
 
 public class StreamlinedSearchResultFactoryTests
 {

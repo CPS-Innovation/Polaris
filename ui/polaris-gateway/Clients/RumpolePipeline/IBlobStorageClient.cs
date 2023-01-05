@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace RumpoleGateway.Clients.RumpolePipeline
+namespace PolarisGateway.Clients.PolarisPipeline
 {
 	public interface IBlobStorageClient
 	{

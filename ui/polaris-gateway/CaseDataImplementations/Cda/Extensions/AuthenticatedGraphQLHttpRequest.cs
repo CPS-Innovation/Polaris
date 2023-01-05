@@ -3,7 +3,7 @@ using GraphQL.Client.Http;
 using System;
 using System.Net.Http;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Extensions
+namespace PolarisGateway.CaseDataImplementations.Cda.Extensions
 {
     public class AuthenticatedGraphQLHttpRequest : GraphQLHttpRequest
     {

@@ -12,7 +12,6 @@ using Azure.Identity;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
-using Common.Domain.QueueItems;
 using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
 using Common.Factories;
@@ -20,8 +19,6 @@ using Common.Factories.Contracts;
 using Common.Handlers;
 using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
-using Common.Services.StorageQueueService;
-using Common.Services.StorageQueueService.Contracts;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -48,7 +45,6 @@ namespace text_extractor
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequest>, ValidatorWrapper<ExtractTextRequest>>();
-            builder.Services.AddTransient<IValidatorWrapper<UpdateSearchIndexByBlobNameQueueItem>, ValidatorWrapper<UpdateSearchIndexByBlobNameQueueItem>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
             builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
@@ -57,12 +53,6 @@ namespace text_extractor
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
-            builder.Services.AddTransient<IStorageQueueHelper, StorageQueueHelper>();
-            builder.Services.AddTransient<IStorageQueueService>(provider =>
-            {
-                var helper = provider.GetService<IStorageQueueHelper>();
-                return new StorageQueueService(configuration[ConfigKeys.SharedKeys.DocumentEvaluatorQueueUrl], helper);
-            });
         }
     }
 }

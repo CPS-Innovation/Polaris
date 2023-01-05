@@ -5,28 +5,28 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using RumpoleGateway.Clients.OnBehalfOfTokenClient;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Helpers.Extension;
+using PolarisGateway.Clients.OnBehalfOfTokenClient;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Helpers.Extension;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Extensions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Extensions;
 using System.Net;
 
-namespace RumpoleGateway.Functions.RumpolePipeline
+namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class RumpolePipelineGetTracker : BaseRumpoleFunction
+    public class PolarisPipelineGetTracker : BasePolarisFunction
     {
         private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly IPipelineClient _pipelineClient;
         private readonly IConfiguration _configuration;
-        private readonly ILogger<RumpolePipelineGetTracker> _logger;
+        private readonly ILogger<PolarisPipelineGetTracker> _logger;
 
-        public RumpolePipelineGetTracker(ILogger<RumpolePipelineGetTracker> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, IPipelineClient pipelineClient,
+        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, IPipelineClient pipelineClient,
                                  IConfiguration configuration, IAuthorizationValidator tokenValidator)
         : base(logger, tokenValidator)
         {
@@ -36,12 +36,12 @@ namespace RumpoleGateway.Functions.RumpolePipeline
             _logger = logger;
         }
 
-        [FunctionName("RumpolePipelineGetTracker")]
+        [FunctionName("PolarisPipelineGetTracker")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/tracker")] HttpRequest req, string urn, int caseId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RumpolePipelineGetTracker - Run";
+            const string loggingName = "PolarisPipelineGetTracker - Run";
             Tracker tracker = null;
 
             try

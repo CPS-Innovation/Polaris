@@ -5,15 +5,15 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Services;
-using RumpoleGateway.Domain.CaseData;
-using RumpoleGateway.Domain.CaseData.Args;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Services;
+using PolarisGateway.Domain.CaseData;
+using PolarisGateway.Domain.CaseData.Args;
 
-namespace RumpoleGateway.Functions.DocumentRedaction
+namespace PolarisGateway.Functions.DocumentRedaction
 {
-    public class DocumentRedactionCancelCheckoutDocument : BaseRumpoleFunction
+    public class DocumentRedactionCancelCheckoutDocument : BasePolarisFunction
     {
         private readonly IDocumentService _documentService;
         private readonly ILogger<DocumentRedactionCancelCheckoutDocument> _logger;

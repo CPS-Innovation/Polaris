@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.CaseData;
-using RumpoleGateway.Domain.CaseData.Args;
+using PolarisGateway.Domain.CaseData;
+using PolarisGateway.Domain.CaseData.Args;
 
-namespace RumpoleGateway.Services
+namespace PolarisGateway.Services
 {
     public interface ICaseDataService
     {

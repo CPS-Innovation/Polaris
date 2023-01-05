@@ -8,10 +8,10 @@ using Azure.Storage.Blobs.Models;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Clients.RumpolePipeline;
+using PolarisGateway.Clients.PolarisPipeline;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Clients.RumpolePipeline
+namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
 	public class BlobStorageClientTests
 	{

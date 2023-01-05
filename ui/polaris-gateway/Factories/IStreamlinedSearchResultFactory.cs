@@ -1,7 +1,7 @@
 ﻿using System;
-using RumpoleGateway.Domain.RumpolePipeline;
+using PolarisGateway.Domain.PolarisPipeline;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
     public interface IStreamlinedSearchResultFactory
     {

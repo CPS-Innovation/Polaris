@@ -1,10 +1,10 @@
 using System.Linq;
-using BusinessDomain = RumpoleGateway.Domain.CaseData;
-using ApiDomain = RumpoleGateway.CaseDataImplementations.Tde.Domain;
+using BusinessDomain = PolarisGateway.Domain.CaseData;
+using ApiDomain = PolarisGateway.CaseDataImplementations.Ddei.Domain;
 using System;
 using System.Collections.Generic;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Mappers
+namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
     public class CaseDetailsMapper : ICaseDetailsMapper
     {
@@ -57,7 +57,7 @@ namespace RumpoleGateway.CaseDataImplementations.Tde.Mappers
                 ListOrder = defendant.ListOrder,
                 FirstNames = defendant.FirstNames,
                 Surname = defendant.Surname,
-                // todo: no organisation name in TDE?
+                // todo: no organisation name in DDEI?
                 OrganisationName = defendant.Surname,
                 Dob = defendant.Dob,
                 isYouth = defendant.Youth,
@@ -140,7 +140,7 @@ namespace RumpoleGateway.CaseDataImplementations.Tde.Mappers
         private BusinessDomain.Defendant FindLeadDefendant(IEnumerable<BusinessDomain.Defendant> defendants, ApiDomain.CaseSummary caseSummary)
         {
 
-            // todo: this is not ideal, TDE only gives us the names of the lead defendant, so not 100%
+            // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
             // that we find the defendant recrod we want (e.g. if there are two John Smiths on the case?) 
             var foundDefendants = defendants.Where(defendant =>
                 areStringsEqual(caseSummary.LeadDefendantFirstNames, defendant.DefendantDetails.FirstNames)

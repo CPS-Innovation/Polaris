@@ -1,5 +1,5 @@
 ﻿using System;
-namespace RumpoleGateway.CaseDataImplementations.Cda.Exceptions
+namespace PolarisGateway.CaseDataImplementations.Cda.Exceptions
 {
     public class CoreDataApiException : Exception
     {

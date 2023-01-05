@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.RumpolePipeline;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.PolarisPipeline;
 
-namespace RumpoleGateway.Mappers
+namespace PolarisGateway.Mappers
 {
     public class StreamlinedSearchLineMapper : IStreamlinedSearchLineMapper
     {

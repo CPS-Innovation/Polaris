@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.CaseData;
-using RumpoleGateway.Domain.CaseData.Args;
-using RumpoleGateway.Services;
+using PolarisGateway.Domain.CaseData;
+using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.Services;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Services
+namespace PolarisGateway.CaseDataImplementations.Cda.Services
 {
     public class CdaCaseDataService : ICaseDataService
     {

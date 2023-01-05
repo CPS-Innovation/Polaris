@@ -1,8 +1,8 @@
 using System.IO;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.CaseData.Args;
+using PolarisGateway.Domain.CaseData.Args;
 
-namespace RumpoleGateway.Services
+namespace PolarisGateway.Services
 {
     public interface IDocumentService
     {

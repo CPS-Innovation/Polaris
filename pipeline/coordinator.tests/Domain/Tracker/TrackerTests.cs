@@ -492,12 +492,11 @@ namespace coordinator.tests.Domain.Tracker
                 .Create();
 
             await _tracker.Initialise(_transactionId);
-            var evaluationResults = await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
                 _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
-                evaluationResults.DocumentsToRemove.Count.Should().Be(0);
             }
         }
         
@@ -519,14 +518,11 @@ namespace coordinator.tests.Domain.Tracker
                 .Create();
 
             await _tracker.Initialise(_transactionId);
-            var evaluationResults = await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
                 _tracker.Documents.Count.Should().Be(1);
-                evaluationResults.DocumentsToRemove.Count.Should().Be(2);
-                evaluationResults.DocumentsToRemove[0].DocumentId.Should().Be(_incomingDocuments[1].DocumentId);
-                evaluationResults.DocumentsToRemove[1].DocumentId.Should().Be(_incomingDocuments[2].DocumentId);
             }
         }
         
@@ -551,7 +547,7 @@ namespace coordinator.tests.Domain.Tracker
                 .Create();
 
             await _tracker.Initialise(_transactionId);
-            var evaluationResults = await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
@@ -560,10 +556,6 @@ namespace coordinator.tests.Domain.Tracker
 
                 newVersion.Should().NotBeNull();
                 newVersion?.VersionId.Should().Be(newVersionId);
-                
-                evaluationResults.DocumentsToRemove.Count.Should().Be(1);
-                evaluationResults.DocumentsToRemove[0].DocumentId.Should().Be(modifiedDocumentId);
-                evaluationResults.DocumentsToRemove[0].VersionId.Should().Be(originalVersionId);
             }
         }
         
@@ -574,9 +566,11 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
             
-            var newDaysIncomingDocuments = new List<IncomingDocument>();
-            newDaysIncomingDocuments.Add(_incomingDocuments[1]);
-            newDaysIncomingDocuments.Add(_incomingDocuments[2]);
+            var newDaysIncomingDocuments = new List<IncomingDocument>
+            {
+                _incomingDocuments[1],
+                _incomingDocuments[2]
+            };
 
             var documentRemovedFromCmsId = _incomingDocuments[0].DocumentId;
             var originalVersionId = newDaysIncomingDocuments[0].VersionId;
@@ -595,7 +589,7 @@ namespace coordinator.tests.Domain.Tracker
                 .Create();
 
             await _tracker.Initialise(_transactionId);
-            var evaluationResults = await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
@@ -608,14 +602,9 @@ namespace coordinator.tests.Domain.Tracker
 
                 unmodifiedDocument.Should().NotBeNull();
                 unmodifiedDocument?.VersionId.Should().Be(unmodifiedDocumentVersionId);
-                
-                evaluationResults.DocumentsToRemove.Count.Should().Be(2);
 
-                var documentFlaggedAsRemovedFromCms = evaluationResults.DocumentsToRemove.Find(x => x.DocumentId == documentRemovedFromCmsId);
-                var documentFlaggedAsOldVersion = evaluationResults.DocumentsToRemove.Find(x => x.DocumentId == modifiedDocumentId);
-
-                documentFlaggedAsRemovedFromCms.Should().NotBeNull();
-                documentFlaggedAsOldVersion.Should().NotBeNull();
+                var searchResultForDocumentRemovedFromCms = _tracker.Documents.Find(x => x.DocumentId == documentRemovedFromCmsId);
+                searchResultForDocumentRemovedFromCms.Should().BeNull();
             }
         }
         

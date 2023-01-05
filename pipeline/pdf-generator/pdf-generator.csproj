@@ -71,11 +71,6 @@
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Azure.Storage.Queues">
-      <HintPath>..\..\..\..\..\Users\marki\.nuget\packages\azure.storage.queues\12.12.0\lib\netstandard2.1\Azure.Storage.Queues.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
     <ItemGroup>
       <NativeAssetToCopy Include="$(PublishDir)bin\runtimes\win-x86\native\libSkiaSharp.dll" />

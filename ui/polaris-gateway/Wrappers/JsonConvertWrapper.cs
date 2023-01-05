@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RumpoleGateway.Domain.Logging;
+using PolarisGateway.Domain.Logging;
 
-namespace RumpoleGateway.Wrappers
+namespace PolarisGateway.Wrappers
 {
     public class JsonConvertWrapper : IJsonConvertWrapper
     {

@@ -2,10 +2,10 @@
 using Azure.Storage.Sas;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Extensions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Extensions;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
     public class BlobSasBuilderFactory : IBlobSasBuilderFactory
     {

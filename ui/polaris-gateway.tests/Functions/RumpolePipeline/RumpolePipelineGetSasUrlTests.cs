@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Functions.RumpolePipeline;
-using RumpoleGateway.Services;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Services;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Functions.RumpolePipeline
+namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
-	public class RumpolePipelineGetSasUrlTests : SharedMethods.SharedMethods
+	public class PolarisPipelineGetSasUrlTests : SharedMethods.SharedMethods
 	{
         private readonly string _blobName;
         private readonly string _fakeSasUrl;
@@ -23,9 +23,9 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		private readonly Mock<ISasGeneratorService> _mockSasGeneratorService;
 		private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
 
-        private readonly RumpolePipelineGetSasUrl _rumpolePipelineGetSasUrl;
+        private readonly PolarisPipelineGetSasUrl _polarisPipelineGetSasUrl;
 
-		public RumpolePipelineGetSasUrlTests()
+		public PolarisPipelineGetSasUrlTests()
 		{
             var fixture = new Fixture();
 			_blobName = fixture.Create<string>();
@@ -33,18 +33,18 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 
 			_mockSasGeneratorService = new Mock<ISasGeneratorService>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
-			var mockLogger = new Mock<ILogger<RumpolePipelineGetSasUrl>>();
+			var mockLogger = new Mock<ILogger<PolarisPipelineGetSasUrl>>();
 
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
             _mockSasGeneratorService.Setup(client => client.GenerateSasUrlAsync(_blobName, It.IsAny<Guid>())).ReturnsAsync(_fakeSasUrl);
 
-            _rumpolePipelineGetSasUrl = new RumpolePipelineGetSasUrl(_mockTokenValidator.Object, mockLogger.Object, _mockSasGeneratorService.Object);
+            _polarisPipelineGetSasUrl = new PolarisPipelineGetSasUrl(_mockTokenValidator.Object, mockLogger.Object, _mockSasGeneratorService.Object);
 		}
 		
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessCorrelationIdIsMissing()
 		{
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequestWithoutCorrelationId(), _blobName);
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequestWithoutCorrelationId(), _blobName);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -52,7 +52,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessTokenIsMissing()
 		{
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequestWithoutToken(), _blobName);
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequestWithoutToken(), _blobName);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -61,7 +61,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
         {
 	        _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequest(), _blobName);
 
 			response.Should().BeOfType<UnauthorizedObjectResult>();
 		}
@@ -72,7 +72,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[InlineData(" ")]
 		public async Task Run_ReturnsBadRequestWhenBlobNameIsInvalid(string blobName)
 		{
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequest(), blobName);
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequest(), blobName);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -82,7 +82,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		{
 			_mockSasGeneratorService.Setup(client => client.GenerateSasUrlAsync(_blobName, It.IsAny<Guid>())).ReturnsAsync((string)null);
 
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequest(), _blobName);
 
 			response.Should().BeOfType<NotFoundObjectResult>();
 		}
@@ -90,7 +90,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsOk()
 		{
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequest(), _blobName);
 
 			response.Should().BeOfType<OkObjectResult>();
 		}
@@ -98,7 +98,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsGeneratedUrl()
 		{
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequest(), _blobName) as OkObjectResult;
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequest(), _blobName) as OkObjectResult;
 
             using (new AssertionScope())
             {
@@ -113,7 +113,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
             _mockSasGeneratorService.Setup(client => client.GenerateSasUrlAsync(_blobName, It.IsAny<Guid>()))
 				.ThrowsAsync(new RequestFailedException(500, "Test request failed exception"));
 
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequest(), _blobName) as ObjectResult;
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequest(), _blobName) as ObjectResult;
 
             using (new AssertionScope())
             {
@@ -128,7 +128,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 			_mockSasGeneratorService.Setup(client => client.GenerateSasUrlAsync(_blobName, It.IsAny<Guid>()))
 				.ThrowsAsync(new Exception());
 
-			var response = await _rumpolePipelineGetSasUrl.Run(CreateHttpRequest(), _blobName) as ObjectResult;
+			var response = await _polarisPipelineGetSasUrl.Run(CreateHttpRequest(), _blobName) as ObjectResult;
 
             using (new AssertionScope())
             {

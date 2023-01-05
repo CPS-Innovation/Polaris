@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 
-namespace RumpoleGateway.Domain.Validation;
+namespace PolarisGateway.Domain.Validation;
 
 public class ValidateRequestResult
 {

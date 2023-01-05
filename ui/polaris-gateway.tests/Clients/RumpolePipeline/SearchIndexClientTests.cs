@@ -11,13 +11,13 @@ using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Mappers;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Factories;
+using PolarisGateway.Mappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Clients.RumpolePipeline
+namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
 	public class SearchIndexClientTests
 	{

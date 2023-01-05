@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.DocumentRedaction;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Extensions;
+using PolarisGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Extensions;
 
-namespace RumpoleGateway.Mappers
+namespace PolarisGateway.Mappers
 {
     public class RedactPdfRequestMapper : IRedactPdfRequestMapper
     {

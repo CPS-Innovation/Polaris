@@ -4,34 +4,34 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Clients.RumpolePipeline;
+using PolarisGateway.Clients.PolarisPipeline;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Domain.Validators;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Domain.Validators;
 
-namespace RumpoleGateway.Functions.RumpolePipeline
+namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class RumpolePipelineQuerySearchIndex : BaseRumpoleFunction
+    public class PolarisPipelineQuerySearchIndex : BasePolarisFunction
     {
         private readonly ISearchIndexClient _searchIndexClient;
-        private readonly ILogger<RumpolePipelineQuerySearchIndex> _logger;
+        private readonly ILogger<PolarisPipelineQuerySearchIndex> _logger;
 
-        public RumpolePipelineQuerySearchIndex(ILogger<RumpolePipelineQuerySearchIndex> logger, ISearchIndexClient searchIndexClient, IAuthorizationValidator tokenValidator)
+        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger, ISearchIndexClient searchIndexClient, IAuthorizationValidator tokenValidator)
             : base(logger, tokenValidator)
         {
             _searchIndexClient = searchIndexClient;
             _logger = logger;
         }
 
-        [FunctionName("RumpolePipelineQuerySearchIndex")]
+        [FunctionName("PolarisPipelineQuerySearchIndex")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/query/{*searchTerm}")] HttpRequest req, int caseId, string searchTerm)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RumpolePipelineQuerySearchIndex - Run";
+            const string loggingName = "PolarisPipelineQuerySearchIndex - Run";
             IList<StreamlinedSearchLine> searchResults = null;
 
             try

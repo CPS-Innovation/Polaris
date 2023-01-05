@@ -8,7 +8,7 @@ namespace coordinator.Domain.Tracker
     public interface ITracker
     {
         Task Initialise(string transactionId);
-        Task<DocumentEvaluationActivityPayload> RegisterDocumentIds(RegisterDocumentIdsArg arg);
+        Task RegisterDocumentIds(RegisterDocumentIdsArg arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
         Task RegisterDocumentNotFoundInDDEI(string documentId);

@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using RumpoleGateway.Clients.DocumentExtraction;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Functions.DocumentExtraction;
+using PolarisGateway.Clients.DocumentExtraction;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Functions.DocumentExtraction;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Functions.DocumentExtraction
+namespace PolarisGateway.Tests.Functions.DocumentExtraction
 {
     public class DocumentExtractionGetDocumentTests : SharedMethods.SharedMethods
 	{

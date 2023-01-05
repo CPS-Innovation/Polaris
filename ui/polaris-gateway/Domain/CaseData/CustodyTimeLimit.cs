@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace RumpoleGateway.Domain.CaseData
+namespace PolarisGateway.Domain.CaseData
 {
     public class CustodyTimeLimit
     {

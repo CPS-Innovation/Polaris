@@ -101,11 +101,9 @@ namespace coordinator.Functions
             if (documents.Length == 0)
                 return new List<TrackerDocument>();
 
-            //offload evaluated document results, if any, to a new durable activity, to be queued and processed outside of the pipeline's bandwidth
-            var evaluationResults = await RegisterDocuments(tracker, loggingName, log, payload, documents);
-            if (evaluationResults.DocumentsToRemove.Count > 0)
-                await ProcessDocumentsToRemove(context, tracker, loggingName, log, evaluationResults);
-            
+            //bring the tracker document list up-to-date, or populate it for the first time
+            await RegisterDocuments(tracker, loggingName, log, payload, documents);
+
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Now process each document for case {payload.CaseId}");
             var caseDocumentTasks = documents.Select(t => context.CallSubOrchestratorAsync(nameof(CaseDocumentOrchestrator), 
                     new CaseDocumentOrchestrationPayload(payload.CaseUrn, payload.CaseId, t.CmsDocType.DocumentCategory, t.DocumentId, 
@@ -169,26 +167,13 @@ namespace coordinator.Functions
             return documents;
         }
 
-        private static async Task<DocumentEvaluationActivityPayload> RegisterDocuments(ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, 
+        private static async Task RegisterDocuments(ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, 
             IEnumerable<CaseDocument> documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CaseId}");
             var arg = new RegisterDocumentIdsArg(payload.CaseUrn, payload.CaseId,
                 documents.Select(item => new IncomingDocument(item.DocumentId, item.VersionId, item.FileName)).ToList(), payload.CorrelationId);
-            return await tracker.RegisterDocumentIds(arg);
-        }
-
-        private static async Task ProcessDocumentsToRemove(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, 
-            DocumentEvaluationActivityPayload payload)
-        {
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Offloading evaluated documents to separate queues for processing for case {payload.CaseId}");
-            
-            var request = await context.CallActivityAsync<DurableHttpRequest>(
-                nameof(CreateDocumentEvaluationHttpRequest),
-                payload);
-                
-            await context.CallHttpAsync(request); //errors are registered by the separate pipeline and are not captured here so the pipeline's normal running remains unaffected
-            await tracker.ProcessEvaluatedDocuments();
+            await tracker.RegisterDocumentIds(arg);
         }
     }
 }

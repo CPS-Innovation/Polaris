@@ -24,7 +24,7 @@ resource "azurerm_cosmosdb_account" "cdba" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "cdb" {
-  name                = "cdb-rumpole-pipeline"
+  name                = "cdb-polaris-pipeline"
   resource_group_name = azurerm_cosmosdb_account.cdba.resource_group_name
   account_name        = azurerm_cosmosdb_account.cdba.name
   #throughput          = 400  # do not use if serverless

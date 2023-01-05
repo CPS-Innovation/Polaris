@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.CaseData.Args;
-using RumpoleGateway.CaseDataImplementations.Tde.Domain;
+using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.CaseDataImplementations.Ddei.Domain;
 using System.IO;
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Clients
+namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
 {
-    public interface ITdeClient
+    public interface IDdeiClient
     {
         Task<IEnumerable<CaseIdentifiers>> ListCaseIdsAsync(UrnArg arg);
 

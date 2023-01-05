@@ -4,9 +4,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
-using RumpoleGateway.Domain.Validation;
+using PolarisGateway.Domain.Validation;
 
-namespace RumpoleGateway.Helpers.Extension
+namespace PolarisGateway.Helpers.Extension
 {
     [ExcludeFromCodeCoverage]
     public static class HttpRequestExtensions

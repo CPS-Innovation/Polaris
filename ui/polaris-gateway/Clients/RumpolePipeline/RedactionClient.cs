@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.DocumentRedaction;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Extensions;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Wrappers;
+using PolarisGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Extensions;
+using PolarisGateway.Factories;
+using PolarisGateway.Wrappers;
 
-namespace RumpoleGateway.Clients.RumpolePipeline
+namespace PolarisGateway.Clients.PolarisPipeline
 {
     public class RedactionClient : IRedactionClient
     {

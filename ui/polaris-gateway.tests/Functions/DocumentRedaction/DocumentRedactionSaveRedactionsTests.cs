@@ -3,10 +3,10 @@ using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using RumpoleGateway.Clients.DocumentRedaction;
-using RumpoleGateway.Clients.OnBehalfOfTokenClient;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Functions.DocumentRedaction;
+using PolarisGateway.Clients.DocumentRedaction;
+using PolarisGateway.Clients.OnBehalfOfTokenClient;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Functions.DocumentRedaction;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +16,9 @@ using Microsoft.Identity.Client;
 using System.Net.Http;
 using System;
 using FluentAssertions.Execution;
-using RumpoleGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.DocumentRedaction;
 
-namespace RumpoleGateway.Tests.Functions.DocumentRedaction
+namespace PolarisGateway.Tests.Functions.DocumentRedaction
 {
     public class DocumentRedactionSaveRedactionsTests : SharedMethods.SharedMethods
     {

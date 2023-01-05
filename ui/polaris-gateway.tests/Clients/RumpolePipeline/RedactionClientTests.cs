@@ -1,28 +1,28 @@
 ﻿using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Wrappers;
+using PolarisGateway.Factories;
+using PolarisGateway.Wrappers;
 using System.Net.Http;
 using System.Threading.Tasks;
-using RumpoleGateway.Clients.RumpolePipeline;
+using PolarisGateway.Clients.PolarisPipeline;
 using Xunit;
 using Moq.Protected;
 using System.Threading;
 using System;
 using Newtonsoft.Json;
 using System.Net;
-using RumpoleGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.DocumentRedaction;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 
-namespace RumpoleGateway.Tests.Clients.RumpolePipeline
+namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
     public class RedactionClientTests
     {
         private readonly RedactPdfRequest _request;
         private readonly Mock<IPipelineClientRequestFactory> _mockRequestFactory;
-        private readonly string _rumpolePipelineRedactPdfFunctionAppKey;
+        private readonly string _polarisPipelineRedactPdfFunctionAppKey;
         private readonly Fixture _fixture;
         private readonly Guid _correlationId;
         
@@ -36,18 +36,18 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
             _mockRequestFactory = new Mock<IPipelineClientRequestFactory>();
             _correlationId = _fixture.Create<Guid>();
 
-            _rumpolePipelineRedactPdfFunctionAppKey = _fixture.Create<string>();
+            _polarisPipelineRedactPdfFunctionAppKey = _fixture.Create<string>();
             var mockConfiguration = new Mock<IConfiguration>();
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
 
-            mockConfiguration.Setup(config => config[ConfigurationKeys.PipelineRedactPdfFunctionAppKey]).Returns(_rumpolePipelineRedactPdfFunctionAppKey);
+            mockConfiguration.Setup(config => config[ConfigurationKeys.PipelineRedactPdfFunctionAppKey]).Returns(_polarisPipelineRedactPdfFunctionAppKey);
 
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Put
             };
 
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_rumpolePipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Returns(httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Returns(httpRequestMessage);
 
             var redactPdfResponse = _fixture.Create<RedactPdfResponse>();
             var redactPdfResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -77,7 +77,7 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
             
             await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
 
-            _mockRequestFactory.Verify(factory => factory.CreatePut($"redactPdf?code={_rumpolePipelineRedactPdfFunctionAppKey}", accessToken, _correlationId));
+            _mockRequestFactory.Verify(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", accessToken, _correlationId));
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
         {
             var accessToken = _fixture.Create<string>();
 
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_rumpolePipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws<Exception>();
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws<Exception>();
 
             var results = async() => await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
 
@@ -98,7 +98,7 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
             var accessToken = _fixture.Create<string>();
 
             var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.NotFound);
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_rumpolePipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws(specificException);
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws(specificException);
 
             var results = await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
 
@@ -111,7 +111,7 @@ namespace RumpoleGateway.Tests.Clients.RumpolePipeline
             var accessToken = _fixture.Create<string>();
 
             var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.UnprocessableEntity);
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_rumpolePipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws(specificException);
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws(specificException);
 
             var results = async () => await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
 

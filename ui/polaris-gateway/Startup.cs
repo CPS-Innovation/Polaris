@@ -9,25 +9,25 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-// using RumpoleGateway.Clients.DocumentExtraction;
-// using RumpoleGateway.Clients.DocumentRedaction;
-using RumpoleGateway.Clients.OnBehalfOfTokenClient;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Factories;
-using RumpoleGateway.CaseDataImplementations.Tde.Clients;
-using RumpoleGateway.CaseDataImplementations.Tde.Options;
-using RumpoleGateway.CaseDataImplementations.Tde.Services;
-using RumpoleGateway.Mappers;
-using RumpoleGateway.Services;
-using RumpoleGateway.Wrappers;
-using RumpoleGateway.CaseDataImplementations.Tde.Factories;
-using RumpoleGateway.CaseDataImplementations.Tde.Mappers;
+// using PolarisGateway.Clients.DocumentExtraction;
+// using PolarisGateway.Clients.DocumentRedaction;
+using PolarisGateway.Clients.OnBehalfOfTokenClient;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Factories;
+using PolarisGateway.CaseDataImplementations.Ddei.Clients;
+using PolarisGateway.CaseDataImplementations.Ddei.Options;
+using PolarisGateway.CaseDataImplementations.Ddei.Services;
+using PolarisGateway.Mappers;
+using PolarisGateway.Services;
+using PolarisGateway.Wrappers;
+using PolarisGateway.CaseDataImplementations.Ddei.Factories;
+using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 
-[assembly: FunctionsStartup(typeof(RumpoleGateway.Startup))]
+[assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
-namespace RumpoleGateway
+namespace PolarisGateway
 {
     [ExcludeFromCodeCoverage]
     internal class Startup : FunctionsStartup
@@ -108,17 +108,17 @@ namespace RumpoleGateway
 
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
 
-            builder.Services.AddOptions<TdeOptions>().Configure<IConfiguration>((settings, _) =>
+            builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
             {
                 configuration.GetSection("tde").Bind(settings);
             });
 
-            builder.Services.AddTransient<ICaseDataService, TdeService>();
-            builder.Services.AddTransient<IDocumentService, TdeService>();
-            builder.Services.AddTransient<ITdeClientRequestFactory, TdeClientRequestFactory>();
-            builder.Services.AddHttpClient<ITdeClient, TdeClient>((client) =>
+            builder.Services.AddTransient<ICaseDataService, DdeiService>();
+            builder.Services.AddTransient<IDocumentService, DdeiService>();
+            builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
+            builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
             {
-                var options = configuration.GetSection("tde").Get<TdeOptions>();
+                var options = configuration.GetSection("tde").Get<DdeiOptions>();
                 client.BaseAddress = new Uri(options.BaseUrl);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });

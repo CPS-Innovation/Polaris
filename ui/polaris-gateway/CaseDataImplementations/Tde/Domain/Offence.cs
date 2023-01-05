@@ -1,5 +1,5 @@
 
-namespace RumpoleGateway.CaseDataImplementations.Tde.Domain
+namespace PolarisGateway.CaseDataImplementations.Ddei.Domain
 {
     public class Offence
     {

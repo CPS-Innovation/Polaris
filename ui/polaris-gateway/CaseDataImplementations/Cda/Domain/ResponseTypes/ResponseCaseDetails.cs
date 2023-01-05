@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Domain.ResponseTypes
+namespace PolarisGateway.CaseDataImplementations.Cda.Domain.ResponseTypes
 {
     public class ResponseCaseDetails
     {

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace RumpoleGateway.Domain.DocumentRedaction
+namespace PolarisGateway.Domain.DocumentRedaction
 {
     public class RedactionCoordinates
     {

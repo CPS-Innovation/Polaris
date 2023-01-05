@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Domain.ResponseTypes
+namespace PolarisGateway.CaseDataImplementations.Cda.Domain.ResponseTypes
 {
     public class ResponseCaseInformationByUrn
     {

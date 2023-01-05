@@ -4,11 +4,11 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Mappers;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Mappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Mappers
+namespace PolarisGateway.Tests.Mappers
 {
     public class StreamlinedSearchLineMapperTests
     {

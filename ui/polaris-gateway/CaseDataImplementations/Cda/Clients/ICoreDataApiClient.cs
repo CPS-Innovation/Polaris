@@ -1,9 +1,9 @@
 ﻿using System;
-using RumpoleGateway.CaseDataImplementations.Cda.Domain.CaseDetails;
+using PolarisGateway.CaseDataImplementations.Cda.Domain.CaseDetails;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Clients
+namespace PolarisGateway.CaseDataImplementations.Cda.Clients
 {
     public interface ICoreDataApiClient
     {

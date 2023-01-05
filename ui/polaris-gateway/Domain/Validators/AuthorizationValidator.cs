@@ -10,10 +10,10 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Helpers.Extension;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Helpers.Extension;
 
-namespace RumpoleGateway.Domain.Validators
+namespace PolarisGateway.Domain.Validators
 {
     [ExcludeFromCodeCoverage]
     public class AuthorizationValidator : IAuthorizationValidator

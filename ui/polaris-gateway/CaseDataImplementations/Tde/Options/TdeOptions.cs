@@ -1,6 +1,6 @@
-namespace RumpoleGateway.CaseDataImplementations.Tde.Options
+namespace PolarisGateway.CaseDataImplementations.Ddei.Options
 {
-    public class TdeOptions
+    public class DdeiOptions
     {
         public string BaseUrl { get; set; }
 

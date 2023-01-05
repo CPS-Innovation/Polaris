@@ -1,4 +1,4 @@
-﻿namespace RumpoleGateway.Domain.DocumentRedaction
+﻿namespace PolarisGateway.Domain.DocumentRedaction
 {
     public class RedactPdfResponse
     {

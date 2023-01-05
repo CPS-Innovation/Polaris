@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.Domain.Logging;
+using PolarisGateway.Domain.Logging;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
 	public class PipelineClientRequestFactory : IPipelineClientRequestFactory
     {

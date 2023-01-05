@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using RumpoleGateway.Domain.Validation;
+using PolarisGateway.Domain.Validation;
 
-namespace RumpoleGateway.Helpers.Extension
+namespace PolarisGateway.Helpers.Extension
 {
     [ExcludeFromCodeCoverage]
     public static class ValidationExtensions

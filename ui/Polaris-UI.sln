@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "rumpole-gateway", "rumpole-gateway\rumpole-gateway.csproj", "{B7F5B8CC-8E8C-4F4D-A12F-264680BCE2D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway", "polaris-gateway\polaris-gateway.csproj", "{B7F5B8CC-8E8C-4F4D-A12F-264680BCE2D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "rumpole-gateway.tests", "rumpole-gateway.tests\rumpole-gateway.tests.csproj", "{2A21F271-E8F1-45C3-BA0B-7FDF40292BE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway.tests", "polaris-gateway.tests\polaris-gateway.tests.csproj", "{2A21F271-E8F1-45C3-BA0B-7FDF40292BE9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0C62DAA9-FFDE-411D-A165-BBBD187A3DEF}"
 EndProject

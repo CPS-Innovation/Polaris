@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace RumpoleGateway.Domain.CaseData
+namespace PolarisGateway.Domain.CaseData
 {
     public class DocumentDetails
     {

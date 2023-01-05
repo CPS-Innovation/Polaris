@@ -4,10 +4,10 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Mappers;
+using PolarisGateway.Mappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Mappers
+namespace PolarisGateway.Tests.Mappers
 {
 	public class TrackerUrlMapperTests
 	{

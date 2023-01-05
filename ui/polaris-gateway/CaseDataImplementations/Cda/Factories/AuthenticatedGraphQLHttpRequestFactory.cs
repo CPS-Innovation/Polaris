@@ -1,11 +1,11 @@
 ﻿using System;
 using GraphQL.Client.Http;
 using Microsoft.Extensions.Logging;
-using RumpoleGateway.CaseDataImplementations.Cda.Extensions;
-using RumpoleGateway.Domain.Logging;
-using RumpoleGateway.Extensions;
+using PolarisGateway.CaseDataImplementations.Cda.Extensions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Extensions;
 
-namespace RumpoleGateway.CaseDataImplementations.Cda.Factories
+namespace PolarisGateway.CaseDataImplementations.Cda.Factories
 {
     // ReSharper disable once InconsistentNaming
     public class AuthenticatedGraphQLHttpRequestFactory : IAuthenticatedGraphQLHttpRequestFactory

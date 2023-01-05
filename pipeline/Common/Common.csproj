@@ -22,7 +22,6 @@
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
     <PackageReference Include="Azure.Storage.Common" Version="12.13.0" />
-    <PackageReference Include="Azure.Storage.Queues" Version="12.12.0" />
     <PackageReference Include="FluentValidation" Version="11.2.0" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.0" />
@@ -34,10 +33,5 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.23.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Azure.Storage.Queues">
-      <HintPath>..\..\..\..\..\Users\marki\.nuget\packages\azure.storage.queues\12.12.0\lib\netstandard2.1\Azure.Storage.Queues.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>

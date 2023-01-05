@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RumpoleGateway.Wrappers
+namespace PolarisGateway.Wrappers
 {
     public interface IJsonConvertWrapper
     {

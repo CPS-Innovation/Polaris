@@ -4,11 +4,11 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RumpoleGateway.Factories;
-using RumpoleGateway.Mappers;
+using PolarisGateway.Factories;
+using PolarisGateway.Mappers;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Factories
+namespace PolarisGateway.Tests.Factories
 {
 	public class TriggerCoordinatorResponseFactoryTests
 	{

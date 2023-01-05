@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.DocumentRedaction;
 
-namespace RumpoleGateway.Clients.RumpolePipeline
+namespace PolarisGateway.Clients.PolarisPipeline
 {
     public interface IRedactionClient
     {

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace RumpoleGateway.Domain.CaseData
+namespace PolarisGateway.Domain.CaseData
 {
     public class CaseDetailsFull : CaseDetails
     {

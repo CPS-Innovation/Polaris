@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using RumpoleGateway.Domain.DocumentRedaction;
-using RumpoleGateway.Domain.Validators;
+using PolarisGateway.Domain.DocumentRedaction;
+using PolarisGateway.Domain.Validators;
 using Xunit;
 using FluentValidation.TestHelper;
 
-namespace RumpoleGateway.Tests.Validators
+namespace PolarisGateway.Tests.Validators
 {
     public class DocumentRedactionSaveRequestValidatorTests
     {

@@ -8,15 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using RumpoleGateway.Clients.RumpolePipeline;
-using RumpoleGateway.Domain.RumpolePipeline;
-using RumpoleGateway.Domain.Validators;
-using RumpoleGateway.Functions.RumpolePipeline;
+using PolarisGateway.Clients.PolarisPipeline;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Functions.PolarisPipeline;
 using Xunit;
 
-namespace RumpoleGateway.Tests.Functions.RumpolePipeline
+namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
-	public class RumpolePipelineQuerySearchIndexTests : SharedMethods.SharedMethods
+	public class PolarisPipelineQuerySearchIndexTests : SharedMethods.SharedMethods
 	{
         private readonly int _caseId;
 		private readonly string _searchTerm;
@@ -26,9 +26,9 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
         private readonly Mock<ISearchIndexClient> _searchIndexClient;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
 
-		private readonly RumpolePipelineQuerySearchIndex _rumpolePipelineQuerySearchIndex;
+		private readonly PolarisPipelineQuerySearchIndex _polarisPipelineQuerySearchIndex;
 
-		public RumpolePipelineQuerySearchIndexTests()
+		public PolarisPipelineQuerySearchIndexTests()
 		{
             var fixture = new Fixture();
 			_caseId = fixture.Create<int>();
@@ -36,7 +36,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 			_searchResults = fixture.Create<IList<StreamlinedSearchLine>>();
 			_correlationId = fixture.Create<Guid>();
 
-			var mockLogger = new Mock<ILogger<RumpolePipelineQuerySearchIndex>>();
+			var mockLogger = new Mock<ILogger<PolarisPipelineQuerySearchIndex>>();
 			_searchIndexClient = new Mock<ISearchIndexClient>();
 
 			_searchIndexClient.Setup(client => client.Query(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>()))
@@ -46,13 +46,13 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
 
-            _rumpolePipelineQuerySearchIndex = new RumpolePipelineQuerySearchIndex(mockLogger.Object, _searchIndexClient.Object, _mockTokenValidator.Object);
+            _polarisPipelineQuerySearchIndex = new PolarisPipelineQuerySearchIndex(mockLogger.Object, _searchIndexClient.Object, _mockTokenValidator.Object);
 		}
 		
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessCorrelationIdIsMissing()
 		{
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequestWithoutCorrelationId(), _caseId, _searchTerm);
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequestWithoutCorrelationId(), _caseId, _searchTerm);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -60,7 +60,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessTokenIsMissing()
         {
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequestWithoutToken(), _caseId, _searchTerm);
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequestWithoutToken(), _caseId, _searchTerm);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -69,7 +69,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
 		{
 			_mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm);
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm);
 
 			response.Should().BeOfType<UnauthorizedObjectResult>();
 		}
@@ -79,7 +79,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[InlineData(0)]
 		public async Task Run_ReturnsBadRequestWhenCaseId_IsNotAValidValue(int caseId)
 		{
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequest(), caseId, _searchTerm);
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), caseId, _searchTerm);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -90,7 +90,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[InlineData(" ")]
 		public async Task Run_ReturnsBadRequestWhenSearchTermIsInvalid(string searchTerm)
 		{
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, searchTerm);
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, searchTerm);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -98,7 +98,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsOk()
 		{
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm);
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm);
 
 			response.Should().BeOfType<OkObjectResult>();
 		}
@@ -106,7 +106,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 		[Fact]
 		public async Task Run_ReturnsSearchResults()
 		{
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm) as OkObjectResult;
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm) as OkObjectResult;
 
 			response?.Value.Should().Be(_searchResults);
 		}
@@ -117,7 +117,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 			_searchIndexClient.Setup(client => client.Query(_caseId, _searchTerm, _correlationId))
 				.ThrowsAsync(new RequestFailedException("Test"));
 
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm) as StatusCodeResult;
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm) as StatusCodeResult;
 
 			response?.StatusCode.Should().Be(500);
 		}
@@ -129,7 +129,7 @@ namespace RumpoleGateway.Tests.Functions.RumpolePipeline
 			_searchIndexClient.Setup(client => client.Query(_caseId, _searchTerm, _correlationId))
 				.ThrowsAsync(new RequestFailedException("Test"));
 
-			var response = await _rumpolePipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm) as StatusCodeResult;
+			var response = await _polarisPipelineQuerySearchIndex.Run(CreateHttpRequest(), _caseId, _searchTerm) as StatusCodeResult;
 
 			response?.StatusCode.Should().Be(500);
 		}

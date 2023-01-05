@@ -1,5 +1,5 @@
 {
   "appService.zipIgnorePattern": ["node_modules{,/**}", ".vscode{,/**}"],
-  "appService.defaultWebAppToDeploy": "/subscriptions/4ae5270e-9e32-4bdf-88f1-a677dd3280c0/resourceGroups/rg-rumpole-dev-stubbed/providers/Microsoft.Web/sites/as-web-rumpole-dev-stubbed",
+  "appService.defaultWebAppToDeploy": "/subscriptions/4ae5270e-9e32-4bdf-88f1-a677dd3280c0/resourceGroups/rg-polaris-dev-stubbed/providers/Microsoft.Web/sites/as-web-polaris-dev-stubbed",
   "appService.deploySubpath": "build"
 }

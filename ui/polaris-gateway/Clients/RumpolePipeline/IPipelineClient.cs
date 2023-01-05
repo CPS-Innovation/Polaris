@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using RumpoleGateway.Domain.RumpolePipeline;
+using PolarisGateway.Domain.PolarisPipeline;
 
-namespace RumpoleGateway.Clients.RumpolePipeline
+namespace PolarisGateway.Clients.PolarisPipeline
 {
     public interface IPipelineClient
     {

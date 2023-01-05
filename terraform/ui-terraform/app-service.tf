@@ -1,18 +1,18 @@
 #################### App Service ####################
 
-resource "azurerm_app_service" "as_web_rumpole" {
+resource "azurerm_app_service" "as_web_polaris" {
   name                = "as-web-${local.resource_name}"
-  location            = azurerm_resource_group.rg_rumpole.location
-  resource_group_name = azurerm_resource_group.rg_rumpole.name
-  app_service_plan_id = azurerm_service_plan.asp_rumpole.id
+  location            = azurerm_resource_group.rg_polaris.location
+  resource_group_name = azurerm_resource_group.rg_polaris.name
+  app_service_plan_id = azurerm_service_plan.asp_polaris.id
   https_only          = true
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY"  = azurerm_application_insights.ai_rumpole.instrumentation_key
-    "REACT_APP_CLIENT_ID"             = module.azurerm_app_reg_as_web_rumpole.client_id
+    "APPINSIGHTS_INSTRUMENTATIONKEY"  = azurerm_application_insights.ai_polaris.instrumentation_key
+    "REACT_APP_CLIENT_ID"             = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"             = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"      = "https://${azurerm_linux_function_app.fa_rumpole.name}.azurewebsites.net"
-    "REACT_APP_GATEWAY_SCOPE"         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_rumpole.name}/user_impersonation"
+    "REACT_APP_GATEWAY_BASE_URL"      = "https://${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
+    "REACT_APP_GATEWAY_SCOPE"         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
   }
 
   site_config {
@@ -33,14 +33,14 @@ resource "azurerm_app_service" "as_web_rumpole" {
     unauthenticated_client_action = "AllowAnonymous"
     token_store_enabled           = true
     /*active_directory {
-      client_id         = module.azurerm_app_reg_as_web_rumpole.client_id
-      client_secret     = azuread_application_password.asap_web_rumpole_app_service.value
+      client_id         = module.azurerm_app_reg_as_web_polaris.client_id
+      client_secret     = azuread_application_password.asap_web_polaris_app_service.value
       allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}"]
     }*/
   }
 }
 
-module "azurerm_app_reg_as_web_rumpole" {
+module "azurerm_app_reg_as_web_polaris" {
   source  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name = "as-web-${local.resource_name}-appreg"
   identifier_uris = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}"]
@@ -56,9 +56,9 @@ module "azurerm_app_reg_as_web_rumpole" {
       }]
     },
     {
-      resource_app_id = module.azurerm_app_reg_fa_rumpole.client_id
+      resource_app_id = module.azurerm_app_reg_fa_polaris.client_id
       resource_access = [{
-        id   = module.azurerm_app_reg_fa_rumpole.oauth2_permission_scope_ids["user_impersonation"]
+        id   = module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]
         type = "Scope"
       }]
     }]
@@ -75,34 +75,34 @@ module "azurerm_app_reg_as_web_rumpole" {
   tags = ["as-web-${local.resource_name}-appreg", "terraform"]
 }
 
-resource "azuread_application_password" "asap_web_rumpole_app_service" {
-  application_object_id = module.azurerm_app_reg_as_web_rumpole.object_id
+resource "azuread_application_password" "asap_web_polaris_app_service" {
+  application_object_id = module.azurerm_app_reg_as_web_polaris.object_id
   end_date_relative     = "17520h"
 }
 
-module "azurerm_service_principal_sp_rumpole_web" {
+module "azurerm_service_principal_sp_polaris_web" {
   source         = "./modules/terraform-azurerm-azuread_service_principal"
-  application_id = module.azurerm_app_reg_as_web_rumpole.client_id
+  application_id = module.azurerm_app_reg_as_web_polaris.client_id
   app_role_assignment_required = false
   owners         = [data.azurerm_client_config.current.object_id]
-  depends_on = [module.azurerm_app_reg_as_web_rumpole]
+  depends_on = [module.azurerm_app_reg_as_web_polaris]
 }
 
-resource "azuread_service_principal_password" "sp_rumpole_web_pw" {
-  service_principal_id = module.azurerm_service_principal_sp_rumpole_web.object_id
-  depends_on = [module.azurerm_service_principal_sp_rumpole_web]
+resource "azuread_service_principal_password" "sp_polaris_web_pw" {
+  service_principal_id = module.azurerm_service_principal_sp_polaris_web.object_id
+  depends_on = [module.azurerm_service_principal_sp_polaris_web]
 }
 
-resource "azuread_application_pre_authorized" "fapre_rumpole_web" {
-  application_object_id = module.azurerm_app_reg_fa_rumpole.object_id
-  authorized_app_id     = module.azurerm_app_reg_as_web_rumpole.client_id
-  permission_ids        = [module.azurerm_app_reg_fa_rumpole.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on = [module.azurerm_app_reg_fa_rumpole, module.azurerm_app_reg_as_web_rumpole]
+resource "azuread_application_pre_authorized" "fapre_polaris_web" {
+  application_object_id = module.azurerm_app_reg_fa_polaris.object_id
+  authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
+  permission_ids        = [module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]]
+  depends_on = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]
 }
 
-resource "azuread_service_principal_delegated_permission_grant" "rumpole_web_grant_access_to_msgraph" {
-  service_principal_object_id          = module.azurerm_service_principal_sp_rumpole_web.object_id
+resource "azuread_service_principal_delegated_permission_grant" "polaris_web_grant_access_to_msgraph" {
+  service_principal_object_id          = module.azurerm_service_principal_sp_polaris_web.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
-  depends_on = [module.azurerm_service_principal_sp_rumpole_web, azuread_service_principal.msgraph]
+  depends_on = [module.azurerm_service_principal_sp_polaris_web, azuread_service_principal.msgraph]
 }

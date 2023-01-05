@@ -1,9 +1,9 @@
 
 
 using System;
-using RumpoleGateway.Domain.CaseData.Args;
+using PolarisGateway.Domain.CaseData.Args;
 
-namespace RumpoleGateway.Factories
+namespace PolarisGateway.Factories
 {
     public class CaseDataArgFactory : ICaseDataArgFactory
     {

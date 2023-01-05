@@ -1,6 +1,6 @@
 using System;
 
-namespace RumpoleGateway.Domain.CaseData.Args
+namespace PolarisGateway.Domain.CaseData.Args
 {
     public abstract class BaseCaseDataArg
     {
