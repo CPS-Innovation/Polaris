@@ -1,0 +1,24 @@
+{
+    "folders": [
+        {
+            "path": "polaris-gateway"
+        },
+        {
+            "path": "polaris-ui"
+        }
+    ],
+    "settings": {
+        "debug.internalConsoleOptions": "neverOpen"
+    },
+    "launch": {
+        "configurations": [],
+        "compounds": [
+          {
+            "name": "Attach to all functions",
+            "configurations": [
+              "Attach to .NET Functions",
+            ]
+          }
+        ]
+      }
+}
