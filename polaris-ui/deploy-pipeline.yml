@@ -5,7 +5,7 @@ trigger:
 
   paths:
     include:
-      - "ui/polaris-ui"
+      - "polaris-ui"
 
 pool:
   vmImage: ubuntu-latest
