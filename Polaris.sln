@@ -4,25 +4,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-pipeline", "polaris
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-gateway", "polaris-gateway", "{3F04D8CF-B0FB-4776-913A-969ED4CB3F24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "pipeline\Common\Common.csproj", "{07C594AE-6ADA-47B6-A354-10DD309CF658}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "polaris-pipeline\Common\Common.csproj", "{07C594AE-6ADA-47B6-A354-10DD309CF658}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.tests", "pipeline\Common.tests\Common.tests.csproj", "{B84BABD7-9481-4C1D-976D-3D794CCD10C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.tests", "polaris-pipeline\Common.tests\Common.tests.csproj", "{B84BABD7-9481-4C1D-976D-3D794CCD10C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "coordinator", "pipeline\coordinator\coordinator.csproj", "{46B5898D-8C5E-49DC-8155-C7A964E1096D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "coordinator", "polaris-pipeline\coordinator\coordinator.csproj", "{46B5898D-8C5E-49DC-8155-C7A964E1096D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "coordinator.tests", "pipeline\coordinator.tests\coordinator.tests.csproj", "{59E2E0EB-EDD6-4FFF-ACA5-96CC24612B5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "coordinator.tests", "polaris-pipeline\coordinator.tests\coordinator.tests.csproj", "{59E2E0EB-EDD6-4FFF-ACA5-96CC24612B5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator", "pipeline\pdf-generator\pdf-generator.csproj", "{6550AF23-A328-4E05-895D-BC7CD320950E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator", "polaris-pipeline\pdf-generator\pdf-generator.csproj", "{6550AF23-A328-4E05-895D-BC7CD320950E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator.tests", "pipeline\pdf-generator.tests\pdf-generator.tests.csproj", "{90B70400-E270-4DD2-A0DB-AFDADA556AB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator.tests", "polaris-pipeline\pdf-generator.tests\pdf-generator.tests.csproj", "{90B70400-E270-4DD2-A0DB-AFDADA556AB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "text-extractor", "pipeline\text-extractor\text-extractor.csproj", "{93738F4B-4134-4989-A659-E533701FF345}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "text-extractor", "polaris-pipeline\text-extractor\text-extractor.csproj", "{93738F4B-4134-4989-A659-E533701FF345}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "text-extractor.tests", "pipeline\text-extractor.tests\text-extractor.tests.csproj", "{32BF16E3-3BAF-406B-88F9-141471FF763B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "text-extractor.tests", "polaris-pipeline\text-extractor.tests\text-extractor.tests.csproj", "{32BF16E3-3BAF-406B-88F9-141471FF763B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway", "ui\polaris-gateway\polaris-gateway.csproj", "{5E2A4D67-2BC2-4653-9BB7-A354E0343706}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway", "polaris-gateway\polaris-gateway\polaris-gateway.csproj", "{5E2A4D67-2BC2-4653-9BB7-A354E0343706}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway.tests", "ui\polaris-gateway.tests\polaris-gateway.tests.csproj", "{458C1D9C-6753-4EB8-AFB3-93598E925979}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway.tests", "polaris-gateway\polaris-gateway.tests\polaris-gateway.tests.csproj", "{458C1D9C-6753-4EB8-AFB3-93598E925979}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
