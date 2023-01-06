@@ -1,4 +1,4 @@
-/*provider "restapi" {
+provider "restapi" {
   uri                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
   debug                = true
   write_returns_object = true
@@ -8,12 +8,11 @@
     api-key = azurerm_search_service.ss.primary_key
   }
   id_attribute        = "name"
-}*/
+}
 
-/*
 resource "restapi_object" "definition" {
   provider = restapi.restapi_headers
   path = "/indexes"
   query_string = "api-version=2021-04-30-Preview"
   data = file("search-index-definition.json")
-}*/
+}
