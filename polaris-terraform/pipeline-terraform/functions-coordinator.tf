@@ -25,8 +25,8 @@ resource "azurerm_function_app" "fa_coordinator" {
     "TextExtractorUrl"                        = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/extract?code=${data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key}"
     "CallingAppTenantId"                      = data.azurerm_client_config.current.tenant_id
     "CallingAppValidAudience"                 = "api://fa-${local.resource_name}-coordinator"
-    "DocumentsRepositoryBaseUrl"              = var.ddei_config.base_url
-    "ListDocumentsUrl"                        = "urns/{0}/cases/{1}/documents?code=${var.ddei_config.list_documents_function_key}"
+    "DocumentsRepositoryBaseUrl"              = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
+    "ListDocumentsUrl"                        = "urns/{0}/cases/{1}/documents?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
   }
   https_only                 = true
 
