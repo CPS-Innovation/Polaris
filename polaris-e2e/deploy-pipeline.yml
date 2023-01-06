@@ -22,6 +22,7 @@ steps:
     - task: Npm@1
       inputs:
           command: "install"
+          workingDir: "polaris-ui"
       displayName: "npm install"
 
     - task: Npm@1
@@ -31,6 +32,7 @@ steps:
 
       inputs:
           command: "custom"
+          workingDir: "polaris-ui"
           customCommand: "run cy:run"
       displayName: "cypress run tests"
 
