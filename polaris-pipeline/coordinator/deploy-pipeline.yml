@@ -8,7 +8,7 @@ trigger:
 
   paths:
     include:
-      - "polaris-pipeline/coordinator/*"
+    - "polaris-pipeline/coordinator/*"
 
 pool:
   vmImage: "ubuntu-latest"
