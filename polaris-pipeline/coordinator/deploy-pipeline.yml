@@ -1,7 +1,10 @@
 trigger:
   branches:
     include:
-      - main
+    - main
+    - feature/*
+    - release/*
+    - bug/*
 
   paths:
     include:
