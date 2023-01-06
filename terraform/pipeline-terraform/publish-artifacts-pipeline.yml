@@ -8,12 +8,12 @@ trigger:
 
   paths:
     include:
-      - "polaris-pipeline-terraform/*"
+      - "terraform/pipeline-terraform/*"
 
 steps:
   - task: PublishPipelineArtifact@1
     displayName: "Publish Terraform Artifacts"
     inputs:
-      targetPath: "$(Pipeline.Workspace)/s/terraform/"
+      targetPath: "$(Pipeline.Workspace)/s/terraform/pipeline-terraform/"
       artifact: "terraform-files"
       publishLocation: "pipeline"
