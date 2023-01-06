@@ -15,5 +15,5 @@ steps:
     displayName: "Publish Terraform Artifacts"
     inputs:
       targetPath: "$(Pipeline.Workspace)/s/terraform/pipeline-terraform/"
-      artifact: "terraform-files"
+      artifact: "pipeline-terraform-files"
       publishLocation: "pipeline"
