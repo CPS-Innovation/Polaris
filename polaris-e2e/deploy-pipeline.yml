@@ -35,9 +35,9 @@ steps:
       displayName: "cypress run tests"
 
     - task: PublishBuildArtifacts@1
-      condition: always() # this step will always run, helpful to diagnose failing cypress testts
+      condition: always() # this step will always run, helpful to diagnose failing cypress tests
       inputs:
-          PathtoPublish: "cypress/videos"
+          PathtoPublish: "polaris-ui/cypress/videos"
           ArtifactName: "Cypress failure vidoes"
           publishLocation: "Container"
 
