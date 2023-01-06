@@ -8,7 +8,7 @@ trigger:
 
   paths:
     include:
-      - "terraform/pipeline-terraform/*"
+      - "polaris-pipeline-terraform/*"
 
 steps:
   - task: PublishPipelineArtifact@1
