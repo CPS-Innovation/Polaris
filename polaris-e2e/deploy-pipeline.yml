@@ -1,0 +1,54 @@
+trigger:
+    branches:
+        include:
+            - main
+
+schedules:
+    - cron: "0 7 * * *"
+      displayName: Daily pre-working-day run
+      branches:
+          include:
+              - main
+
+pool:
+    vmImage: ubuntu-latest
+
+steps:
+    - task: Bash@3
+      inputs:
+          targetType: "inline"
+          script: "env | sort"
+
+    - task: Npm@1
+      inputs:
+          command: "install"
+      displayName: "npm install"
+
+    - task: Npm@1
+      env:
+          CYPRESS_CLIENTSECRET: "$(cypress_clientSecret)"
+          CYPRESS_PASSWORD: "$(cypress_password)"
+
+      inputs:
+          command: "custom"
+          customCommand: "run cy:run"
+      displayName: "cypress run tests"
+
+    - task: PublishBuildArtifacts@1
+      condition: always() # this step will always run, helpful to diagnose failing cypress testts
+      inputs:
+          PathtoPublish: "cypress/videos"
+          ArtifactName: "Cypress failure vidoes"
+          publishLocation: "Container"
+
+    # - task: Npm@1
+    #   inputs:
+    #       command: "custom"
+    #       customCommand: "run cy:report"
+    #   displayName: "generate cypress html report"
+
+    # - task: PublishBuildArtifacts@1
+    #   inputs:
+    #       PathtoPublish: "report"
+    #       ArtifactName: "report"
+    #       publishLocation: "Container"
