@@ -5,12 +5,12 @@ trigger:
       - develop
   paths:
     include:
-      - "terraform/*"
+      - "terraform/ui-terraform/*"
 
 steps:
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Terraform Artifacts'
     inputs:
-      targetPath: '$(Pipeline.Workspace)/s/terraform/'
-      artifact: 'terraform-files'
+      targetPath: '$(Pipeline.Workspace)/s/terraform/ui-terraform/'
+      artifact: 'ui-terraform-files'
       publishLocation: 'pipeline'
