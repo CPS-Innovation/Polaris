@@ -153,12 +153,6 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_coordin
   claim_values                         = ["user_impersonation"]
 }
 
-resource "azuread_service_principal_delegated_permission_grant" "polaris_document_evaluator_grant_access" {
-  service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
-  resource_service_principal_object_id = module.azurerm_service_principal_fa_document_evaluator.object_id
-  claim_values                         = ["user_impersonation"]
-}
-
 resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_msgraph" {
   service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
