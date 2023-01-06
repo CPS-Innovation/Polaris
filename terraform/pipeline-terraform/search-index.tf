@@ -1,4 +1,4 @@
-provider "restapi" {
+/*provider "restapi" {
   uri                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
   debug                = true
   write_returns_object = true
@@ -8,7 +8,7 @@ provider "restapi" {
     api-key = azurerm_search_service.ss.primary_key
   }
   id_attribute        = "name"
-}
+}*/
 
 /*
 resource "restapi_object" "definition" {
