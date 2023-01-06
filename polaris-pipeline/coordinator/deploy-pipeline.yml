@@ -2,16 +2,16 @@ trigger:
   branches:
     include:
       - main
-      - feature/12690-terraform-level0
 
   paths:
     include:
-      - "coordinator/*"
+      - "polaris-pipeline/coordinator/*"
 
 pool:
   vmImage: "ubuntu-latest"
 
 variables:
+  rootFolder: "polaris-pipeline"
   functionName: "coordinator"
   buildConfiguration: "Release"
 
@@ -19,14 +19,14 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: "build"
-      projects: "$(functionName)/$(functionName).csproj"
+      projects: "$(rootFolder)/$(functionName)/$(functionName).csproj"
       arguments: "--configuration $(buildConfiguration)"
     displayName: "Build"
 
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
-      projects: "$(functionName)*tests/$(functionName)*tests.csproj"
+      projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
       arguments: "--configuration $(buildConfiguration)"
     displayName: "Run tests"
 
@@ -34,7 +34,7 @@ steps:
     inputs:
       command: publish
       publishWebProjects: false
-      projects: "$(functionName)/$(functionName).csproj"
+      projects: "$(rootFolder)/$(functionName)/$(functionName).csproj"
       arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
       zipAfterPublish: False
     displayName: "Publish"
