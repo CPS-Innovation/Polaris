@@ -12,10 +12,10 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 2.15.0"
     }
-
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.1.0"
+    
+    restapi = {
+      source = "Mastercard/restapi"
+      version = "1.16.1"
     }
   }
 
@@ -30,7 +30,7 @@ terraform {
     resource_group_name  = "rg-terraform"
     //storage_account_name = "cpsqastorageterraform" //QA
     storage_account_name = "cpsdevstorageterraform" //DEV
-    container_name       = "terraform-polaris-pipeline"
+    container_name       = "terraform-polaris-pipeline-events"
     key                  = "terraform.tfstate"
     access_key           = "[Manually Acquired]"
   }*/
@@ -53,8 +53,7 @@ provider "azurerm" {
 }
 
 locals {
-  resource_name = "${var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix}"
-  ddei_resource_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}-ddei" : "${var.polaris_resource_name_prefix}-ddei"
+  resource_name = "${var.env != "prod" ? "${var.pipeline_resource_name_prefix}-${var.env}" : var.pipeline_resource_name_prefix}"
 }
 
 data "azurerm_client_config" "current" {}
@@ -66,10 +65,6 @@ data "azuread_service_principal" "terraform_service_principal" {
 }
 
 data "azurerm_subscription" "current" {}
-
-resource "random_uuid" "random_id" {
-  count = 4
-}
 
 data "azuread_application_published_app_ids" "well_known" {}
 
