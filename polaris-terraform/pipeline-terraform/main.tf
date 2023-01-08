@@ -57,7 +57,7 @@ provider "azurerm" {
 
 locals {
   resource_name = "${var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix}"
-  ddei_resource_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}-ddei" : "${var.polaris_resource_name_prefix}-ddei"
+  ddei_resource_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-ddei-${var.env}" : "${var.polaris_resource_name_prefix}-ddei"
 }
 
 data "azurerm_client_config" "current" {}

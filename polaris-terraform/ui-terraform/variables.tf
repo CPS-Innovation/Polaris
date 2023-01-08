@@ -5,11 +5,6 @@ variable "resource_name_prefix" {
   default = "polaris"
 }
 
-variable "polaris_resource_name_prefix" {
-  type = string
-  default = "polaris"
-}
-
 variable "env" {
   type = string 
 }

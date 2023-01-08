@@ -40,9 +40,9 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
     "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
 	"CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
-    "Ddei__BaseUrl"                                   = "https://fa-polaris-tde-temp.azurewebsites.net"
-    "Ddei__AccessKey"                                  = "T3z9lnFUcPI2DtZ9SSRWdY-rKtaQVCBOqvMe8G4r_hHgAzFu_eBz2g==",
-    "Ddei__DefaultScope"                               = "api://fa-polaris${local.env_name_suffix}-ddei/user_impersonation"
+    "Ddei__BaseUrl"                                  = "https://fa-polaris-tde-temp.azurewebsites.net"
+    "Ddei__AccessKey"                                = "T3z9lnFUcPI2DtZ9SSRWdY-rKtaQVCBOqvMe8G4r_hHgAzFu_eBz2g==",
+    "Ddei__DefaultScope"                             = "api://fa-polaris${local.env_name_suffix}-ddei/user_impersonation"
   }
 	
   site_config {
