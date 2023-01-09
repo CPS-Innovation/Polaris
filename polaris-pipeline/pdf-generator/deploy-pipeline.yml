@@ -6,6 +6,7 @@ trigger:
   paths:
     include:
     - "polaris-pipeline/pdf-generator/*"
+    - "polaris-pipeline/common/*"
 
 pool:
   vmImage: "ubuntu-latest"
