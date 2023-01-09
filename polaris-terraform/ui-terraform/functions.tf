@@ -130,7 +130,7 @@ module "azurerm_app_reg_fa_polaris" {
         id   = data.azuread_application.fa_pipeline_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]
         type = "Scope"
       }]
-    },
+    }/*,
     {
       # DDEI
       resource_app_id = data.azuread_application.fa_ddei.id
@@ -139,7 +139,7 @@ module "azurerm_app_reg_fa_polaris" {
         id   = data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]
         type = "Scope"
       }]
-    }]
+    }*/]
   web = {
     redirect_uris = ["https://fa-${local.resource_name}-gateway.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
@@ -179,12 +179,13 @@ resource "azuread_application_pre_authorized" "fapre_fa_pdf-generator" {
   depends_on = [module.azurerm_app_reg_fa_polaris]
 }
 
+/*
 resource "azuread_application_pre_authorized" "fapre_fa_ddei" {
   application_object_id = data.azuread_application.fa_ddei.object_id
   authorized_app_id     = module.azurerm_app_reg_fa_polaris.client_id
   permission_ids        = [data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]]
   depends_on = [module.azurerm_app_reg_fa_polaris]
-}
+}*/
 
 #also set the gateway sp as a Storage Blob Data Reader to the Pipeline's Storage Container 
 resource "azurerm_role_assignment" "ra_blob_data_reader" {

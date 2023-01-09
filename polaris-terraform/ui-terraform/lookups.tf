@@ -6,9 +6,9 @@ data "azuread_application" "fa_pipeline_pdf_generator" {
   display_name        = "fa-${local.pipeline_resource_name}-pdf-generator-appreg"
 }
 
-data "azuread_application" "fa_ddei" {
+/*data "azuread_application" "fa_ddei" {
   display_name        = "fa-${local.ddei_resource_name}-appreg"
-}
+}*/
 
 data "azurerm_function_app_host_keys" "fa_pipeline_coordinator_host_keys" {
   name                = "fa-${local.pipeline_resource_name}-coordinator"
@@ -38,9 +38,9 @@ data "azuread_service_principal" "fa_pdf_generator_service_principal" {
   application_id = data.azuread_application.fa_pipeline_pdf_generator.application_id
 }
 
-data "azuread_service_principal" "fa_ddei_service_principal" {
-  application_id = data.azuread_application.fa_ddei.application_id
-}
+/*data "azuread_service_principal" "fa_ddei_service_principal" {
+   application_id = data.azuread_application.fa_ddei.application_id
+}*/
 
 data "azurerm_storage_container" "pipeline_storage_container" {
   name                  = "documents"
