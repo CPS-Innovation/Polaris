@@ -40,8 +40,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
     "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
 	"CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
-    "Ddei__BaseUrl"                                  = "https://fa-polaris-tde-temp.azurewebsites.net"
-    "Ddei__AccessKey"                                = "T3z9lnFUcPI2DtZ9SSRWdY-rKtaQVCBOqvMe8G4r_hHgAzFu_eBz2g==",
+    "Ddei__BaseUrl"                                  = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "Ddei__AccessKey"                                = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key,
     "Ddei__DefaultScope"                             = "api://fa-polaris${local.env_name_suffix}-ddei/user_impersonation"
   }
 	
@@ -184,4 +184,11 @@ resource "azuread_application_pre_authorized" "fapre_fa_ddei" {
   authorized_app_id     = module.azurerm_app_reg_fa_polaris.client_id
   permission_ids        = [data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]]
   depends_on = [module.azurerm_app_reg_fa_polaris]
+}
+
+#also set the gateway sp as a Storage Blob Data Reader to the Pipeline's Storage Container 
+resource "azurerm_role_assignment" "ra_blob_data_reader" {
+  scope                = data.azurerm_storage_container.pipeline_storage_container.resource_manager_id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = module.azurerm_app_reg_fa_polaris.object_id
 }
