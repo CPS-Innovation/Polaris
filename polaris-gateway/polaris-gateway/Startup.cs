@@ -110,7 +110,7 @@ namespace PolarisGateway
 
             builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
             {
-                configuration.GetSection("tde").Bind(settings);
+                configuration.GetSection("ddei").Bind(settings);
             });
 
             builder.Services.AddTransient<ICaseDataService, DdeiService>();
@@ -118,7 +118,7 @@ namespace PolarisGateway
             builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
             builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
             {
-                var options = configuration.GetSection("tde").Get<DdeiOptions>();
+                var options = configuration.GetSection("ddei").Get<DdeiOptions>();
                 client.BaseAddress = new Uri(options.BaseUrl);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
