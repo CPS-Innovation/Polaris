@@ -20,7 +20,8 @@ namespace Common.tests.Factories
         {
             var fixture = new Fixture();
             _requestUri = fixture.Create<string>();
-            _accessToken = fixture.Create<string>();
+            //_accessToken = fixture.Create<string>(); //until Polaris DDEI supports oAuth, this is hardcoded to a not-implemented-yet string
+            _accessToken = "not-implemented-yet";
             _correlationId = fixture.Create<Guid>();
 
             var loggerMock = new Mock<ILogger<HttpRequestFactory>>();

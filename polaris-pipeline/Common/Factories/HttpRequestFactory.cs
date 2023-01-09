@@ -22,6 +22,7 @@ public class HttpRequestFactory : IHttpRequestFactory
             
         var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
         
+        request.Headers.Add(HttpHeaderKeys.Authorization, $"{AuthenticationKeys.Bearer} not-implemented-yet");
         request.Headers.Add(HttpHeaderKeys.UpstreamTokenName, upstreamToken);
         request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
             
