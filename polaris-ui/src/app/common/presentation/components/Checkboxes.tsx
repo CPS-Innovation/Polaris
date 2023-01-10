@@ -1,7 +1,7 @@
 import * as GDS from "govuk-react-jsx";
 import React from "react";
 
-type CheckboxesProps = Omit<
+export type CheckboxesProps = Omit<
   React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
   "onChange"
 > & {
