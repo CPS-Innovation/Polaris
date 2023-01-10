@@ -186,10 +186,3 @@ resource "azuread_application_pre_authorized" "fapre_fa_ddei" {
   permission_ids        = [data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]]
   depends_on = [module.azurerm_app_reg_fa_polaris]
 }*/
-
-#also set the gateway sp as a Storage Blob Data Reader to the Pipeline's Storage Container 
-resource "azurerm_role_assignment" "ra_blob_data_reader" {
-  scope                = data.azurerm_storage_container.pipeline_storage_container.resource_manager_id
-  role_definition_name = "Storage Blob Data Reader"
-  principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
-}

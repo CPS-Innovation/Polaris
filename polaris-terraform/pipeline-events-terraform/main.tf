@@ -56,7 +56,8 @@ provider "azurerm" {
 }
 
 locals {
-  resource_name = "${var.env != "prod" ? "${var.pipeline_resource_name_prefix}-${var.env}" : var.pipeline_resource_name_prefix}"
+  pipeline_resource_name = var.env != "prod" ? "${var.pipeline_resource_name_prefix}-${var.env}" : var.pipeline_resource_name_prefix
+  gateway_resource_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}-gateway" : "${var.polaris_resource_name_prefix}-gateway"
 }
 
 data "azurerm_client_config" "current" {}
