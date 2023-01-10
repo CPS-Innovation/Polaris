@@ -10,8 +10,8 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
 {
     public class DdeiClientRequestFactory : IDdeiClientRequestFactory
     {
-        private const string _correlationId = "Correlation-Id";
-        private const string _functionKey = "x-functions-key";
+        private const string CorrelationId = "Correlation-Id";
+        private const string FunctionKey = "x-functions-key";
 
         private readonly DdeiOptions _options;
 
@@ -70,9 +70,9 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
             request.Headers.Add(HttpHeaderKeys.UpstreamToken, arg.UpstreamToken);
             if (!string.IsNullOrEmpty(_options.AccessKey))
             {
-                request.Headers.Add(_functionKey, _options.AccessKey);
+                request.Headers.Add(FunctionKey, _options.AccessKey);
             }
-            request.Headers.Add(_correlationId, arg.CorrelationId.ToString());
+            request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());
         }
 
         private string Encode(string param) => WebUtility.UrlEncode(param);
