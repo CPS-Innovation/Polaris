@@ -14,5 +14,7 @@ namespace PolarisGateway.Domain.CaseData
         public string Code { get; set; }
 
         public string Name { get; set; }
+
+        public readonly static DocumentCmsType EmptyDocumentCmsType = new DocumentCmsType(-1, "Unknown", "Unknown");
     }
 }

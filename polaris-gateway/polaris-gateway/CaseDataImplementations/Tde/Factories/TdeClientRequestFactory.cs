@@ -21,42 +21,42 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
 
         public HttpRequestMessage CreateListCasesRequest(UrnArg arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{arg.Urn}/cases");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{arg.UrlSafeUrn}/cases");
             AddAuthHeaders(request, arg);
             return request;
         }
 
         public HttpRequestMessage CreateGetCaseRequest(CaseArg arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{arg.Urn}/cases/{arg.CaseId}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{arg.UrlSafeUrn}/cases/{arg.CaseId}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
         public HttpRequestMessage CreateListCaseDocumentsRequest(CaseArg arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{arg.Urn}/cases/{arg.CaseId}/documents");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{arg.UrlSafeUrn}/cases/{arg.CaseId}/documents");
             AddAuthHeaders(request, arg);
             return request;
         }
 
         public HttpRequestMessage CreateCheckoutDocumentRequest(DocumentArg arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{arg.Urn}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{arg.UrlSafeUrn}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout");
             AddAuthHeaders(request, arg);
             return request;
         }
 
         public HttpRequestMessage CreateCancelCheckoutDocumentRequest(DocumentArg arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/urns/{arg.Urn}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/urns/{arg.UrlSafeUrn}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout");
             AddAuthHeaders(request, arg);
             return request;
         }
 
         public HttpRequestMessage CreateUploadPdfRequest(DocumentArg arg, Stream stream, string filename)
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{arg.Urn}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{filename}");
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{arg.UrlSafeUrn}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{filename}");
             AddAuthHeaders(request, arg);
             request.Content = new StreamContent(stream);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");

@@ -1,12 +1,12 @@
 import { CaseDocument } from "../../domain/CaseDocument";
 
 const docTypeTest = (caseDocument: CaseDocument, codes: string[]) =>
-  !!caseDocument.cmsDocType.code &&
+  !!caseDocument.cmsDocType?.code &&
   codes.some(
     (code) =>
       !!code &&
       code.replace(/\s+/g, "") ===
-        caseDocument.cmsDocType.code.replace(/\s+/g, "")
+        caseDocument.cmsDocType?.code.replace(/\s+/g, "")
   );
 
 const documentCategoryDefinitions: {

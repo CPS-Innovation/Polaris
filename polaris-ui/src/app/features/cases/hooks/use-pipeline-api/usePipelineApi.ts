@@ -19,7 +19,7 @@ export const usePipelineApi = (
     return initiateAndPoll(urn, caseId, PIPELINE_POLLING_DELAY, (results) =>
       setPipelineResults(results)
     );
-  }, [caseId]);
+  }, [caseId, urn]);
 
   return pipelineResults;
 };

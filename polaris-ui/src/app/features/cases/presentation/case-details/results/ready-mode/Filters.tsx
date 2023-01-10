@@ -1,5 +1,8 @@
 import { Label } from "../../../../../../common/presentation/components";
-import { Checkboxes } from "../../../../../../common/presentation/components/Checkboxes";
+import {
+  Checkboxes,
+  CheckboxesProps,
+} from "../../../../../../common/presentation/components/Checkboxes";
 import { CombinedState } from "../../../../domain/CombinedState";
 import { FilterOption } from "../../../../domain/FilterOption";
 import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCaseDetailsState";
@@ -15,7 +18,7 @@ const toItemArray = (obj: { [key: string]: FilterOption }) =>
     value,
     children: `${label} (${count})`,
     checked: isSelected,
-  }));
+  })) as CheckboxesProps["items"];
 
 export const Filters: React.FC<Props> = ({
   filterOptions: { docType, category },
