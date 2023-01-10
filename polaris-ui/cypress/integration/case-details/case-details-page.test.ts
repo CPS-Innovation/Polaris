@@ -51,7 +51,7 @@ describe("case details page", () => {
   });
 
   describe("pdf viewing", () => {
-    it.only("can open a pdf", () => {
+    it("can open a pdf", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();

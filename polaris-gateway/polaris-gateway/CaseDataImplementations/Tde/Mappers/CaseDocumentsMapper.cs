@@ -22,7 +22,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
                 MimeType = documentDetails.MimeType,
                 CreatedDate = documentDetails.Date,
                 CmsDocCategory = MapCmsDocCategory(documentDetails.CmsDocCategory),
-                CmsDocType = documentCmsType
+                CmsDocType = documentCmsType ?? BusinessDomain.DocumentCmsType.EmptyDocumentCmsType
             };
         }
 

@@ -44,4 +44,12 @@ describe("documentCategoryDefinitions", () => {
 
     expect(result).toBe("Uncategorised");
   });
+
+  it("can resolve an unknown category to Uncategorised if no prior categories match", () => {
+    const result = getCategory({
+      cmsDocType: { id: -1, name: "Unknown", code: "Unknown" },
+    } as CaseDocument);
+
+    expect(result).toBe("Uncategorised");
+  });
 });
