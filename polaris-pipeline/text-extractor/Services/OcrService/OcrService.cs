@@ -62,6 +62,7 @@ namespace text_extractor.Services.OcrService
             }
             catch (Exception ex)
             {
+                _log.LogMethodError(correlationId, nameof(GetOcrResultsAsync), "An OCR Library exception occurred", ex);
                 throw new OcrServiceException(ex.Message);
             }
             finally
