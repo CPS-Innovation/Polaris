@@ -16,6 +16,7 @@ using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
 using PolarisGateway.Factories;
+using PolarisGateway.Helpers.Extension;
 using PolarisGateway.Services;
 
 namespace PolarisGateway.Functions.CaseData
@@ -59,9 +60,9 @@ namespace PolarisGateway.Functions.CaseData
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                //var cdaScope = _configuration[ConfigurationKeys.CoreDataApiScope];
-                //_logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {cdaScope}");
-                var onBehalfOfAccessToken = "not-implemented-yet"; // await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), cdaScope, currentCorrelationId);
+                var ddeiScope = _ddeiOptions.DefaultScope;
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
+                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
                 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
                 caseDetails = await _caseDataService.GetCase(_caseDataArgFactory.CreateCaseArg(onBehalfOfAccessToken, upstreamToken, currentCorrelationId, urn, caseId));
