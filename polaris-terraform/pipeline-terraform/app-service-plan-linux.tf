@@ -1,7 +1,7 @@
 #################### App Service Plan ####################
 
 resource "azurerm_service_plan" "asp" {
-  name                = "asp-${local.resource_name}"
+  name                = "aspl-${local.resource_name}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Linux"
