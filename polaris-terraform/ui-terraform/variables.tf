@@ -5,11 +5,6 @@ variable "resource_name_prefix" {
   default = "polaris"
 }
 
-variable "ddei_resource_name_prefix" {
-  type = string
-  default = "rumpole-tde-temp"
-}
-
 variable "env" {
   type = string 
 }
