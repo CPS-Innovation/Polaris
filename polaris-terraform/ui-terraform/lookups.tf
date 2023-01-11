@@ -30,14 +30,14 @@ data "azurerm_search_service" "pipeline_ss" {
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
-data "azuread_service_principal" "fa_pipeline_coordinator_service_principal" {
+data "azurerm_azuread_service_principal" "fa_pipeline_coordinator_service_principal" {
   application_id = data.azuread_application.fa_pipeline_coordinator.application_id
 }
 
-data "azuread_service_principal" "fa_pdf_generator_service_principal" {
+data "azurerm_azuread_service_principal" "fa_pdf_generator_service_principal" {
   application_id = data.azuread_application.fa_pipeline_pdf_generator.application_id
 }
 
-data "azuread_service_principal" "fa_ddei_service_principal" {
+data "azurerm_azuread_service_principal" "fa_ddei_service_principal" {
    application_id = data.azuread_application.fa_ddei.application_id
 }

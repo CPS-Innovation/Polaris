@@ -1,10 +1,10 @@
 #################### App Service ####################
 
-resource "azurerm_app_service" "as_web_polaris" {
+resource "azurerm_linux_web_app" "as_web_polaris" {
   name                = "as-web-${local.resource_name}"
   location            = azurerm_resource_group.rg_polaris.location
   resource_group_name = azurerm_resource_group.rg_polaris.name
-  app_service_plan_id = azurerm_service_plan.asp_polaris.id
+  service_plan_id     = azurerm_service_plan.asp_polaris.id
   https_only          = true
 
   app_settings = {
