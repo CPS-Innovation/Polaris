@@ -23,18 +23,18 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CoreDataAppId"                                  = var.core_data_api_details.api_id,
     "CoreDataApiUrl"                                 = var.core_data_api_details.api_url
     "CoreDataApiScope"                               = var.core_data_api_details.api_scope
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-polaris-pipeline${local.env_name_suffix}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorScope"                = "api://fa-polaris-pipeline${local.env_name_suffix}-coordinator/user_impersonation"
+    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorScope"                = "api://fa-${local.pipeline_resource_name}-coordinator/user_impersonation"
     "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
-    "PolarisPipelineRedactPdfScope"                  = "api://fa-polaris-pipeline${local.env_name_suffix}-pdf-generator/user_impersonation"
-    "PolarisPipelineRedactPdfBaseUrl"                = "https://fa-polaris-pipeline${local.env_name_suffix}-pdf-generator.azurewebsites.net/api/"
+    "PolarisPipelineRedactPdfScope"                  = "api://fa-${local.pipeline_resource_name}-pdf-generator/user_impersonation"
+    "PolarisPipelineRedactPdfBaseUrl"                = "https://fa-${local.pipeline_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"         = data.azurerm_function_app_host_keys.fa_pipeline_pdf_generator_host_keys.default_function_key
     "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                              = "documents"
     "BlobExpirySecs"                                 = 3600
     "BlobUserDelegationKeyExpirySecs"                = 3600
     "StubBlobStorageConnectionString"                = var.stub_blob_storage_connection_string
-    "searchClient__EndpointUrl"                      = "https://ss-polaris-pipeline${local.env_name_suffix}.search.windows.net"
+    "searchClient__EndpointUrl"                      = "https://ss-${local.pipeline_resource_name}.search.windows.net"
     "searchClient__AuthorizationKey"                 = data.azurerm_search_service.pipeline_ss.primary_key
     "searchClient__IndexName"                        = "lines-index"
     "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
@@ -42,7 +42,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
 	"CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
     "Ddei__BaseUrl"                                  = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "Ddei__AccessKey"                                = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key,
-    "Ddei__DefaultScope"                             = "api://fa-polaris${local.env_name_suffix}-ddei/user_impersonation"
+    "Ddei__DefaultScope"                             = "api://fa-${local.ddei_resource_name}/user_impersonation"
   }
 	
   site_config {
