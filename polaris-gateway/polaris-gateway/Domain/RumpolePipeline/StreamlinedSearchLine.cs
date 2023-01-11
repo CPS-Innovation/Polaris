@@ -12,14 +12,14 @@ namespace PolarisGateway.Domain.PolarisPipeline
         public long CaseId { get; set; }
 
         [JsonProperty("documentId")]
-        public string DocumentId { get; set; }
-    
+        public long DocumentId { get; set; }
+
         [JsonProperty("versionId")]
         public long VersionId { get; set; }
 
         [JsonProperty("fileName")]
         public string FileName { get; set; }
-    
+
         [JsonProperty("pageIndex")]
         public int PageIndex { get; set; }
 
