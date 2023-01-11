@@ -2,7 +2,9 @@ trigger:
   branches:
     include:
       - main
-      - develop
+      - qa
+      - release
+
   paths:
     include:
       - "polaris-terraform/ui-terraform/*"
