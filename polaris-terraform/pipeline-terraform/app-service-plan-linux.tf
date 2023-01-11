@@ -1,16 +1,11 @@
 #################### App Service Plan ####################
 
-resource "azurerm_app_service_plan" "asp" {
+resource "azurerm_service_plan" "asp" {
   name                = "asp-${local.resource_name}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  kind                = "Linux"
-  reserved            = true
-
-  sku {
-    tier = var.app_service_plan_sku.tier
-    size = var.app_service_plan_sku.size
-  }
+  os_type             = "Linux"
+  sku_name            = var.app_service_plan_sku.size
 }
 
 resource "azurerm_monitor_autoscale_setting" "amas" {
@@ -18,7 +13,7 @@ resource "azurerm_monitor_autoscale_setting" "amas" {
   count               = var.app_service_plan_sku.tier != "Basic" ? 1 : 0
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  target_resource_id  = azurerm_app_service_plan.asp.id
+  target_resource_id  = azurerm_service_plan.asp.id
   profile {
     name = "Polaris Pipeline Performance Scaling Profile"
     capacity {
@@ -29,7 +24,7 @@ resource "azurerm_monitor_autoscale_setting" "amas" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_app_service_plan.asp.id
+        metric_resource_id = azurerm_service_plan.asp.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -47,7 +42,7 @@ resource "azurerm_monitor_autoscale_setting" "amas" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_app_service_plan.asp.id
+        metric_resource_id = azurerm_service_plan.asp.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"

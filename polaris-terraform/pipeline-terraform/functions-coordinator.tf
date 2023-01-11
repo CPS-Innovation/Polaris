@@ -1,14 +1,13 @@
 #################### Functions ####################
 
-resource "azurerm_function_app" "fa_coordinator" {
+resource "azurerm_linux_function_app" "fa_coordinator" {
   name                       = "fa-${local.resource_name}-coordinator"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
-  app_service_plan_id        = azurerm_app_service_plan.asp.id
+  service_plan_id            = azurerm_service_plan.asp.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  os_type                    = "linux"
-  version                    = "~4"
+  functions_extension_version                 = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                = "dotnet"
     "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
@@ -74,7 +73,7 @@ resource "azurerm_function_app" "fa_coordinator" {
 data "azurerm_function_app_host_keys" "ak_coordinator" {
   name                = "fa-${local.resource_name}-coordinator"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on = [azurerm_function_app.fa_coordinator]
+  depends_on = [azurerm_linux_function_app.fa_coordinator]
 }
 
 module "azurerm_app_reg_fa_coordinator" {

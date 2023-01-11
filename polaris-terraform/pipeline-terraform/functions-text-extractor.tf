@@ -1,14 +1,13 @@
 #################### Functions ####################
 
-resource "azurerm_function_app" "fa_text_extractor" {
+resource "azurerm_linux_function_app" "fa_text_extractor" {
   name                       = "fa-${local.resource_name}-text-extractor"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
-  app_service_plan_id        = azurerm_app_service_plan.asp.id
+  service_plan_id            = azurerm_service_plan.asp.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  os_type                    = "linux"
-  version                    = "~4"
+  functions_extension_version                 = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                = "dotnet"
     "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
@@ -97,7 +96,7 @@ module "azurerm_app_reg_fa_text_extractor" {
 data "azurerm_function_app_host_keys" "ak_text_extractor" {
   name                = "fa-${local.resource_name}-text-extractor"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on = [azurerm_function_app.fa_text_extractor]
+  depends_on = [azurerm_linux_function_app.fa_text_extractor]
 }
 
 resource "azuread_application_password" "faap_fa_text_extractor_app_service" {

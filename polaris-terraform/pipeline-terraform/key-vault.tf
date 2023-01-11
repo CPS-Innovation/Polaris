@@ -59,35 +59,35 @@ resource "azurerm_role_assignment" "kv_role_sa_kvcseu" {
 resource "azurerm_role_assignment" "kv_role_fa_coordinator_crypto_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_function_app.fa_coordinator.identity[0].principal_id
+  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "kv_role_fa_coordinator_secrets_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_function_app.fa_coordinator.identity[0].principal_id
+  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "kv_role_fa_pdf_generator_crypto_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_function_app.fa_pdf_generator.identity[0].principal_id
+  principal_id         = azurerm_windows_function_app.fa_pdf_generator.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "kv_role_fa_pdf_generator_secrets_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_function_app.fa_pdf_generator.identity[0].principal_id
+  principal_id         = azurerm_windows_function_app.fa_pdf_generator.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "kv_role_fa_text_extractor_crypto_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_function_app.fa_text_extractor.identity[0].principal_id
+  principal_id         = azurerm_linux_function_app.fa_text_extractor.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "kv_role_fa_text_extractor_secrets_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_function_app.fa_text_extractor.identity[0].principal_id
+  principal_id         = azurerm_linux_function_app.fa_text_extractor.identity[0].principal_id
 }

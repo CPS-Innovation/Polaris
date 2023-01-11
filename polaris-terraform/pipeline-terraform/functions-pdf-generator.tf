@@ -1,13 +1,13 @@
 #################### Functions ####################
 
-resource "azurerm_function_app" "fa_pdf_generator" {
+resource "azurerm_windows_function_app" "fa_pdf_generator" {
   name                       = "fa-${local.resource_name}-pdf-generator"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
-  app_service_plan_id        = azurerm_app_service_plan.aspw.id
+  service_plan_id            = azurerm_service_plan.aspw.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  version                    = "~4"
+  functions_extension_version                 = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                = "dotnet"
     "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
@@ -109,7 +109,7 @@ module "azurerm_app_reg_fa_pdf_generator" {
 data "azurerm_function_app_host_keys" "ak_pdf_generator" {
   name                = "fa-${local.resource_name}-pdf-generator"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on = [azurerm_function_app.fa_pdf_generator]
+  depends_on = [azurerm_windows_function_app.fa_pdf_generator]
 }
 
 module "azurerm_app_pre_authorized" {

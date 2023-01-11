@@ -61,7 +61,7 @@ data "azurerm_function_app_host_keys" "fa_text_extractor_generator_host_keys" {
   name                = "fa-${local.resource_name}-text-extractor"
   resource_group_name = azurerm_resource_group.rg.name
   
-  depends_on = [azurerm_function_app.fa_text_extractor]
+  depends_on = [azurerm_linux_function_app.fa_text_extractor]
 }
 
 resource "azurerm_eventgrid_system_topic" "pipeline_document_deleted_topic" {
