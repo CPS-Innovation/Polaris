@@ -188,12 +188,12 @@ resource "azuread_application_pre_authorized" "fapre_fa_ddei" {
 
 resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_generator_grant_access" {
   service_principal_object_id          = module.azurerm_app_reg_fa_polaris.object_id
-  resource_service_principal_object_id = data.azuread_application.fa_pipeline_pdf_generator.object_id
+  resource_service_principal_object_id = data.azuread_service_principal.fa_pdf_generator_service_principal.object_id
   claim_values                         = ["user_impersonation"]
 }
 
 resource "azuread_service_principal_delegated_permission_grant" "polaris_ddei_grant_access" {
   service_principal_object_id          = module.azurerm_app_reg_fa_polaris.object_id
-  resource_service_principal_object_id = data.azuread_application.fa_ddei.object_id
+  resource_service_principal_object_id = data.azuread_service_principal.fa_ddei_service_principal.object_id
   claim_values                         = ["user_impersonation"]
 }
