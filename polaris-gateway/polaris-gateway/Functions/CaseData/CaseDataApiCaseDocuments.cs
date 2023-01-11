@@ -18,6 +18,7 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using PolarisGateway.Domain.Exceptions;
+using PolarisGateway.Helpers.Extension;
 
 namespace PolarisGateway.Functions.CaseData
 {
@@ -27,7 +28,7 @@ namespace PolarisGateway.Functions.CaseData
         private readonly ICaseDataService _caseDataService;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly ILogger<CaseDataApiCaseDocuments> _logger;
-        private readonly DdeiOptions _tdeOptions;
+        private readonly DdeiOptions _ddeiOptions;
 
         public CaseDataApiCaseDocuments(ILogger<CaseDataApiCaseDocuments> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, ICaseDataService caseDataService,
                                  IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
@@ -37,7 +38,7 @@ namespace PolarisGateway.Functions.CaseData
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
-            _tdeOptions = options.Value;
+            _ddeiOptions = options.Value;
         }
 
         [FunctionName("CaseDataApiCaseDocuments")]
@@ -68,9 +69,10 @@ namespace PolarisGateway.Functions.CaseData
                 if (!caseId.HasValue)
                     return BadRequestErrorResponse("CaseId is not supplied.", currentCorrelationId, loggingName);
 
-                //var cdaScope = _configuration[ConfigurationKeys.CoreDataApiScope];
-                //_logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {cdaScope}");
-                var onBehalfOfAccessToken = "not-implemented-yet"; // await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), cdaScope, currentCorrelationId);
+                var ddeiScope = _ddeiOptions.DefaultScope;
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
+                //var onBehalfOfAccessToken = "not-implemented-yet"; // await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), cdaScope, currentCorrelationId);
+                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case documents by Urn '{urn}' and CaseId '{caseId}'");
                 documents = await _caseDataService.ListDocuments(_caseDataArgFactory.CreateCaseArg(onBehalfOfAccessToken, upstreamToken, currentCorrelationId, urn, caseId.Value));
