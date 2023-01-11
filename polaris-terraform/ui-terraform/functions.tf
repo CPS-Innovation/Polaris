@@ -40,8 +40,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
     "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
 	"CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
-    "Ddei__BaseUrl"                                  = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "Ddei__AccessKey"                                = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key,
+    "Ddei__BaseUrl"                                  = "https://fa-rumpole-tde-temp.azurewebsites.net"
+    "Ddei__AccessKey"                                = "T3z9lnFUcPI2DtZ9SSRWdY-rKtaQVCBOqvMe8G4r_hHgAzFu_eBz2g==",
     "Ddei__DefaultScope"                             = "api://fa-${local.ddei_resource_name}/user_impersonation"
   }
 	
