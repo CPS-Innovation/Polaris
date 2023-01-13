@@ -6,6 +6,8 @@ const {
     TARGET_DEFENDANT_NAME,
     TARGET_DOCUMENT_ID,
     TARGET_DOCUMENT_NAME,
+    TARGET_DOCUMENT_TEXT_FRAGMENT,
+    TARGET_SEARCH_TEXT,
 } = Cypress.env();
 
 describe("Polaris", () => {
@@ -27,5 +29,15 @@ describe("Polaris", () => {
         cy.findByTestId(`link-document-${TARGET_DOCUMENT_ID}`).click();
 
         cy.findByTestId("btn-open-pdf").contains(TARGET_DOCUMENT_NAME);
+        cy.get("span").contains(TARGET_DOCUMENT_TEXT_FRAGMENT);
+
+        cy.findByTestId("input-search-case").type(
+            `${TARGET_SEARCH_TEXT}{enter}`
+        );
+        cy.findByTestId(`link-result-document-${TARGET_DOCUMENT_ID}`).click();
+
+        cy.findByTestId("tabs").contains(
+            `1 match for "${TARGET_SEARCH_TEXT}" in ${TARGET_DOCUMENT_NAME}`
+        );
     });
 });

@@ -6,7 +6,7 @@ export default defineConfig({
             // implement node event listeners here
         },
         // this will be overriden by CYPRESS_BASE_URL environment variable
-        baseUrl: "https://as-web-rumpole-dev.azurewebsites.net/",
+        baseUrl: "https://as-web-polaris-dev.azurewebsites.net/",
         video: true,
         // reporter: "junit",
         // reporterOptions: {
