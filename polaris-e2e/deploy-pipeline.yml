@@ -3,6 +3,10 @@ trigger:
         include:
             - main
 
+    paths:
+        include:
+            - "polaris-e2e"
+
 schedules:
     - cron: "0 7 * * *"
       displayName: Daily pre-working-day run
@@ -22,7 +26,7 @@ steps:
     - task: Npm@1
       inputs:
           command: "install"
-          workingDir: "polaris-ui"
+          workingDir: "polaris-e2e"
       displayName: "npm install"
 
     - task: Npm@1
@@ -32,14 +36,14 @@ steps:
 
       inputs:
           command: "custom"
-          workingDir: "polaris-ui"
+          workingDir: "polaris-e2e"
           customCommand: "run cy:run"
       displayName: "cypress run tests"
 
     - task: PublishBuildArtifacts@1
       condition: always() # this step will always run, helpful to diagnose failing cypress tests
       inputs:
-          PathtoPublish: "cypress/videos"
+          PathtoPublish: "polaris-e2e/cypress/videos"
           ArtifactName: "Cypress failure vidoes"
           publishLocation: "Container"
 
