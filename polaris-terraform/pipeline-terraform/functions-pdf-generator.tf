@@ -26,7 +26,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "OnBehalfOfTokenTenantId"                 = data.azurerm_client_config.current.tenant_id
     "OnBehalfOfTokenClientId"                 = module.azurerm_app_reg_fa_pdf_generator.client_id
     "OnBehalfOfTokenClientSecret"             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_pdf_generator_client_secret.id})"
-    "DdeiScope"                               = "api://fa-${local.ddei_resource_name}/user_impersonation"
+    "DdeiScope"                               = "api://fa-${local.ddei_resource_name}/.default"
   }
   https_only                 = true
 
