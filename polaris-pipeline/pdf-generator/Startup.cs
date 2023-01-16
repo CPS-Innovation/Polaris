@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using Common.Adapters;
 using Common.Constants;
 using Common.Domain.Requests;
 using Common.Domain.Responses;
@@ -66,6 +67,7 @@ namespace pdf_generator
 
                 return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
             });
+            builder.Services.AddTransient<IIdentityClientAdapter, IdentityClientAdapter>();
             
             builder.Services.AddSingleton<IPdfService, WordsPdfService>();
             builder.Services.AddSingleton<IPdfService, CellsPdfService>();
