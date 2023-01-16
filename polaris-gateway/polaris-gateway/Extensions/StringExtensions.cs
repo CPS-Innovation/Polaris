@@ -10,6 +10,6 @@ public static class StringExtensions
             return string.Empty;
         
         var charLocation = text.IndexOf(stopAt, StringComparison.Ordinal);
-        return charLocation > 0 ? text[..charLocation] : string.Empty;
+        return charLocation > 0 ? text[..charLocation] : text;
     }
 }
