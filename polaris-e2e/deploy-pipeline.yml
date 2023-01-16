@@ -13,6 +13,7 @@ schedules:
       branches:
           include:
               - main
+      always: true
 
 pool:
     vmImage: ubuntu-latest
