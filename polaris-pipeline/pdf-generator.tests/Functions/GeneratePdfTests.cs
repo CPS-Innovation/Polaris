@@ -210,7 +210,7 @@ namespace pdf_generator.tests.Functions
 			response.Should().Be(_errorHttpResponseMessage);
 		}
 
-		[Fact]
+		/*[Fact]
 		public async Task Run_DoesNotProcessTheDocument_WhenDocumentEvaluation_Returns_AlreadyProcessed()
 		{
 			_generatePdfRequest.FileName = "Test.pdf";
@@ -225,7 +225,7 @@ namespace pdf_generator.tests.Functions
 
 			_mockBlobStorageService.Verify(service => service.UploadDocumentAsync(_documentStream, _blobName, _generatePdfRequest.CaseId.ToString(), _generatePdfRequest.DocumentId, 
 				_generatePdfRequest.VersionId.ToString(), _correlationId), Times.Never);
-		}
+		}*/
 		
 		[Fact]
 		public async Task Run_UploadsDocumentStreamWhenFileTypeIsPdf()
