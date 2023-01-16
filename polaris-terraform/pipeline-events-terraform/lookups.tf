@@ -22,3 +22,8 @@ data "azurerm_storage_container" "pipeline_storage_container" {
   name                  = "documents"
   storage_account_name  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
 }
+
+data "azurerm_storage_account" "pipeline_storage_account" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
