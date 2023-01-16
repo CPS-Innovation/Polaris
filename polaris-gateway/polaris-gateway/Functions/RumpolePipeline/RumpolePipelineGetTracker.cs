@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Helpers.Extension;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;

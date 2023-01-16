@@ -26,7 +26,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "OnBehalfOfTokenTenantId"                 = data.azurerm_client_config.current.tenant_id
     "OnBehalfOfTokenClientId"                 = module.azurerm_app_reg_fa_pdf_generator.client_id
     "OnBehalfOfTokenClientSecret"             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_pdf_generator_client_secret.id})"
-    "DdeiScope"                               = "api://fa-polaris-ddei-dev/user_impersonation"
+    "DdeiScope"                               = "api://fa-${local.ddei_resource_name}/user_impersonation"
   }
   https_only                 = true
 
@@ -100,7 +100,16 @@ module "azurerm_app_reg_fa_pdf_generator" {
       id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
       type = "Scope"
     }]
-  }]
+  },
+    {
+      # DDEI
+      resource_app_id = data.azuread_application.fa_ddei.id
+      resource_access = [{
+        # User Impersonation Scope
+        id   = data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]
+        type = "Scope"
+      }]
+    }]
   web = {
     redirect_uris = ["https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
@@ -129,6 +138,19 @@ module "azurerm_app_pre_authorized" {
   permission_ids        = [module.azurerm_app_reg_fa_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]]
 }
 
+module "azurerm_app_pre_authorized_ddei" {
+  source                = "./modules/terraform-azurerm-azure_ad_application_preauthorized"
+
+  # application object id of authorized application
+  application_object_id = module.azurerm_app_reg_fa_pdf_generator.object_id
+
+  # application id of Client application
+  authorized_app_id     = data.azuread_application.fa_ddei.application_id
+
+  # permissions to assign
+  permission_ids        = [module.azurerm_app_reg_fa_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]]
+}
+
 resource "azuread_application_password" "faap_fa_pdf_generator_app_service" {
   application_object_id = module.azurerm_app_reg_fa_pdf_generator.object_id
   end_date_relative     = "17520h"
@@ -149,4 +171,10 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_gen
   service_principal_object_id          = module.azurerm_service_principal_fa_pdf_generator.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
+}
+
+resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_generator_grant_access_to_ddei" {
+  service_principal_object_id          = module.azurerm_service_principal_fa_pdf_generator.object_id
+  resource_service_principal_object_id = data.azuread_application.fa_ddei.object_id
+  claim_values                         = ["user_impersonation"]
 }

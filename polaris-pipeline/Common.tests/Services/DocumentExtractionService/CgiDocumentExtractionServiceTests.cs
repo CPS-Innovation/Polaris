@@ -19,6 +19,7 @@ namespace Common.tests.Services.DocumentExtractionService
         private readonly string _documentId;
         private readonly string _fileName;
         private readonly string _accessToken;
+        private readonly string _upstreamToken;
         private readonly Guid _correlationId;
         private readonly HttpResponseMessage _httpResponseMessage;
 
@@ -30,6 +31,7 @@ namespace Common.tests.Services.DocumentExtractionService
             _documentId = fixture.Create<string>();
             _fileName = fixture.Create<string>();
             _accessToken = fixture.Create<string>();
+            _upstreamToken = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
             var httpRequestMessage = new HttpRequestMessage();
             Stream documentStream = new MemoryStream();
@@ -48,7 +50,8 @@ namespace Common.tests.Services.DocumentExtractionService
 
             var mockHttpRequestFactory = new Mock<IHttpRequestFactory>();
 
-            mockHttpRequestFactory.Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
+            mockHttpRequestFactory.Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 
+                    It.IsAny<Guid>()))
                 .Returns(httpRequestMessage);
             
             var mockConfiguration = new Mock<IConfiguration>();

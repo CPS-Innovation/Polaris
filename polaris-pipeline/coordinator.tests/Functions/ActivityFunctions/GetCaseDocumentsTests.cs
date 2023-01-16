@@ -34,8 +34,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 
-            mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CaseUrn, _payload.CaseId.ToString(), _payload.UpstreamToken, 
-                    _payload.CorrelationId))
+            mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CaseUrn, _payload.CaseId.ToString(), 
+                    _payload.AccessToken, _payload.UpstreamToken, _payload.CorrelationId))
                 .ReturnsAsync(_case.CaseDocuments);
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();

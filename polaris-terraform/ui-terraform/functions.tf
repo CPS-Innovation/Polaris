@@ -20,9 +20,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "OnBehalfOfTokenClientSecret"                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = ""
-    "CoreDataAppId"                                  = var.core_data_api_details.api_id,
-    "CoreDataApiUrl"                                 = var.core_data_api_details.api_url
-    "CoreDataApiScope"                               = var.core_data_api_details.api_scope
     "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorScope"                = "api://fa-${local.pipeline_resource_name}-coordinator/user_impersonation"
     "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
@@ -33,15 +30,14 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "BlobContainerName"                              = "documents"
     "BlobExpirySecs"                                 = 3600
     "BlobUserDelegationKeyExpirySecs"                = 3600
-    "StubBlobStorageConnectionString"                = var.stub_blob_storage_connection_string
     "searchClient__EndpointUrl"                      = "https://ss-${local.pipeline_resource_name}.search.windows.net"
     "searchClient__AuthorizationKey"                 = data.azurerm_search_service.pipeline_ss.primary_key
     "searchClient__IndexName"                        = "lines-index"
     "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
     "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
 	"CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
-    "Ddei__BaseUrl"                                  = "https://fa-rumpole-tde-temp.azurewebsites.net"
-    "Ddei__AccessKey"                                = "T3z9lnFUcPI2DtZ9SSRWdY-rKtaQVCBOqvMe8G4r_hHgAzFu_eBz2g==",
+    "Ddei__BaseUrl"                                  = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "Ddei__AccessKey"                                = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key,
     "Ddei__DefaultScope"                             = "api://fa-${local.ddei_resource_name}/user_impersonation"
   }
 	

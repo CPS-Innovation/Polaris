@@ -10,8 +10,6 @@ public static class ConfigurationKeys
     public const string ClientId = "OnBehalfOfTokenClientId";
     public const string ClientSecret = "OnBehalfOfTokenClientSecret";
     public const string ValidAudience = "CallingAppValidAudience";
-    public const string CoreDataApiScope = "CoreDataApiScope";
-    public const string StubBlobStorageConnectionString = "StubBlobStorageConnectionString";
     public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
     public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
     public const string PipelineCoordinatorScope = "PolarisPipelineCoordinatorScope";

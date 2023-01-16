@@ -26,6 +26,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "CallingAppValidAudience"                 = "api://fa-${local.resource_name}-coordinator"
     "DocumentsRepositoryBaseUrl"              = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
     "ListDocumentsUrl"                        = "urns/{0}/cases/{1}/documents?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
+    "DdeiScope"                               = "api://fa-${local.ddei_resource_name}/user_impersonation"
   }
   https_only                 = true
 
@@ -119,6 +120,15 @@ module "azurerm_app_reg_fa_coordinator" {
           id   = module.azurerm_app_reg_fa_pdf_generator.app_role_ids["application.create"]
           type = "Role"
         }]
+    },
+    {
+      # DDEI
+      resource_app_id = data.azuread_application.fa_ddei.id
+      resource_access = [{
+        # User Impersonation Scope
+        id   = data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]
+        type = "Scope"
+      }]
     }]
   web = {
     redirect_uris = ["https://fa-${local.resource_name}-coordinator.azurewebsites.net/.auth/login/aad/callback",
@@ -152,8 +162,27 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_coordin
   claim_values                         = ["user_impersonation"]
 }
 
+resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_ddei" {
+  service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
+  resource_service_principal_object_id = data.azuread_application.fa_ddei.object_id
+  claim_values                         = ["user_impersonation"]
+}
+
 resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_msgraph" {
   service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
+}
+
+module "azurerm_app_pre_authorized_coordinator_ddei" {
+  source                = "./modules/terraform-azurerm-azure_ad_application_preauthorized"
+
+  # application object id of authorized application
+  application_object_id = module.azurerm_app_reg_fa_coordinator.object_id
+
+  # application id of Client application
+  authorized_app_id     = data.azuread_application.fa_ddei.application_id
+
+  # permissions to assign
+  permission_ids        = [module.azurerm_app_reg_fa_coordinator.oauth2_permission_scope_ids["user_impersonation"]]
 }

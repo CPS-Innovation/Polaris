@@ -15,18 +15,18 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
 {
     public class DdeiService : ICaseDataService, IDocumentService
     {
-        private readonly IDdeiClient _tdeClient;
+        private readonly IDdeiClient _ddeiClient;
         private readonly ICaseDataArgFactory _caseDataServiceArgFactory;
         private readonly ICaseDetailsMapper _caseDetailsMapper;
         private readonly ICaseDocumentsMapper _caseDocumentsMapper;
 
         public DdeiService(
-            IDdeiClient tdeClient,
+            IDdeiClient ddeiClient,
             ICaseDataArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
             ICaseDocumentsMapper caseDocumentsMapper)
         {
-            _tdeClient = tdeClient;
+            _ddeiClient = ddeiClient;
             _caseDataServiceArgFactory = caseDataServiceArgFactory;
             _caseDetailsMapper = caseDetailsMapper;
             _caseDocumentsMapper = caseDocumentsMapper;
@@ -36,10 +36,10 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
         {
             try
             {
-                var caseIdentifiers = await _tdeClient.ListCaseIdsAsync(arg);
+                var caseIdentifiers = await _ddeiClient.ListCaseIdsAsync(arg);
 
                 var calls = caseIdentifiers.Select(async caseIdentifier =>
-                     await _tdeClient.GetCaseAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
+                     await _ddeiClient.GetCaseAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
 
                 var cases = await Task.WhenAll(calls);
 
@@ -55,7 +55,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
         {
             try
             {
-                var @case = await _tdeClient.GetCaseAsync(arg);
+                var @case = await _ddeiClient.GetCaseAsync(arg);
                 return _caseDetailsMapper.MapCaseDetails(@case);
             }
             catch (Exception exception)
@@ -68,7 +68,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
         {
             try
             {
-                var documents = await _tdeClient.ListCaseDocumentsAsync(arg);
+                var documents = await _ddeiClient.ListCaseDocumentsAsync(arg);
 
                 return documents
                     .Select(document => _caseDocumentsMapper.MapDocumentDetails(document))
@@ -86,7 +86,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
         {
             try
             {
-                await _tdeClient.CheckoutDocument(arg);
+                await _ddeiClient.CheckoutDocument(arg);
             }
             catch (Exception exception)
             {
@@ -98,7 +98,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
         {
             try
             {
-                await _tdeClient.CancelCheckoutDocument(arg);
+                await _ddeiClient.CancelCheckoutDocument(arg);
             }
             catch (Exception exception)
             {
@@ -110,7 +110,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
         {
             try
             {
-                await _tdeClient.UploadPdf(arg, stream, fileName);
+                await _ddeiClient.UploadPdf(arg, stream, fileName);
             }
             catch (Exception exception)
             {

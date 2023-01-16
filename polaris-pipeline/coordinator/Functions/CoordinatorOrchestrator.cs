@@ -7,6 +7,7 @@ using Common.Constants;
 using Common.Domain.DocumentEvaluation;
 using Common.Domain.DocumentExtraction;
 using Common.Domain.Extensions;
+using Common.Domain.Requests;
 using Common.Logging;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
@@ -146,19 +147,21 @@ namespace coordinator.Functions
             return result;
         }
 
-        private static async Task<CaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, 
+        private async Task<CaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, 
             CoordinatorOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
             
-            //do we need this token exchange for cde, maybe not, perhaps some auth config for DDEI?
-            //log.LogMethodFlow(currentCorrelationId, loggingName, "Get CDE access token");
-            //var accessToken = await context.CallActivityAsync<string>(nameof(GetOnBehalfOfAccessToken), payload.AccessToken);
+            //exchange token for DDEI-specific token as part of OBO authentication
+            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, "Get DDEI access token");
+            var ddeiScope = _configuration[ConfigKeys.SharedKeys.DdeiScope];
+            var accessTokenRequest = new GetOnBehalfOfTokenRequest(payload.AccessToken, ddeiScope, payload.CorrelationId);
+            var accessToken = await context.CallActivityAsync<string>(nameof(GetOnBehalfOfAccessToken), accessTokenRequest);
             
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
             var documents = await context.CallActivityAsync<CaseDocument[]>(
                 nameof(GetCaseDocuments),
-                new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, payload.UpstreamToken, payload.CorrelationId));
+                new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, accessToken, payload.UpstreamToken, payload.CorrelationId));
 
             if (documents.Length != 0) return documents;
             

@@ -8,7 +8,6 @@ using Microsoft.Identity.Client;
 using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Domain.DocumentRedaction;
 using PolarisGateway.Domain.Validators;
-using PolarisGateway.Helpers.Extension;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;

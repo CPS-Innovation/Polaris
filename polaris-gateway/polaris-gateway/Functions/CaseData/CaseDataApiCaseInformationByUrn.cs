@@ -18,7 +18,6 @@ using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
 using PolarisGateway.Factories;
-using PolarisGateway.Helpers.Extension;
 using PolarisGateway.Services;
 
 namespace PolarisGateway.Functions.CaseData

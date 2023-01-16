@@ -36,9 +36,9 @@ namespace coordinator
             builder.Services.AddSingleton(_ =>
             {
                 const string instance = AuthenticationKeys.AzureAuthenticationInstanceUrl;
-                var onBehalfOfTokenTenantId = GetValueFromConfig(configuration, ConfigKeys.CoordinatorKeys.OnBehalfOfTokenTenantId);
-                var onBehalfOfTokenClientId = GetValueFromConfig(configuration, ConfigKeys.CoordinatorKeys.OnBehalfOfTokenClientId);
-                var onBehalfOfTokenClientSecret = GetValueFromConfig(configuration, ConfigKeys.CoordinatorKeys.OnBehalfOfTokenClientSecret);
+                var onBehalfOfTokenTenantId = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.TenantId);
+                var onBehalfOfTokenClientId = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.ClientId);
+                var onBehalfOfTokenClientSecret = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.ClientSecret);
                 var appOptions = new ConfidentialClientApplicationOptions
                 {
                     Instance = instance,

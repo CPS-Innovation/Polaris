@@ -15,9 +15,9 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
 
         private readonly DdeiOptions _options;
 
-        public DdeiClientRequestFactory(IOptions<DdeiOptions> tdeOptions)
+        public DdeiClientRequestFactory(IOptions<DdeiOptions> ddeiOptions)
         {
-            _options = tdeOptions.Value;
+            _options = ddeiOptions.Value;
         }
 
         public HttpRequestMessage CreateListCasesRequest(UrnArg arg)

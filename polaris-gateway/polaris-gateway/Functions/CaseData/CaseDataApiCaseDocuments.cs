@@ -18,7 +18,6 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using PolarisGateway.Domain.Exceptions;
-using PolarisGateway.Helpers.Extension;
 
 namespace PolarisGateway.Functions.CaseData
 {

@@ -1,9 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Extensions.Primitives;
 
-namespace PolarisGateway.Helpers.Extension
+namespace PolarisGateway.Extensions
 {
-    [ExcludeFromCodeCoverage]
     public static class StringValuesExtensions
     {
         public static string ToJwtString(this StringValues values)
