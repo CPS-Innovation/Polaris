@@ -164,7 +164,7 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_coordin
 
 resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_ddei" {
   service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
-  resource_service_principal_object_id = data.azuread_application.fa_ddei.object_id
+  resource_service_principal_object_id = data.azuread_service_principal.fa_ddei_service_principal.object_id
   claim_values                         = ["user_impersonation"]
 }
 
