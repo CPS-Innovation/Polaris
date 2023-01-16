@@ -43,6 +43,19 @@ resource "azurerm_key_vault_secret" "kvs_fa_coordinator_client_secret" {
   ]
 }
 
+resource "azurerm_key_vault_secret" "kvs_fa_pdf_generator_client_secret" {
+  name         = "PdfGeneratorFunctionAppRegistrationClientSecret"
+  value        = azuread_application_password.faap_fa_pdf_generator_app_service.value
+  key_vault_id = azurerm_key_vault.kv.id
+  expiration_date = timeadd(timestamp(), "8760h")
+  content_type = "password"
+
+  depends_on = [
+    azurerm_role_assignment.kv_role_terraform_sp,
+    azurerm_role_assignment.kv_role_sa_kvcseu
+  ]
+}
+
 resource "azurerm_role_assignment" "kv_role_terraform_sp" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Administrator"

@@ -23,6 +23,10 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "SearchClientIndexName"                   = jsondecode(file("search-index-definition.json")).name
     "DocumentsRepositoryBaseUrl"              = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
     "GetDocumentUrl"                          = "urns/{0}/cases/{1}/documents/{2}/{3}?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
+    "OnBehalfOfTokenTenantId"                 = data.azurerm_client_config.current.tenant_id
+    "OnBehalfOfTokenClientId"                 = module.azurerm_app_reg_fa_pdf_generator.client_id
+    "OnBehalfOfTokenClientSecret"             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_pdf_generator_client_secret.id})"
+    "DdeiScope"                               = "api://fa-polaris-ddei-dev/user_impersonation"
   }
   https_only                 = true
 
