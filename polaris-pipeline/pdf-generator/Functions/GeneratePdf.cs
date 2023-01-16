@@ -103,7 +103,7 @@ namespace pdf_generator.Functions
                 var blobName = $"{pdfRequest.CaseId}/pdfs/{Path.GetFileNameWithoutExtension(pdfRequest.FileName)}.pdf";
                 generatePdfResponse = new GeneratePdfResponse(blobName);
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, 
+                /*_log.LogMethodFlow(currentCorrelationId, loggingName, 
                     $"Beginning document evaluation process for documentId {pdfRequest.DocumentId}, versionId {pdfRequest.VersionId}, proposedBlobName: {blobName}");
                 
                 var evaluateDocumentRequest = new EvaluateDocumentRequest(pdfRequest.CaseId, pdfRequest.DocumentId, pdfRequest.VersionId, blobName);
@@ -113,7 +113,7 @@ namespace pdf_generator.Functions
                 {
                     generatePdfResponse.AlreadyProcessed = true;
                     return OkResponse(Serialize(generatePdfResponse));
-                }
+                }*/
                 
                 //Will need to prepare a custom oAuth request to send to DDEI
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Retrieving Document from Cde for documentId: '{pdfRequest.DocumentId}'");
