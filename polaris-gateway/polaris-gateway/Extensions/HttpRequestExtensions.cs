@@ -1,14 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
 using PolarisGateway.Domain.Validation;
 
-namespace PolarisGateway.Helpers.Extension
+namespace PolarisGateway.Extensions
 {
-    [ExcludeFromCodeCoverage]
     public static class HttpRequestExtensions
     {
         public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(this HttpRequest request)

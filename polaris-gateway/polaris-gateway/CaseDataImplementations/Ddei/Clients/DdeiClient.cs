@@ -15,20 +15,20 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
     public class DdeiClient : IDdeiClient
     {
         private readonly HttpClient _httpClient;
-        private readonly IDdeiClientRequestFactory _tdeClientRequestFactory;
+        private readonly IDdeiClientRequestFactory _ddeiClientRequestFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public DdeiClient(HttpClient httpClient, IDdeiClientRequestFactory tdeClientRequestFactory, IJsonConvertWrapper jsonConvertWrapper)
+        public DdeiClient(HttpClient httpClient, IDdeiClientRequestFactory ddeiClientRequestFactory, IJsonConvertWrapper jsonConvertWrapper)
         {
             _httpClient = httpClient;
-            _tdeClientRequestFactory = tdeClientRequestFactory;
+            _ddeiClientRequestFactory = ddeiClientRequestFactory;
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
         public async Task<IEnumerable<CaseIdentifiers>> ListCaseIdsAsync(UrnArg arg)
         {
             return await CallDdei<IEnumerable<CaseIdentifiers>>(
-                () => _tdeClientRequestFactory.CreateListCasesRequest(arg),
+                () => _ddeiClientRequestFactory.CreateListCasesRequest(arg),
                  arg.CorrelationId
             );
         }
@@ -36,7 +36,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
         public async Task<CaseDetails> GetCaseAsync(CaseArg arg)
         {
             return await CallDdei<CaseDetails>(
-                () => _tdeClientRequestFactory.CreateGetCaseRequest(arg),
+                () => _ddeiClientRequestFactory.CreateGetCaseRequest(arg),
                 arg.CorrelationId
             );
         }
@@ -46,7 +46,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
             try
             {
                 return await CallDdei<IEnumerable<DocumentDetails>>(
-                    () => _tdeClientRequestFactory.CreateListCaseDocumentsRequest(arg),
+                    () => _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(arg),
                      arg.CorrelationId
                 );
             }
@@ -64,7 +64,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
         public async Task CheckoutDocument(DocumentArg arg)
         {
             await CallDdei(
-               () => _tdeClientRequestFactory.CreateCheckoutDocumentRequest(arg),
+               () => _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg),
                 arg.CorrelationId
            );
         }
@@ -72,7 +72,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
         public async Task CancelCheckoutDocument(DocumentArg arg)
         {
             await CallDdei(
-               () => _tdeClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg),
+               () => _ddeiClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg),
                 arg.CorrelationId
            );
         }
@@ -80,7 +80,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
         public async Task UploadPdf(DocumentArg arg, Stream stream, string filename)
         {
             await CallDdei(
-               () => _tdeClientRequestFactory.CreateUploadPdfRequest(arg, stream, filename),
+               () => _ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream, filename),
                 arg.CorrelationId
             );
         }

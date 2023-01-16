@@ -40,7 +40,8 @@ namespace coordinator.Functions.ActivityFunctions
                 throw new ArgumentException("CorrelationId must be valid GUID");
             
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            var caseDetails = await _documentExtractionService.ListDocumentsAsync(payload.CaseUrn, payload.CaseId.ToString(), payload.UpstreamToken, payload.CorrelationId);
+            var caseDetails = await _documentExtractionService.ListDocumentsAsync(payload.CaseUrn, payload.CaseId.ToString(), payload.AccessToken, 
+                payload.UpstreamToken, payload.CorrelationId);
             
             _log.LogMethodExit(payload.CorrelationId, loggingName, caseDetails.ToJson());
             return caseDetails;

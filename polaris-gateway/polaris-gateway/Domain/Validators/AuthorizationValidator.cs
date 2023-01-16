@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Logging;
-using PolarisGateway.Helpers.Extension;
+using PolarisGateway.Extensions;
 
 namespace PolarisGateway.Domain.Validators
 {

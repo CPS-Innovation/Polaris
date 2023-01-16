@@ -34,22 +34,22 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         _caseDocumentMapper = caseDocumentMapper ?? throw new ArgumentNullException(nameof(caseDocumentMapper));
     }
 
-    public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string upstreamToken, Guid correlationId)
+    public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string accessToken, string upstreamToken, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}, DocumentId: {documentId}");
         
-        var content = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.GetDocumentUrl], caseUrn, caseId, documentCategory, documentId), upstreamToken, correlationId);
+        var content = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.GetDocumentUrl], caseUrn, caseId, documentCategory, documentId), accessToken, upstreamToken, correlationId);
         var result = await content.ReadAsStreamAsync();
         
         _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), string.Empty);
         return result;
     }
 
-    public async Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string upstreamToken, Guid correlationId)
+    public async Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string upstreamToken, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
 
-        var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), upstreamToken, correlationId);
+        var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), accessToken, upstreamToken, correlationId);
         var stringContent = await response.ReadAsStringAsync();
         var ddeiResults = _jsonConvertWrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(stringContent);
 

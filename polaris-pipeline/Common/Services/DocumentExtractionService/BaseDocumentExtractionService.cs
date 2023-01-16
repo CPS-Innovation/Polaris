@@ -21,11 +21,11 @@ public abstract class BaseDocumentExtractionService
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
     
-    protected async Task<HttpContent> GetHttpContentAsync(string requestUri, string accessToken, Guid correlationId)
+    protected async Task<HttpContent> GetHttpContentAsync(string requestUri, string accessToken, string upstreamToken, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetHttpContentAsync), $"RequestUri: {requestUri}");
             
-        var request = _httpRequestFactory.CreateGet(requestUri, accessToken, correlationId);
+        var request = _httpRequestFactory.CreateGet(requestUri, accessToken, upstreamToken,  correlationId);
         var response = await _httpClient.SendAsync(request);
 
         try

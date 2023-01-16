@@ -8,13 +8,13 @@ using Microsoft.Identity.Client;
 using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Factories;
-using PolarisGateway.Helpers.Extension;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using System.Net;
+using PolarisGateway.Extensions;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {

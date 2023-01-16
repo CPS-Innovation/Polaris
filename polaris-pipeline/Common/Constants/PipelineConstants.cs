@@ -61,9 +61,6 @@
         public static class CoordinatorKeys
         {
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
-            public const string OnBehalfOfTokenTenantId = "OnBehalfOfTokenTenantId";
-            public const string OnBehalfOfTokenClientId = "OnBehalfOfTokenClientId";
-            public const string OnBehalfOfTokenClientSecret = "OnBehalfOfTokenClientSecret";
             public const string PdfGeneratorScope = "PdfGeneratorScope";
             public const string PdfGeneratorUrl = "PdfGeneratorUrl";
             public const string TextExtractorScope = "TextExtractorScope";
@@ -90,6 +87,10 @@
             public const string DocumentsRepositoryBaseUrl = "DocumentsRepositoryBaseUrl";
             public const string GetDocumentUrl = "GetDocumentUrl";
             public const string ListDocumentsUrl = "ListDocumentsUrl";
+            public const string TenantId = "OnBehalfOfTokenTenantId";
+            public const string ClientId = "OnBehalfOfTokenClientId";
+            public const string ClientSecret = "OnBehalfOfTokenClientSecret";
+            public const string DdeiScope = "DdeiScope";
         }
     }
 }

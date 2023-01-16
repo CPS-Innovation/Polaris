@@ -56,8 +56,8 @@ provider "azurerm" {
 }
 
 locals {
-  resource_name = "${var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix}"
-  ddei_resource_name = var.env != "prod" ? "${var.ddei_resource_name_prefix}" : "${var.ddei_resource_name_prefix}"
+  resource_name = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
+  ddei_resource_name = var.env != "prod" ? "${var.ddei_resource_name_prefix}-${var.env}" : var.ddei_resource_name_prefix
 }
 
 data "azurerm_client_config" "current" {}

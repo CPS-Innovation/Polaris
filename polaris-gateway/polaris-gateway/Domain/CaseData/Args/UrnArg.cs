@@ -1,4 +1,3 @@
-using System.Net;
 namespace PolarisGateway.Domain.CaseData.Args
 {
     public class UrnArg : BaseCaseDataArg

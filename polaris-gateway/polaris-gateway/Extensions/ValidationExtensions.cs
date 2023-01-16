@@ -1,11 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using PolarisGateway.Domain.Validation;
 
-namespace PolarisGateway.Helpers.Extension
+namespace PolarisGateway.Extensions
 {
-    [ExcludeFromCodeCoverage]
     public static class ValidationExtensions
     {
         public static BadRequestObjectResult ToBadRequest<T>(this ValidatableRequest<T> request)

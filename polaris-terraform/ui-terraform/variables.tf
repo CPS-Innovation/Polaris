@@ -21,15 +21,6 @@ variable "app_service_plan_sku" {
   })
 }
 
-variable "core_data_api_details" {
-  type = object({
-    api_id = string
-    api_url = string
-    api_scope = string
-    case_confirm_user_impersonation_id = string
-  })
-}
-
 variable "environment_tag" {
   type        = string
   description = "Environment tag value"
@@ -41,8 +32,4 @@ variable "polaris_webapp_details" {
     valid_scopes = string
 	valid_roles = string
   })
-}
-
-variable "stub_blob_storage_connection_string" {
-  type = string
 }

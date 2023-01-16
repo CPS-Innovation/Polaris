@@ -48,7 +48,8 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"DocumentId: {documentId}, FileName: {fileName}");
         //It has been assumed here that CDE will return 404 not found when document cant be found. Test this when hooked up properly
-        var content = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.GetDocumentUrl], documentId, fileName), accessToken, correlationId);
+        var content = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.GetDocumentUrl], documentId, fileName), accessToken, 
+            string.Empty, correlationId);
         var result = await content.ReadAsStreamAsync();
         _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), string.Empty);
         return result;
