@@ -25,27 +25,27 @@ namespace text_extractor.Handlers
                 statusCode = HttpStatusCode.Unauthorized;
             }
             else if (exception is BadRequestException)
-            {
-                baseErrorMessage = "Invalid request";
-                statusCode = HttpStatusCode.BadRequest;
-            }
-            //this exception is thrown when generating a sas link
-            else if (exception is RequestFailedException requestFailedException)
-            {
-                baseErrorMessage = "A service request failed exception occurred";
-                var requestFailedStatusCode = (HttpStatusCode)requestFailedException.Status;
-                statusCode =
-                    requestFailedStatusCode == HttpStatusCode.BadRequest || requestFailedStatusCode == HttpStatusCode.NotFound
-                    ? statusCode
-                    : requestFailedStatusCode;
-            }
-            else if (exception is OcrServiceException)
-            {
-                baseErrorMessage = "An Ocr service exception occurred";
-            }
+                {
+                    baseErrorMessage = "Invalid request";
+                    statusCode = HttpStatusCode.BadRequest;
+                }
+                //this exception is thrown when generating a sas link
+                else if (exception is RequestFailedException requestFailedException)
+                    {
+                        baseErrorMessage = "A service request failed exception occurred";
+                        var requestFailedStatusCode = (HttpStatusCode)requestFailedException.Status;
+                        statusCode =
+                            requestFailedStatusCode == HttpStatusCode.BadRequest || requestFailedStatusCode == HttpStatusCode.NotFound
+                                ? statusCode
+                                : requestFailedStatusCode;
+                    }
+                    else if (exception is OcrServiceException)
+                    {
+                        baseErrorMessage = "An Ocr service exception occurred";
+                    }
 
             logger.LogMethodError(correlationId, source, $"{baseErrorMessage}: {exception.Message}", exception);
-            logger.LogMethodExit(correlationId, nameof(ExceptionHandler), string.Empty);
+            logger.LogError(exception, "A Text Extraction exception has occurred");
             return ErrorResponse(baseErrorMessage, exception, statusCode);
         }
 

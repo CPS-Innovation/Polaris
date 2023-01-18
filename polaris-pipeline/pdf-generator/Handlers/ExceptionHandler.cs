@@ -17,7 +17,6 @@ namespace pdf_generator.Handlers
     {
         public HttpResponseMessage HandleException(Exception exception, Guid correlationId, string source, ILogger logger)
         {
-            logger.LogMethodEntry(correlationId, nameof(ExceptionHandler), string.Empty);
             var baseErrorMessage = "An unhandled exception occurred";
             var statusCode = HttpStatusCode.InternalServerError;
 
@@ -55,7 +54,7 @@ namespace pdf_generator.Handlers
             }
 
             logger.LogMethodError(correlationId, source, $"{baseErrorMessage}: {exception.Message}", exception);
-            logger.LogMethodExit(correlationId, nameof(ExceptionHandler), string.Empty);
+            logger.LogError(exception, "A PDF Generation exception has occurred");
             return ErrorResponse(baseErrorMessage, exception, statusCode);
         }
 
