@@ -83,6 +83,7 @@ namespace pdf_generator.Services.PdfService
                         break;
                     case FileType.PDF:
                         inputStream.CopyTo(pdfStream);
+                        pdfStream.Position = 0; //the pointer is at the end of the stream because of the copy and it will fail when subsequently uploaded to BLOB storage
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
