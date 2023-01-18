@@ -71,6 +71,6 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
             result.CmsDocType.DocumentTypeId = additionalInfo.DocumentTypeId;
         }
 
-        return results.ToArray();
+        return results.Where(x => !string.IsNullOrEmpty(x.FileName)).ToArray();
     }
 }
