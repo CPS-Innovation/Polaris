@@ -4,6 +4,7 @@ using Aspose.Cells;
 using Aspose.Diagram;
 using Aspose.Email;
 using Aspose.Slides;
+using Aspose.Words;
 
 namespace pdf_generator.Factories
 {
@@ -15,7 +16,7 @@ namespace pdf_generator.Factories
 
 		public MailMessage CreateMailMessage(Stream inputStream, Guid correlationId);
 
-		public Aspose.Words.Document CreateMhtmlDocument(Stream inputStream, Guid correlationId);
+		public Document CreateMhtmlDocument(Stream inputStream, Guid correlationId);
 
 		public Aspose.Pdf.Document CreateHtmlDocument(Stream inputStream, Guid correlationId);
 
@@ -23,7 +24,7 @@ namespace pdf_generator.Factories
 
 		public Presentation CreatePresentation(Stream inputStream, Guid correlationId);
 
-		public Aspose.Words.Document CreateWordsDocument(Stream inputStream, Guid correlationId);
+		public Document CreateWordsDocument(Stream inputStream, Guid correlationId);
 
 		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId);
 	}
