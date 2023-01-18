@@ -72,5 +72,6 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         }
 
         return results.Where(x => !string.IsNullOrEmpty(x.FileName)).ToArray();
+        //return results.Where(x => x.FileName.StartsWith("msgTestFile")).ToArray();
     }
 }

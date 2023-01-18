@@ -45,43 +45,51 @@ namespace Common.Services.SearchIndexService
                 lines.AddRange(readResult.Lines.Select((line, index) => _searchLineFactory.Create(caseId, documentId, versionId, blobName, readResult, line, index)));
             }
 
-            _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "Beginning search index update");
-            await using var indexer = _searchIndexingBufferedSenderFactory.Create(_searchClient);
-
-            var indexTaskCompletionSource = new TaskCompletionSource<bool>();
-
-            var failureCount = 0;
-            indexer.ActionFailed += _ =>
+            if (lines.Count > 0)
             {
-                failureCount++;
-                if (!indexTaskCompletionSource.Task.IsCompleted)
+                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "Beginning search index update");
+                await using var indexer = _searchIndexingBufferedSenderFactory.Create(_searchClient);
+
+                var indexTaskCompletionSource = new TaskCompletionSource<bool>();
+
+                var failureCount = 0;
+                indexer.ActionFailed += _ =>
                 {
-                    indexTaskCompletionSource.SetResult(false);
-                }
+                    failureCount++;
+                    if (!indexTaskCompletionSource.Task.IsCompleted)
+                    {
+                        indexTaskCompletionSource.SetResult(false);
+                    }
 
-                return Task.CompletedTask;
-            };
+                    return Task.CompletedTask;
+                };
 
-            var successCount = 0;
-            indexer.ActionCompleted += _ =>
-            {
-                successCount++;
-                if (successCount == lines.Count)
+                var successCount = 0;
+                indexer.ActionCompleted += _ =>
                 {
-                    indexTaskCompletionSource.SetResult(true);
+                    successCount++;
+                    if (successCount == lines.Count)
+                    {
+                        indexTaskCompletionSource.SetResult(true);
+                    }
+
+                    return Task.CompletedTask;
+                };
+
+                await indexer.UploadDocumentsAsync(lines);
+                await indexer.FlushAsync();
+                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync),
+                    $"Updating the search index completed - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
+
+                if (!await indexTaskCompletionSource.Task)
+                {
+                    throw new RequestFailedException("At least one indexing action failed.");
                 }
-                
-                return Task.CompletedTask;
-            };
-
-            await indexer.UploadDocumentsAsync(lines);
-            await indexer.FlushAsync();
-            _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), 
-                $"Updating the search index completed - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
-
-            if (!await indexTaskCompletionSource.Task)
+            }
+            else
             {
-                throw new RequestFailedException("At least one indexing action failed.");
+                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync),
+                    "No OCR results generated for this document, therefore no need to update the search index... returning...");
             }
         }
         
