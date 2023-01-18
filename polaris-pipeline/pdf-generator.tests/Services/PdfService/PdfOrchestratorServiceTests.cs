@@ -24,6 +24,7 @@ namespace pdf_generator.tests.Services.PdfService
 		private readonly Mock<IPdfService> _mockDiagramPdfService;
 		private readonly Mock<IPdfService> _mockHtmlPdfService;
 		private readonly Mock<IPdfService> _mockEmailPdfService;
+		private readonly Mock<IPdfService> _mockPdfRendererService;
 
 		private readonly IPdfOrchestratorService _pdfOrchestratorService;
 
@@ -41,6 +42,7 @@ namespace pdf_generator.tests.Services.PdfService
 			_mockDiagramPdfService = new Mock<IPdfService>();
 			_mockHtmlPdfService = new Mock<IPdfService>();
 			_mockEmailPdfService = new Mock<IPdfService>();
+			_mockPdfRendererService = new Mock<IPdfService>();
 			var mockLogger = new Mock<ILogger<PdfOrchestratorService>>();
 
 			_pdfOrchestratorService = new PdfOrchestratorService(
@@ -51,6 +53,7 @@ namespace pdf_generator.tests.Services.PdfService
 										_mockDiagramPdfService.Object,
 										_mockHtmlPdfService.Object,
 										_mockEmailPdfService.Object,
+										_mockPdfRendererService.Object,
 										mockLogger.Object);
 		}
 
@@ -207,10 +210,11 @@ namespace pdf_generator.tests.Services.PdfService
 		}
 
         [Fact]
-        public void ReadToPdfStream_PopulatesStreamCorrectlyWhenTheFileTypeIsAlreadyA_PDF()
+        public void ReadToPdfStream_CallsPdfRendererServiceWhenFileTypeIsPdf()
         {
-            using var pdfStream = _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PDF, _documentId, _correlationId);
-            pdfStream.Should().NotBeNull();
+	        _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PDF, _documentId, _correlationId);
+
+	        _mockPdfRendererService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
 		[Fact]

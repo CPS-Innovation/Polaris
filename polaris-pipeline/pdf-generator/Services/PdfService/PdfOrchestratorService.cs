@@ -16,6 +16,7 @@ namespace pdf_generator.Services.PdfService
         private readonly IPdfService _diagramPdfService;
         private readonly IPdfService _htmlPdfService;
         private readonly IPdfService _emailPdfService;
+        private readonly IPdfService _pdfRendererService;
         private readonly ILogger<PdfOrchestratorService> _logger;
 
         public PdfOrchestratorService(
@@ -26,6 +27,7 @@ namespace pdf_generator.Services.PdfService
             IPdfService diagramPdfService,
             IPdfService htmlPdfService,
             IPdfService emailPdfService,
+            IPdfService pdfRendererService,
             ILogger<PdfOrchestratorService> logger)
         {
             _wordsPdfService = wordsPdfService;
@@ -35,6 +37,7 @@ namespace pdf_generator.Services.PdfService
             _diagramPdfService = diagramPdfService;
             _htmlPdfService = htmlPdfService;
             _emailPdfService = emailPdfService;
+            _pdfRendererService = pdfRendererService;
             _logger = logger;
         }
 
@@ -82,8 +85,7 @@ namespace pdf_generator.Services.PdfService
                         _emailPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
                     case FileType.PDF:
-                        inputStream.CopyTo(pdfStream);
-                        pdfStream.Position = 0; //the pointer is at the end of the stream because of the copy and it will fail when subsequently uploaded to BLOB storage
+                        _pdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);

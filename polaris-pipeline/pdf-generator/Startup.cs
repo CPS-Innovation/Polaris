@@ -76,6 +76,7 @@ namespace pdf_generator
             builder.Services.AddSingleton<IPdfService, DiagramPdfService>();
             builder.Services.AddSingleton<IPdfService, HtmlPdfService>();
             builder.Services.AddSingleton<IPdfService, EmailPdfService>();
+            builder.Services.AddSingleton<IPdfService, PdfRendererService>();
             builder.Services.AddSingleton<IPdfOrchestratorService, PdfOrchestratorService>(provider =>
             {
                 var pdfServices = provider.GetServices<IPdfService>();
@@ -87,10 +88,11 @@ namespace pdf_generator
                 var diagramPdfService = servicesList.First(s => s.GetType() == typeof(DiagramPdfService));
                 var htmlPdfService = servicesList.First(s => s.GetType() == typeof(HtmlPdfService));
                 var emailPdfService = servicesList.First(s => s.GetType() == typeof(EmailPdfService));
+                var pdfRendererService = servicesList.First(s => s.GetType() == typeof(PdfRendererService));
                 var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
 
                 return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService, 
-                    diagramPdfService, htmlPdfService, emailPdfService, loggingService);
+                    diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, loggingService);
             });
 
             builder.Services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
