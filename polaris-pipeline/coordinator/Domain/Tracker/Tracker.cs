@@ -40,9 +40,7 @@ namespace coordinator.Domain.Tracker
         {
             TransactionId = transactionId;
             
-            Documents ??= new List<TrackerDocument>(); //preserve last run
-            foreach (var document in Documents) //but reset any document status values
-                document.Status = DocumentStatus.None;
+            Documents = new List<TrackerDocument>();
             
             Status = TrackerStatus.Running;
             Logs = new List<Log>();
@@ -105,8 +103,11 @@ namespace coordinator.Domain.Tracker
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
         {
             var document = Documents.Find(document => document.DocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
-            document!.PdfBlobName = arg.BlobName;
-            document.Status = DocumentStatus.PdfUploadedToBlob;
+            if (document != null)
+            {
+                document.PdfBlobName = arg.BlobName;
+                document.Status = DocumentStatus.PdfUploadedToBlob;
+            }
 
             Log(LogType.RegisteredPdfBlobName, arg.DocumentId);
 
@@ -116,8 +117,11 @@ namespace coordinator.Domain.Tracker
         public Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg)
         {
             var document = Documents.Find(document => document.DocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
-            document!.PdfBlobName = arg.BlobName;
-            document.Status = DocumentStatus.DocumentAlreadyProcessed;
+            if (document != null)
+            {
+                document.PdfBlobName = arg.BlobName;
+                document.Status = DocumentStatus.DocumentAlreadyProcessed;
+            }
 
             Log(LogType.DocumentAlreadyProcessed, arg.DocumentId);
 
@@ -127,8 +131,9 @@ namespace coordinator.Domain.Tracker
         public Task RegisterDocumentNotFoundInDDEI(string documentId)
         {
             var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
-            document!.Status = DocumentStatus.NotFoundInDDEI;
-
+            if (document != null)
+                document.Status = DocumentStatus.NotFoundInDDEI;
+            
             Log(LogType.DocumentNotFoundInDDEI, documentId);
 
             return Task.CompletedTask;
@@ -137,7 +142,8 @@ namespace coordinator.Domain.Tracker
         public Task RegisterUnableToConvertDocumentToPdf(string documentId)
         {
             var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
-            document!.Status = DocumentStatus.UnableToConvertToPdf;
+            if (document != null)
+                document.Status = DocumentStatus.UnableToConvertToPdf;
 
             Log(LogType.UnableToConvertDocumentToPdf, documentId);
 
@@ -147,7 +153,8 @@ namespace coordinator.Domain.Tracker
         public Task RegisterUnexpectedPdfDocumentFailure(string documentId)
         {
             var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
-            document!.Status = DocumentStatus.UnexpectedFailure;
+            if (document != null)
+                document.Status = DocumentStatus.UnexpectedFailure;
 
             Log(LogType.UnexpectedDocumentFailure, documentId);
 
@@ -166,7 +173,8 @@ namespace coordinator.Domain.Tracker
         public Task RegisterIndexed(string documentId)
         {
             var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
-            document!.Status = DocumentStatus.Indexed;
+            if (document != null)
+                document.Status = DocumentStatus.Indexed;
 
             Log(LogType.Indexed, documentId);
 
@@ -176,7 +184,8 @@ namespace coordinator.Domain.Tracker
         public Task RegisterOcrAndIndexFailure(string documentId)
         {
             var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
-            document!.Status = DocumentStatus.OcrAndIndexFailure;
+            if (document != null)
+                document.Status = DocumentStatus.OcrAndIndexFailure;
 
             Log(LogType.OcrAndIndexFailure, documentId);
 

@@ -71,6 +71,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\DocumentExtraction\" />
-    <Folder Include="Helpers\Extension" />
   </ItemGroup>
 </Project>
