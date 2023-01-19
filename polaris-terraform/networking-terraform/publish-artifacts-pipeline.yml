@@ -1,0 +1,16 @@
+trigger:
+  branches:
+    include:
+    - main
+    
+  paths:
+    include:
+      - "polaris-terraform/networking-terraform/*"
+
+steps:
+  - task: PublishPipelineArtifact@1
+    displayName: "Publish Terraform Artifacts"
+    inputs:
+      targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
+      artifact: "networking-terraform-files"
+      publishLocation: "pipeline"
