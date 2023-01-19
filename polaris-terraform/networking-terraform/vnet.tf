@@ -98,13 +98,18 @@ resource "azurerm_private_dns_zone" "dns_zone_table_storage" {
   resource_group_name = azurerm_resource_group.rg_networking.name
 }
 
-resource "azurerm_private_dns_zone" "dns_zone_web" {
-  name                = "privatelink.web.core.windows.net"
+resource "azurerm_private_dns_zone" "dns_zone_apps" {
+  name                = "privatelink.azurewebsites.net"
   resource_group_name = azurerm_resource_group.rg_networking.name
 }
 
-resource "azurerm_private_dns_zone" "dns_zone_apps" {
-  name                = "privatelink.azurewebsites.net"
+resource "azurerm_private_dns_zone" "dns_zone_queue_storage" {
+  name                = "privatelink.queue.core.windows.net"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+}
+
+resource "azurerm_private_dns_zone" "dns_zone_key_vault" {
+  name                = "privatelink.vaultcore.azure.net"
   resource_group_name = azurerm_resource_group.rg_networking.name
 }
 
@@ -122,16 +127,23 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_table_storage
   virtual_network_id    = azurerm_virtual_network.vnet_networking.id
 }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_web_link" {
-  name                  = "dnszonelink-web"
-  resource_group_name   = azurerm_resource_group.rg_networking.name
-  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_web.name
-  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
-}
-
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_apps_link" {
   name                  = "dnszonelink-apps"
   resource_group_name   = azurerm_resource_group.rg_networking.name
   private_dns_zone_name = azurerm_private_dns_zone.dns_zone_apps.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_queue_link" {
+  name                  = "dnszonelink-queue"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_queue_storage.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_keyvault_link" {
+  name                  = "dnszonelink-keyvault"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_key_vault.name
   virtual_network_id    = azurerm_virtual_network.vnet_networking.id
 }
