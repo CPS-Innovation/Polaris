@@ -54,23 +54,8 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         var ddeiResults = _jsonConvertWrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(stringContent);
 
         _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), string.Empty);
-        var results = ddeiResults.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
-            .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult)).ToList();
+        var results = ddeiResults.Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult)).ToList();
         
-        //there seem to be additional instances of a document, following its reclassification to a specific document type. Update the results collection with this information`
-        var additionalClassifications = ddeiResults.Where(x => string.IsNullOrWhiteSpace(x.OriginalFileName)).ToList();
-        foreach (var additionalInfo in additionalClassifications)
-        {
-            if (string.IsNullOrWhiteSpace(additionalInfo.DocumentType)) continue;
-            
-            var result = results.FirstOrDefault(x => x.DocumentId == additionalInfo.Id.ToString());
-            if (result == null) continue;
-            
-            result.CmsDocType.DocumentCategory = additionalInfo.CmsDocCategory;
-            result.CmsDocType.DocumentType = additionalInfo.DocumentType;
-            result.CmsDocType.DocumentTypeId = additionalInfo.DocumentTypeId;
-        }
-
         return results.Where(x => !string.IsNullOrEmpty(x.FileName)).ToArray();
         //return results.Where(x => x.FileName.StartsWith("msgTestFile")).ToArray();
     }
