@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.DocumentExtraction;
+using Common.Domain.Extensions;
 using Common.Domain.Responses;
 using Common.Factories.Contracts;
 using Common.Logging;
@@ -48,15 +49,18 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
     public async Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string upstreamToken, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
-
+        var results = new List<CaseDocument>();
+        
         var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), accessToken, upstreamToken, correlationId);
         var stringContent = await response.ReadAsStringAsync();
         var ddeiResults = _jsonConvertWrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(stringContent);
 
-        _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), string.Empty);
-        var results = ddeiResults.Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult)).ToList();
+        if (ddeiResults != null && ddeiResults.Any())
+            results = ddeiResults.Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult)).ToList();
         
-        return results.Where(x => !string.IsNullOrEmpty(x.FileName)).ToArray();
+        _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), results.ToJson());
+        
+        return results.ToArray();
         //return results.Where(x => x.FileName.StartsWith("msgTestFile")).ToArray();
     }
 }
