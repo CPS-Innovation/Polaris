@@ -1,7 +1,7 @@
 #################### App Service Plan ####################
 
 resource "azurerm_service_plan" "asp-windows-ep" {
-  name                = "asp-${local.resource_name}"
+  name                = "asp-windows-${local.resource_name}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Windows"
@@ -9,7 +9,7 @@ resource "azurerm_service_plan" "asp-windows-ep" {
 }
 
 resource "azurerm_monitor_autoscale_setting" "amas-windows-ep" {
-  name                = "amas-${local.resource_name}"
+  name                = "amas-windows-${local.resource_name}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   target_resource_id  = azurerm_service_plan.asp-windows-ep.id
