@@ -1,5 +1,3 @@
 env = "dev"
-app_service_plan_sku = {
-    size = "B3"
-    tier = "Basic"
-}
+environment_tag = "development"
+app_service_plan_sku = "EP1"

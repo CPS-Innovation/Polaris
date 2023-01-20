@@ -1,5 +1,3 @@
 env = "qa"
-app_service_plan_sku = {
-    size = "B3"
-    tier = "Basic"
-}
+environment_tag = "qa"
+app_service_plan_sku = "EP1"

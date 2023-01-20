@@ -20,8 +20,14 @@ variable "env" {
 }
 
 variable "app_service_plan_sku" {
-  type = object({
-    tier = string
-    size = string
-  })
+  type = string
+}
+
+variable "environment_tag" {
+  type        = string
+  description = "Environment tag value"
+}
+
+variable "networking_resource_name_suffix" {
+  default = "networking"
 }
