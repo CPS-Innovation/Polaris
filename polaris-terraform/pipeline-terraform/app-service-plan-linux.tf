@@ -10,7 +10,6 @@ resource "azurerm_service_plan" "asp" {
 
 resource "azurerm_monitor_autoscale_setting" "amas" {
   name                = "amas-${local.resource_name}"
-  count               = var.app_service_plan_sku.tier != "Basic" ? 1 : 0
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   target_resource_id  = azurerm_service_plan.asp.id
