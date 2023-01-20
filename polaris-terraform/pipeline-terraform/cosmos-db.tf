@@ -1,5 +1,5 @@
 #################### Cosmos Db ####################
-
+/*
 resource "azurerm_cosmosdb_account" "cdba" {
   name                = "cdb-${local.resource_name}"
   location            = azurerm_resource_group.rg.location
@@ -38,3 +38,4 @@ resource "azurerm_cosmosdb_sql_container" "cdbdc" {
   partition_key_path  = "/caseId"
   default_ttl = 157680000 // 5 years
 }
+*/
