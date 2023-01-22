@@ -31,7 +31,6 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   https_only                 = true
 
   site_config {
-    always_on      = true
     ip_restriction = []
     ftps_state     = "FtpsOnly"
     http2_enabled = true
