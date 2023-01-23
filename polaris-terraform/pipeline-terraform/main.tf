@@ -13,6 +13,11 @@ terraform {
       version = "~> 2.15.0"
     }
 
+    restapi = {
+      source = "Mastercard/restapi"
+      version = "1.16.1"
+    }
+
     random = {
       source  = "hashicorp/random"
       version = "~> 3.1.0"
