@@ -48,15 +48,6 @@ resource "azurerm_subnet" "sn_polaris_services_subnet" {
   address_prefixes     = [var.polarisServicesSubnet]
 
   private_endpoint_network_policies_enabled = true
-
-  delegation {
-    name = "Microsoft.Web/serverFarms Delegation"
-
-    service_delegation {
-      name    = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
 }
 
 /*data "azurerm_virtual_hub" "digital_platform_virtual_hub" {
@@ -98,6 +89,11 @@ resource "azurerm_private_dns_zone" "dns_zone_table_storage" {
   resource_group_name = azurerm_resource_group.rg_networking.name
 }
 
+resource "azurerm_private_dns_zone" "dns_zone_file_storage" {
+  name                = "privatelink.file.core.windows.net"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+}
+
 resource "azurerm_private_dns_zone" "dns_zone_apps" {
   name                = "privatelink.azurewebsites.net"
   resource_group_name = azurerm_resource_group.rg_networking.name
@@ -124,6 +120,13 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_table_storage
   name                  = "dnszonelink-tablestorage"
   resource_group_name   = azurerm_resource_group.rg_networking.name
   private_dns_zone_name = azurerm_private_dns_zone.dns_zone_table_storage.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_file_storage_link" {
+  name                  = "dnszonelink-filestorage"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_file_storage.name
   virtual_network_id    = azurerm_virtual_network.vnet_networking.id
 }
 
