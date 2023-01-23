@@ -10,9 +10,6 @@ resource "azurerm_storage_account" "sa" {
 
   min_tls_version = "TLS1_2"
 
-  default_action = "Deny"
-  bypass         = ["Metrics", "Logging", "AzureServices"]
-
   identity {
     type = "SystemAssigned"
   }
@@ -146,4 +143,11 @@ resource "azurerm_private_dns_a_record" "pipeline_sa_queue_dns_a" {
   resource_group_name = azurerm_resource_group.rg.name
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_sa_queue_pe.private_service_connection.0.private_ip_address]
+}
+
+resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
+  storage_account_id = azurerm_storage_account.sa.id
+
+  default_action = "Deny"
+  bypass         = ["Metrics", "Logging", "AzureServices"]
 }
