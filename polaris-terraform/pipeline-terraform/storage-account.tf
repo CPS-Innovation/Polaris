@@ -10,9 +10,8 @@ resource "azurerm_storage_account" "sa" {
 
   min_tls_version = "TLS1_2"
 
-  network_rules {
-    default_action = "Allow"
-  }
+  default_action = "Deny"
+  bypass         = ["Metrics", "Logging", "AzureServices"]
 
   identity {
     type = "SystemAssigned"
@@ -75,4 +74,76 @@ resource "azurerm_eventgrid_system_topic" "pipeline_document_deleted_topic" {
     environment = "${var.env}"
   }
   depends_on = [azurerm_storage_account.sa,azurerm_storage_management_policy.pipeline-documents-lifecycle]
+}
+
+# Create Private Endpoint for Blobs
+resource "azurerm_private_endpoint" "pipeline_sa_blob_pe" {
+  name                  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-psc"
+    private_connection_resource_id = azurerm_storage_account.sa.id
+    is_manual_connection           = false
+    subresource_names              = ["blob"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_sa_blob_dns_a" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_blob_storage.name
+  resource_group_name = azurerm_resource_group.rg.name
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_sa_blob_pe.private_service_connection.0.private_ip_address]
+}
+
+# Create Private Endpoint for Tables
+resource "azurerm_private_endpoint" "pipeline_sa_table_pe" {
+  name                  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-table-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-table-psc"
+    private_connection_resource_id = azurerm_storage_account.sa.id
+    is_manual_connection           = false
+    subresource_names              = ["table"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_sa_table_dns_a" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_table_storage.name
+  resource_group_name = azurerm_resource_group.rg.name
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_sa_table_pe.private_service_connection.0.private_ip_address]
+}
+
+# Create Private Endpoint for Queues
+resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
+  name                  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-queue-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-queue-psc"
+    private_connection_resource_id = azurerm_storage_account.sa.id
+    is_manual_connection           = false
+    subresource_names              = ["queue"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_sa_queue_dns_a" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_queue_storage.name
+  resource_group_name = azurerm_resource_group.rg.name
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_sa_queue_pe.private_service_connection.0.private_ip_address]
 }
