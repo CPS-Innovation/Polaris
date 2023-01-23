@@ -145,9 +145,11 @@ resource "azurerm_private_dns_a_record" "pipeline_sa_queue_dns_a" {
   records             = [azurerm_private_endpoint.pipeline_sa_queue_pe.private_service_connection.0.private_ip_address]
 }
 
+/*
 resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
   storage_account_id = azurerm_storage_account.sa.id
 
   default_action = "Deny"
   bypass         = ["Metrics", "Logging", "AzureServices"]
 }
+*/
