@@ -27,3 +27,10 @@ resource "azurerm_role_assignment" "ra_blob_data_contributor_text_extractor" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = data.azurerm_linux_function_app.fa_text_extractor.identity[0].principal_id
 }
+
+resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
+  storage_account_id = data.azurerm_storage_account.pipeline_storage_account.id
+
+  default_action = "Deny"
+  bypass         = ["Metrics", "Logging", "AzureServices"]
+}
