@@ -92,7 +92,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_blob_pe" {
 resource "azurerm_private_dns_a_record" "pipeline_sa_blob_dns_a" {
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_blob_storage.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_sa_blob_pe.private_service_connection.0.private_ip_address]
 }
@@ -116,7 +116,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_table_pe" {
 resource "azurerm_private_dns_a_record" "pipeline_sa_table_dns_a" {
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_table_storage.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_sa_table_pe.private_service_connection.0.private_ip_address]
 }
@@ -140,7 +140,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
 resource "azurerm_private_dns_a_record" "pipeline_sa_queue_dns_a" {
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_queue_storage.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_sa_queue_pe.private_service_connection.0.private_ip_address]
 }
