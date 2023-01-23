@@ -141,12 +141,12 @@ resource "azurerm_private_endpoint" "pipeline_sa_file_pe" {
 }
 
 # Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_table_dns_a" {
+resource "azurerm_private_dns_a_record" "pipeline_sa_file_dns_a" {
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_table_storage.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_file_storage.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_table_pe.private_service_connection.0.private_ip_address]
+  records             = [azurerm_private_endpoint.pipeline_sa_file_pe.private_service_connection.0.private_ip_address]
 }
 
 # Create Private Endpoint for Queues
