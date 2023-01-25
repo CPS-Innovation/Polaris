@@ -50,6 +50,22 @@ resource "azurerm_subnet" "sn_polaris_services_subnet" {
   private_endpoint_network_policies_enabled = true
 }
 
+resource "azurerm_subnet" "sn_polaris_ci_subnet" {
+  name                 = "polaris-ci-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes      = [var.polarisCiSubnet]
+  service_endpoints    = ["Microsoft.Storage"]
+  delegation {
+    name = "Microsoft.ContainerInstance/containerGroups Delegation"
+
+    service_delegation {
+      name    = "Microsoft.ContainerInstance/containerGroups"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"]
+    }
+  }
+}
+
 /*data "azurerm_virtual_hub" "digital_platform_virtual_hub" {
   provider            = azurerm.digital-platform-shared
   name                = "digital-platform-virtual-hub"

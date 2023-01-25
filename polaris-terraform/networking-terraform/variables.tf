@@ -28,6 +28,9 @@ variable "ddeiServicesSubnet" {
 variable "polarisServicesSubnet" {
 }
 
+variable "polarisCiSubnet" {
+}
+
 variable "digital-platform-shared-subscription-id" {
   default = "8eeb7cbd-fa86-46be-9112-c72428713fc8"
 }
