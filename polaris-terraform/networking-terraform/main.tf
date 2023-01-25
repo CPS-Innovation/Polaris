@@ -14,21 +14,21 @@ terraform {
     }
   }
 
-  /*backend "azurerm" {
+  backend "azurerm" {
     storage_account_name = "__terraform_storage_account__"
     container_name       = "__terraform_container_name__"
     key                  = "__terraform_key__"
     access_key           = "__storage_key__"
-  }*/
+  }
   
-  backend "azurerm" {
+  /*backend "azurerm" {
     resource_group_name  = "rg-terraform"
     //storage_account_name = "cpsqastorageterraform" //QA
     storage_account_name = "cpsdevstorageterraform" //DEV
     container_name       = "terraform-networking"
     key                  = "terraform.tfstate"
-    access_key           = "zcFXNfxGnrupbk7HAimR5ElrrnlkZBcUYzxSd2008cXMlBJRQNx6NW1U2rEJFJ9dYtAbjucQmNOaNd1A9odNOQ=="
-  }
+    access_key           = "[acquire]"
+  }*/
 }
 
 provider "azurerm" {
