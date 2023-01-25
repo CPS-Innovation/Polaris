@@ -29,9 +29,13 @@ resource "azurerm_network_profile" "aci_group_profile" {
   }
 }
 
+data "azurerm_resource_group" "rg_containers" {
+  name                = "rg-polaris-containers"
+}
+
 data "azurerm_container_registry" "acr" {
   name                = "polariscontainers${local.env_name}"
-  resource_group_name = azurerm_resource_group.rg_networking.name
+  resource_group_name = data.azurerm_resource_group.rg_containers.name
 }
 
 resource "azurerm_container_group" "containergroup_polaris" {
