@@ -41,6 +41,7 @@ provider "azurerm" {
 
 locals {
   env_name_suffix = var.environment.alias != "prod" ? "-${var.environment.alias}" : ""
+  env_name        = var.environment.alias != "prod" ? var.environment.alias : ""
   resource_name   = format("%s%s", var.resource_name_prefix, "${local.env_name_suffix}")
 }
 

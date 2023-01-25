@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "aci_storage" {
-  name                     = "saacidata${local.env_name_suffix}"
+  name                     = "saacidata${local.env_name}"
   resource_group_name      = azurerm_resource_group.rg_networking.name
   location                 = azurerm_resource_group.rg_networking.location
   account_tier             = "Standard"
@@ -9,28 +9,28 @@ resource "azurerm_storage_account" "aci_storage" {
 }
 
 resource "azurerm_storage_share" "aci_share" {
-  name                 = "polaris-aci-data${local.env_name_suffix}"
+  name                 = "polaris-aci-data${local.env_name}"
   storage_account_name = azurerm_storage_account.aci_storage.name
   quota                = 100
 }
 
 resource "azurerm_network_profile" "aci_group_profile" {
-  name                = "polaris-acigroup-profile${local.env_name_suffix}"
+  name                = "polaris-acigroup-profile${local.env_name}"
   location            = azurerm_resource_group.rg_networking.location
   resource_group_name = azurerm_resource_group.rg_networking.name
 
   container_network_interface {
-    name = "polaris-acigroup-nic${local.env_name_suffix}"
+    name = "polaris-acigroup-nic${local.env_name}"
 
     ip_configuration {
-      name      = "polarisaciipconfig${local.env_name_suffix}"
+      name      = "polarisaciipconfig${local.env_name}"
       subnet_id = azurerm_subnet.sn_polaris_ci_subnet.id
     }
   }
 }
 
 data "azurerm_container_registry" "acr" {
-  name                = "polariscontainers${local.env_name_suffix}"
+  name                = "polariscontainers${local.env_name}"
   resource_group_name = azurerm_resource_group.rg_networking.name
 }
 
@@ -48,7 +48,7 @@ resource "azurerm_container_group" "containergroup_doccano" {
   }
   container {
     name   = "sshcontainer"
-    image  = "polariscontainers${local.env_name_suffix}.azurecr.io/sshcontainer:latest"
+    image  = "polariscontainers${local.env_name}.azurecr.io/sshcontainer:latest"
     cpu    = "1.0"
     memory = "2.0"
 
