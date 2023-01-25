@@ -34,8 +34,8 @@ data "azurerm_container_registry" "acr" {
   resource_group_name = azurerm_resource_group.rg_networking.name
 }
 
-resource "azurerm_container_group" "containergroup_doccano" {
-  name                = "acg-doccano"
+resource "azurerm_container_group" "containergroup_polaris" {
+  name                = "acgpolaris${local.env_name}"
   location            = azurerm_resource_group.rg_networking.location
   resource_group_name = azurerm_resource_group.rg_networking.name
   ip_address_type     = "Private"
