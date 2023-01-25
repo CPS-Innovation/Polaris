@@ -2,7 +2,7 @@ using System;
 
 namespace PolarisGateway.Domain.CaseData.Args
 {
-    public abstract class BaseCaseDataArg
+    public class CaseDataArg
     {
         public string OnBehalfOfToken { get; set; }
         public string UpstreamToken { get; set; }

@@ -15,11 +15,11 @@ export const usePipelineApi = (
     haveData: false,
   });
 
-  useEffect(() => {
-    return initiateAndPoll(urn, caseId, PIPELINE_POLLING_DELAY, (results) =>
-      setPipelineResults(results)
-    );
-  }, [caseId, urn]);
+  // useEffect(() => {
+  //   return initiateAndPoll(urn, caseId, PIPELINE_POLLING_DELAY, (results) =>
+  //     setPipelineResults(results)
+  //   );
+  // }, [caseId, urn]);
 
   return pipelineResults;
 };

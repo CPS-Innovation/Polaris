@@ -8,6 +8,8 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
 {
     public interface IDdeiClient
     {
+        Task<string> GetCmsModernToken(CaseDataArg arg);
+
         Task<IEnumerable<CaseIdentifiers>> ListCaseIdsAsync(UrnArg arg);
 
         Task<CaseDetails> GetCaseAsync(CaseArg arg);

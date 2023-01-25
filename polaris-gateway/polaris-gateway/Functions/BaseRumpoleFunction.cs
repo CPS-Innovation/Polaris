@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -55,7 +56,7 @@ namespace PolarisGateway.Functions
 
         private static Guid EstablishCorrelation(HttpRequest req)
         {
-            if (!req.Headers.TryGetValue("Correlation-Id", out var correlationId) || string.IsNullOrWhiteSpace(correlationId))
+            if (!req.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationId) || string.IsNullOrWhiteSpace(correlationId))
                 throw new CorrelationException();
 
             if (!Guid.TryParse(correlationId, out var currentCorrelationId) && currentCorrelationId != Guid.Empty)
@@ -79,7 +80,7 @@ namespace PolarisGateway.Functions
 
         private static string EstablishUpstreamToken(HttpRequest req)
         {
-            if (!req.Headers.TryGetValue(HttpHeaderKeys.UpstreamToken, out var upstreamToken) || string.IsNullOrWhiteSpace(upstreamToken))
+            if (!req.Cookies.TryGetValue(HttpHeaderKeys.UpstreamToken, out var upstreamToken) || string.IsNullOrWhiteSpace(upstreamToken))
                 throw new UpstreamAuthenticationException();
 
             return upstreamToken;
@@ -89,6 +90,7 @@ namespace PolarisGateway.Functions
         {
             _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new BadRequestObjectResult(errorMessage);
+
         }
 
         protected IActionResult AuthorizationErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
@@ -100,7 +102,11 @@ namespace PolarisGateway.Functions
         protected IActionResult UpstreamTokenErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
             _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
-            return new BadRequestObjectResult(errorMessage);
+            return new ObjectResult(errorMessage)
+            {
+                // client will react to a 403 to trigger reauthentication
+                StatusCode = 403
+            };
         }
 
         protected IActionResult BadRequestErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
@@ -124,10 +130,10 @@ namespace PolarisGateway.Functions
             return new NotFoundObjectResult(errorMessage);
         }
 
-        protected IActionResult InternalServerErrorResponse(Exception exception, string additionalMessage, Guid correlationId, string loggerSource)
+        protected IActionResult InternalServerErrorResponse(Exception exception, string additionalMessage, Guid correlationId, string loggerSource, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
         {
             _logger.LogMethodError(correlationId, loggerSource, additionalMessage, exception);
-            return new ObjectResult(additionalMessage) { StatusCode = 500 };
+            return new ObjectResult(additionalMessage) { StatusCode = (int)statusCode };
         }
 
         protected void LogInformation(string message, Guid correlationId, string loggerSource)

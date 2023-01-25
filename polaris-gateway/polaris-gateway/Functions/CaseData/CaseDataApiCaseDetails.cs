@@ -62,7 +62,7 @@ namespace PolarisGateway.Functions.CaseData
                 var ddeiScope = _ddeiOptions.DefaultScope;
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
                 var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
-                
+
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
                 caseDetails = await _caseDataService.GetCase(_caseDataArgFactory.CreateCaseArg(onBehalfOfAccessToken, upstreamToken, currentCorrelationId, urn, caseId));
 
@@ -75,7 +75,7 @@ namespace PolarisGateway.Functions.CaseData
                 return exception switch
                 {
                     MsalException => InternalServerErrorResponse(exception, "An MSAL exception occurred.", currentCorrelationId, loggingName),
-                    CaseDataServiceException => InternalServerErrorResponse(exception, "A case data api exception occurred.", currentCorrelationId, loggingName),
+                    CaseDataServiceException => UpstreamTokenErrorResponse(exception.Message,  currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

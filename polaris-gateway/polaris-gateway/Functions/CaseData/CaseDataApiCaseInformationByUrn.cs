@@ -86,7 +86,7 @@ namespace PolarisGateway.Functions.CaseData
                 return exception switch
                 {
                     MsalException => InternalServerErrorResponse(exception, "An MSAL exception occurred.", currentCorrelationId, loggingName),
-                    CaseDataServiceException => InternalServerErrorResponse(exception, "A case data api exception occurred.", currentCorrelationId, loggingName),
+                    CaseDataServiceException => UpstreamTokenErrorResponse(exception.Message, currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

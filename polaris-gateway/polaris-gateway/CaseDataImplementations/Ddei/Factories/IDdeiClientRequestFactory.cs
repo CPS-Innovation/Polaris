@@ -6,6 +6,8 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
 {
     public interface IDdeiClientRequestFactory
     {
+        HttpRequestMessage CreateCmsModernTokenRequest(CaseDataArg arg);
+
         HttpRequestMessage CreateListCasesRequest(UrnArg arg);
 
         HttpRequestMessage CreateGetCaseRequest(CaseArg arg);
