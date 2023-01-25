@@ -19,9 +19,9 @@ namespace coordinator.tests.Functions.ActivityFunctions
         private readonly GetCaseDocumentsActivityPayload _payload;
 
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
-        
+
         private readonly GetCaseDocuments _getCaseDocuments;
-        
+
         public GetCaseDocumentsTests()
         {
             var fixture = new Fixture();
@@ -34,8 +34,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 
-            mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CaseUrn, _payload.CaseId.ToString(), 
-                    _payload.AccessToken, _payload.UpstreamToken, _payload.CorrelationId))
+            mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CaseUrn, _payload.CaseId.ToString(),
+                    _payload.AccessToken, _payload.CmsAuthValues, _payload.CorrelationId))
                 .ReturnsAsync(_case.CaseDocuments);
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
@@ -50,7 +50,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Fact]
         public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
@@ -60,20 +60,20 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public async Task Run_WhenAccessTokenIsNullOrWhitespace_ThrowsArgumentException(string upstreamToken)
+        public async Task Run_WhenAccessTokenIsNullOrWhitespace_ThrowsArgumentException(string cmsAuthValues)
         {
-            _payload.UpstreamToken = upstreamToken;
+            _payload.CmsAuthValues = cmsAuthValues;
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -86,7 +86,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Fact]
         public async Task Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
         {

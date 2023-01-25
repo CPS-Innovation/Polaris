@@ -16,16 +16,16 @@ public class HttpRequestFactory : IHttpRequestFactory
         _logger = logger;
     }
 
-    public HttpRequestMessage CreateGet(string requestUri, string accessToken, string upstreamToken, Guid correlationId)
+    public HttpRequestMessage CreateGet(string requestUri, string accessToken, string cmsAuthValues, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(CreateGet), $"RequestUri: {requestUri}");
-            
+
         var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-        
+
         request.Headers.Add(HttpHeaderKeys.Authorization, $"{AuthenticationKeys.Bearer} {accessToken}");
-        request.Headers.Add(HttpHeaderKeys.UpstreamTokenName, upstreamToken);
+        request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
         request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
-            
+
         _logger.LogMethodExit(correlationId, nameof(CreateGet), string.Empty);
         return request;
     }

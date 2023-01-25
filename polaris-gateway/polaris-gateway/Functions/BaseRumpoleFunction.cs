@@ -31,7 +31,7 @@ namespace PolarisGateway.Functions
             {
                 result.CurrentCorrelationId = EstablishCorrelation(req);
                 // todo: only DDEI-bound requests need to have an upstream token
-                result.UpstreamToken = EstablishUpstreamToken(req);
+                result.CmsAuthValues = EstablishCmsAuthValues(req);
                 result.AccessTokenValue = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
             }
             catch (CorrelationException correlationException)
@@ -48,7 +48,7 @@ namespace PolarisGateway.Functions
             }
             catch (UpstreamAuthenticationException upstreamAuthenticationException)
             {
-                result.InvalidResponseResult = UpstreamTokenErrorResponse(upstreamAuthenticationException.Message, result.CurrentCorrelationId, loggingSource);
+                result.InvalidResponseResult = CmsAuthValuesErrorResponse(upstreamAuthenticationException.Message, result.CurrentCorrelationId, loggingSource);
             }
 
             return result;
@@ -78,12 +78,12 @@ namespace PolarisGateway.Functions
             return accessTokenValue;
         }
 
-        private static string EstablishUpstreamToken(HttpRequest req)
+        private static string EstablishCmsAuthValues(HttpRequest req)
         {
-            if (!req.Cookies.TryGetValue(HttpHeaderKeys.UpstreamToken, out var upstreamToken) || string.IsNullOrWhiteSpace(upstreamToken))
+            if (!req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValues) || string.IsNullOrWhiteSpace(cmsAuthValues))
                 throw new UpstreamAuthenticationException();
 
-            return upstreamToken;
+            return cmsAuthValues;
         }
 
         private IActionResult AuthenticationErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
@@ -99,7 +99,7 @@ namespace PolarisGateway.Functions
             return new UnauthorizedObjectResult(errorMessage);
         }
 
-        protected IActionResult UpstreamTokenErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
+        protected IActionResult CmsAuthValuesErrorResponse(string errorMessage, Guid correlationId, string loggerSource)
         {
             _logger.LogMethodFlow(correlationId, loggerSource, errorMessage);
             return new ObjectResult(errorMessage)

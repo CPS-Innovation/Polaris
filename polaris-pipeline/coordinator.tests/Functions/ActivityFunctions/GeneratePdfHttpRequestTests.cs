@@ -34,8 +34,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             _mockDurableActivityContext.Setup(context => context.GetInput<GeneratePdfHttpRequestActivityPayload>())
                 .Returns(_payload);
 
-            mockGeneratePdfHttpFactory.Setup(client => client.Create(_payload.CaseUrn, _payload.CaseId, _payload.DocumentCategory, 
-                _payload.DocumentId, _payload.FileName, _payload.VersionId, _payload.UpstreamToken, _payload.CorrelationId)).ReturnsAsync(_durableRequest);
+            mockGeneratePdfHttpFactory.Setup(client => client.Create(_payload.CaseUrn, _payload.CaseId, _payload.DocumentCategory,
+                _payload.DocumentId, _payload.FileName, _payload.VersionId, _payload.CmsAuthValues, _payload.CorrelationId)).ReturnsAsync(_durableRequest);
 
             var mockLogger = new Mock<ILogger<CreateGeneratePdfHttpRequest>>();
             _createGeneratePdfHttpRequest = new CreateGeneratePdfHttpRequest(mockGeneratePdfHttpFactory.Object, mockLogger.Object);
@@ -49,7 +49,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             await Assert.ThrowsAsync<ArgumentException>(() => _createGeneratePdfHttpRequest.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Fact]
         public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
@@ -59,7 +59,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             await Assert.ThrowsAsync<ArgumentException>(() => _createGeneratePdfHttpRequest.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -72,7 +72,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             await Assert.ThrowsAsync<ArgumentException>(() => _createGeneratePdfHttpRequest.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -85,7 +85,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             await Assert.ThrowsAsync<ArgumentException>(() => _createGeneratePdfHttpRequest.Run(_mockDurableActivityContext.Object));
         }
-        
+
         [Fact]
         public async Task Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
         {

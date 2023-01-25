@@ -6,7 +6,7 @@ using PolarisGateway.Domain.Logging;
 
 namespace PolarisGateway.Factories
 {
-	public class PipelineClientRequestFactory : IPipelineClientRequestFactory
+    public class PipelineClientRequestFactory : IPipelineClientRequestFactory
     {
         private readonly ILogger<PipelineClientRequestFactory> _logger;
 
@@ -24,14 +24,14 @@ namespace PolarisGateway.Factories
             _logger.LogMethodExit(correlationId, nameof(CreateGet), string.Empty);
             return request;
         }
-        
-        public HttpRequestMessage CreateGet(string requestUri, string accessToken, string upstreamToken, Guid correlationId)
+
+        public HttpRequestMessage CreateGet(string requestUri, string accessToken, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(CreateGet), requestUri);
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             request.Headers.Authorization = new AuthenticationHeaderValue(AuthenticationKeys.Bearer, accessToken);
             request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
-            request.Headers.Add(HttpHeaderKeys.UpstreamToken, upstreamToken);
+            request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             _logger.LogMethodExit(correlationId, nameof(CreateGet), string.Empty);
             return request;
         }

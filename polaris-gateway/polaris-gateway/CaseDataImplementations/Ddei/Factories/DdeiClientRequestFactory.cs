@@ -74,7 +74,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
         private void AddAuthHeaders(HttpRequestMessage request, CaseDataArg arg)
         {
             request.Headers.Add(AuthenticationKeys.Authorization, $"{AuthenticationKeys.Bearer} {arg.OnBehalfOfToken}");
-            request.Headers.Add(HttpHeaderKeys.UpstreamToken, arg.UpstreamToken);
+            request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);
             if (!string.IsNullOrEmpty(_options.AccessKey))
             {
                 request.Headers.Add(FunctionKey, _options.AccessKey);

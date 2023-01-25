@@ -5,9 +5,9 @@ namespace PolarisGateway.Factories
 {
     public interface ICaseDataArgFactory
     {
-        UrnArg CreateUrnArg(string onBehalfOfToken, string upstreamToken, Guid correlationId, string urn);
+        UrnArg CreateUrnArg(string onBehalfOfToken, string cmsAuthValues, Guid correlationId, string urn);
 
-        CaseArg CreateCaseArg(string onBehalfOfToken, string upstreamToken, Guid correlationId, string urn, int caseId);
+        CaseArg CreateCaseArg(string onBehalfOfToken, string cmsAuthValues, Guid correlationId, string urn, int caseId);
 
         CaseArg CreateCaseArgFromUrnArg(UrnArg arg, int caseId);
     }

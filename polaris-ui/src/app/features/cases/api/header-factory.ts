@@ -13,7 +13,3 @@ export const auth = async () => ({
     GATEWAY_SCOPE ? await getAccessToken([GATEWAY_SCOPE]) : "TEST"
   }`,
 });
-
-export const upstreamHeader = async () => ({
-  "Upstream-Token": "not-implemented-yet",
-});

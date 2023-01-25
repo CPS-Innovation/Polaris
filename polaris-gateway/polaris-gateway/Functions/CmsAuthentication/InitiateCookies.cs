@@ -17,7 +17,6 @@ using PolarisGateway;
 using Microsoft.Extensions.Options;
 using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using PolarisGateway.Factories;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace PolarisDDEI.Functions
 {
@@ -73,7 +72,7 @@ namespace PolarisDDEI.Functions
                 var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CaseDataArg
                 {
                     CorrelationId = currentCorrelationId,
-                    UpstreamToken = _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString),
+                    CmsAuthValues = _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString),
                 });
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cms Modern token found");
@@ -101,7 +100,7 @@ namespace PolarisDDEI.Functions
         private void AppendAuthCookies(HttpRequest req, string cookiesString, string cmsToken)
         {
             req.HttpContext.Response.Cookies.Append(
-              HttpHeaderKeys.UpstreamToken,
+              HttpHeaderKeys.CmsAuthValues,
               _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString, cmsToken),
               new CookieOptions
               {

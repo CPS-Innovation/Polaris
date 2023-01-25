@@ -14,12 +14,12 @@ using Xunit;
 
 namespace Common.tests.Services.DocumentExtractionService
 {
-	public class CgiDocumentExtractionServiceTests
-	{
+    public class CgiDocumentExtractionServiceTests
+    {
         private readonly string _documentId;
         private readonly string _fileName;
         private readonly string _accessToken;
-        private readonly string _upstreamToken;
+        private readonly string _cmsAuthValues;
         private readonly Guid _correlationId;
         private readonly HttpResponseMessage _httpResponseMessage;
 
@@ -31,7 +31,7 @@ namespace Common.tests.Services.DocumentExtractionService
             _documentId = fixture.Create<string>();
             _fileName = fixture.Create<string>();
             _accessToken = fixture.Create<string>();
-            _upstreamToken = fixture.Create<string>();
+            _cmsAuthValues = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
             var httpRequestMessage = new HttpRequestMessage();
             Stream documentStream = new MemoryStream();
@@ -50,13 +50,13 @@ namespace Common.tests.Services.DocumentExtractionService
 
             var mockHttpRequestFactory = new Mock<IHttpRequestFactory>();
 
-            mockHttpRequestFactory.Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 
+            mockHttpRequestFactory.Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                     It.IsAny<Guid>()))
                 .Returns(httpRequestMessage);
-            
+
             var mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration.Setup(config => config[ConfigKeys.SharedKeys.GetDocumentUrl]).Returns($"doc-fetch/{0}/{1}");
-            
+
             _documentExtractionService = new CgiDocumentExtractionService(httpClient, mockHttpRequestFactory.Object, loggerMock.Object, mockConfiguration.Object);
         }
 

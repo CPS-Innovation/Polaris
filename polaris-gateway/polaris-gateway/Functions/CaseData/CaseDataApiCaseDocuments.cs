@@ -58,7 +58,7 @@ namespace PolarisGateway.Functions.CaseData
                     return validationResult.InvalidResponseResult;
 
                 currentCorrelationId = validationResult.CurrentCorrelationId;
-                var upstreamToken = validationResult.UpstreamToken;
+                var cmsAuthValues = validationResult.CmsAuthValues;
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
@@ -73,7 +73,7 @@ namespace PolarisGateway.Functions.CaseData
                 var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case documents by Urn '{urn}' and CaseId '{caseId}'");
-                documents = await _caseDataService.ListDocuments(_caseDataArgFactory.CreateCaseArg(onBehalfOfAccessToken, upstreamToken, currentCorrelationId, urn, caseId.Value));
+                documents = await _caseDataService.ListDocuments(_caseDataArgFactory.CreateCaseArg(onBehalfOfAccessToken, cmsAuthValues, currentCorrelationId, urn, caseId.Value));
 
                 if (documents != null)
                 {
@@ -87,7 +87,7 @@ namespace PolarisGateway.Functions.CaseData
                 return exception switch
                 {
                     MsalException => InternalServerErrorResponse(exception, "An MSAL exception occurred.", currentCorrelationId, loggingName),
-                    CaseDataServiceException => UpstreamTokenErrorResponse(exception.Message, currentCorrelationId, loggingName),
+                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.Message, currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

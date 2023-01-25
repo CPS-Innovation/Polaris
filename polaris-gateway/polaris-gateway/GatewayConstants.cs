@@ -34,5 +34,5 @@ public static class ValidRoles
 public static class HttpHeaderKeys
 {
     public const string CorrelationId = "Correlation-Id";
-    public const string UpstreamToken = "Upstream-Token";
+    public const string CmsAuthValues = "Cms-Auth-Values";
 }

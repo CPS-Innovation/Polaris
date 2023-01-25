@@ -33,12 +33,12 @@ namespace PolarisGateway.Clients.PolarisPipeline
             _logger = logger;
         }
 
-        public async Task TriggerCoordinatorAsync(string caseUrn, int caseId, string accessToken, string upstreamToken, bool force, Guid correlationId)
+        public async Task TriggerCoordinatorAsync(string caseUrn, int caseId, string accessToken, string cmsAuthValues, bool force, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(TriggerCoordinatorAsync), $"CaseId: {caseId}, Force?: {force}");
             var forceQuery = force ? "&&force=true" : string.Empty;
             _logger.LogMethodExit(correlationId, nameof(TriggerCoordinatorAsync), string.Empty);
-            await SendGetRequestAsync($"cases/{caseUrn}/{caseId}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}{forceQuery}", accessToken, upstreamToken, correlationId);
+            await SendGetRequestAsync($"cases/{caseUrn}/{caseId}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}{forceQuery}", accessToken, cmsAuthValues, correlationId);
         }
 
         public async Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, string accessToken, Guid correlationId)
@@ -79,11 +79,11 @@ namespace PolarisGateway.Clients.PolarisPipeline
             return response;
         }
 
-        private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, string accessToken, string upstreamToken, Guid correlationId)
+        private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, string accessToken, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendGetRequestAsync), requestUri);
 
-            var request = _pipelineClientRequestFactory.CreateGet(requestUri, accessToken, upstreamToken, correlationId);
+            var request = _pipelineClientRequestFactory.CreateGet(requestUri, accessToken, cmsAuthValues, correlationId);
             var response = await _httpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();

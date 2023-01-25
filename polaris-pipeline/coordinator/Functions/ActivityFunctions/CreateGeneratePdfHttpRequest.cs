@@ -17,8 +17,8 @@ namespace coordinator.Functions.ActivityFunctions
 
         public CreateGeneratePdfHttpRequest(IGeneratePdfHttpRequestFactory generatePdfHttpRequestFactory, ILogger<CreateGeneratePdfHttpRequest> logger)
         {
-           _generatePdfHttpRequestFactory = generatePdfHttpRequestFactory;
-           _log = logger;
+            _generatePdfHttpRequestFactory = generatePdfHttpRequestFactory;
+            _log = logger;
         }
 
         [FunctionName("CreateGeneratePdfHttpRequest")]
@@ -39,11 +39,11 @@ namespace coordinator.Functions.ActivityFunctions
                 throw new ArgumentException("The supplied filename is empty");
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
-            
+
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            
-            var result = await _generatePdfHttpRequestFactory.Create(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.UpstreamToken, payload.CorrelationId);
-            
+
+            var result = await _generatePdfHttpRequestFactory.Create(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.CmsAuthValues, payload.CorrelationId);
+
             _log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
             return result;
         }

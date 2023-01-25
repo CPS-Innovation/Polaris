@@ -29,7 +29,7 @@ const tryHandleSecondAuthFail = (response: Response, window: Window) => {
   return null;
 };
 
-const handleNonAuthFail = (response: Response, window: Window) => {
+const handleNonAuthCall = (response: Response, window: Window) => {
   // clean the indicator from the browser address bar
   if (window.location.href.includes(REAUTHENTICATION_INDICATOR_QUERY_PARAM)) {
     const nextUrl = window.location.href.replace(
@@ -45,4 +45,4 @@ const handleNonAuthFail = (response: Response, window: Window) => {
 export const reauthenticationFilter = (response: Response, window: Window) =>
   tryHandleFirstAuthFail(response, window) ||
   tryHandleSecondAuthFail(response, window) ||
-  handleNonAuthFail(response, window);
+  handleNonAuthCall(response, window);

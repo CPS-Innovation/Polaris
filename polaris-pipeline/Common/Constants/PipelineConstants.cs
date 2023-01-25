@@ -12,7 +12,7 @@
         public const string Authorization = "Authorization";
         public const string ContentType = "Content-Type";
         public const string CorrelationId = "Correlation-Id";
-        public const string UpstreamTokenName = "upstream-token";
+        public const string CmsAuthValues = "Cms-Auth-Values";
     }
 
     public static class HttpHeaderValues
@@ -39,7 +39,7 @@
         public const string ProcessEvaluatedDocuments = "user_impersonation";
         public const string EmptyScope = "";
     }
-    
+
     public static class DocumentTags
     {
         public const string CaseId = "caseId";

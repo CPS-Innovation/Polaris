@@ -90,7 +90,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const headers = {
         ...HEADERS.correlationId(),
         ...(await HEADERS.auth()),
-        ...(await HEADERS.upstreamHeader()),
       };
 
       dispatch({

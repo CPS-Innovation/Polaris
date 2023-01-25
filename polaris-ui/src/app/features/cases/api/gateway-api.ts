@@ -36,11 +36,7 @@ export const resolvePdfUrl = (blobNameUrlFragment: string) =>
 
 export const searchUrn = async (urn: string) => {
   const url = buildEncodedUrl({ urn }, ({ urn }) => `/api/urns/${urn}/cases`);
-  const headers = await buildHeaders(
-    HEADERS.correlationId,
-    HEADERS.auth,
-    HEADERS.upstreamHeader
-  );
+  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
   const response = await internalFetch(url, {
     headers,
   });
@@ -64,11 +60,7 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   );
 
   const response = await internalFetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -84,11 +76,7 @@ export const getCaseDocumentsList = async (urn: string, caseId: number) => {
     ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}/documents`
   );
   const response = await internalFetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -103,11 +91,7 @@ export const getCaseDocumentsList = async (urn: string, caseId: number) => {
 export const getPdfSasUrl = async (pdfBlobName: string) => {
   const url = buildUnencodedUrl(`/api/pdf/sasUrl/${pdfBlobName}`);
   const response = await internalFetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -125,11 +109,7 @@ export const initiatePipeline = async (urn: string, caseId: number) => {
 
   const correlationIdHeader = HEADERS.correlationId();
   const response = await internalFetch(path, {
-    headers: await buildHeaders(
-      correlationIdHeader,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
     method: "POST",
   });
 
@@ -148,8 +128,7 @@ export const getPipelinePdfResults = async (
 ) => {
   const headers = await buildHeaders(
     HEADERS.correlationId(existingCorrelationId),
-    HEADERS.auth,
-    HEADERS.upstreamHeader
+    HEADERS.auth
   );
 
   const response = await internalFetch(trackerUrl, {
@@ -170,11 +149,7 @@ export const searchCase = async (
       `/api/urns/${urn}/cases/${caseId}/query/${searchTerm}`
   );
   const response = await internalFetch(path, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -197,11 +172,7 @@ export const checkoutDocument = async (
   );
 
   const response = await internalFetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
   });
 
@@ -225,11 +196,7 @@ export const cancelCheckoutDocument = async (
   );
 
   const response = await internalFetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "DELETE",
   });
 
@@ -255,11 +222,7 @@ export const saveRedactions = async (
   );
 
   const response = await internalFetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify(redactionSaveRequest),
   });

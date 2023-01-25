@@ -5,6 +5,6 @@ namespace Common.Factories.Contracts
 {
     public interface IHttpRequestFactory
     {
-        HttpRequestMessage CreateGet(string requestUri, string accessToken, string upstreamToken, Guid correlationId);
+        HttpRequestMessage CreateGet(string requestUri, string accessToken, string cmsAuthValues, Guid correlationId);
     }
 }
