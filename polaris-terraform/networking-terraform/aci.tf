@@ -38,7 +38,7 @@ resource "azurerm_container_group" "containergroup_doccano" {
   name                = "acg-doccano"
   location            = azurerm_resource_group.rg_networking.location
   resource_group_name = azurerm_resource_group.rg_networking.name
-  ip_address_type     = "private"
+  ip_address_type     = "Private"
   os_type             = "Linux"
   network_profile_id  = azurerm_network_profile.aci_group_profile.id
   image_registry_credential {
