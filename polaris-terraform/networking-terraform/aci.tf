@@ -14,21 +14,6 @@ resource "azurerm_storage_share" "aci_share" {
   quota                = 100
 }
 
-resource "azurerm_network_profile" "aci_group_profile" {
-  name                = "polaris-acigroup-profile${local.env_name}"
-  location            = azurerm_resource_group.rg_networking.location
-  resource_group_name = azurerm_resource_group.rg_networking.name
-
-  container_network_interface {
-    name = "polaris-acigroup-nic${local.env_name}"
-
-    ip_configuration {
-      name      = "polarisaciipconfig${local.env_name}"
-      subnet_id = azurerm_subnet.sn_polaris_ci_subnet.id
-    }
-  }
-}
-
 data "azurerm_resource_group" "rg_containers" {
   name                = "rg-polaris-containers"
 }
@@ -44,7 +29,7 @@ resource "azurerm_container_group" "containergroup_polaris" {
   resource_group_name = azurerm_resource_group.rg_networking.name
   ip_address_type     = "Private"
   os_type             = "Linux"
-  network_profile_id  = azurerm_network_profile.aci_group_profile.id
+  subnet_ids          = [azurerm_subnet.sn_polaris_ci_subnet.id]
   image_registry_credential {
     username = data.azurerm_container_registry.acr.admin_username
     password = data.azurerm_container_registry.acr.admin_password
