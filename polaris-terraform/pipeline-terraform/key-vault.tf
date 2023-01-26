@@ -14,6 +14,17 @@ resource "azurerm_key_vault" "kv" {
   soft_delete_retention_days      = 90
 
   sku_name = "standard"
+  
+  network_acls {
+    default_action = "Deny"
+    bypass         = ["Metrics", "Logging", "AzureServices"]
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.polaris_ci_subnet.id,
+      data.azurerm_subnet.polaris_coordinator_subnet.id,
+      data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
+      data.azurerm_subnet.polaris_textextractor_subnet.id
+    ]
+  }
 }
 
 # Create Private Endpoint
