@@ -47,7 +47,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineSaSubnet]
 
-  enforce_private_link_endpoint_network_policies = true
+  private_endpoint_network_policies_enabled = true
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
