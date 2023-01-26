@@ -11,9 +11,11 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                = "dotnet"
     "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
+    "WEBSITE_VNET_ROUTE_ALL"                  = "1"
+    "WEBSITE_CONTENTOVERVNET"                 = "1"
+    "WEBSITE_DNS_SERVER"                      = "168.63.129.16"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"     = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"         = ""
-    "AzureWebJobsStorage"                     = azurerm_storage_account.sa.primary_connection_string
     "BlobServiceUrl"                          = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                = "documents"
     "CallingAppTenantId"                      = data.azurerm_client_config.current.tenant_id

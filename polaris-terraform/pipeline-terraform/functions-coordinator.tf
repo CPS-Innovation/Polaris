@@ -11,13 +11,11 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
+    "WEBSITE_VNET_ROUTE_ALL"                   = "1"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
     "WEBSITE_DNS_SERVER"                       = "168.63.129.16"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_file_share.name
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string 
-    "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"       = "600"
     "OnBehalfOfTokenTenantId"                  = data.azurerm_client_config.current.tenant_id
     "OnBehalfOfTokenClientId"                  = module.azurerm_app_reg_fa_coordinator.client_id

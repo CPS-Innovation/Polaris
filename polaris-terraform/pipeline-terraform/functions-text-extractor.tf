@@ -13,6 +13,9 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"     = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"         = ""
+    "WEBSITE_VNET_ROUTE_ALL"                  = "1"
+    "WEBSITE_CONTENTOVERVNET"                 = "1"
+    "WEBSITE_DNS_SERVER"                      = "168.63.129.16"
     "AzureWebJobsStorage"                     = azurerm_storage_account.sa.primary_connection_string
     "BlobServiceContainerName"                = azurerm_storage_container.container.name
     "BlobExpirySecs"                          = 3600
