@@ -47,7 +47,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineSaSubnet]
 
-  private_endpoint_network_policies_enabled = true
+  enforce_private_link_endpoint_network_policies = true
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
@@ -56,7 +56,16 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineCoordinatorSubnet]
 
-  private_endpoint_network_policies_enabled = true
+  enforce_private_link_endpoint_network_policies = true
+
+  delegation {
+    name = "Microsoft.Web/serverFarms Coordinator Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
@@ -65,7 +74,16 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelinePdfGeneratorSubnet]
 
-  private_endpoint_network_policies_enabled = true
+  enforce_private_link_endpoint_network_policies = true
+
+  delegation {
+    name = "Microsoft.Web/serverFarms PdfGenerator Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
@@ -74,7 +92,16 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
 
-  private_endpoint_network_policies_enabled = true
+  enforce_private_link_endpoint_network_policies = true
+
+  delegation {
+    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_ci_subnet" {
@@ -83,6 +110,7 @@ resource "azurerm_subnet" "sn_polaris_ci_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes      = [var.polarisCiSubnet]
   service_endpoints    = ["Microsoft.Storage"]
+  
   delegation {
     name = "Microsoft.ContainerInstance/containerGroups Delegation"
 
