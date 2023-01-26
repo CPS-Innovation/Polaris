@@ -44,7 +44,7 @@ resource "azurerm_storage_container" "container" {
   name                  = "documents"
   storage_account_name  = azurerm_storage_account.sa.name
   container_access_type = "private"
-  depends_on = [azurerm_storage_account.sa, azurerm_storage_account_network_rules.pipeline_sa_rules]
+  depends_on = [azurerm_storage_account.sa]
 }
 
 resource "azurerm_storage_management_policy" "pipeline-documents-lifecycle" {
