@@ -10,6 +10,10 @@ resource "azurerm_storage_account" "sa" {
 
   min_tls_version = "TLS1_2"
 
+  network_rules {
+    default_action = "Allow"
+  }
+
   identity {
     type = "SystemAssigned"
   }
@@ -174,11 +178,4 @@ resource "azapi_resource" "pipeline_sa_fileshare" {
   type = "Microsoft.Storage/storageAccounts/fileServices/shares@2022 "
   name = "pipeline-function-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa.name}/fileServices/default"
-}
-
-resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
-  storage_account_id = azurerm_storage_account.sa.id
-
-  default_action = "Deny"
-  bypass         = ["Metrics", "Logging", "AzureServices"]
 }
