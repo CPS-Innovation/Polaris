@@ -3,6 +3,7 @@ resource "azurerm_virtual_network" "vnet_networking" {
   location            = azurerm_resource_group.rg_networking.location
   resource_group_name = azurerm_resource_group.rg_networking.name
   address_space       = [var.vnetAddressSpace]
+  dns_servers         = ["168.63.129.16"]
 
   tags = {
     environment = var.environment.name
@@ -59,6 +60,15 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   service_endpoints    = ["Microsoft.Storage"]
 
   private_endpoint_network_policies_enabled = true
+
+  delegation {
+    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
@@ -69,6 +79,15 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   service_endpoints    = ["Microsoft.Storage"]
 
   private_endpoint_network_policies_enabled = true
+
+  delegation {
+    name = "Microsoft.Web/serverFarms Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
@@ -79,6 +98,15 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   service_endpoints    = ["Microsoft.Storage"]
 
   private_endpoint_network_policies_enabled = true
+
+  delegation {
+    name = "Microsoft.Web/serverFarms Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_ci_subnet" {
