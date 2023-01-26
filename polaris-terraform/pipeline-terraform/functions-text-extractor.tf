@@ -7,6 +7,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   service_plan_id            = azurerm_service_plan.asp-linux-ep.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_textextractor_subnet.id
   functions_extension_version                  = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
@@ -124,9 +125,4 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_text_ex
   service_principal_object_id          = module.azurerm_service_principal_fa_text_extractor.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
-}
-
-resource "azurerm_app_service_virtual_network_swift_connection" "swift_connection_text_extractor" {
-  app_service_id = azurerm_linux_function_app.fa_text_extractor.id
-  subnet_id      = data.azurerm_subnet.polaris_textextractor_subnet.id
 }

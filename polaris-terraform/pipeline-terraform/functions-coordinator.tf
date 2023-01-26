@@ -7,6 +7,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   service_plan_id            = azurerm_service_plan.asp-linux-ep.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_coordinator_subnet.id
   functions_extension_version                  = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
@@ -191,9 +192,4 @@ module "azurerm_app_pre_authorized_coordinator_ddei" {
 
   # permissions to assign
   permission_ids        = [module.azurerm_app_reg_fa_coordinator.oauth2_permission_scope_ids["user_impersonation"]]
-}
-
-resource "azurerm_app_service_virtual_network_swift_connection" "swift_connection_coordinator" {
-  app_service_id = azurerm_linux_function_app.fa_coordinator.id
-  subnet_id      = data.azurerm_subnet.polaris_coordinator_subnet.id
 }

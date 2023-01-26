@@ -17,7 +17,7 @@ resource "azurerm_key_vault" "kv" {
   
   network_acls {
     default_action = "Deny"
-    bypass         = ["Metrics", "Logging", "AzureServices"]
+    bypass         = "AzureServices"
     virtual_network_subnet_ids = [
       data.azurerm_subnet.polaris_ci_subnet.id,
       data.azurerm_subnet.polaris_coordinator_subnet.id,

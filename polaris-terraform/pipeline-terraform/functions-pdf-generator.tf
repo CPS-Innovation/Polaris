@@ -7,6 +7,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   service_plan_id            = azurerm_service_plan.asp-windows-ep.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_pdfgenerator_subnet.id
   functions_extension_version                  = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
@@ -57,11 +58,12 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
       allowed_audiences = ["api://fa-${local.resource_name}-pdf-generator"]
     }
   }
-
+  
   lifecycle {
     ignore_changes = [
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      
     ]
   }
 }
@@ -182,9 +184,4 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_gen
   service_principal_object_id          = module.azurerm_service_principal_fa_pdf_generator.object_id
   resource_service_principal_object_id = data.azuread_service_principal.fa_ddei_service_principal.object_id
   claim_values                         = ["user_impersonation"]
-}
-
-resource "azurerm_app_service_virtual_network_swift_connection" "swift_connection_pdf_generator" {
-  app_service_id = azurerm_windows_function_app.fa_pdf_generator.id
-  subnet_id      = data.azurerm_subnet.polaris_pdfgenerator_subnet.id
 }
