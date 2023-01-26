@@ -196,12 +196,11 @@ module "azurerm_app_pre_authorized_coordinator_ddei" {
   subnet_id      = data.azurerm_subnet.polaris_coordinator_subnet.id
 }*/
 
-resource "azurerm_private_endpoint" "example" {
+resource "azurerm_private_endpoint" "pipeline_coordinator_pe" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}-pe"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   subnet_id           = data.azurerm_subnet.polaris_coordinator_subnet.id
-
 
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_coordinator.name}-psc"
@@ -209,4 +208,13 @@ resource "azurerm_private_endpoint" "example" {
     subresource_names = ["sites"]
     is_manual_connection = false
   }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_coordinator_dns_a" {
+  name                = azurerm_linux_function_app.fa_coordinator.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_coordinator_pe.private_service_connection.0.private_ip_address]
 }
