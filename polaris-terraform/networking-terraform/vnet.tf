@@ -59,7 +59,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   address_prefixes     = [var.polarisPipelineCoordinatorSubnet]
   service_endpoints    = ["Microsoft.Storage"]
 
-  private_endpoint_network_policies_enabled = true
+  enforce_private_link_endpoint_network_policies = true
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
@@ -69,7 +69,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   address_prefixes     = [var.polarisPipelinePdfGeneratorSubnet]
   service_endpoints    = ["Microsoft.Storage"]
 
-  private_endpoint_network_policies_enabled = true
+  enforce_private_link_endpoint_network_policies = true
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
@@ -79,7 +79,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
   service_endpoints    = ["Microsoft.Storage"]
 
-  private_endpoint_network_policies_enabled = true
+  enforce_private_link_endpoint_network_policies = true
 }
 
 resource "azurerm_subnet" "sn_polaris_ci_subnet" {
