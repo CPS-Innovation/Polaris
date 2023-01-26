@@ -46,6 +46,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineSaSubnet]
+  service_endpoints    = ["Microsoft.Storage"]
 
   private_endpoint_network_policies_enabled = true
 }
@@ -55,6 +56,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineCoordinatorSubnet]
+  service_endpoints    = ["Microsoft.Storage"]
 
   private_endpoint_network_policies_enabled = true
 
@@ -73,6 +75,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelinePdfGeneratorSubnet]
+  service_endpoints    = ["Microsoft.Storage"]
 
   private_endpoint_network_policies_enabled = true
 
@@ -91,6 +94,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
+  service_endpoints    = ["Microsoft.Storage"]
 
   private_endpoint_network_policies_enabled = true
 
