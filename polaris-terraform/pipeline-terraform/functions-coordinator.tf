@@ -191,10 +191,10 @@ module "azurerm_app_pre_authorized_coordinator_ddei" {
   permission_ids        = [module.azurerm_app_reg_fa_coordinator.oauth2_permission_scope_ids["user_impersonation"]]
 }
 
-resource "azurerm_app_service_virtual_network_swift_connection" "swift_connection_coordinator" {
+/*resource "azurerm_app_service_virtual_network_swift_connection" "swift_connection_coordinator" {
   app_service_id = azurerm_linux_function_app.fa_coordinator.id
   subnet_id      = data.azurerm_subnet.polaris_coordinator_subnet.id
-}
+}*/
 
 resource "azurerm_private_endpoint" "example" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}-pe"
