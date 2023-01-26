@@ -19,13 +19,19 @@ resource "azurerm_storage_account" "sa" {
   }
 }
 
-/*resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
+resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
   storage_account_id = azurerm_storage_account.sa.id
 
   default_action = "Deny"
   bypass         = ["Metrics", "Logging", "AzureServices"]
   depends_on     = [azurerm_storage_account.sa]
-}*/
+  virtual_network_subnet_ids = [
+    data.azurerm_subnet.polaris_ci_subnet.id,
+    data.azurerm_subnet.polaris_coordinator_subnet.id,
+    data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
+    data.azurerm_subnet.polaris_textextractor_subnet.id
+  ]
+}
 
 resource "azurerm_storage_account_customer_managed_key" "polaris_storage_pipeline_cmk" {
   storage_account_id = azurerm_storage_account.sa.id
