@@ -41,11 +41,38 @@ resource "azurerm_subnet" "sn_ddei_services_subnet" {
   }
 }
 
-resource "azurerm_subnet" "sn_polaris_services_subnet" {
-  name                 = "polaris-app-subnet"
+resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
+  name                 = "polaris-pipeline-sa-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
-  address_prefixes     = [var.polarisServicesSubnet]
+  address_prefixes     = [var.polarisPipelineSaSubnet]
+
+  private_endpoint_network_policies_enabled = true
+}
+
+resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
+  name                 = "polaris-pipeline-coordinator-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisPipelineCoordinatorSubnet]
+
+  private_endpoint_network_policies_enabled = true
+}
+
+resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
+  name                 = "polaris-pipeline-pdfgenerator-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisPipelinePdfGeneratorSubnet]
+
+  private_endpoint_network_policies_enabled = true
+}
+
+resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
+  name                 = "polaris-pipeline-textextractor-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
 
   private_endpoint_network_policies_enabled = true
 }

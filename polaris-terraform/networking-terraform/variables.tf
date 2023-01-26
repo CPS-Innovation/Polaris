@@ -25,7 +25,16 @@ variable "cmsServicesSubnet" {
 variable "ddeiServicesSubnet" {
 }
 
-variable "polarisServicesSubnet" {
+variable "polarisPipelineSaSubnet" {
+}
+
+variable "polarisPipelineCoordinatorSubnet" {
+}
+
+variable "polarisPipelinePdfGeneratorSubnet" {
+}
+
+variable "polarisPipelineTextExtractorSubnet" {
 }
 
 variable "polarisCiSubnet" {
