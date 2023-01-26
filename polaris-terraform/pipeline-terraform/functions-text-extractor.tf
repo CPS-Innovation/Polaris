@@ -119,3 +119,8 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_text_ex
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
 }
+
+resource "azurerm_app_service_virtual_network_swift_connection" "swift_connection_text_extractor" {
+  app_service_id = azurerm_linux_function_app.fa_text_extractor
+  subnet_id      = data.azurerm_subnet.polaris_textextractor_subnet.id
+}

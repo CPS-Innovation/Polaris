@@ -177,3 +177,8 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_gen
   resource_service_principal_object_id = data.azuread_service_principal.fa_ddei_service_principal.object_id
   claim_values                         = ["user_impersonation"]
 }
+
+resource "azurerm_app_service_virtual_network_swift_connection" "swift_connection_pdf_generator" {
+  app_service_id = azurerm_windows_function_app.fa_pdf_generator.id
+  subnet_id      = data.azurerm_subnet.polaris_pdfgenerator_subnet.id
+}
