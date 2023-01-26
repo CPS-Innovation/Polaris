@@ -16,7 +16,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_DNS_SERVER"                       = "168.63.129.16"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_fileshare.name
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_file_share.name
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string 
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"       = "600"
