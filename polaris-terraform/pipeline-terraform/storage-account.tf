@@ -10,10 +10,6 @@ resource "azurerm_storage_account" "sa" {
 
   min_tls_version = "TLS1_2"
 
-  network_rules {
-    default_action = "Allow"
-  }
-
   identity {
     type = "SystemAssigned"
   }
@@ -72,7 +68,7 @@ resource "azurerm_eventgrid_system_topic" "pipeline_document_deleted_topic" {
   topic_type             = "Microsoft.Storage.StorageAccounts"
   
   tags = {
-    environment = "${var.env}"
+    environment = var.env
   }
   depends_on = [azurerm_storage_account.sa,azurerm_storage_management_policy.pipeline-documents-lifecycle]
 }
@@ -82,7 +78,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_blob_pe" {
   name                  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-pe"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  subnet_id             = data.azurerm_subnet.polaris_sa_subnet.id
 
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-psc"
@@ -106,7 +102,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_table_pe" {
   name                  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-table-pe"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  subnet_id             = data.azurerm_subnet.polaris_sa_subnet.id
 
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-table-psc"
@@ -130,7 +126,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_file_pe" {
   name                  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-file-pe"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  subnet_id             = data.azurerm_subnet.polaris_sa_subnet.id
 
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-file-psc"
@@ -154,7 +150,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
   name                  = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-queue-pe"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  subnet_id             = data.azurerm_subnet.polaris_sa_subnet.id
 
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-queue-psc"
@@ -171,4 +167,18 @@ resource "azurerm_private_dns_a_record" "pipeline_sa_queue_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_sa_queue_pe.private_service_connection.0.private_ip_address]
+}
+
+# Create a new FileShare for consuming pipeline function apps, now seeking to start up as private endpoints
+resource "azapi_resource" "pipeline_sa_fileshare" {
+  type = "Microsoft.Storage/storageAccounts/fileServices/shares@2022 "
+  name = "pipeline-function-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa.name}/fileServices/default"
+}
+
+resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
+  storage_account_id = azurerm_storage_account.sa.id
+
+  default_action = "Deny"
+  bypass         = ["Metrics", "Logging", "AzureServices"]
 }
