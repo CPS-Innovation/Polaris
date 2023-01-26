@@ -56,7 +56,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineCoordinatorSubnet]
 
-  enforce_private_link_endpoint_network_policies = true
+  private_endpoint_network_policies_enabled = true
 
   delegation {
     name = "Microsoft.Web/serverFarms Coordinator Delegation"
@@ -74,7 +74,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelinePdfGeneratorSubnet]
 
-  enforce_private_link_endpoint_network_policies = true
+  private_endpoint_network_policies_enabled = true
 
   delegation {
     name = "Microsoft.Web/serverFarms PdfGenerator Delegation"
@@ -92,7 +92,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
 
-  enforce_private_link_endpoint_network_policies = true
+  private_endpoint_network_policies_enabled = true
 
   delegation {
     name = "Microsoft.Web/serverFarms TextExtractor Delegation"
