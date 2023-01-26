@@ -7,27 +7,28 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   service_plan_id            = azurerm_service_plan.asp-linux-ep.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  functions_extension_version                 = "~4"
+  functions_extension_version                  = "~4"
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                = "dotnet"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"     = ""
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"         = ""
-    "WEBSITE_VNET_ROUTE_ALL"                  = "1"
-    "WEBSITE_CONTENTOVERVNET"                 = "1"
-    "WEBSITE_DNS_SERVER"                      = "168.63.129.16"
-    "AzureWebJobsStorage"                     = azurerm_storage_account.sa.primary_connection_string
-    "BlobServiceContainerName"                = azurerm_storage_container.container.name
-    "BlobExpirySecs"                          = 3600
-    "BlobUserDelegationKeyExpirySecs"         = 3600
-    "BlobServiceUrl"                          = azurerm_storage_account.sa.primary_blob_endpoint
-    "CallingAppTenantId"                      = data.azurerm_client_config.current.tenant_id
-    "CallingAppValidAudience"                 = "api://fa-${local.resource_name}-text-extractor"
-    "ComputerVisionClientServiceKey"          = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"          = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"            = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                 = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                   = jsondecode(file("search-index-definition.json")).name
+    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
+    "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_DNS_SERVER"                       = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
+    "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
+    "BlobServiceContainerName"                 = azurerm_storage_container.container.name
+    "BlobExpirySecs"                           = 3600
+    "BlobUserDelegationKeyExpirySecs"          = 3600
+    "BlobServiceUrl"                           = azurerm_storage_account.sa.primary_blob_endpoint
+    "CallingAppTenantId"                       = data.azurerm_client_config.current.tenant_id
+    "CallingAppValidAudience"                  = "api://fa-${local.resource_name}-text-extractor"
+    "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"           = azurerm_cognitive_account.computer_vision_service.endpoint
+    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
   }
   https_only                 = true
 
@@ -35,6 +36,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     ip_restriction = []
     ftps_state     = "FtpsOnly"
     http2_enabled = true
+    runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled = true
   }
 
   identity {
