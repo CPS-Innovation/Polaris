@@ -40,6 +40,12 @@ data "azurerm_subnet" "polaris_textextractor_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_key_vault_subnet" {
+  name                 = "${var.resource_name_prefix}-keyvault-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_subnet" "polaris_ci_subnet" {
   name                 = "${var.polaris_resource_name_prefix}-ci-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
@@ -68,5 +74,10 @@ data "azurerm_private_dns_zone" "dns_zone_queue_storage" {
 
 data "azurerm_private_dns_zone" "dns_zone_apps" {
   name                = "privatelink.azurewebsites.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_keyvault" {
+  name                = "privatelink.vaultcore.azure.net"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }

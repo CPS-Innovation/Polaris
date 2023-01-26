@@ -16,6 +16,30 @@ resource "azurerm_key_vault" "kv" {
   sku_name = "standard"
 }
 
+# Create Private Endpoint
+resource "azurerm_private_endpoint" "pipeline_key_vault_pe" {
+  name                  = "${azurerm_key_vault.kv.name}-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_key_vault_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_key_vault.kv.name}-psc"
+    private_connection_resource_id = azurerm_key_vault.kv.id
+    is_manual_connection           = false
+    subresource_names              = ["vault"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_key_vault_dns_a" {
+  name                = azurerm_key_vault.kv.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_keyvault.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_key_vault_pe.private_service_connection.0.private_ip_address]
+}
+
 resource "azurerm_key_vault_key" "kvap_sa_customer_managed_key" {
   name         = "tfex-key"
   key_vault_id = azurerm_key_vault.kv.id
