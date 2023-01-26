@@ -59,7 +59,14 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   address_prefixes     = [var.polarisPipelineCoordinatorSubnet]
   service_endpoints    = ["Microsoft.Storage"]
 
-  enforce_private_link_endpoint_network_policies = true
+  delegation {
+    name = "Microsoft.Web/serverFarms Coordinator Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
@@ -69,7 +76,14 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   address_prefixes     = [var.polarisPipelinePdfGeneratorSubnet]
   service_endpoints    = ["Microsoft.Storage"]
 
-  enforce_private_link_endpoint_network_policies = true
+  delegation {
+    name = "Microsoft.Web/serverFarms PDFGenerator Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
@@ -79,7 +93,14 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
   service_endpoints    = ["Microsoft.Storage"]
 
-  enforce_private_link_endpoint_network_policies = true
+  delegation {
+    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "sn_polaris_ci_subnet" {
