@@ -21,6 +21,7 @@ resource "azurerm_subnet" "sn_ddei_services_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.ddeiServicesSubnet]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
   delegation {
     name = "Microsoft.Web/serverFarms Delegation"
@@ -39,7 +40,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineSaSubnet]
-  service_endpoints    = ["Microsoft.Storage"]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
   enforce_private_link_endpoint_network_policies = true # DISABLE the policy
 
@@ -51,7 +52,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineCoordinatorSubnet]
-  service_endpoints    = ["Microsoft.Storage"]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
   delegation {
     name = "Microsoft.Web/serverFarms Coordinator Delegation"
@@ -70,7 +71,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelinePdfGeneratorSubnet]
-  service_endpoints    = ["Microsoft.Storage"]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
   delegation {
     name = "Microsoft.Web/serverFarms PDFGenerator Delegation"
@@ -89,7 +90,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineTextExtractorSubnet]
-  service_endpoints    = ["Microsoft.Storage"]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
   delegation {
     name = "Microsoft.Web/serverFarms TextExtractor Delegation"
@@ -108,7 +109,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_keyvault_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineKeyVaultSubnet]
-  service_endpoints    = ["Microsoft.KeyVault"]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
   enforce_private_link_endpoint_network_policies = true # DISABLE the policy
 
@@ -120,7 +121,7 @@ resource "azurerm_subnet" "sn_polaris_ci_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes      = [var.polarisCiSubnet]
-  service_endpoints    = ["Microsoft.Storage"]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
   
   delegation {
     name = "Microsoft.ContainerInstance/containerGroups Delegation"
