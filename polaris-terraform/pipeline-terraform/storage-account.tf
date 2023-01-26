@@ -175,7 +175,7 @@ resource "azurerm_private_dns_a_record" "pipeline_sa_queue_dns_a" {
 
 # Create a new FileShare for consuming pipeline function apps, now seeking to start up as private endpoints
 resource "azapi_resource" "pipeline_sa_fileshare" {
-  type = "Microsoft.Storage/storageAccounts/fileServices/shares@2022 "
+  type = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name = "pipeline-function-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa.name}/fileServices/default"
 }
