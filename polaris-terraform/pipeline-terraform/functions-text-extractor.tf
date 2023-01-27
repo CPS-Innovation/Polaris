@@ -168,7 +168,7 @@ resource "azurerm_private_endpoint" "pipeline_text_extractor_scm_pe" {
 
 # Create DNS A to match for SCM record
 resource "azurerm_private_dns_a_record" "pipeline_text_extractor_scm_dns_a" {
-  name                = "${azurerm_linux_function_app.fa_text_extractor.name}-scm"
+  name                = "${azurerm_linux_function_app.fa_text_extractor.name}.scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
