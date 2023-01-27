@@ -1,7 +1,7 @@
 #################### App Service Plan ####################
 
 resource "azurerm_service_plan" "asp_polaris_function" {
-  name                = "asp-${local.resource_name}"
+  name                = "asp-${local.resource_name}-functions"
   location            = azurerm_resource_group.rg_polaris.location
   resource_group_name = azurerm_resource_group.rg_polaris.name
   os_type             = "Linux"
@@ -18,7 +18,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_function" {
   location            = azurerm_resource_group.rg_polaris.location
   target_resource_id  = azurerm_service_plan.asp_polaris_function.id
   profile {
-    name = "Polaris Performance Scaling Profile"
+    name = "Polaris Functions Performance Scaling Profile"
     capacity {
       default = 1
       minimum = 1
