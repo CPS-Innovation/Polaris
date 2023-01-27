@@ -126,3 +126,27 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_text_ex
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
 }
+
+# Create Private Endpoint
+resource "azurerm_private_endpoint" "pipeline_text_extractor_pe" {
+  name                  = "${azurerm_linux_function_app.fa_text_extractor.name}-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-psc"
+    private_connection_resource_id = azurerm_linux_function_app.fa_text_extractor.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_text_extractor_dns_a" {
+  name                = azurerm_linux_function_app.fa_text_extractor.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_text_extractor_pe.private_service_connection.0.private_ip_address]
+}

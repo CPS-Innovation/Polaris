@@ -25,7 +25,8 @@ resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
     data.azurerm_subnet.polaris_ci_subnet.id,
     data.azurerm_subnet.polaris_coordinator_subnet.id,
     data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
-    data.azurerm_subnet.polaris_textextractor_subnet.id
+    data.azurerm_subnet.polaris_textextractor_subnet.id,
+    data.azurerm_subnet.polaris_gateway_subnet.id
   ]
 }
 
