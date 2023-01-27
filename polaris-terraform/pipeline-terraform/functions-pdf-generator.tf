@@ -226,7 +226,7 @@ resource "azurerm_private_endpoint" "pipeline_pdf_generator_scm_pe" {
 }
 
 # Create DNS A to match for SCM record
-resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_dns_a" {
+resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_scm_dns_a" {
   name                = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
