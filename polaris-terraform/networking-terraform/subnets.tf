@@ -42,7 +42,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   address_prefixes     = [var.polarisPipelineSaSubnet]
   service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault","Microsoft.CognitiveServices"]
 
-  enforce_private_link_endpoint_network_policies = true # DISABLE the policy
+  enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
 
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
@@ -111,7 +111,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_keyvault_subnet" {
   address_prefixes     = [var.polarisPipelineKeyVaultSubnet]
   service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
-  enforce_private_link_endpoint_network_policies = true # DISABLE the policy
+  enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
 
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
@@ -161,7 +161,7 @@ resource "azurerm_subnet" "sn_polaris_apps_subnet" {
   address_prefixes     = [var.polarisAppsSubnet]
   service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
 
-  enforce_private_link_endpoint_network_policies = true # DISABLE the policy
+  enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
 
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
