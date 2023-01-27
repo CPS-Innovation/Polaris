@@ -209,3 +209,27 @@ resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_dns_a" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_pdf_generator_pe.private_service_connection.0.private_ip_address]
 }
+
+# Create a second Private Endpoint to point to the SCM for deployments
+resource "azurerm_private_endpoint" "pipeline_pdf_generator_scm_pe" {
+  name                  = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm-psc"
+    private_connection_resource_id = azurerm_windows_function_app.fa_pdf_generator.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A to match for SCM record
+resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_dns_a" {
+  name                = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm"
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_pdf_generator_scm_pe.private_service_connection.0.private_ip_address]
+}
