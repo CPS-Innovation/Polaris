@@ -106,3 +106,53 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_web_gra
   claim_values                         = ["User.Read"]
   depends_on = [module.azurerm_service_principal_sp_polaris_web, azuread_service_principal.msgraph]
 }
+
+/*
+# Create Private Endpoint
+resource "azurerm_private_endpoint" "polaris_ui_pe" {
+  name                  = "${azurerm_linux_web_app.as_web_polaris.name}-pe"
+  resource_group_name   = azurerm_resource_group.rg_polaris.name
+  location              = azurerm_resource_group.rg_polaris.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_linux_web_app.as_web_polaris.name}-psc"
+    private_connection_resource_id = azurerm_linux_web_app.as_web_polaris.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "polaris_ui_dns_a" {
+  name                = azurerm_linux_web_app.as_web_polaris.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.polaris_ui_pe.private_service_connection.0.private_ip_address]
+}
+
+# Create Private Endpoint for SCM site
+resource "azurerm_private_endpoint" "polaris_ui_scm_pe" {
+  name                  = "${azurerm_linux_web_app.as_web_polaris.name}-scm-pe"
+  resource_group_name   = azurerm_resource_group.rg_polaris.name
+  location              = azurerm_resource_group.rg_polaris.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_linux_web_app.as_web_polaris.name}-scm-psc"
+    private_connection_resource_id = azurerm_linux_web_app.as_web_polaris.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "polaris_ui_scm_dns_a" {
+  name                = "${azurerm_linux_web_app.as_web_polaris.name}.scm"
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.polaris_ui_scm_pe.private_service_connection.0.private_ip_address]
+}
+*/
