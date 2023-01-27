@@ -21,7 +21,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   site_config {
     app_command_line = "node subsititute-config.js; npx serve -s"
     linux_fx_version = "NODE|14-lts"
-    runtime_scale_monitoring_enabled = true
     vnet_route_all_enabled = true
   }
 
