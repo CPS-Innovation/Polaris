@@ -5,7 +5,7 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
   kind                  = "ComputerVision"
   
   sku_name              = "S1"
-  custom_subdomain_name              = "polaris"
+  custom_subdomain_name              = "polaris${var.env}"
   outbound_network_access_restricted = true
   public_network_access_enabled      = false
 }
