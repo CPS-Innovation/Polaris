@@ -1,13 +1,16 @@
 #################### App Service ####################
 
-resource "azurerm_app_service" "as_web_polaris" {
+resource "azurerm_linux_web_app" "as_web_polaris" {
   name                = "as-web-${local.resource_name}"
   location            = azurerm_resource_group.rg_polaris.location
   resource_group_name = azurerm_resource_group.rg_polaris.name
-  app_service_plan_id = azurerm_service_plan.asp_polaris.id
+  service_plan_id     = azurerm_service_plan.asp_polaris.id
   https_only          = true
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_ui_subnet.id
 
   app_settings = {
+    "WEBSITE_CONTENTOVERVNET"         = "1"
+    "WEBSITE_DNS_SERVER"              = "168.63.129.16"
     "APPINSIGHTS_INSTRUMENTATIONKEY"  = azurerm_application_insights.ai_polaris.instrumentation_key
     "REACT_APP_CLIENT_ID"             = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"             = data.azurerm_client_config.current.tenant_id
@@ -18,6 +21,8 @@ resource "azurerm_app_service" "as_web_polaris" {
   site_config {
     app_command_line = "node subsititute-config.js; npx serve -s"
     linux_fx_version = "NODE|14-lts"
+    runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled = true
   }
 
   tags = {
@@ -32,11 +37,6 @@ resource "azurerm_app_service" "as_web_polaris" {
     # from unauthed users. Also having web auth switched on means that Cypress automation tests don't work.
     unauthenticated_client_action = "AllowAnonymous"
     token_store_enabled           = true
-    /*active_directory {
-      client_id         = module.azurerm_app_reg_as_web_polaris.client_id
-      client_secret     = azuread_application_password.asap_web_polaris_app_service.value
-      allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}"]
-    }*/
   }
 }
 
