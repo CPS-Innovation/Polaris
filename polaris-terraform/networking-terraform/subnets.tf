@@ -40,7 +40,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisPipelineSaSubnet]
-  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault","Microsoft.CognitiveServices"]
 
   enforce_private_link_endpoint_network_policies = true # DISABLE the policy
 
