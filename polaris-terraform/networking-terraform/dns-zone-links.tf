@@ -60,3 +60,12 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_search_servic
 
   depends_on = [azurerm_virtual_network.vnet_networking, azurerm_private_dns_zone.dns_zone_search_service]
 }
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_cognitive_account_link" {
+  name                  = "dnszonelink-cognitive-account"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_cognitive_account.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+
+  depends_on = [azurerm_virtual_network.vnet_networking, azurerm_private_dns_zone.dns_zone_cognitive_account]
+}

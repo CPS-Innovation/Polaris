@@ -32,3 +32,8 @@ resource "azurerm_private_dns_zone" "dns_zone_search_service" {
   name                = "privatelink.search.windows.net"
   resource_group_name = azurerm_resource_group.rg_networking.name
 }
+
+resource "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
+  name                = "privatelink.cognitiveservices.azure.com"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+}
