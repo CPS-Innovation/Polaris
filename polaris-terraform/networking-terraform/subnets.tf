@@ -116,6 +116,44 @@ resource "azurerm_subnet" "sn_polaris_pipeline_keyvault_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet" "sn_polaris_gateway_subnet" {
+  name                 = "polaris-gateway-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisGatewaySubnet]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
+
+  delegation {
+    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet" "sn_polaris_ui_subnet" {
+  name                 = "polaris-ui-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisUiSubnet]
+  service_endpoints    = ["Microsoft.Storage","Microsoft.KeyVault"]
+
+  delegation {
+    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
 resource "azurerm_subnet" "sn_polaris_apps_subnet" {
   name                 = "polaris-apps-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name

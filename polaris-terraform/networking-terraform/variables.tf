@@ -40,6 +40,12 @@ variable "polarisPipelineTextExtractorSubnet" {
 variable "polarisPipelineKeyVaultSubnet" {
 }
 
+variable "polarisGatewaySubnet" {
+}
+
+variable "polarisUiSubnet" {
+}
+
 variable "polarisAppsSubnet" {
 }
 
