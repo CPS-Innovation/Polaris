@@ -18,7 +18,11 @@ variable "location" {
   type        = string
 }
 
-variable "app_service_plan_sku" {
+variable "app_service_plan_function_sku" {
+  type = string
+}
+
+variable "app_service_plan_web_sku" {
   type = string
 }
 
