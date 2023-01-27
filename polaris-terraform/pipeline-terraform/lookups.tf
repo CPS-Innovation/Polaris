@@ -86,3 +86,8 @@ data "azurerm_private_dns_zone" "dns_zone_search_service" {
   name                = "privatelink.search.windows.net"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
+
+data "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
+  name                = "privatelink.cognitiveservices.azure.com"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}

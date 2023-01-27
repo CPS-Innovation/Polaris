@@ -2,7 +2,34 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
   name                  = "cv-${local.resource_name}"
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
-  kind="ComputerVision"
+  kind                  = "ComputerVision"
   
-  sku_name = "S1"
+  sku_name              = "S1"
+  custom_subdomain_name              = "polaris"
+  outbound_network_access_restricted = true
+  public_network_access_enabled      = false
+}
+
+# Create Private Endpoint
+resource "azurerm_private_endpoint" "pipeline_computer_vision_service_pe" {
+  name                  = "${azurerm_cognitive_account.computer_vision_service.name}-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_sa_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_cognitive_account.computer_vision_service.name}-psc"
+    private_connection_resource_id = azurerm_cognitive_account.computer_vision_service.id
+    is_manual_connection           = false
+    subresource_names              = ["account"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_computer_vision_service_dns_a" {
+  name                = azurerm_cognitive_account.computer_vision_service.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_cognitive_account.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_computer_vision_service_pe.private_service_connection.0.private_ip_address]
 }
