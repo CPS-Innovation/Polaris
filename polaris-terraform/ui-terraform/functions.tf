@@ -51,7 +51,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       allowed_origins     = ["https://as-web-${local.resource_name}.azurewebsites.net", var.env == "dev" ? "http://localhost:3000" : ""]
       support_credentials = true
     }
-    runtime_scale_monitoring_enabled = true
     vnet_route_all_enabled = true
   }
 
