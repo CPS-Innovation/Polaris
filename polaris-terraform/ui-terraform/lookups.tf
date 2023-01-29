@@ -41,3 +41,57 @@ data "azuread_service_principal" "fa_pdf_generator_service_principal" {
 data "azuread_service_principal" "fa_ddei_service_principal" {
    application_id = data.azuread_application.fa_ddei.application_id
 }
+
+data "azurerm_virtual_network" "polaris_vnet" {
+  name                = "vnet-innovation-${var.environment_tag}"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_gateway_subnet" {
+  name                 = "${var.resource_name_prefix}-gateway-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_ui_subnet" {
+  name                 = "${var.resource_name_prefix}-ui-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_apps_subnet" {
+  name                 = "${var.resource_name_prefix}-apps-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_ci_subnet" {
+  name                 = "${var.resource_name_prefix}-ci-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_blob_storage" {
+  name                = "privatelink.blob.core.windows.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_table_storage" {
+  name                = "privatelink.table.core.windows.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_file_storage" {
+  name                = "privatelink.file.core.windows.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_apps" {
+  name                = "privatelink.azurewebsites.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_keyvault" {
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}

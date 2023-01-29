@@ -1,4 +1,27 @@
 terraform {
+  required_version = ">=1.0.0"
+
+  required_providers {
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.15.0"
+    }
+
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.30.0"
+    }
+
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3.1.0"
+    }
+
+    azapi = {
+      source = "Azure/azapi"
+    }
+  }
+  
   backend "azurerm" {
     storage_account_name = "__terraform_storage_account__"
     container_name       = "__terraform_container_name__"
@@ -14,22 +37,6 @@ terraform {
     key                  = "terraform.tfstate"
     access_key           = "[Manually Enter]"
   }*/
-   
-  required_providers {
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "~> 2.15.0"
-    }
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.30.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = ">= 3.1.0"
-    }
-  }
-  required_version = ">= 0.13"
 }
 
 provider "azurerm" {
