@@ -5,6 +5,10 @@ variable "resource_name_prefix" {
   default = "polaris"
 }
 
+variable "networking_resource_name_suffix" {
+  default = "networking"
+}
+
 variable "env" {
   type = string 
 }
