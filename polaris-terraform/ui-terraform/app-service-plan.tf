@@ -1,24 +1,25 @@
 #################### App Service Plan ####################
 
-resource "azurerm_service_plan" "asp_polaris_web" {
-  name                = "asp-${local.resource_name}-web"
+resource "azurerm_service_plan" "asp_polaris" {
+  name                = "asp-${local.resource_name}"
   location            = azurerm_resource_group.rg_polaris.location
   resource_group_name = azurerm_resource_group.rg_polaris.name
   os_type             = "Linux"
-  sku_name            = var.app_service_plan_web_sku
+  sku_name            = var.app_service_plan_sku.size
 
   tags = {
     environment = var.environment_tag
   }
 }
 
-resource "azurerm_monitor_autoscale_setting" "amas_polaris_web" {
-  name                = "amas-${local.resource_name}-web"
+resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
+  name                = "amas-${local.resource_name}"
+  count               = var.app_service_plan_sku.tier != "Basic" ? 1 : 0
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
-  target_resource_id  = azurerm_service_plan.asp_polaris_web.id
+  target_resource_id  = azurerm_service_plan.asp_polaris.id
   profile {
-    name = "Polaris Functions Performance Scaling Profile"
+    name = "Polaris Performance Scaling Profile"
     capacity {
       default = 1
       minimum = 1
@@ -27,7 +28,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_web" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_service_plan.asp_polaris_web.id
+        metric_resource_id = azurerm_service_plan.asp_polaris.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -45,7 +46,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_web" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_service_plan.asp_polaris_web.id
+        metric_resource_id = azurerm_service_plan.asp_polaris.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -60,5 +61,5 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_web" {
         cooldown  = "PT1M"
       }
     }
-  }
+  }  
 }
