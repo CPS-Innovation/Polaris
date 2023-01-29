@@ -5,21 +5,24 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   name                       = "fa-${local.resource_name}-gateway"
   location                   = azurerm_resource_group.rg_polaris.location
   resource_group_name        = azurerm_resource_group.rg_polaris.name
-  service_plan_id            = azurerm_service_plan.asp_polaris_function.id
+  service_plan_id            = azurerm_service_plan.asp_polaris.id
   storage_account_name       = azurerm_storage_account.sacpspolaris.name
   storage_account_access_key = azurerm_storage_account.sacpspolaris.primary_access_key
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_gateway_subnet.id
   functions_extension_version                    = "~4"
   app_settings = {
-    "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
     "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "StorageConnectionAppSetting"                    = azurerm_storage_account.sacpspolaris.primary_connection_string
     "APPINSIGHTS_INSTRUMENTATIONKEY"                 = azurerm_application_insights.ai_polaris.instrumentation_key
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = ""
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = ""
+    "WEBSITE_CONTENTOVERVNET"                        = "1"
+    "WEBSITE_DNS_SERVER"                             = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
+    "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
     "OnBehalfOfTokenTenantId"                        = data.azurerm_client_config.current.tenant_id
     "OnBehalfOfTokenClientId"                        = module.azurerm_app_reg_fa_polaris.client_id
     "OnBehalfOfTokenClientSecret"                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = ""
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = ""
     "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorScope"                = "api://fa-${local.pipeline_resource_name}-coordinator/user_impersonation"
     "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
@@ -48,6 +51,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       allowed_origins     = ["https://as-web-${local.resource_name}.azurewebsites.net", var.env == "dev" ? "http://localhost:3000" : ""]
       support_credentials = true
     }
+    runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled = true
   }
 
   tags = {
@@ -76,6 +81,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
     ]
   }
+  
+  depends_on = [azurerm_storage_account.sacpspolaris, azapi_resource.polaris_sacpspolaris_gateway_file_share]
 }
 
 module "azurerm_app_reg_fa_polaris" {
