@@ -81,6 +81,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
     ]
   }
+  
+  depends_on = [azurerm_storage_account.sacpspolaris, azapi_resource.polaris_sacpspolaris_gateway_file_share]
 }
 
 module "azurerm_app_reg_fa_polaris" {
