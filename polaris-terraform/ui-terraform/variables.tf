@@ -22,10 +22,6 @@ variable "app_service_plan_web_sku" {
   type = string
 }
 
-variable "app_service_plan_function_sku" {
-  type = string
-}
-
 variable "environment_tag" {
   type        = string
   description = "Environment tag value"
