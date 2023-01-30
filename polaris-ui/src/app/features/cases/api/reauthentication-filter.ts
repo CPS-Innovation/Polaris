@@ -1,4 +1,5 @@
-import { CmsError } from "../../../common/errors/CmsAuthError";
+import { CmsAuthError } from "../../../common/errors/CmsAuthError";
+import { CmsAuthRedirectingError } from "../../../common/errors/CmsAuthRedirectingError";
 import { REAUTH_REDIRECT_URL } from "../../../config";
 
 const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
@@ -16,15 +17,15 @@ const tryHandleFirstAuthFail = (response: Response, window: Window) => {
       window.location.href + delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
     )}`;
     window.location.href = nextUrl;
-    // keep typing happy by returning the response, although functionally useless
-    return response;
+    // stop any follow-on logic occurring
+    throw new CmsAuthRedirectingError();
   }
   return null;
 };
 
 const tryHandleSecondAuthFail = (response: Response, window: Window) => {
   if (isCmsAuthFail(response) && isAuthPageLoad(window)) {
-    throw new CmsError("We think you are not logged in to CMS");
+    throw new CmsAuthError("We think you are not logged in to CMS");
   }
   return null;
 };

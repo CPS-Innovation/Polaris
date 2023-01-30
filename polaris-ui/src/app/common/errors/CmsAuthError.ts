@@ -1,5 +1,5 @@
-export class CmsError extends Error {
-  public readonly name: string = "CMS_ERROR";
+export class CmsAuthError extends Error {
+  public readonly name: string = "CMS_AUTH_ERROR";
 
   constructor(message: string) {
     super(message);

@@ -66,16 +66,7 @@ namespace PolarisDDEI.Functions
                 }
 
                 var cookiesString = WebUtility.UrlDecode(req.Query["cookie"]);
-
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Obtaining Cms Modern token");
-
-                var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CaseDataArg
-                {
-                    CorrelationId = currentCorrelationId,
-                    CmsAuthValues = _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString),
-                });
-
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cms Modern token found");
+                var cmsToken = await GetCmsModernToken(cookiesString, currentCorrelationId, loggingName);
 
                 AppendAuthCookies(req, cookiesString, cmsToken);
 
@@ -95,6 +86,26 @@ namespace PolarisDDEI.Functions
                 // todo: should we be logging the incoming info (security?)
                 _logger.LogMethodExit(currentCorrelationId, loggingName, req.QueryString.Value);
             }
+        }
+
+        private async Task<string> GetCmsModernToken(string cookiesString, Guid currentCorrelationId, string loggingName)
+        {
+            if (string.IsNullOrWhiteSpace(cookiesString))
+            {
+                //  initial idea: if we do not have cookies, lets just return to the UI and let it deal with what it does next
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Not obtaining Cms Modern token as cookies not found");
+                return string.Empty;
+            }
+
+            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Obtaining Cms Modern token");
+            var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CaseDataArg
+            {
+                CorrelationId = currentCorrelationId,
+                CmsAuthValues = _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString),
+            });
+
+            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cms Modern token found");
+            return cmsToken;
         }
 
         private void AppendAuthCookies(HttpRequest req, string cookiesString, string cmsToken)
