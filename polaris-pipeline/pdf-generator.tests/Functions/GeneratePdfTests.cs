@@ -64,7 +64,7 @@ namespace pdf_generator.tests.Functions
             {
                 Content = new StringContent(_serializedGeneratePdfRequest)
             };
-            _httpRequestMessage.Headers.Add("upstream-token", cmsAuthValues);
+            _httpRequestMessage.Headers.Add("Cms-Auth-Values", cmsAuthValues);
             _generatePdfRequest = _fixture.Build<GeneratePdfRequest>()
                                     .With(r => r.FileName, "Test.doc")
                                     .With(r => r.CaseId, 123456)
