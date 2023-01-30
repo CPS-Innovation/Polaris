@@ -106,7 +106,6 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_web_gra
   depends_on = [module.azurerm_service_principal_sp_polaris_web, azuread_service_principal.msgraph]
 }
 
-/*
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_ui_pe" {
   name                  = "${azurerm_linux_web_app.as_web_polaris.name}-pe"
@@ -153,4 +152,4 @@ resource "azurerm_private_dns_a_record" "polaris_ui_scm_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.polaris_ui_scm_pe.private_service_connection.0.private_ip_address]
-}*/
+}
