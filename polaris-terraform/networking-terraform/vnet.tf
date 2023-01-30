@@ -9,13 +9,13 @@ resource "azurerm_virtual_network" "vnet_networking" {
   }
 }
 
+/*
 data "azurerm_virtual_hub" "digital_platform_virtual_hub" {
   provider            = azurerm.digital-platform-shared
   name                = "digital-platform-virtual-hub"
   resource_group_name = "digital-platform-virtual-hub"
 }
 
-/*
 resource "azurerm_virtual_hub_connection" "vhc_innovation" {
   provider                  = azurerm.digital-platform-shared
   name                      = "vnet-innovation-${var.environment.name}"
