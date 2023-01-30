@@ -10,6 +10,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"         = "1"
+    "WEBSITE_VNET_ROUTE_ALL"          = "1"
     "WEBSITE_DNS_SERVER"              = "168.63.129.16"
     "APPINSIGHTS_INSTRUMENTATIONKEY"  = azurerm_application_insights.ai_polaris.instrumentation_key
     "REACT_APP_CLIENT_ID"             = module.azurerm_app_reg_as_web_polaris.client_id

@@ -16,6 +16,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = ""
     "WEBSITE_CONTENTOVERVNET"                        = "1"
+    "WEBSITE_VNET_ROUTE_ALL"                         = "1"
     "WEBSITE_DNS_SERVER"                             = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
