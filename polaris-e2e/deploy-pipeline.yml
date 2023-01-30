@@ -15,6 +15,9 @@ schedules:
               - main
       always: true
 
+pool:
+    vmImage: ubuntu-latest
+
 steps:
     - task: Bash@3
       inputs:
