@@ -16,8 +16,50 @@ data "azurerm_virtual_network" "polaris_vnet" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_sa_subnet" {
+  name                 = "${var.resource_name_prefix}-sa-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_coordinator_subnet" {
+  name                 = "${var.resource_name_prefix}-coordinator-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_pdfgenerator_subnet" {
+  name                 = "${var.resource_name_prefix}-pdfgenerator-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_textextractor_subnet" {
+  name                 = "${var.resource_name_prefix}-textextractor-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_key_vault_subnet" {
+  name                 = "${var.resource_name_prefix}-keyvault-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_gateway_subnet" {
+  name                 = "${var.polaris_resource_name_prefix}-gateway-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_subnet" "polaris_apps_subnet" {
-  name                 = "${var.polaris_resource_name_prefix}-app-subnet"
+  name                 = "${var.polaris_resource_name_prefix}-apps-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_ci_subnet" {
+  name                 = "${var.polaris_resource_name_prefix}-ci-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
@@ -39,5 +81,25 @@ data "azurerm_private_dns_zone" "dns_zone_file_storage" {
 
 data "azurerm_private_dns_zone" "dns_zone_queue_storage" {
   name                = "privatelink.queue.core.windows.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_apps" {
+  name                = "privatelink.azurewebsites.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_keyvault" {
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_search_service" {
+  name                = "privatelink.search.windows.net"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
+  name                = "privatelink.cognitiveservices.azure.com"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }

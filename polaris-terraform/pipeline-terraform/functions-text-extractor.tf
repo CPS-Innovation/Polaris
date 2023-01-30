@@ -7,24 +7,30 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   service_plan_id            = azurerm_service_plan.asp-linux-ep.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  functions_extension_version                 = "~4"
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_textextractor_subnet.id
+  functions_extension_version                  = "~4"
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                = "dotnet"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"     = ""
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"         = ""
-    "AzureWebJobsStorage"                     = azurerm_storage_account.sa.primary_connection_string
-    "BlobServiceContainerName"                = azurerm_storage_container.container.name
-    "BlobExpirySecs"                          = 3600
-    "BlobUserDelegationKeyExpirySecs"         = 3600
-    "BlobServiceUrl"                          = azurerm_storage_account.sa.primary_blob_endpoint
-    "CallingAppTenantId"                      = data.azurerm_client_config.current.tenant_id
-    "CallingAppValidAudience"                 = "api://fa-${local.resource_name}-text-extractor"
-    "ComputerVisionClientServiceKey"          = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"          = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"            = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                 = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                   = jsondecode(file("search-index-definition.json")).name
+    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
+    "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_VNET_ROUTE_ALL"                   = "1"
+    "WEBSITE_DNS_SERVER"                       = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
+    "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
+    "BlobServiceContainerName"                 = azurerm_storage_container.container.name
+    "BlobExpirySecs"                           = 3600
+    "BlobUserDelegationKeyExpirySecs"          = 3600
+    "BlobServiceUrl"                           = azurerm_storage_account.sa.primary_blob_endpoint
+    "CallingAppTenantId"                       = data.azurerm_client_config.current.tenant_id
+    "CallingAppValidAudience"                  = "api://fa-${local.resource_name}-text-extractor"
+    "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"           = azurerm_cognitive_account.computer_vision_service.endpoint
+    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
   }
   https_only                 = true
 
@@ -32,6 +38,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     ip_restriction = []
     ftps_state     = "FtpsOnly"
     http2_enabled = true
+    runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled = true
   }
 
   identity {
@@ -118,4 +126,52 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_text_ex
   service_principal_object_id          = module.azurerm_service_principal_fa_text_extractor.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
+}
+
+# Create Private Endpoint
+resource "azurerm_private_endpoint" "pipeline_text_extractor_pe" {
+  name                  = "${azurerm_linux_function_app.fa_text_extractor.name}-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-psc"
+    private_connection_resource_id = azurerm_linux_function_app.fa_text_extractor.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_text_extractor_dns_a" {
+  name                = azurerm_linux_function_app.fa_text_extractor.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_text_extractor_pe.private_service_connection.0.private_ip_address]
+}
+
+# Create a second Private Endpoint to point to the SCM for deployments
+resource "azurerm_private_endpoint" "pipeline_text_extractor_scm_pe" {
+  name                  = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-psc"
+    private_connection_resource_id = azurerm_linux_function_app.fa_text_extractor.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A to match for SCM record
+resource "azurerm_private_dns_a_record" "pipeline_text_extractor_scm_dns_a" {
+  name                = "${azurerm_linux_function_app.fa_text_extractor.name}.scm"
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_text_extractor_scm_pe.private_service_connection.0.private_ip_address]
 }

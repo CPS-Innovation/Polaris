@@ -5,6 +5,10 @@ variable "resource_name_prefix" {
   default = "polaris"
 }
 
+variable "networking_resource_name_suffix" {
+  default = "networking"
+}
+
 variable "env" {
   type = string 
 }
@@ -14,11 +18,8 @@ variable "location" {
   type        = string
 }
 
-variable "app_service_plan_sku" {
-  type = object({
-    tier = string
-    size = string
-  })
+variable "app_service_plan_web_sku" {
+  type = string
 }
 
 variable "environment_tag" {

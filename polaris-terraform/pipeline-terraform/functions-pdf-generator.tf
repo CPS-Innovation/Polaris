@@ -7,26 +7,32 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   service_plan_id            = azurerm_service_plan.asp-windows-ep.id
   storage_account_name       = azurerm_storage_account.sa.name
   storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  functions_extension_version                 = "~4"
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_pdfgenerator_subnet.id
+  functions_extension_version                  = "~4"
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                = "dotnet"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"          = azurerm_application_insights.ai.instrumentation_key
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"     = ""
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"         = ""
-    "AzureWebJobsStorage"                     = azurerm_storage_account.sa.primary_connection_string
-    "BlobServiceUrl"                          = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                = "documents"
-    "CallingAppTenantId"                      = data.azurerm_client_config.current.tenant_id
-    "CallingAppValidAudience"                 = "api://fa-${local.resource_name}-pdf-generator"
-    "SearchClientAuthorizationKey"            = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                 = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                   = jsondecode(file("search-index-definition.json")).name
-    "DocumentsRepositoryBaseUrl"              = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
-    "GetDocumentUrl"                          = "urns/{0}/cases/{1}/documents/{2}/{3}?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
-    "OnBehalfOfTokenTenantId"                 = data.azurerm_client_config.current.tenant_id
-    "OnBehalfOfTokenClientId"                 = module.azurerm_app_reg_fa_pdf_generator.client_id
-    "OnBehalfOfTokenClientSecret"             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_pdf_generator_client_secret.id})"
-    "DdeiScope"                               = "api://fa-${local.ddei_resource_name}/.default"
+    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
+    "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_VNET_ROUTE_ALL"                   = "1"
+    "WEBSITE_DNS_SERVER"                       = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_pdf_generator_file_share.name
+    "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
+    "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobServiceContainerName"                 = "documents"
+    "CallingAppTenantId"                       = data.azurerm_client_config.current.tenant_id
+    "CallingAppValidAudience"                  = "api://fa-${local.resource_name}-pdf-generator"
+    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
+    "DocumentsRepositoryBaseUrl"               = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
+    "GetDocumentUrl"                           = "urns/{0}/cases/{1}/documents/{2}/{3}?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
+    "OnBehalfOfTokenTenantId"                  = data.azurerm_client_config.current.tenant_id
+    "OnBehalfOfTokenClientId"                  = module.azurerm_app_reg_fa_pdf_generator.client_id
+    "OnBehalfOfTokenClientSecret"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_pdf_generator_client_secret.id})"
+    "DdeiScope"                                = "api://fa-${local.ddei_resource_name}/.default"
   }
   https_only                 = true
 
@@ -34,6 +40,8 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     ip_restriction = []
     ftps_state     = "FtpsOnly"
     http2_enabled = true
+    runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled = true
   }
 
   identity {
@@ -51,11 +59,12 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
       allowed_audiences = ["api://fa-${local.resource_name}-pdf-generator"]
     }
   }
-
+  
   lifecycle {
     ignore_changes = [
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      
     ]
   }
 }
@@ -176,4 +185,52 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_gen
   service_principal_object_id          = module.azurerm_service_principal_fa_pdf_generator.object_id
   resource_service_principal_object_id = data.azuread_service_principal.fa_ddei_service_principal.object_id
   claim_values                         = ["user_impersonation"]
+}
+
+# Create Private Endpoint
+resource "azurerm_private_endpoint" "pipeline_pdf_generator_pe" {
+  name                  = "${azurerm_windows_function_app.fa_pdf_generator.name}-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_windows_function_app.fa_pdf_generator.name}-psc"
+    private_connection_resource_id = azurerm_windows_function_app.fa_pdf_generator.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A Record
+resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_dns_a" {
+  name                = azurerm_windows_function_app.fa_pdf_generator.name
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_pdf_generator_pe.private_service_connection.0.private_ip_address]
+}
+
+# Create a second Private Endpoint to point to the SCM for deployments
+resource "azurerm_private_endpoint" "pipeline_pdf_generator_scm_pe" {
+  name                  = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm-pe"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = azurerm_resource_group.rg.location
+  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+
+  private_service_connection {
+    name                           = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm-psc"
+    private_connection_resource_id = azurerm_windows_function_app.fa_pdf_generator.id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+}
+
+# Create DNS A to match for SCM record
+resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_scm_dns_a" {
+  name                = "${azurerm_windows_function_app.fa_pdf_generator.name}.scm"
+  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.pipeline_pdf_generator_scm_pe.private_service_connection.0.private_ip_address]
 }

@@ -5,7 +5,7 @@ resource "azurerm_service_plan" "asp_polaris" {
   location            = azurerm_resource_group.rg_polaris.location
   resource_group_name = azurerm_resource_group.rg_polaris.name
   os_type             = "Linux"
-  sku_name            = var.app_service_plan_sku.size
+  sku_name            = var.app_service_plan_web_sku
 
   tags = {
     environment = var.environment_tag
@@ -14,7 +14,6 @@ resource "azurerm_service_plan" "asp_polaris" {
 
 resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
   name                = "amas-${local.resource_name}"
-  count               = var.app_service_plan_sku.tier != "Basic" ? 1 : 0
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   target_resource_id  = azurerm_service_plan.asp_polaris.id
