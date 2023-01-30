@@ -18,7 +18,7 @@
     RESOLVER                              = "10.2.64.10"
     NGINX_ENVSUBST_OUTPUT_DIR             = "/etc/nginx"
     API_ENDPOINT                          = "api.github.com"
-    FORCE_REFRESH_CONFIG                  = "${md5(file("default.conf"))}:${md5(file("nginx.js"))}"
+    FORCE_REFRESH_CONFIG                  = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
   }
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key
@@ -32,7 +32,7 @@
 
 resource "azurerm_storage_blob" "nginx_config" {
   name                   = "nginx.conf.template"
-  content_md5            = md5(file("default.conf"))
+  content_md5            = md5(file("nginx.conf"))
   storage_account_name   = azurerm_storage_account.sacpspolaris.name
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
