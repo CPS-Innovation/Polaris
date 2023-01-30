@@ -69,8 +69,8 @@ namespace Common.tests.Factories
             {
                 cmsAuthValues.Value.FirstOrDefault().Should().NotBeNull();
                 cmsAuthValues.Value.FirstOrDefault().Should().Be(_cmsAuthValues);
-                cmsAuthValues.Value.FirstOrDefault().Should().NotBeNull();
-                cmsAuthValues.Value.FirstOrDefault().Should().Be(_correlationId.ToString());
+                correlationId.Value.FirstOrDefault().Should().NotBeNull();
+                correlationId.Value.FirstOrDefault().Should().Be(_correlationId.ToString());
             }
         }
     }

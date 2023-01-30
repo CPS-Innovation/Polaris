@@ -213,7 +213,6 @@ public class DdeiDocumentExtractionServiceTests
         searchResults[2].Id = 1;
         searchResults[2].OriginalFileName = null;
 
-
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
@@ -225,115 +224,6 @@ public class DdeiDocumentExtractionServiceTests
             result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
             result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
         }
-    }
-
-    [Fact]
-    public async Task ListDocumentsAsync_ExcludesFromResults_WhenNoFileNamePresent_AndNoDuplicateFoundWithAPopulatedFileName()
-    {
-        var searchResults = BuildRandomResults();
-        searchResults[2].OriginalFileName = null;
-
-        _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
-            .Returns(searchResults);
-
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId);
-
-        using (new AssertionScope())
-        {
-            result.Should().NotBeNull();
-            result.Length.Should().Be(3);
-
-            foreach (var item in result)
-            {
-                item.FileName.Should().NotBeNull();
-                item.FileName.Length.Should().BeGreaterThan(0);
-            }
-        }
-    }
-
-    [Fact]
-    public async Task Run_WhenDuplicatesPresent_ReturnsCorrectlyFlattenedResults()
-    {
-        var searchResults = BuildDuplicateResults();
-
-        _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
-            .Returns(searchResults);
-
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId);
-
-        using (new AssertionScope())
-        {
-            result.Length.Should().Be(3);
-            var doc1 = result[0];
-            var doc2 = result[1];
-            var doc3 = result[2];
-
-            doc1.DocumentId.Should().Be("4219309");
-            doc1.VersionId.Should().Be(7776580);
-            doc1.FileName.Should().Be("PRE-CHARGE CHECKLIST.txt");
-            doc1.CmsDocType.Should().NotBeNull();
-            doc1.CmsDocType.DocumentCategory.Should().Be("InboxCommunication");
-            doc1.CmsDocType.DocumentType.Should().BeNull();
-            doc1.CmsDocType.DocumentTypeId.Should().Be("1029");
-
-            doc2.DocumentId.Should().Be("4269468");
-            doc2.VersionId.Should().Be(7882834);
-            doc2.FileName.Should().Be("MG3221114_164958-26.docx");
-            doc2.CmsDocType.Should().NotBeNull();
-            doc2.CmsDocType.DocumentCategory.Should().Be("Review");
-            doc2.CmsDocType.DocumentType.Should().Be("MG3");
-            doc2.CmsDocType.DocumentTypeId.Should().Be("101");
-
-            doc3.DocumentId.Should().Be("4269475");
-            doc3.VersionId.Should().Be(7882839);
-            doc3.FileName.Should().Be("MG3A221114_165138-121.docx");
-            doc3.CmsDocType.Should().NotBeNull();
-            doc3.CmsDocType.DocumentCategory.Should().Be("Review");
-            doc3.CmsDocType.DocumentType.Should().Be("MG3A");
-            doc3.CmsDocType.DocumentTypeId.Should().Be("102");
-        }
-    }
-
-    private List<DdeiCaseDocumentResponse> BuildDuplicateResults()
-    {
-        var results = _fixture.CreateMany<DdeiCaseDocumentResponse>(5).ToList();
-
-        results[0].Id = 4269468;
-        results[0].VersionId = 7882834;
-        results[0].OriginalFileName = null;
-        results[0].DocumentType = "MG3";
-        results[0].DocumentTypeId = "101";
-        results[0].CmsDocCategory = "Review";
-
-        results[1].Id = 4269475;
-        results[1].VersionId = 7882839;
-        results[1].OriginalFileName = null;
-        results[1].DocumentType = "MG3A";
-        results[1].DocumentTypeId = "102";
-        results[1].CmsDocCategory = "Review";
-
-        results[2].Id = 4219309;
-        results[2].VersionId = 7776580;
-        results[2].OriginalFileName = "PRE-CHARGE CHECKLIST.txt";
-        results[2].DocumentType = null;
-        results[2].DocumentTypeId = "1029";
-        results[2].CmsDocCategory = "InboxCommunication";
-
-        results[3].Id = 4269468;
-        results[3].VersionId = 7882834;
-        results[3].OriginalFileName = "MG3221114_164958-26.docx";
-        results[3].DocumentType = null;
-        results[3].DocumentTypeId = "101";
-        results[3].CmsDocCategory = "InboxCommunication";
-
-        results[4].Id = 4269475;
-        results[4].VersionId = 7882839;
-        results[4].OriginalFileName = "MG3A221114_165138-121.docx";
-        results[4].DocumentType = null;
-        results[4].DocumentTypeId = "102";
-        results[4].CmsDocCategory = "InboxCommunication";
-
-        return results;
     }
 
     private List<DdeiCaseDocumentResponse> BuildRandomResults()

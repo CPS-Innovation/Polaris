@@ -57,7 +57,7 @@ namespace coordinator.tests.Functions
 
             _httpRequestHeaders.Add(HttpHeaderKeys.Authorization, $"Bearer {_accessToken}");
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestHeaders.Add("upstream-token", _cmsAuthValues);
+            _httpRequestHeaders.Add("cms-auth-values", _cmsAuthValues);
 
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(default(DurableOrchestrationStatus));
@@ -78,7 +78,7 @@ namespace coordinator.tests.Functions
         {
             _httpRequestHeaders.Clear();
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestHeaders.Add("upstream-token", _cmsAuthValues);
+            _httpRequestHeaders.Add("cms-auth-values", _cmsAuthValues);
             //_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<UnauthorizedException>()))
             //     .Returns(new HttpResponseMessage(HttpStatusCode.Unauthorized));
 

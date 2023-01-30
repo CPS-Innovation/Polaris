@@ -93,7 +93,7 @@ namespace coordinator.tests.Factories
 
             durableRequest.Headers.Should().Contain("Content-Type", "application/json");
             durableRequest.Headers.Should().Contain("Authorization", $"Bearer {_clientAccessToken.Token}");
-            durableRequest.Headers.Should().Contain("upstream-token", _cmsAuthValues);
+            durableRequest.Headers.Should().Contain("cms-auth-values", _cmsAuthValues);
             durableRequest.Headers.Should().Contain("Correlation-Id", _correlationId.ToString());
         }
 

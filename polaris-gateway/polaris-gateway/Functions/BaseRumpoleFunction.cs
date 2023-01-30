@@ -30,7 +30,7 @@ namespace PolarisGateway.Functions
             try
             {
                 result.CurrentCorrelationId = EstablishCorrelation(req);
-                // todo: only DDEI-bound requests need to have an upstream token
+                // todo: only DDEI-bound requests need to have a cms auth values
                 result.CmsAuthValues = EstablishCmsAuthValues(req);
                 result.AccessTokenValue = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
             }
@@ -46,9 +46,9 @@ namespace PolarisGateway.Functions
             {
                 result.InvalidResponseResult = AuthorizationErrorResponse(cpsAuthorizationException.Message, result.CurrentCorrelationId, loggingSource);
             }
-            catch (UpstreamAuthenticationException upstreamAuthenticationException)
+            catch (CmsAuthenticationException cmsAuthenticationException)
             {
-                result.InvalidResponseResult = CmsAuthValuesErrorResponse(upstreamAuthenticationException.Message, result.CurrentCorrelationId, loggingSource);
+                result.InvalidResponseResult = CmsAuthValuesErrorResponse(cmsAuthenticationException.Message, result.CurrentCorrelationId, loggingSource);
             }
 
             return result;
@@ -81,7 +81,7 @@ namespace PolarisGateway.Functions
         private static string EstablishCmsAuthValues(HttpRequest req)
         {
             if (!req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValues) || string.IsNullOrWhiteSpace(cmsAuthValues))
-                throw new UpstreamAuthenticationException();
+                throw new CmsAuthenticationException();
 
             return cmsAuthValues;
         }
