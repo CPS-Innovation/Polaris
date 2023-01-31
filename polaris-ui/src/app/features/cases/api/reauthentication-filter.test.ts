@@ -1,4 +1,5 @@
 import { CmsAuthError } from "../../../common/errors/CmsAuthError";
+import { CmsAuthRedirectingError } from "../../../common/errors/CmsAuthRedirectingError";
 import { reauthenticationFilter } from "./reauthentication-filter";
 
 jest.mock("../../../config", () => ({
@@ -39,9 +40,9 @@ describe("Reauthentication Filter", () => {
     } as Window;
 
     const response = { ok: false, status: 403 } as Response;
-    const filteredResponse = reauthenticationFilter(response, mockWindow);
+    const act = () => reauthenticationFilter(response, mockWindow);
 
-    expect(filteredResponse).toBe(response);
+    expect(act).toThrow(CmsAuthRedirectingError);
     expect(mockWindow.location.href).toBe(expectedRedirectUrl);
   });
 
