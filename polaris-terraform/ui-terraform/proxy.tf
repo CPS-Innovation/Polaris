@@ -17,7 +17,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     UPSTREAM_HOST             = "10.2.177.14"
     RESOLVER                  = "10.2.64.10 10.3.64.10"
     NGINX_ENVSUBST_OUTPUT_DIR = "/etc/nginx"
-    API_ENDPOINT              = "${azurerm_linux_function_app.fa_polaris.name}/api"
+    API_ENDPOINT              = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/api"
     FORCE_REFRESH_CONFIG      = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
   }
   storage_account {
