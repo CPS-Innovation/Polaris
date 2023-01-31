@@ -20,10 +20,10 @@ resource "azurerm_key_vault" "kv_polaris" {
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_key_vault_pe" {
-  name                  = "${azurerm_key_vault.kv_polaris.name}-pe"
-  resource_group_name   = azurerm_resource_group.rg_polaris.name
-  location              = azurerm_resource_group.rg_polaris.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  name                = "${azurerm_key_vault.kv_polaris.name}-pe"
+  resource_group_name = azurerm_resource_group.rg_polaris.name
+  location            = azurerm_resource_group.rg_polaris.location
+  subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
 
   private_service_connection {
     name                           = "${azurerm_key_vault.kv_polaris.name}-psc"
@@ -42,14 +42,20 @@ resource "azurerm_private_dns_a_record" "polaris_key_vault_dns_a" {
   records             = [azurerm_private_endpoint.polaris_key_vault_pe.private_service_connection.0.private_ip_address]
 }
 
-resource "azurerm_key_vault_access_policy" "kvap_fa_polaris_gateway" {
+resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
+  name         = "PolarisFunctionAppRegistrationClientSecret"
+  value        = azuread_application_password.faap_polaris_app_service.value
   key_vault_id = azurerm_key_vault.kv_polaris.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
-
-  secret_permissions = [
-    "Get",
+  depends_on = [
+    azurerm_role_assignment.kv_role_terraform_sp,
+    azurerm_key_vault_access_policy.kvap_terraform_sp
   ]
+}
+
+resource "azurerm_role_assignment" "kv_role_terraform_sp" {
+  scope                = azurerm_key_vault.kv_polaris.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azuread_service_principal.terraform_service_principal.object_id
 }
 
 resource "azurerm_key_vault_access_policy" "kvap_terraform_sp" {
@@ -65,11 +71,14 @@ resource "azurerm_key_vault_access_policy" "kvap_terraform_sp" {
   ]
 }
 
-resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
-  name         = "PolarisFunctionAppRegistrationClientSecret"
-  value        = azuread_application_password.faap_polaris_app_service.value
-  key_vault_id = azurerm_key_vault.kv_polaris.id
-  depends_on = [
-    azurerm_key_vault_access_policy.kvap_terraform_sp
-  ]
+resource "azurerm_role_assignment" "kv_role_fa_gateway_crypto_user" {
+  scope                = azurerm_key_vault.kv_polaris.id
+  role_definition_name = "Key Vault Crypto User"
+  principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "kv_role_fa_gateway_secrets_user" {
+  scope                = azurerm_key_vault.kv_polaris.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
 }
