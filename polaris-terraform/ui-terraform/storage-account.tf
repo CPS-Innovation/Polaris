@@ -105,3 +105,9 @@ resource "azapi_resource" "polaris_sacpspolaris_gateway_file_share" {
   
   depends_on = [azurerm_storage_account.sacpspolaris]
 }
+
+resource "azurerm_storage_container" "polaris_proxy_content" {
+  name                  = "content"
+  storage_account_name  = azurerm_storage_account.sacpspolaris.name
+  container_access_type = "private"
+}

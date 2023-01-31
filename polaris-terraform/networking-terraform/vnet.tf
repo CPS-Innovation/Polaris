@@ -3,14 +3,15 @@ resource "azurerm_virtual_network" "vnet_networking" {
   location            = azurerm_resource_group.rg_networking.location
   resource_group_name = azurerm_resource_group.rg_networking.name
   address_space       = [var.vnetAddressSpace]
-  dns_servers         = ["168.63.129.16"]
-
+  dns_servers         = ["10.2.64.10","10.3.64.10"]
+  
   tags = {
     environment = var.environment.name
   }
 }
 
-/*data "azurerm_virtual_hub" "digital_platform_virtual_hub" {
+/*
+data "azurerm_virtual_hub" "digital_platform_virtual_hub" {
   provider            = azurerm.digital-platform-shared
   name                = "digital-platform-virtual-hub"
   resource_group_name = "digital-platform-virtual-hub"

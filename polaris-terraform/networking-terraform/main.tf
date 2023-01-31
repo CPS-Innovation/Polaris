@@ -39,6 +39,14 @@ provider "azurerm" {
   }
 }
 
+/*
+provider "azurerm" {
+  alias           = "digital-platform-shared"
+  subscription_id = var.digital-platform-shared-subscription-id
+  features {}
+}
+*/
+
 locals {
   env_name_suffix = var.environment.alias != "prod" ? "-${var.environment.alias}" : ""
   env_name        = var.environment.alias != "prod" ? var.environment.alias : ""
