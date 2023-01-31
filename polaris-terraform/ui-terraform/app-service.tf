@@ -7,7 +7,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   service_plan_id           = azurerm_service_plan.asp_polaris.id
   https_only                = true
   virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
-  per_site_scaling_enabled  = true
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"        = "1"
