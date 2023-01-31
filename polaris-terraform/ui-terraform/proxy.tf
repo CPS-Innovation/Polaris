@@ -15,7 +15,7 @@
   }
   app_settings = {
     UPSTREAM_HOST                         = "github.com"
-    RESOLVER                              = "10.2.64.10"
+    RESOLVER                              = "10.2.64.10 10.3.64.10"
     NGINX_ENVSUBST_OUTPUT_DIR             = "/etc/nginx"
     API_ENDPOINT                          = "api.github.com"
     FORCE_REFRESH_CONFIG                  = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
