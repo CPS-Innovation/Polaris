@@ -14,7 +14,7 @@
     unauthenticated_client_action = "AllowAnonymous"
   }
   app_settings = {
-    UPSTREAM_HOST                         = "github.com"
+    UPSTREAM_HOST                         = "10.2.177.14"
     RESOLVER                              = "10.2.64.10 10.3.64.10"
     NGINX_ENVSUBST_OUTPUT_DIR             = "/etc/nginx"
     API_ENDPOINT                          = "api.github.com"
