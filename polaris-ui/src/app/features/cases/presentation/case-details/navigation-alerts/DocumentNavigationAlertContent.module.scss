@@ -1,0 +1,13 @@
+.documentAlertContent {
+  padding: 20px 30px 30px;
+}
+
+.actionButtonsWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  margin-top: 30px;
+  :first-child {
+    margin-right: 20px;
+  }
+}

@@ -3,12 +3,14 @@ import classes from "./Modal.module.scss";
 
 type Props = {
   isVisible: boolean | undefined;
+  type?: "data" | "alert";
   handleClose?: () => void;
 };
 
 export const Modal: React.FC<Props> = ({
   isVisible,
   children,
+  type = "data",
   handleClose,
 }) => {
   // govuk styling seems to lead to the html element being the thing
@@ -38,19 +40,42 @@ export const Modal: React.FC<Props> = ({
       onClick={handleClose}
     >
       <div
-        className={classes.modalContent}
+        className={
+          type === "data"
+            ? `${classes.modalContent} ${classes.modalContentData}`
+            : classes.modalContent
+        }
         onClick={(e) => e.stopPropagation()}
       >
-        {handleClose && (
+        {type === "data" && (
           <div className={classes.closeContainer}>
             <button
               data-testid="btn-modal-close"
               type="button"
-              className={classes.close}
+              className={classes.dataModalClose}
               aria-label="Close"
               onClick={handleClose}
             ></button>
           </div>
+        )}
+        {type === "alert" && (
+          <header
+            className="govuk-header"
+            role="banner"
+            data-module="govuk-header"
+          >
+            <div
+              className={`govuk-header__container  ${classes.alertModalHeader}`}
+            >
+              <button
+                data-testid="btn-modal-close"
+                type="button"
+                className={classes.alertModalClose}
+                aria-label="Close"
+                onClick={handleClose}
+              ></button>
+            </div>
+          </header>
         )}
         <div className={classes.contentContainer}>{children}</div>
       </div>
