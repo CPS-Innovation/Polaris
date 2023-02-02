@@ -26,20 +26,6 @@
 import "@testing-library/cypress/add-commands";
 import { rest as mswRest } from "msw";
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Cypress {
-    interface Chainable<Subject> {
-      overrideRoute(
-        apiRoute: string,
-        response:
-          | { type: "break"; httpStatusCode: number }
-          | { type: "delay"; timeMs: number }
-          | { type?: false; body: any }
-      ): Chainable<AUTWindow>;
-    }
-  }
-}
 const apiPath = (path: string) =>
   new URL(path, Cypress.env("REACT_APP_GATEWAY_BASE_URL")).toString();
 

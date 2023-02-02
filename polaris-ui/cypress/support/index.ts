@@ -37,6 +37,7 @@ Cypress.on("test:before:run:async", async () => {
 });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
       /**
@@ -46,6 +47,13 @@ declare global {
         matchString: string,
         targetCount?: number
       ): Chainable<JQuery<HTMLElement>>;
+      overrideRoute(
+        apiRoute: string,
+        response:
+          | { type: "break"; httpStatusCode: number }
+          | { type: "delay"; timeMs: number }
+          | { type?: false; body: any }
+      ): Chainable<AUTWindow>;
     }
   }
 }
