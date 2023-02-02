@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { CommonTabsProps } from "./types";
+import { Modal } from "../../../../common/presentation/components/Modal";
+import { DocumentNavigationAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/DocumentNavigationAlertContent";
 
 import classes from "./Tabs.module.scss";
 
@@ -31,6 +33,7 @@ export const Tabs: React.FC<TabsProps> = ({
   const history = useHistory();
   const activeTabRef = useRef<HTMLAnchorElement>(null);
   const { hash } = useLocation();
+  const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 
   useEffect(() => {
     activeTabRef.current?.focus();
@@ -66,8 +69,17 @@ export const Tabs: React.FC<TabsProps> = ({
     ev.preventDefault();
   };
 
-  const localHandleClosePdf = (id: string) => {
-    const thisItemIndex = items.findIndex((item) => item.id === id);
+  const handleCloseTab = () => {
+    const { isDirty } = items[activeTabIndex];
+    if (isDirty) {
+      setShowDocumentNavAlert(true);
+      return;
+    }
+    localHandleClosePdf();
+  };
+
+  const localHandleClosePdf = () => {
+    const thisItemIndex = activeTabIndex;
     const nextTabIndex =
       items.length === 1
         ? undefined // there is only item so next item is empty
@@ -77,7 +89,16 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
     history.push(`#${nextTabId}`);
-    handleClosePdf({ tabSafeId: id });
+    handleClosePdf({ tabSafeId: items[activeTabIndex].id });
+  };
+
+  const handleNavigateAwayCancelAction = () => {
+    setShowDocumentNavAlert(false);
+  };
+
+  const handleNavigateAwayContinueAction = () => {
+    setShowDocumentNavAlert(false);
+    localHandleClosePdf();
   };
 
   const closeIcon = (
@@ -106,7 +127,7 @@ export const Tabs: React.FC<TabsProps> = ({
   );
 
   const tabContent = items.map((item, index) => {
-    const { id: itemId, label, panel, ...itemAttributes } = item;
+    const { id: itemId, label, panel, isDirty, ...itemAttributes } = item;
     const tabId = itemId;
 
     const coreHyperlinkProps = {
@@ -135,10 +156,7 @@ export const Tabs: React.FC<TabsProps> = ({
           {label}
         </a>
         <span>
-          <button
-            onClick={() => localHandleClosePdf(item.id)}
-            data-testid="tab-remove"
-          >
+          <button onClick={handleCloseTab} data-testid="tab-remove">
             {closeIcon}
           </button>
         </span>
@@ -188,19 +206,32 @@ export const Tabs: React.FC<TabsProps> = ({
   });
 
   return (
-    <div
-      id={id}
-      data-testid="tabs"
-      className={`govuk-tabs ${classes.tabs} ${className || ""}`}
-      {...attributes}
-      // data-module="govuk-tabs"
-      // ref={tabsRef}
-    >
-      <h2 className="govuk-tabs__title" data-testid="txt-tabs-title">
-        {title}
-      </h2>
-      {tabs}
-      {panels}
-    </div>
+    <>
+      <div
+        id={id}
+        data-testid="tabs"
+        className={`govuk-tabs ${classes.tabs} ${className || ""}`}
+        {...attributes}
+      >
+        <h2 className="govuk-tabs__title" data-testid="txt-tabs-title">
+          {title}
+        </h2>
+        {tabs}
+        {panels}
+      </div>
+
+      {showDocumentNavAlert && (
+        <Modal
+          isVisible
+          handleClose={handleNavigateAwayCancelAction}
+          type={"alert"}
+        >
+          <DocumentNavigationAlertContent
+            handleCancelAction={handleNavigateAwayCancelAction}
+            handleContinueAction={handleNavigateAwayContinueAction}
+          />
+        </Modal>
+      )}
+    </>
   );
 };

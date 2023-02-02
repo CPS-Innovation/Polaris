@@ -10,6 +10,7 @@ type ItemProps = React.DetailedHTMLProps<
   id: string;
   label: string;
   panel: PanelProps;
+  isDirty: boolean;
 };
 
 export type CommonTabsProps = React.DetailedHTMLProps<
