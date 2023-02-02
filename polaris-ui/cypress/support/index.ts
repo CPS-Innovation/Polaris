@@ -35,3 +35,17 @@ Cypress.on("test:before:run:async", async () => {
     maxDelayMs: Cypress.env().REACT_APP_MOCK_API_MAX_DELAY,
   });
 });
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      /**
+       * Custom command to select span element matching the given string
+       */
+      selectPDFTextElement(
+        matchString: string,
+        targetCount?: number
+      ): Chainable<JQuery<HTMLElement>>;
+    }
+  }
+}

@@ -1,5 +1,4 @@
 import { CASE_ROUTE } from "../../../src/mock-api/routes";
-import { selectPDFTextElement } from "../utils/pdf-text-selection";
 
 describe("case details page", () => {
   describe("case page navigation", () => {
@@ -100,7 +99,7 @@ describe("case details page", () => {
         cy.findByTestId("div-pdfviewer")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-        selectPDFTextElement("WEST YORKSHIRE POLICE");
+        cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
         cy.findByTestId("btn-redact").should("have.length", 1);
         cy.findByTestId("btn-redact").click({ force: true });
         cy.findAllByTestId("tab-remove").click();
