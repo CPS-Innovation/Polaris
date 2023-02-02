@@ -1,7 +1,7 @@
 terraform {
 
   required_version = ">=1.0.0"
-  
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -20,7 +20,7 @@ terraform {
     key                  = "__terraform_key__"
     access_key           = "__storage_key__"
   }
-  
+
   /*backend "azurerm" {
     resource_group_name  = "rg-terraform"
     //storage_account_name = "cpsqastorageterraform" //QA
@@ -51,6 +51,11 @@ locals {
   env_name_suffix = var.environment.alias != "prod" ? "-${var.environment.alias}" : ""
   env_name        = var.environment.alias != "prod" ? var.environment.alias : ""
   resource_name   = format("%s%s", var.resource_name_prefix, "${local.env_name_suffix}")
+  common_tags = {
+    environment = var.environment.name
+    project     = "polaris-${var.resource_name_prefix}"
+    creator     = "Created by Terraform"
+  }
 }
 
 data "azurerm_client_config" "current" {}

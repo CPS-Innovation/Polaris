@@ -6,4 +6,5 @@ resource "azurerm_application_insights" "ai" {
   resource_group_name = azurerm_resource_group.rg.name
   application_type    = "web"
   retention_in_days   = 90
+  tags                = local.common_tags
 }

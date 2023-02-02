@@ -1,10 +1,11 @@
 resource "azurerm_cognitive_account" "computer_vision_service" {
-  name                  = "cv-${local.resource_name}"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  kind                  = "ComputerVision"
-  
-  sku_name              = "S1"
+  name                = "cv-${local.resource_name}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  kind                = "ComputerVision"
+  tags                = local.common_tags
+
+  sku_name                           = "S1"
   custom_subdomain_name              = "polaris${var.env}"
   outbound_network_access_restricted = true
   public_network_access_enabled      = false
@@ -12,10 +13,11 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_computer_vision_service_pe" {
-  name                  = "${azurerm_cognitive_account.computer_vision_service.name}-pe"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_sa_subnet.id
+  name                = "${azurerm_cognitive_account.computer_vision_service.name}-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
     name                           = "${azurerm_cognitive_account.computer_vision_service.name}-psc"
@@ -32,4 +34,5 @@ resource "azurerm_private_dns_a_record" "pipeline_computer_vision_service_dns_a"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_computer_vision_service_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }

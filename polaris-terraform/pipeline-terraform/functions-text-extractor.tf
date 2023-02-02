@@ -1,14 +1,14 @@
 #################### Functions ####################
 
 resource "azurerm_linux_function_app" "fa_text_extractor" {
-  name                       = "fa-${local.resource_name}-text-extractor"
-  location                   = azurerm_resource_group.rg.location
-  resource_group_name        = azurerm_resource_group.rg.name
-  service_plan_id            = azurerm_service_plan.asp-linux-ep.id
-  storage_account_name       = azurerm_storage_account.sa.name
-  storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  virtual_network_subnet_id  = data.azurerm_subnet.polaris_textextractor_subnet.id
-  functions_extension_version                  = "~4"
+  name                        = "fa-${local.resource_name}-text-extractor"
+  location                    = azurerm_resource_group.rg.location
+  resource_group_name         = azurerm_resource_group.rg.name
+  service_plan_id             = azurerm_service_plan.asp-linux-ep.id
+  storage_account_name        = azurerm_storage_account.sa.name
+  storage_account_access_key  = azurerm_storage_account.sa.primary_access_key
+  virtual_network_subnet_id   = data.azurerm_subnet.polaris_textextractor_subnet.id
+  functions_extension_version = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
@@ -33,14 +33,14 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
   }
-  https_only                 = true
+  https_only = true
 
   site_config {
-    ip_restriction = []
-    ftps_state     = "FtpsOnly"
-    http2_enabled = true
+    ip_restriction                   = []
+    ftps_state                       = "FtpsOnly"
+    http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
-    vnet_route_all_enabled = true
+    vnet_route_all_enabled           = true
   }
 
   identity {
@@ -65,17 +65,19 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
     ]
   }
+
+  tags = local.common_tags
 }
 
 module "azurerm_app_reg_fa_text_extractor" {
-  source  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name = "fa-${local.resource_name}-text-extractor-appreg"
-  identifier_uris = ["api://fa-${local.resource_name}-text-extractor"]
+  source                  = "./modules/terraform-azurerm-azuread-app-registration"
+  display_name            = "fa-${local.resource_name}-text-extractor-appreg"
+  identifier_uris         = ["api://fa-${local.resource_name}-text-extractor"]
   prevent_duplicate_names = true
   #use this code for adding app_roles
   app_role = [
     {
-      allowed_member_types  = ["Application"]
+      allowed_member_types = ["Application"]
       description          = "Can parse document texts using the ${local.resource_name} Polaris Text Extractor"
       display_name         = "Parse document texts in ${local.resource_name}"
       id                   = element(random_uuid.random_id[*].result, 3)
@@ -95,16 +97,16 @@ module "azurerm_app_reg_fa_text_extractor" {
   web = {
     redirect_uris = ["https://fa-${local.resource_name}-text-extractor.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
-      id_token_issuance_enabled     = true
+      id_token_issuance_enabled = true
     }
   }
-  tags = ["fa-${local.resource_name}-text-extractor", "terraform"]
+  tags = local.common_tags
 }
 
 data "azurerm_function_app_host_keys" "ak_text_extractor" {
   name                = "fa-${local.resource_name}-text-extractor"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on = [azurerm_linux_function_app.fa_text_extractor]
+  depends_on          = [azurerm_linux_function_app.fa_text_extractor]
 }
 
 resource "azuread_application_password" "faap_fa_text_extractor_app_service" {
@@ -113,10 +115,10 @@ resource "azuread_application_password" "faap_fa_text_extractor_app_service" {
 }
 
 module "azurerm_service_principal_fa_text_extractor" {
-  source         = "./modules/terraform-azurerm-azuread_service_principal"
-  application_id = module.azurerm_app_reg_fa_text_extractor.client_id
+  source                       = "./modules/terraform-azurerm-azuread_service_principal"
+  application_id               = module.azurerm_app_reg_fa_text_extractor.client_id
   app_role_assignment_required = false
-  owners         = [data.azurerm_client_config.current.object_id]
+  owners                       = [data.azurerm_client_config.current.object_id]
 }
 
 resource "azuread_service_principal_password" "sp_fa_text_extractor_pw" {
@@ -131,10 +133,11 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_text_ex
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_text_extractor_pe" {
-  name                  = "${azurerm_linux_function_app.fa_text_extractor.name}-pe"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  name                = "${azurerm_linux_function_app.fa_text_extractor.name}-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-psc"
@@ -151,14 +154,16 @@ resource "azurerm_private_dns_a_record" "pipeline_text_extractor_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_text_extractor_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }
 
 # Create a second Private Endpoint to point to the SCM for deployments
 resource "azurerm_private_endpoint" "pipeline_text_extractor_scm_pe" {
-  name                  = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-pe"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  name                = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-psc"
@@ -175,4 +180,5 @@ resource "azurerm_private_dns_a_record" "pipeline_text_extractor_scm_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_text_extractor_scm_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }

@@ -21,7 +21,7 @@ terraform {
       source = "Azure/azapi"
     }
   }
-  
+
   backend "azurerm" {
     storage_account_name = "__terraform_storage_account__"
     container_name       = "__terraform_container_name__"
@@ -56,10 +56,14 @@ provider "azurerm" {
 }
 
 locals {
-  resource_name = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
+  resource_name          = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
   pipeline_resource_name = var.env != "prod" ? "${var.resource_name_prefix}-pipeline-${var.env}" : "${var.resource_name_prefix}-pipeline"
-  ddei_resource_name = var.env != "prod" ? "${var.resource_name_prefix}-ddei-${var.env}" : "${var.resource_name_prefix}-ddei"
-  
+  ddei_resource_name     = var.env != "prod" ? "${var.resource_name_prefix}-ddei-${var.env}" : "${var.resource_name_prefix}-ddei"
+  common_tags = {
+    environment = var.environment_tag
+    project     = "${var.resource_name_prefix}-ui"
+    creator     = "Created by Terraform"
+  }
 }
 
 data "azurerm_client_config" "current" {}

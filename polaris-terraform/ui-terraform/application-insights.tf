@@ -6,7 +6,5 @@ resource "azurerm_application_insights" "ai_polaris" {
   resource_group_name = azurerm_resource_group.rg_polaris.name
   application_type    = "web"
   retention_in_days   = 30
-  tags = {
-    environment = var.environment_tag
-  }
+  tags                = local.common_tags
 }

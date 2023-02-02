@@ -6,14 +6,12 @@ resource "azurerm_service_plan" "asp_polaris" {
   resource_group_name = azurerm_resource_group.rg_polaris.name
   os_type             = "Linux"
   sku_name            = var.app_service_plan_web_sku
-
-  tags = {
-    environment = var.environment_tag
-  }
+  tags                = local.common_tags
 }
 
 resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
   name                = "amas-${local.resource_name}"
+  tags                = local.common_tags
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   target_resource_id  = azurerm_service_plan.asp_polaris.id
@@ -60,5 +58,5 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
         cooldown  = "PT1M"
       }
     }
-  }  
+  }
 }

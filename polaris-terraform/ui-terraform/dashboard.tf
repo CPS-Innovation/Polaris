@@ -12,4 +12,5 @@ resource "azurerm_dashboard" "dashboard_polaris" {
       function_name       = azurerm_linux_function_app.fa_polaris.name
       app_insights_name   = azurerm_application_insights.ai_polaris.name
   })
+  tags = local.common_tags
 }

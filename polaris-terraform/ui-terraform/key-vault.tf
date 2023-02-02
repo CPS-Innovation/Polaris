@@ -16,6 +16,7 @@ resource "azurerm_key_vault" "kv_polaris" {
       data.azurerm_subnet.polaris_gateway_subnet.id
     ]
   }
+  tags = local.common_tags
 }
 
 # Create Private Endpoint
@@ -24,6 +25,7 @@ resource "azurerm_private_endpoint" "polaris_key_vault_pe" {
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
     name                           = "${azurerm_key_vault.kv_polaris.name}-psc"
@@ -40,6 +42,7 @@ resource "azurerm_private_dns_a_record" "polaris_key_vault_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.polaris_key_vault_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }
 
 resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
