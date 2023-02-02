@@ -29,9 +29,9 @@ describe("Tabs", () => {
       idPrefix: "foo",
       title: "Tabs-title",
       items: [
-        { id: "t1", label: "tab-1", panel: <></> },
-        { id: "t2", label: "tab-2", panel: <></> },
-        { id: "t3", label: "tab-3", panel: <></> },
+        { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
+        { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
+        { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
       ],
       handleClosePdf: () => {},
     };
@@ -54,9 +54,9 @@ describe("Tabs", () => {
       idPrefix: "foo",
       title: "Tabs-title",
       items: [
-        { id: "t1", label: "tab-1", panel: <>content-1</> },
-        { id: "t2", label: "tab-2", panel: <>content-2</> },
-        { id: "t3", label: "tab-3", panel: <>content-3</> },
+        { id: "t1", label: "tab-1", panel: <>content-1</>, isDirty: false },
+        { id: "t2", label: "tab-2", panel: <>content-2</>, isDirty: false },
+        { id: "t3", label: "tab-3", panel: <>content-3</>, isDirty: false },
       ],
       handleClosePdf: () => {},
     };
@@ -96,9 +96,9 @@ describe("Tabs", () => {
       idPrefix: "foo",
       title: "Tabs-title",
       items: [
-        { id: "t1", label: "tab-1", panel: <></> },
-        { id: "t2", label: "tab-2", panel: <></> },
-        { id: "t3", label: "tab-3", panel: <></> },
+        { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
+        { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
+        { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
       ],
       handleClosePdf: () => {},
     };
@@ -178,7 +178,10 @@ describe("Tabs", () => {
 
     rerender(
       <Router history={history}>
-        <Tabs {...props} items={[{ id: "t1", label: "tab-1", panel: <></> }]} />
+        <Tabs
+          {...props}
+          items={[{ id: "t1", label: "tab-1", panel: <></>, isDirty: false }]}
+        />
       </Router>
     );
 
@@ -191,8 +194,8 @@ describe("Tabs", () => {
         <Tabs
           {...props}
           items={[
-            { id: "t1", label: "tab-1", panel: <></> },
-            { id: "t2", label: "tab-2", panel: <></> },
+            { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
+            { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
           ]}
         />
       </Router>
@@ -211,9 +214,9 @@ describe("Tabs", () => {
         idPrefix: "foo",
         title: "Tabs-title",
         items: [
-          { id: "t1", label: "tab-1", panel: <></> },
-          { id: "t2", label: "tab-2", panel: <></> },
-          { id: "t3", label: "tab-3", panel: <></> },
+          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
+          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
+          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
         ],
         handleClosePdf: mockHandleClosePdf,
       };
@@ -252,9 +255,9 @@ describe("Tabs", () => {
         idPrefix: "foo",
         title: "Tabs-title",
         items: [
-          { id: "t1", label: "tab-1", panel: <></> },
-          { id: "t2", label: "tab-2", panel: <></> },
-          { id: "t3", label: "tab-3", panel: <></> },
+          { id: "t1", label: "tab-1", panel: <></>, isDirty: false },
+          { id: "t2", label: "tab-2", panel: <></>, isDirty: false },
+          { id: "t3", label: "tab-3", panel: <></>, isDirty: false },
         ],
         handleClosePdf: mockHandleClosePdf,
       };
@@ -292,7 +295,7 @@ describe("Tabs", () => {
       const props: TabsProps = {
         idPrefix: "foo",
         title: "Tabs-title",
-        items: [{ id: "t1", label: "tab-1", panel: <></> }],
+        items: [{ id: "t1", label: "tab-1", panel: <></>, isDirty: false }],
         handleClosePdf: mockHandleClosePdf,
       };
 

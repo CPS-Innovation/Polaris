@@ -1,4 +1,5 @@
 import { CASE_ROUTE } from "../../../src/mock-api/routes";
+import { selectPDFTextElement } from "../utils/pdf-text-selection";
 
 describe("case details page", () => {
   describe("case page navigation", () => {
@@ -51,7 +52,7 @@ describe("case details page", () => {
   });
 
   describe("pdf viewing", () => {
-    it("can open a pdf", () => {
+    it("can open a pdf", { defaultCommandTimeout: 15000 }, () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -86,6 +87,55 @@ describe("case details page", () => {
           "_blank"
         );
     });
+  });
+
+  describe("Document navigation away alert modal", () => {
+    it(
+      "Should show an alert modal when navigating away from a document with active redactions",
+      { defaultCommandTimeout: 15000 },
+      () => {
+        cy.visit("/case-details/12AB1111111/13401");
+        cy.findByTestId("btn-accordion-open-close-all").click();
+        cy.findByTestId("link-document-1").click();
+        cy.findByTestId("div-pdfviewer")
+          .should("exist")
+          .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+        selectPDFTextElement("WEST YORKSHIRE POLICE");
+        cy.findByTestId("btn-redact").should("have.length", 1);
+        cy.findByTestId("btn-redact").click({ force: true });
+        cy.findAllByTestId("tab-remove").click();
+        cy.findAllByTestId("div-modal")
+          .should("exist")
+          .contains("You have unsaved redactions");
+        // click on return to case file btn
+        cy.findAllByTestId("btn-nav-return").click();
+        cy.findAllByTestId("div-modal").should("not.exist");
+        cy.findAllByTestId("tab-remove").click();
+        cy.findAllByTestId("div-modal")
+          .should("exist")
+          .contains("You have unsaved redactions");
+        // click on ignore btn
+        cy.findAllByTestId("btn-nav-ignore").click();
+        cy.findAllByTestId("div-modal").should("not.exist");
+        cy.findByTestId("div-pdfviewer").should("not.exist");
+      }
+    );
+
+    it(
+      "Should not show an alert modal when navigating away from a document when there are no active redactions",
+      { defaultCommandTimeout: 15000 },
+      () => {
+        cy.visit("/case-details/12AB1111111/13401");
+        cy.findByTestId("btn-accordion-open-close-all").click();
+        cy.findByTestId("link-document-1").click();
+        cy.findByTestId("div-pdfviewer")
+          .should("exist")
+          .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+        cy.findAllByTestId("tab-remove").click();
+        cy.findAllByTestId("div-modal").should("not.exist");
+        cy.findByTestId("div-pdfviewer").should("not.exist");
+      }
+    );
   });
 });
 

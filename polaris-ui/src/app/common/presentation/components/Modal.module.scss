@@ -17,13 +17,24 @@
 .modalContent {
   position: fixed;
   background: white;
-  width: 85%;
-  height: calc(100% - 100px);
-  top: 100px;
+  min-width: 600px;
+  min-height: 275px;
+  top: 10%;
   left: 50%;
   transform: translate(-50%, 0);
 
   overflow-y: auto;
+}
+.modalContentData {
+  width: 85%;
+  height: 80%;
+}
+.modalHeader {
+  margin-bottom: 25px;
+  padding-bottom: 3px;
+  color: #ffffff;
+  background-color: #0b0c0c;
+  text-align: right;
 }
 
 .closeContainer {
@@ -32,12 +43,12 @@
   text-align: right;
 }
 
-.close {
+.dataModalClose {
   box-sizing: content-box;
   width: 2em;
   height: 2em;
   padding: 0.25em 0.25em;
-  color: #000;
+  color: rgb(231, 12, 12);
   background: transparent
     url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e")
     center/1.9em auto no-repeat;
@@ -49,4 +60,26 @@
 
 .stopHtmlScroll {
   overflow: hidden !important;
+}
+
+.alertModalHeader {
+  height: 35px;
+  border-bottom: none !important;
+  text-align: right;
+}
+
+.alertModalClose {
+  box-sizing: content-box;
+  width: 1em;
+  height: 1em;
+  padding: 0.2em 0.2em;
+  margin-right: 1em;
+  color: white;
+  background: transparent
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e")
+    center/1.9em auto no-repeat;
+  border: 0;
+  border-radius: 0.25rem;
+  //opacity: 0.5;
+  cursor: pointer;
 }
