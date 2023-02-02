@@ -49,23 +49,21 @@ describe("Reauthentication Filter", () => {
   it.each([
     "http://our-ui-domain.com?auth-refresh",
     "http://our-ui-domain.com?foo=bar&auth-refresh",
-  ])(
-    "can throw if auth fails on a second visit if there is only the reauth token in the query string",
-    (url) => {
-      const mockWindow = {
-        location: { href: url },
-      } as Window;
+  ])("can throw if auth fails on a second visit", (url) => {
+    const mockWindow = {
+      location: { href: url },
+    } as Window;
 
-      const response = { ok: false, status: 403 } as Response;
+    const response = { ok: false, status: 403 } as Response;
 
-      const act = () => reauthenticationFilter(response, mockWindow);
-      expect(act).toThrow(CmsAuthError);
-    }
-  );
+    const act = () => reauthenticationFilter(response, mockWindow);
+    expect(act).toThrow(CmsAuthError);
+  });
 
   it.each([
     ["http://our-ui-domain.com?auth-refresh", "http://our-ui-domain.com"],
     [
+      // we always append auth-refresh to the end of the querystring, so no need to test if query params come after
       "http://our-ui-domain.com?foo=bar&auth-refresh",
       "http://our-ui-domain.com?foo=bar",
     ],
