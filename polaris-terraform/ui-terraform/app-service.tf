@@ -20,9 +20,8 @@ resource "azurerm_app_service" "as_web_polaris" {
   }
 
   site_config {
-    app_command_line       = "node subsititute-config.js; npx serve -s"
-    linux_fx_version       = "NODE|14-lts"
-    vnet_route_all_enabled = true
+    app_command_line = "node subsititute-config.js; npx serve -s"
+    linux_fx_version = "NODE|14-lts"
   }
 
   auth_settings {

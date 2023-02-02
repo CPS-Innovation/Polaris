@@ -40,7 +40,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     ftps_state                       = "FtpsOnly"
     http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
-    vnet_route_all_enabled           = true
   }
 
   identity {
