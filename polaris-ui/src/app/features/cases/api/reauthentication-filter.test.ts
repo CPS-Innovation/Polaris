@@ -47,17 +47,26 @@ describe("Reauthentication Filter", () => {
   });
 
   it.each([
-    "http://our-ui-domain.com?auth-refresh",
-    "http://our-ui-domain.com?foo=bar&auth-refresh",
-  ])("can throw if auth fails on a second visit", (url) => {
+    ["http://our-ui-domain.com?auth-refresh", "http://our-ui-domain.com"],
+    [
+      "http://our-ui-domain.com?foo=bar&auth-refresh",
+      "http://our-ui-domain.com?foo=bar",
+    ],
+  ])("can throw if auth fails on a second visit", (url, expectedCleanUrl) => {
+    const replaceStateMock = jest.fn();
+
     const mockWindow = {
       location: { href: url },
+      history: {
+        replaceState: replaceStateMock as typeof window.history.replaceState,
+      } as History,
     } as Window;
 
     const response = { ok: false, status: 403 } as Response;
 
     const act = () => reauthenticationFilter(response, mockWindow);
     expect(act).toThrow(CmsAuthError);
+    expect(replaceStateMock.mock.calls[0][2]).toBe(expectedCleanUrl);
   });
 
   it.each([
