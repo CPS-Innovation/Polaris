@@ -154,6 +154,25 @@ resource "azurerm_subnet" "sn_polaris_ui_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet" "sn_polaris_proxy_subnet" {
+  name                 = "polaris-proxy-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisProxySubnet]
+  service_endpoints    = ["Microsoft.Storage"]
+
+  delegation {
+    name = "Microsoft.Web/serverFarms Proxy Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
 resource "azurerm_subnet" "sn_polaris_apps_subnet" {
   name                 = "polaris-apps-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
