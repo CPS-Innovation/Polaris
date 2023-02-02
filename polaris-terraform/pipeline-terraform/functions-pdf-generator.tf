@@ -1,14 +1,14 @@
 #################### Functions ####################
 
 resource "azurerm_windows_function_app" "fa_pdf_generator" {
-  name                       = "fa-${local.resource_name}-pdf-generator"
-  location                   = azurerm_resource_group.rg.location
-  resource_group_name        = azurerm_resource_group.rg.name
-  service_plan_id            = azurerm_service_plan.asp-windows-ep.id
-  storage_account_name       = azurerm_storage_account.sa.name
-  storage_account_access_key = azurerm_storage_account.sa.primary_access_key
-  virtual_network_subnet_id  = data.azurerm_subnet.polaris_pdfgenerator_subnet.id
-  functions_extension_version                  = "~4"
+  name                        = "fa-${local.resource_name}-pdf-generator"
+  location                    = azurerm_resource_group.rg.location
+  resource_group_name         = azurerm_resource_group.rg.name
+  service_plan_id             = azurerm_service_plan.asp-windows-ep.id
+  storage_account_name        = azurerm_storage_account.sa.name
+  storage_account_access_key  = azurerm_storage_account.sa.primary_access_key
+  virtual_network_subnet_id   = data.azurerm_subnet.polaris_pdfgenerator_subnet.id
+  functions_extension_version = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
@@ -35,14 +35,14 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "OnBehalfOfTokenClientSecret"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_pdf_generator_client_secret.id})"
     "DdeiScope"                                = "api://fa-${local.ddei_resource_name}/.default"
   }
-  https_only                 = true
+  https_only = true
 
   site_config {
-    ip_restriction = []
-    ftps_state     = "FtpsOnly"
-    http2_enabled = true
+    ip_restriction                   = []
+    ftps_state                       = "FtpsOnly"
+    http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
-    vnet_route_all_enabled = true
+    vnet_route_all_enabled           = true
   }
 
   identity {
@@ -60,20 +60,22 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
       allowed_audiences = ["api://fa-${local.resource_name}-pdf-generator"]
     }
   }
-  
+
   lifecycle {
     ignore_changes = [
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
-      
+
     ]
   }
+
+  tags = local.common_tags
 }
 
 module "azurerm_app_reg_fa_pdf_generator" {
-  source  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name = "fa-${local.resource_name}-pdf-generator-appreg"
-  identifier_uris = ["api://fa-${local.resource_name}-pdf-generator"]
+  source                  = "./modules/terraform-azurerm-azuread-app-registration"
+  display_name            = "fa-${local.resource_name}-pdf-generator-appreg"
+  identifier_uris         = ["api://fa-${local.resource_name}-pdf-generator"]
   prevent_duplicate_names = true
   #use this code for adding scopes
   api = {
@@ -93,7 +95,7 @@ module "azurerm_app_reg_fa_pdf_generator" {
   #use this code for adding app_roles
   app_role = [
     {
-      allowed_member_types  = ["Application"]
+      allowed_member_types = ["Application"]
       description          = "Can create PDF resources using the ${local.resource_name} PDF Generator"
       display_name         = "Create PDF resources"
       id                   = element(random_uuid.random_id[*].result, 2)
@@ -109,7 +111,7 @@ module "azurerm_app_reg_fa_pdf_generator" {
       id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
       type = "Scope"
     }]
-  },
+    },
     {
       # DDEI
       resource_app_id = data.azuread_application.fa_ddei.id
@@ -118,46 +120,46 @@ module "azurerm_app_reg_fa_pdf_generator" {
         id   = data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]
         type = "Scope"
       }]
-    }]
+  }]
   web = {
     redirect_uris = ["https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
-      id_token_issuance_enabled     = true
+      id_token_issuance_enabled = true
     }
   }
-  tags = ["fa-${local.resource_name}-pdf-generator", "terraform"]
+  tags = ["terraform"]
 }
 
 data "azurerm_function_app_host_keys" "ak_pdf_generator" {
   name                = "fa-${local.resource_name}-pdf-generator"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on = [azurerm_windows_function_app.fa_pdf_generator]
+  depends_on          = [azurerm_windows_function_app.fa_pdf_generator]
 }
 
 module "azurerm_app_pre_authorized" {
-  source                = "./modules/terraform-azurerm-azure_ad_application_preauthorized"
-  
+  source = "./modules/terraform-azurerm-azure_ad_application_preauthorized"
+
   # application object id of authorized application
   application_object_id = module.azurerm_app_reg_fa_pdf_generator.object_id
 
   # application id of Client application
-  authorized_app_id     = module.azurerm_app_reg_fa_coordinator.client_id
+  authorized_app_id = module.azurerm_app_reg_fa_coordinator.client_id
 
   # permissions to assign
-  permission_ids        = [module.azurerm_app_reg_fa_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]]
+  permission_ids = [module.azurerm_app_reg_fa_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]]
 }
 
 module "azurerm_app_pre_authorized_ddei" {
-  source                = "./modules/terraform-azurerm-azure_ad_application_preauthorized"
+  source = "./modules/terraform-azurerm-azure_ad_application_preauthorized"
 
   # application object id of authorized application
   application_object_id = module.azurerm_app_reg_fa_pdf_generator.object_id
 
   # application id of Client application
-  authorized_app_id     = data.azuread_application.fa_ddei.application_id
+  authorized_app_id = data.azuread_application.fa_ddei.application_id
 
   # permissions to assign
-  permission_ids        = [module.azurerm_app_reg_fa_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]]
+  permission_ids = [module.azurerm_app_reg_fa_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]]
 }
 
 resource "azuread_application_password" "faap_fa_pdf_generator_app_service" {
@@ -166,10 +168,10 @@ resource "azuread_application_password" "faap_fa_pdf_generator_app_service" {
 }
 
 module "azurerm_service_principal_fa_pdf_generator" {
-  source         = "./modules/terraform-azurerm-azuread_service_principal"
-  application_id = module.azurerm_app_reg_fa_pdf_generator.client_id
+  source                       = "./modules/terraform-azurerm-azuread_service_principal"
+  application_id               = module.azurerm_app_reg_fa_pdf_generator.client_id
   app_role_assignment_required = false
-  owners         = [data.azurerm_client_config.current.object_id]
+  owners                       = [data.azurerm_client_config.current.object_id]
 }
 
 resource "azuread_service_principal_password" "sp_fa_pdf_generator_pw" {
@@ -190,10 +192,11 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_gen
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_pdf_generator_pe" {
-  name                  = "${azurerm_windows_function_app.fa_pdf_generator.name}-pe"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  name                = "${azurerm_windows_function_app.fa_pdf_generator.name}-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
     name                           = "${azurerm_windows_function_app.fa_pdf_generator.name}-psc"
@@ -210,14 +213,16 @@ resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_pdf_generator_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }
 
 # Create a second Private Endpoint to point to the SCM for deployments
 resource "azurerm_private_endpoint" "pipeline_pdf_generator_scm_pe" {
-  name                  = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm-pe"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_apps_subnet.id
+  name                = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
     name                           = "${azurerm_windows_function_app.fa_pdf_generator.name}-scm-psc"
@@ -234,4 +239,5 @@ resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_scm_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_pdf_generator_scm_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }

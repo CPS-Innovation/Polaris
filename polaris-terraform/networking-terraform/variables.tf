@@ -46,6 +46,9 @@ variable "polarisGatewaySubnet" {
 variable "polarisUiSubnet" {
 }
 
+variable "polarisProxySubnet" {
+}
+
 variable "polarisAppsSubnet" {
 }
 

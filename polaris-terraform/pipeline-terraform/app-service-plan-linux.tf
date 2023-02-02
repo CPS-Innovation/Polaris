@@ -6,6 +6,7 @@ resource "azurerm_service_plan" "asp-linux-ep" {
   resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Linux"
   sku_name            = var.app_service_plan_sku
+  tags                = local.common_tags
 }
 
 resource "azurerm_monitor_autoscale_setting" "amas-linux-ep" {
@@ -13,6 +14,7 @@ resource "azurerm_monitor_autoscale_setting" "amas-linux-ep" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   target_resource_id  = azurerm_service_plan.asp-linux-ep.id
+  tags                = local.common_tags
   profile {
     name = "Polaris Pipeline Performance Scaling Profile"
     capacity {

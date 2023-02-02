@@ -1,12 +1,11 @@
 #################### App Service ####################
 
-resource "azurerm_linux_web_app" "as_web_polaris" {
-  name                      = "as-web-${local.resource_name}"
-  location                  = azurerm_resource_group.rg_polaris.location
-  resource_group_name       = azurerm_resource_group.rg_polaris.name
-  service_plan_id           = azurerm_service_plan.asp_polaris.id
-  https_only                = true
-  virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
+resource "azurerm_app_service" "as_web_polaris" {
+  name                = "as-web-${local.resource_name}"
+  location            = azurerm_resource_group.rg_polaris.location
+  resource_group_name = azurerm_resource_group.rg_polaris.name
+  app_service_plan_id = azurerm_service_plan.asp_polaris.id
+  https_only          = true
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"        = "1"
@@ -22,14 +21,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
   site_config {
     app_command_line       = "node subsititute-config.js; npx serve -s"
+    linux_fx_version       = "NODE|14-lts"
     vnet_route_all_enabled = true
-    application_stack {
-      node_version = "14-lts"
-    }
-  }
-
-  tags = {
-    environment = var.environment_tag
   }
 
   auth_settings {
@@ -75,7 +68,7 @@ module "azurerm_app_reg_as_web_polaris" {
       access_token_issuance_enabled = true
     }
   }
-  tags = ["as-web-${local.resource_name}-appreg", "terraform"]
+  tags = ["terraform"]
 }
 
 resource "azuread_application_password" "asap_web_polaris_app_service" {
@@ -112,14 +105,15 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_web_gra
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_ui_pe" {
-  name                = "${azurerm_linux_web_app.as_web_polaris.name}-pe"
+  name                = "${azurerm_app_service.as_web_polaris.name}-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
-    name                           = "${azurerm_linux_web_app.as_web_polaris.name}-psc"
-    private_connection_resource_id = azurerm_linux_web_app.as_web_polaris.id
+    name                           = "${azurerm_app_service.as_web_polaris.name}-psc"
+    private_connection_resource_id = azurerm_app_service.as_web_polaris.id
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
@@ -127,23 +121,25 @@ resource "azurerm_private_endpoint" "polaris_ui_pe" {
 
 # Create DNS A Record
 resource "azurerm_private_dns_a_record" "polaris_ui_dns_a" {
-  name                = azurerm_linux_web_app.as_web_polaris.name
+  name                = azurerm_app_service.as_web_polaris.name
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.polaris_ui_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }
 
 # Create Private Endpoint for SCM site
 resource "azurerm_private_endpoint" "polaris_ui_scm_pe" {
-  name                = "${azurerm_linux_web_app.as_web_polaris.name}-scm-pe"
+  name                = "${azurerm_app_service.as_web_polaris.name}-scm-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
-    name                           = "${azurerm_linux_web_app.as_web_polaris.name}-scm-psc"
-    private_connection_resource_id = azurerm_linux_web_app.as_web_polaris.id
+    name                           = "${azurerm_app_service.as_web_polaris.name}-scm-psc"
+    private_connection_resource_id = azurerm_app_service.as_web_polaris.id
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
@@ -151,9 +147,10 @@ resource "azurerm_private_endpoint" "polaris_ui_scm_pe" {
 
 # Create DNS A Record
 resource "azurerm_private_dns_a_record" "polaris_ui_scm_dns_a" {
-  name                = "${azurerm_linux_web_app.as_web_polaris.name}.scm"
+  name                = "${azurerm_app_service.as_web_polaris.name}.scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.polaris_ui_scm_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }

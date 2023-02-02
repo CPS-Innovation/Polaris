@@ -14,7 +14,7 @@ resource "azurerm_key_vault" "kv" {
   soft_delete_retention_days      = 90
 
   sku_name = "standard"
-  
+
   network_acls {
     default_action = "Deny"
     bypass         = "AzureServices"
@@ -25,14 +25,17 @@ resource "azurerm_key_vault" "kv" {
       data.azurerm_subnet.polaris_textextractor_subnet.id
     ]
   }
+
+  tags = local.common_tags
 }
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_key_vault_pe" {
-  name                  = "${azurerm_key_vault.kv.name}-pe"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  subnet_id             = data.azurerm_subnet.polaris_key_vault_subnet.id
+  name                = "${azurerm_key_vault.kv.name}-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_key_vault_subnet.id
+  tags                = local.common_tags
 
   private_service_connection {
     name                           = "${azurerm_key_vault.kv.name}-psc"
@@ -49,15 +52,17 @@ resource "azurerm_private_dns_a_record" "pipeline_key_vault_dns_a" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_key_vault_pe.private_service_connection.0.private_ip_address]
+  tags                = local.common_tags
 }
 
 resource "azurerm_key_vault_key" "kvap_sa_customer_managed_key" {
-  name         = "tfex-key"
-  key_vault_id = azurerm_key_vault.kv.id
-  key_type     = "RSA"
-  key_size     = 2048
-  key_opts     = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
+  name            = "tfex-key"
+  key_vault_id    = azurerm_key_vault.kv.id
+  key_type        = "RSA"
+  key_size        = 2048
+  key_opts        = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
   expiration_date = timeadd(timestamp(), "8760h")
+  tags            = local.common_tags
 
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp,
@@ -66,11 +71,12 @@ resource "azurerm_key_vault_key" "kvap_sa_customer_managed_key" {
 }
 
 resource "azurerm_key_vault_secret" "kvs_fa_coordinator_client_secret" {
-  name         = "CoordinatorFunctionAppRegistrationClientSecret"
-  value        = azuread_application_password.faap_fa_coordinator_app_service.value
-  key_vault_id = azurerm_key_vault.kv.id
+  name            = "CoordinatorFunctionAppRegistrationClientSecret"
+  value           = azuread_application_password.faap_fa_coordinator_app_service.value
+  key_vault_id    = azurerm_key_vault.kv.id
   expiration_date = timeadd(timestamp(), "8760h")
-  content_type = "password"
+  content_type    = "password"
+  tags            = local.common_tags
 
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp,
@@ -79,11 +85,12 @@ resource "azurerm_key_vault_secret" "kvs_fa_coordinator_client_secret" {
 }
 
 resource "azurerm_key_vault_secret" "kvs_fa_pdf_generator_client_secret" {
-  name         = "PdfGeneratorFunctionAppRegistrationClientSecret"
-  value        = azuread_application_password.faap_fa_pdf_generator_app_service.value
-  key_vault_id = azurerm_key_vault.kv.id
+  name            = "PdfGeneratorFunctionAppRegistrationClientSecret"
+  value           = azuread_application_password.faap_fa_pdf_generator_app_service.value
+  key_vault_id    = azurerm_key_vault.kv.id
   expiration_date = timeadd(timestamp(), "8760h")
-  content_type = "password"
+  content_type    = "password"
+  tags            = local.common_tags
 
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp,
