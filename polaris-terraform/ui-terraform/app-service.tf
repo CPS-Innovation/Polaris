@@ -68,7 +68,7 @@ module "azurerm_app_reg_as_web_polaris" {
       access_token_issuance_enabled = true
     }
   }
-  tags = local.common_tags
+  tags = ["terraform"]
 }
 
 resource "azuread_application_password" "asap_web_polaris_app_service" {

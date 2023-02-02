@@ -100,7 +100,7 @@ module "azurerm_app_reg_fa_text_extractor" {
       id_token_issuance_enabled = true
     }
   }
-  tags = local.common_tags
+  tags = ["terraform"]
 }
 
 data "azurerm_function_app_host_keys" "ak_text_extractor" {

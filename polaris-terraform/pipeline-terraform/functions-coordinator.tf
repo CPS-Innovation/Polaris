@@ -92,7 +92,6 @@ module "azurerm_app_reg_fa_coordinator" {
   display_name            = "fa-${local.resource_name}-coordinator-appreg"
   identifier_uris         = ["api://fa-${local.resource_name}-coordinator"]
   prevent_duplicate_names = true
-  tags                    = local.common_tags
   #use this code for adding scopes
   api = {
     mapped_claims_enabled          = false
@@ -148,6 +147,7 @@ module "azurerm_app_reg_fa_coordinator" {
       id_token_issuance_enabled = true
     }
   }
+  tags = ["terraform"]
 }
 
 module "azurerm_service_principal_fa_coordinator" {

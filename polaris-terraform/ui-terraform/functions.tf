@@ -148,7 +148,7 @@ module "azurerm_app_reg_fa_polaris" {
       id_token_issuance_enabled = true
     }
   }
-  tags = local.common_tags
+  tags = ["terraform"]
 }
 
 resource "azuread_application_password" "faap_polaris_app_service" {
