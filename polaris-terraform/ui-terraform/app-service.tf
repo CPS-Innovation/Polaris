@@ -17,6 +17,7 @@ resource "azurerm_app_service" "as_web_polaris" {
     "REACT_APP_TENANT_ID"            = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"     = "https://${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "REACT_APP_GATEWAY_SCOPE"        = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
+    "REACT_APP_REAUTH_REDIRECT_URL"  = "https://${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/polaris?q="
   }
 
   site_config {
