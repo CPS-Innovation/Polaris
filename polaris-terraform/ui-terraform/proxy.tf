@@ -1,8 +1,8 @@
-resource "azurerm_linux_web_app" "polaris_proxy" {
+resource "azurerm_app_service" "polaris_proxy" {
   name                      = "${local.resource_name}-cmsproxy"
   resource_group_name       = azurerm_resource_group.rg_polaris.name
   location                  = azurerm_service_plan.asp_polaris.location
-  service_plan_id           = azurerm_service_plan.asp_polaris.id
+  app_service_plan_id       = azurerm_service_plan.asp_polaris.id
   virtual_network_subnet_id = data.azurerm_subnet.polaris_proxy_subnet.id
   site_config {
     /*
@@ -42,6 +42,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     type         = "AzureBlob"
     mount_path   = "/etc/nginx/templates"
   }
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 resource "azurerm_storage_blob" "nginx_config" {
@@ -62,17 +65,18 @@ resource "azurerm_storage_blob" "nginx_js" {
   source                 = "nginx.js"
 }
 
+/*
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_proxy_pe" {
-  name                = "${azurerm_linux_web_app.polaris_proxy.name}-pe"
+  name                = "${azurerm_app_service.polaris_proxy.name}-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
   private_service_connection {
-    name                           = "${azurerm_linux_web_app.polaris_proxy.name}-psc"
-    private_connection_resource_id = azurerm_linux_web_app.polaris_proxy.id
+    name                           = "${azurerm_app_service.polaris_proxy.name}-psc"
+    private_connection_resource_id = azurerm_app_service.polaris_proxy.id
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
@@ -80,7 +84,7 @@ resource "azurerm_private_endpoint" "polaris_proxy_pe" {
 
 # Create DNS A Record
 resource "azurerm_private_dns_a_record" "polaris_proxy_dns_a" {
-  name                = azurerm_linux_web_app.polaris_proxy.name
+  name                = azurerm_app_service.polaris_proxy.name
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
@@ -90,15 +94,15 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_dns_a" {
 
 # Create Private Endpoint for SCM site
 resource "azurerm_private_endpoint" "polaris_proxy_scm_pe" {
-  name                = "${azurerm_linux_web_app.polaris_proxy.name}-scm-pe"
+  name                = "${azurerm_app_service.polaris_proxy.name}-scm-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
   private_service_connection {
-    name                           = "${azurerm_linux_web_app.polaris_proxy.name}-scm-psc"
-    private_connection_resource_id = azurerm_linux_web_app.polaris_proxy.id
+    name                           = "${azurerm_app_service.polaris_proxy.name}-scm-psc"
+    private_connection_resource_id = azurerm_app_service.polaris_proxy.id
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
@@ -106,10 +110,11 @@ resource "azurerm_private_endpoint" "polaris_proxy_scm_pe" {
 
 # Create DNS A Record
 resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
-  name                = "${azurerm_linux_web_app.polaris_proxy.name}.scm"
+  name                = "${azurerm_app_service.polaris_proxy.name}.scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
   records             = [azurerm_private_endpoint.polaris_proxy_scm_pe.private_service_connection.0.private_ip_address]
   tags                = local.common_tags
 }
+*/
