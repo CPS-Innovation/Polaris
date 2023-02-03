@@ -25,7 +25,7 @@ namespace coordinator.tests.Functions
         private readonly string _caseId;
         private readonly string _instanceId;
         private readonly string _accessToken;
-        private readonly string _upstreamToken;
+        private readonly string _cmsAuthValues;
         private readonly Guid _correlationId;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpRequestHeaders _httpRequestHeaders;
@@ -43,7 +43,7 @@ namespace coordinator.tests.Functions
             _caseIdNum = _fixture.Create<int>();
             _caseId = _caseIdNum.ToString();
             _accessToken = _fixture.Create<string>();
-            _upstreamToken = _fixture.Create<string>();
+            _cmsAuthValues = _fixture.Create<string>();
             _correlationId = _fixture.Create<Guid>();
             _instanceId = _caseId;
             _httpRequestMessage = new HttpRequestMessage();
@@ -57,7 +57,7 @@ namespace coordinator.tests.Functions
 
             _httpRequestHeaders.Add(HttpHeaderKeys.Authorization, $"Bearer {_accessToken}");
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestHeaders.Add("upstream-token", _upstreamToken);
+            _httpRequestHeaders.Add("cms-auth-values", _cmsAuthValues);
 
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(default(DurableOrchestrationStatus));
@@ -78,7 +78,7 @@ namespace coordinator.tests.Functions
         {
             _httpRequestHeaders.Clear();
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestHeaders.Add("upstream-token", _upstreamToken);
+            _httpRequestHeaders.Add("cms-auth-values", _cmsAuthValues);
             //_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<UnauthorizedException>()))
             //     .Returns(new HttpResponseMessage(HttpStatusCode.Unauthorized));
 
@@ -86,7 +86,7 @@ namespace coordinator.tests.Functions
 
             httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
-        
+
         [Fact]
         public async Task Run_ReturnsBadRequestWhenCorrelationIdIsMissing()
         {
@@ -98,7 +98,7 @@ namespace coordinator.tests.Functions
 
             httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
-        
+
         [Fact]
         public async Task Run_ReturnsBadRequestWhenInvalidCaseUrn()
         {

@@ -4,9 +4,9 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 namespace coordinator.Factories
 {
-	public interface IGeneratePdfHttpRequestFactory
-	{
-		Task<DurableHttpRequest> Create(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId, string upstreamToken, Guid correlationId);
-	}
+    public interface IGeneratePdfHttpRequestFactory
+    {
+        Task<DurableHttpRequest> Create(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId, string cmsAuthValues, Guid correlationId);
+    }
 }
 

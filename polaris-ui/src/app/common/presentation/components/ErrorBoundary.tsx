@@ -1,6 +1,8 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Layout } from "../layout/Layout";
-import { PageContentWrapper } from ".";
+import { PageContentWrapper, WaitPage } from ".";
+import { CmsAuthRedirectingError } from "../../errors/CmsAuthRedirectingError";
+import { ErrorPage } from "./ErrorPage";
 
 interface Props {
   children: ReactNode;
@@ -30,28 +32,15 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <Layout>
-          <PageContentWrapper>
-            <h1
-              className="govuk-heading-xl"
-              data-testid="txt-error-page-heading"
-            >
-              Sorry, there is a problem with the service
-            </h1>
-            <p>
-              Try again later, or{" "}
-              <a href="/" className="govuk-link">
-                click here to start a new search
-              </a>
-              .
-            </p>
-            <div className="govuk-inset-text">
-              {this.state.error?.toString()}
-            </div>
-          </PageContentWrapper>
+          {this.state.error instanceof CmsAuthRedirectingError ? (
+            <WaitPage />
+          ) : (
+            <ErrorPage error={this.state.error} />
+          )}
         </Layout>
       );
+    } else {
+      return this.props.children;
     }
-
-    return this.props.children;
   }
 }

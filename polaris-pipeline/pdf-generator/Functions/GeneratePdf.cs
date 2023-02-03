@@ -43,9 +43,9 @@ namespace pdf_generator.Functions
         private readonly IConfiguration _configuration;
 
         public GeneratePdf(
-             IAuthorizationValidator authorizationValidator, IJsonConvertWrapper jsonConvertWrapper, IValidatorWrapper<GeneratePdfRequest> validatorWrapper, 
-             IDocumentEvaluationService documentEvaluationService, IIdentityClientAdapter identityClientAdapter, IDdeiDocumentExtractionService documentExtractionService, 
-             IBlobStorageService blobStorageService, IPdfOrchestratorService pdfOrchestratorService, IExceptionHandler exceptionHandler, ILogger<GeneratePdf> logger, 
+             IAuthorizationValidator authorizationValidator, IJsonConvertWrapper jsonConvertWrapper, IValidatorWrapper<GeneratePdfRequest> validatorWrapper,
+             IDocumentEvaluationService documentEvaluationService, IIdentityClientAdapter identityClientAdapter, IDdeiDocumentExtractionService documentExtractionService,
+             IBlobStorageService blobStorageService, IPdfOrchestratorService pdfOrchestratorService, IExceptionHandler exceptionHandler, ILogger<GeneratePdf> logger,
              IConfiguration configuration)
         {
             _authorizationValidator = authorizationValidator;
@@ -76,18 +76,18 @@ namespace pdf_generator.Functions
 
                 var correlationId = correlationIdValues.First();
                 if (!Guid.TryParse(correlationId, out currentCorrelationId) || currentCorrelationId == Guid.Empty)
-                        throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
-                
-                request.Headers.TryGetValues(HttpHeaderKeys.UpstreamTokenName, out var upstreamTokenValues);
-                if (upstreamTokenValues == null)
+                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
+
+                request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
+                if (cmsAuthValuesValues == null)
                     throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(request));
-                var upstreamToken = upstreamTokenValues.First();
-                if (string.IsNullOrWhiteSpace(upstreamToken))
+                var cmsAuthValues = cmsAuthValuesValues.First();
+                if (string.IsNullOrWhiteSpace(cmsAuthValues))
                     throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(request));
 
                 _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                var authValidation = await _authorizationValidator.ValidateTokenAsync(request.Headers.Authorization, currentCorrelationId, 
+                var authValidation = await _authorizationValidator.ValidateTokenAsync(request.Headers.Authorization, currentCorrelationId,
                     PipelineScopes.GeneratePdf, PipelineRoles.EmptyRole);
                 if (!authValidation.Item1)
                     throw new UnauthorizedException("Token validation failed");
@@ -106,7 +106,7 @@ namespace pdf_generator.Functions
                 var results = _validatorWrapper.Validate(pdfRequest);
                 if (results.Any())
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
-                
+
                 var blobName = $"{pdfRequest.CaseId}/pdfs/{Path.GetFileNameWithoutExtension(pdfRequest.FileName)}.pdf";
                 generatePdfResponse = new GeneratePdfResponse(blobName);
 
@@ -121,28 +121,28 @@ namespace pdf_generator.Functions
                     generatePdfResponse.AlreadyProcessed = true;
                     return OkResponse(Serialize(generatePdfResponse));
                 }*/
-                
+
                 var ddeiScope = _configuration[ConfigKeys.SharedKeys.DdeiScope];
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
                 var onBehalfOfAccessToken = await _identityClientAdapter.GetClientAccessTokenAsync(ddeiScope, currentCorrelationId);
-                
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Retrieving Document from Cde for documentId: '{pdfRequest.DocumentId}'");
-                
-                var documentStream = await _documentExtractionService.GetDocumentAsync(pdfRequest.CaseUrn, pdfRequest.CaseId.ToString(), pdfRequest.DocumentCategory, 
-                    pdfRequest.DocumentId, onBehalfOfAccessToken, upstreamToken, currentCorrelationId);
+
+                var documentStream = await _documentExtractionService.GetDocumentAsync(pdfRequest.CaseUrn, pdfRequest.CaseId.ToString(), pdfRequest.DocumentCategory,
+                    pdfRequest.DocumentId, onBehalfOfAccessToken, cmsAuthValues, currentCorrelationId);
 
                 var fileType = Path.GetExtension(pdfRequest.FileName).ToFileType();
-                _log.LogMethodFlow(currentCorrelationId, loggingName, 
+                _log.LogMethodFlow(currentCorrelationId, loggingName,
                     $"Processing retrieved document of type: '{fileType}'. Original file: '{pdfRequest.FileName}', with new fileName: '{blobName}'");
 
                 var pdfStream = _pdfOrchestratorService.ReadToPdfStream(documentStream, fileType, pdfRequest.DocumentId, currentCorrelationId);
-                    
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
-                await _blobStorageService.UploadDocumentAsync(pdfStream, blobName, pdfRequest.CaseId.ToString(), pdfRequest.DocumentId, 
+                await _blobStorageService.UploadDocumentAsync(pdfStream, blobName, pdfRequest.CaseId.ToString(), pdfRequest.DocumentId,
                     pdfRequest.VersionId.ToString(), currentCorrelationId);
-                
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"'{blobName}' uploaded successfully");
-                
+
                 return OkResponse(Serialize(generatePdfResponse));
             }
             catch (Exception exception)

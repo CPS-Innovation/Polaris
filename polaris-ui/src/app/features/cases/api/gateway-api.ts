@@ -13,6 +13,7 @@ import {
 } from "./url-helpers";
 import { CaseDetails } from "../domain/CaseDetails";
 import { CmsDocCategory } from "../domain/CmsDocCategory";
+import { reauthenticationFilter } from "./reauthentication-filter";
 
 const buildHeaders = async (
   ...args: (
@@ -35,12 +36,8 @@ export const resolvePdfUrl = (blobNameUrlFragment: string) =>
 
 export const searchUrn = async (urn: string) => {
   const url = buildEncodedUrl({ urn }, ({ urn }) => `/api/urns/${urn}/cases`);
-  const headers = await buildHeaders(
-    HEADERS.correlationId,
-    HEADERS.auth,
-    HEADERS.upstreamHeader
-  );
-  const response = await fetch(url, {
+  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
+  const response = await internalFetch(url, {
     headers,
   });
 
@@ -62,12 +59,8 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
     ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}`
   );
 
-  const response = await fetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -82,12 +75,8 @@ export const getCaseDocumentsList = async (urn: string, caseId: number) => {
     { urn, caseId },
     ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}/documents`
   );
-  const response = await fetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -101,12 +90,8 @@ export const getCaseDocumentsList = async (urn: string, caseId: number) => {
 
 export const getPdfSasUrl = async (pdfBlobName: string) => {
   const url = buildUnencodedUrl(`/api/pdf/sasUrl/${pdfBlobName}`);
-  const response = await fetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -123,12 +108,8 @@ export const initiatePipeline = async (urn: string, caseId: number) => {
   );
 
   const correlationIdHeader = HEADERS.correlationId();
-  const response = await fetch(path, {
-    headers: await buildHeaders(
-      correlationIdHeader,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
     method: "POST",
   });
 
@@ -147,11 +128,10 @@ export const getPipelinePdfResults = async (
 ) => {
   const headers = await buildHeaders(
     HEADERS.correlationId(existingCorrelationId),
-    HEADERS.auth,
-    HEADERS.upstreamHeader
+    HEADERS.auth
   );
 
-  const response = await fetch(trackerUrl, {
+  const response = await internalFetch(trackerUrl, {
     headers,
   });
 
@@ -168,12 +148,8 @@ export const searchCase = async (
     ({ caseId, searchTerm, urn }) =>
       `/api/urns/${urn}/cases/${caseId}/query/${searchTerm}`
   );
-  const response = await fetch(path, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(path, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
   if (!response.ok) {
@@ -195,12 +171,8 @@ export const checkoutDocument = async (
       `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/checkout`
   );
 
-  const response = await fetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "POST",
   });
 
@@ -223,12 +195,8 @@ export const cancelCheckoutDocument = async (
       `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/checkout`
   );
 
-  const response = await fetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "DELETE",
   });
 
@@ -253,12 +221,8 @@ export const saveRedactions = async (
       `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/${fileName}`
   );
 
-  const response = await fetch(url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.auth,
-      HEADERS.upstreamHeader
-    ),
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
     method: "PUT",
     body: JSON.stringify(redactionSaveRequest),
   });
@@ -268,4 +232,15 @@ export const saveRedactions = async (
   }
 
   return (await response.json()) as RedactionSaveResponse;
+};
+
+const internalFetch = async (...args: Parameters<typeof fetch>) => {
+  const response = await fetch(args[0], {
+    ...args[1],
+    // We need cookies to be sent to the gateway, which is a third-party domain,
+    //  so need to set `credentials: "include"`
+    credentials: "include",
+  });
+
+  return reauthenticationFilter(response, window);
 };

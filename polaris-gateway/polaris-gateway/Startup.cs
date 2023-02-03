@@ -55,6 +55,7 @@ namespace PolarisGateway
             builder.Services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
             builder.Services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
             builder.Services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
+            builder.Services.AddTransient<ICmsAuthValuesFactory, CmsAuthValuesFactory>();
 
             builder.Services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
@@ -115,6 +116,7 @@ namespace PolarisGateway
 
             builder.Services.AddTransient<ICaseDataService, DdeiService>();
             builder.Services.AddTransient<IDocumentService, DdeiService>();
+            builder.Services.AddTransient<ICmsModernTokenService, DdeiService>();
             builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
             builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
             {

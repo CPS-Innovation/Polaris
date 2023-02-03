@@ -1,6 +1,6 @@
 namespace PolarisGateway.Domain.CaseData.Args
 {
-    public class UrnArg : BaseCaseDataArg
+    public class UrnArg : CaseDataArg
     {
         public string Urn { get; set; }
     }

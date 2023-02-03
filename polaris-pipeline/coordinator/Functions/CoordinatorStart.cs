@@ -22,7 +22,7 @@ namespace coordinator.Functions
     {
         private readonly ILogger<CoordinatorStart> _logger;
         private readonly IAuthorizationValidator _authorizationValidator;
-        
+
         public CoordinatorStart(ILogger<CoordinatorStart> logger, IAuthorizationValidator authorizationValidator)
         {
             _logger = logger;
@@ -30,9 +30,9 @@ namespace coordinator.Functions
         }
 
         [FunctionName("CoordinatorStart")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "cases/{caseUrn}/{caseId}")] HttpRequestMessage req, 
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "cases/{caseUrn}/{caseId}")] HttpRequestMessage req,
                 string caseUrn, string caseId, [DurableClient] IDurableOrchestrationClient orchestrationClient)
-        { 
+        {
             Guid currentCorrelationId = default;
             const string loggingName = $"{nameof(CoordinatorStart)} - {nameof(Run)}";
 
@@ -46,16 +46,16 @@ namespace coordinator.Functions
                 if (!Guid.TryParse(correlationId, out currentCorrelationId))
                     if (currentCorrelationId == Guid.Empty)
                         throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
-                
-                req.Headers.TryGetValues(HttpHeaderKeys.UpstreamTokenName, out var upstreamTokenValues);
-                if (upstreamTokenValues == null)
+
+                req.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
+                if (cmsAuthValuesValues == null)
                     throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(req));
-                var upstreamToken = upstreamTokenValues.First();
-                if (string.IsNullOrWhiteSpace(upstreamToken))
+                var cmsAuthValues = cmsAuthValuesValues.First();
+                if (string.IsNullOrWhiteSpace(cmsAuthValues))
                     throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(req));
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, req.RequestUri?.Query);
-                
+
                 var authValidation = await _authorizationValidator.ValidateTokenAsync(req.Headers.Authorization, currentCorrelationId);
                 if (!authValidation.Item1)
                     throw new UnauthorizedException("Token validation failed");
@@ -81,13 +81,13 @@ namespace coordinator.Functions
                 // Check if an instance with the specified ID already exists or an existing one stopped running(completed/failed/terminated/cancelled).
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, "Check if an instance with the specified ID already exists or an existing one stopped running(completed/failed/terminated/cancelled");
                 var existingInstance = await orchestrationClient.GetStatusAsync(caseId);
-                if (existingInstance == null || existingInstance.RuntimeStatus is OrchestrationRuntimeStatus.Completed 
+                if (existingInstance == null || existingInstance.RuntimeStatus is OrchestrationRuntimeStatus.Completed
                         or OrchestrationRuntimeStatus.Failed or OrchestrationRuntimeStatus.Terminated or OrchestrationRuntimeStatus.Canceled)
                 {
                     await orchestrationClient.StartNewAsync(
                         nameof(CoordinatorOrchestrator),
                         caseId,
-                        new CoordinatorOrchestrationPayload(caseUrn, caseIdNum, forceRefresh, authValidation.Item2, upstreamToken, currentCorrelationId));
+                        new CoordinatorOrchestrationPayload(caseUrn, caseIdNum, forceRefresh, authValidation.Item2, cmsAuthValues, currentCorrelationId));
 
                     _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Orchestrator StartUp Succeeded - Started {nameof(CoordinatorOrchestrator)} with instance id '{caseId}'");
                 }

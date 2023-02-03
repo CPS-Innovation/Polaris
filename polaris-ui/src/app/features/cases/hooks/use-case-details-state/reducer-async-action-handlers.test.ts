@@ -71,10 +71,6 @@ describe("reducerAsyncActionHandlers", () => {
         .spyOn(headerFactory, "auth")
         .mockImplementation(() => Promise.resolve({ Authorization: "bar" }));
 
-      jest
-        .spyOn(headerFactory, "upstreamHeader")
-        .mockImplementation(() => Promise.resolve({ "Upstream-Token": "baz" }));
-
       const handler = reducerAsyncActionHandlers.REQUEST_OPEN_PDF({
         dispatch: dispatchMock,
         getState: () => combinedStateMock,
@@ -102,7 +98,6 @@ describe("reducerAsyncActionHandlers", () => {
           headers: {
             "Correlation-Id": "foo",
             Authorization: "bar",
-            "Upstream-Token": "baz",
           },
         },
       });

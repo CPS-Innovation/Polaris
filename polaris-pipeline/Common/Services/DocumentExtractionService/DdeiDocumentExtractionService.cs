@@ -25,7 +25,7 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
     private readonly IJsonConvertWrapper _jsonConvertWrapper;
     private readonly ICaseDocumentMapper<DdeiCaseDocumentResponse> _caseDocumentMapper;
 
-    public DdeiDocumentExtractionService(HttpClient httpClient, IHttpRequestFactory httpRequestFactory, ILogger<DdeiDocumentExtractionService> logger, 
+    public DdeiDocumentExtractionService(HttpClient httpClient, IHttpRequestFactory httpRequestFactory, ILogger<DdeiDocumentExtractionService> logger,
         IConfiguration configuration, IJsonConvertWrapper jsonConvertWrapper, ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper)
         : base(logger, httpRequestFactory, httpClient)
     {
@@ -35,31 +35,31 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         _caseDocumentMapper = caseDocumentMapper ?? throw new ArgumentNullException(nameof(caseDocumentMapper));
     }
 
-    public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string accessToken, string upstreamToken, Guid correlationId)
+    public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string accessToken, string cmsAuthValues, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}, DocumentId: {documentId}");
-        
-        var content = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.GetDocumentUrl], caseUrn, caseId, documentCategory, documentId), accessToken, upstreamToken, correlationId);
+
+        var content = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.GetDocumentUrl], caseUrn, caseId, documentCategory, documentId), accessToken, cmsAuthValues, correlationId);
         var result = await content.ReadAsStreamAsync();
-        
+
         _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), string.Empty);
         return result;
     }
 
-    public async Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string upstreamToken, Guid correlationId)
+    public async Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string cmsAuthValues, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
         var results = new List<CaseDocument>();
-        
-        var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), accessToken, upstreamToken, correlationId);
+
+        var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), accessToken, cmsAuthValues, correlationId);
         var stringContent = await response.ReadAsStringAsync();
         var ddeiResults = _jsonConvertWrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(stringContent);
 
         if (ddeiResults != null && ddeiResults.Any())
             results = ddeiResults.Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult)).ToList();
-        
+
         _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), results.ToJson());
-        
+
         return results.ToArray();
         //return results.Where(x => x.FileName.StartsWith("msgTestFile")).ToArray();
     }

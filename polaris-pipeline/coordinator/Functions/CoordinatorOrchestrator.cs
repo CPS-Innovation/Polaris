@@ -25,7 +25,7 @@ namespace coordinator.Functions
     {
         private readonly ILogger<CoordinatorOrchestrator> _log;
         private readonly IConfiguration _configuration;
-        
+
         public CoordinatorOrchestrator(ILogger<CoordinatorOrchestrator> log, IConfiguration configuration)
         {
             _log = log;
@@ -43,10 +43,10 @@ namespace coordinator.Functions
 
             var log = context.CreateReplaySafeLogger(_log);
             var currentCaseId = payload.CaseId;
-            
+
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
             var tracker = GetTracker(context, payload.CaseUrn, payload.CaseId, payload.CorrelationId, log);
-            
+
             try
             {
                 var timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
@@ -85,12 +85,12 @@ namespace coordinator.Functions
         {
             const string loggingName = nameof(RunOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
-            
+
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            
+
             if (await tracker.IsAlreadyProcessed() && !await tracker.IsStale(payload.ForceRefresh))
             {
-                log.LogMethodFlow(payload.CorrelationId, loggingName, 
+                log.LogMethodFlow(payload.CorrelationId, loggingName,
                     $"Tracker has already finished processing, a 'force refresh' has not been issued and it is not stale - returning documents - {context.InstanceId}");
                 return await tracker.GetDocuments();
             }
@@ -106,16 +106,16 @@ namespace coordinator.Functions
             await RegisterDocuments(tracker, loggingName, log, payload, documents);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Now process each document for case {payload.CaseId}");
-            var caseDocumentTasks = documents.Select(t => context.CallSubOrchestratorAsync(nameof(CaseDocumentOrchestrator), 
-                    new CaseDocumentOrchestrationPayload(payload.CaseUrn, payload.CaseId, t.CmsDocType.DocumentCategory, t.DocumentId, 
-                        t.VersionId, t.FileName, payload.UpstreamToken, payload.CorrelationId)))
+            var caseDocumentTasks = documents.Select(t => context.CallSubOrchestratorAsync(nameof(CaseDocumentOrchestrator),
+                    new CaseDocumentOrchestrationPayload(payload.CaseUrn, payload.CaseId, t.CmsDocType.DocumentCategory, t.DocumentId,
+                        t.VersionId, t.FileName, payload.CmsAuthValues, payload.CorrelationId)))
                 .ToList();
 
             await Task.WhenAll(caseDocumentTasks.Select(BufferCall));
-            
+
             if (await tracker.AllDocumentsFailed())
                 throw new CoordinatorOrchestrationException("All documents failed to process during orchestration.");
-            
+
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"All documents processed successfully for case {payload.CaseId}");
             await tracker.RegisterCompleted();
 
@@ -142,36 +142,36 @@ namespace coordinator.Functions
 
             var entityId = new EntityId(nameof(Tracker), caseId.ToString());
             var result = context.CreateEntityProxy<ITracker>(entityId);
-            
+
             safeLoggerInstance.LogMethodExit(correlationId, nameof(GetTracker), "n/a");
             return result;
         }
 
-        private async Task<CaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, 
+        private async Task<CaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
             CoordinatorOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
-            
+
             //exchange token for DDEI-specific token as part of OBO authentication
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, "Get DDEI access token");
             var ddeiScope = _configuration[ConfigKeys.SharedKeys.DdeiScope];
             var accessTokenRequest = new GetOnBehalfOfTokenRequest(payload.AccessToken, ddeiScope, payload.CorrelationId);
             var accessToken = await context.CallActivityAsync<string>(nameof(GetOnBehalfOfAccessToken), accessTokenRequest);
-            
+
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
             var documents = await context.CallActivityAsync<CaseDocument[]>(
                 nameof(GetCaseDocuments),
-                new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, accessToken, payload.UpstreamToken, payload.CorrelationId));
+                new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, accessToken, payload.CmsAuthValues, payload.CorrelationId));
 
             if (documents.Length != 0) return documents;
             //if (documents.Length != 0) return documents.Where(x => x.FileName == "PNCWitnessPrintsTestFile.pdf").ToArray();
-            
+
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"No documents found, register this in the tracker for case {payload.CaseId}");
             await tracker.RegisterNoDocumentsFoundInDDEI();
             return documents;
         }
 
-        private static async Task RegisterDocuments(ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, 
+        private static async Task RegisterDocuments(ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
             IEnumerable<CaseDocument> documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CaseId}");

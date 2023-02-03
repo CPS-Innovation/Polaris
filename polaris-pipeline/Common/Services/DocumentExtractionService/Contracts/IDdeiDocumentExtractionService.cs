@@ -7,7 +7,7 @@ namespace Common.Services.DocumentExtractionService.Contracts;
 
 public interface IDdeiDocumentExtractionService
 {
-    Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string upstreamToken, Guid correlationId);
-        
-    Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string accessToken, string upstreamToken, Guid correlationId);
+    Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string cmsAuthValues, Guid correlationId);
+
+    Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string accessToken, string cmsAuthValues, Guid correlationId);
 }

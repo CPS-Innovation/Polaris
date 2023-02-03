@@ -47,7 +47,7 @@ namespace PolarisGateway.Functions.CaseData
             string urn)
         {
             Guid currentCorrelationId = default;
-            string upstreamToken = null;
+            string cmsAuthValues = null;
             const string loggingName = "CaseDataApiCaseInformationByUrn - Run";
             IEnumerable<CaseDetails> caseInformation = null;
 
@@ -59,7 +59,7 @@ namespace PolarisGateway.Functions.CaseData
                     return validationResult.InvalidResponseResult;
 
                 currentCorrelationId = validationResult.CurrentCorrelationId;
-                upstreamToken = validationResult.UpstreamToken;
+                cmsAuthValues = validationResult.CmsAuthValues;
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
@@ -71,7 +71,7 @@ namespace PolarisGateway.Functions.CaseData
                 var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{urn}'");
-                var urnArg = _caseDataArgFactory.CreateUrnArg(onBehalfOfAccessToken, upstreamToken, currentCorrelationId, urn);
+                var urnArg = _caseDataArgFactory.CreateUrnArg(onBehalfOfAccessToken, cmsAuthValues, currentCorrelationId, urn);
                 caseInformation = await _caseDataService.ListCases(urnArg);
 
                 if (caseInformation != null && caseInformation.Any())
@@ -86,7 +86,7 @@ namespace PolarisGateway.Functions.CaseData
                 return exception switch
                 {
                     MsalException => InternalServerErrorResponse(exception, "An MSAL exception occurred.", currentCorrelationId, loggingName),
-                    CaseDataServiceException => InternalServerErrorResponse(exception, "A case data api exception occurred.", currentCorrelationId, loggingName),
+                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.Message, currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

@@ -20,7 +20,7 @@ namespace coordinator.Functions.SubOrchestrators
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<CaseDocumentOrchestrator> _log;
-        
+
         public CaseDocumentOrchestrator(IJsonConvertWrapper jsonConvertWrapper, ILogger<CaseDocumentOrchestrator> log)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
@@ -38,7 +38,7 @@ namespace coordinator.Functions.SubOrchestrators
             var log = context.CreateReplaySafeLogger(_log);
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            
+
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get the pipeline tracker for DocumentId: '{payload.DocumentId}'");
             var tracker = GetTracker(context, payload.CaseId, payload.CorrelationId, log);
 
@@ -53,17 +53,17 @@ namespace coordinator.Functions.SubOrchestrators
 
             log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
         }
-        
+
         private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITracker tracker, ILogger log)
         {
             GeneratePdfResponse response = null;
-            
+
             try
             {
                 log.LogMethodEntry(payload.CorrelationId, nameof(CallPdfGeneratorAsync), payload.ToJson());
-                
+
                 response = await CallPdfGeneratorHttpAsync(context, payload, tracker, log);
-                
+
                 if (response.AlreadyProcessed)
                 {
                     await tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(payload.DocumentId, payload.VersionId, response.BlobName));
@@ -73,7 +73,7 @@ namespace coordinator.Functions.SubOrchestrators
                 {
                     await tracker.RegisterPdfBlobName(new RegisterPdfBlobNameArg(payload.DocumentId, payload.VersionId, response.BlobName));
                 }
-                
+
                 return response;
             }
             catch (Exception exception)
@@ -95,10 +95,10 @@ namespace coordinator.Functions.SubOrchestrators
         private async Task<GeneratePdfResponse> CallPdfGeneratorHttpAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITracker tracker, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallPdfGeneratorHttpAsync), payload.ToJson());
-            
+
             var request = await context.CallActivityAsync<DurableHttpRequest>(
                 nameof(CreateGeneratePdfHttpRequest),
-                new GeneratePdfHttpRequestActivityPayload(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.UpstreamToken, payload.CorrelationId));
+                new GeneratePdfHttpRequestActivityPayload(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.CmsAuthValues, payload.CorrelationId));
             var response = await context.CallHttpAsync(request);
 
             switch (response.StatusCode)
@@ -112,10 +112,10 @@ namespace coordinator.Functions.SubOrchestrators
                     await tracker.RegisterUnableToConvertDocumentToPdf(payload.DocumentId);
                     break;
             }
-            
+
             throw new HttpRequestException($"Failed to generate pdf for document id '{payload.DocumentId}'. Status code: {response.StatusCode}.");
         }
-        
+
         private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ITracker tracker, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorAsync), payload.ToJson());
@@ -141,7 +141,7 @@ namespace coordinator.Functions.SubOrchestrators
         private async Task CallTextExtractorHttpAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorHttpAsync), payload.ToJson());
-            
+
             var request = await context.CallActivityAsync<DurableHttpRequest>(
                 nameof(CreateTextExtractorHttpRequest),
                 new TextExtractorHttpRequestActivityPayload(payload.CaseUrn, payload.CaseId, payload.DocumentId, payload.VersionId, blobName, payload.CorrelationId));
@@ -152,16 +152,16 @@ namespace coordinator.Functions.SubOrchestrators
                 request.Headers.TryGetValue(HttpHeaderKeys.Authorization, out var tokenUsed);
                 throw new HttpRequestException($"Failed to ocr/index document with id '{payload.DocumentId}'. Status code: {response.StatusCode}. Token Used: [{tokenUsed}]. CorrelationId: {payload.CorrelationId}");
             }
-            
+
             log.LogMethodExit(payload.CorrelationId, nameof(CallTextExtractorHttpAsync), string.Empty);
         }
-        
+
         private ITracker GetTracker(IDurableOrchestrationContext context, long caseId, Guid correlationId, ILogger log)
         {
             log.LogMethodEntry(correlationId, nameof(GetTracker), $"CaseId: {caseId.ToString()}");
-            
+
             var entityId = new EntityId(nameof(Tracker), caseId.ToString());
-            
+
             log.LogMethodExit(correlationId, nameof(GetTracker), string.Empty);
             return context.CreateEntityProxy<ITracker>(entityId);
         }

@@ -6,11 +6,11 @@ namespace PolarisGateway.Domain.Validation;
 
 public class ValidateRequestResult
 {
-    public IActionResult InvalidResponseResult { get; set; }
-
     public Guid CurrentCorrelationId { get; set; }
 
-    public StringValues AccessTokenValue { get; set; }
+    public string CmsAuthValues { get; set; }
 
-    public string UpstreamToken { get; set; }
+    public IActionResult InvalidResponseResult { get; set; }
+
+    public StringValues AccessTokenValue { get; set; }
 }

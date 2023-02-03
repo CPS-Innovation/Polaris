@@ -7,23 +7,23 @@ namespace PolarisGateway.Factories
 {
     public class CaseDataArgFactory : ICaseDataArgFactory
     {
-        public UrnArg CreateUrnArg(string onBehalfOfToken, string upstreamToken, Guid correlationId, string urn)
+        public UrnArg CreateUrnArg(string onBehalfOfToken, string cmsAuthValues, Guid correlationId, string urn)
         {
             return new UrnArg
             {
                 OnBehalfOfToken = onBehalfOfToken,
-                UpstreamToken = upstreamToken,
+                CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
                 Urn = urn,
             };
         }
 
-        public CaseArg CreateCaseArg(string onBehalfOfToken, string upstreamToken, Guid correlationId, string urn, int caseId)
+        public CaseArg CreateCaseArg(string onBehalfOfToken, string cmsAuthValues, Guid correlationId, string urn, int caseId)
         {
             return new CaseArg
             {
                 OnBehalfOfToken = onBehalfOfToken,
-                UpstreamToken = upstreamToken,
+                CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
                 Urn = urn,
                 CaseId = caseId
@@ -35,7 +35,7 @@ namespace PolarisGateway.Factories
             return new CaseArg
             {
                 OnBehalfOfToken = arg.OnBehalfOfToken,
-                UpstreamToken = arg.UpstreamToken,
+                CmsAuthValues = arg.CmsAuthValues,
                 CorrelationId = arg.CorrelationId,
                 Urn = arg.Urn,
                 CaseId = caseId

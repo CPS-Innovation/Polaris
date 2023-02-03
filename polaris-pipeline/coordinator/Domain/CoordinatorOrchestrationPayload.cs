@@ -4,18 +4,18 @@ namespace coordinator.Domain
 {
     public class CoordinatorOrchestrationPayload : BasePipelinePayload
     {
-        public CoordinatorOrchestrationPayload(string caseUrn, long caseId, bool forceRefresh, string accessToken, string upstreamToken, Guid correlationId)
+        public CoordinatorOrchestrationPayload(string caseUrn, long caseId, bool forceRefresh, string accessToken, string cmsAuthValues, Guid correlationId)
             : base(caseUrn, caseId, correlationId)
         {
             ForceRefresh = forceRefresh;
             AccessToken = accessToken;
-            UpstreamToken = upstreamToken;
+            CmsAuthValues = cmsAuthValues;
         }
-        
+
         public bool ForceRefresh { get; set; }
 
         public string AccessToken { get; set; }
-        
-        public string UpstreamToken { get; set; }
+
+        public string CmsAuthValues { get; set; }
     }
 }

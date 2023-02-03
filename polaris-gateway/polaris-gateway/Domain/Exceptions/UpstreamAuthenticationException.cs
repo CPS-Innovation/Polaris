@@ -3,8 +3,8 @@ using System;
 namespace PolarisGateway.Domain.Exceptions;
 
 [Serializable]
-public class UpstreamAuthenticationException : Exception
+public class CmsAuthenticationException : Exception
 {
-    public UpstreamAuthenticationException()
-        : base("Invalid upstream token. A string is expected.") { }
+    public CmsAuthenticationException()
+        : base("Invalid cms auth values. A string is expected.") { }
 }

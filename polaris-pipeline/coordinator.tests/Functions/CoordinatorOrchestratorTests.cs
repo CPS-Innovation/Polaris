@@ -27,11 +27,11 @@ namespace coordinator.tests.Functions
     public class CoordinatorOrchestratorTests
     {
         private readonly CoordinatorOrchestrationPayload _payload;
-        private readonly string _upstreamToken;
+        private readonly string _cmsAuthValues;
         private readonly CaseDocument[] _caseDocuments;
         private readonly string _transactionId;
         private readonly List<TrackerDocument> _trackerDocuments;
-        
+
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ITracker> _mockTracker;
 
@@ -41,7 +41,7 @@ namespace coordinator.tests.Functions
         {
             var fixture = new Fixture();
             var accessToken = fixture.Create<string>();
-            _upstreamToken = fixture.Create<string>();
+            _cmsAuthValues = fixture.Create<string>();
             var caseUrn = fixture.Create<string>();
             var caseId = fixture.Create<long>();
             var correlationId = fixture.Create<Guid>();
@@ -51,7 +51,7 @@ namespace coordinator.tests.Functions
             _payload = fixture.Build<CoordinatorOrchestrationPayload>()
                         .With(p => p.ForceRefresh, false)
                         .With(p => p.AccessToken, accessToken)
-                        .With(p => p.UpstreamToken, _upstreamToken)
+                        .With(p => p.CmsAuthValues, _cmsAuthValues)
                         .Create();
             _caseDocuments = fixture.Create<CaseDocument[]>();
 
@@ -63,12 +63,12 @@ namespace coordinator.tests.Functions
             var mockLogger = new Mock<ILogger<CoordinatorOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockTracker = new Mock<ITracker>();
-            
+
             mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]).Returns("300");
-            
+
             _mockTracker.Setup(tracker => tracker.GetDocuments()).ReturnsAsync(_trackerDocuments);
             _mockTracker.Setup(tracker => tracker.IsStale(false)).ReturnsAsync(true); //default, marked as Stale to perform a new run
-            
+
             _mockDurableOrchestrationContext.Setup(context => context.GetInput<CoordinatorOrchestrationPayload>())
                 .Returns(_payload);
             _mockDurableOrchestrationContext.Setup(context => context.InstanceId)
@@ -78,14 +78,14 @@ namespace coordinator.tests.Functions
                 .Returns(_mockTracker.Object);
             _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<string>(nameof(GetOnBehalfOfAccessToken), _payload.AccessToken))
                 .ReturnsAsync(accessToken);
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), 
-                    It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId 
-                    && p.UpstreamToken == _payload.UpstreamToken && p.CorrelationId == _payload.CorrelationId)))
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments),
+                    It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId
+                    && p.CmsAuthValues == _payload.CmsAuthValues && p.CorrelationId == _payload.CorrelationId)))
                 .ReturnsAsync(_caseDocuments);
-            
+
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: evaluateDocumentsResponse.ToJson());
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
-            
+
             _coordinatorOrchestrator = new CoordinatorOrchestrator(mockLogger.Object, mockConfiguration.Object);
         }
 
@@ -124,29 +124,29 @@ namespace coordinator.tests.Functions
         {
             _mockTracker.Setup(tracker => tracker.IsAlreadyProcessed()).ReturnsAsync(true);
             _mockTracker.Setup(tracker => tracker.IsStale(false)).ReturnsAsync(false);
-            
+
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
             _mockTracker.Verify(tracker => tracker.Initialise(_transactionId), Times.Never);
         }
-        
+
         [Fact]
         public async Task Run_Tracker_InitialisesTheTrackerWhenIsAlreadyProcessed_ButForceRefresh_IsTrue()
         {
             _mockTracker.Setup(tracker => tracker.IsAlreadyProcessed()).ReturnsAsync(true);
             _mockTracker.Setup(tracker => tracker.IsStale(true)).ReturnsAsync(true); //default, marked as Stale to perform a new run
-            
+
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
             _mockTracker.Verify(tracker => tracker.Initialise(_transactionId), Times.Once);
         }
-        
+
         [Fact]
         public async Task Run_Tracker_InitialisesTheTrackerWhenIsAlreadyProcessed_ForceRefreshIsFalse_ButIsStaleReturnsTrue()
         {
             _mockTracker.Setup(tracker => tracker.IsAlreadyProcessed()).ReturnsAsync(true);
             _mockTracker.Setup(tracker => tracker.IsStale(false)).ReturnsAsync(true); //default, marked as Stale to perform a new run
-            
+
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
             _mockTracker.Verify(tracker => tracker.Initialise(_transactionId), Times.Once);
@@ -163,7 +163,7 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_Tracker_RegistersDocumentsNotFoundInDDEIWhenCaseDocumentsIsEmpty()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.UpstreamToken == _upstreamToken)))
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.CmsAuthValues == _cmsAuthValues)))
                 .ReturnsAsync(new CaseDocument[] { });
 
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
@@ -175,7 +175,7 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ReturnsEmptyListOfDocumentsWhenCaseDocumentsIsEmpty()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.UpstreamToken == _upstreamToken)))
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.CmsAuthValues == _cmsAuthValues)))
                 .ReturnsAsync(new CaseDocument[] { });
 
             var documents = await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
@@ -213,7 +213,7 @@ namespace coordinator.tests.Functions
                 Assert.True(false);
             }
         }
-        
+
         [Fact]
         public async Task Run_ThrowsCoordinatorOrchestrationExceptionWhenAllDocumentsHaveFailed()
         {
@@ -237,11 +237,11 @@ namespace coordinator.tests.Functions
 
             documents.Should().BeEquivalentTo(_trackerDocuments);
         }
-        
+
         [Fact]
         public async Task Run_ThrowsExceptionWhenExceptionOccurs()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.UpstreamToken == _upstreamToken)))
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.CmsAuthValues == _cmsAuthValues)))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             await Assert.ThrowsAsync<Exception>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
@@ -250,7 +250,7 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_Tracker_RegistersFailedWhenExceptionOccurs()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.UpstreamToken == _upstreamToken)))
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId && p.CmsAuthValues == _cmsAuthValues)))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             try

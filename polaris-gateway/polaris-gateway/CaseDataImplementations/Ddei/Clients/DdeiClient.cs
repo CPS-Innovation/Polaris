@@ -25,6 +25,14 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
+        public async Task<string> GetCmsModernToken(CaseDataArg arg)
+        {
+            return await CallDdei<string>(
+                        () => _ddeiClientRequestFactory.CreateCmsModernTokenRequest(arg),
+                         arg.CorrelationId
+            );
+        }
+
         public async Task<IEnumerable<CaseIdentifiers>> ListCaseIdsAsync(UrnArg arg)
         {
             return await CallDdei<IEnumerable<CaseIdentifiers>>(

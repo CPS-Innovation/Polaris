@@ -13,7 +13,7 @@ using System.IO;
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Services
 {
-    public class DdeiService : ICaseDataService, IDocumentService
+    public class DdeiService : ICaseDataService, IDocumentService, ICmsModernTokenService
     {
         private readonly IDdeiClient _ddeiClient;
         private readonly ICaseDataArgFactory _caseDataServiceArgFactory;
@@ -30,6 +30,18 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             _caseDataServiceArgFactory = caseDataServiceArgFactory;
             _caseDetailsMapper = caseDetailsMapper;
             _caseDocumentsMapper = caseDocumentsMapper;
+        }
+
+        public async Task<string> GetCmsModernToken(CaseDataArg arg)
+        {
+            try
+            {
+                return await _ddeiClient.GetCmsModernToken(arg);
+            }
+            catch (Exception exception)
+            {
+                throw new CaseDataServiceException("Exception in GetCmsModernToken", exception);
+            }
         }
 
         public async Task<IEnumerable<CaseDetails>> ListCases(UrnArg arg)

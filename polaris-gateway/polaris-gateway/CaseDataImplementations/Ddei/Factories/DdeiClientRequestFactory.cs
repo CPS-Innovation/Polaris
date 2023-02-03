@@ -20,6 +20,13 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
             _options = ddeiOptions.Value;
         }
 
+        public HttpRequestMessage CreateCmsModernTokenRequest(CaseDataArg arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/cms-modern-token");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
         public HttpRequestMessage CreateListCasesRequest(UrnArg arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases");
@@ -64,10 +71,10 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Factories
             return request;
         }
 
-        private void AddAuthHeaders(HttpRequestMessage request, BaseCaseDataArg arg)
+        private void AddAuthHeaders(HttpRequestMessage request, CaseDataArg arg)
         {
             request.Headers.Add(AuthenticationKeys.Authorization, $"{AuthenticationKeys.Bearer} {arg.OnBehalfOfToken}");
-            request.Headers.Add(HttpHeaderKeys.UpstreamToken, arg.UpstreamToken);
+            request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);
             if (!string.IsNullOrEmpty(_options.AccessKey))
             {
                 request.Headers.Add(FunctionKey, _options.AccessKey);
