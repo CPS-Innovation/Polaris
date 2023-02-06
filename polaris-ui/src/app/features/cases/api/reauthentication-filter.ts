@@ -28,7 +28,13 @@ const tryHandleFirstAuthFail = (response: Response, window: Window) => {
     const nextUrl = `${REAUTH_REDIRECT_URL}${encodeURIComponent(
       window.location.href + delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
     )}`;
-    window.location.href = nextUrl;
+
+    // Cypress tests are unhappy with the window navigation during the failure flow.
+    //  For the time being, we let the test env file disable this step by setting
+    //  REAUTH_REDIRECT_URL to blank. Not optimal but this flow is tested by e2e tests.
+    if (REAUTH_REDIRECT_URL) {
+      window.location.assign(nextUrl);
+    }
     // stop any follow-on logic occurring
     throw new CmsAuthRedirectingError();
   }
