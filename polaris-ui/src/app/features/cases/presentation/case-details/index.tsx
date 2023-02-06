@@ -1,4 +1,6 @@
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useParams, useHistory, useLocation } from "react-router-dom";
+import { Action, Location } from "history";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
@@ -13,12 +15,24 @@ import { PdfTabsEmpty } from "./pdf-tabs/PdfTabsEmpty";
 import { SearchBox } from "./search-box/SearchBox";
 import { ResultsModal } from "./results/ResultsModal";
 import { Charges } from "./Charges";
-
+import { Modal } from "../../../../common/presentation/components/Modal";
+import { DocumentNavigationAlertContent } from "../case-details/navigation-alerts/DocumentNavigationAlertContent";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
+interface Transition {
+  action: Action;
+  location: Location;
+  retry(): void;
+}
+
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
+  const history = useHistory();
+  const location = useLocation();
+  const [isDirty, setIsDirty] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
+  const [newPath, setNewPath] = useState("");
   const { id, urn } = useParams<{ id: string; urn: string }>();
 
   const {
@@ -41,6 +55,46 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleSavedRedactions,
     handleOpenPdfInNewTab,
   } = useCaseDetailsState(urn, +id);
+  const unblockHandle = useRef<any>();
+  const getUnSavedRedactions = useCallback((): {
+    documentId: number;
+    tabSafeId: string;
+    presentationFileName: string;
+  }[] => {
+    console.log("tabsState>>>>11111", tabsState.items);
+    const reactionPdfs = tabsState.items
+      .filter((item) => item.redactionHighlights.length > 0)
+      .map((item) => ({
+        documentId: item.documentId!,
+        tabSafeId: item.tabSafeId!,
+        presentationFileName: item.presentationFileName!,
+      }));
+    console.log("reactionPdfs111", reactionPdfs);
+    return reactionPdfs;
+  }, [tabsState]);
+
+  useEffect(() => {
+    unblockHandle.current = history.block((tx: any) => {
+      if (location.pathname === tx.pathname) {
+        return;
+      }
+      if (getUnSavedRedactions().length && !showAlert) {
+        console.log("current location", location);
+        console.log("new location", tx);
+        setNewPath(`${tx.pathname}?${tx.search}`);
+        setShowAlert(true);
+        return false;
+      }
+    });
+    return function () {
+      console.log("un  mounting.....");
+      unblockHandle.current && unblockHandle.current();
+    };
+  }, [tabsState, showAlert]);
+
+  useEffect(() => {
+    window.onbeforeunload = () => getUnSavedRedactions().length > 0;
+  });
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
@@ -48,8 +102,36 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     return <WaitPage />;
   }
 
+  console.log("back link props:", backLinkProps);
+
   return (
     <>
+      {showAlert && (
+        <Modal
+          isVisible
+          handleClose={() => {
+            setShowAlert(false);
+          }}
+          type={"alert"}
+        >
+          <DocumentNavigationAlertContent
+            activeRedactionDocs={getUnSavedRedactions()}
+            handleCancelAction={() => {
+              setShowAlert(false);
+            }}
+            handleContinueAction={() => {
+              setShowAlert(false);
+              unblockHandle.current();
+
+              history.push(newPath);
+            }}
+            handleOpenPdf={(params) => {
+              setShowAlert(false);
+              handleOpenPdf({ ...params, mode: "read" });
+            }}
+          />
+        </Modal>
+      )}
       {searchState.isResultsVisible && (
         <ResultsModal
           {...{
