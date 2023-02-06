@@ -11,6 +11,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   functions_extension_version = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
@@ -138,6 +139,11 @@ resource "azurerm_private_endpoint" "pipeline_text_extractor_pe" {
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
+  }
+
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-psc"
     private_connection_resource_id = azurerm_linux_function_app.fa_text_extractor.id
@@ -163,6 +169,11 @@ resource "azurerm_private_endpoint" "pipeline_text_extractor_scm_pe" {
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
+  }
 
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-psc"

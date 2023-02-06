@@ -19,6 +19,11 @@ resource "azurerm_private_endpoint" "pipeline_computer_vision_service_pe" {
   subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_cognitive_account.id]
+  }
+
   private_service_connection {
     name                           = "${azurerm_cognitive_account.computer_vision_service.name}-psc"
     private_connection_resource_id = azurerm_cognitive_account.computer_vision_service.id
