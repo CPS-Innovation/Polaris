@@ -1,9 +1,14 @@
 import { PageContentWrapper } from ".";
 
-export const WaitPage: React.FC = () => (
+export const WaitPage: React.FC = (props) => (
   <PageContentWrapper>
-    <h1 className="govuk-heading-xl" data-testid="txt-please-wait-page-heading">
-      Please wait...
-    </h1>
+    <div {...props}>
+      <h1
+        className="govuk-heading-xl"
+        data-testid="txt-please-wait-page-heading"
+      >
+        Please wait...
+      </h1>
+    </div>
   </PageContentWrapper>
 );
