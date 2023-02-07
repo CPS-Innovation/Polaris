@@ -1,6 +1,7 @@
 import React from "react";
 import { useUserDetails } from "../../../auth";
 import { SkipLink } from "../components";
+import { Link } from "react-router-dom";
 import classes from "./Layout.module.scss";
 
 type LayoutProps = {
@@ -25,8 +26,8 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
       >
         <div className={`govuk-header__container ${containerCssClass}`}>
           <div className={`govuk-header__logo ${classes.logo}`}>
-            <a
-              href="/"
+            <Link
+              to="/"
               className="govuk-header__link govuk-header__link--homepage"
             >
               <span className="govuk-header__logotype">
@@ -34,7 +35,7 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
                   Crown Prosecution Service
                 </span>
               </span>
-            </a>
+            </Link>
             <span className="govuk-header__link--homepage">Polaris</span>
           </div>
         </div>
