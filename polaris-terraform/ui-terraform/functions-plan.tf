@@ -16,7 +16,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_gateway" {
   location            = azurerm_resource_group.rg_polaris.location
   target_resource_id  = azurerm_service_plan.asp_polaris_gateway.id
   profile {
-    name = "Polaris Performance Scaling Profile"
+    name = "Polaris Gateway Performance Scaling Profile"
     capacity {
       default = 1
       minimum = 1
