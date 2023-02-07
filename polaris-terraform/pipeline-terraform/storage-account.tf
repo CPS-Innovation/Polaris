@@ -10,9 +10,10 @@ resource "azurerm_storage_account" "sa" {
 
   min_tls_version = "TLS1_2"
 
-  identity {
-    type = "SystemAssigned"
+  network_rules {
+    default_action = "Allow"
   }
+
   tags = local.common_tags
 }
 

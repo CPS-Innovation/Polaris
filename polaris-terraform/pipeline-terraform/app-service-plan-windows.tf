@@ -16,7 +16,7 @@ resource "azurerm_monitor_autoscale_setting" "amas-windows-ep" {
   target_resource_id  = azurerm_service_plan.asp-windows-ep.id
   tags                = local.common_tags
   profile {
-    name = "Polaris Pipeline Performance Scaling Profile"
+    name = "Polaris Pipeline Windows Performance Scaling Profile"
     capacity {
       default = 1
       minimum = 1

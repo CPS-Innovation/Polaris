@@ -38,7 +38,7 @@ resource "azurerm_private_endpoint" "pipeline_key_vault_pe" {
   tags                = local.common_tags
 
   private_dns_zone_group {
-    name                 = "polaris-dns-zone-group"
+    name                 = data.azurerm_private_dns_zone.dns_zone_keyvault.name
     private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_keyvault.id]
   }
 

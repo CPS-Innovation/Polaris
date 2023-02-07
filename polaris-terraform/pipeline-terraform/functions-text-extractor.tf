@@ -16,7 +16,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_VNET_ROUTE_ALL"                   = "1"
     "WEBSITE_DNS_SERVER"                       = "10.2.64.10"
     "WEBSITE_DNS_ALT_SERVER"                   = "10.3.64.10"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
@@ -41,6 +40,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     ftps_state                       = "FtpsOnly"
     http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled           = true
   }
 
   identity {
@@ -140,7 +140,7 @@ resource "azurerm_private_endpoint" "pipeline_text_extractor_pe" {
   tags                = local.common_tags
 
   private_dns_zone_group {
-    name                 = "polaris-dns-zone-group"
+    name                 = data.azurerm_private_dns_zone.dns_zone_apps.name
     private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
   }
 
@@ -171,7 +171,7 @@ resource "azurerm_private_endpoint" "pipeline_text_extractor_scm_pe" {
   tags                = local.common_tags
 
   private_dns_zone_group {
-    name                 = "polaris-dns-zone-group"
+    name                 = data.azurerm_private_dns_zone.dns_zone_apps.name
     private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
   }
 
