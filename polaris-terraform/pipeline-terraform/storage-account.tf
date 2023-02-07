@@ -32,19 +32,6 @@ resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
   ]
 }
 
-resource "azurerm_storage_account_customer_managed_key" "polaris_storage_pipeline_cmk" {
-  storage_account_id = azurerm_storage_account.sa.id
-  key_vault_id       = azurerm_key_vault.kv.id
-  key_name           = azurerm_key_vault_key.kvap_sa_customer_managed_key.name
-
-  depends_on = [
-    azurerm_role_assignment.kv_role_sa_kvcseu,
-    azurerm_key_vault_key.kvap_sa_customer_managed_key,
-    azurerm_storage_account.sa,
-    azurerm_role_assignment.kv_role_terraform_sp
-  ]
-}
-
 resource "azurerm_storage_container" "container" {
   name                  = "documents"
   storage_account_name  = azurerm_storage_account.sa.name
