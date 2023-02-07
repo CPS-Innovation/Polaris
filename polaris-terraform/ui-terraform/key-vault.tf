@@ -27,6 +27,11 @@ resource "azurerm_private_endpoint" "polaris_key_vault_pe" {
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_keyvault.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_keyvault.id]
+  }
+
   private_service_connection {
     name                           = "${azurerm_key_vault.kv_polaris.name}-psc"
     private_connection_resource_id = azurerm_key_vault.kv_polaris.id

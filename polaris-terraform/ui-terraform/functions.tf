@@ -16,7 +16,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_VNET_ROUTE_ALL"                   = "1"
     "WEBSITE_DNS_SERVER"                       = "10.2.64.10"
     "WEBSITE_DNS_ALT_SERVER"                   = "10.3.64.10"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
@@ -47,12 +46,14 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   }
 
   site_config {
-    always_on      = true
+    always_on      = false
     ip_restriction = []
     cors {
       allowed_origins     = ["https://as-web-${local.resource_name}.azurewebsites.net", var.env == "dev" ? "http://localhost:3000" : ""]
       support_credentials = true
     }
+    vnet_route_all_enabled           = true
+    runtime_scale_monitoring_enabled = true
   }
 
   tags = local.common_tags
@@ -209,6 +210,11 @@ resource "azurerm_private_endpoint" "polaris_gateway_pe" {
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_apps.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
+  }
+
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_polaris.name}-psc"
     private_connection_resource_id = azurerm_linux_function_app.fa_polaris.id
@@ -234,6 +240,11 @@ resource "azurerm_private_endpoint" "polaris_gateway_scm_pe" {
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_apps.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
+  }
 
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_polaris.name}-scm-psc"

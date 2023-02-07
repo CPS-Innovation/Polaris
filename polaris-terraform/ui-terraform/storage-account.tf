@@ -32,6 +32,11 @@ resource "azurerm_private_endpoint" "polaris_sacpspolaris_blob_pe" {
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_blob_storage.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_blob_storage.id]
+  }
+
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polaris-blob-psc"
     private_connection_resource_id = azurerm_storage_account.sacpspolaris.id
@@ -58,6 +63,11 @@ resource "azurerm_private_endpoint" "polaris_sacpspolaris_table_pe" {
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_table_storage.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_table_storage.id]
+  }
+
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polaris-table-psc"
     private_connection_resource_id = azurerm_storage_account.sacpspolaris.id
@@ -83,6 +93,11 @@ resource "azurerm_private_endpoint" "polaris_sacpspolaris_file_pe" {
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_file_storage.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_file_storage.id]
+  }
 
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polaris-file-psc"
