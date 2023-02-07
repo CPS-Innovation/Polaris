@@ -6,9 +6,33 @@ import classes from "./Layout.module.scss";
 
 type LayoutProps = {
   isWide?: boolean;
+  isErrorBoundary?: boolean;
 };
 
-export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
+const GetLinkElement: React.FC<{
+  to: string;
+  className: string;
+  isErrorBoundary: boolean;
+}> = ({ to, className, isErrorBoundary, children }) => {
+  if (!isErrorBoundary) {
+    return (
+      <Link to={to} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={to} className={className}>
+      {children}
+    </a>
+  );
+};
+
+export const Layout: React.FC<LayoutProps> = ({
+  isWide,
+  isErrorBoundary = false,
+  children,
+}) => {
   const containerCssClass = isWide
     ? classes["cps-width-container-wide"]
     : "govuk-width-container";
@@ -26,16 +50,17 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
       >
         <div className={`govuk-header__container ${containerCssClass}`}>
           <div className={`govuk-header__logo ${classes.logo}`}>
-            <Link
+            <GetLinkElement
               to="/"
               className="govuk-header__link govuk-header__link--homepage"
+              isErrorBoundary={isErrorBoundary}
             >
               <span className="govuk-header__logotype">
                 <span className="govuk-header__logotype-text">
                   Crown Prosecution Service
                 </span>
               </span>
-            </Link>
+            </GetLinkElement>
             <span className="govuk-header__link--homepage">Polaris</span>
           </div>
         </div>
