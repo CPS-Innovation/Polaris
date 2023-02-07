@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useHistory, useLocation } from "react-router-dom";
-import { Action, Location } from "history";
+import { Location } from "history";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
@@ -16,21 +16,14 @@ import { SearchBox } from "./search-box/SearchBox";
 import { ResultsModal } from "./results/ResultsModal";
 import { Charges } from "./Charges";
 import { Modal } from "../../../../common/presentation/components/Modal";
-import { DocumentNavigationAlertContent } from "../case-details/navigation-alerts/DocumentNavigationAlertContent";
+import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
-interface Transition {
-  action: Action;
-  location: Location;
-  retry(): void;
-}
-
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const history = useHistory();
   const location = useLocation();
-  const [isDirty, setIsDirty] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [newPath, setNewPath] = useState("");
   const { id, urn } = useParams<{ id: string; urn: string }>();
@@ -56,12 +49,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleOpenPdfInNewTab,
   } = useCaseDetailsState(urn, +id);
   const unblockHandle = useRef<any>();
-  const getUnSavedRedactions = useCallback((): {
+  const getUnSavedRedactions = useMemo((): {
     documentId: number;
     tabSafeId: string;
     presentationFileName: string;
   }[] => {
-    console.log("tabsState>>>>11111", tabsState.items);
     const reactionPdfs = tabsState.items
       .filter((item) => item.redactionHighlights.length > 0)
       .map((item) => ({
@@ -69,40 +61,34 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         tabSafeId: item.tabSafeId!,
         presentationFileName: item.presentationFileName!,
       }));
-    console.log("reactionPdfs111", reactionPdfs);
     return reactionPdfs;
-  }, [tabsState]);
+  }, [tabsState.items]);
 
   useEffect(() => {
-    unblockHandle.current = history.block((tx: any) => {
+    unblockHandle.current = history.block((tx: Location) => {
       if (location.pathname === tx.pathname) {
         return;
       }
-      if (getUnSavedRedactions().length && !showAlert) {
-        console.log("current location", location);
-        console.log("new location", tx);
+      if (getUnSavedRedactions.length && !showAlert) {
         setNewPath(`${tx.pathname}?${tx.search}`);
         setShowAlert(true);
         return false;
       }
     });
     return function () {
-      console.log("un  mounting.....");
       unblockHandle.current && unblockHandle.current();
     };
   }, [tabsState, showAlert]);
 
   useEffect(() => {
-    window.onbeforeunload = () => getUnSavedRedactions().length > 0;
-  });
+    window.onbeforeunload = getUnSavedRedactions.length ? () => "" : null;
+  }, [getUnSavedRedactions]);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
     return <WaitPage />;
   }
-
-  console.log("back link props:", backLinkProps);
 
   return (
     <>
@@ -112,10 +98,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           handleClose={() => {
             setShowAlert(false);
           }}
-          type={"alert"}
+          type="alert"
         >
-          <DocumentNavigationAlertContent
-            activeRedactionDocs={getUnSavedRedactions()}
+          <NavigationAwayAlertContent
+            type="casefile"
+            activeRedactionDocs={getUnSavedRedactions}
             handleCancelAction={() => {
               setShowAlert(false);
             }}
