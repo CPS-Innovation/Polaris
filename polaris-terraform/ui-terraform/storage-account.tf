@@ -33,7 +33,7 @@ resource "azurerm_private_endpoint" "polaris_sacpspolaris_blob_pe" {
   tags                = local.common_tags
 
   private_dns_zone_group {
-    name                 = data.azurerm_private_dns_zone.dns_zone_blob_storage.name
+    name                 = "polaris-dns-zone-group"
     private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_blob_storage.id]
   }
 
@@ -64,7 +64,7 @@ resource "azurerm_private_endpoint" "polaris_sacpspolaris_table_pe" {
   tags                = local.common_tags
 
   private_dns_zone_group {
-    name                 = data.azurerm_private_dns_zone.dns_zone_table_storage.name
+    name                 = "polaris-dns-zone-group"
     private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_table_storage.id]
   }
 
@@ -95,7 +95,7 @@ resource "azurerm_private_endpoint" "polaris_sacpspolaris_file_pe" {
   tags                = local.common_tags
 
   private_dns_zone_group {
-    name                 = data.azurerm_private_dns_zone.dns_zone_file_storage.name
+    name                 = "polaris-dns-zone-group"
     private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_file_storage.id]
   }
 

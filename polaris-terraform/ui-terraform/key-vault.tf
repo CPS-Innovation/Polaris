@@ -6,6 +6,12 @@ resource "azurerm_key_vault" "kv_polaris" {
   resource_group_name = azurerm_resource_group.rg_polaris.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
+  enabled_for_deployment          = true
+  enabled_for_template_deployment = true
+  enable_rbac_authorization       = true
+  purge_protection_enabled        = true
+  soft_delete_retention_days      = 90
+
   sku_name = "standard"
 
   network_acls {
