@@ -61,12 +61,11 @@
     </None>
     <None Update="local.settings.json">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>local.Designer.cs</LastGenOutput>
     </None>
     <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      <LastGenOutput>local.settings.Designer.cs</LastGenOutput>
+      <Generator></Generator>
     </None>
   </ItemGroup>
   <ItemGroup>
