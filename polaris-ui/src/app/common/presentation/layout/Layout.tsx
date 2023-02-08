@@ -16,7 +16,7 @@ const GetLinkElement: React.FC<{
 }> = ({ to, className, isErrorBoundary, children }) => {
   if (!isErrorBoundary) {
     return (
-      <Link to={to} className={className}>
+      <Link to={to} className={className} data-testid="link-homepage">
         {children}
       </Link>
     );

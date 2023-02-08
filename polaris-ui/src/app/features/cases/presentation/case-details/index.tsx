@@ -69,7 +69,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       if (location.pathname === tx.pathname) {
         return;
       }
-      if (getUnSavedRedactions.length && !showAlert) {
+      if (getUnSavedRedactions.length) {
         setNewPath(`${tx.pathname}?${tx.search}`);
         setShowAlert(true);
         return false;
@@ -81,7 +81,15 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   }, [tabsState, showAlert]);
 
   useEffect(() => {
-    window.onbeforeunload = getUnSavedRedactions.length ? () => "" : null;
+    window.onbeforeunload = getUnSavedRedactions.length
+      ? (e) => {
+          e.returnValue = "warn";
+          return;
+        }
+      : null;
+    return () => {
+      window.onbeforeunload = null;
+    };
   }, [getUnSavedRedactions]);
 
   if (caseState.status === "loading") {

@@ -28,7 +28,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
           activeRedactionDocs.length > 1
             ? `${activeRedactionDocs.length} documents`
             : `1 document`
-        }  with unsaved redactions`;
+        } with unsaved redactions`;
   return (
     <div className={classes.alertContent}>
       <h1 className="govuk-heading-l">{headingText}</h1>
