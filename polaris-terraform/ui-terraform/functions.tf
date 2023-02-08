@@ -12,6 +12,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   functions_extension_version = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
@@ -47,6 +48,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
 
   site_config {
     always_on      = false
+    ftps_state     = "FtpsOnly"
+    http2_enabled  = true
     ip_restriction = []
     cors {
       allowed_origins     = ["https://as-web-${local.resource_name}.azurewebsites.net", var.env == "dev" ? "http://localhost:3000" : ""]
