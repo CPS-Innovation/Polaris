@@ -97,6 +97,13 @@ resource "azuread_service_principal_password" "sp_polaris_cms_proxy_pw" {
   depends_on           = [module.azurerm_service_principal_sp_polaris_cms_proxy]
 }
 
+resource "azurerm_role_assignment" "ra_blob_data_contributor_polaris_proxy" {
+  scope                = azurerm_storage_container.polaris_proxy_content.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_linux_web_app.polaris_proxy.identity[0].principal_id
+  depends_on           = [azurerm_storage_account.sacpspolaris, azurerm_storage_container.polaris_proxy_content]
+}
+
 resource "azurerm_storage_blob" "nginx_config" {
   name                   = "nginx.conf.template"
   content_md5            = md5(file("nginx.conf"))
@@ -104,6 +111,7 @@ resource "azurerm_storage_blob" "nginx_config" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "nginx.conf"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 resource "azurerm_storage_blob" "nginx_js" {
@@ -113,6 +121,7 @@ resource "azurerm_storage_blob" "nginx_js" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "nginx.js"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "polaris_proxy_to_vnet" {
