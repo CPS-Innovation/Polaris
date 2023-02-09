@@ -26,6 +26,14 @@ steps:
 
   - task: DotNetCoreCLI@2
     inputs:
+      command: "test"
+      projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
+      arguments: "--configuration $(buildConfiguration)"
+    displayName: "Run tests"
+    enabled: false
+
+  - task: DotNetCoreCLI@2
+    inputs:
       command: publish
       publishWebProjects: false
       projects: "$(rootFolder)/$(functionName)/$(functionName).csproj"
