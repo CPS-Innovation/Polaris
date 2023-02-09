@@ -1,8 +1,9 @@
 resource "azurerm_linux_web_app" "polaris_proxy" {
-  name                = "${local.resource_name}-cmsproxy"
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  location            = azurerm_service_plan.asp_polaris.location
-  service_plan_id     = azurerm_service_plan.asp_polaris.id
+  name                      = "${local.resource_name}-cmsproxy"
+  resource_group_name       = azurerm_resource_group.rg_polaris.name
+  location                  = azurerm_service_plan.asp_polaris.location
+  service_plan_id           = azurerm_service_plan.asp_polaris.id
+  virtual_network_subnet_id = data.azurerm_subnet.polaris_proxy_subnet.id
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                  = "1"
     "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
@@ -121,11 +122,6 @@ resource "azurerm_storage_blob" "nginx_js" {
   type                   = "Block"
   source                 = "nginx.js"
   depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
-}
-
-resource "azurerm_app_service_virtual_network_swift_connection" "polaris_proxy_to_vnet" {
-  app_service_id = azurerm_linux_web_app.polaris_proxy.id
-  subnet_id      = data.azurerm_subnet.polaris_proxy_subnet.id
 }
 
 # Create Private Endpoint
