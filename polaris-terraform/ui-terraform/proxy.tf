@@ -26,8 +26,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     http2_enabled  = true
     ip_restriction = []
     application_stack {
-      docker_image     = "registry.hub.docker.com/library/nginx"
-      docker_image_tag = "1.23.3"
+      docker_image     = "nginx"
+      docker_image_tag = "latest"
     }
     always_on              = true
     vnet_route_all_enabled = true
