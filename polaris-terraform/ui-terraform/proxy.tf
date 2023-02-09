@@ -5,8 +5,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   service_plan_id     = azurerm_service_plan.asp_polaris.id
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = "10.2.64.10"
-    "WEBSITE_DNS_ALT_SERVER"                   = "10.3.64.10"
+    "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
+    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
@@ -20,6 +20,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     FORCE_REFRESH_CONFIG                       = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
   }
   site_config {
+    ftps_state     = "FtpsOnly"
+    http2_enabled  = true
+    ip_restriction = []
     application_stack {
       docker_image     = "registry.hub.docker.com/library/nginx"
       docker_image_tag = "1.23.3"
