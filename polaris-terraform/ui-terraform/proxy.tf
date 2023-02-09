@@ -14,6 +14,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "UPSTREAM_HOST"                            = "10.2.177.14"
     "UPSTREAM_HOSTNAME"                        = "10.2.177.14"
     "RESOLVER"                                 = "10.2.64.10 10.3.64.10 10.7.197.20"
+    "DOCKER_REGISTRY_SERVER_URL"               = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
+    "DOCKER_REGISTRY_SERVER_USERNAME"          = data.azurerm_container_registry.polaris_container_registry.admin_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD"          = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                = "/etc/nginx"
     "API_ENDPOINT"                             = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/api"
     "FORCE_REFRESH_CONFIG"                     = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
