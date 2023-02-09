@@ -233,7 +233,6 @@ describe("case details page", () => {
             .contains("MCLOVEMG3")
             .click();
         });
-
         cy.findByTestId("div-modal").should("not.exist");
         cy.findByTestId("link-back-link").click();
         cy.findByTestId("div-modal")
@@ -262,7 +261,6 @@ describe("case details page", () => {
         cy.go(-1);
         //two times back button to reach the search page , first one was for the hash urls change with the pdf safeid
         cy.go(-1);
-        cy.wait(200);
         cy.findByTestId("div-modal")
           .should("exist")
           .contains("You have 1 document with unsaved redactions");

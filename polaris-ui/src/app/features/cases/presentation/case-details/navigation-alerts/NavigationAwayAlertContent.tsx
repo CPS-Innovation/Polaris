@@ -1,8 +1,9 @@
 import React from "react";
 import { Button } from "../../../../../common/presentation/components/Button";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
-import classes from "./NavigationAwayAlertContent.module.scss";
 import { UnSavedRedactionDoc } from "../../../hooks/useNavigationAlert";
+import classes from "./NavigationAwayAlertContent.module.scss";
+
 type Props = {
   type?: "document" | "casefile";
   unSavedRedactionDocs?: UnSavedRedactionDoc[];
