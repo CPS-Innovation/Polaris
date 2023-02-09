@@ -2,20 +2,17 @@ import React from "react";
 import { Button } from "../../../../../common/presentation/components/Button";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import classes from "./NavigationAwayAlertContent.module.scss";
+import { UnSavedRedactionDoc } from "../../../hooks/useNavigationAlert";
 type Props = {
   type?: "document" | "casefile";
-  activeRedactionDocs?: {
-    documentId: number;
-    tabSafeId: string;
-    presentationFileName: string;
-  }[];
+  unSavedRedactionDocs?: UnSavedRedactionDoc[];
   handleCancelAction: () => void;
   handleContinueAction: () => void;
   handleOpenPdf?: (doc: { tabSafeId: string; documentId: number }) => void;
 };
 
 export const NavigationAwayAlertContent: React.FC<Props> = ({
-  activeRedactionDocs = [],
+  unSavedRedactionDocs = [],
   type = "document",
   handleCancelAction,
   handleContinueAction,
@@ -25,8 +22,8 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
     type === "document"
       ? "You have unsaved redactions"
       : `You have ${
-          activeRedactionDocs.length > 1
-            ? `${activeRedactionDocs.length} documents`
+          unSavedRedactionDocs.length > 1
+            ? `${unSavedRedactionDocs.length} documents`
             : `1 document`
         } with unsaved redactions`;
   return (
@@ -34,8 +31,9 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
       <h1 className="govuk-heading-l">{headingText}</h1>
       {type === "casefile" && (
         <div className={classes.documentLinks}>
-          {activeRedactionDocs.map((caseDocument) => (
+          {unSavedRedactionDocs.map((caseDocument) => (
             <a
+              key={caseDocument.tabSafeId}
               href={`#${caseDocument.tabSafeId}`}
               onClick={(ev) => {
                 handleOpenPdf && handleOpenPdf(caseDocument);

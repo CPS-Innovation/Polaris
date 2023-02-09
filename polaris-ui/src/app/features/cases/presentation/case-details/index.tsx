@@ -1,6 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
-import { useParams, useHistory, useLocation } from "react-router-dom";
-import { Location } from "history";
+import { useParams, useHistory } from "react-router-dom";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
@@ -17,15 +15,13 @@ import { ResultsModal } from "./results/ResultsModal";
 import { Charges } from "./Charges";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
+import { useNavigationAlert } from "../../hooks/useNavigationAlert";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const history = useHistory();
-  const location = useLocation();
-  const [showAlert, setShowAlert] = useState(false);
-  const [newPath, setNewPath] = useState("");
   const { id, urn } = useParams<{ id: string; urn: string }>();
 
   const {
@@ -48,49 +44,14 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleSavedRedactions,
     handleOpenPdfInNewTab,
   } = useCaseDetailsState(urn, +id);
-  const unblockHandle = useRef<any>();
-  const getUnSavedRedactions = useMemo((): {
-    documentId: number;
-    tabSafeId: string;
-    presentationFileName: string;
-  }[] => {
-    const reactionPdfs = tabsState.items
-      .filter((item) => item.redactionHighlights.length > 0)
-      .map((item) => ({
-        documentId: item.documentId!,
-        tabSafeId: item.tabSafeId!,
-        presentationFileName: item.presentationFileName!,
-      }));
-    return reactionPdfs;
-  }, [tabsState.items]);
 
-  useEffect(() => {
-    unblockHandle.current = history.block((tx: Location) => {
-      if (location.pathname === tx.pathname) {
-        return;
-      }
-      if (getUnSavedRedactions.length) {
-        setNewPath(`${tx.pathname}?${tx.search}`);
-        setShowAlert(true);
-        return false;
-      }
-    });
-    return function () {
-      unblockHandle.current && unblockHandle.current();
-    };
-  }, [tabsState, showAlert]);
-
-  useEffect(() => {
-    window.onbeforeunload = getUnSavedRedactions.length
-      ? (e) => {
-          e.returnValue = "warn";
-          return;
-        }
-      : null;
-    return () => {
-      window.onbeforeunload = null;
-    };
-  }, [getUnSavedRedactions]);
+  const {
+    showAlert,
+    setShowAlert,
+    newPath,
+    navigationUnblockHandle,
+    unSavedRedactionDocs,
+  } = useNavigationAlert(tabsState.items);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
@@ -110,14 +71,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         >
           <NavigationAwayAlertContent
             type="casefile"
-            activeRedactionDocs={getUnSavedRedactions}
+            unSavedRedactionDocs={unSavedRedactionDocs}
             handleCancelAction={() => {
               setShowAlert(false);
             }}
             handleContinueAction={() => {
               setShowAlert(false);
-              unblockHandle.current();
-
+              navigationUnblockHandle.current();
               history.push(newPath);
             }}
             handleOpenPdf={(params) => {
