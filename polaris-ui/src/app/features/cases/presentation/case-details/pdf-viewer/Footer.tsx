@@ -17,7 +17,10 @@ export const Footer: React.FC<Props> = ({
   return (
     <div className={classes.footer}>
       <div className={classes.removeButton}>
-        <LinkButton onClick={handleRemoveAllRedactions}>
+        <LinkButton
+          onClick={handleRemoveAllRedactions}
+          data-testid="link-removeAll"
+        >
           Remove all redactions
         </LinkButton>
       </div>

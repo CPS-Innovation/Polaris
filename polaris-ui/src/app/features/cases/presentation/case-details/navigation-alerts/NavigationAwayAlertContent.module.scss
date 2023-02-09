@@ -1,4 +1,5 @@
-.documentAlertContent {
+.alertContent {
+  max-width: 520px;
   padding: 20px 30px 30px;
 }
 
@@ -10,4 +11,9 @@
   :first-child {
     margin-right: 20px;
   }
+}
+
+.documentLinks {
+  display: flex;
+  flex-direction: column;
 }
