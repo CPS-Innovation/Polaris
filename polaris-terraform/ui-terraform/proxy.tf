@@ -67,16 +67,16 @@ module "azurerm_app_reg_polaris_proxy" {
     # Microsoft Graph
     resource_app_id = "00000003-0000-0000-c000-000000000000"
     resource_access = [{
-      id   = "311a71cc-e848-46a1-bdf8-97ff7156d8e6" # read user
+      # User.Read
+      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
       type = "Scope"
     }]
   }]
   web = {
     homepage_url  = "https://${local.resource_name}-cmsproxy.azurewebsites.net"
-    redirect_uris = ["https://getpostman.com/oauth2/callback"]
+    redirect_uris = ["https://getpostman.com/oauth2/callback", "https://${local.resource_name}-cmsproxy.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
-      access_token_issuance_enabled = true
-      id_token_issuance_enabled     = true
+      id_token_issuance_enabled = true
     }
   }
   tags = ["terraform"]
