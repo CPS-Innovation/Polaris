@@ -158,7 +158,7 @@ describe("case details page", () => {
     });
 
     it(
-      "Should show browser confirm modal when navigating away from a document with active redactions",
+      "Should show browser confirm modal when navigating away by refreshing the page, from a document with active redactions",
       { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
@@ -176,7 +176,7 @@ describe("case details page", () => {
     );
 
     it(
-      "Should not show browser confirm modal when navigating away from a document with no active redactions",
+      "Should not show browser confirm modal when navigating away by refreshing the page, from a document with no active redactions",
       { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
@@ -187,6 +187,24 @@ describe("case details page", () => {
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.reload();
         cy.get("@beforeunloadCallback").should("not.have.been.called");
+      }
+    );
+
+    it(
+      "Should show browser confirm modal when navigating away using Header Crown Prosecution Service link, from a document with active redactions",
+      { defaultCommandTimeout: 15000 },
+      () => {
+        cy.visit("/case-details/12AB1111111/13401");
+        cy.findByTestId("btn-accordion-open-close-all").click();
+        cy.findByTestId("link-document-1").click();
+        cy.findByTestId("div-pdfviewer")
+          .should("exist")
+          .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+        cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+        cy.findByTestId("btn-redact").should("have.length", 1);
+        cy.findByTestId("btn-redact").click();
+        cy.findByTestId("link-homepage").click();
+        cy.get("@beforeunloadCallback").should("have.been.calledOnce");
       }
     );
 
@@ -209,7 +227,7 @@ describe("case details page", () => {
           cy.wrap($modal).contains(
             "You have 1 document with unsaved redactions"
           );
-          //checks for the pdf link in teh modal and its click
+          //checks for the pdf link in the modal and clicking on the link
           cy.wrap($modal)
             .findByTestId("link-document-1")
             .contains("MCLOVEMG3")
@@ -242,7 +260,7 @@ describe("case details page", () => {
         cy.findByTestId("btn-redact").should("have.length", 1);
         cy.findByTestId("btn-redact").click();
         cy.go(-1);
-        //two times back button to reach the search page , first one was for the hash urls change with the pdf id
+        //two times back button to reach the search page , first one was for the hash urls change with the pdf safeid
         cy.go(-1);
         cy.wait(200);
         cy.findByTestId("div-modal")
@@ -257,36 +275,6 @@ describe("case details page", () => {
         cy.findByTestId("btn-nav-ignore").click();
         cy.findByTestId("div-modal").should("not.exist");
         cy.location("pathname").should("eq", "/case-search-results");
-      }
-    );
-
-    it(
-      "Should show custom alert modal when navigating away using Header Crown Prosecution Service link from a document with active redactions",
-      { defaultCommandTimeout: 15000 },
-      () => {
-        cy.visit("/case-details/12AB1111111/13401");
-        cy.findByTestId("btn-accordion-open-close-all").click();
-        cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
-          .should("exist")
-          .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-        cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-        cy.findByTestId("btn-redact").should("have.length", 1);
-        cy.findByTestId("btn-redact").click();
-        cy.findByTestId("link-homepage").click();
-        cy.findAllByTestId("div-modal")
-          .should("exist")
-          .contains("You have 1 document with unsaved redactions");
-
-        cy.findByTestId("btn-nav-return").click();
-        cy.findByTestId("div-modal").should("not.exist");
-        cy.findByTestId("link-homepage").click();
-        cy.findByTestId("div-modal")
-          .should("exist")
-          .contains("You have 1 document with unsaved redactions");
-        cy.findByTestId("btn-nav-ignore").click();
-        cy.findByTestId("div-modal").should("not.exist");
-        cy.location("pathname").should("eq", "/case-search");
       }
     );
   });

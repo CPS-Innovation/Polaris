@@ -1,38 +1,13 @@
 import React from "react";
 import { useUserDetails } from "../../../auth";
 import { SkipLink } from "../components";
-import { Link } from "react-router-dom";
 import classes from "./Layout.module.scss";
 
 type LayoutProps = {
   isWide?: boolean;
-  isErrorBoundary?: boolean;
 };
 
-const GetLinkElement: React.FC<{
-  to: string;
-  className: string;
-  isErrorBoundary: boolean;
-}> = ({ to, className, isErrorBoundary, children }) => {
-  if (!isErrorBoundary) {
-    return (
-      <Link to={to} className={className} data-testid="link-homepage">
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <a href={to} className={className}>
-      {children}
-    </a>
-  );
-};
-
-export const Layout: React.FC<LayoutProps> = ({
-  isWide,
-  isErrorBoundary = false,
-  children,
-}) => {
+export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
   const containerCssClass = isWide
     ? classes["cps-width-container-wide"]
     : "govuk-width-container";
@@ -50,17 +25,17 @@ export const Layout: React.FC<LayoutProps> = ({
       >
         <div className={`govuk-header__container ${containerCssClass}`}>
           <div className={`govuk-header__logo ${classes.logo}`}>
-            <GetLinkElement
-              to="/"
+            <a
+              href="/"
               className="govuk-header__link govuk-header__link--homepage"
-              isErrorBoundary={isErrorBoundary}
+              data-testid="link-homepage"
             >
               <span className="govuk-header__logotype">
                 <span className="govuk-header__logotype-text">
                   Crown Prosecution Service
                 </span>
               </span>
-            </GetLinkElement>
+            </a>
             <span className="govuk-header__link--homepage">Polaris</span>
           </div>
         </div>

@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <Layout isErrorBoundary>
+        <Layout>
           {this.state.error instanceof CmsAuthRedirectingError ? (
             <WaitPage data-testid="div-wait-reauth" />
           ) : (
