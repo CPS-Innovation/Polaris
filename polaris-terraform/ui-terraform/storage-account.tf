@@ -20,7 +20,8 @@ resource "azurerm_storage_account_network_rules" "polaris_sacpspolaris_rules" {
   depends_on     = [azurerm_storage_account.sacpspolaris]
   virtual_network_subnet_ids = [
     data.azurerm_subnet.polaris_ci_subnet.id,
-    data.azurerm_subnet.polaris_gateway_subnet.id
+    data.azurerm_subnet.polaris_gateway_subnet.id,
+    data.azurerm_subnet.polaris_proxy_subnet.id
   ]
 }
 

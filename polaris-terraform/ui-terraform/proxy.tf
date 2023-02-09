@@ -12,6 +12,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
     "UPSTREAM_HOST"                            = "10.2.177.14"
     "UPSTREAM_HOSTNAME"                        = "10.2.177.14"
+    "RESOLVER"                                 = "10.2.64.10 10.3.64.10 10.7.197.20"
     "NGINX_ENVSUBST_OUTPUT_DIR"                = "/etc/nginx"
     "API_ENDPOINT"                             = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/api"
     "FORCE_REFRESH_CONFIG"                     = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
