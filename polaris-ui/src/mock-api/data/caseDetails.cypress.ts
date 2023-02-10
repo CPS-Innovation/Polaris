@@ -1,5 +1,8 @@
 import faker from "faker";
-import { CaseDetails } from "../../app/features/cases/domain/CaseDetails";
+import {
+  CaseDetails,
+  ExpiryIndicator,
+} from "../../app/features/cases/domain/CaseDetails";
 import { CaseDetailsDataSource } from "./types/CaseDetailsDataSource";
 
 const dataSource: CaseDetailsDataSource = (id) =>
@@ -28,6 +31,25 @@ const caseDetails: CaseDetails[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
-    defendants: [],
+    defendants: [
+      {
+        defendantDetails: {
+          id: 901,
+          listOrder: 0,
+          firstNames: "Steve",
+          surname: "Walsh",
+          organisationName: "",
+          dob: "1977-11-28",
+          isYouth: false,
+          type: "SOME_TYPE",
+        },
+        custodyTimeLimit: {
+          expiryDate: "2022-11-20",
+          expiryDays: 20,
+          expiryIndicator: ExpiryIndicator.active,
+        },
+        charges: [],
+      },
+    ],
   },
 ];

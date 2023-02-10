@@ -9,8 +9,8 @@ export const Charges: React.FC<{ caseDetails: CaseDetails }> = ({
     caseDetails.defendants?.[0]?.custodyTimeLimit
   );
   return (
-    <div className={classes.charges}>
-      <h2 className="govuk-heading-s">
+    <div className={classes.charges} data-testid="div-charges">
+      <h2 className="govuk-heading-s" data-testid="charges-title">
         {caseDetails.isCaseCharged ? "Charges" : "Proposed Charges"}
       </h2>
       <ul>
