@@ -18,7 +18,7 @@ schedules:
 pool:
     name: ACI-Linux-VNet
     demands:
-    - Agent.Name -equals ACI-Linux-VNet
+    - Agent.Name -equals aci-agent-linux-dotnet-001
 
 steps:
     - task: Bash@3
