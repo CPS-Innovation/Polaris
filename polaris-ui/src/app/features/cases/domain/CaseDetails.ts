@@ -42,8 +42,13 @@ type Charge = {
   custodyTimeLimit: CustodyTimeLimit;
 };
 
-type CustodyTimeLimit = {
+export type CustodyTimeLimit = {
   expiryDate: string;
   expiryDays: number;
-  expiryIndicator: string;
+  expiryIndicator: ExpiryIndicator | null;
 };
+
+export enum ExpiryIndicator {
+  active = "Active",
+  expired = "Expired",
+}
