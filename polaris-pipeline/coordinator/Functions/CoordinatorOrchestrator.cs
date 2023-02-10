@@ -33,8 +33,7 @@ namespace coordinator.Functions
         }
 
         [FunctionName("CoordinatorOrchestrator")]
-        public async Task<List<TrackerDocument>> Run(
-        [OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task<List<TrackerDocument>> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             const string loggingName = $"{nameof(CoordinatorOrchestrator)} - {nameof(Run)}";
             var payload = context.GetInput<CoordinatorOrchestrationPayload>();
@@ -103,7 +102,7 @@ namespace coordinator.Functions
                 return new List<TrackerDocument>();
 
             //bring the tracker document list up-to-date, or populate it for the first time
-            await RegisterDocuments(tracker, loggingName, log, payload, documents);
+            await RegisterDocuments(context, tracker, loggingName, log, payload, documents);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Now process each document for case {payload.CaseId}");
             var caseDocumentTasks = documents.Select(t => context.CallSubOrchestratorAsync(nameof(CaseDocumentOrchestrator),
@@ -147,7 +146,7 @@ namespace coordinator.Functions
             return result;
         }
 
-        private async Task<CaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
+        private async Task<CmsCaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
             CoordinatorOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
@@ -159,7 +158,7 @@ namespace coordinator.Functions
             var accessToken = await context.CallActivityAsync<string>(nameof(GetOnBehalfOfAccessToken), accessTokenRequest);
 
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
-            var documents = await context.CallActivityAsync<CaseDocument[]>(
+            var documents = await context.CallActivityAsync<CmsCaseDocument[]>(
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, accessToken, payload.CmsAuthValues, payload.CorrelationId));
 
@@ -170,12 +169,12 @@ namespace coordinator.Functions
             return documents;
         }
 
-        private static async Task RegisterDocuments(ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
-            IEnumerable<CaseDocument> documents)
+        private static async Task RegisterDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
+            IEnumerable<CmsCaseDocument> documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CaseId}");
             var arg = new RegisterDocumentIdsArg(payload.CaseUrn, payload.CaseId,
-                documents.Select(item => new IncomingDocument(item.DocumentId, item.VersionId, item.FileName)).ToList(), payload.CorrelationId);
+                documents.Select(item => new IncomingDocument(context.NewGuid(), item.DocumentId, item.VersionId, item.FileName)).ToList(), payload.CorrelationId);
             await tracker.RegisterDocumentIds(arg);
         }
     }

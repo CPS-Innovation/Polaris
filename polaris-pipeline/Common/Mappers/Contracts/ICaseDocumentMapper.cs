@@ -4,5 +4,5 @@ namespace Common.Mappers.Contracts;
 
 public interface ICaseDocumentMapper<T>
 {
-    CaseDocument Map(T item);
+    CmsCaseDocument Map(T item);
 }

@@ -1,10 +1,10 @@
 ﻿namespace Common.Domain.DocumentExtraction
 {
-	public class CaseDocument
+	public class CmsCaseDocument
 	{
-		public CaseDocument() { }
+		public CmsCaseDocument() { }
 		
-		public CaseDocument(string documentId, long versionId, string fileName, string documentType, string documentTypeId, string documentCategory)
+		public CmsCaseDocument(string documentId, long versionId, string fileName, string documentType, string documentTypeId, string documentCategory)
 		{
 			DocumentId = documentId;
 			VersionId = versionId;

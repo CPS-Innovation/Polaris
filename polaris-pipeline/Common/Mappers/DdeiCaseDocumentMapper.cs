@@ -6,9 +6,9 @@ namespace Common.Mappers;
 
 public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
 {
-    public CaseDocument Map(DdeiCaseDocumentResponse ddeiResponse)
+    public CmsCaseDocument Map(DdeiCaseDocumentResponse ddeiResponse)
     {
-        return new CaseDocument(ddeiResponse.Id.ToString(), ddeiResponse.VersionId, ddeiResponse.OriginalFileName, ddeiResponse.DocumentType, 
+        return new CmsCaseDocument(ddeiResponse.Id.ToString(), ddeiResponse.VersionId, ddeiResponse.OriginalFileName, ddeiResponse.DocumentType, 
             ddeiResponse.DocumentTypeId, ddeiResponse.CmsDocCategory);
     }
 }

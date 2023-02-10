@@ -23,7 +23,7 @@ namespace coordinator.Functions.ActivityFunctions
         }
 
         [FunctionName("GetCaseDocuments")]
-        public async Task<CaseDocument[]> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<CmsCaseDocument[]> Run([ActivityTrigger] IDurableActivityContext context)
         {
             const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();

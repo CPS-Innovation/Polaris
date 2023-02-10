@@ -5,9 +5,9 @@ using Common.Mappers.Contracts;
 namespace Common.Mappers;
 
 [ExcludeFromCodeCoverage]
-public class CgiDocumentMapper : ICaseDocumentMapper<Case>
+public class CgiDocumentMapper : ICaseDocumentMapper<CmsCase>
 {
-    public CaseDocument Map(Case item)
+    public CmsCaseDocument Map(CmsCase item)
     {
         return null; //for now
     }

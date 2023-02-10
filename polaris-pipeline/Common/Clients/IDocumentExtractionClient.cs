@@ -6,7 +6,7 @@ namespace coordinator.Clients
 {
 	public interface IDocumentExtractionClient
 	{
-		Task<Case> GetCaseDocumentsAsync(string caseId, string accessToken, Guid correlationId);
+		Task<CmsCase> GetCaseDocumentsAsync(string caseId, string accessToken, Guid correlationId);
 	}
 }
 

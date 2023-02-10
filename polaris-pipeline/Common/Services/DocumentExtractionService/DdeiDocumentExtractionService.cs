@@ -46,10 +46,10 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         return result;
     }
 
-    public async Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string cmsAuthValues, Guid correlationId)
+    public async Task<CmsCaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string accessToken, string cmsAuthValues, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
-        var results = new List<CaseDocument>();
+        var results = new List<CmsCaseDocument>();
 
         var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), accessToken, cmsAuthValues, correlationId);
         var stringContent = await response.ReadAsStringAsync();

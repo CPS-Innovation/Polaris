@@ -1,10 +1,10 @@
 ﻿namespace Common.Domain.DocumentExtraction
 {
-	public class Case
+	public class CmsCase
 	{
 		public string CaseId { get; set; }
 
-		public CaseDocument[] CaseDocuments { get; set; }
+		public CmsCaseDocument[] CaseDocuments { get; set; }
 	}
 }
 
