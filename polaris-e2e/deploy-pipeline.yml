@@ -22,6 +22,12 @@ steps:
           script: "env | sort"
 
     - task: Npm@1
+      inputs:
+          command: "install"
+          workingDir: "polaris-e2e"
+      displayName: "npm install"
+
+    - task: Npm@1
       env:
           CYPRESS_CLIENTSECRET: "$(cypress_clientSecret)"
           CYPRESS_PASSWORD: "$(cypress_password)"
