@@ -2,9 +2,11 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 
@@ -13,11 +15,13 @@ namespace Common.Adapters
     [ExcludeFromCodeCoverage]
     public class IdentityClientAdapter : IIdentityClientAdapter
     {
+        private readonly IConfiguration _configuration;
         private readonly IConfidentialClientApplication _confidentialClientApplication;
         private readonly ILogger<IdentityClientAdapter> _logger;
         
-        public IdentityClientAdapter(IConfidentialClientApplication confidentialClientApplication, ILogger<IdentityClientAdapter> logger)
+        public IdentityClientAdapter(IConfiguration configuration, IConfidentialClientApplication confidentialClientApplication, ILogger<IdentityClientAdapter> logger)
         {
+            _configuration = configuration;
             _confidentialClientApplication = confidentialClientApplication ??
                                              throw new ArgumentNullException(nameof(confidentialClientApplication));
             _logger = logger;
@@ -29,20 +33,28 @@ namespace Common.Adapters
 
             try
             {
-                var userAssertion = new UserAssertion(currentAccessToken,
-                    AuthenticationKeys.AzureAuthenticationAssertionType);
+                var userAssertion = new UserAssertion(currentAccessToken, AuthenticationKeys.AzureAuthenticationAssertionType);
                 var requestedScopes = new Collection<string> {scopes};
-                
-                /*var isLocal = string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ConfigKeys.SharedKeys.WebsiteInstanceId));
-                if (isLocal)
+
+#if DEBUG
+                if (_configuration.IsSettingEnabled(DebugSettings.MockOnBehalfOfTokenClient))
                 {
-                    _logger.LogMethodFlow(correlationId, nameof(GetClientAccessTokenAsync), "In debug mode... bypassing authentication checks...");
-                    return "[Token Placeholder]";
-                }*/
-                
-                var result = await _confidentialClientApplication.AcquireTokenOnBehalfOf(requestedScopes, userAssertion)
-                    .WithCorrelationId(correlationId).ExecuteAsync();
+                    return $"{nameof(IdentityClientAdapter)}.{nameof(GetAccessTokenOnBehalfOfAsync)} Mock Token";
+                }
+                else
+                {
+                    var result = await _confidentialClientApplication
+                                        .AcquireTokenOnBehalfOf(requestedScopes, userAssertion)
+                                        .WithCorrelationId(correlationId).ExecuteAsync();
+                    return result.AccessToken;
+                }
+#else
+                var result = await _confidentialClientApplication
+                                    .AcquireTokenOnBehalfOf(requestedScopes, userAssertion)
+                                    .WithCorrelationId(correlationId).ExecuteAsync();
                 return result.AccessToken;
+#endif
+
             }
             catch (MsalException exception)
             {

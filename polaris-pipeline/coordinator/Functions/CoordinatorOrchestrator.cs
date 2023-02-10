@@ -164,7 +164,6 @@ namespace coordinator.Functions
                 new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, accessToken, payload.CmsAuthValues, payload.CorrelationId));
 
             if (documents.Length != 0) return documents;
-            //if (documents.Length != 0) return documents.Where(x => x.FileName == "PNCWitnessPrintsTestFile.pdf").ToArray();
 
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"No documents found, register this in the tracker for case {payload.CaseId}");
             await tracker.RegisterNoDocumentsFoundInDDEI();
