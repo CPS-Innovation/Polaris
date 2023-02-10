@@ -3,9 +3,9 @@ import { CaseDocumentViewModel } from "../domain/CaseDocumentViewModel";
 import { useNavigationAlert } from "./useNavigationAlert";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-const history = createMemoryHistory();
 
 describe("useNavigationAlert hook", () => {
+  const history = createMemoryHistory();
   const tabItems: CaseDocumentViewModel[] = [
     {
       clientLockedState: "unlocked",
