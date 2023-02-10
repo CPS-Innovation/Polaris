@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import { getCaseDetails, getCaseDocumentsList } from "../../api/gateway-api";
+import { getCaseDetails } from "../../api/gateway-api";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
@@ -35,7 +35,7 @@ export const initialState = {
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
   const caseState = useApi(getCaseDetails, urn, caseId);
-  const documentsState = useApi(getCaseDocumentsList, urn, caseId);
+  //const documentsState = useApi(getCaseDocumentsList, urn, caseId);
   const pipelineState = usePipelineApi(urn, caseId);
 
   const [combinedState, dispatch] = useReducerAsync(
@@ -47,11 +47,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   useEffect(
     () => dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState }),
     [caseState, dispatch]
-  );
-
-  useEffect(
-    () => dispatch({ type: "UPDATE_CASE_DOCUMENTS", payload: documentsState }),
-    [documentsState, dispatch]
   );
 
   useEffect(

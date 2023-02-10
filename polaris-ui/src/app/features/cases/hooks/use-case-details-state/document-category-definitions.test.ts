@@ -1,11 +1,12 @@
 /*
  * @jest-environment node
  */
-import { CaseDocument } from "../../domain/CaseDocument";
+
 import { getCategory } from "./document-category-definitions";
 import path from "path";
 import fs from "fs";
 import * as csv from "fast-csv";
+import { PresentationDocumentProperties } from "../../domain/PdfDocument";
 
 type Row = { docType: string; category: string };
 
@@ -30,7 +31,7 @@ describe("documentCategoryDefinitions", () => {
     rows.forEach(({ docType, category }) => {
       const categoryResult = getCategory({
         cmsDocType: { code: docType },
-      } as CaseDocument);
+      } as PresentationDocumentProperties);
 
       expect({ docType, category: categoryResult }).toEqual({
         docType,
@@ -40,7 +41,9 @@ describe("documentCategoryDefinitions", () => {
   });
 
   it("can resolve a documents category to Uncategorised if no prior categories match", () => {
-    const result = getCategory({ cmsDocType: {} } as CaseDocument);
+    const result = getCategory({
+      cmsDocType: {},
+    } as PresentationDocumentProperties);
 
     expect(result).toBe("Uncategorised");
   });
@@ -48,7 +51,7 @@ describe("documentCategoryDefinitions", () => {
   it("can resolve an unknown category to Uncategorised if no prior categories match", () => {
     const result = getCategory({
       cmsDocType: { id: -1, name: "Unknown", code: "Unknown" },
-    } as CaseDocument);
+    } as PresentationDocumentProperties);
 
     expect(result).toBe("Uncategorised");
   });

@@ -1,6 +1,5 @@
 import { ApiError } from "../../../common/errors/ApiError";
 
-import { CaseDocument } from "../domain/CaseDocument";
 import { CaseSearchResult } from "../domain/CaseSearchResult";
 import { PipelineResults } from "../domain/PipelineResults";
 import { ApiTextSearchResult } from "../domain/ApiTextSearchResult";
@@ -68,24 +67,6 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   }
 
   return (await response.json()) as CaseDetails;
-};
-
-export const getCaseDocumentsList = async (urn: string, caseId: number) => {
-  const url = buildEncodedUrl(
-    { urn, caseId },
-    ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}/documents`
-  );
-  const response = await internalFetch(url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get Case Documents failed", url, response);
-  }
-
-  const apiReponse: CaseDocument[] = await response.json();
-
-  return apiReponse;
 };
 
 export const getPdfSasUrl = async (pdfBlobName: string) => {

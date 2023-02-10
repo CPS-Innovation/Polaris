@@ -1,6 +1,6 @@
-import { CaseDocument } from "./CaseDocument";
+import { PresentationDocumentProperties } from "./PdfDocument";
 
-export type MappedCaseDocument = CaseDocument & {
+export type MappedCaseDocument = PresentationDocumentProperties & {
   tabSafeId: string;
   presentationCategory: string;
   presentationFileName: string;

@@ -2,7 +2,7 @@ import { useCaseDetailsState, initialState } from "./useCaseDetailsState";
 import * as searchCaseWhenReady from "./search-case-when-ready";
 import * as api from "../../api/gateway-api";
 import * as pipelineApi from "../use-pipeline-api/usePipelineApi";
-import { CaseDocument } from "../../domain/CaseDocument";
+
 import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
 import { PipelineResults } from "../../domain/PipelineResults";
 import { AsyncPipelineResult } from "../use-pipeline-api/AsyncPipelineResult";
@@ -30,15 +30,6 @@ describe("useCaseDetailsState", () => {
           )
       );
 
-    const mockgetCaseDocumentsList = jest
-      .spyOn(api, "getCaseDocumentsList")
-      .mockImplementation(
-        () =>
-          new Promise((resolve) =>
-            setTimeout(() => resolve([] as CaseDocument[]), 100)
-          )
-      );
-
     const mockSearchCaseWhenAllReady = jest
       .spyOn(searchCaseWhenReady, "searchCaseWhenReady")
       .mockImplementation(
@@ -61,9 +52,9 @@ describe("useCaseDetailsState", () => {
       if (isSameRef(del, mockGetCaseDetails)) {
         return { status: "succeeded", data: "getCaseDetails" };
       }
-      if (isSameRef(del, mockgetCaseDocumentsList)) {
-        return { status: "succeeded", data: "getCaseDocumentsList" };
-      }
+      // if (isSameRef(del, mockgetCaseDocumentsList)) {
+      //   return { status: "succeeded", data: "getCaseDocumentsList" };
+      // }
       if (isSameRef(del, mockSearchCase)) {
         return {
           status: "succeeded",
@@ -123,11 +114,6 @@ describe("useCaseDetailsState", () => {
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "UPDATE_CASE_DETAILS",
         payload: { status: "succeeded", data: "getCaseDetails" },
-      });
-
-      expect(reducerSpy).toBeCalledWith(expect.anything(), {
-        type: "UPDATE_CASE_DOCUMENTS",
-        payload: { status: "succeeded", data: "getCaseDocumentsList" },
       });
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {

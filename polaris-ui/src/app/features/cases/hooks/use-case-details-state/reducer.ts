@@ -4,7 +4,7 @@ import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { mapAccordionState } from "./map-accordion-state";
 import { CombinedState } from "../../domain/CombinedState";
 import { CaseDetails } from "../../domain/CaseDetails";
-import { CaseDocument } from "../../domain/CaseDocument";
+
 import { PipelineResults } from "../../domain/PipelineResults";
 import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
 import { mapTextSearch } from "./map-text-search";
@@ -24,10 +24,6 @@ export const reducer = (
   state: CombinedState,
   action:
     | { type: "UPDATE_CASE_DETAILS"; payload: ApiResult<CaseDetails> }
-    | {
-        type: "UPDATE_CASE_DOCUMENTS";
-        payload: ApiResult<CaseDocument[]>;
-      }
     | {
         type: "UPDATE_PIPELINE";
         payload: AsyncPipelineResult<PipelineResults>;
@@ -113,20 +109,8 @@ export const reducer = (
       }
 
       return { ...state, caseState: action.payload };
-    case "UPDATE_CASE_DOCUMENTS":
-      if (action.payload.status === "failed") {
-        throw action.payload.error;
-      }
-      const documentsState = mapDocumentsState(action.payload);
 
-      const accordionState = mapAccordionState(documentsState);
-
-      return {
-        ...state,
-        documentsState,
-        accordionState,
-      };
-    case "UPDATE_PIPELINE":
+    case "UPDATE_PIPELINE": {
       if (action.payload.status === "failed") {
         throw action.payload.error;
       }
@@ -135,10 +119,26 @@ export const reducer = (
         return state;
       }
 
+      let nextState = { ...state };
+
+      // todo: proper logic to build documents
+      if (
+        action.payload.data.documents.length &&
+        state.documentsState.status === "loading"
+      ) {
+        const documentsState = mapDocumentsState(action.payload.data.documents);
+        const accordionState = mapAccordionState(documentsState);
+        nextState = {
+          ...nextState,
+          documentsState,
+          accordionState,
+        };
+      }
+
       const newPipelineResults = action.payload;
 
       const coreNextPipelineState = {
-        ...state,
+        ...nextState,
         pipelineState: {
           ...newPipelineResults,
         },
@@ -187,6 +187,7 @@ export const reducer = (
         ...coreNextPipelineState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
       };
+    }
     case "OPEN_PDF_IN_NEW_TAB": {
       const { pdfId, sasUrl } = action.payload;
       return {

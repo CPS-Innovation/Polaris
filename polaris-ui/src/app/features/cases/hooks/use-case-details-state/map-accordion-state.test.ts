@@ -1,7 +1,8 @@
 import { mapAccordionState } from "./map-accordion-state";
-import { CaseDocument } from "../../domain/CaseDocument";
+
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
+import { PresentationDocumentProperties } from "../../domain/PdfDocument";
 
 jest.mock("./document-category-definitions", () => ({
   categoryNamesInPresentationOrder: ["category-a", "category-b"],
@@ -9,7 +10,7 @@ jest.mock("./document-category-definitions", () => ({
 
 describe("mapAccordionState", () => {
   it("can return a loading status when the api result is  'loading'", () => {
-    const apiResult: ApiResult<CaseDocument[]> = {
+    const apiResult: ApiResult<PresentationDocumentProperties[]> = {
       status: "loading",
     };
 
@@ -19,7 +20,7 @@ describe("mapAccordionState", () => {
   });
 
   it("can return a loading status when the api is result is 'failed'", () => {
-    const apiResult: ApiResult<CaseDocument[]> = {
+    const apiResult: ApiResult<PresentationDocumentProperties[]> = {
       status: "failed",
       error: null,
       httpStatusCode: undefined,

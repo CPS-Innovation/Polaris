@@ -6,6 +6,7 @@ export type PipelineResults = {
   status:
     | "NotStarted"
     | "Running"
+    // another status here for docs ready?
     | "NoDocumentsFoundInCDE"
     | "Completed"
     | "Failed";

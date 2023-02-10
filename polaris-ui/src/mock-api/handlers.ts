@@ -4,19 +4,16 @@ import devSearchDataSource from "./data/searchResults.dev";
 import cypressSearchDataSource from "./data/searchResults.cypress";
 import devCaseDetailsDataSource from "./data/caseDetails.dev";
 import cypressDetailsDataSource from "./data/caseDetails.cypress";
-import devDocumentsDataSource from "./data/documents.dev";
-import cypressDocumentsDataSource from "./data/documents.cypress";
 import devpipelinePdfResultsDataSource from "./data/pipelinePdfResults.dev";
 import cypresspipelinePdfResultsDataSource from "./data/pipelinePdfResults.cypress";
 import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
-
 import { SearchDataSource } from "./data/types/SearchDataSource";
 import {
   CaseDetailsDataSource,
   lastRequestedUrnCache,
 } from "./data/types/CaseDetailsDataSource";
-import { DocumentsDataSource } from "./data/types/DocumentsDataSource";
+
 import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
 import * as routes from "./routes";
@@ -33,11 +30,6 @@ const searchDataSources: { [key: string]: SearchDataSource } = {
 const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
   dev: devCaseDetailsDataSource,
   cypress: cypressDetailsDataSource,
-};
-
-const documentsDataSources: { [key: string]: DocumentsDataSource } = {
-  dev: devDocumentsDataSource,
-  cypress: cypressDocumentsDataSource,
 };
 
 const pipelinePdfResultsDataSources: {
@@ -83,14 +75,6 @@ export const setupHandlers = ({
         ...caseDetailsDataSources[sourceName](+caseId),
         uniqueReferenceNumber: lastRequestedUrnCache.urn || "99ZZ9999999",
       };
-
-      return res(delay(ctx), ctx.json(result));
-    }),
-
-    rest.get(makeApiPath(routes.DOCUMENTS_ROUTE), (req, res, ctx) => {
-      const { caseId } = req.params;
-
-      const result = documentsDataSources[sourceName](+caseId);
 
       return res(delay(ctx), ctx.json(result));
     }),
