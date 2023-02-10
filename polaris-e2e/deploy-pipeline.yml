@@ -16,9 +16,7 @@ schedules:
       always: true
 
 pool:
-    name: ACI-Linux-VNet
-    demands:
-    - Agent.Name -equals aci-agent-linux-dotnet-001
+  vmImage: ubuntu-latest
 
 steps:
     - task: Bash@3
