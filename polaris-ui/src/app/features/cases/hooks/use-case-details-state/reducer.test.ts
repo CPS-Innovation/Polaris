@@ -139,6 +139,27 @@ describe("useCaseDetailsState reducer", () => {
     });
 
     it("can update from pipeline if succeeded", () => {
+      const existingAccordionState = {} as CombinedState["accordionState"];
+
+      const newAccordionState = {} as CombinedState["accordionState"];
+      const newDocumentsState = {
+        status: "succeeded",
+      } as CombinedState["documentsState"];
+
+      jest
+        .spyOn(accordionMapper, "mapAccordionState")
+        .mockImplementation((documentsState) => {
+          if (documentsState !== newDocumentsState) throw new Error();
+          return newAccordionState;
+        });
+
+      jest
+        .spyOn(documentsMapper, "mapDocumentsState")
+        .mockImplementation((documentsState) => {
+          if (documentsState !== newDocumentsState) throw new Error();
+          return newDocumentsState;
+        });
+
       const expectedNextState = {
         status: "incomplete",
         haveData: true,
@@ -152,6 +173,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           pipelineState: {},
+          documentsState: { status: "loading" },
         } as CombinedState,
         {
           type: "UPDATE_PIPELINE",

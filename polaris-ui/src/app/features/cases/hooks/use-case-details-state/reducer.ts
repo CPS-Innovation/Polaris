@@ -4,7 +4,6 @@ import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { mapAccordionState } from "./map-accordion-state";
 import { CombinedState } from "../../domain/CombinedState";
 import { CaseDetails } from "../../domain/CaseDetails";
-
 import { PipelineResults } from "../../domain/PipelineResults";
 import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
 import { mapTextSearch } from "./map-text-search";
