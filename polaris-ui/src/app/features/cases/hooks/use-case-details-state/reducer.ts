@@ -121,10 +121,11 @@ export const reducer = (
       let nextState = { ...state };
 
       // todo: proper logic to build documents
-      if (
+      const shouldBuildDocumentsState =
         action.payload.data.documents.length &&
-        state.documentsState.status === "loading"
-      ) {
+        state.documentsState.status === "loading";
+
+      if (shouldBuildDocumentsState) {
         const documentsState = mapDocumentsState(action.payload.data.documents);
         const accordionState = mapAccordionState(documentsState);
         nextState = {

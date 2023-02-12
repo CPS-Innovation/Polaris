@@ -139,27 +139,6 @@ describe("useCaseDetailsState reducer", () => {
     });
 
     it("can update from pipeline if succeeded", () => {
-      const existingAccordionState = {} as CombinedState["accordionState"];
-
-      const newAccordionState = {} as CombinedState["accordionState"];
-      const newDocumentsState = {
-        status: "succeeded",
-      } as CombinedState["documentsState"];
-
-      jest
-        .spyOn(accordionMapper, "mapAccordionState")
-        .mockImplementation((documentsState) => {
-          if (documentsState !== newDocumentsState) throw new Error();
-          return newAccordionState;
-        });
-
-      jest
-        .spyOn(documentsMapper, "mapDocumentsState")
-        .mockImplementation((documentsState) => {
-          if (documentsState !== newDocumentsState) throw new Error();
-          return newDocumentsState;
-        });
-
       const expectedNextState = {
         status: "incomplete",
         haveData: true,
@@ -173,7 +152,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           pipelineState: {},
-          documentsState: { status: "loading" },
+          documentsState: { status: "succeeded" },
         } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
@@ -207,7 +186,10 @@ describe("useCaseDetailsState reducer", () => {
         {
           pipelineState: {},
           tabsState: { items: [] },
-        } as unknown as CombinedState,
+          documentsState: {
+            status: "succeeded",
+          },
+        } as unknown as CombinedState, // todo: remove the "as unkwon"
         {
           type: "UPDATE_PIPELINE",
           payload: {
@@ -245,7 +227,10 @@ describe("useCaseDetailsState reducer", () => {
       } as CombinedState["tabsState"];
 
       const nextState = reducer(
-        { tabsState: existingTabsState } as CombinedState,
+        {
+          tabsState: existingTabsState,
+          documentsState: { status: "succeeded" },
+        } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
           payload: newPipelineState,
@@ -282,7 +267,10 @@ describe("useCaseDetailsState reducer", () => {
       });
 
       const nextState = reducer(
-        { tabsState: existingTabsState } as CombinedState,
+        {
+          tabsState: existingTabsState,
+          documentsState: { status: "succeeded" },
+        } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
           payload: newPipelineState,
