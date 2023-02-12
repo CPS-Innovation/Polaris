@@ -144,7 +144,7 @@ export const checkoutDocument = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: number
+  docId: string
 ) => {
   const url = buildEncodedUrl(
     { caseId, docId, cmsDocCategory },
@@ -168,7 +168,7 @@ export const cancelCheckoutDocument = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: number
+  docId: string
 ) => {
   const url = buildEncodedUrl(
     { caseId, docId, cmsDocCategory },
@@ -192,7 +192,7 @@ export const saveRedactions = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: number,
+  docId: string,
   fileName: string,
   redactionSaveRequest: RedactionSaveRequest
 ) => {

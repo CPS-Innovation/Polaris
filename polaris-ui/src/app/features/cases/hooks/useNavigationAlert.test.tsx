@@ -12,7 +12,7 @@ describe("useNavigationAlert hook", () => {
       cmsDocCategory: "MGForm",
       cmsDocType: { id: 3, code: "MG3", name: "MG3 File" },
       createdDate: "2020-06-02",
-      documentId: 1,
+      documentId: "1",
       fileName: "MCLOVEMG3  very long .docx",
       mode: "read",
       pdfBlobName: undefined,
@@ -35,7 +35,7 @@ describe("useNavigationAlert hook", () => {
       cmsDocCategory: "MGForm",
       cmsDocType: { id: 3, code: "MG3", name: "MG3 File" },
       createdDate: "2020-06-02",
-      documentId: 2,
+      documentId: "2",
       fileName: "MCLOVEMG4 very long .docx",
       mode: "read",
       pdfBlobName: undefined,
@@ -67,12 +67,12 @@ describe("useNavigationAlert hook", () => {
     });
     expect(result.current.unSavedRedactionDocs).toEqual([
       {
-        documentId: 1,
+        documentId: "1",
         tabSafeId: "d0",
         presentationFileName: "MCLOVEMG3  very long",
       },
       {
-        documentId: 2,
+        documentId: "2",
         tabSafeId: "d1",
         presentationFileName: "MCLOVEMG4 test",
       },

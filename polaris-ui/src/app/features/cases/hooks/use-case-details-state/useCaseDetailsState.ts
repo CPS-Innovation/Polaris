@@ -83,8 +83,8 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
 
   const handleOpenPdf = useCallback(
     (caseDocument: {
-      tabSafeId: string;
-      documentId: number;
+      tabSafeId: CaseDocumentViewModel["tabSafeId"];
+      documentId: CaseDocumentViewModel["documentId"];
       mode: CaseDocumentViewModel["mode"];
     }) => {
       dispatch({
@@ -100,7 +100,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleClosePdf = useCallback(
-    (caseDocument: { tabSafeId: string }) => {
+    (caseDocument: { tabSafeId: CaseDocumentViewModel["tabSafeId"] }) => {
       dispatch({
         type: "CLOSE_PDF",
         payload: {
@@ -158,7 +158,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleAddRedaction = useCallback(
-    (pdfId: number, redaction: NewPdfHighlight) =>
+    (pdfId: CaseDocumentViewModel["documentId"], redaction: NewPdfHighlight) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
         payload: { pdfId, redaction },
@@ -167,7 +167,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleRemoveRedaction = useCallback(
-    (pdfId: number, redactionId: string) =>
+    (pdfId: CaseDocumentViewModel["documentId"], redactionId: string) =>
       dispatch({
         type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
         payload: { pdfId, redactionId },
@@ -176,7 +176,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleRemoveAllRedactions = useCallback(
-    (pdfId: number) =>
+    (pdfId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
         payload: { pdfId },
@@ -185,13 +185,13 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleSavedRedactions = useCallback(
-    (pdfId: number) =>
+    (pdfId: CaseDocumentViewModel["documentId"]) =>
       dispatch({ type: "SAVE_REDACTIONS", payload: { pdfId } }),
     [dispatch]
   );
 
   const handleOpenPdfInNewTab = useCallback(
-    (pdfId: number) =>
+    (pdfId: CaseDocumentViewModel["documentId"]) =>
       dispatch({ type: "REQUEST_OPEN_PDF_IN_NEW_TAB", payload: { pdfId } }),
     [dispatch]
   );

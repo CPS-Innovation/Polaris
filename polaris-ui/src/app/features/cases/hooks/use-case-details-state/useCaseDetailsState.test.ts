@@ -238,11 +238,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      act(() => handleOpenPdfInNewTab(2));
+      act(() => handleOpenPdfInNewTab("2"));
 
       expect(mockHandler).toBeCalledWith({
         type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: { pdfId: 2 },
+        payload: { pdfId: "2" },
       });
     });
 
@@ -259,11 +259,13 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      act(() => handleOpenPdf({ tabSafeId: "1", documentId: 2, mode: "read" }));
+      act(() =>
+        handleOpenPdf({ tabSafeId: "1", documentId: "2", mode: "read" })
+      );
 
       expect(mockHandler).toBeCalledWith({
         type: "REQUEST_OPEN_PDF",
-        payload: { tabSafeId: "1", pdfId: 2, mode: "read" },
+        payload: { tabSafeId: "1", pdfId: "2", mode: "read" },
       });
     });
 
@@ -280,11 +282,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleAddRedaction(2, { type: "redaction" } as NewPdfHighlight);
+      handleAddRedaction("2", { type: "redaction" } as NewPdfHighlight);
 
       expect(mockHandler).toBeCalledWith({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { pdfId: 2, redaction: { type: "redaction" } },
+        payload: { pdfId: "2", redaction: { type: "redaction" } },
       });
     });
 
@@ -304,11 +306,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleRemoveRedaction(2, "baz");
+      handleRemoveRedaction("2", "baz");
 
       expect(mockHandler).toBeCalledWith({
         type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
-        payload: { pdfId: 2, redactionId: "baz" },
+        payload: { pdfId: "2", redactionId: "baz" },
       });
     });
 
@@ -325,11 +327,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleRemoveAllRedactions(2);
+      handleRemoveAllRedactions("2");
 
       expect(mockHandler).toBeCalledWith({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
-        payload: { pdfId: 2 },
+        payload: { pdfId: "2" },
       });
     });
 
@@ -346,11 +348,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleSavedRedactions(2);
+      handleSavedRedactions("2");
 
       expect(mockHandler).toBeCalledWith({
         type: "SAVE_REDACTIONS",
-        payload: { pdfId: 2 },
+        payload: { pdfId: "2" },
       });
     });
   });

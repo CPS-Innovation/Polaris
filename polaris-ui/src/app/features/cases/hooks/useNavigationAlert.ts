@@ -3,7 +3,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { Location } from "history";
 import { CaseDocumentViewModel } from "../../cases/domain/CaseDocumentViewModel";
 export type UnSavedRedactionDoc = {
-  documentId: number;
+  documentId: CaseDocumentViewModel["documentId"];
   tabSafeId: string;
   presentationFileName: string;
 };
@@ -23,7 +23,7 @@ export const useNavigationAlert = (
   const location = useLocation();
   const navigationUnblockHandle = useRef<any>();
   const unSavedRedactionDocs = useMemo((): {
-    documentId: number;
+    documentId: CaseDocumentViewModel["documentId"];
     tabSafeId: string;
     presentationFileName: string;
   }[] => {

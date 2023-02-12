@@ -22,7 +22,7 @@ type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const history = useHistory();
-  const { id, urn } = useParams<{ id: string; urn: string }>();
+  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
   const {
     caseState,
@@ -43,7 +43,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveAllRedactions,
     handleSavedRedactions,
     handleOpenPdfInNewTab,
-  } = useCaseDetailsState(urn, +id);
+  } = useCaseDetailsState(urn, +caseId);
 
   const {
     showAlert,

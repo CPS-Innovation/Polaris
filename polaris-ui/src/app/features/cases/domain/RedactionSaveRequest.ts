@@ -1,6 +1,6 @@
 import { RedactionSavePage } from "./RedactionSavePage";
 
 export type RedactionSaveRequest = {
-  docId: number;
+  docId: string;
   redactions: RedactionSavePage[];
 };

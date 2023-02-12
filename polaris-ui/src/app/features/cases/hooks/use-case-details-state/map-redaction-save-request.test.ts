@@ -3,7 +3,7 @@ import { IPdfHighlight } from "../../domain/IPdfHighlight";
 
 describe("map-redaction-save-request", () => {
   it("maps a redaction highlights to a RedactionSaveRequestObject", () => {
-    const result = mapRedactionSaveRequest(1, [
+    const result = mapRedactionSaveRequest("1", [
       {
         id: "1",
         type: "redaction",
@@ -67,7 +67,7 @@ describe("map-redaction-save-request", () => {
     ]);
 
     expect(result).toEqual({
-      docId: 1,
+      docId: "1",
       redactions: [
         {
           pageIndex: 2,

@@ -10,7 +10,7 @@ const pipelinePdfResults: PipelineResults = {
   status: "Completed",
   documents: [
     {
-      documentId: 1,
+      documentId: "1",
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
       fileName: "MCLOVEMG3  very long .docx",
@@ -23,7 +23,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 2,
+      documentId: "2",
       pdfBlobName: "CM01",
       status: "Indexed",
       fileName: "CM01  very long .docx",
@@ -36,7 +36,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 3,
+      documentId: "3",
       pdfBlobName: "MG05MCLOVE",
       status: "Indexed",
       fileName: "MG05MCLOVE very long .docx",
@@ -49,7 +49,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 4,
+      documentId: "4",
       pdfBlobName: "MG06_3June",
       status: "Indexed",
       fileName: "MG06_3June  very long .docx",
@@ -62,7 +62,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 5,
+      documentId: "5",
       pdfBlobName: "MG06_10june",
       status: "Indexed",
       fileName: "MG06_10june  very long .docx",
@@ -75,7 +75,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 6,
+      documentId: "6",
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
       fileName: "MCLOVEMG3  very long .docx",
@@ -88,7 +88,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 7,
+      documentId: "7",
       pdfBlobName: "CM01",
       status: "Indexed",
       fileName: "CM01  very long .docx",
@@ -101,7 +101,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 8,
+      documentId: "8",
       pdfBlobName: "MG05MCLOVE",
       status: "Indexed",
       fileName: "MG05MCLOVE very long .docx",
@@ -114,7 +114,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 9,
+      documentId: "9",
       pdfBlobName: "MG06_3June",
       status: "Indexed",
       fileName: "MG06_3June  very long .docx",
@@ -127,7 +127,7 @@ const pipelinePdfResults: PipelineResults = {
       },
     },
     {
-      documentId: 10,
+      documentId: "10",
       pdfBlobName: "MG06_10june",
       status: "Indexed",
       fileName: "MG06_10june  very long .docx",

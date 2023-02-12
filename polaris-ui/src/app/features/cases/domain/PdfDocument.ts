@@ -2,7 +2,7 @@ import { CmsDocCategory } from "./CmsDocCategory";
 import { CmsDocType } from "./CmsDocType";
 
 export type PipeLineDocumentProperties = {
-  documentId: number;
+  documentId: string;
   pdfBlobName: string;
   status:
     | "None"
@@ -15,7 +15,7 @@ export type PipeLineDocumentProperties = {
 };
 
 export type PresentationDocumentProperties = {
-  documentId: number;
+  documentId: string;
   fileName: string;
   createdDate: string;
   cmsDocCategory: CmsDocCategory;

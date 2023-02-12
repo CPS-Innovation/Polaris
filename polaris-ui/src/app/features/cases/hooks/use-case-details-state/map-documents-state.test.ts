@@ -20,11 +20,11 @@ describe("mapDocumentsState", () => {
 
   it("can map CaseDocuments to MappedCaseDocuments", () => {
     const doc1 = {
-      documentId: 0,
+      documentId: "0",
       fileName: "foo",
     } as PresentationDocumentProperties;
     const doc2 = {
-      documentId: 1,
+      documentId: "1",
       fileName: "bar",
     } as PresentationDocumentProperties;
 

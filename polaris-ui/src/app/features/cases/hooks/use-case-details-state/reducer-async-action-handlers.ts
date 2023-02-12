@@ -24,39 +24,42 @@ type Action = Parameters<typeof reducer>[1];
 type AsyncActions =
   | {
       type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
-      payload: { pdfId: number; redaction: NewPdfHighlight };
+      payload: {
+        pdfId: CaseDocumentViewModel["documentId"];
+        redaction: NewPdfHighlight;
+      };
     }
   | {
       type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK";
       payload: {
-        pdfId: number;
+        pdfId: CaseDocumentViewModel["documentId"];
         redactionId: string;
       };
     }
   | {
       type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK";
       payload: {
-        pdfId: number;
+        pdfId: CaseDocumentViewModel["documentId"];
       };
     }
   | {
       type: "SAVE_REDACTIONS";
       payload: {
-        pdfId: number;
+        pdfId: CaseDocumentViewModel["documentId"];
       };
     }
   | {
       type: "REQUEST_OPEN_PDF";
       payload: {
-        tabSafeId: string;
-        pdfId: number;
+        tabSafeId: CaseDocumentViewModel["tabSafeId"];
+        pdfId: CaseDocumentViewModel["documentId"];
         mode: CaseDocumentViewModel["mode"];
       };
     }
   | {
       type: "REQUEST_OPEN_PDF_IN_NEW_TAB";
       payload: {
-        pdfId: number;
+        pdfId: CaseDocumentViewModel["documentId"];
       };
     };
 

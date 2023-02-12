@@ -2,6 +2,7 @@ import { AccordionDocument } from "./AccordionDocument";
 import classes from "./Accordion.module.scss";
 import { AccordionNoDocuments } from "./AccordionNoDocuments";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
+import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 
 type Props = {
   sectionId: string;
@@ -11,7 +12,7 @@ type Props = {
   handleToggleOpenSection: (id: string) => void;
   handleOpenPdf: (caseDocument: {
     tabSafeId: string;
-    documentId: number;
+    documentId: CaseDocumentViewModel["documentId"];
   }) => void;
 };
 
