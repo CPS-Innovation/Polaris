@@ -144,12 +144,12 @@ export const checkoutDocument = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: string
+  documentId: string
 ) => {
   const url = buildEncodedUrl(
-    { caseId, docId, cmsDocCategory },
-    ({ caseId, docId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/checkout`
+    { caseId, documentId, cmsDocCategory },
+    ({ caseId, documentId, cmsDocCategory }) =>
+      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -168,12 +168,12 @@ export const cancelCheckoutDocument = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: string
+  documentId: string
 ) => {
   const url = buildEncodedUrl(
-    { caseId, docId, cmsDocCategory },
-    ({ caseId, docId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/checkout`
+    { caseId, documentId, cmsDocCategory },
+    ({ caseId, documentId, cmsDocCategory }) =>
+      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -192,14 +192,14 @@ export const saveRedactions = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: string,
+  documentId: string,
   fileName: string,
   redactionSaveRequest: RedactionSaveRequest
 ) => {
   const url = buildEncodedUrl(
-    { urn, caseId, docId, fileName, cmsDocCategory },
-    ({ urn, caseId, docId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/${fileName}`
+    { urn, caseId, documentId, fileName, cmsDocCategory },
+    ({ urn, caseId, documentId, cmsDocCategory }) =>
+      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/${fileName}`
   );
 
   const response = await internalFetch(url, {

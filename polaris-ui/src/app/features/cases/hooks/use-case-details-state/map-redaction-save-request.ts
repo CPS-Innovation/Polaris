@@ -3,7 +3,7 @@ import { RedactionSavePage } from "../../domain/RedactionSavePage";
 import { RedactionSaveRequest } from "../../domain/RedactionSaveRequest";
 
 export const mapRedactionSaveRequest = (
-  documentId: RedactionSaveRequest["docId"],
+  documentId: RedactionSaveRequest["documentId"],
   redactionHighlights: IPdfHighlight[]
 ) => {
   const redactionSaveRequest = redactionHighlights.reduce(
@@ -42,7 +42,7 @@ export const mapRedactionSaveRequest = (
       return acc;
     },
     {
-      docId: documentId,
+      documentId,
       redactions: [] as RedactionSavePage[],
     } as RedactionSaveRequest
   );

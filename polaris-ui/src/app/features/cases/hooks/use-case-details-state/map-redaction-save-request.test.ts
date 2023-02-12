@@ -67,7 +67,7 @@ describe("map-redaction-save-request", () => {
     ]);
 
     expect(result).toEqual({
-      docId: "1",
+      documentId: "1",
       redactions: [
         {
           pageIndex: 2,
