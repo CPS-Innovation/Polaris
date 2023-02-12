@@ -1,8 +1,11 @@
 import { renderHook } from "@testing-library/react-hooks";
-import { CaseDocumentViewModel } from "../../cases/domain/CaseDocumentViewModel";
+import { CaseDocumentViewModel } from "../domain/CaseDocumentViewModel";
 import { useNavigationAlert } from "./useNavigationAlert";
+import { createMemoryHistory } from "history";
+import { Router } from "react-router-dom";
 
-describe("useNaviagtionAlert hook", () => {
+describe("useNavigationAlert hook", () => {
+  const history = createMemoryHistory();
   const tabItems: CaseDocumentViewModel[] = [
     {
       clientLockedState: "unlocked",
@@ -15,7 +18,14 @@ describe("useNaviagtionAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG3  very long",
-      redactionHighlights: [],
+      redactionHighlights: [
+        {
+          id: "1",
+          type: "redaction",
+          position: {} as any,
+          highlightType: "area",
+        },
+      ],
       sasUrl: undefined,
       tabSafeId: "d0",
       url: undefined,
@@ -31,7 +41,14 @@ describe("useNaviagtionAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG4 test",
-      redactionHighlights: [],
+      redactionHighlights: [
+        {
+          id: "1",
+          type: "redaction",
+          position: {} as any,
+          highlightType: "area",
+        },
+      ],
       sasUrl: undefined,
       tabSafeId: "d1",
       url: undefined,
@@ -39,9 +56,15 @@ describe("useNaviagtionAlert hook", () => {
   ];
 
   it("should return the correct unSavedRedactionDocs array", () => {
-    const { result: resultOne } = renderHook(() => useNavigationAlert([]));
-    expect(resultOne.current.unSavedRedactionDocs).toEqual([]);
-    const { result } = renderHook(() => useNavigationAlert(tabItems));
+    const { result } = renderHook(() => useNavigationAlert(tabItems), {
+      wrapper: ({ children }) => (
+        <>
+          <Router history={history}>
+            <div>{children}</div>
+          </Router>
+        </>
+      ),
+    });
     expect(result.current.unSavedRedactionDocs).toEqual([
       {
         documentId: 1,
@@ -54,5 +77,18 @@ describe("useNaviagtionAlert hook", () => {
         presentationFileName: "MCLOVEMG4 test",
       },
     ]);
+  });
+
+  it("Should return empty array if the there are no active redactions in any document items", () => {
+    const { result: resultOne } = renderHook(() => useNavigationAlert([]), {
+      wrapper: ({ children }) => (
+        <>
+          <Router history={history}>
+            <div>{children}</div>
+          </Router>
+        </>
+      ),
+    });
+    expect(resultOne.current.unSavedRedactionDocs).toEqual([]);
   });
 });
