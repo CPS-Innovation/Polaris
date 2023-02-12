@@ -18,6 +18,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
+import { PdfDocument } from "../../domain/PdfDocument";
 
 const ERROR = new Error();
 
@@ -53,56 +54,97 @@ describe("useCaseDetailsState reducer", () => {
     });
   });
 
-  // describe("UPDATE_CASE_DOCUMENTS", () => {
-  //   it("throws if update case documents fails", () => {
-  //     expect(() =>
-  //       reducer({} as CombinedState, {
-  //         type: "UPDATE_CASE_DOCUMENTS",
-  //         payload: {
-  //           status: "failed",
-  //           error: ERROR,
-  //           httpStatusCode: undefined,
-  //         },
-  //       })
-  //     ).toThrowError(ERROR);
-  //   });
-
-  //   it("can update accordionState if incoming documentsState is ready", () => {
-  //     const existingAccordionState = {} as CombinedState["accordionState"];
-
-  //     const newAccordionState = {} as CombinedState["accordionState"];
-  //     const newDocumentsState = {
-  //       status: "succeeded",
-  //     } as CombinedState["documentsState"];
-
-  //     jest
-  //       .spyOn(accordionMapper, "mapAccordionState")
-  //       .mockImplementation((documentsState) => {
-  //         if (documentsState !== newDocumentsState) throw new Error();
-  //         return newAccordionState;
-  //       });
-
-  //     jest
-  //       .spyOn(documentsMapper, "mapDocumentsState")
-  //       .mockImplementation((documentsState) => {
-  //         if (documentsState !== newDocumentsState) throw new Error();
-  //         return newDocumentsState;
-  //       });
-
-  //     const nextState = reducer(
-  //       { accordionState: existingAccordionState } as CombinedState,
-  //       {
-  //         type: "UPDATE_CASE_DOCUMENTS",
-  //         payload: newDocumentsState,
-  //       }
-  //     );
-
-  //     expect(nextState.documentsState).toBe(newDocumentsState);
-  //     expect(nextState.accordionState).toBe(newAccordionState);
-  //   });
-  // });
-
   describe("UPDATE_PIPELINE", () => {
+    describe("building documents state", () => {
+      it("should not build documents state if there are no documents in the payload", () => {
+        const existingState = {
+          pipelineState: {},
+          documentsState: { status: "loading" },
+        } as CombinedState;
+
+        const nextState = reducer(existingState, {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            haveData: true,
+            data: {
+              transactionId: "123",
+              status: "Running",
+              documents: [],
+            },
+          } as AsyncPipelineResult<PipelineResults>,
+        });
+
+        expect(nextState.documentsState).toBe(existingState.documentsState);
+      });
+
+      it("should not build documents state if the document state is already built", () => {
+        const existingState = {
+          pipelineState: {},
+          documentsState: { status: "succeeded" },
+        } as CombinedState;
+
+        const nextState = reducer(existingState, {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            haveData: true,
+            data: {
+              transactionId: "123",
+              status: "Running",
+              documents: [{}],
+            },
+          } as AsyncPipelineResult<PipelineResults>,
+        });
+
+        expect(nextState.documentsState).toBe(existingState.documentsState);
+      });
+
+      it("should build documents state if there are are no documents in the payload and document state is not already built", () => {
+        const mockNewPdfDocuments = [{}] as PdfDocument[];
+        const mockDocumentsState = {} as CombinedState["documentsState"];
+        const mockAccordionState = {} as CombinedState["accordionState"];
+
+        jest
+          .spyOn(documentsMapper, "mapDocumentsState")
+          .mockImplementation((documents) => {
+            if (documents !== mockNewPdfDocuments)
+              throw new Error("Unexpected mock documents array");
+            return mockDocumentsState;
+          });
+
+        jest
+          .spyOn(accordionMapper, "mapAccordionState")
+          .mockImplementation((documentState) => {
+            if (documentState !== mockDocumentsState)
+              throw new Error("Unexpected mock documents state");
+            return mockAccordionState;
+          });
+
+        const nextState = reducer(
+          {
+            pipelineState: {},
+            documentsState: { status: "loading" },
+          } as CombinedState,
+          {
+            type: "UPDATE_PIPELINE",
+            payload: {
+              status: "incomplete",
+              haveData: true,
+              data: {
+                transactionId: "123",
+                status: "Running",
+                documents: mockNewPdfDocuments,
+              },
+            } as AsyncPipelineResult<PipelineResults>,
+          }
+        );
+
+        expect(nextState.documentsState).toBe(mockDocumentsState);
+        expect(nextState.accordionState).toBe(mockAccordionState);
+      });
+    });
+
     it("throws if update pipelineState fails", () => {
       expect(() =>
         reducer({} as CombinedState, {
