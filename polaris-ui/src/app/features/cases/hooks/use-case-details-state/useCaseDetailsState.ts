@@ -90,7 +90,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       dispatch({
         type: "REQUEST_OPEN_PDF",
         payload: {
-          pdfId: caseDocument.documentId,
+          documentId: caseDocument.documentId,
           tabSafeId: caseDocument.tabSafeId,
           mode: caseDocument.mode,
         },
@@ -158,41 +158,47 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleAddRedaction = useCallback(
-    (pdfId: CaseDocumentViewModel["documentId"], redaction: NewPdfHighlight) =>
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      redaction: NewPdfHighlight
+    ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { pdfId, redaction },
+        payload: { documentId, redaction },
       }),
     [dispatch]
   );
 
   const handleRemoveRedaction = useCallback(
-    (pdfId: CaseDocumentViewModel["documentId"], redactionId: string) =>
+    (documentId: CaseDocumentViewModel["documentId"], redactionId: string) =>
       dispatch({
         type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
-        payload: { pdfId, redactionId },
+        payload: { documentId, redactionId },
       }),
     [dispatch]
   );
 
   const handleRemoveAllRedactions = useCallback(
-    (pdfId: CaseDocumentViewModel["documentId"]) =>
+    (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
-        payload: { pdfId },
+        payload: { documentId },
       }),
     [dispatch]
   );
 
   const handleSavedRedactions = useCallback(
-    (pdfId: CaseDocumentViewModel["documentId"]) =>
-      dispatch({ type: "SAVE_REDACTIONS", payload: { pdfId } }),
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({ type: "SAVE_REDACTIONS", payload: { documentId } }),
     [dispatch]
   );
 
   const handleOpenPdfInNewTab = useCallback(
-    (pdfId: CaseDocumentViewModel["documentId"]) =>
-      dispatch({ type: "REQUEST_OPEN_PDF_IN_NEW_TAB", payload: { pdfId } }),
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
+        payload: { documentId },
+      }),
     [dispatch]
   );
   return {

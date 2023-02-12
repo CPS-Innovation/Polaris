@@ -30,7 +30,7 @@ export const reducer = (
     | {
         type: "OPEN_PDF_IN_NEW_TAB";
         payload: {
-          pdfId: CaseDocumentViewModel["documentId"];
+          documentId: CaseDocumentViewModel["documentId"];
           sasUrl: string;
         };
       }
@@ -38,7 +38,7 @@ export const reducer = (
         type: "OPEN_PDF";
         payload: {
           tabSafeId: string;
-          pdfId: CaseDocumentViewModel["documentId"];
+          documentId: CaseDocumentViewModel["documentId"];
           mode: CaseDocumentViewModel["mode"];
           headers: HeadersInit;
         };
@@ -76,27 +76,27 @@ export const reducer = (
     | {
         type: "ADD_REDACTION";
         payload: {
-          pdfId: CaseDocumentViewModel["documentId"];
+          documentId: CaseDocumentViewModel["documentId"];
           redaction: NewPdfHighlight;
         };
       }
     | {
         type: "REMOVE_REDACTION";
         payload: {
-          pdfId: CaseDocumentViewModel["documentId"];
+          documentId: CaseDocumentViewModel["documentId"];
           redactionId: string;
         };
       }
     | {
         type: "REMOVE_ALL_REDACTIONS";
         payload: {
-          pdfId: CaseDocumentViewModel["documentId"];
+          documentId: CaseDocumentViewModel["documentId"];
         };
       }
     | {
         type: "UPDATE_DOCUMENT_LOCK_STATE";
         payload: {
-          pdfId: CaseDocumentViewModel["documentId"];
+          documentId: CaseDocumentViewModel["documentId"];
           lockedState: CaseDocumentViewModel["clientLockedState"];
         };
       }
@@ -189,21 +189,21 @@ export const reducer = (
       };
     }
     case "OPEN_PDF_IN_NEW_TAB": {
-      const { pdfId, sasUrl } = action.payload;
+      const { documentId, sasUrl } = action.payload;
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: [
             ...state.tabsState.items.map((item) =>
-              item.documentId === pdfId ? { ...item, sasUrl } : item
+              item.documentId === documentId ? { ...item, sasUrl } : item
             ),
           ],
         },
       };
     }
     case "OPEN_PDF":
-      const { pdfId, tabSafeId, mode, headers } = action.payload;
+      const { documentId, tabSafeId, mode, headers } = action.payload;
 
       const coreNewState = {
         ...state,
@@ -226,7 +226,7 @@ export const reducer = (
 
       const isTabAlreadyOpenedInRequiredState = state.tabsState.items.some(
         (item) =>
-          item.documentId === pdfId &&
+          item.documentId === documentId &&
           // we have found the tab already exists in read mode and we are trying to
           //  open again in read mode
           ((item.mode === "read" && mode === "read") ||
@@ -243,7 +243,7 @@ export const reducer = (
         return coreNewState;
       }
       const alreadyOpenedTabIndex = state.tabsState.items.findIndex(
-        (item) => item.documentId === pdfId
+        (item) => item.documentId === documentId
       );
 
       const redactionsHighlightsToRetain =
@@ -252,12 +252,12 @@ export const reducer = (
           : [];
 
       const foundDocument = state.documentsState.data.find(
-        (item) => item.documentId === pdfId
+        (item) => item.documentId === documentId
       )!;
 
       const blobName = state.pipelineState.haveData
         ? state.pipelineState.data.documents.find(
-            (item) => item.documentId === pdfId
+            (item) => item.documentId === documentId
           )?.pdfBlobName
         : undefined;
 
@@ -284,7 +284,7 @@ export const reducer = (
         const foundDocumentSearchResult =
           state.searchState.results.status === "succeeded" &&
           state.searchState.results.data.documentResults.find(
-            (item) => item.documentId === pdfId
+            (item) => item.documentId === documentId
           )!;
 
         const pageOccurrences = foundDocumentSearchResult
@@ -545,14 +545,14 @@ export const reducer = (
         },
       };
     case "ADD_REDACTION": {
-      const { pdfId, redaction } = action.payload;
+      const { documentId, redaction } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   redactionHighlights: [
@@ -566,14 +566,14 @@ export const reducer = (
       };
     }
     case "REMOVE_REDACTION": {
-      const { redactionId, pdfId } = action.payload;
+      const { redactionId, documentId } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   redactionHighlights: item.redactionHighlights.filter(
@@ -587,14 +587,14 @@ export const reducer = (
     }
 
     case "REMOVE_ALL_REDACTIONS": {
-      const { pdfId } = action.payload;
+      const { documentId } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   redactionHighlights: [],
@@ -605,14 +605,14 @@ export const reducer = (
       };
     }
     case "UPDATE_DOCUMENT_LOCK_STATE": {
-      const { pdfId, lockedState } = action.payload;
+      const { documentId, lockedState } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   clientLockedState: lockedState,

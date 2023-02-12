@@ -25,41 +25,41 @@ type AsyncActions =
   | {
       type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
       payload: {
-        pdfId: CaseDocumentViewModel["documentId"];
+        documentId: CaseDocumentViewModel["documentId"];
         redaction: NewPdfHighlight;
       };
     }
   | {
       type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK";
       payload: {
-        pdfId: CaseDocumentViewModel["documentId"];
+        documentId: CaseDocumentViewModel["documentId"];
         redactionId: string;
       };
     }
   | {
       type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK";
       payload: {
-        pdfId: CaseDocumentViewModel["documentId"];
+        documentId: CaseDocumentViewModel["documentId"];
       };
     }
   | {
       type: "SAVE_REDACTIONS";
       payload: {
-        pdfId: CaseDocumentViewModel["documentId"];
+        documentId: CaseDocumentViewModel["documentId"];
       };
     }
   | {
       type: "REQUEST_OPEN_PDF";
       payload: {
         tabSafeId: CaseDocumentViewModel["tabSafeId"];
-        pdfId: CaseDocumentViewModel["documentId"];
+        documentId: CaseDocumentViewModel["documentId"];
         mode: CaseDocumentViewModel["mode"];
       };
     }
   | {
       type: "REQUEST_OPEN_PDF_IN_NEW_TAB";
       payload: {
-        pdfId: CaseDocumentViewModel["documentId"];
+        documentId: CaseDocumentViewModel["documentId"];
       };
     };
 
@@ -71,18 +71,18 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ dispatch, getState }) =>
     async (action) => {
       const {
-        payload: { pdfId },
+        payload: { documentId },
       } = action;
 
       const pdfBlobName = getState().tabsState.items.find(
-        (item) => item.documentId === pdfId
+        (item) => item.documentId === documentId
       )!.pdfBlobName!;
 
       const sasUrl = await getPdfSasUrl(pdfBlobName);
 
       dispatch({
         type: "OPEN_PDF_IN_NEW_TAB",
-        payload: { pdfId, sasUrl },
+        payload: { documentId, sasUrl },
       });
     },
   REQUEST_OPEN_PDF:
@@ -106,7 +106,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     async (action) => {
       const { payload } = action;
 
-      const { pdfId } = payload;
+      const { documentId } = payload;
       const {
         tabsState: { items },
         caseId,
@@ -114,7 +114,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const { clientLockedState, cmsDocCategory } = items.find(
-        (item) => item.documentId === pdfId
+        (item) => item.documentId === documentId
       )!;
 
       const documentRequiresLocking =
@@ -128,20 +128,20 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
-        payload: { pdfId, lockedState: "locking" },
+        payload: { documentId, lockedState: "locking" },
       });
 
       const isLockSuccessful = await checkoutDocument(
         urn,
         caseId,
         cmsDocCategory,
-        pdfId
+        documentId
       );
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
         payload: {
-          pdfId,
+          documentId,
           lockedState: isLockSuccessful ? "locked" : "locked-by-other-user",
         },
       });
@@ -152,14 +152,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     async (action) => {
       const { payload } = action;
 
-      const { pdfId } = payload;
+      const { documentId } = payload;
       const {
         tabsState: { items },
         caseId,
         urn,
       } = getState();
 
-      const document = items.find((item) => item.documentId === pdfId)!;
+      const document = items.find((item) => item.documentId === documentId)!;
 
       const {
         redactionHighlights,
@@ -180,15 +180,15 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
-        payload: { pdfId, lockedState: "unlocking" },
+        payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(urn, caseId, cmsDocCategory, pdfId);
+      await cancelCheckoutDocument(urn, caseId, cmsDocCategory, documentId);
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
         payload: {
-          pdfId,
+          documentId,
           lockedState: "unlocked",
         },
       });
@@ -199,14 +199,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     async (action) => {
       const { payload } = action;
 
-      const { pdfId } = payload;
+      const { documentId } = payload;
       const {
         tabsState: { items },
         caseId,
         urn,
       } = getState();
 
-      const document = items.find((item) => item.documentId === pdfId)!;
+      const document = items.find((item) => item.documentId === documentId)!;
 
       const { clientLockedState: lockedState, cmsDocCategory } = document;
 
@@ -221,15 +221,15 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
-        payload: { pdfId, lockedState: "unlocking" },
+        payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(urn, caseId, cmsDocCategory, pdfId);
+      await cancelCheckoutDocument(urn, caseId, cmsDocCategory, documentId);
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
         payload: {
-          pdfId,
+          documentId,
           lockedState: "unlocked",
         },
       });
@@ -239,7 +239,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     ({ getState }) =>
     async (action) => {
       const { payload } = action;
-      const { pdfId } = payload;
+      const { documentId } = payload;
 
       const {
         tabsState: { items },
@@ -248,11 +248,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = getState();
 
       const { redactionHighlights, pdfBlobName, cmsDocCategory } = items.find(
-        (item) => item.documentId === pdfId
+        (item) => item.documentId === documentId
       )!;
 
       const redactionSaveRequest = mapRedactionSaveRequest(
-        pdfId,
+        documentId,
         redactionHighlights
       );
 
@@ -262,7 +262,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         urn,
         caseId,
         cmsDocCategory,
-        pdfId,
+        documentId,
         pdfBlobName!, // todo: better typing, but we're guaranteed to have a pdfBlobName anyhow
         redactionSaveRequest
       );
@@ -270,7 +270,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       window.open(response.redactedDocumentUrl);
 
       // todo: does a save IN THE CGI API check a document in automatically?
-      //await cancelCheckoutDocument(urn, caseId, pdfId);
+      //await cancelCheckoutDocument(urn, caseId, documentId);
 
       // todo: make sure UI knows we are saved
     },

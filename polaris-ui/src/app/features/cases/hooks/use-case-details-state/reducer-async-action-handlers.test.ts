@@ -43,7 +43,7 @@ describe("reducerAsyncActionHandlers", () => {
       await handler({
         type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
         payload: {
-          pdfId: "1",
+          documentId: "1",
         },
       });
 
@@ -54,7 +54,7 @@ describe("reducerAsyncActionHandlers", () => {
       expect(dispatchMock.mock.calls[0][0]).toEqual({
         type: "OPEN_PDF_IN_NEW_TAB",
         payload: {
-          pdfId: "1",
+          documentId: "1",
           sasUrl: "baz",
         },
       });
@@ -81,7 +81,7 @@ describe("reducerAsyncActionHandlers", () => {
       await handler({
         type: "REQUEST_OPEN_PDF",
         payload: {
-          pdfId: "1",
+          documentId: "1",
           tabSafeId: "bar",
           mode: "read",
         },
@@ -92,7 +92,7 @@ describe("reducerAsyncActionHandlers", () => {
       expect(dispatchMock.mock.calls[0][0]).toEqual({
         type: "OPEN_PDF",
         payload: {
-          pdfId: "1",
+          documentId: "1",
           tabSafeId: "bar",
           mode: "read",
           headers: {
@@ -149,7 +149,7 @@ describe("reducerAsyncActionHandlers", () => {
         await handler({
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             redaction: { type: "redaction" } as NewPdfHighlight,
           },
         });
@@ -160,16 +160,16 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "ADD_REDACTION",
-          payload: { pdfId: "1", redaction: { type: "redaction" } },
+          payload: { documentId: "1", redaction: { type: "redaction" } },
         });
         expect(dispatchMock.mock.calls[1][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
-          payload: { pdfId: "1", lockedState: "locking" },
+          payload: { documentId: "1", lockedState: "locking" },
         });
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             lockedState: expectedFinalDispatchedLockedState,
           },
         });
@@ -204,7 +204,7 @@ describe("reducerAsyncActionHandlers", () => {
         await handler({
           type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             redaction: { type: "redaction" } as NewPdfHighlight,
           },
         });
@@ -215,7 +215,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(1);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "ADD_REDACTION",
-          payload: { pdfId: "1", redaction: { type: "redaction" } },
+          payload: { documentId: "1", redaction: { type: "redaction" } },
         });
       }
     );
@@ -261,7 +261,7 @@ describe("reducerAsyncActionHandlers", () => {
         await handler({
           type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             redactionId: "bar",
           },
         });
@@ -272,7 +272,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(1);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "REMOVE_REDACTION",
-          payload: { pdfId: "1", redactionId: "bar" },
+          payload: { documentId: "1", redactionId: "bar" },
         });
       }
     );
@@ -314,7 +314,7 @@ describe("reducerAsyncActionHandlers", () => {
         await handler({
           type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             redactionId: "bar",
           },
         });
@@ -325,7 +325,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(1);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "REMOVE_REDACTION",
-          payload: { pdfId: "1", redactionId: "bar" },
+          payload: { documentId: "1", redactionId: "bar" },
         });
       }
     );
@@ -364,7 +364,7 @@ describe("reducerAsyncActionHandlers", () => {
         await handler({
           type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             redactionId: "bar",
           },
         });
@@ -375,15 +375,15 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "REMOVE_REDACTION",
-          payload: { pdfId: "1", redactionId: "bar" },
+          payload: { documentId: "1", redactionId: "bar" },
         });
         expect(dispatchMock.mock.calls[1][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
-          payload: { pdfId: "1", lockedState: "unlocking" },
+          payload: { documentId: "1", lockedState: "unlocking" },
         });
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
-          payload: { pdfId: "1", lockedState: "unlocked" },
+          payload: { documentId: "1", lockedState: "unlocked" },
         });
       }
     );
@@ -428,7 +428,7 @@ describe("reducerAsyncActionHandlers", () => {
         await handler({
           type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
           payload: {
-            pdfId: "1",
+            documentId: "1",
           },
         });
 
@@ -438,7 +438,7 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(1);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "REMOVE_ALL_REDACTIONS",
-          payload: { pdfId: "1" },
+          payload: { documentId: "1" },
         });
       }
     );
@@ -477,7 +477,7 @@ describe("reducerAsyncActionHandlers", () => {
         await handler({
           type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
           payload: {
-            pdfId: "1",
+            documentId: "1",
           },
         });
 
@@ -487,15 +487,15 @@ describe("reducerAsyncActionHandlers", () => {
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
           type: "REMOVE_ALL_REDACTIONS",
-          payload: { pdfId: "1" },
+          payload: { documentId: "1" },
         });
         expect(dispatchMock.mock.calls[1][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
-          payload: { pdfId: "1", lockedState: "unlocking" },
+          payload: { documentId: "1", lockedState: "unlocking" },
         });
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
-          payload: { pdfId: "1", lockedState: "unlocked" },
+          payload: { documentId: "1", lockedState: "unlocked" },
         });
       }
     );
@@ -533,8 +533,8 @@ describe("reducerAsyncActionHandlers", () => {
 
       jest
         .spyOn(mapRedactionSaveRequest, "mapRedactionSaveRequest")
-        .mockImplementation((pdfId, redactions) => {
-          if (pdfId === "1" && redactions === redactionHighlights) {
+        .mockImplementation((documentId, redactions) => {
+          if (documentId === "1" && redactions === redactionHighlights) {
             return mockRedactionSaveRequest;
           }
           throw new Error(
@@ -554,7 +554,7 @@ describe("reducerAsyncActionHandlers", () => {
       await handler({
         type: "SAVE_REDACTIONS",
         payload: {
-          pdfId: "1",
+          documentId: "1",
         },
       });
 

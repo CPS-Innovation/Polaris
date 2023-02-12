@@ -242,7 +242,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: { pdfId: "2" },
+        payload: { documentId: "2" },
       });
     });
 
@@ -265,7 +265,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "REQUEST_OPEN_PDF",
-        payload: { tabSafeId: "1", pdfId: "2", mode: "read" },
+        payload: { tabSafeId: "1", documentId: "2", mode: "read" },
       });
     });
 
@@ -286,7 +286,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { pdfId: "2", redaction: { type: "redaction" } },
+        payload: { documentId: "2", redaction: { type: "redaction" } },
       });
     });
 
@@ -310,7 +310,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
-        payload: { pdfId: "2", redactionId: "baz" },
+        payload: { documentId: "2", redactionId: "baz" },
       });
     });
 
@@ -331,7 +331,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
-        payload: { pdfId: "2" },
+        payload: { documentId: "2" },
       });
     });
 
@@ -352,7 +352,7 @@ describe("useCaseDetailsState", () => {
 
       expect(mockHandler).toBeCalledWith({
         type: "SAVE_REDACTIONS",
-        payload: { pdfId: "2" },
+        payload: { documentId: "2" },
       });
     });
   });

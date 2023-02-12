@@ -340,7 +340,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "OPEN_PDF_IN_NEW_TAB",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             sasUrl: "baz",
           },
         }
@@ -369,7 +369,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "OPEN_PDF",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             tabSafeId: "t1",
             mode: "read",
             headers: { Authorization: "bar", "Correlation-Id": "bar1" },
@@ -428,7 +428,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "OPEN_PDF",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             tabSafeId: "t1",
             mode: "read",
             headers: {
@@ -485,7 +485,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "OPEN_PDF",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             tabSafeId: "t1",
             mode: "read",
             headers: {
@@ -533,7 +533,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: "1",
+              documentId: "1",
               tabSafeId: "t1",
               mode: "read",
               headers: {
@@ -577,7 +577,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: "1",
+              documentId: "1",
               tabSafeId: "t1",
               mode: "search",
               headers: {
@@ -658,7 +658,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: "1",
+              documentId: "1",
               tabSafeId: "t1",
               mode: "search",
               headers: {
@@ -782,7 +782,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: "1",
+              documentId: "1",
               tabSafeId: "t1",
               mode: "read",
               headers: {
@@ -895,7 +895,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: "1",
+              documentId: "1",
               tabSafeId: "t1",
               mode: "search",
               headers: {
@@ -1614,7 +1614,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "ADD_REDACTION",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             redaction: {
               type: "redaction",
               position: { pageNumber: 1 },
@@ -1678,7 +1678,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "REMOVE_REDACTION",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             redactionId: "1640995200000",
           },
         }
@@ -1743,7 +1743,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "REMOVE_ALL_REDACTIONS",
           payload: {
-            pdfId: "1",
+            documentId: "1",
           },
         }
       );
@@ -1791,7 +1791,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: {
-            pdfId: "1",
+            documentId: "1",
             lockedState: "locked",
           },
         }
