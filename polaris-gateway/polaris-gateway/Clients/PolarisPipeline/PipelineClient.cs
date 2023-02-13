@@ -33,22 +33,22 @@ namespace PolarisGateway.Clients.PolarisPipeline
             _logger = logger;
         }
 
-        public async Task TriggerCoordinatorAsync(string caseUrn, int caseId, string accessToken, string cmsAuthValues, bool force, Guid correlationId)
+        public async Task TriggerCoordinatorAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(TriggerCoordinatorAsync), $"CaseId: {caseId}, Force?: {force}");
             var forceQuery = force ? "&&force=true" : string.Empty;
             _logger.LogMethodExit(correlationId, nameof(TriggerCoordinatorAsync), string.Empty);
-            await SendGetRequestAsync($"cases/{caseUrn}/{caseId}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}{forceQuery}", accessToken, cmsAuthValues, correlationId);
+            await SendGetRequestAsync($"cases/{caseUrn}/{caseId}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}{forceQuery}", cmsAuthValues, correlationId);
         }
 
-        public async Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, string accessToken, Guid correlationId)
+        public async Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Acquiring the tracker for caseId {caseId}");
 
             HttpResponseMessage response;
             try
             {
-                response = await SendGetRequestAsync($"cases/{caseUrn}/{caseId}/tracker?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", accessToken, correlationId);
+                response = await SendGetRequestAsync($"cases/{caseUrn}/{caseId}/tracker?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -66,11 +66,11 @@ namespace PolarisGateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<Tracker>(stringContent, correlationId);
         }
 
-        private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, string accessToken, Guid correlationId)
+        private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendGetRequestAsync), requestUri);
 
-            var request = _pipelineClientRequestFactory.CreateGet(requestUri, accessToken, correlationId);
+            var request = _pipelineClientRequestFactory.CreateGet(requestUri, correlationId);
             var response = await _httpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();
@@ -79,11 +79,11 @@ namespace PolarisGateway.Clients.PolarisPipeline
             return response;
         }
 
-        private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, string accessToken, string cmsAuthValues, Guid correlationId)
+        private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendGetRequestAsync), requestUri);
 
-            var request = _pipelineClientRequestFactory.CreateGet(requestUri, accessToken, cmsAuthValues, correlationId);
+            var request = _pipelineClientRequestFactory.CreateGet(requestUri, cmsAuthValues, correlationId);
             var response = await _httpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();

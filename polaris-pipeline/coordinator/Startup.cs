@@ -6,7 +6,6 @@ using Common.Constants;
 using Common.Domain.Responses;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Handlers;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.DocumentExtractionService;
@@ -51,7 +50,6 @@ namespace coordinator
 
                 return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
             });
-            builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IIdentityClientAdapter, IdentityClientAdapter>();
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();

@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Clients.PolarisPipeline;
 using System;
 using System.Net.Http;
@@ -20,18 +18,13 @@ namespace PolarisGateway.Functions.PolarisPipeline
 {
     public class PolarisPipelineGetTracker : BasePolarisFunction
     {
-        private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly IPipelineClient _pipelineClient;
-        private readonly IConfiguration _configuration;
         private readonly ILogger<PolarisPipelineGetTracker> _logger;
 
-        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, IPipelineClient pipelineClient,
-                                 IConfiguration configuration, IAuthorizationValidator tokenValidator)
+        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger, IPipelineClient pipelineClient, IAuthorizationValidator tokenValidator)
         : base(logger, tokenValidator)
         {
-            _onBehalfOfTokenClient = onBehalfOfTokenClient;
             _pipelineClient = pipelineClient;
-            _configuration = configuration;
             _logger = logger;
         }
 
@@ -59,12 +52,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 // if (!int.TryParse(caseId, out _))
                 //     return BadRequestErrorResponse("Invalid case id. A 32-bit integer is required.", currentCorrelationId, loggingName);
 
-                var coordinatorScope = _configuration[ConfigurationKeys.PipelineCoordinatorScope];
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {coordinatorScope}");
-                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), coordinatorScope, currentCorrelationId);
-
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting tracker details for caseId {caseId}");
-                tracker = await _pipelineClient.GetTrackerAsync(urn, caseId, onBehalfOfAccessToken, currentCorrelationId);
+                tracker = await _pipelineClient.GetTrackerAsync(urn, caseId, currentCorrelationId);
 
                 return tracker == null ? NotFoundErrorResponse($"No tracker found for case Urn '{urn}', case id '{caseId}'.", currentCorrelationId, loggingName) : new OkObjectResult(tracker);
             }

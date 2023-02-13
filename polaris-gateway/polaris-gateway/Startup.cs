@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 // using PolarisGateway.Clients.DocumentExtraction;
 // using PolarisGateway.Clients.DocumentRedaction;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
@@ -44,7 +43,6 @@ namespace PolarisGateway
             {
                 configuration.GetSection("searchClient").Bind(settings);
             });
-            builder.Services.AddTransient<IOnBehalfOfTokenClient, OnBehalfOfTokenClient>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();

@@ -34,7 +34,7 @@ namespace PolarisGateway.Clients.PolarisPipeline
             _logger = logger;
         }
 
-        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, string accessToken, Guid correlationId)
+        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
             
@@ -42,7 +42,7 @@ namespace PolarisGateway.Clients.PolarisPipeline
             try
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
-                response = await SendPutRequestAsync($"redactPdf?code={_configuration[ConfigurationKeys.PipelineRedactPdfFunctionAppKey]}", accessToken, requestMessage, correlationId);
+                response = await SendPutRequestAsync($"redactPdf?code={_configuration[ConfigurationKeys.PipelineRedactPdfFunctionAppKey]}", requestMessage, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -60,11 +60,11 @@ namespace PolarisGateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<RedactPdfResponse>(stringContent, correlationId);
         }
 
-        private async Task<HttpResponseMessage> SendPutRequestAsync(string requestUri, string accessToken, HttpContent requestMessage, Guid correlationId)
+        private async Task<HttpResponseMessage> SendPutRequestAsync(string requestUri, HttpContent requestMessage, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendPutRequestAsync), requestUri);
             
-            var request = _pipelineClientRequestFactory.CreatePut(requestUri, accessToken, correlationId);
+            var request = _pipelineClientRequestFactory.CreatePut(requestUri, correlationId);
             request.Content = requestMessage;
             var response = await _httpClient.SendAsync(request);
 

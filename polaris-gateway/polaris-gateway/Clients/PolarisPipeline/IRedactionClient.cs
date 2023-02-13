@@ -6,6 +6,6 @@ namespace PolarisGateway.Clients.PolarisPipeline
 {
     public interface IRedactionClient
     {
-        Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, string accessToken, Guid correlationId);
+        Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, Guid correlationId);
     }
 }

@@ -6,7 +6,6 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
-using Common.Handlers;
 using coordinator.Domain;
 using coordinator.Functions;
 using FluentAssertions;
@@ -24,9 +23,6 @@ namespace coordinator.tests.Functions
         private readonly int _caseIdNum;
         private readonly string _caseId;
         private readonly string _instanceId;
-        private readonly string _accessToken;
-        private readonly string _cmsAuthValues;
-        private readonly Guid _correlationId;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpRequestHeaders _httpRequestHeaders;
         private readonly HttpResponseMessage _httpResponseMessage;
@@ -42,9 +38,8 @@ namespace coordinator.tests.Functions
             _caseUrn = _fixture.Create<string>();
             _caseIdNum = _fixture.Create<int>();
             _caseId = _caseIdNum.ToString();
-            _accessToken = _fixture.Create<string>();
-            _cmsAuthValues = _fixture.Create<string>();
-            _correlationId = _fixture.Create<Guid>();
+            var cmsAuthValues = _fixture.Create<string>();
+            var correlationId = _fixture.Create<Guid>();
             _instanceId = _caseId;
             _httpRequestMessage = new HttpRequestMessage();
             _httpRequestMessage.RequestUri = new Uri("https://www.test.co.uk");
@@ -53,11 +48,9 @@ namespace coordinator.tests.Functions
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
             _mockLogger = new Mock<ILogger<CoordinatorStart>>();
-            var mockAuthorizationValidator = new Mock<IAuthorizationValidator>();
-
-            _httpRequestHeaders.Add(HttpHeaderKeys.Authorization, $"Bearer {_accessToken}");
-            _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestHeaders.Add("cms-auth-values", _cmsAuthValues);
+            
+            _httpRequestHeaders.Add("Correlation-Id", correlationId.ToString());
+            _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 
             _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
                .ReturnsAsync(default(DurableOrchestrationStatus));
@@ -65,26 +58,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequestMessage, _instanceId, false))
                 .Returns(_httpResponseMessage);
 
-            mockAuthorizationValidator.Setup(x => x.ValidateTokenAsync(It.IsNotNull<AuthenticationHeaderValue>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new Tuple<bool, string>(true, _accessToken));
-            mockAuthorizationValidator.Setup(x => x.ValidateTokenAsync(null, It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new Tuple<bool, string>(false, string.Empty));
-
-            _coordinatorStart = new CoordinatorStart(_mockLogger.Object, mockAuthorizationValidator.Object);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsUnauthorizedWhenAuthorizationHeaderIsMissing()
-        {
-            _httpRequestHeaders.Clear();
-            _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
-            _httpRequestHeaders.Add("cms-auth-values", _cmsAuthValues);
-            //_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<UnauthorizedException>()))
-            //     .Returns(new HttpResponseMessage(HttpStatusCode.Unauthorized));
-
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            _coordinatorStart = new CoordinatorStart(_mockLogger.Object);
         }
 
         [Fact]
@@ -155,7 +129,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(CoordinatorOrchestrator),
                     _instanceId,
-                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false && p.AccessToken == _accessToken)));
+                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false)));
         }
 
         [Theory]
@@ -173,7 +147,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(CoordinatorOrchestrator),
                     _instanceId,
-                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false && p.AccessToken == _accessToken)));
+                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false)));
         }
 
         [Fact]
@@ -222,7 +196,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(CoordinatorOrchestrator),
                     _caseId,
-                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false && p.AccessToken == _accessToken)),
+                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false)),
                 Times.Never);
         }
 

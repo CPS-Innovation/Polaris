@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using PolarisGateway.CaseDataImplementations.Ddei.Options;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Logging;
@@ -24,17 +23,15 @@ namespace PolarisGateway.Functions.CaseData
 {
     public class CaseDataApiCaseInformationByUrn : BasePolarisFunction
     {
-        private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly ICaseDataService _caseDataService;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly ILogger<CaseDataApiCaseInformationByUrn> _logger;
         private readonly DdeiOptions _ddeiOptions;
 
-        public CaseDataApiCaseInformationByUrn(ILogger<CaseDataApiCaseInformationByUrn> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, ICaseDataService caseDataService,
+        public CaseDataApiCaseInformationByUrn(ILogger<CaseDataApiCaseInformationByUrn> logger, ICaseDataService caseDataService,
                                  IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
         : base(logger, tokenValidator)
         {
-            _onBehalfOfTokenClient = onBehalfOfTokenClient;
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
@@ -66,12 +63,8 @@ namespace PolarisGateway.Functions.CaseData
                 if (string.IsNullOrEmpty(urn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
-                var ddeiScope = _ddeiOptions.DefaultScope;
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
-                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
-
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{urn}'");
-                var urnArg = _caseDataArgFactory.CreateUrnArg(onBehalfOfAccessToken, cmsAuthValues, currentCorrelationId, urn);
+                var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, urn);
                 caseInformation = await _caseDataService.ListCases(urnArg);
 
                 if (caseInformation != null && caseInformation.Any())

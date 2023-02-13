@@ -22,13 +22,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "OnBehalfOfTokenTenantId"                  = data.azurerm_client_config.current.tenant_id
-    "OnBehalfOfTokenClientId"                  = module.azurerm_app_reg_fa_polaris.client_id
-    "OnBehalfOfTokenClientSecret"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "PolarisPipelineCoordinatorBaseUrl"        = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorScope"          = "api://fa-${local.pipeline_resource_name}-coordinator/user_impersonation"
     "PolarisPipelineCoordinatorFunctionAppKey" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
-    "PolarisPipelineRedactPdfScope"            = "api://fa-${local.pipeline_resource_name}-pdf-generator/user_impersonation"
     "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.pipeline_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"   = data.azurerm_function_app_host_keys.fa_pipeline_pdf_generator_host_keys.default_function_key
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
@@ -43,7 +38,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidRoles"                     = var.polaris_webapp_details.valid_roles
     "Ddei__BaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "Ddei__AccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key,
-    "Ddei__DefaultScope"                       = "api://fa-${local.ddei_resource_name}/user_impersonation"
   }
 
   site_config {

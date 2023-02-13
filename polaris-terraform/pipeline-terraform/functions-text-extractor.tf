@@ -25,8 +25,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
     "BlobServiceUrl"                           = azurerm_storage_account.sa.primary_blob_endpoint
-    "CallingAppTenantId"                       = data.azurerm_client_config.current.tenant_id
-    "CallingAppValidAudience"                  = "api://fa-${local.resource_name}-text-extractor"
     "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
     "ComputerVisionClientServiceUrl"           = azurerm_cognitive_account.computer_vision_service.endpoint
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
