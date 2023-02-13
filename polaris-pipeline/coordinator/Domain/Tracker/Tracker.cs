@@ -57,7 +57,7 @@ namespace coordinator.Domain.Tracker
             if (Documents.Count == 0) //no documents yet loaded in the tracker for this case, grab them all
             {
                 Documents = arg.IncomingDocuments
-                    .Select(item => new TrackerDocument(item.DocumentId, item.VersionId, item.OriginalFileName))
+                    .Select(item => CreateTrackerDocument(item))
                     .ToList();
                 Log(LogType.RegisteredDocumentIds);
             }
@@ -66,15 +66,15 @@ namespace coordinator.Domain.Tracker
                 //remove any documents that are no longer present in the list retrieved from CMS from the tracker so they are no reprocessed
                 foreach (var trackedDocument in 
                          Documents.Where(trackedDocument => 
-                             !arg.IncomingDocuments.Exists(x => x.DocumentId == trackedDocument.DocumentId && x.VersionId == trackedDocument.VersionId)))
+                             !arg.IncomingDocuments.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
                 {
-                    evaluationResults.DocumentsToRemove.Add(new DocumentToRemove(trackedDocument.DocumentId, trackedDocument.VersionId));
+                    evaluationResults.DocumentsToRemove.Add(new DocumentToRemove(trackedDocument.CmsDocumentId, trackedDocument.CmsVersionId));
                 }
                 
                 //now remove any invalid documents from the tracker so they are not reprocessed
                 foreach (var item in 
                          evaluationResults.DocumentsToRemove.Select(invalidDocument => 
-                             Documents.Find(x => x.DocumentId == invalidDocument.DocumentId && x.VersionId == invalidDocument.VersionId)))
+                             Documents.Find(x => x.CmsDocumentId == invalidDocument.DocumentId && x.CmsVersionId == invalidDocument.VersionId)))
                 {
                     Documents.Remove(item);
                 }
@@ -84,13 +84,19 @@ namespace coordinator.Domain.Tracker
                 foreach (var cmsDocument in from cmsDocument in 
                              arg.IncomingDocuments where !evaluationResults.DocumentsToRemove
                              .Exists(x => x.DocumentId == cmsDocument.DocumentId && x.VersionId == cmsDocument.VersionId) 
-                         let item = Documents.Find(x => x.DocumentId == cmsDocument.DocumentId) where item == null select cmsDocument)
+                         let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId) where item == null select cmsDocument)
                 {
-                    Documents.Add(new TrackerDocument(cmsDocument.DocumentId, cmsDocument.VersionId, cmsDocument.OriginalFileName));
+                    TrackerDocument trackerDocument = CreateTrackerDocument(cmsDocument);
+                    Documents.Add(trackerDocument);
                 }
             }
 
             return Task.CompletedTask;
+        }
+
+        private TrackerDocument CreateTrackerDocument(IncomingDocument document)
+        {
+            return new TrackerDocument(document.PolarisDocumentId, document.DocumentId, document.VersionId, document.CmsDocType, document.MimeType, document.CreatedDate, document.OriginalFileName);
         }
 
         public Task ProcessEvaluatedDocuments()
@@ -102,7 +108,7 @@ namespace coordinator.Domain.Tracker
         
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
             {
                 document.PdfBlobName = arg.BlobName;
@@ -116,7 +122,7 @@ namespace coordinator.Domain.Tracker
         
         public Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
             {
                 document.PdfBlobName = arg.BlobName;
@@ -130,7 +136,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterDocumentNotFoundInDDEI(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.NotFoundInDDEI;
             
@@ -141,7 +147,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterUnableToConvertDocumentToPdf(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.UnableToConvertToPdf;
 
@@ -152,7 +158,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterUnexpectedPdfDocumentFailure(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.UnexpectedFailure;
 
@@ -172,7 +178,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterIndexed(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.Indexed;
 
@@ -183,7 +189,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterOcrAndIndexFailure(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.OcrAndIndexFailure;
 

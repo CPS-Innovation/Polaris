@@ -31,17 +31,17 @@ namespace text_extractor
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+#if DEBUG
+                .AddJsonFile("mock-ocr.settings.json", optional: true, reloadOnChange: true)
+#endif 
                 .Build();
 
+
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddSingleton<IOcrService, OcrService>();
-            builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
+            BuildOcrService(builder, configuration);
+            BuildSearchIndexService(builder, configuration);
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
-            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
-            {
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri($"{configuration[ConfigKeys.SharedKeys.BlobServiceUrl]}"))
-                    .WithCredential(new DefaultAzureCredential());
-            });
+            BuildAzureClients(builder, configuration);
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequest>, ValidatorWrapper<ExtractTextRequest>>();
@@ -53,6 +53,60 @@ namespace text_extractor
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
+        }
+
+        private static void BuildAzureClients(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
+        {
+            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
+            {
+#if DEBUG
+                if (configuration.IsSettingEnabled(DebugSettings.UseAzureStorageEmulatorFlag))
+                {
+                    azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
+                        .WithCredential(new DefaultAzureCredential());
+                }
+                else
+                {
+                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
+                        .WithCredential(new DefaultAzureCredential());
+                }
+#else
+                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
+                    .WithCredential(new DefaultAzureCredential());
+#endif
+            });
+        }
+
+        private static void BuildOcrService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
+        {
+#if DEBUG
+            if (configuration.IsSettingEnabled(DebugSettings.MockOcrService))
+            {
+                builder.Services.AddSingleton<IOcrService, MockOcrService>();
+            }
+            else
+            {
+                builder.Services.AddSingleton<IOcrService, OcrService>();
+            }
+#else
+            builder.Services.AddSingleton<IOcrService, OcrService>();
+#endif
+        }
+
+        private static void BuildSearchIndexService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
+        {
+#if DEBUG
+            if (configuration.IsSettingEnabled(DebugSettings.MockOcrService))
+            {
+                builder.Services.AddSingleton<ISearchIndexService, MockSearchIndexService>();
+            }
+            else
+            {
+                builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
+            }
+#else
+            builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
+#endif
         }
     }
 }

@@ -126,7 +126,7 @@ namespace pdf_generator.Functions
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
                 var onBehalfOfAccessToken = await _identityClientAdapter.GetClientAccessTokenAsync(ddeiScope, currentCorrelationId);
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Retrieving Document from Cde for documentId: '{pdfRequest.DocumentId}'");
+                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Retrieving Document with documentId: '{pdfRequest.DocumentId}'");
 
                 var documentStream = await _documentExtractionService.GetDocumentAsync(pdfRequest.CaseUrn, pdfRequest.CaseId.ToString(), pdfRequest.DocumentCategory,
                     pdfRequest.DocumentId, onBehalfOfAccessToken, cmsAuthValues, currentCorrelationId);

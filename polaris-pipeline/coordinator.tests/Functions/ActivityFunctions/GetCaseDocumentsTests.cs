@@ -15,7 +15,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 {
     public class GetCaseDocumentsTests
     {
-        private readonly Case _case;
+        private readonly CmsCase _case;
         private readonly GetCaseDocumentsActivityPayload _payload;
 
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
@@ -26,7 +26,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
         {
             var fixture = new Fixture();
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
-            _case = fixture.Create<Case>();
+            _case = fixture.Create<CmsCase>();
 
             var mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();

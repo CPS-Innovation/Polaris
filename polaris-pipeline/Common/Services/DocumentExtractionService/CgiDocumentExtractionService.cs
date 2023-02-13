@@ -29,7 +29,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
     }
 
     [ExcludeFromCodeCoverage]
-    public Task<CaseDocument[]> ListDocumentsAsync(string caseId, string accessToken, Guid correlationId)
+    public Task<CmsCaseDocument[]> ListDocumentsAsync(string caseId, string accessToken, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(ListDocumentsAsync), caseId);
 
@@ -56,14 +56,14 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
     }
     
     [ExcludeFromCodeCoverage]
-    private static Case McLoveCase(string caseId)
+    private static CmsCase McLoveCase(string caseId)
     {
-        return new Case
+        return new CmsCase
         {
             CaseId = caseId,
             CaseDocuments = new[]
             {
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG12",
                     VersionId = VersionIdPlaceholder,
@@ -74,7 +74,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG12 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "stmt Shelagh McLove MG11",
                     VersionId = VersionIdPlaceholder,
@@ -85,7 +85,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG11 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG00",
                     VersionId = VersionIdPlaceholder,
@@ -96,7 +96,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG00 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "stmt JONES 1989 1 JUNE mg11",
                     VersionId = VersionIdPlaceholder,
@@ -107,7 +107,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG11 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG20 10 JUNE",
                     VersionId = VersionIdPlaceholder,
@@ -118,7 +118,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG20 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "UNUSED 1 - STORM LOG 1881 01.6.20 - EDITED 2020-11-23 MCLOVE",
                     VersionId = VersionIdPlaceholder,
@@ -129,7 +129,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG11 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "Shelagh McLove VPS mg11",
                     VersionId = VersionIdPlaceholder,
@@ -140,7 +140,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG11 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "UNUSED 6 - DA CHECKLIST MCLOVE",
                     VersionId = VersionIdPlaceholder,
@@ -151,7 +151,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG6 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG0",
                     VersionId = VersionIdPlaceholder,
@@ -162,7 +162,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG0 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG06 3 June",
                     VersionId = VersionIdPlaceholder,
@@ -173,7 +173,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG06 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "SDC items to be Disclosed (1-6) MCLOVE",
                     VersionId = VersionIdPlaceholder,
@@ -184,7 +184,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG11 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "stmt BLAYNEE 2034 1 JUNE mg11",
                     VersionId = VersionIdPlaceholder,
@@ -195,7 +195,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG11 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "PRE CONS D",
                     VersionId = VersionIdPlaceholder,
@@ -206,7 +206,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG00 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG05 MCLOVE",
                     VersionId = VersionIdPlaceholder,
@@ -217,7 +217,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG05 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG20 5 JUNE",
                     VersionId = VersionIdPlaceholder,
@@ -228,7 +228,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG20 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG02 SHELAGH MCLOVE",
                     VersionId = VersionIdPlaceholder,
@@ -239,7 +239,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG02 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MG06 10 june",
                     VersionId = VersionIdPlaceholder,
@@ -250,7 +250,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG06 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "stmt Lucy Doyle MG11",
                     VersionId = VersionIdPlaceholder,
@@ -261,7 +261,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG11 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "MCLOVE MG3",
                     VersionId = VersionIdPlaceholder,
@@ -277,14 +277,14 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
     }
 
     [ExcludeFromCodeCoverage]
-    private static Case MultipleFileTypeCase(string caseId)
+    private static CmsCase MultipleFileTypeCase(string caseId)
     {
-        return new Case
+        return new CmsCase
         {
             CaseId = caseId,
             CaseDocuments = new[]
             {
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "docCDE",
                     VersionId = VersionIdPlaceholder,
@@ -295,7 +295,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                         DocumentCategory = "MG0 File"
                     }
                 },
-                new CaseDocument
+                new CmsCaseDocument
                 {
                     DocumentId = "docxCDE",
                     VersionId = VersionIdPlaceholder,
@@ -306,7 +306,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "docmCDE",
                 VersionId = VersionIdPlaceholder,
@@ -317,7 +317,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "xlsxCDE",
                 VersionId = VersionIdPlaceholder,
@@ -328,7 +328,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "xlsCDE",
                 VersionId = VersionIdPlaceholder,
@@ -339,7 +339,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "pptCDE",
                 VersionId = VersionIdPlaceholder,
@@ -350,7 +350,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "pptxCDE",
                 VersionId = VersionIdPlaceholder,
@@ -361,7 +361,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "htmlCDE",
                 VersionId = VersionIdPlaceholder,
@@ -372,7 +372,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "msgCDE",
                 VersionId = VersionIdPlaceholder,
@@ -383,7 +383,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "vsdCDE",
                 VersionId = VersionIdPlaceholder,
@@ -394,7 +394,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "bmpCDE",
                 VersionId = VersionIdPlaceholder,
@@ -405,7 +405,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "gifCDE",
                 VersionId = VersionIdPlaceholder,
@@ -416,7 +416,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "jpgCDE",
                 VersionId = VersionIdPlaceholder,
@@ -427,7 +427,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "pngCDE",
                 VersionId = VersionIdPlaceholder,
@@ -438,7 +438,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "tiffCDE",
                 VersionId = VersionIdPlaceholder,
@@ -449,7 +449,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "rtfCDE",
                 VersionId = VersionIdPlaceholder,
@@ -460,7 +460,7 @@ public class CgiDocumentExtractionService : BaseDocumentExtractionService, ICgiD
                     DocumentCategory = "MG0 File"
                 }
             },
-            new CaseDocument
+            new CmsCaseDocument
             {
                 DocumentId = "txtCDE",
                 VersionId = VersionIdPlaceholder,

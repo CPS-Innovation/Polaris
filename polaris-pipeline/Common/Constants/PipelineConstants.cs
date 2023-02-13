@@ -56,6 +56,17 @@
     {
     }
 
+#if DEBUG
+    public static class DebugSettings
+    {
+        public const string UseAzureStorageEmulatorFlag = "POLARIS_AZURE_STORAGE_EMULATOR";
+        public const string MockOnBehalfOfTokenClient = "POLARIS_MOCK_ON_BEHALF_OF_TOKEN_CLIENT";
+        public const string MockOcrService = "POLARIS_MOCK_OCR_SERVICE";
+        public const string MockSearchIndexService = "POLARIS_MOCK_SEARCH_INDEX_SERVICE";
+        public const string MockTokenValidation= "POLARIS_PIPELINE_MOCK_TOKEN_VALIDATION";
+    }
+#endif
+
     public static class ConfigKeys
     {
         public static class CoordinatorKeys
@@ -91,6 +102,9 @@
             public const string ClientId = "OnBehalfOfTokenClientId";
             public const string ClientSecret = "OnBehalfOfTokenClientSecret";
             public const string DdeiScope = "DdeiScope";
+#if DEBUG
+            public const string BlobServiceConnectionString = nameof(BlobServiceConnectionString);
+#endif
         }
     }
 }

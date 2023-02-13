@@ -13,6 +13,9 @@ using Common.Constants;
 using Common.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Azure.Core.Extensions;
+using Azure.Identity;
+using Common.Configuration;
 
 namespace Common.Handlers
 {
@@ -33,23 +36,24 @@ namespace Common.Handlers
         public async Task<Tuple<bool, string>> ValidateTokenAsync(AuthenticationHeaderValue authenticationHeader, Guid correlationId, string requiredScopes = null, string requiredRoles = null)
         {
             _log.LogMethodEntry(correlationId, nameof(ValidateTokenAsync), string.Empty);
+
+#if DEBUG
+            if (_configuration.IsSettingEnabled(DebugSettings.MockTokenValidation))
+            {
+                _log.LogMethodFlow(correlationId, nameof(ValidateTokenAsync), "In debug mode... bypassing authentication checks...");
+                return new Tuple<bool, string>(true, $"{nameof(AuthorizationValidator)}.{nameof(ValidateTokenAsync)}.Mock-Token");
+            }
+#endif
+
             _correlationId = correlationId;
             
             if (authenticationHeader == null) return new Tuple<bool, string>(false, string.Empty);
             if (string.IsNullOrEmpty(authenticationHeader.Parameter)) throw new ArgumentNullException(nameof(authenticationHeader));
 
-            /*var isLocal = string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ConfigKeys.SharedKeys.WebsiteInstanceId));
-            if (isLocal)
-            {
-                _log.LogMethodFlow(correlationId, nameof(ValidateTokenAsync), "In debug mode... bypassing authentication checks...");
-                return new Tuple<bool, string>(true, authenticationHeader.Parameter);
-            }*/
-            
             var issuer = $"https://sts.windows.net/{_configuration[ConfigKeys.SharedKeys.CallingAppTenantId]}/";
             var audience = _configuration[ConfigKeys.SharedKeys.CallingAppValidAudience];
             var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(issuer + "/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever(),
                 new HttpDocumentRetriever());
-
             
             var discoveryDocument = await configurationManager.GetConfigurationAsync(default);
             var signingKeys = discoveryDocument.SigningKeys;

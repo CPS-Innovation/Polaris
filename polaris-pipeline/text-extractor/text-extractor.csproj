@@ -38,13 +38,16 @@
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="mock-ocr.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
     <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\OcrService\" />
     <Folder Include="Handlers\" />
     <Folder Include="Services\SasGeneratorService\" />
     <Folder Include="Domain\Exceptions\" />
