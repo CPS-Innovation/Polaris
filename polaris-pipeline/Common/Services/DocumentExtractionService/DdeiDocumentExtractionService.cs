@@ -61,6 +61,5 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), results.ToJson());
 
         return results.ToArray();
-        //return results.Where(x => x.FileName.StartsWith("msgTestFile")).ToArray();
     }
 }

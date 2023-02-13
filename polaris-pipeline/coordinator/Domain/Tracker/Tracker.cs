@@ -96,7 +96,7 @@ namespace coordinator.Domain.Tracker
 
         private TrackerDocument CreateTrackerDocument(IncomingDocument document)
         {
-            return new TrackerDocument(document.PolarisDocumentId, document.DocumentId, document.VersionId, document.OriginalFileName);
+            return new TrackerDocument(document.PolarisDocumentId, document.DocumentId, document.VersionId, document.CmsDocType, document.MimeType, document.CreatedDate, document.OriginalFileName);
         }
 
         public Task ProcessEvaluatedDocuments()

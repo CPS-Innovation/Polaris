@@ -173,8 +173,19 @@ namespace coordinator.Functions
             IEnumerable<CmsCaseDocument> documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CaseId}");
-            var arg = new RegisterDocumentIdsArg(payload.CaseUrn, payload.CaseId,
-                documents.Select(item => new IncomingDocument(context.NewGuid(), item.DocumentId, item.VersionId, item.FileName)).ToList(), payload.CorrelationId);
+            List<IncomingDocument> incomingDocuments
+                = documents
+                    .Select(item => new IncomingDocument(polarisDocumentId: context.NewGuid(),
+                                                         documentId: item.DocumentId,
+                                                         versionId: item.VersionId,
+                                                         originalFileName: item.FileName,
+                                                         mimeType: item.MimeType,
+                                                         cmsDocType : item.CmsDocType,
+                                                         createdDate : item.DocumentDate
+                                                         )
+                           )
+                    .ToList();
+            var arg = new RegisterDocumentIdsArg(payload.CaseUrn, payload.CaseId, incomingDocuments, payload.CorrelationId);
             await tracker.RegisterDocumentIds(arg);
         }
     }
