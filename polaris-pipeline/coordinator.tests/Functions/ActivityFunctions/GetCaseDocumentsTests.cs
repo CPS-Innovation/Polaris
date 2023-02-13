@@ -35,7 +35,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
                 .Returns(_payload);
 
             mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CaseUrn, _payload.CaseId.ToString(),
-                    _payload.AccessToken, _payload.CmsAuthValues, _payload.CorrelationId))
+                    _payload.CmsAuthValues, _payload.CorrelationId))
                 .ReturnsAsync(_case.CaseDocuments);
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();

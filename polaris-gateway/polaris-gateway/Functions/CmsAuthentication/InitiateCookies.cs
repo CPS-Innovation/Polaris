@@ -1,29 +1,25 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using PolarisGateway.Services;
-using PolarisGateway.Domain.CaseData.Args;
-using PolarisGateway.Functions;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
-using PolarisGateway.Domain.Validators;
-using PolarisGateway.Domain.Exceptions;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway;
 using Microsoft.Extensions.Options;
 using PolarisGateway.CaseDataImplementations.Ddei.Options;
+using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.Domain.Exceptions;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories;
+using PolarisGateway.Services;
 
-namespace PolarisDDEI.Functions
+namespace PolarisGateway.Functions.CmsAuthentication
 {
     public class InitiateCookies : BasePolarisFunction
     {
         private readonly ILogger<InitiateCookies> _logger;
-        private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly IAuthorizationValidator _tokenValidator;
         private readonly ICmsModernTokenService _cmsModernTokenService;
 
@@ -32,7 +28,6 @@ namespace PolarisDDEI.Functions
 
         public InitiateCookies(
             ILogger<InitiateCookies> logger,
-            IOnBehalfOfTokenClient onBehalfOfTokenClient,
             IAuthorizationValidator tokenValidator,
             ICmsModernTokenService cmsModernTokenService,
             ICmsAuthValuesFactory cmsAuthValuesFactory,
@@ -40,7 +35,6 @@ namespace PolarisDDEI.Functions
          base(logger, tokenValidator)
         {
             _logger = logger;
-            _onBehalfOfTokenClient = onBehalfOfTokenClient;
             _tokenValidator = tokenValidator;
             _cmsModernTokenService = cmsModernTokenService;
             _cmsAuthValuesFactory = cmsAuthValuesFactory;

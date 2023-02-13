@@ -7,7 +7,6 @@ using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
-using Common.Handlers;
 using Common.Logging;
 using Common.Services.SearchIndexService.Contracts;
 using Common.Wrappers;
@@ -20,7 +19,6 @@ namespace text_extractor.Functions
 {
     public class ExtractText
     {
-        private readonly IAuthorizationValidator _authorizationValidator;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<ExtractTextRequest> _validatorWrapper;
         private readonly IOcrService _ocrService;
@@ -28,11 +26,10 @@ namespace text_extractor.Functions
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<ExtractText> _log;
 
-        public ExtractText(IAuthorizationValidator authorizationValidator, IJsonConvertWrapper jsonConvertWrapper,
+        public ExtractText(IJsonConvertWrapper jsonConvertWrapper,
              IValidatorWrapper<ExtractTextRequest> validatorWrapper, IOcrService ocrService,
              ISearchIndexService searchIndexService, IExceptionHandler exceptionHandler, ILogger<ExtractText> logger)
         {
-            _authorizationValidator = authorizationValidator;
             _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;
             _ocrService = ocrService;
@@ -59,11 +56,6 @@ namespace text_extractor.Functions
                             correlationId);
 
                 _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
-
-                var authValidation = await _authorizationValidator.ValidateTokenAsync(request.Headers.Authorization, currentCorrelationId,
-                    PipelineScopes.EmptyScope, PipelineRoles.ExtractText);
-                if (!authValidation.Item1)
-                    throw new UnauthorizedException("Token validation failed");
 
                 if (request.Content == null)
                     throw new BadRequestException("Request body has no content", nameof(request));

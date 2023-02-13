@@ -11,7 +11,6 @@ using Common.Domain.Responses;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Handlers;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.BlobStorageService;
@@ -98,7 +97,6 @@ namespace pdf_generator
             builder.Services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
             builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequest>, ValidatorWrapper<GeneratePdfRequest>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
 

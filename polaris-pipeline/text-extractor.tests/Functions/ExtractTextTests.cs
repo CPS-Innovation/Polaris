@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Common.Domain.Exceptions;
 using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
-using Common.Handlers;
 using Common.Services.SearchIndexService.Contracts;
 using Common.Wrappers;
 using FluentAssertions;
@@ -32,7 +30,6 @@ namespace text_extractor.tests.Functions
 		private readonly ExtractTextRequest _extractTextRequest;
 		private HttpResponseMessage _errorHttpResponseMessage;
 		
-		private readonly Mock<IAuthorizationValidator> _mockAuthorizationValidator;
 		private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
 		private readonly Mock<IExceptionHandler> _mockExceptionHandler;
@@ -56,7 +53,6 @@ namespace text_extractor.tests.Functions
 			};
 			_extractTextRequest = _fixture.Create<ExtractTextRequest>();
 			
-			_mockAuthorizationValidator = new Mock<IAuthorizationValidator>();
 			_mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
 			_mockValidatorWrapper = new Mock<IValidatorWrapper<ExtractTextRequest>>();
 			var mockOcrService = new Mock<IOcrService>();
@@ -66,8 +62,6 @@ namespace text_extractor.tests.Functions
 
 			_correlationId = _fixture.Create<Guid>();
 
-			_mockAuthorizationValidator.Setup(handler => handler.ValidateTokenAsync(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
-				.ReturnsAsync(new Tuple<bool, string>(true, _fixture.Create<string>()));
 			_mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequest>(_serializedExtractTextRequest))
 				.Returns(_extractTextRequest);
 			_mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_extractTextRequest)).Returns(new List<ValidationResult>());
@@ -76,9 +70,7 @@ namespace text_extractor.tests.Functions
 
 			_mockLogger = new Mock<ILogger<ExtractText>>();
 
-			_extractText = new ExtractText(
-								_mockAuthorizationValidator.Object,
-								_mockJsonConvertWrapper.Object,
+			_extractText = new ExtractText(_mockJsonConvertWrapper.Object,
 								_mockValidatorWrapper.Object,
 								mockOcrService.Object,
 								_mockSearchIndexService.Object,
@@ -89,29 +81,11 @@ namespace text_extractor.tests.Functions
 		[Fact]
 		public async Task Run_ReturnsExceptionWhenCorrelationIdIsMissing()
 		{
-			_mockAuthorizationValidator.Setup(handler => handler.ValidateTokenAsync(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
-				.ReturnsAsync(new Tuple<bool, string>(false, string.Empty));
 			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized);
 			_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<ExtractText>>()))
 				.Returns(_errorHttpResponseMessage);
 			_httpRequestMessage.Content = new StringContent(" ");
 			
-			var response = await _extractText.Run(_httpRequestMessage);
-
-			response.Should().Be(_errorHttpResponseMessage);
-		}
-
-		[Fact]
-		public async Task Run_ReturnsUnauthorizedWhenUnauthorized()
-		{
-			_mockAuthorizationValidator.Setup(handler => handler.ValidateTokenAsync(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
-				.ReturnsAsync(new Tuple<bool, string>(false, string.Empty));
-			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-			_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<UnauthorizedException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-				.Returns(_errorHttpResponseMessage);
-			_httpRequestMessage.Content = new StringContent(" ");
-			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-
 			var response = await _extractText.Run(_httpRequestMessage);
 
 			response.Should().Be(_errorHttpResponseMessage);

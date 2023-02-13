@@ -47,7 +47,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
                 Method = HttpMethod.Put
             };
 
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Returns(httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>())).Returns(httpRequestMessage);
 
             var redactPdfResponse = _fixture.Create<RedactPdfResponse>();
             var redactPdfResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -73,21 +73,17 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         [Fact]
         public async Task RedactPdf_CreatesTheRequestCorrectly()
         {
-            var accessToken = _fixture.Create<string>();
-            
-            await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
+            await _redactionClient.RedactPdfAsync(_request, _correlationId);
 
-            _mockRequestFactory.Verify(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", accessToken, _correlationId));
+            _mockRequestFactory.Verify(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", _correlationId));
         }
 
         [Fact]
         public async Task RedactPdf_WhenHttpRequestExceptionThrown_IsCaughtAsException()
         {
-            var accessToken = _fixture.Create<string>();
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>())).Throws<Exception>();
 
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws<Exception>();
-
-            var results = async() => await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
+            var results = async() => await _redactionClient.RedactPdfAsync(_request, _correlationId);
 
             await results.Should().ThrowAsync<Exception>();
         }
@@ -95,12 +91,10 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         [Fact]
         public async Task RedactPdf_WhenHttpRequestExceptionThrownAsNotFound_ReturnsNullResponse()
         {
-            var accessToken = _fixture.Create<string>();
-
             var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.NotFound);
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws(specificException);
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>())).Throws(specificException);
 
-            var results = await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
+            var results = await _redactionClient.RedactPdfAsync(_request, _correlationId);
 
             results.Should().BeNull();
         }
@@ -108,12 +102,10 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         [Fact]
         public async Task RedactPdf_WhenHttpRequestExceptionThrownAsSomethingOtherThanNotFound_IsRethrownAsException()
         {
-            var accessToken = _fixture.Create<string>();
-
             var specificException = new HttpRequestException(_fixture.Create<string>(), null, HttpStatusCode.UnprocessableEntity);
-            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<string>(), It.IsAny<Guid>())).Throws(specificException);
+            _mockRequestFactory.Setup(factory => factory.CreatePut($"redactPdf?code={_polarisPipelineRedactPdfFunctionAppKey}", It.IsAny<Guid>())).Throws(specificException);
 
-            var results = async () => await _redactionClient.RedactPdfAsync(_request, accessToken, _correlationId);
+            var results = async () => await _redactionClient.RedactPdfAsync(_request, _correlationId);
 
             await results.Should().ThrowAsync<Exception>();
         }

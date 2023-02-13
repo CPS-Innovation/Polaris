@@ -7,7 +7,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
@@ -15,29 +14,23 @@ using PolarisGateway.Extensions;
 using PolarisGateway.Services;
 using PolarisGateway.Factories;
 using System.Net;
-using Microsoft.Extensions.Options;
-using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using PolarisGateway.Domain.Exceptions;
 
 namespace PolarisGateway.Functions.CaseData
 {
     public class CaseDataApiCaseDocuments : BasePolarisFunction
     {
-        private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly ICaseDataService _caseDataService;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly ILogger<CaseDataApiCaseDocuments> _logger;
-        private readonly DdeiOptions _ddeiOptions;
 
-        public CaseDataApiCaseDocuments(ILogger<CaseDataApiCaseDocuments> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, ICaseDataService caseDataService,
-                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
+        public CaseDataApiCaseDocuments(ILogger<CaseDataApiCaseDocuments> logger, ICaseDataService caseDataService,
+                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory)
         : base(logger, tokenValidator)
         {
-            _onBehalfOfTokenClient = onBehalfOfTokenClient;
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
-            _ddeiOptions = options.Value;
         }
 
         [FunctionName("CaseDataApiCaseDocuments")]
@@ -68,12 +61,8 @@ namespace PolarisGateway.Functions.CaseData
                 if (!caseId.HasValue)
                     return BadRequestErrorResponse("CaseId is not supplied.", currentCorrelationId, loggingName);
 
-                var ddeiScope = _ddeiOptions.DefaultScope;
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
-                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
-
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case documents by Urn '{urn}' and CaseId '{caseId}'");
-                documents = await _caseDataService.ListDocuments(_caseDataArgFactory.CreateCaseArg(onBehalfOfAccessToken, cmsAuthValues, currentCorrelationId, urn, caseId.Value));
+                documents = await _caseDataService.ListDocuments(_caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, urn, caseId.Value));
 
                 if (documents != null)
                 {

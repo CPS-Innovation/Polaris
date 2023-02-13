@@ -12,8 +12,6 @@ public static class ConfigurationKeys
     public const string ValidAudience = "CallingAppValidAudience";
     public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
     public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
-    public const string PipelineCoordinatorScope = "PolarisPipelineCoordinatorScope";
-    public const string PipelineRedactPdfScope = "PolarisPipelineRedactPdfScope";
     public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
     public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
 }
@@ -22,7 +20,6 @@ public static class AuthenticationKeys
 {
     public const string Authorization = "Authorization";
     public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
-    public const string AzureAuthenticationAssertionType = "urn:ietf:params:oauth:grant-type:jwt-bearer";
     public const string Bearer = "Bearer";
 }
 
