@@ -16,6 +16,7 @@ import { Charges } from "./Charges";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
+import { CaseDetails } from "../../domain/CaseDetails";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -58,6 +59,23 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     //  (we are prepared to show page whilst waiting for docs to load though)
     return <WaitPage />;
   }
+
+  const checkMultipleDefendantsOrCharges = (caseDetails: CaseDetails) => {
+    const { defendants } = caseDetails;
+    if (defendants.length > 1) {
+      return true;
+    }
+
+    const { charges } = defendants[0];
+    if (charges.length > 1) {
+      return true;
+    }
+    return false;
+  };
+
+  const isMultipleDefendantsOrCharges = checkMultipleDefendantsOrCharges(
+    caseState.data
+  );
 
   return (
     <>
@@ -112,9 +130,14 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn}`}
           >
             <div>
-              <KeyDetails caseDetails={caseState.data} />
+              <KeyDetails
+                caseDetails={caseState.data}
+                isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+              />
 
-              <Charges caseDetails={caseState.data} />
+              {!isMultipleDefendantsOrCharges && (
+                <Charges caseDetails={caseState.data} />
+              )}
 
               <SearchBox
                 data-testid="search-case"

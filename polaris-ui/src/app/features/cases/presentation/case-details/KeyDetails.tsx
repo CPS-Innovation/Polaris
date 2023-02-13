@@ -4,11 +4,22 @@ import {
   getAgeFromIsoDate,
 } from "../../../../common/utils/dates";
 import { CaseDetails } from "../../domain/CaseDetails";
+import { LinkButton } from "../../../../../app/common/presentation/components/LinkButton";
 import classes from "./index.module.scss";
 
-export const KeyDetails: React.FC<{ caseDetails: CaseDetails }> = ({
-  caseDetails,
-}) => {
+export const KeyDetails: React.FC<{
+  caseDetails: CaseDetails;
+  isMultipleDefendantsOrCharges: boolean;
+}> = ({ caseDetails, isMultipleDefendantsOrCharges }) => {
+  const getOrderedDefendantsList = (caseDetails: CaseDetails) => {
+    const { defendants } = caseDetails;
+    defendants.sort(
+      (a, b) => a.defendantDetails.listOrder - b.defendantDetails.listOrder
+    );
+    return defendants;
+  };
+
+  const defendantsList = getOrderedDefendantsList(caseDetails);
   return (
     <div>
       <h1
@@ -18,20 +29,42 @@ export const KeyDetails: React.FC<{ caseDetails: CaseDetails }> = ({
         {caseDetails.uniqueReferenceNumber}
       </h1>
 
-      <div className={`govuk-heading-s`} data-testid="txt-defendant-name">
-        <div>
-          {caseDetails.leadDefendantDetails.surname},{" "}
-          {caseDetails.leadDefendantDetails.firstNames}
+      {isMultipleDefendantsOrCharges && (
+        <>
+          <ul className={classes.defendantsList}>
+            {defendantsList.map(({ defendantDetails }) => (
+              <li key={defendantDetails.id}>
+                {defendantDetails.surname}, {defendantDetails.firstNames}
+              </li>
+            ))}
+          </ul>
+          <LinkButton
+            data-testid="link-defendant-details"
+            className={classes.defendantDetailsLink}
+            onClick={() => {}}
+          >
+            {`View ${defendantsList.length} ${
+              defendantsList.length > 1 ? "defendants" : "defendant"
+            } and charges`}
+          </LinkButton>
+        </>
+      )}
+      {!isMultipleDefendantsOrCharges && (
+        <div className={`govuk-heading-s`} data-testid="txt-defendant-name">
+          <div>
+            {caseDetails.leadDefendantDetails.surname},{" "}
+            {caseDetails.leadDefendantDetails.firstNames}
+          </div>
+          <div className={`${classes.namesub}`}>
+            DOB:
+            {formatDate(
+              caseDetails.leadDefendantDetails.dob,
+              CommonDateTimeFormats.ShortDateTextMonth
+            )}
+            . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
+          </div>
         </div>
-        <div className={`${classes.namesub}`}>
-          DOB:
-          {formatDate(
-            caseDetails.leadDefendantDetails.dob,
-            CommonDateTimeFormats.ShortDateTextMonth
-          )}
-          . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
-        </div>
-      </div>
+      )}
     </div>
   );
 };
