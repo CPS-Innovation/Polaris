@@ -44,7 +44,7 @@ namespace coordinator.Functions
             var currentCaseId = payload.CaseId;
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
-            var tracker = GetTracker(context, payload.CaseUrn, payload.CaseId, payload.CorrelationId, log);
+            var tracker = CreateTracker(context, payload.CaseUrn, payload.CaseId, payload.CorrelationId, log);
 
             try
             {
@@ -135,14 +135,14 @@ namespace coordinator.Functions
             }
         }
 
-        private ITracker GetTracker(IDurableOrchestrationContext context, string caseUrn, long caseId, Guid correlationId, ILogger safeLoggerInstance)
+        private ITracker CreateTracker(IDurableOrchestrationContext context, string caseUrn, long caseId, Guid correlationId, ILogger safeLoggerInstance)
         {
-            safeLoggerInstance.LogMethodEntry(correlationId, nameof(GetTracker), $"CaseUrn: {caseUrn}, CaseId: {caseId.ToString()}");
+            safeLoggerInstance.LogMethodEntry(correlationId, nameof(CreateTracker), $"CaseUrn: {caseUrn}, CaseId: {caseId.ToString()}");
 
             var entityId = new EntityId(nameof(Tracker), caseId.ToString());
             var result = context.CreateEntityProxy<ITracker>(entityId);
 
-            safeLoggerInstance.LogMethodExit(correlationId, nameof(GetTracker), "n/a");
+            safeLoggerInstance.LogMethodExit(correlationId, nameof(CreateTracker), "n/a");
             return result;
         }
 
