@@ -30,9 +30,16 @@
   position: relative;
 }
 
+.chargesCustodyTime {
+  display: flex;
+  flex-direction: column;
+  font-weight: 700;
+  margin-top: 20px;
+}
 .charges {
   min-height: 200px;
   margin-top: 20px;
+  font-size: 16px;
   background-color: #1d70b8;
   color: white;
   padding: 20px;
