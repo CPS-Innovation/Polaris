@@ -117,33 +117,6 @@ module "azurerm_app_reg_fa_polaris" {
       id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
       type = "Scope"
     }]
-    },
-    {
-      # Coordinator
-      resource_app_id = data.azuread_application.fa_pipeline_coordinator.id
-      resource_access = [{
-        # User Impersonation Scope
-        id   = data.azuread_application.fa_pipeline_coordinator.oauth2_permission_scope_ids["user_impersonation"]
-        type = "Scope"
-      }]
-    },
-    {
-      # Pdf Generator
-      resource_app_id = data.azuread_application.fa_pipeline_pdf_generator.id
-      resource_access = [{
-        # User Impersonation Scope
-        id   = data.azuread_application.fa_pipeline_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]
-        type = "Scope"
-      }]
-    },
-    {
-      # DDEI
-      resource_app_id = data.azuread_application.fa_ddei.id
-      resource_access = [{
-        # User Impersonation Scope
-        id   = data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]
-        type = "Scope"
-      }]
   }]
   web = {
     redirect_uris = ["https://fa-${local.resource_name}-gateway.azurewebsites.net/.auth/login/aad/callback"]
@@ -168,41 +141,6 @@ module "azurerm_service_principal_sp_polaris_gateway" {
 
 resource "azuread_service_principal_password" "sp_polaris_gateway_pw" {
   service_principal_id = module.azurerm_service_principal_sp_polaris_gateway.object_id
-}
-
-resource "azuread_application_pre_authorized" "fapre_fa_coordinator" {
-  application_object_id = data.azuread_application.fa_pipeline_coordinator.object_id
-  authorized_app_id     = module.azurerm_app_reg_fa_polaris.client_id
-  permission_ids        = [data.azuread_application.fa_pipeline_coordinator.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on            = [module.azurerm_app_reg_fa_polaris]
-}
-
-resource "azuread_application_pre_authorized" "fapre_fa_pdf-generator" {
-  application_object_id = data.azuread_application.fa_pipeline_pdf_generator.object_id
-  authorized_app_id     = module.azurerm_app_reg_fa_polaris.client_id
-  permission_ids        = [data.azuread_application.fa_pipeline_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on            = [module.azurerm_app_reg_fa_polaris]
-}
-
-resource "azuread_application_pre_authorized" "fapre_fa_ddei" {
-  application_object_id = data.azuread_application.fa_ddei.object_id
-  authorized_app_id     = module.azurerm_app_reg_fa_polaris.client_id
-  permission_ids        = [data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on            = [module.azurerm_app_reg_fa_polaris]
-}
-
-resource "azuread_service_principal_delegated_permission_grant" "polaris_pdf_generator_grant_access" {
-  service_principal_object_id          = module.azurerm_service_principal_sp_polaris_gateway.object_id
-  resource_service_principal_object_id = data.azuread_service_principal.fa_pdf_generator_service_principal.object_id
-  claim_values                         = ["user_impersonation"]
-  depends_on                           = [module.azurerm_app_reg_fa_polaris]
-}
-
-resource "azuread_service_principal_delegated_permission_grant" "polaris_ddei_grant_access" {
-  service_principal_object_id          = module.azurerm_service_principal_sp_polaris_gateway.object_id
-  resource_service_principal_object_id = data.azuread_service_principal.fa_ddei_service_principal.object_id
-  claim_values                         = ["user_impersonation"]
-  depends_on                           = [module.azurerm_app_reg_fa_polaris]
 }
 
 # Create Private Endpoint
