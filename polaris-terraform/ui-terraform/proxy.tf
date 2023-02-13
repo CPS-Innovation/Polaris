@@ -29,19 +29,20 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       docker_image     = "nginx"
       docker_image_tag = "latest"
     }
-    always_on              = true
-    vnet_route_all_enabled = true
+    always_on                               = true
+    vnet_route_all_enabled                  = true
+    container_registry_use_managed_identity = true
   }
   auth_settings {
-    enabled                       = true
+    enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "RedirectToLoginPage"
-    default_provider              = "AzureActiveDirectory"
+    unauthenticated_client_action = "AllowAnonymous"
+    /*default_provider              = "AzureActiveDirectory"
     active_directory {
       client_id         = module.azurerm_app_reg_polaris_proxy.client_id
       client_secret     = azuread_application_password.asap_polaris_cms_proxy.value
       allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/${local.resource_name}-cmsproxy"]
-    }
+    }*/
   }
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key
@@ -72,13 +73,13 @@ module "azurerm_app_reg_polaris_proxy" {
       type = "Scope"
     }]
   }]
-  web = {
+  /*web = {
     homepage_url  = "https://${local.resource_name}-cmsproxy.azurewebsites.net"
     redirect_uris = ["https://getpostman.com/oauth2/callback", "https://${local.resource_name}-cmsproxy.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
       id_token_issuance_enabled = true
     }
-  }
+  }*/
   tags = ["terraform"]
 }
 

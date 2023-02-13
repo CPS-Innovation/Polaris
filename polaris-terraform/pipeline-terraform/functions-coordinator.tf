@@ -56,15 +56,9 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   }
 
   auth_settings {
-    enabled                       = true
+    enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "RedirectToLoginPage"
-    default_provider              = "AzureActiveDirectory"
-    active_directory {
-      client_id         = module.azurerm_app_reg_fa_coordinator.client_id
-      client_secret     = azuread_application_password.faap_fa_coordinator_app_service.value
-      allowed_audiences = ["api://fa-${local.resource_name}-coordinator"]
-    }
+    unauthenticated_client_action = "AllowAnonymous"
   }
 
   lifecycle {
@@ -73,12 +67,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"]
     ]
   }
-
-  # depends_on = [
-  #   data.azurerm_function_app_host_keys.ak_pdf_generator,
-  #   data.azurerm_function_app_host_keys.ak_text_extractor,
-  #   data.azurerm_function_app_host_keys.ak_indexer
-  # ]
 }
 
 data "azurerm_function_app_host_keys" "ak_coordinator" {
@@ -92,21 +80,7 @@ module "azurerm_app_reg_fa_coordinator" {
   display_name            = "fa-${local.resource_name}-coordinator-appreg"
   identifier_uris         = ["api://fa-${local.resource_name}-coordinator"]
   prevent_duplicate_names = true
-  #use this code for adding scopes
-  api = {
-    mapped_claims_enabled          = false
-    requested_access_token_version = 1
-    known_client_applications      = []
-    oauth2_permission_scope = [{
-      admin_consent_description  = "Allow the calling application to instigate the ${local.resource_name} ${local.resource_name} coordinator"
-      admin_consent_display_name = "Start the ${local.resource_name} Pipeline coordinator"
-      id                         = element(random_uuid.random_id[*].result, 0)
-      type                       = "Admin"
-      user_consent_description   = "Interact with the ${local.resource_name} Polaris Pipeline on-behalf of the calling user"
-      user_consent_display_name  = "Interact with the ${local.resource_name} Polaris Pipeline"
-      value                      = "user_impersonation"
-    }]
-  }
+
   #use this code for adding api permissions
   required_resource_access = [{
     # Microsoft Graph
@@ -116,37 +90,8 @@ module "azurerm_app_reg_fa_coordinator" {
       id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
       type = "Scope"
     }]
-    },
-    {
-      # Pdf Generator
-      resource_app_id = module.azurerm_app_reg_fa_pdf_generator.client_id
-      resource_access = [{
-        # User Impersonation Scope
-        id   = module.azurerm_app_reg_fa_pdf_generator.oauth2_permission_scope_ids["user_impersonation"]
-        type = "Scope"
-        },
-        {
-          # Application.Create Role
-          id   = module.azurerm_app_reg_fa_pdf_generator.app_role_ids["application.create"]
-          type = "Role"
-      }]
-    },
-    {
-      # DDEI
-      resource_app_id = data.azuread_application.fa_ddei.id
-      resource_access = [{
-        # User Impersonation Scope
-        id   = data.azuread_application.fa_ddei.oauth2_permission_scope_ids["user_impersonation"]
-        type = "Scope"
-      }]
   }]
-  web = {
-    redirect_uris = ["https://fa-${local.resource_name}-coordinator.azurewebsites.net/.auth/login/aad/callback",
-    "https://getpostman.com/oauth2/callback"]
-    implicit_grant = {
-      id_token_issuance_enabled = true
-    }
-  }
+
   tags = ["terraform"]
 }
 
@@ -166,35 +111,10 @@ resource "azuread_application_password" "faap_fa_coordinator_app_service" {
   end_date_relative     = "17520h"
 }
 
-resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access" {
-  service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
-  resource_service_principal_object_id = module.azurerm_service_principal_fa_pdf_generator.object_id
-  claim_values                         = ["user_impersonation"]
-}
-
-resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_ddei" {
-  service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
-  resource_service_principal_object_id = data.azuread_service_principal.fa_ddei_service_principal.object_id
-  claim_values                         = ["user_impersonation"]
-}
-
 resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_msgraph" {
   service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
   claim_values                         = ["User.Read"]
-}
-
-module "azurerm_app_pre_authorized_coordinator_ddei" {
-  source = "./modules/terraform-azurerm-azure_ad_application_preauthorized"
-
-  # application object id of authorized application
-  application_object_id = module.azurerm_app_reg_fa_coordinator.object_id
-
-  # application id of Client application
-  authorized_app_id = data.azuread_application.fa_ddei.application_id
-
-  # permissions to assign
-  permission_ids = [module.azurerm_app_reg_fa_coordinator.oauth2_permission_scope_ids["user_impersonation"]]
 }
 
 # Create Private Endpoint

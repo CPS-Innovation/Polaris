@@ -48,15 +48,9 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   }
 
   auth_settings {
-    enabled                       = true
+    enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "RedirectToLoginPage"
-    default_provider              = "AzureActiveDirectory"
-    active_directory {
-      client_id         = module.azurerm_app_reg_fa_text_extractor.client_id
-      client_secret     = azuread_application_password.faap_fa_text_extractor_app_service.value
-      allowed_audiences = ["api://fa-${local.resource_name}-text-extractor"]
-    }
+    unauthenticated_client_action = "AllowAnonymous"
   }
 
   lifecycle {
@@ -75,7 +69,7 @@ module "azurerm_app_reg_fa_text_extractor" {
   identifier_uris         = ["api://fa-${local.resource_name}-text-extractor"]
   prevent_duplicate_names = true
   #use this code for adding app_roles
-  app_role = [
+  /*app_role = [
     {
       allowed_member_types = ["Application"]
       description          = "Can parse document texts using the ${local.resource_name} Polaris Text Extractor"
@@ -83,7 +77,7 @@ module "azurerm_app_reg_fa_text_extractor" {
       id                   = element(random_uuid.random_id[*].result, 3)
       value                = "application.extracttext"
     }
-  ]
+  ]*/
   #use this code for adding api permissions
   required_resource_access = [{
     # Microsoft Graph
@@ -94,12 +88,7 @@ module "azurerm_app_reg_fa_text_extractor" {
       type = "Scope"
     }]
   }]
-  web = {
-    redirect_uris = ["https://fa-${local.resource_name}-text-extractor.azurewebsites.net/.auth/login/aad/callback"]
-    implicit_grant = {
-      id_token_issuance_enabled = true
-    }
-  }
+
   tags = ["terraform"]
 }
 
