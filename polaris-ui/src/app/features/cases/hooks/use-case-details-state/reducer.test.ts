@@ -18,7 +18,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
-import { PdfDocument } from "../../domain/PdfDocument";
+import { PipelineDocument } from "../../domain/PipelineDocument";
 
 const ERROR = new Error();
 
@@ -101,7 +101,7 @@ describe("useCaseDetailsState reducer", () => {
       });
 
       it("should build documents state if there are are no documents in the payload and document state is not already built", () => {
-        const mockNewPdfDocuments = [{}] as PdfDocument[];
+        const mockNewPdfDocuments = [{}] as PipelineDocument[];
         const mockDocumentsState = {} as CombinedState["documentsState"];
         const mockAccordionState = {} as CombinedState["accordionState"];
 

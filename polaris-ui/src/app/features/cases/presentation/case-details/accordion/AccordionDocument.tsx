@@ -36,9 +36,9 @@ export const AccordionDocument: React.FC<Props> = ({
         </a>
       </td>
       <td className={`govuk-table__cell govuk-body-s ${classes.date}`}>
-        {caseDocument.createdDate &&
+        {caseDocument.cmsFileCreatedDate &&
           formatDate(
-            caseDocument.createdDate,
+            caseDocument.cmsFileCreatedDate,
             CommonDateTimeFormats.ShortDateTextMonth
           )}
       </td>

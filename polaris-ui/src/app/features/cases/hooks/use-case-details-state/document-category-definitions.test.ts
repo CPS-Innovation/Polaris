@@ -6,7 +6,7 @@ import { getCategory } from "./document-category-definitions";
 import path from "path";
 import fs from "fs";
 import * as csv from "fast-csv";
-import { PresentationDocumentProperties } from "../../domain/PdfDocument";
+import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
 
 type Row = { docType: string; category: string };
 

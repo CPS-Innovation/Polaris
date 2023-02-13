@@ -5,27 +5,27 @@ const MAPPED_TEXT_SEARCH_RESULT = {
   documentResults: [
     {
       documentId: "1",
-      createdDate: "2022-01-07",
+      cmsFileCreatedDate: "2022-01-07",
       occurrencesInDocumentCount: 1,
     },
     {
       documentId: "2",
-      createdDate: "2022-01-07",
+      cmsFileCreatedDate: "2022-01-07",
       occurrencesInDocumentCount: 1,
     },
     {
       documentId: "3",
-      createdDate: "2022-01-09",
+      cmsFileCreatedDate: "2022-01-09",
       occurrencesInDocumentCount: 13,
     },
     {
       documentId: "4",
-      createdDate: "2022-01-08",
+      cmsFileCreatedDate: "2022-01-08",
       occurrencesInDocumentCount: 2,
     },
     {
       documentId: "5",
-      createdDate: "2022-01-10",
+      cmsFileCreatedDate: "2022-01-10",
       occurrencesInDocumentCount: 1,
     },
   ],
@@ -41,27 +41,27 @@ describe("sortMappedTextSearchResult", () => {
     expect(result).toEqual({
       documentResults: [
         {
-          createdDate: "2022-01-10",
+          cmsFileCreatedDate: "2022-01-10",
           documentId: "5",
           occurrencesInDocumentCount: 1,
         },
         {
-          createdDate: "2022-01-09",
+          cmsFileCreatedDate: "2022-01-09",
           documentId: "3",
           occurrencesInDocumentCount: 13,
         },
         {
-          createdDate: "2022-01-08",
+          cmsFileCreatedDate: "2022-01-08",
           documentId: "4",
           occurrencesInDocumentCount: 2,
         },
         {
-          createdDate: "2022-01-07",
+          cmsFileCreatedDate: "2022-01-07",
           documentId: "2",
           occurrencesInDocumentCount: 1,
         },
         {
-          createdDate: "2022-01-07",
+          cmsFileCreatedDate: "2022-01-07",
           documentId: "1",
           occurrencesInDocumentCount: 1,
         },
@@ -78,27 +78,27 @@ describe("sortMappedTextSearchResult", () => {
     expect(result).toEqual({
       documentResults: [
         {
-          createdDate: "2022-01-09",
+          cmsFileCreatedDate: "2022-01-09",
           documentId: "3",
           occurrencesInDocumentCount: 13,
         },
         {
-          createdDate: "2022-01-08",
+          cmsFileCreatedDate: "2022-01-08",
           documentId: "4",
           occurrencesInDocumentCount: 2,
         },
         {
-          createdDate: "2022-01-10",
+          cmsFileCreatedDate: "2022-01-10",
           documentId: "5",
           occurrencesInDocumentCount: 1,
         },
         {
-          createdDate: "2022-01-07",
+          cmsFileCreatedDate: "2022-01-07",
           documentId: "2",
           occurrencesInDocumentCount: 1,
         },
         {
-          createdDate: "2022-01-07",
+          cmsFileCreatedDate: "2022-01-07",
           documentId: "1",
           occurrencesInDocumentCount: 1,
         },

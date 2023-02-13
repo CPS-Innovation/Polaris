@@ -2,7 +2,7 @@ import { mapAccordionState } from "./map-accordion-state";
 
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PresentationDocumentProperties } from "../../domain/PdfDocument";
+import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
 
 jest.mock("./document-category-definitions", () => ({
   categoryNamesInPresentationOrder: ["category-a", "category-b"],
@@ -39,7 +39,8 @@ describe("mapAccordionState", () => {
           documentId: "1",
           tabSafeId: "d0",
           presentationCategory: "category-a",
-          fileName: "foo",
+          cmsOriginalFileName: "foo",
+          cmsMimeType: "application/pdf",
           presentationFileName: "foo!",
           cmsDocCategory: "MGForm",
           cmsDocType: {
@@ -47,13 +48,14 @@ describe("mapAccordionState", () => {
             code: "MG11",
             name: "MG11 File",
           },
-          createdDate: "2020-01-01",
+          cmsFileCreatedDate: "2020-01-01",
         },
         {
           documentId: "2",
           tabSafeId: "d1",
           presentationCategory: "category-b",
-          fileName: "bar",
+          cmsOriginalFileName: "bar",
+          cmsMimeType: "application/pdf",
           presentationFileName: "bar!",
           cmsDocCategory: "MGForm",
           cmsDocType: {
@@ -61,7 +63,7 @@ describe("mapAccordionState", () => {
             code: "MG12",
             name: "MG12 File",
           },
-          createdDate: "2020-01-02",
+          cmsFileCreatedDate: "2020-01-02",
         },
       ],
     };
@@ -79,7 +81,8 @@ describe("mapAccordionState", () => {
               documentId: "1",
               tabSafeId: "d0",
               presentationCategory: "category-a",
-              fileName: "foo",
+              cmsOriginalFileName: "foo",
+              cmsMimeType: "application/pdf",
               presentationFileName: "foo!",
               cmsDocCategory: "MGForm",
               cmsDocType: {
@@ -87,7 +90,7 @@ describe("mapAccordionState", () => {
                 code: "MG11",
                 name: "MG11 File",
               },
-              createdDate: "2020-01-01",
+              cmsFileCreatedDate: "2020-01-01",
             },
           ],
         },
@@ -99,7 +102,8 @@ describe("mapAccordionState", () => {
               documentId: "2",
               tabSafeId: "d1",
               presentationCategory: "category-b",
-              fileName: "bar",
+              cmsOriginalFileName: "bar",
+              cmsMimeType: "application/pdf",
               presentationFileName: "bar!",
               cmsDocCategory: "MGForm",
               cmsDocType: {
@@ -107,7 +111,7 @@ describe("mapAccordionState", () => {
                 code: "MG12",
                 name: "MG12 File",
               },
-              createdDate: "2020-01-02",
+              cmsFileCreatedDate: "2020-01-02",
             },
           ],
         },

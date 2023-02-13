@@ -3,7 +3,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { mapDocumentsState } from "./map-documents-state";
 import * as documentCategoryDefinitions from "./document-category-definitions";
 import * as getFileNameWithoutExtension from "../../logic/get-file-name-without-extension";
-import { PresentationDocumentProperties } from "../../domain/PdfDocument";
+import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
 
 describe("mapDocumentsState", () => {
   beforeEach(() => {
@@ -21,11 +21,11 @@ describe("mapDocumentsState", () => {
   it("can map CaseDocuments to MappedCaseDocuments", () => {
     const doc1 = {
       documentId: "0",
-      fileName: "foo",
+      cmsOriginalFileName: "foo",
     } as PresentationDocumentProperties;
     const doc2 = {
       documentId: "1",
-      fileName: "bar",
+      cmsOriginalFileName: "bar",
     } as PresentationDocumentProperties;
 
     const input = [doc1, doc2];
@@ -37,14 +37,14 @@ describe("mapDocumentsState", () => {
           ...doc1,
           tabSafeId: "d0",
           presentationCategory: "category0",
-          fileName: "foo",
+          cmsOriginalFileName: "foo",
           presentationFileName: "foo!",
         },
         {
           ...doc2,
           tabSafeId: "d1",
           presentationCategory: "category1",
-          fileName: "bar",
+          cmsOriginalFileName: "bar",
           presentationFileName: "bar!",
         },
       ] as MappedCaseDocument[],

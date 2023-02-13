@@ -1,4 +1,4 @@
-import { PresentationDocumentProperties } from "./PdfDocument";
+import { PresentationDocumentProperties } from "./PipelineDocument";
 
 export type MappedCaseDocument = PresentationDocumentProperties & {
   tabSafeId: string;

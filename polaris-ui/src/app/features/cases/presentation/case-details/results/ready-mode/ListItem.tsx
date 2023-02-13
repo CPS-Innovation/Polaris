@@ -16,10 +16,10 @@ type Props = {
 
 export const ListItem: React.FC<Props> = ({
   documentResult: {
-    fileName,
+    cmsOriginalFileName: fileName,
     tabSafeId,
     documentId,
-    createdDate,
+    cmsFileCreatedDate: createdDate,
     cmsDocType,
     occurrences: [firstOcurrence, ...subsequentOccurrences],
     occurrencesInDocumentCount,

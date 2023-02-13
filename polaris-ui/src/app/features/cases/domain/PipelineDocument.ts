@@ -1,7 +1,7 @@
 import { CmsDocCategory } from "./CmsDocCategory";
 import { CmsDocType } from "./CmsDocType";
 
-export type PipeLineDocumentProperties = {
+export type PipelineDocumentProperties = {
   documentId: string;
   pdfBlobName: string;
   status:
@@ -16,12 +16,13 @@ export type PipeLineDocumentProperties = {
 
 export type PresentationDocumentProperties = {
   documentId: string;
-  fileName: string;
-  createdDate: string;
+  cmsOriginalFileName: string;
+  cmsMimeType: string;
+  cmsFileCreatedDate: string;
   cmsDocCategory: CmsDocCategory;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
 };
 
-export type PdfDocument = PipeLineDocumentProperties &
+export type PipelineDocument = PipelineDocumentProperties &
   PresentationDocumentProperties;

@@ -15,7 +15,7 @@ const SortByPropertyDesc = (
 // Sorting on created date then by document id gives deterministic results
 const sortByDateDesc: SortFn = (a, b) =>
   // sort by created date desc
-  SortByPropertyDesc("createdDate", a, b) ||
+  SortByPropertyDesc("cmsFileCreatedDate", a, b) ||
   // then by documentId
   SortByPropertyDesc("documentId", a, b);
 
@@ -27,7 +27,7 @@ const sortByOccurancesPerDocumentDesc: SortFn = (a, b) =>
   // sort by occurrences desc
   SortByPropertyDesc("occurrencesInDocumentCount", a, b) ||
   // sort by created date desc
-  SortByPropertyDesc("createdDate", a, b) ||
+  SortByPropertyDesc("cmsFileCreatedDate", a, b) ||
   // then by documentId
   SortByPropertyDesc("documentId", a, b);
 

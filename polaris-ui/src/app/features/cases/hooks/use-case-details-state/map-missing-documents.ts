@@ -1,4 +1,4 @@
-import { PresentationDocumentProperties } from "../../domain/PdfDocument";
+import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
 import { PipelineResults } from "../../domain/PipelineResults";
 
 export const mapMissingDocuments = (
@@ -13,7 +13,7 @@ export const mapMissingDocuments = (
     const fileName =
       caseDocuments.find(
         (caseDocument) => caseDocument.documentId === documentId
-      )?.fileName || "";
+      )?.cmsOriginalFileName || "";
 
     return { documentId, fileName };
   });
