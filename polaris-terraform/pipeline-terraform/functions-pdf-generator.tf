@@ -23,17 +23,11 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
-    "CallingAppTenantId"                       = data.azurerm_client_config.current.tenant_id
-    "CallingAppValidAudience"                  = "api://fa-${local.resource_name}-pdf-generator"
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
     "DocumentsRepositoryBaseUrl"               = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
     "GetDocumentUrl"                           = "urns/{0}/cases/{1}/documents/{2}/{3}?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
-    "OnBehalfOfTokenTenantId"                  = data.azurerm_client_config.current.tenant_id
-    "OnBehalfOfTokenClientId"                  = module.azurerm_app_reg_fa_pdf_generator.client_id
-    "OnBehalfOfTokenClientSecret"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_pdf_generator_client_secret.id})"
-    "DdeiScope"                                = "api://fa-${local.ddei_resource_name}/.default"
   }
   https_only = true
 
