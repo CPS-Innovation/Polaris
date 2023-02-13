@@ -1,11 +1,10 @@
 import { getFormattedCustodyTimeData } from "./chargesUtil";
-import { ExpiryIndicator } from "../../../domain/CaseDetails";
 describe("getFormattedCustodyTimeData util", () => {
   it("Should return correct data when expiryIndicator is expired", () => {
     const custodyTimeLimit = {
       expiryDate: "2022-11-20",
       expiryDays: 20,
-      expiryIndicator: ExpiryIndicator.expired,
+      expiryIndicator: "Expired" as const,
     };
     const result = getFormattedCustodyTimeData(custodyTimeLimit);
     const expectedResult = {
@@ -20,7 +19,7 @@ describe("getFormattedCustodyTimeData util", () => {
     const custodyTimeLimit = {
       expiryDate: "2022-11-20",
       expiryDays: 20,
-      expiryIndicator: ExpiryIndicator.active,
+      expiryIndicator: "Active" as const,
     };
     const result = getFormattedCustodyTimeData(custodyTimeLimit);
     const expectedResult = {
@@ -34,7 +33,7 @@ describe("getFormattedCustodyTimeData util", () => {
     const custodyTimeLimit = {
       expiryDate: "2022-11-20",
       expiryDays: 1,
-      expiryIndicator: ExpiryIndicator.active,
+      expiryIndicator: "Active" as const,
     };
     const result = getFormattedCustodyTimeData(custodyTimeLimit);
     const expectedResult = {

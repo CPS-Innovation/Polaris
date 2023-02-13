@@ -1,8 +1,5 @@
 import faker from "faker";
-import {
-  CaseDetails,
-  ExpiryIndicator,
-} from "../../app/features/cases/domain/CaseDetails";
+import { CaseDetails } from "../../app/features/cases/domain/CaseDetails";
 import { CaseDetailsDataSource } from "./types/CaseDetailsDataSource";
 
 const dataSource: CaseDetailsDataSource = (id) =>
@@ -46,7 +43,7 @@ const caseDetails: CaseDetails[] = [
         custodyTimeLimit: {
           expiryDate: "2022-11-20",
           expiryDays: 20,
-          expiryIndicator: ExpiryIndicator.active,
+          expiryIndicator: "Active",
         },
         charges: [],
       },

@@ -1,4 +1,4 @@
-import { CustodyTimeLimit, ExpiryIndicator } from "../../../domain/CaseDetails";
+import { CustodyTimeLimit } from "../../../domain/CaseDetails";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -14,8 +14,8 @@ export const getFormattedCustodyTimeData = (
   }
   const { expiryDate, expiryDays, expiryIndicator } = custodyTimeLimit;
 
-  switch (expiryIndicator?.toLowerCase()) {
-    case ExpiryIndicator.active.toLowerCase():
+  switch (expiryIndicator) {
+    case "Active":
       return {
         custodyExpiryDays: `${expiryDays} ${expiryDays > 1 ? "Days" : "Day"}`,
         custodyExpiryDate: formatDate(
@@ -24,7 +24,7 @@ export const getFormattedCustodyTimeData = (
         ),
       };
 
-    case ExpiryIndicator.expired.toLowerCase():
+    case "Expired":
       return {
         custodyExpiryDays: "Expired",
         custodyExpiryDate: formatDate(

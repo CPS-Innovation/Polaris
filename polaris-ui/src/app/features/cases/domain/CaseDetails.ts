@@ -45,10 +45,5 @@ type Charge = {
 export type CustodyTimeLimit = {
   expiryDate: string;
   expiryDays: number;
-  expiryIndicator: ExpiryIndicator | null;
+  expiryIndicator: "Active" | "Expired" | null;
 };
-
-export enum ExpiryIndicator {
-  active = "Active",
-  expired = "Expired",
-}
