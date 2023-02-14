@@ -20,6 +20,7 @@ export const KeyDetails: React.FC<{
   };
 
   const defendantsList = getOrderedDefendantsList(caseDetails);
+
   return (
     <div>
       <h1
@@ -52,16 +53,16 @@ export const KeyDetails: React.FC<{
       {!isMultipleDefendantsOrCharges && (
         <div className={`govuk-heading-s`} data-testid="txt-defendant-name">
           <div>
-            {caseDetails.leadDefendantDetails.surname},{" "}
-            {caseDetails.leadDefendantDetails.firstNames}
+            {defendantsList[0].defendantDetails.surname},{" "}
+            {defendantsList[0].defendantDetails.firstNames}
           </div>
           <div className={`${classes.namesub}`}>
-            DOB:
+            DOB:{" "}
             {formatDate(
-              caseDetails.leadDefendantDetails.dob,
+              defendantsList[0].defendantDetails.dob,
               CommonDateTimeFormats.ShortDateTextMonth
             )}
-            . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
+            . Age: {getAgeFromIsoDate(defendantsList[0].defendantDetails.dob)}
           </div>
         </div>
       )}

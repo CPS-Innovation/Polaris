@@ -2,7 +2,7 @@ import { CaseDetails } from "../../../domain/CaseDetails";
 
 export const checkMultipleDefendantsOrCharges = (
   caseDetails: CaseDetails
-): Boolean => {
+): boolean => {
   const { defendants } = caseDetails;
   if (defendants.length > 1) {
     return true;
