@@ -22,6 +22,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "TenantId"                                 = data.azurerm_client_config.current.tenant_id
     "PolarisPipelineCoordinatorBaseUrl"        = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
     "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.pipeline_resource_name}-pdf-generator.azurewebsites.net/api/"

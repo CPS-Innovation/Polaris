@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using AutoFixture;
 using coordinator.Domain;
 using coordinator.Factories;
@@ -36,71 +35,71 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             mockTextExtractorHttpFactory.Setup(client => client.Create(_payload.CaseId, _payload.DocumentId, _payload.VersionId,
                     _payload.BlobName, _payload.CorrelationId))
-                .ReturnsAsync(_durableRequest);
+                .Returns(_durableRequest);
 
             var mockLogger = new Mock<ILogger<CreateTextExtractorHttpRequest>>();
             _createTextExtractorHttpRequest = new CreateTextExtractorHttpRequest(mockTextExtractorHttpFactory.Object, mockLogger.Object);
         }
 
         [Fact]
-        public async Task Run_ThrowsWhenPayloadIsNull()
+        public void Run_ThrowsWhenPayloadIsNull()
         {
             _mockDurableActivityContext.Setup(context => context.GetInput<TextExtractorHttpRequestActivityPayload>())
                 .Returns(default(TextExtractorHttpRequestActivityPayload));
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
+            Assert.Throws<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
         }
         
         [Fact]
-        public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
+        public void Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
             _payload.CaseId = 0;
             _mockDurableActivityContext.Setup(context => context.GetInput<TextExtractorHttpRequestActivityPayload>())
                 .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
+            Assert.Throws<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
         }
         
         [Theory]
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public async Task Run_WhenDocumentIdIsNullOrWhitespace_ThrowsArgumentException(string documentId)
+        public void Run_WhenDocumentIdIsNullOrWhitespace_ThrowsArgumentException(string documentId)
         {
             _payload.DocumentId = documentId;
             _mockDurableActivityContext.Setup(context => context.GetInput<TextExtractorHttpRequestActivityPayload>())
                 .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
+            Assert.Throws<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
         }
         
         [Theory]
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public async Task Run_WhenBlobNameIsNullOrWhitespace_ThrowsArgumentException(string blobName)
+        public void Run_WhenBlobNameIsNullOrWhitespace_ThrowsArgumentException(string blobName)
         {
             _payload.BlobName = blobName;
             _mockDurableActivityContext.Setup(context => context.GetInput<TextExtractorHttpRequestActivityPayload>())
                 .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
+            Assert.Throws<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
         }
         
         [Fact]
-        public async Task Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
+        public void Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
         {
             _payload.CorrelationId = Guid.Empty;
             _mockDurableActivityContext.Setup(context => context.GetInput<TextExtractorHttpRequestActivityPayload>())
                 .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
+            Assert.Throws<ArgumentException>(() => _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object));
         }
 
         [Fact]
-        public async Task Run_ReturnsDurableRequest()
+        public void Run_ReturnsDurableRequest()
         {
-            var durableRequest = await _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object);
+            var durableRequest = _createTextExtractorHttpRequest.Run(_mockDurableActivityContext.Object);
 
             durableRequest.Should().Be(_durableRequest);
         }
