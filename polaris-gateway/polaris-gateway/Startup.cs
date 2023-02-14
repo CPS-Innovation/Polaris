@@ -8,6 +8,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 // using PolarisGateway.Clients.DocumentExtraction;
 // using PolarisGateway.Clients.DocumentRedaction;
 using PolarisGateway.Clients.PolarisPipeline;
@@ -64,6 +65,25 @@ namespace PolarisGateway
             {
                 client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+            
+            builder.Services.AddSingleton(_ =>
+            {
+                const string authInstanceUrl = AuthenticationKeys.AzureAuthenticationInstanceUrl;
+                var tenantId = GetValueFromConfig(configuration, ConfigurationKeys.TenantId);
+                var clientId = GetValueFromConfig(configuration, ConfigurationKeys.ClientId);
+                var clientSecret = GetValueFromConfig(configuration, ConfigurationKeys.ClientSecret);
+                var appOptions = new ConfidentialClientApplicationOptions
+                {
+                    Instance = authInstanceUrl,
+                    TenantId = tenantId,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret
+                };
+
+                var authority = $"{authInstanceUrl}{tenantId}/";
+
+                return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
             });
 
             builder.Services.AddAzureClients(azureBuilder =>
