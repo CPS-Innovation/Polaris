@@ -16,7 +16,7 @@ import { Charges } from "./Charges";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
-import { CaseDetails } from "../../domain/CaseDetails";
+import { checkMultipleDefendantsOrCharges } from "./utils/checkMultipleDefendantsOrCharges";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -59,19 +59,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     //  (we are prepared to show page whilst waiting for docs to load though)
     return <WaitPage />;
   }
-
-  const checkMultipleDefendantsOrCharges = (caseDetails: CaseDetails) => {
-    const { defendants } = caseDetails;
-    if (defendants.length > 1) {
-      return true;
-    }
-
-    const { charges } = defendants[0];
-    if (charges.length > 1) {
-      return true;
-    }
-    return false;
-  };
 
   const isMultipleDefendantsOrCharges = checkMultipleDefendantsOrCharges(
     caseState.data
