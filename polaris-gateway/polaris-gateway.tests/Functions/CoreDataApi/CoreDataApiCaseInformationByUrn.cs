@@ -5,7 +5,6 @@
 // using Moq;
 // using NSubstitute;
 // using PolarisGateway.Clients.CoreDataApi;
-// using PolarisGateway.Clients.OnBehalfOfTokenClient;
 // using PolarisGateway.Domain.CaseData;
 // using PolarisGateway.Tests.FakeData;
 // using Xunit;
@@ -22,17 +21,13 @@
 //     public class CoreDataApiCaseInformationByUrnTests : SharedMethods.SharedMethods, IClassFixture<CaseInformationFake>
 //     {
 //         private readonly ILogger<CoreDataApiCaseInformationByUrn> _mockLogger = Substitute.For<ILogger<CoreDataApiCaseInformationByUrn>>();
-//         private readonly IOnBehalfOfTokenClient _mockOnBehalfOfTokenClient = Substitute.For<IOnBehalfOfTokenClient>();
 //         private readonly ICoreDataApiClient _mockCoreDataApiClient = Substitute.For<ICoreDataApiClient>();
 //         private readonly IConfiguration _mockConfiguration = Substitute.For<IConfiguration>();
 //         private readonly CaseInformationFake _caseInformationFake;
-//         private readonly IAuthorizationValidator _mockTokenValidator = Substitute.For<IAuthorizationValidator>();
 
 //         public CoreDataApiCaseInformationByUrnTests(CaseInformationFake caseInformationFake)
 //         {
 //             _caseInformationFake = caseInformationFake;
-
-//             _mockTokenValidator.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<Guid>()).ReturnsForAnyArgs(true);
 //         }
 
 //         [Fact]

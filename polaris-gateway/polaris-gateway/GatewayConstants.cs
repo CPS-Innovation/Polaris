@@ -6,9 +6,7 @@ public static class ConfigurationKeys
     public const string BlobServiceUrl = "BlobServiceUrl";
     public const string BlobExpirySecs = "BlobExpirySecs";
     public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
-    public const string TenantId = "OnBehalfOfTokenTenantId";
-    public const string ClientId = "OnBehalfOfTokenClientId";
-    public const string ClientSecret = "OnBehalfOfTokenClientSecret";
+    public const string TenantId = "TenantId";
     public const string ValidAudience = "CallingAppValidAudience";
     public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
     public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
@@ -19,7 +17,6 @@ public static class ConfigurationKeys
 public static class AuthenticationKeys
 {
     public const string Authorization = "Authorization";
-    public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
     public const string Bearer = "Bearer";
 }
 

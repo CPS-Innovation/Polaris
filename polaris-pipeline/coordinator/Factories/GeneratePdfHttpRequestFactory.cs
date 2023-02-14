@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Tasks;
-using Common.Adapters;
 using Common.Constants;
 using Common.Domain.Requests;
 using Common.Logging;
@@ -17,21 +15,19 @@ namespace coordinator.Factories
 {
     public class GeneratePdfHttpRequestFactory : IGeneratePdfHttpRequestFactory
     {
-        private readonly IIdentityClientAdapter _identityClientAdapter;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IConfiguration _configuration;
         private readonly ILogger<GeneratePdfHttpRequestFactory> _logger;
 
-        public GeneratePdfHttpRequestFactory(IIdentityClientAdapter identityClientAdapter, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration,
+        public GeneratePdfHttpRequestFactory(IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration,
             ILogger<GeneratePdfHttpRequestFactory> logger)
         {
-            _identityClientAdapter = identityClientAdapter ?? throw new ArgumentNullException(nameof(identityClientAdapter));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<DurableHttpRequest> Create(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId,
+        public DurableHttpRequest Create(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId,
             string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(Create), $"CaseUrn: {caseUrn}, CaseId: {caseId}, DocumentId: {documentId}, VersionId: {versionId}, " +
@@ -39,14 +35,9 @@ namespace coordinator.Factories
 
             try
             {
-                var clientScopes = _configuration[ConfigKeys.CoordinatorKeys.PdfGeneratorScope];
-
-                var result = await _identityClientAdapter.GetClientAccessTokenAsync(clientScopes, correlationId);
-
                 var headers = new Dictionary<string, StringValues>
                 {
                     { HttpHeaderKeys.ContentType, HttpHeaderValues.ApplicationJson },
-                    { HttpHeaderKeys.Authorization, $"{HttpHeaderValues.AuthTokenType} {result}"},
                     { HttpHeaderKeys.CorrelationId, correlationId.ToString() },
                     { HttpHeaderKeys.CmsAuthValues, cmsAuthValues }
                 };

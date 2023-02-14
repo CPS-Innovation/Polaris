@@ -5,7 +5,6 @@
 // using NSubstitute;
 // using NSubstitute.ExceptionExtensions;
 // using PolarisGateway.Clients.CoreDataApi;
-// using PolarisGateway.Clients.OnBehalfOfTokenClient;
 // using PolarisGateway.Domain.CaseData;
 // using PolarisGateway.Tests.FakeData;
 // using Xunit;
@@ -21,7 +20,6 @@
 //     public class CoreDataApiCaseDetailsFunctionTests : SharedMethods.SharedMethods, IClassFixture<CaseInformationFake>
 //     {
 //         private readonly ILogger<CoreDataApiCaseDetails> _mockLogger = Substitute.For<ILogger<CoreDataApiCaseDetails>>();
-//         private readonly IOnBehalfOfTokenClient _mockOnBehalfOfTokenClient = Substitute.For<IOnBehalfOfTokenClient>();
 //         private readonly ICoreDataApiClient _mockCoreDataApiClient = Substitute.For<ICoreDataApiClient>();
 //         private readonly IConfiguration _mockConfiguration = Substitute.For<IConfiguration>();
 //         private readonly CaseInformationFake _caseInformationFake;
