@@ -54,19 +54,22 @@ export const KeyDetails: React.FC<{
         </>
       )}
       {!isMultipleDefendantsOrCharges && (
-        <div className={`govuk-heading-s`} data-testid="defendant-details">
-          <div>
+        <div
+          className={classes.defendantDetails}
+          data-testid="defendant-details"
+        >
+          <span className={`govuk-heading-s ${classes.defendantName}`}>
             {defendantsList[0].defendantDetails.surname},{" "}
             {defendantsList[0].defendantDetails.firstNames}
-          </div>
-          <div className={`${classes.namesub}`}>
+          </span>
+          <span className={`${classes.defendantDOB}`}>
             DOB:{" "}
             {formatDate(
               defendantsList[0].defendantDetails.dob,
               CommonDateTimeFormats.ShortDateTextMonth
             )}
             . Age: {getAgeFromIsoDate(defendantsList[0].defendantDetails.dob)}
-          </div>
+          </span>
         </div>
       )}
     </div>

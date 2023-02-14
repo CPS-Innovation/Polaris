@@ -12,10 +12,15 @@
 .defendantDetailsLink {
   font-size: 1rem;
 }
-
-.namesub {
-  font-weight: 400;
-  font-size: 16px;
+.defendantDetails {
+  display: flex;
+  flex-direction: column;
+  .defendantName {
+    margin-bottom: 0px;
+  }
+  .defendantDOB {
+    font-size: 1rem;
+  }
 }
 
 .mainContent {
