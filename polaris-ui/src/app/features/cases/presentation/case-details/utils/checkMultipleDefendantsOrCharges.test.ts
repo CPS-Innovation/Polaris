@@ -36,14 +36,14 @@ describe("checkMultipleDefendantsOrCharges util", () => {
     expect(result).toEqual(true);
   });
 
-  it("Should return false if there is only one defendant and single in caseDetails", () => {
+  it("Should return false if there is only one defendant and less than two charges, in caseDetails", () => {
     const caseDetails: CaseDetails = {
       id: 13401,
       defendants: [
         {
           defendantDetails: {},
           custodyTimeLimit: {},
-          charges: [],
+          charges: [{}],
         },
       ],
     } as any;

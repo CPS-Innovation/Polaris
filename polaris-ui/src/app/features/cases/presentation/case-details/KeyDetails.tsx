@@ -32,7 +32,10 @@ export const KeyDetails: React.FC<{
 
       {isMultipleDefendantsOrCharges && (
         <>
-          <ul className={classes.defendantsList}>
+          <ul
+            className={classes.defendantsList}
+            data-testid="list-defendant-names"
+          >
             {defendantsList.map(({ defendantDetails }) => (
               <li key={defendantDetails.id}>
                 {defendantDetails.surname}, {defendantDetails.firstNames}
@@ -51,7 +54,7 @@ export const KeyDetails: React.FC<{
         </>
       )}
       {!isMultipleDefendantsOrCharges && (
-        <div className={`govuk-heading-s`} data-testid="txt-defendant-name">
+        <div className={`govuk-heading-s`} data-testid="defendant-details">
           <div>
             {defendantsList[0].defendantDetails.surname},{" "}
             {defendantsList[0].defendantDetails.firstNames}
