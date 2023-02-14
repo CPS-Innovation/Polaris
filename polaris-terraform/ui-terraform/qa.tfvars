@@ -1,6 +1,6 @@
 env                          = "qa"
 location                     = "UK South"
-environment_tag              = "QA"
+environment_tag              = "qa"
 app_service_plan_web_sku     = "P1v2"
 app_service_plan_gateway_sku = "EP1"
 

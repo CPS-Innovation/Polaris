@@ -5,7 +5,5 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Options
         public string BaseUrl { get; set; }
 
         public string AccessKey { get; set; }
-
-        public string DefaultScope { get; set; }
     }
 }

@@ -16,7 +16,6 @@ using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Handlers;
 using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
 
@@ -43,7 +42,6 @@ namespace text_extractor
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
             BuildAzureClients(builder, configuration);
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequest>, ValidatorWrapper<ExtractTextRequest>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();

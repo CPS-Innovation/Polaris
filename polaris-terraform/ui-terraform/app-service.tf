@@ -9,17 +9,20 @@ resource "azurerm_app_service" "as_web_polaris" {
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"        = "1"
-    "WEBSITE_DNS_SERVER"             = "10.2.64.10"
-    "WEBSITE_DNS_ALT_SERVER"         = "10.3.64.10"
+    "WEBSITE_DNS_SERVER"             = "10.7.197.20"
+    "WEBSITE_DNS_ALT_SERVER"         = "168.63.129.16"
     "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.ai_polaris.instrumentation_key
     "REACT_APP_CLIENT_ID"            = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"            = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"     = "https://${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "REACT_APP_GATEWAY_SCOPE"        = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"  = "https://${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/polaris?q="
+    "REACT_APP_REAUTH_REDIRECT_URL"  = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/polaris?q="
   }
 
   site_config {
+    ftps_state             = "FtpsOnly"
+    http2_enabled          = true
+    ip_restriction         = []
     app_command_line       = "node subsititute-config.js; npx serve -s"
     linux_fx_version       = "NODE|14-lts"
     vnet_route_all_enabled = true

@@ -4,11 +4,10 @@ namespace coordinator.Domain
 {
     public class CoordinatorOrchestrationPayload : BasePipelinePayload
     {
-        public CoordinatorOrchestrationPayload(string caseUrn, long caseId, bool forceRefresh, string accessToken, string cmsAuthValues, Guid correlationId)
+        public CoordinatorOrchestrationPayload(string caseUrn, long caseId, bool forceRefresh, string cmsAuthValues, Guid correlationId)
             : base(caseUrn, caseId, correlationId)
         {
             ForceRefresh = forceRefresh;
-            AccessToken = accessToken;
             CmsAuthValues = cmsAuthValues;
         }
 

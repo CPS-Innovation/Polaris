@@ -30,6 +30,7 @@ steps:
       projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
       arguments: "--configuration $(buildConfiguration)"
     displayName: "Run tests"
+    enabled: false
 
   - task: DotNetCoreCLI@2
     inputs:

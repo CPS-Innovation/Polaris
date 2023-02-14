@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { CommonTabsProps } from "./types";
 import { Modal } from "../../../../common/presentation/components/Modal";
-import { DocumentNavigationAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/DocumentNavigationAlertContent";
+import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
 
 import classes from "./Tabs.module.scss";
 
@@ -226,7 +226,7 @@ export const Tabs: React.FC<TabsProps> = ({
           handleClose={handleNavigateAwayCancelAction}
           type={"alert"}
         >
-          <DocumentNavigationAlertContent
+          <NavigationAwayAlertContent
             handleCancelAction={handleNavigateAwayCancelAction}
             handleContinueAction={handleNavigateAwayContinueAction}
           />

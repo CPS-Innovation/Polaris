@@ -28,6 +28,7 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
             <a
               href="/"
               className="govuk-header__link govuk-header__link--homepage"
+              data-testid="link-homepage"
             >
               <span className="govuk-header__logotype">
                 <span className="govuk-header__logotype-text">

@@ -11,7 +11,6 @@ using Common.Domain.Extensions;
 using Common.Domain.Requests;
 using Common.Domain.Responses;
 using Common.Exceptions.Contracts;
-using Common.Handlers;
 using Common.Logging;
 using Common.Wrappers;
 using FluentValidation;
@@ -24,17 +23,15 @@ namespace pdf_generator.Functions
 {
     public class RedactPdf
     {
-        private readonly IAuthorizationValidator _authorizationValidator;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDocumentRedactionService _documentRedactionService;
         private readonly ILogger<RedactPdf> _logger;
         private readonly IValidator<RedactPdfRequest> _requestValidator;
 
-        public RedactPdf(IAuthorizationValidator authorizationValidator, IExceptionHandler exceptionHandler, IJsonConvertWrapper jsonConvertWrapper, IDocumentRedactionService documentRedactionService, 
+        public RedactPdf(IExceptionHandler exceptionHandler, IJsonConvertWrapper jsonConvertWrapper, IDocumentRedactionService documentRedactionService, 
             ILogger<RedactPdf> logger, IValidator<RedactPdfRequest> requestValidator)
         {
-            _authorizationValidator = authorizationValidator;
             _exceptionHandler = exceptionHandler;
             _jsonConvertWrapper = jsonConvertWrapper;
             _documentRedactionService = documentRedactionService;
@@ -62,11 +59,6 @@ namespace pdf_generator.Functions
                 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                var authValidation =
-                    await _authorizationValidator.ValidateTokenAsync(request.Headers.Authorization, currentCorrelationId, PipelineScopes.RedactPdf, PipelineRoles.EmptyRole);
-                if (!authValidation.Item1)
-                    throw new UnauthorizedException("Token validation failed");
-
                 if (request.Content == null)
                     throw new BadRequestException("Request body has no content", nameof(request));
 
@@ -81,8 +73,6 @@ namespace pdf_generator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
                 
-                //TODO exchange access token via on behalf of?
-                //var accessToken = values.First().Replace("Bearer ", "");
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for documentId: '{redactions.DocumentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, "onBehalfOfAccessToken", currentCorrelationId);
                 return new HttpResponseMessage(HttpStatusCode.OK)

@@ -16,13 +16,12 @@ public class HttpRequestFactory : IHttpRequestFactory
         _logger = logger;
     }
 
-    public HttpRequestMessage CreateGet(string requestUri, string accessToken, string cmsAuthValues, Guid correlationId)
+    public HttpRequestMessage CreateGet(string requestUri, string cmsAuthValues, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(CreateGet), $"RequestUri: {requestUri}");
 
         var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-        request.Headers.Add(HttpHeaderKeys.Authorization, $"{AuthenticationKeys.Bearer} {accessToken}");
         request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
         request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Common.Domain.Extensions;
 using Common.Logging;
 using coordinator.Domain;
@@ -22,7 +21,7 @@ namespace coordinator.Functions.ActivityFunctions
         }
 
         [FunctionName("CreateGeneratePdfHttpRequest")]
-        public async Task<DurableHttpRequest> Run([ActivityTrigger] IDurableActivityContext context)
+        public DurableHttpRequest Run([ActivityTrigger] IDurableActivityContext context)
         {
             const string loggingName = $"{nameof(CreateGeneratePdfHttpRequest)} - {nameof(Run)}";
             var payload = context.GetInput<GeneratePdfHttpRequestActivityPayload>();
@@ -42,7 +41,7 @@ namespace coordinator.Functions.ActivityFunctions
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            var result = await _generatePdfHttpRequestFactory.Create(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.CmsAuthValues, payload.CorrelationId);
+            var result = _generatePdfHttpRequestFactory.Create(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.CmsAuthValues, payload.CorrelationId);
 
             _log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
             return result;

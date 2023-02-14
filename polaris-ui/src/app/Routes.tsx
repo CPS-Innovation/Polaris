@@ -39,7 +39,7 @@ export const Routes: FC = () => {
               //  `state` will be undefined.  In this case, we want to take the user back to the vanilla
               //  home page.  This is best represented by redirecting to empty and allowing the default
               //  route to kick -in.
-              to: state ? caseSearchResultsPath + state : "",
+              to: state ? caseSearchResultsPath + state : "/",
               label: "Find a case",
             }}
           />

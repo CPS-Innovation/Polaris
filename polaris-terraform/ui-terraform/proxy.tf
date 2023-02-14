@@ -1,42 +1,48 @@
 resource "azurerm_linux_web_app" "polaris_proxy" {
-  name                = "${local.resource_name}-cmsproxy"
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  location            = azurerm_service_plan.asp_polaris.location
-  service_plan_id     = azurerm_service_plan.asp_polaris.id
+  name                      = "${local.resource_name}-cmsproxy"
+  resource_group_name       = azurerm_resource_group.rg_polaris.name
+  location                  = azurerm_service_plan.asp_polaris.location
+  service_plan_id           = azurerm_service_plan.asp_polaris.id
+  virtual_network_subnet_id = data.azurerm_subnet.polaris_proxy_subnet.id
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = "10.2.64.10"
-    "WEBSITE_DNS_ALT_SERVER"                   = "10.3.64.10"
+    "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
+    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    DOCKER_REGISTRY_SERVER_URL                 = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
-    DOCKER_REGISTRY_SERVER_USERNAME            = data.azurerm_container_registry.polaris_container_registry.admin_username
-    DOCKER_REGISTRY_SERVER_PASSWORD            = data.azurerm_container_registry.polaris_container_registry.admin_password
-    UPSTREAM_HOST                              = "10.2.177.14"
-    RESOLVER                                   = "10.2.64.10 10.3.64.10"
-    NGINX_ENVSUBST_OUTPUT_DIR                  = "/etc/nginx"
-    API_ENDPOINT                               = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/api"
-    FORCE_REFRESH_CONFIG                       = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
+    "UPSTREAM_HOST"                            = "10.2.177.14"
+    "UPSTREAM_HOSTNAME"                        = "10.2.177.14"
+    "RESOLVER"                                 = "10.2.64.10 10.3.64.10 10.7.197.20"
+    "DOCKER_REGISTRY_SERVER_URL"               = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
+    "DOCKER_REGISTRY_SERVER_USERNAME"          = data.azurerm_container_registry.polaris_container_registry.admin_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD"          = data.azurerm_container_registry.polaris_container_registry.admin_password
+    "NGINX_ENVSUBST_OUTPUT_DIR"                = "/etc/nginx"
+    "API_ENDPOINT"                             = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/api"
+    "FORCE_REFRESH_CONFIG"                     = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
   }
   site_config {
+    ftps_state     = "FtpsOnly"
+    http2_enabled  = true
+    ip_restriction = []
     application_stack {
-      docker_image     = "registry.hub.docker.com/library/nginx"
-      docker_image_tag = "1.23.3"
+      docker_image     = "nginx"
+      docker_image_tag = "latest"
     }
-    always_on              = true
-    vnet_route_all_enabled = true
+    always_on                               = true
+    vnet_route_all_enabled                  = true
+    container_registry_use_managed_identity = false
   }
   auth_settings {
-    enabled                       = true
+    enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "RedirectToLoginPage"
-    default_provider              = "AzureActiveDirectory"
+    unauthenticated_client_action = "AllowAnonymous"
+    /*default_provider              = "AzureActiveDirectory"
     active_directory {
       client_id         = module.azurerm_app_reg_polaris_proxy.client_id
       client_secret     = azuread_application_password.asap_polaris_cms_proxy.value
       allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/${local.resource_name}-cmsproxy"]
-    }
+    }*/
   }
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key
@@ -62,17 +68,18 @@ module "azurerm_app_reg_polaris_proxy" {
     # Microsoft Graph
     resource_app_id = "00000003-0000-0000-c000-000000000000"
     resource_access = [{
-      id   = "311a71cc-e848-46a1-bdf8-97ff7156d8e6" # read user
+      # User.Read
+      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
       type = "Scope"
     }]
   }]
-  web = {
+  /*web = {
     homepage_url  = "https://${local.resource_name}-cmsproxy.azurewebsites.net"
-    redirect_uris = ["https://getpostman.com/oauth2/callback"]
+    redirect_uris = ["https://getpostman.com/oauth2/callback", "https://${local.resource_name}-cmsproxy.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
-      access_token_issuance_enabled = true
+      id_token_issuance_enabled = true
     }
-  }
+  }*/
   tags = ["terraform"]
 }
 
@@ -94,6 +101,13 @@ resource "azuread_service_principal_password" "sp_polaris_cms_proxy_pw" {
   depends_on           = [module.azurerm_service_principal_sp_polaris_cms_proxy]
 }
 
+resource "azurerm_role_assignment" "ra_blob_data_contributor_polaris_proxy" {
+  scope                = azurerm_storage_container.polaris_proxy_content.resource_manager_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_linux_web_app.polaris_proxy.identity[0].principal_id
+  depends_on           = [azurerm_storage_account.sacpspolaris, azurerm_storage_container.polaris_proxy_content]
+}
+
 resource "azurerm_storage_blob" "nginx_config" {
   name                   = "nginx.conf.template"
   content_md5            = md5(file("nginx.conf"))
@@ -101,6 +115,7 @@ resource "azurerm_storage_blob" "nginx_config" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "nginx.conf"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 resource "azurerm_storage_blob" "nginx_js" {
@@ -110,11 +125,7 @@ resource "azurerm_storage_blob" "nginx_js" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "nginx.js"
-}
-
-resource "azurerm_app_service_virtual_network_swift_connection" "polaris_proxy_to_vnet" {
-  app_service_id = azurerm_linux_web_app.polaris_proxy.id
-  subnet_id      = data.azurerm_subnet.polaris_proxy_subnet.id
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 # Create Private Endpoint

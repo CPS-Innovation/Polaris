@@ -1,0 +1,19 @@
+.alertContent {
+  max-width: 520px;
+  padding: 20px 30px 30px;
+}
+
+.actionButtonsWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  margin-top: 30px;
+  :first-child {
+    margin-right: 20px;
+  }
+}
+
+.documentLinks {
+  display: flex;
+  flex-direction: column;
+}

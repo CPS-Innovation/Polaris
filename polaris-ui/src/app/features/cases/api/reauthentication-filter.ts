@@ -33,7 +33,7 @@ const tryHandleFirstAuthFail = (response: Response, window: Window) => {
     //  For the time being, we let the test env file disable this step by setting
     //  REAUTH_REDIRECT_URL to blank. Not optimal but this flow is tested by e2e tests.
     if (REAUTH_REDIRECT_URL) {
-      window.location.assign(nextUrl);
+      window.location.href = nextUrl;
     }
     // stop any follow-on logic occurring
     throw new CmsAuthRedirectingError();
