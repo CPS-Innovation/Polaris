@@ -35,7 +35,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Mock<ILogger> _mockLogger;
 
         private readonly coordinator.Domain.Tracker.Tracker _tracker;
-        private readonly coordinator.Functions.Tracker.TrackerStatus _trackerStatus;
+        private readonly coordinator.Functions.ClientFunctions.TrackerStatus _trackerStatus;
 
         public TrackerTests()
         {
@@ -69,7 +69,7 @@ namespace coordinator.tests.Domain.Tracker
                 .ReturnsAsync(_entityStateResponse);
 
             _tracker = new coordinator.Domain.Tracker.Tracker();
-            _trackerStatus = new coordinator.Functions.Tracker.TrackerStatus();
+            _trackerStatus = new coordinator.Functions.ClientFunctions.TrackerStatus();
         }
 
         [Fact]

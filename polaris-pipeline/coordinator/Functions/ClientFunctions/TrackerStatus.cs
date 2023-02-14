@@ -10,11 +10,11 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.Tracker
+namespace coordinator.Functions.ClientFunctions
 {
     public class TrackerStatus
     {
-        [FunctionName("TrackerStatus")]
+        [FunctionName(nameof(TrackerStatus))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/{caseUrn}/{caseId}/tracker")] HttpRequestMessage req,
             string caseUrn,
@@ -22,7 +22,7 @@ namespace coordinator.Functions.Tracker
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
-            const string loggingName = $"TrackerStatus - {nameof(HttpStart)}";
+            const string loggingName = $"{nameof(TrackerStatus)} - {nameof(HttpStart)}";
             const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
@@ -54,6 +54,5 @@ namespace coordinator.Functions.Tracker
             log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             return new OkObjectResult(stateResponse.EntityState);
         }
-
     }
 }
