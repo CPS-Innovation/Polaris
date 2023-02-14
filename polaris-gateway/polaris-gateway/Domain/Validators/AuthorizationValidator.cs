@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Extensions;
+using System.Security;
 
 namespace PolarisGateway.Domain.Validators
 {
@@ -33,34 +34,39 @@ namespace PolarisGateway.Domain.Validators
             if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
             _correlationId = correlationId;
             
-            var issuer = $"https://sts.windows.net/{Environment.GetEnvironmentVariable(ConfigurationKeys.TenantId)}/";
-            var audience = Environment.GetEnvironmentVariable(ConfigurationKeys.ValidAudience);
-            var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(issuer + "/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever(),
-                new HttpDocumentRetriever());
-
-            var discoveryDocument = await configurationManager.GetConfigurationAsync(default);
-            var signingKeys = discoveryDocument.SigningKeys;
-
-            var validationParameters = new TokenValidationParameters
-            {
-                RequireExpirationTime = true,
-                RequireSignedTokens = true,
-                ValidateIssuer = true,
-                ValidIssuer = issuer,
-                ValidateAudience = true,
-                ValidAudience = audience,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKeys = signingKeys,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(2),
-            };
-
             try
             {
+                var issuer = $"https://sts.windows.net/{Environment.GetEnvironmentVariable(ConfigurationKeys.TenantId)}/";
+                var audience = Environment.GetEnvironmentVariable(ConfigurationKeys.ValidAudience);
+                var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(issuer + "/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever(),
+                    new HttpDocumentRetriever());
+
+                var discoveryDocument = await configurationManager.GetConfigurationAsync(default);
+                var signingKeys = discoveryDocument.SigningKeys;
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    RequireExpirationTime = true,
+                    RequireSignedTokens = true,
+                    ValidateIssuer = true,
+                    ValidIssuer = issuer,
+                    ValidateAudience = true,
+                    ValidAudience = audience,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKeys = signingKeys,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(2),
+                };
+
                 var tokenValidator = new JwtSecurityTokenHandler(); 
                 var claimsPrincipal = tokenValidator.ValidateToken(token.ToJwtString(), validationParameters, out _);
                 
                 return IsValid(claimsPrincipal, requiredScopes, requiredRoles);
+            }
+            catch (InvalidOperationException invalidOperationException)
+            {
+                _log.LogMethodError(correlationId, nameof(ValidateTokenAsync), "An invalid operation exception was caught", invalidOperationException);
+                return false;
             }
             catch (SecurityTokenValidationException securityException)
             {

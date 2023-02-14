@@ -22,6 +22,7 @@ using PolarisGateway.Services;
 using PolarisGateway.Wrappers;
 using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
+using Microsoft.IdentityModel.Logging;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -32,6 +33,11 @@ namespace PolarisGateway
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+#if DEBUG
+            // https://stackoverflow.com/questions/54435551/invalidoperationexception-idx20803-unable-to-obtain-configuration-from-pii
+            IdentityModelEventSource.ShowPII = true;
+#endif
+
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)

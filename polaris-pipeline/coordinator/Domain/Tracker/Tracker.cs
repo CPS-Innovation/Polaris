@@ -262,7 +262,7 @@ namespace coordinator.Domain.Tracker
             return context.DispatchAsync<Tracker>();
         }
 
-        [FunctionName("TrackerStatus")]
+ /*       [FunctionName("TrackerStatus")]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/{caseUrn}/{caseId}/tracker")] HttpRequestMessage req,
             string caseUrn,
@@ -301,6 +301,6 @@ namespace coordinator.Domain.Tracker
 
             log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             return new OkObjectResult(stateResponse.EntityState);
-        }
+        } */
     }
 }
