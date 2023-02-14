@@ -22,7 +22,6 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
     {
         private readonly string _caseUrn;
         private readonly int _caseId;
-        private readonly string _accessToken;
         private readonly string _cmsAuthValues;
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _getTrackerHttpResponseMessage;
@@ -40,7 +39,6 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
             var fixture = new Fixture();
             _caseUrn = fixture.Create<string>();
             _caseId = fixture.Create<int>();
-            _accessToken = fixture.Create<string>();
             _cmsAuthValues = "sample-token";
             _httpRequestMessage = new HttpRequestMessage();
             _tracker = fixture.Create<Tracker>();
@@ -72,8 +70,8 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
 
             mockConfiguration.Setup(config => config[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]).Returns(_polarisPipelineFunctionAppKey);
 
-            _mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}", _accessToken, _cmsAuthValues, It.IsAny<Guid>())).Returns(_httpRequestMessage);
-            _mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}/tracker?code={_polarisPipelineFunctionAppKey}", _accessToken, It.IsAny<Guid>())).Returns(_httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}", _cmsAuthValues, It.IsAny<Guid>())).Returns(_httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}/tracker?code={_polarisPipelineFunctionAppKey}", It.IsAny<Guid>())).Returns(_httpRequestMessage);
 
             var stringContent = _getTrackerHttpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<Tracker>(stringContent, It.IsAny<Guid>())).Returns(_tracker);
@@ -85,32 +83,32 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         [Fact]
         public async Task TriggerCoordinator_UrlHasNoForceQueryWhenForceIsFalse()
         {
-            await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, false, _correlationId);
+            await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, false, _correlationId);
 
-            _mockRequestFactory.Verify(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}", _accessToken, _cmsAuthValues, _correlationId));
+            _mockRequestFactory.Verify(factory => factory.CreateGet($"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}", _cmsAuthValues, _correlationId));
         }
 
         [Fact]
         public async Task TriggerCoordinator_UrlHasForceQueryWhenForceIsTrue()
         {
             var url = $"cases/{_caseUrn}/{_caseId}?code={_polarisPipelineFunctionAppKey}&&force=true";
-            _mockRequestFactory.Setup(factory => factory.CreateGet(url, _accessToken, _cmsAuthValues, It.IsAny<Guid>())).Returns(_httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.CreateGet(url, _cmsAuthValues, It.IsAny<Guid>())).Returns(_httpRequestMessage);
 
-            await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, true, _correlationId);
+            await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, true, _correlationId);
 
-            _mockRequestFactory.Verify(factory => factory.CreateGet(url, _accessToken, _cmsAuthValues, _correlationId));
+            _mockRequestFactory.Verify(factory => factory.CreateGet(url, _cmsAuthValues, _correlationId));
         }
 
         [Fact]
         public async Task TriggerCoordinator_TriggersCoordinatorSuccessfully()
         {
-            await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, false, _correlationId);
+            await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, false, _correlationId);
         }
 
         [Fact]
         public async Task GetTracker_ReturnsTracker()
         {
-            var response = await _getTrackerPipelineClient.GetTrackerAsync(_caseUrn, _caseId, _accessToken, _correlationId);
+            var response = await _getTrackerPipelineClient.GetTrackerAsync(_caseUrn, _caseId, _correlationId);
 
             response.Should().Be(_tracker);
         }
@@ -120,7 +118,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         {
             _getTrackerHttpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-            var response = await _getTrackerPipelineClient.GetTrackerAsync(_caseUrn, _caseId, _accessToken, _correlationId);
+            var response = await _getTrackerPipelineClient.GetTrackerAsync(_caseUrn, _caseId, _correlationId);
 
             response.Should().BeNull();
         }

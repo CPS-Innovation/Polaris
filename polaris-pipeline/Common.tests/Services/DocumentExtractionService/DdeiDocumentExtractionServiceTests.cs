@@ -27,7 +27,6 @@ public class DdeiDocumentExtractionServiceTests
     private readonly string _caseId;
     private readonly string _documentCategory;
     private readonly string _documentId;
-    private readonly string _accessToken;
     private readonly string _cmsAuthValues;
     private readonly Guid _correlationId;
     private readonly HttpResponseMessage _httpResponseMessage;
@@ -45,7 +44,6 @@ public class DdeiDocumentExtractionServiceTests
         _caseId = _fixture.Create<string>();
         _documentCategory = _fixture.Create<string>();
         _documentId = _fixture.Create<string>();
-        _accessToken = _fixture.Create<string>();
         _cmsAuthValues = _fixture.Create<string>();
         _correlationId = _fixture.Create<Guid>();
 
@@ -73,7 +71,7 @@ public class DdeiDocumentExtractionServiceTests
 
         var mockHttpRequestFactory = new Mock<IHttpRequestFactory>();
 
-        mockHttpRequestFactory.Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
+        mockHttpRequestFactory.Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
@@ -94,7 +92,7 @@ public class DdeiDocumentExtractionServiceTests
     [Fact]
     public async Task GetDocumentAsync_ReturnsExpectedStream()
     {
-        var documentStream = await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _accessToken, _cmsAuthValues, _correlationId);
+        var documentStream = await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
 
         documentStream.Should().NotBeNull();
     }
@@ -104,7 +102,7 @@ public class DdeiDocumentExtractionServiceTests
     {
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-        await Assert.ThrowsAsync<HttpException>(() => _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _accessToken, _cmsAuthValues, _correlationId));
+        await Assert.ThrowsAsync<HttpException>(() => _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId));
     }
 
     [Fact]
@@ -115,7 +113,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _accessToken, _cmsAuthValues, _correlationId);
+            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
         }
         catch (HttpException exception)
         {
@@ -131,7 +129,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _accessToken, _cmsAuthValues, _correlationId);
+            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
         }
         catch (HttpException exception)
         {
@@ -144,7 +142,7 @@ public class DdeiDocumentExtractionServiceTests
     {
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-        await Assert.ThrowsAsync<HttpException>(() => _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId));
+        await Assert.ThrowsAsync<HttpException>(() => _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId));
     }
 
     [Fact]
@@ -155,7 +153,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId);
+            await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
         catch (HttpException exception)
         {
@@ -171,7 +169,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId);
+            await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
         catch (HttpException exception)
         {
@@ -182,7 +180,7 @@ public class DdeiDocumentExtractionServiceTests
     [Fact]
     public async Task ListDocumentsAsync_ReturnsMappedDocuments()
     {
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId);
+        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
 
         result.Length.Should().Be(_content.Count);
     }
@@ -194,7 +192,7 @@ public class DdeiDocumentExtractionServiceTests
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId);
+        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
 
         using (new AssertionScope())
         {
@@ -216,7 +214,7 @@ public class DdeiDocumentExtractionServiceTests
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _accessToken, _cmsAuthValues, _correlationId);
+        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
 
         using (new AssertionScope())
         {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using AutoFixture;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using pdf_generator.Domain;

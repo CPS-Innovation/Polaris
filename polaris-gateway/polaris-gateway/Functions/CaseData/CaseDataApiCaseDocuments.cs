@@ -1,6 +1,4 @@
-﻿// Temporarily comment out, this endpoint is now redundant, doesn't return GUID ids
-
-//using System;
+﻿//using System;
 //using System.Collections.Generic;
 //using System.Threading.Tasks;
 //using Microsoft.AspNetCore.Http;
@@ -23,14 +21,6 @@
 
 //namespace PolarisGateway.Functions.CaseData
 //{
-//    public class CaseDataApiCaseDocuments : BasePolarisFunction
-//    {
-//        private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
-//        private readonly ICaseDataService _caseDataService;
-//        private readonly ICaseDataArgFactory _caseDataArgFactory;
-//        private readonly ILogger<CaseDataApiCaseDocuments> _logger;
-//        private readonly DdeiOptions _ddeiOptions;
-
 //        public CaseDataApiCaseDocuments(ILogger<CaseDataApiCaseDocuments> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient, ICaseDataService caseDataService,
 //                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
 //        : base(logger, tokenValidator)
@@ -70,9 +60,6 @@
 //                if (!caseId.HasValue)
 //                    return BadRequestErrorResponse("CaseId is not supplied.", currentCorrelationId, loggingName);
 
-//                var ddeiScope = _ddeiOptions.DefaultScope;
-//                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {ddeiScope}");
-//                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), ddeiScope, currentCorrelationId);
 
 //                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case documents by Urn '{urn}' and CaseId '{caseId}'");
 //                documents = await _caseDataService.ListDocuments(_caseDataArgFactory.CreateCaseArg(onBehalfOfAccessToken, cmsAuthValues, currentCorrelationId, urn, caseId.Value));

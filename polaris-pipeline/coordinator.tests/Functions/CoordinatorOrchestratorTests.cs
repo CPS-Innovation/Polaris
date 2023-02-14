@@ -40,17 +40,11 @@ namespace coordinator.tests.Functions
         public CoordinatorOrchestratorTests()
         {
             var fixture = new Fixture();
-            var accessToken = fixture.Create<string>();
             _cmsAuthValues = fixture.Create<string>();
-            var caseUrn = fixture.Create<string>();
-            var caseId = fixture.Create<long>();
-            var correlationId = fixture.Create<Guid>();
-            var documentEvaluationActivityPayload = new DocumentEvaluationActivityPayload(caseUrn, caseId, correlationId);
             fixture.Create<Guid>();
             var durableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk"));
             _payload = fixture.Build<CoordinatorOrchestrationPayload>()
                         .With(p => p.ForceRefresh, false)
-                        .With(p => p.AccessToken, accessToken)
                         .With(p => p.CmsAuthValues, _cmsAuthValues)
                         .Create();
             _caseDocuments = fixture.Create<CmsCaseDocument[]>();
@@ -76,8 +70,6 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ITracker>(
                     It.Is<EntityId>(e => e.EntityName == nameof(Tracker).ToLower() && e.EntityKey == _payload.CaseId.ToString())))
                 .Returns(_mockTracker.Object);
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<string>(nameof(GetOnBehalfOfAccessToken), _payload.AccessToken))
-                .ReturnsAsync(accessToken);
             _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CmsCaseDocument[]>(nameof(GetCaseDocuments),
                     It.Is<GetCaseDocumentsActivityPayload>(p => p.CaseId == _payload.CaseId
                     && p.CmsAuthValues == _payload.CmsAuthValues && p.CorrelationId == _payload.CorrelationId)))

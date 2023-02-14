@@ -23,18 +23,10 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_coordinator_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"       = "600"
-    "OnBehalfOfTokenTenantId"                  = data.azurerm_client_config.current.tenant_id
-    "OnBehalfOfTokenClientId"                  = module.azurerm_app_reg_fa_coordinator.client_id
-    "OnBehalfOfTokenClientSecret"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_coordinator_client_secret.id})"
-    "PdfGeneratorScope"                        = "api://fa-${local.resource_name}-pdf-generator/.default"
     "PdfGeneratorUrl"                          = "https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/api/generate?code=${data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key}"
-    "TextExtractorScope"                       = "api://fa-${local.resource_name}-text-extractor/.default"
     "TextExtractorUrl"                         = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/extract?code=${data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key}"
-    "CallingAppTenantId"                       = data.azurerm_client_config.current.tenant_id
-    "CallingAppValidAudience"                  = "api://fa-${local.resource_name}-coordinator"
     "DocumentsRepositoryBaseUrl"               = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
     "ListDocumentsUrl"                         = "urns/{0}/cases/{1}/documents?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
-    "DdeiScope"                                = "api://fa-${local.ddei_resource_name}/user_impersonation"
   }
   https_only = true
 

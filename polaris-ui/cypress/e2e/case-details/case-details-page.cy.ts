@@ -48,6 +48,15 @@ describe("case details page", () => {
       cy.findByTestId("txt-defendant-name").contains("Walsh, Steve");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
     });
+    it("can show case charge details", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("div-charges").then(($charges) => {
+        cy.wrap($charges).findByTestId("charges-title").contains("Charges");
+        cy.wrap($charges).contains("Custody time limit: 20 Days");
+        cy.wrap($charges).contains("Custody end: 20 Nov 2022");
+      });
+    });
   });
 
   describe("pdf viewing", () => {

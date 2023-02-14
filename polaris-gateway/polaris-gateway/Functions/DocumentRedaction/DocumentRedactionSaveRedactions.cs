@@ -5,7 +5,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Domain.DocumentRedaction;
 using PolarisGateway.Domain.Validators;
 using System;
@@ -23,7 +22,6 @@ namespace PolarisGateway.Functions.DocumentRedaction
 {
     public class DocumentRedactionSaveRedactions : BasePolarisFunction
     {
-        private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly IRedactionClient _redactionClient;
         private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
         private readonly IDocumentService _documentService;
@@ -34,7 +32,7 @@ namespace PolarisGateway.Functions.DocumentRedaction
         private readonly IAuthorizationValidator tokenValidator;
         private readonly ILogger<DocumentRedactionSaveRedactions> _logger;
 
-        public DocumentRedactionSaveRedactions(ILogger<DocumentRedactionSaveRedactions> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient,
+        public DocumentRedactionSaveRedactions(ILogger<DocumentRedactionSaveRedactions> logger,
             //IDocumentRedactionClient documentRedactionClient,
             IRedactionClient redactionClient,
             IRedactPdfRequestMapper redactPdfRequestMapper,
@@ -43,7 +41,6 @@ namespace PolarisGateway.Functions.DocumentRedaction
             IConfiguration configuration, IAuthorizationValidator tokenValidator)
             : base(logger, tokenValidator)
         {
-            _onBehalfOfTokenClient = onBehalfOfTokenClient ?? throw new ArgumentNullException(nameof(onBehalfOfTokenClient));
             _redactionClient = redactionClient ?? throw new ArgumentNullException(nameof(redactionClient));
             _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
             _documentService = documentService ?? throw new ArgumentNullException(nameof(documentService));
@@ -90,16 +87,12 @@ namespace PolarisGateway.Functions.DocumentRedaction
                     return redactions.ToBadRequest();
                 }
 
-                var pdfPipelineScope = _configuration[ConfigurationKeys.PipelineRedactPdfScope];
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {pdfPipelineScope}");
-                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), pdfPipelineScope, currentCorrelationId);
-
                 //exchange access token via on behalf of for ultimate Cde access?
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Saving redaction details to the document for {caseId}, documentId {documentId}, fileName {fileName}");
 
 
                 var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value, caseId, documentId, fileName, currentCorrelationId);
-                var redactionResult = await _redactionClient.RedactPdfAsync(redactPdfRequest, onBehalfOfAccessToken, currentCorrelationId);
+                var redactionResult = await _redactionClient.RedactPdfAsync(redactPdfRequest, currentCorrelationId);
                 if (!redactionResult.Succeeded)
                 {
                     _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Error Saving redaction details to the document for {caseId}, documentId {documentId}, fileName {fileName}");

@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Factories;
 using System;
@@ -14,26 +12,20 @@ using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using System.Net;
-using PolarisGateway.Extensions;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
     public class PolarisPipelineTriggerCoordinator : BasePolarisFunction
     {
-        private readonly IOnBehalfOfTokenClient _onBehalfOfTokenClient;
         private readonly IPipelineClient _pipelineClient;
-        private readonly IConfiguration _configuration;
         private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
         private readonly ILogger<PolarisPipelineTriggerCoordinator> _logger;
 
-        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger, IOnBehalfOfTokenClient onBehalfOfTokenClient,
-                                 IPipelineClient pipelineClient, IConfiguration configuration,
-                                 ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory, IAuthorizationValidator tokenValidator)
+        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger, 
+                                 IPipelineClient pipelineClient, ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory, IAuthorizationValidator tokenValidator)
         : base(logger, tokenValidator)
         {
-            _onBehalfOfTokenClient = onBehalfOfTokenClient;
             _pipelineClient = pipelineClient;
-            _configuration = configuration;
             _triggerCoordinatorResponseFactory = triggerCoordinatorResponseFactory;
             _logger = logger;
         }
@@ -65,12 +57,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (req.Query.ContainsKey("force") && !bool.TryParse(req.Query["force"], out force))
                     return BadRequestErrorResponse("Invalid query string. Force value must be a boolean.", currentCorrelationId, loggingName);
 
-                var scopes = _configuration[ConfigurationKeys.PipelineCoordinatorScope];
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting an access token as part of OBO for the following scope {scopes}");
-                var onBehalfOfAccessToken = await _onBehalfOfTokenClient.GetAccessTokenAsync(validationResult.AccessTokenValue.ToJwtString(), scopes, currentCorrelationId);
-
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Triggering the pipeline for caseId: {caseId}, forceRefresh: {force}");
-                await _pipelineClient.TriggerCoordinatorAsync(urn, caseId, onBehalfOfAccessToken, "sample-token", force, currentCorrelationId);
+                await _pipelineClient.TriggerCoordinatorAsync(urn, caseId, "sample-token", force, currentCorrelationId);
 
                 return new OkObjectResult(_triggerCoordinatorResponseFactory.Create(req, currentCorrelationId));
             }

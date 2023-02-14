@@ -6,10 +6,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.PolarisPipeline;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
-using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
 
 namespace PolarisGateway.Functions.PolarisPipeline
@@ -32,7 +30,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
         {
             Guid currentCorrelationId = default;
             const string loggingName = "PolarisPipelineQuerySearchIndex - Run";
-            IList<StreamlinedSearchLine> searchResults = null;
 
             try
             {
@@ -49,7 +46,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (string.IsNullOrWhiteSpace(searchTerm))
                     return BadRequestErrorResponse("Search term is not supplied.", currentCorrelationId, loggingName);
 
-                searchResults = await _searchIndexClient.Query(caseId, searchTerm, currentCorrelationId);
+                var searchResults = await _searchIndexClient.Query(caseId, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }
