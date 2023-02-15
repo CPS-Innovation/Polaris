@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Responses;
 using Common.Factories;
@@ -9,6 +10,7 @@ using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.DocumentExtractionService;
 using Common.Services.DocumentExtractionService.Contracts;
+using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
 using coordinator.Factories;
@@ -30,30 +32,21 @@ namespace coordinator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            
+
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
             builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
-            
+
             builder.Services.AddHttpClient<IDdeiDocumentExtractionService, DdeiDocumentExtractionService>(client =>
             {
-                client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigKeys.SharedKeys.DocumentsRepositoryBaseUrl));
+                client.BaseAddress = new Uri(configuration.GetValueFromConfig(ConfigKeys.SharedKeys.DocumentsRepositoryBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-        }
-        
-        private static string GetValueFromConfig(IConfiguration configuration, string key)
-        {
-            var value = configuration[key];
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new Exception($"Value cannot be null: {key}");
-            }
 
-            return value;
+            builder.Services.AddBlobStorage(configuration);
         }
     }
 }

@@ -1,0 +1,56 @@
+﻿using Azure.Identity;
+using Azure.Storage.Blobs;
+using Common.Configuration;
+using Common.Constants;
+using Common.Services.BlobStorageService.Contracts;
+using coordinator.Clients;
+using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
+
+namespace Common.Services.Extensions
+{
+    public static class IServiceCollectionExtension
+    {
+        public static void AddBlobStorage(this IServiceCollection services, IConfigurationRoot configuration)
+        {
+            services.AddAzureClients(azureClientFactoryBuilder =>
+            {
+#if DEBUG 
+                if (configuration.IsSettingEnabled(DebugSettings.UseAzureStorageEmulatorFlag))
+                {
+                    azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
+                        .WithCredential(new DefaultAzureCredential());
+                }
+                else
+                {
+                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
+                        .WithCredential(new DefaultAzureCredential());
+                }
+#else
+                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
+                    .WithCredential(new DefaultAzureCredential());
+#endif
+            });
+
+            services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
+            {
+                var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
+                BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
+                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobContainerName);
+                return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
+            }));
+
+            /* services.AddTransient<IBlobStorageService>(serviceProvider =>
+            {
+                var loggingService = serviceProvider.GetService<ILogger<BlobStorageService.BlobStorageService>>();
+
+                return new BlobStorageService.BlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
+                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
+
+            }); */
+        }
+    }
+}

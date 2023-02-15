@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -64,6 +65,30 @@ namespace PolarisGateway.Clients.PolarisPipeline
 
             _logger.LogMethodExit(correlationId, nameof(GetTrackerAsync), $"Tracker details: {stringContent}");
             return _jsonConvertWrapper.DeserializeObject<Tracker>(stringContent, correlationId);
+        }
+
+        public async Task<Stream> GetPdfAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Acquiring the PDF with Polaris Document Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
+
+            HttpResponseMessage response;
+            try
+            {
+                response = await SendGetRequestAsync($"cases/{caseUrn}/{caseId}/documents/{polarisDocumentId}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", correlationId);
+            }
+            catch (HttpRequestException exception)
+            {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                throw;
+            }
+
+            var streamContent = await response.Content.ReadAsStreamAsync();
+
+            return streamContent;
         }
 
         private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, Guid correlationId)

@@ -50,9 +50,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (string.IsNullOrWhiteSpace(urn))
                     return BadRequestErrorResponse("An empty case URN was received - please correct.", currentCorrelationId, loggingName);
 
-                // if (!int.TryParse(caseId, out var _))
-                //     return BadRequestErrorResponse("Invalid case id. A 32-bit integer is required.", currentCorrelationId, loggingName);
-
                 var force = false;
                 if (req.Query.ContainsKey("force") && !bool.TryParse(req.Query["force"], out force))
                     return BadRequestErrorResponse("Invalid query string. Force value must be a boolean.", currentCorrelationId, loggingName);

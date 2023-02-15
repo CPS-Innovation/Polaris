@@ -8,9 +8,6 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
-// using PolarisGateway.Clients.DocumentExtraction;
-// using PolarisGateway.Clients.DocumentRedaction;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
@@ -23,6 +20,7 @@ using PolarisGateway.Services;
 using PolarisGateway.Wrappers;
 using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
+using Microsoft.IdentityModel.Logging;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -33,6 +31,11 @@ namespace PolarisGateway
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+#if DEBUG
+            // https://stackoverflow.com/questions/54435551/invalidoperationexception-idx20803-unable-to-obtain-configuration-from-pii
+            IdentityModelEventSource.ShowPII = true;
+#endif
+
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
@@ -66,7 +69,7 @@ namespace PolarisGateway
                 client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            
+
             builder.Services.AddSingleton(_ =>
             {
                 const string authInstanceUrl = AuthenticationKeys.AzureAuthenticationInstanceUrl;
@@ -86,18 +89,8 @@ namespace PolarisGateway
                 return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
             });
 
-            builder.Services.AddAzureClients(azureBuilder =>
-            {
-                azureBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
-                    .WithCredential(new DefaultAzureCredential());
-            });
-
-            builder.Services.AddTransient<IBlobStorageClient>(serviceProvider =>
-            {
-                var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
-                return new BlobStorageClient(serviceProvider.GetRequiredService<BlobServiceClient>(),
-                    GetValueFromConfig(configuration, ConfigurationKeys.BlobContainerName), logger);
-            });
+            // TODO - remove when Blob handling code moved to Pipeline
+            BuildBlobServiceClient(builder, configuration);
 
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
             builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
@@ -124,6 +117,23 @@ namespace PolarisGateway
             });
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+        }
+
+        private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
+        {
+            builder.Services.AddAzureClients(azureBuilder =>
+            {
+                azureBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
+                    .WithCredential(new DefaultAzureCredential());
+            });
+
+            builder.Services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
+            {
+                var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
+                BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
+                string blobServiceContainerName = GetValueFromConfig(configuration, ConfigurationKeys.BlobContainerName);
+                return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
+            }));
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

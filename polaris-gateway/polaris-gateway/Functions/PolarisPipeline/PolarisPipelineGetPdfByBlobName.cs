@@ -9,53 +9,52 @@ using System;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
-using System.Net.Http;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class PolarisPipelineGetPdf : BasePolarisFunction
+    public class PolarisPipelineGetPdfByBlobName : BasePolarisFunction
     {
-        private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineGetPdf> _logger;
+        private readonly IBlobStorageClient _blobStorageClient;
+        private readonly ILogger<PolarisPipelineGetPdfByBlobName> _logger;
 
-        public PolarisPipelineGetPdf(IPipelineClient pipelineClient, ILogger<PolarisPipelineGetPdf> logger, IAuthorizationValidator tokenValidator)
+        public PolarisPipelineGetPdfByBlobName(IBlobStorageClient blobStorageClient, ILogger<PolarisPipelineGetPdfByBlobName> logger, IAuthorizationValidator tokenValidator)
         : base(logger, tokenValidator)
         {
-            _pipelineClient = pipelineClient;
+            _blobStorageClient = blobStorageClient;
             _logger = logger;
         }
 
-        [FunctionName(nameof(PolarisPipelineGetPdf))]
+        [FunctionName(nameof(PolarisPipelineGetPdfByBlobName))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/documents/{id:guid}")] HttpRequest req, string urn, int caseId, Guid id)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pdfs/blob/{*blobName}")] HttpRequest req, string blobName)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = $"{nameof(PolarisPipelineGetPdf)} - Run";
+            const string loggingName = $"{nameof(PolarisPipelineGetPdfByBlobName)} - Run";
 
             try
             {
                 var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
-
+                
                 currentCorrelationId = validationResult.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                if (string.IsNullOrWhiteSpace(urn))
-                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                if (string.IsNullOrWhiteSpace(blobName))
+                    return BadRequestErrorResponse("Blob name is not supplied.", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting PDF for urn {urn}, caseId {caseId}, id {id}");
-                var blobStream = await _pipelineClient.GetPdfAsync(urn, caseId, id, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting PDF document from Polaris blob storage for blob named '{blobName}'");
+                var blobStream = await _blobStorageClient.GetDocumentAsync(blobName, currentCorrelationId);
 
                 return blobStream != null
-                                    ? new OkObjectResult(blobStream)
-                                    : NotFoundErrorResponse($"No pdf document found for document id '{id}'.", currentCorrelationId, loggingName);
+                    ? new OkObjectResult(blobStream)
+                    : NotFoundErrorResponse($"No pdf document found for blob name '{blobName}'.", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {
                 return exception switch
                 {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetPdfAsync)}.", currentCorrelationId, loggingName),
+                    RequestFailedException => InternalServerErrorResponse(exception, "A blob storage exception occurred.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

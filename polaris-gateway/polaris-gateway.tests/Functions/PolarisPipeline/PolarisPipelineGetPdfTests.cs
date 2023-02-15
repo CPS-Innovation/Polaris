@@ -18,34 +18,41 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 	public class PolarisPipelineGetPdfTests : SharedMethods.SharedMethods
 	{
         private readonly string _blobName;
-		private readonly Stream _blobStream;
+        private readonly string _caseUrn;
+        private readonly int _caseId;
+        private readonly Guid _polarisDocumentId;
+        private readonly Stream _blobStream;
 
-		private readonly Mock<IBlobStorageClient> _mockBlobStorageClient;
-		private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
+        private readonly Mock<IPipelineClient> _mockPipelineClient;
+        private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
 
         private readonly PolarisPipelineGetPdf _polarisPipelineGetPdf;
 
 		public PolarisPipelineGetPdfTests()
 		{
             var fixture = new Fixture();
-			_blobName = fixture.Create<string>();
+            _caseUrn = fixture.Create<string>();
+            _caseId = fixture.Create<int>();
+            _polarisDocumentId = fixture.Create<Guid>();
+
+            _blobName = fixture.Create<string>();
 			_blobStream = new MemoryStream();
 
-			_mockBlobStorageClient = new Mock<IBlobStorageClient>();
             var mockLogger = new Mock<ILogger<PolarisPipelineGetPdf>>();
+            _mockPipelineClient = new Mock<IPipelineClient>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+            _mockPipelineClient.Setup(client => client.GetPdfAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(_blobStream);
 
-            _mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>())).ReturnsAsync(_blobStream);
-
-			_polarisPipelineGetPdf = new PolarisPipelineGetPdf(_mockBlobStorageClient.Object, mockLogger.Object, _mockTokenValidator.Object);
+            _polarisPipelineGetPdf = new PolarisPipelineGetPdf(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object);
 		}
 		
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessCorrelationIdIsMissing()
 		{
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutCorrelationId(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutCorrelationId(), _caseUrn, _caseId, _polarisDocumentId);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
@@ -53,75 +60,65 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 		[Fact]
 		public async Task Run_ReturnsBadRequestWhenAccessTokenIsMissing()
 		{
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutToken(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequestWithoutToken(), _caseUrn, _caseId, _polarisDocumentId);
 
-			response.Should().BeOfType<BadRequestObjectResult>();
+            response.Should().BeOfType<BadRequestObjectResult>();
 		}
 
 		[Fact]
 		public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
         {
 	        _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId);
 
-			response.Should().BeOfType<UnauthorizedObjectResult>();
+            response.Should().BeOfType<UnauthorizedObjectResult>();
 		}
 
 		[Theory]
 		[InlineData(null)]
 		[InlineData("")]
 		[InlineData(" ")]
-		public async Task Run_ReturnsBadRequestWhenBlobNameIsInvalid(string blobName)
+		public async Task Run_ReturnsBadRequestWhenUrnIsInvalid(string caseUrn)
 		{
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), caseUrn, _caseId, _polarisDocumentId);
 
 			response.Should().BeOfType<BadRequestObjectResult>();
 		}
 
 		[Fact]
-		public async Task Run_ReturnsNotFoundWhenBlobStorageClientReturnsNull()
+		public async Task Run_ReturnsNotFoundWhenPipelineClientReturnsNull()
 		{
-			_mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>())).ReturnsAsync(default(Stream));
+            _mockPipelineClient.Setup(client => client.GetPdfAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
+				.ReturnsAsync(default(Stream));
 
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName);
+            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId);
 
-			response.Should().BeOfType<NotFoundObjectResult>();
+            response.Should().BeOfType<NotFoundObjectResult>();
 		}
 
 		[Fact]
 		public async Task Run_ReturnsOk()
 		{
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName);
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId);
 
-			response.Should().BeOfType<OkObjectResult>();
+            response.Should().BeOfType<OkObjectResult>();
 		}
 
 		[Fact]
 		public async Task Run_ReturnsBlobStream()
 		{
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName) as OkObjectResult;
+			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId) as OkObjectResult;
 
 			response?.Value.Should().Be(_blobStream);
 		}
 
 		[Fact]
-		public async Task Run_ReturnsInternalServerErrorWhenRequestFailedExceptionOccurs()
-		{
-			_mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>()))
-				.ThrowsAsync(new RequestFailedException(500, "Test request failed exception"));
-
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName) as ObjectResult;
-
-			response?.StatusCode.Should().Be(500);
-		}
-
-		[Fact]
 		public async Task Run_ReturnsInternalServerErrorWhenUnhandledExceptionOccurs()
 		{
-			_mockBlobStorageClient.Setup(client => client.GetDocumentAsync(_blobName, It.IsAny<Guid>()))
-				.ThrowsAsync(new Exception());
+            _mockPipelineClient.Setup(client => client.GetPdfAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ThrowsAsync(new Exception());
 
-			var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _blobName) as ObjectResult;
+            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId) as ObjectResult;
 
 			response?.StatusCode.Should().Be(500);
 		}
