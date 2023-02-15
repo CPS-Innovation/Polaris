@@ -1,4 +1,3 @@
-/*
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -117,4 +116,3 @@ namespace PolarisGateway.Functions.CmsAuthentication
         }
     }
 }
-*/
