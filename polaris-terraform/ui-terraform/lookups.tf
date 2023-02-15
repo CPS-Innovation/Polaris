@@ -77,6 +77,12 @@ data "azurerm_subnet" "polaris_ci_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_auth_handover_subnet" {
+  name                 = "${var.resource_name_prefix}-auth-handover-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_private_dns_zone" "dns_zone_blob_storage" {
   name                = "privatelink.blob.core.windows.net"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
