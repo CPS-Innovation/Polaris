@@ -32,7 +32,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         [FunctionName("Init")]
         public async Task<IActionResult> Get(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "init")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "init")] HttpRequest req,
             ILogger log)
         {
             Guid currentCorrelationId = Guid.NewGuid();
