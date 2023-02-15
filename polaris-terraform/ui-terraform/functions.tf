@@ -23,6 +23,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sacpspolaris.primary_connection_string
     "TenantId"                                 = data.azurerm_client_config.current.tenant_id
+    "ClientId"                                 = module.azurerm_app_reg_fa_polaris.client_id
+    "ClientSecret"                             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "PolarisPipelineCoordinatorBaseUrl"        = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
     "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.pipeline_resource_name}-pdf-generator.azurewebsites.net/api/"
@@ -116,7 +118,8 @@ module "azurerm_app_reg_fa_polaris" {
   web = {
     redirect_uris = ["https://fa-${local.resource_name}-gateway.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
-      id_token_issuance_enabled = true
+      id_token_issuance_enabled     = true
+      access_token_issuance_enabled = true
     }
   }
   tags = ["terraform"]
