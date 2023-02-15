@@ -1,10 +1,26 @@
 .uniqueReferenceNumber {
   margin-bottom: 10px !important;
 }
-
-.namesub {
-  font-weight: 400;
-  font-size: 16px;
+.defendantsList {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+}
+.defendantDetailsLink {
+  font-size: 1rem;
+}
+.defendantDetails {
+  display: flex;
+  flex-direction: column;
+  .defendantName {
+    margin-bottom: 0px;
+  }
+  .defendantDOB {
+    font-size: 1rem;
+  }
 }
 
 .mainContent {
