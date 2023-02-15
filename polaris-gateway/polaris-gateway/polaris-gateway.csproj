@@ -71,7 +71,4 @@
   <ItemGroup>
     <Folder Include="Domain\DocumentExtraction\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="authorization.json" />
-  </ItemGroup>
 </Project>

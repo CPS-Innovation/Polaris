@@ -19,6 +19,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DOCKER_REGISTRY_SERVER_PASSWORD"          = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                = "/etc/nginx"
     "API_ENDPOINT"                             = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/api"
+    "DDEI_ENDPOINT"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/login?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
     "FORCE_REFRESH_CONFIG"                     = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
   }
   site_config {

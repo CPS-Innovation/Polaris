@@ -24,6 +24,7 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   }
 
   site_config {
+    always_on              = true
     ftps_state             = "FtpsOnly"
     http2_enabled          = true
     ip_restriction         = []

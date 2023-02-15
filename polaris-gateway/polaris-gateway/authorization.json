@@ -1,0 +1,9 @@
+﻿{
+  "routes": [{
+    "path_prefix": "/",
+    "policies": { "unauthenticated_action": "RedirectToLoginPage" }
+  },{
+    "path_prefix": "/api/init",
+    "policies": { "unauthenticated_action": "AllowAnonymous" }
+  }]
+}
