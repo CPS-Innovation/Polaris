@@ -1,0 +1,45 @@
+trigger:
+    branches:
+      include:
+      - main
+      
+    paths:
+      include:
+      - "polaris-gateway/polaris-auth-handover/*"
+
+pool:
+    vmImage: "ubuntu-latest"
+
+variables:
+    functionName: "polaris-auth-handover"
+    appName: "fa-polaris-auth-handover"
+    buildConfiguration: "Release"
+
+steps:
+    - task: UseDotNet@2
+      displayName: "Use .NET Core sdk"
+      inputs:
+          packageType: "sdk"
+          version: "6.0.x"
+          includePreviewVersions: true
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: "build"
+          projects: "$(functionName)/$(functionName)/$(functionName).csproj"
+          arguments: "--configuration $(buildConfiguration)"
+      displayName: "Build"
+
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: publish
+          publishWebProjects: false
+          projects: "$(functionName)/$(functionName)/$(functionName).csproj"
+          arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
+          zipAfterPublish: False
+      displayName: "Publish"
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+          pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+          artifactName: "$(functionName)-drop"
+          publishLocation: "Container"
