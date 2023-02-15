@@ -1,6 +1,6 @@
-import { checkMultipleDefendantsOrCharges } from "./checkMultipleDefendantsOrCharges";
+import { isMultipleChargeCase } from "./isMultipleChargeCase";
 import { CaseDetails } from "../../../domain/CaseDetails";
-describe("checkMultipleDefendantsOrCharges util", () => {
+describe("isMultipleChargeCase util", () => {
   it("Should return true if there are more than one defendants in caseDetails", () => {
     const caseDetails: CaseDetails = {
       id: 13401,
@@ -17,7 +17,7 @@ describe("checkMultipleDefendantsOrCharges util", () => {
         },
       ],
     } as any;
-    const result = checkMultipleDefendantsOrCharges(caseDetails);
+    const result = isMultipleChargeCase(caseDetails);
     expect(result).toEqual(true);
   });
 
@@ -32,7 +32,7 @@ describe("checkMultipleDefendantsOrCharges util", () => {
         },
       ],
     } as any;
-    const result = checkMultipleDefendantsOrCharges(caseDetails);
+    const result = isMultipleChargeCase(caseDetails);
     expect(result).toEqual(true);
   });
 
@@ -47,7 +47,31 @@ describe("checkMultipleDefendantsOrCharges util", () => {
         },
       ],
     } as any;
-    const result = checkMultipleDefendantsOrCharges(caseDetails);
+    const result = isMultipleChargeCase(caseDetails);
+    expect(result).toEqual(false);
+  });
+
+  it("Should not break if the defendants charges array is empty", () => {
+    const caseDetails: CaseDetails = {
+      id: 13401,
+      defendants: [
+        {
+          defendantDetails: {},
+          custodyTimeLimit: {},
+          charges: [],
+        },
+      ],
+    } as any;
+    const result = isMultipleChargeCase(caseDetails);
+    expect(result).toEqual(false);
+  });
+
+  it("Should not break if the caseDetails.defendants array is empty", () => {
+    const caseDetails: CaseDetails = {
+      id: 13401,
+      defendants: [],
+    } as any;
+    const result = isMultipleChargeCase(caseDetails);
     expect(result).toEqual(false);
   });
 });

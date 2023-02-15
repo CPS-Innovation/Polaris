@@ -59,16 +59,16 @@ export const KeyDetails: React.FC<{
           data-testid="defendant-details"
         >
           <span className={`govuk-heading-s ${classes.defendantName}`}>
-            {defendantsList[0].defendantDetails.surname},{" "}
-            {defendantsList[0].defendantDetails.firstNames}
+            {caseDetails.leadDefendantDetails.surname},{" "}
+            {caseDetails.leadDefendantDetails.firstNames}
           </span>
           <span className={`${classes.defendantDOB}`}>
             DOB:{" "}
             {formatDate(
-              defendantsList[0].defendantDetails.dob,
+              caseDetails.leadDefendantDetails.dob,
               CommonDateTimeFormats.ShortDateTextMonth
             )}
-            . Age: {getAgeFromIsoDate(defendantsList[0].defendantDetails.dob)}
+            . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
           </span>
         </div>
       )}
