@@ -18,7 +18,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         private readonly ILogger<InitiateCookies> _logger;
         private readonly ICmsModernTokenService _cmsModernTokenService;
         private readonly ICmsAuthValuesFactory _cmsAuthValuesFactory;
-        
+
         public InitiateCookies(
             ILogger<InitiateCookies> logger,
             ICmsModernTokenService cmsModernTokenService,
@@ -98,7 +98,8 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
               new CookieOptions
               {
                   HttpOnly = true,
-                  Path = "/api/"
+                  Path = "/api/",
+                  SameSite = SameSiteMode.None
               }
             );
         }
