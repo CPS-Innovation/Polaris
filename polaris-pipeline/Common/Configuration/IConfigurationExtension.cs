@@ -3,7 +3,7 @@ using System;
 
 namespace Common.Configuration
 {
-    internal static class IConfigurationExtension
+    public static class IConfigurationExtension
     {
         public static bool IsSettingEnabled(this IConfiguration configuration, string settingName)
         {
@@ -15,5 +15,17 @@ namespace Common.Configuration
 
             return false;
         }
+
+        public static string GetValueFromConfig(this IConfiguration configuration, string secretName)
+        {
+            var secret = configuration[secretName];
+            if (string.IsNullOrWhiteSpace(secret))
+            {
+                throw new Exception($"Secret cannot be null: {secretName}");
+            }
+
+            return secret;
+        }
+
     }
 }

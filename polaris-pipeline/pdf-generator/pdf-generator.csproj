@@ -19,11 +19,11 @@
 
     <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
 
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.7.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.2" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
 
     <PackageReference Include="Aspose.Cells" Version="22.3.0" />
     <PackageReference Include="Aspose.Slides.NET" Version="22.2.0" />
@@ -32,7 +32,7 @@
     <PackageReference Include="Aspose.Diagram" Version="22.3.0" />
     <PackageReference Include="Aspose.PDF" Version="22.3.0" />
     <PackageReference Include="Aspose.Email" Version="22.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Domain\Requests\" />
