@@ -71,4 +71,10 @@
   <ItemGroup>
     <Folder Include="Domain\DocumentExtraction\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="authorization.json" />
+    <Content Include="authorization.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
