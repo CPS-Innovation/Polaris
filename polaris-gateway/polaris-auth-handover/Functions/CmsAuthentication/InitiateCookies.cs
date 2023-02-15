@@ -98,7 +98,8 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
               new CookieOptions
               {
                   HttpOnly = true,
-                  Path = "/api/"
+                  Path = "/api/",
+                  Domain = ".azurewebsites.net"
               }
             );
         }
