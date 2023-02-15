@@ -59,7 +59,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 return exception switch
                 {
                     MsalException => InternalServerErrorResponse(exception, "An onBehalfOfToken exception occurred.", currentCorrelationId, loggingName),
-                    HttpRequestException => InternalServerErrorResponse(exception, "A pipeline client http exception occurred when calling GetTracker.", currentCorrelationId, loggingName),
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetTrackerAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }
