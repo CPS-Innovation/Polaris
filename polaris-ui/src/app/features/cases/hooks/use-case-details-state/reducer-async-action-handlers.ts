@@ -21,6 +21,12 @@ const UNLOCKED_STATES_REQUIRING_LOCK: CaseDocumentViewModel["clientLockedState"]
 type State = Parameters<typeof reducer>[0];
 type Action = Parameters<typeof reducer>[1];
 
+const getOldWorldId = (document: CaseDocumentViewModel) => {
+  // temporary function to allow us to use old-world ids for the redaction endpoints
+  //  but new-world guid ids for reading and storing documents.
+  return document.CmsDocumentId!;
+};
+
 type AsyncActions =
   | {
       type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
@@ -183,7 +189,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(urn, caseId, cmsDocCategory, documentId);
+      await cancelCheckoutDocument(
+        urn,
+        caseId,
+        cmsDocCategory,
+        getOldWorldId(document) // documentId
+      );
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -224,7 +235,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(urn, caseId, cmsDocCategory, documentId);
+      await cancelCheckoutDocument(
+        urn,
+        caseId,
+        cmsDocCategory,
+        getOldWorldId(document) // documentId
+      );
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -247,9 +263,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         urn,
       } = getState();
 
-      const { redactionHighlights, pdfBlobName, cmsDocCategory } = items.find(
-        (item) => item.documentId === documentId
-      )!;
+      const document = items.find((item) => item.documentId === documentId)!;
+
+      const { redactionHighlights, pdfBlobName, cmsDocCategory } = document;
 
       const redactionSaveRequest = mapRedactionSaveRequest(
         documentId,
@@ -262,7 +278,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         urn,
         caseId,
         cmsDocCategory,
-        documentId,
+        getOldWorldId(document), // documentId
         pdfBlobName!, // todo: better typing, but we're guaranteed to have a pdfBlobName anyhow
         redactionSaveRequest
       );

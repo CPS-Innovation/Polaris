@@ -16,6 +16,7 @@ export type PipelineDocumentProperties = {
 
 export type PresentationDocumentProperties = {
   documentId: string;
+  CmsDocumentId?: string;
   cmsOriginalFileName: string;
   cmsMimeType: string;
   cmsFileCreatedDate: string;

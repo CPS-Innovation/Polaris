@@ -339,6 +339,7 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
+                CmsDocumentId: "a",
                 cmsDocCategory: "MGForm",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
@@ -370,7 +371,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkInSpy).toBeCalledWith("foo", 2, "MGForm", "1");
+        expect(checkInSpy).toBeCalledWith("foo", 2, "MGForm", "a");
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -452,6 +453,7 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
+                CmsDocumentId: "a",
                 cmsDocCategory: "MGForm",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
@@ -482,7 +484,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkInSpy).toBeCalledWith("foo", 2, "MGForm", "1");
+        expect(checkInSpy).toBeCalledWith("foo", 2, "MGForm", "a");
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -511,6 +513,7 @@ describe("reducerAsyncActionHandlers", () => {
           items: [
             {
               documentId: "1",
+              CmsDocumentId: "a",
               cmsDocCategory: "MGForm",
               redactionHighlights,
               pdfBlobName: "baz",
@@ -563,7 +566,7 @@ describe("reducerAsyncActionHandlers", () => {
         "foo",
         2,
         "MGForm",
-        "1",
+        "a",
         "baz",
         mockRedactionSaveRequest
       );
