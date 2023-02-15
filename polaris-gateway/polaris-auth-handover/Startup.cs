@@ -4,14 +4,14 @@ using System.Net.Http.Headers;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PolarisGateway.Factories;
-using PolarisGateway.CaseDataImplementations.Ddei.Clients;
-using PolarisGateway.CaseDataImplementations.Ddei.Options;
-using PolarisGateway.CaseDataImplementations.Ddei.Services;
-using PolarisGateway.Services;
-using PolarisGateway.Wrappers;
-using PolarisGateway.CaseDataImplementations.Ddei.Factories;
-using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
+using PolarisAuthHandover.CaseDataImplementations.Ddei.Clients;
+using PolarisAuthHandover.CaseDataImplementations.Ddei.Factories;
+using PolarisAuthHandover.CaseDataImplementations.Ddei.Mappers;
+using PolarisAuthHandover.CaseDataImplementations.Ddei.Options;
+using PolarisAuthHandover.CaseDataImplementations.Ddei.Services;
+using PolarisAuthHandover.Factories;
+using PolarisAuthHandover.Services;
+using PolarisAuthHandover.Wrappers;
 
 [assembly: FunctionsStartup(typeof(PolarisAuthHandover.Startup))]
 

@@ -6,11 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway;
-using PolarisGateway.Domain.CaseData.Args;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway.Factories;
-using PolarisGateway.Services;
+using PolarisAuthHandover.Domain.CaseData.Args;
+using PolarisAuthHandover.Domain.Logging;
+using PolarisAuthHandover.Factories;
+using PolarisAuthHandover.Services;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {

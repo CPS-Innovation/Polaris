@@ -2,7 +2,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.Logging;
+using PolarisAuthHandover.Domain.Logging;
 
 namespace PolarisAuthHandover.Functions;
 

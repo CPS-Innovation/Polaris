@@ -5,6 +5,10 @@
         <RootNamespace>PolarisAuthHandover</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
         <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
     </ItemGroup>
     <ItemGroup>
@@ -15,8 +19,5 @@
         <None Update="host.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\polaris-gateway\polaris-gateway.csproj" />
     </ItemGroup>
 </Project>
