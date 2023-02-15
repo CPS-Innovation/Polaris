@@ -1,3 +1,5 @@
+data "azuread_client_config" "current" {}
+
 data "azuread_application" "fa_pipeline_coordinator" {
   display_name = "fa-${local.pipeline_resource_name}-coordinator-appreg"
 }

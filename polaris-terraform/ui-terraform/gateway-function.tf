@@ -1,6 +1,4 @@
 #################### Functions ####################
-data "azuread_client_config" "current" {}
-
 resource "azurerm_linux_function_app" "fa_polaris" {
   name                        = "fa-${local.resource_name}-gateway"
   location                    = azurerm_resource_group.rg_polaris.location

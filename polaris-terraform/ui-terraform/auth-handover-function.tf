@@ -1,5 +1,3 @@
-data "azuread_client_config" "current" {}
-
 resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   name                        = "fa-${local.resource_name}-auth-handover"
   location                    = azurerm_resource_group.rg_polaris.location
