@@ -45,7 +45,7 @@ const caseDetails: CaseDetails[] = [
           expiryDays: 20,
           expiryIndicator: "Active",
         },
-        charges: [{}, {}] as any,
+        charges: [],
       },
     ],
   },
