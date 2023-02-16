@@ -55,6 +55,7 @@ public static class LoggingExtensions
         var messages = ex.FromHierarchy(ex => ex.InnerException)
             .Select(ex => ex.Message);
         var exceptionMessages = string.Join(Environment.NewLine, messages);
+        exceptionMessages = exceptionMessages.Length > 0 ? string.Concat(errorMessage, Environment.NewLine, exceptionMessages) : errorMessage;
         
         MethodExceptionAction(logger, correlationId, methodName, exceptionMessages, ex);
     }
