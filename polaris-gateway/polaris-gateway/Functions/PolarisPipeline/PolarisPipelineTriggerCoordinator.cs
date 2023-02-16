@@ -58,7 +58,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                     return BadRequestErrorResponse("Invalid query string. Force value must be a boolean.", currentCorrelationId, loggingName);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Triggering the pipeline for caseId: {caseId}, forceRefresh: {force}");
-                await _pipelineClient.TriggerCoordinatorAsync(urn, caseId, "sample-token", force, currentCorrelationId);
+                await _pipelineClient.TriggerCoordinatorAsync(urn, caseId, validationResult.CmsAuthValues, force, currentCorrelationId);
 
                 return new OkObjectResult(_triggerCoordinatorResponseFactory.Create(req, currentCorrelationId));
             }
