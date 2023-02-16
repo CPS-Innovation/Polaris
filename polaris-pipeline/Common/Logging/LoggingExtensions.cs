@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace Common.Logging;
@@ -51,6 +52,10 @@ public static class LoggingExtensions
     public static void LogMethodError(this ILogger logger, Guid correlationId, string methodName,
         string errorMessage, Exception ex)
     {
-        MethodExceptionAction(logger, correlationId, methodName, errorMessage, ex);
+        var messages = ex.FromHierarchy(ex => ex.InnerException)
+            .Select(ex => ex.Message);
+        var exceptionMessages = string.Join(Environment.NewLine, messages);
+        
+        MethodExceptionAction(logger, correlationId, methodName, exceptionMessages, ex);
     }
 }
