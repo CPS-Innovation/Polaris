@@ -12,25 +12,25 @@ using PolarisGateway.Domain.Validators;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class PolarisPipelineGetSasUrl : BasePolarisFunction
+    public class PolarisPipelineGetSasUrlByBlobName : BasePolarisFunction
     {
         private readonly ISasGeneratorService _sasGeneratorService;
-        private readonly ILogger<PolarisPipelineGetSasUrl> _logger;
+        private readonly ILogger<PolarisPipelineGetSasUrlByBlobName> _logger;
 
-        public PolarisPipelineGetSasUrl(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetSasUrl> logger, ISasGeneratorService sasGeneratorService)
+        public PolarisPipelineGetSasUrlByBlobName(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetSasUrlByBlobName> logger, ISasGeneratorService sasGeneratorService)
             : base(logger, tokenValidator)
         {
             _sasGeneratorService = sasGeneratorService ?? throw new ArgumentNullException(nameof(sasGeneratorService));
             _logger = logger;
         }
 
-        [FunctionName("PolarisPipelineGetSasUrl")]
+        [FunctionName(nameof(PolarisPipelineGetSasUrlByBlobName))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pdf/sasUrl/{*blobName}")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pdf/blob/sasUrl/{*blobName}")]
             HttpRequest req, string blobName)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "PolarisPipelineGetSasUrl - Run";
+            const string loggingName = $"{nameof(PolarisPipelineGetSasUrlByBlobName)} - Run";
 
             try
             {
