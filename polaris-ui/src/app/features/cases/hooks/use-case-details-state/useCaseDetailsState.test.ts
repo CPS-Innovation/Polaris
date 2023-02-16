@@ -1,5 +1,4 @@
 import { useCaseDetailsState, initialState } from "./useCaseDetailsState";
-import * as searchCaseWhenReady from "./search-case-when-ready";
 import * as api from "../../api/gateway-api";
 import * as pipelineApi from "../use-pipeline-api/usePipelineApi";
 import { CaseDocument } from "../../domain/CaseDocument";
@@ -39,15 +38,6 @@ describe("useCaseDetailsState", () => {
           )
       );
 
-    const mockSearchCaseWhenAllReady = jest
-      .spyOn(searchCaseWhenReady, "searchCaseWhenReady")
-      .mockImplementation(
-        () =>
-          new Promise((resolve) =>
-            setTimeout(() => resolve([] as ApiTextSearchResult[]), 100)
-          )
-      );
-
     const mockSearchCase = jest
       .spyOn(api, "searchCase")
       .mockImplementation(
@@ -57,7 +47,7 @@ describe("useCaseDetailsState", () => {
           )
       );
 
-    jest.spyOn(useApi, "useApi").mockImplementation((del, p0, p1, p2, p3) => {
+    jest.spyOn(useApi, "useApi").mockImplementation((del, params) => {
       if (isSameRef(del, mockGetCaseDetails)) {
         return { status: "succeeded", data: "getCaseDetails" };
       }
@@ -68,12 +58,6 @@ describe("useCaseDetailsState", () => {
         return {
           status: "succeeded",
           data: "searchCase",
-        };
-      }
-      if (isSameRef(del, mockSearchCaseWhenAllReady)) {
-        return {
-          status: "succeeded",
-          data: "searchCaseWhenAllReady",
         };
       }
       throw new Error("Should not be here");
@@ -137,10 +121,7 @@ describe("useCaseDetailsState", () => {
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "UPDATE_SEARCH_RESULTS",
-        payload: {
-          status: "succeeded",
-          data: "searchCaseWhenAllReady",
-        },
+        payload: { status: "succeeded", data: "searchCase" },
       });
     });
   });

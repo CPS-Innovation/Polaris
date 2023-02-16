@@ -10,7 +10,7 @@ describe("useApi", () => {
     );
 
     const { result, waitForNextUpdate } = renderHook(() =>
-      useApi(mockApiCall, "1")
+      useApi(mockApiCall, ["1"])
     );
 
     expect(result.current).toEqual({ status: "loading" });
@@ -26,7 +26,7 @@ describe("useApi", () => {
     );
 
     const { result, waitForNextUpdate } = renderHook(() =>
-      useApi(mockApiCall, "1")
+      useApi(mockApiCall, ["1"])
     );
 
     expect(result.current).toEqual({ status: "loading" });
@@ -42,7 +42,7 @@ describe("useApi", () => {
     );
 
     const { result, waitForNextUpdate } = renderHook(() =>
-      useApi(mockApiCall, "1", 2, "3")
+      useApi(mockApiCall, ["1", 2, "3"])
     );
 
     expect(result.current).toEqual({ status: "loading" });
@@ -60,7 +60,7 @@ describe("useApi", () => {
         new Promise((resolve) => setTimeout(() => resolve(mockResult), 10))
     );
 
-    const { rerender } = renderHook(() => useApi(mockApiCall, "1"));
+    const { rerender } = renderHook(() => useApi(mockApiCall, ["1"]));
 
     expect(mockApiCall.mock.calls.length).toEqual(1);
     rerender();
@@ -74,7 +74,7 @@ describe("useApi", () => {
         new Promise((resolve) => setTimeout(() => resolve(mockResult), 10))
     );
 
-    const { rerender } = renderHook(({ del, p1 }) => useApi(del, p1), {
+    const { rerender } = renderHook(({ del, p1 }) => useApi(del, [p1]), {
       initialProps: {
         del: mockApiCall,
         p1: "1",

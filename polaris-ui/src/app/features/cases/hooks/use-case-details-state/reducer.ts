@@ -23,7 +23,10 @@ import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 export const reducer = (
   state: CombinedState,
   action:
-    | { type: "UPDATE_CASE_DETAILS"; payload: ApiResult<CaseDetails> }
+    | {
+        type: "UPDATE_CASE_DETAILS";
+        payload: ApiResult<CaseDetails>;
+      }
     | {
         type: "UPDATE_CASE_DOCUMENTS";
         payload: ApiResult<CaseDocument[]>;
@@ -404,6 +407,7 @@ export const reducer = (
       };
 
     case "UPDATE_SEARCH_RESULTS":
+      console.log("UPDATE_SEARCH_RESULTS>>");
       if (action.payload.status === "failed") {
         throw action.payload.error;
       }

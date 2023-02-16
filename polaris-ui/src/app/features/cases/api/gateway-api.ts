@@ -54,6 +54,8 @@ export const searchUrn = async (urn: string) => {
 };
 
 export const getCaseDetails = async (urn: string, caseId: number) => {
+  console.log("getCaseDetails>>urn", urn);
+  console.log("getCaseDetails>>caseId", caseId);
   const url = buildEncodedUrl(
     { urn, caseId },
     ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}`
@@ -143,6 +145,7 @@ export const searchCase = async (
   caseId: number,
   searchTerm: string
 ) => {
+  console.log("real search>>>>");
   const path = buildEncodedUrl(
     { caseId, searchTerm, urn },
     ({ caseId, searchTerm, urn }) =>
