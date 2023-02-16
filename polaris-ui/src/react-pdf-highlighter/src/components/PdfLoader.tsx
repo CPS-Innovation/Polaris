@@ -84,6 +84,7 @@ export class PdfLoader extends Component<Props, State> {
           ownerDocument,
           cMapUrl,
           cMapPacked,
+          withCredentials: true
         }).promise.then((pdfDocument) => {
           this.setState({ pdfDocument });
         });
