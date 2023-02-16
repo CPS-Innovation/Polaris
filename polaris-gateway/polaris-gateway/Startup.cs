@@ -98,6 +98,15 @@ namespace PolarisGateway
             });
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+
+            BuildHealthChecks(builder);
+        }
+
+        // see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        // Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHealthChecks();
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)

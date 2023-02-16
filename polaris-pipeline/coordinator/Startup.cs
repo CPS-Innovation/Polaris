@@ -6,6 +6,7 @@ using Common.Constants;
 using Common.Domain.Responses;
 using Common.Factories;
 using Common.Factories.Contracts;
+using Common.Health;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.DocumentExtractionService;
@@ -47,6 +48,18 @@ namespace coordinator
             });
 
             builder.Services.AddBlobStorage(configuration);
+
+            BuildHealthChecks(builder);
+        }
+
+        /// <summary>
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHealthChecks();
         }
     }
 }

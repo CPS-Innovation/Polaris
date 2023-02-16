@@ -51,6 +51,8 @@ namespace text_extractor
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
+
+            BuildHealthChecks(builder);
         }
 
         private static void BuildAzureClients(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
@@ -105,6 +107,16 @@ namespace text_extractor
 #else
             builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
 #endif
+        }
+
+        /// <summary>
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHealthChecks();
         }
     }
 }
