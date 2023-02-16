@@ -110,7 +110,8 @@ namespace PolarisGateway.Functions.CmsAuthentication
               new CookieOptions
               {
                   HttpOnly = true,
-                  Path = "/api/"
+                  Path = "/api/",
+                  Secure = true
               }
             );
         }
