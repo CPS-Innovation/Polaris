@@ -1,10 +1,11 @@
-env = "qa"
-location = "UK South"
-environment_tag="QA"
-app_service_plan_web_sku = "S1"
+env                          = "qa"
+location                     = "UK South"
+environment_tag              = "qa"
+app_service_plan_web_sku     = "P1v2"
+app_service_plan_gateway_sku = "EP1"
 
 polaris_webapp_details = {
-    valid_audience = "https://CPSGOVUK.onmicrosoft.com/fa-polaris-qa-gateway"
-    valid_scopes = "user_impersonation"
-    valid_roles = ""
+  valid_audience = "https://CPSGOVUK.onmicrosoft.com/fa-polaris-qa-gateway"
+  valid_scopes   = "user_impersonation"
+  valid_roles    = ""
 }

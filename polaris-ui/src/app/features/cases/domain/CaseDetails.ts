@@ -5,11 +5,13 @@ export type CaseDetails = {
   numberOfDefendants: number;
   leadDefendantDetails: DefendantDetails;
   headlineCharge: HeadlineCharge;
-  defendants: {
-    defendantDetails: DefendantDetails;
-    custodyTimeLimit: CustodyTimeLimit;
-    charges: Charge[];
-  }[];
+  defendants: Defendant[];
+};
+
+type Defendant = {
+  defendantDetails: DefendantDetails;
+  custodyTimeLimit: CustodyTimeLimit;
+  charges: Charge[];
 };
 
 type DefendantDetails = {
@@ -42,8 +44,8 @@ type Charge = {
   custodyTimeLimit: CustodyTimeLimit;
 };
 
-type CustodyTimeLimit = {
+export type CustodyTimeLimit = {
   expiryDate: string;
   expiryDays: number;
-  expiryIndicator: string;
+  expiryIndicator: "Active" | "Expired" | null;
 };

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Common.Adapters;
 using Common.Constants;
 using Common.Domain.Responses;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Handlers;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.DocumentExtractionService;
@@ -17,7 +15,6 @@ using coordinator.Factories;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Identity.Client;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -33,26 +30,7 @@ namespace coordinator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddSingleton(_ =>
-            {
-                const string instance = AuthenticationKeys.AzureAuthenticationInstanceUrl;
-                var onBehalfOfTokenTenantId = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.TenantId);
-                var onBehalfOfTokenClientId = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.ClientId);
-                var onBehalfOfTokenClientSecret = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.ClientSecret);
-                var appOptions = new ConfidentialClientApplicationOptions
-                {
-                    Instance = instance,
-                    TenantId = onBehalfOfTokenTenantId,
-                    ClientId = onBehalfOfTokenClientId,
-                    ClientSecret = onBehalfOfTokenClientSecret
-                };
-
-                var authority = $"{instance}{onBehalfOfTokenTenantId}/";
-
-                return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
-            });
-            builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
-            builder.Services.AddTransient<IIdentityClientAdapter, IdentityClientAdapter>();
+            
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();

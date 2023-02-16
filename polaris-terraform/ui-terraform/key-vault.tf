@@ -6,6 +6,12 @@ resource "azurerm_key_vault" "kv_polaris" {
   resource_group_name = azurerm_resource_group.rg_polaris.name
   tenant_id           = data.azurerm_client_config.current.tenant_id
 
+  enabled_for_deployment          = true
+  enabled_for_template_deployment = true
+  enable_rbac_authorization       = true
+  purge_protection_enabled        = true
+  soft_delete_retention_days      = 90
+
   sku_name = "standard"
 
   network_acls {
@@ -26,6 +32,11 @@ resource "azurerm_private_endpoint" "polaris_key_vault_pe" {
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_keyvault.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_keyvault.id]
+  }
 
   private_service_connection {
     name                           = "${azurerm_key_vault.kv_polaris.name}-psc"

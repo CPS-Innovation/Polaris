@@ -4,14 +4,12 @@ using System.Linq;
 using System.Net.Http.Headers;
 using Azure.Identity;
 using Azure.Storage.Blobs;
-using Common.Adapters;
 using Common.Constants;
 using Common.Domain.Requests;
 using Common.Domain.Responses;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Handlers;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.BlobStorageService;
@@ -27,7 +25,6 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using pdf_generator.Domain.Validators;
 using pdf_generator.Factories;
 using pdf_generator.Handlers;
@@ -48,26 +45,6 @@ namespace pdf_generator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            
-            builder.Services.AddSingleton(_ =>
-            {
-                const string instance = AuthenticationKeys.AzureAuthenticationInstanceUrl;
-                var onBehalfOfTokenTenantId = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.TenantId);
-                var onBehalfOfTokenClientId = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.ClientId);
-                var onBehalfOfTokenClientSecret = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.ClientSecret);
-                var appOptions = new ConfidentialClientApplicationOptions
-                {
-                    Instance = instance,
-                    TenantId = onBehalfOfTokenTenantId,
-                    ClientId = onBehalfOfTokenClientId,
-                    ClientSecret = onBehalfOfTokenClientSecret
-                };
-
-                var authority = $"{instance}{onBehalfOfTokenTenantId}/";
-
-                return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
-            });
-            builder.Services.AddTransient<IIdentityClientAdapter, IdentityClientAdapter>();
             
             builder.Services.AddSingleton<IPdfService, WordsPdfService>();
             builder.Services.AddSingleton<IPdfService, CellsPdfService>();
@@ -98,7 +75,6 @@ namespace pdf_generator
             builder.Services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
             builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequest>, ValidatorWrapper<GeneratePdfRequest>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
 
@@ -128,17 +104,6 @@ namespace pdf_generator
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
-        }
-        
-        private static string GetValueFromConfig(IConfiguration configuration, string secretName)
-        {
-            var secret = configuration[secretName];
-            if (string.IsNullOrWhiteSpace(secret))
-            {
-                throw new Exception($"Secret cannot be null: {secretName}");
-            }
-
-            return secret;
         }
     }
 }

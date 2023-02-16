@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Common.Domain.Extensions;
 using Common.Logging;
 using coordinator.Domain;
@@ -22,7 +21,7 @@ namespace coordinator.Functions.ActivityFunctions
         }
 
         [FunctionName("CreateTextExtractorHttpRequest")]
-        public async Task<DurableHttpRequest> Run([ActivityTrigger] IDurableActivityContext context)
+        public DurableHttpRequest Run([ActivityTrigger] IDurableActivityContext context)
         {
             const string loggingName = $"{nameof(CreateTextExtractorHttpRequest)} - {nameof(Run)}";
             var payload = context.GetInput<TextExtractorHttpRequestActivityPayload>();
@@ -41,7 +40,7 @@ namespace coordinator.Functions.ActivityFunctions
                 throw new ArgumentException("CorrelationId must be valid GUID");
             
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            var result = await _textExtractorHttpRequestFactory.Create(payload.CaseId, payload.DocumentId, payload.VersionId, payload.BlobName, payload.CorrelationId);
+            var result = _textExtractorHttpRequestFactory.Create(payload.CaseId, payload.DocumentId, payload.VersionId, payload.BlobName, payload.CorrelationId);
             
             _log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
             return result;

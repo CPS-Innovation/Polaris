@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Web;
 using Common.Constants;
 using Common.Domain.Exceptions;
-using Common.Handlers;
 using Common.Logging;
 using coordinator.Domain;
 using Microsoft.Azure.WebJobs;
@@ -21,12 +20,10 @@ namespace coordinator.Functions
     public class CoordinatorStart
     {
         private readonly ILogger<CoordinatorStart> _logger;
-        private readonly IAuthorizationValidator _authorizationValidator;
-
-        public CoordinatorStart(ILogger<CoordinatorStart> logger, IAuthorizationValidator authorizationValidator)
+        
+        public CoordinatorStart(ILogger<CoordinatorStart> logger)
         {
             _logger = logger;
-            _authorizationValidator = authorizationValidator ?? throw new ArgumentNullException(nameof(authorizationValidator));
         }
 
         [FunctionName("CoordinatorStart")]
@@ -56,10 +53,6 @@ namespace coordinator.Functions
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, req.RequestUri?.Query);
 
-                var authValidation = await _authorizationValidator.ValidateTokenAsync(req.Headers.Authorization, currentCorrelationId);
-                if (!authValidation.Item1)
-                    throw new UnauthorizedException("Token validation failed");
-
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     throw new BadRequestException("A case URN must be supplied.", caseUrn);
 
@@ -87,7 +80,7 @@ namespace coordinator.Functions
                     await orchestrationClient.StartNewAsync(
                         nameof(CoordinatorOrchestrator),
                         caseId,
-                        new CoordinatorOrchestrationPayload(caseUrn, caseIdNum, forceRefresh, authValidation.Item2, cmsAuthValues, currentCorrelationId));
+                        new CoordinatorOrchestrationPayload(caseUrn, caseIdNum, forceRefresh, cmsAuthValues, currentCorrelationId));
 
                     _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Orchestrator StartUp Succeeded - Started {nameof(CoordinatorOrchestrator)} with instance id '{caseId}'");
                 }

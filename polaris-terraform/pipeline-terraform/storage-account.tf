@@ -10,9 +10,10 @@ resource "azurerm_storage_account" "sa" {
 
   min_tls_version = "TLS1_2"
 
-  identity {
-    type = "SystemAssigned"
+  network_rules {
+    default_action = "Allow"
   }
+
   tags = local.common_tags
 }
 
@@ -28,19 +29,6 @@ resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
     data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
     data.azurerm_subnet.polaris_textextractor_subnet.id,
     data.azurerm_subnet.polaris_gateway_subnet.id
-  ]
-}
-
-resource "azurerm_storage_account_customer_managed_key" "polaris_storage_pipeline_cmk" {
-  storage_account_id = azurerm_storage_account.sa.id
-  key_vault_id       = azurerm_key_vault.kv.id
-  key_name           = azurerm_key_vault_key.kvap_sa_customer_managed_key.name
-
-  depends_on = [
-    azurerm_role_assignment.kv_role_sa_kvcseu,
-    azurerm_key_vault_key.kvap_sa_customer_managed_key,
-    azurerm_storage_account.sa,
-    azurerm_role_assignment.kv_role_terraform_sp
   ]
 }
 
@@ -96,6 +84,11 @@ resource "azurerm_private_endpoint" "pipeline_sa_blob_pe" {
   subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_blob_storage.id]
+  }
+
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-blob-psc"
     private_connection_resource_id = azurerm_storage_account.sa.id
@@ -121,6 +114,11 @@ resource "azurerm_private_endpoint" "pipeline_sa_table_pe" {
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
   tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_table_storage.id]
+  }
 
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-table-psc"
@@ -148,6 +146,11 @@ resource "azurerm_private_endpoint" "pipeline_sa_file_pe" {
   subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_file_storage.id]
+  }
+
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-file-psc"
     private_connection_resource_id = azurerm_storage_account.sa.id
@@ -173,6 +176,11 @@ resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
   location            = azurerm_resource_group.rg.location
   subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
   tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_queue_storage.id]
+  }
 
   private_service_connection {
     name                           = "sacps${var.env != "prod" ? var.env : ""}polarispipeline-queue-psc"

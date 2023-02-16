@@ -54,6 +54,9 @@
     <None Remove="Azure.Search.Documents" />
     <None Remove="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" />
     <None Remove="Microsoft.Azure.Core.NewtonsoftJson" />
+    <None Update="authorization.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -61,12 +64,11 @@
     </None>
     <None Update="local.settings.json">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>local.Designer.cs</LastGenOutput>
     </None>
     <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      <LastGenOutput>local.settings.Designer.cs</LastGenOutput>
+      <Generator></Generator>
     </None>
   </ItemGroup>
   <ItemGroup>

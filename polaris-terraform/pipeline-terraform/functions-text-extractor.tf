@@ -11,13 +11,13 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   functions_extension_version = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_VNET_ROUTE_ALL"                   = "1"
-    "WEBSITE_DNS_SERVER"                       = "10.2.64.10"
-    "WEBSITE_DNS_ALT_SERVER"                   = "10.3.64.10"
+    "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
+    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
@@ -25,8 +25,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
     "BlobServiceUrl"                           = azurerm_storage_account.sa.primary_blob_endpoint
-    "CallingAppTenantId"                       = data.azurerm_client_config.current.tenant_id
-    "CallingAppValidAudience"                  = "api://fa-${local.resource_name}-text-extractor"
     "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
     "ComputerVisionClientServiceUrl"           = azurerm_cognitive_account.computer_vision_service.endpoint
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
@@ -40,6 +38,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     ftps_state                       = "FtpsOnly"
     http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled           = true
   }
 
   identity {
@@ -47,15 +46,9 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   }
 
   auth_settings {
-    enabled                       = true
+    enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "RedirectToLoginPage"
-    default_provider              = "AzureActiveDirectory"
-    active_directory {
-      client_id         = module.azurerm_app_reg_fa_text_extractor.client_id
-      client_secret     = azuread_application_password.faap_fa_text_extractor_app_service.value
-      allowed_audiences = ["api://fa-${local.resource_name}-text-extractor"]
-    }
+    unauthenticated_client_action = "AllowAnonymous"
   }
 
   lifecycle {
@@ -74,7 +67,7 @@ module "azurerm_app_reg_fa_text_extractor" {
   identifier_uris         = ["api://fa-${local.resource_name}-text-extractor"]
   prevent_duplicate_names = true
   #use this code for adding app_roles
-  app_role = [
+  /*app_role = [
     {
       allowed_member_types = ["Application"]
       description          = "Can parse document texts using the ${local.resource_name} Polaris Text Extractor"
@@ -82,7 +75,7 @@ module "azurerm_app_reg_fa_text_extractor" {
       id                   = element(random_uuid.random_id[*].result, 3)
       value                = "application.extracttext"
     }
-  ]
+  ]*/
   #use this code for adding api permissions
   required_resource_access = [{
     # Microsoft Graph
@@ -93,12 +86,7 @@ module "azurerm_app_reg_fa_text_extractor" {
       type = "Scope"
     }]
   }]
-  web = {
-    redirect_uris = ["https://fa-${local.resource_name}-text-extractor.azurewebsites.net/.auth/login/aad/callback"]
-    implicit_grant = {
-      id_token_issuance_enabled = true
-    }
-  }
+
   tags = ["terraform"]
 }
 
@@ -138,6 +126,11 @@ resource "azurerm_private_endpoint" "pipeline_text_extractor_pe" {
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 
+  private_dns_zone_group {
+    name                 = data.azurerm_private_dns_zone.dns_zone_apps.name
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_apps.id]
+  }
+
   private_service_connection {
     name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-psc"
     private_connection_resource_id = azurerm_linux_function_app.fa_text_extractor.id
@@ -156,28 +149,12 @@ resource "azurerm_private_dns_a_record" "pipeline_text_extractor_dns_a" {
   tags                = local.common_tags
 }
 
-# Create a second Private Endpoint to point to the SCM for deployments
-resource "azurerm_private_endpoint" "pipeline_text_extractor_scm_pe" {
-  name                = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-pe"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
-  tags                = local.common_tags
-
-  private_service_connection {
-    name                           = "${azurerm_linux_function_app.fa_text_extractor.name}-scm-psc"
-    private_connection_resource_id = azurerm_linux_function_app.fa_text_extractor.id
-    is_manual_connection           = false
-    subresource_names              = ["sites"]
-  }
-}
-
-# Create DNS A to match for SCM record
+# Create DNS A to match for SCM record for SCM deployments
 resource "azurerm_private_dns_a_record" "pipeline_text_extractor_scm_dns_a" {
   name                = "${azurerm_linux_function_app.fa_text_extractor.name}.scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_text_extractor_scm_pe.private_service_connection.0.private_ip_address]
+  records             = [azurerm_private_endpoint.pipeline_text_extractor_pe.private_service_connection.0.private_ip_address]
   tags                = local.common_tags
 }

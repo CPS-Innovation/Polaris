@@ -7,7 +7,6 @@ using Common.Constants;
 using Common.Domain.DocumentEvaluation;
 using Common.Domain.DocumentExtraction;
 using Common.Domain.Extensions;
-using Common.Domain.Requests;
 using Common.Logging;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
@@ -151,17 +150,9 @@ namespace coordinator.Functions
             CoordinatorOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
-
-            //exchange token for DDEI-specific token as part of OBO authentication
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, "Get DDEI access token");
-            var ddeiScope = _configuration[ConfigKeys.SharedKeys.DdeiScope];
-            var accessTokenRequest = new GetOnBehalfOfTokenRequest(payload.AccessToken, ddeiScope, payload.CorrelationId);
-            var accessToken = await context.CallActivityAsync<string>(nameof(GetOnBehalfOfAccessToken), accessTokenRequest);
-
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CaseId}");
             var documents = await context.CallActivityAsync<CaseDocument[]>(
                 nameof(GetCaseDocuments),
-                new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, accessToken, payload.CmsAuthValues, payload.CorrelationId));
+                new GetCaseDocumentsActivityPayload(payload.CaseUrn, payload.CaseId, payload.CmsAuthValues, payload.CorrelationId));
 
             if (documents.Length != 0) return documents;
             //if (documents.Length != 0) return documents.Where(x => x.FileName == "PNCWitnessPrintsTestFile.pdf").ToArray();

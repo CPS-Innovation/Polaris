@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 // using PolarisGateway.Clients.DocumentExtraction;
 // using PolarisGateway.Clients.DocumentRedaction;
-using PolarisGateway.Clients.OnBehalfOfTokenClient;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
@@ -44,7 +43,6 @@ namespace PolarisGateway
             {
                 configuration.GetSection("searchClient").Bind(settings);
             });
-            builder.Services.AddTransient<IOnBehalfOfTokenClient, OnBehalfOfTokenClient>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
@@ -68,22 +66,22 @@ namespace PolarisGateway
                 client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-
+            
             builder.Services.AddSingleton(_ =>
             {
-                const string instance = AuthenticationKeys.AzureAuthenticationInstanceUrl;
-                var onBehalfOfTokenTenantId = GetValueFromConfig(configuration, ConfigurationKeys.TenantId);
-                var onBehalfOfTokenClientId = GetValueFromConfig(configuration, ConfigurationKeys.ClientId);
-                var onBehalfOfTokenClientSecret = GetValueFromConfig(configuration, ConfigurationKeys.ClientSecret);
+                const string authInstanceUrl = AuthenticationKeys.AzureAuthenticationInstanceUrl;
+                var tenantId = GetValueFromConfig(configuration, ConfigurationKeys.TenantId);
+                var clientId = GetValueFromConfig(configuration, ConfigurationKeys.ClientId);
+                var clientSecret = GetValueFromConfig(configuration, ConfigurationKeys.ClientSecret);
                 var appOptions = new ConfidentialClientApplicationOptions
                 {
-                    Instance = instance,
-                    TenantId = onBehalfOfTokenTenantId,
-                    ClientId = onBehalfOfTokenClientId,
-                    ClientSecret = onBehalfOfTokenClientSecret
+                    Instance = authInstanceUrl,
+                    TenantId = tenantId,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret
                 };
 
-                var authority = $"{instance}{onBehalfOfTokenTenantId}/";
+                var authority = $"{authInstanceUrl}{tenantId}/";
 
                 return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
             });

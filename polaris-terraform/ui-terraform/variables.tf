@@ -1,7 +1,7 @@
 #################### Variables ####################
 
 variable "resource_name_prefix" {
-  type = string
+  type    = string
   default = "polaris"
 }
 
@@ -10,7 +10,7 @@ variable "networking_resource_name_suffix" {
 }
 
 variable "env" {
-  type = string 
+  type = string
 }
 
 variable "location" {
@@ -22,6 +22,10 @@ variable "app_service_plan_web_sku" {
   type = string
 }
 
+variable "app_service_plan_gateway_sku" {
+  type = string
+}
+
 variable "environment_tag" {
   type        = string
   description = "Environment tag value"
@@ -30,7 +34,7 @@ variable "environment_tag" {
 variable "polaris_webapp_details" {
   type = object({
     valid_audience = string
-    valid_scopes = string
-	valid_roles = string
+    valid_scopes   = string
+    valid_roles    = string
   })
 }

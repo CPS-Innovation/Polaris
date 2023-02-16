@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
@@ -13,12 +13,16 @@ import { PdfTabsEmpty } from "./pdf-tabs/PdfTabsEmpty";
 import { SearchBox } from "./search-box/SearchBox";
 import { ResultsModal } from "./results/ResultsModal";
 import { Charges } from "./Charges";
-
+import { Modal } from "../../../../common/presentation/components/Modal";
+import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
+import { useNavigationAlert } from "../../hooks/useNavigationAlert";
+import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
+  const history = useHistory();
   const { id, urn } = useParams<{ id: string; urn: string }>();
 
   const {
@@ -42,14 +46,50 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleOpenPdfInNewTab,
   } = useCaseDetailsState(urn, +id);
 
+  const {
+    showAlert,
+    setShowAlert,
+    newPath,
+    navigationUnblockHandle,
+    unSavedRedactionDocs,
+  } = useNavigationAlert(tabsState.items);
+
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
     return <WaitPage />;
   }
 
+  const isMultipleDefendantsOrCharges = isMultipleChargeCase(caseState.data);
+
   return (
     <>
+      {showAlert && (
+        <Modal
+          isVisible
+          handleClose={() => {
+            setShowAlert(false);
+          }}
+          type="alert"
+        >
+          <NavigationAwayAlertContent
+            type="casefile"
+            unSavedRedactionDocs={unSavedRedactionDocs}
+            handleCancelAction={() => {
+              setShowAlert(false);
+            }}
+            handleContinueAction={() => {
+              setShowAlert(false);
+              navigationUnblockHandle.current();
+              history.push(newPath);
+            }}
+            handleOpenPdf={(params) => {
+              setShowAlert(false);
+              handleOpenPdf({ ...params, mode: "read" });
+            }}
+          />
+        </Modal>
+      )}
       {searchState.isResultsVisible && (
         <ResultsModal
           {...{
@@ -75,9 +115,14 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn}`}
           >
             <div>
-              <KeyDetails caseDetails={caseState.data} />
+              <KeyDetails
+                caseDetails={caseState.data}
+                isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+              />
 
-              <Charges caseDetails={caseState.data} />
+              {!isMultipleDefendantsOrCharges && (
+                <Charges caseDetails={caseState.data} />
+              )}
 
               <SearchBox
                 data-testid="search-case"

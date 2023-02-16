@@ -1,7 +1,7 @@
 terraform {
 
   required_version = ">=1.0.0"
-  
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -12,10 +12,10 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 2.15.0"
     }
-    
+
     restapi = {
-      source = "Mastercard/restapi"
-      version = "1.16.1"
+      source  = "Mastercard/restapi"
+      version = "~> 1.18.0"
     }
   }
 
@@ -25,7 +25,7 @@ terraform {
     key                  = "__terraform_key__"
     access_key           = "__storage_key__"
   }
-  
+
   /*backend "azurerm" {
     resource_group_name  = "rg-terraform"
     //storage_account_name = "cpsqastorageterraform" //QA
@@ -57,7 +57,7 @@ provider "azurerm" {
 
 locals {
   pipeline_resource_name = var.env != "prod" ? "${var.pipeline_resource_name_prefix}-${var.env}" : var.pipeline_resource_name_prefix
-  gateway_resource_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}-gateway" : "${var.polaris_resource_name_prefix}-gateway"
+  gateway_resource_name  = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}-gateway" : "${var.polaris_resource_name_prefix}-gateway"
 }
 
 data "azurerm_client_config" "current" {}
