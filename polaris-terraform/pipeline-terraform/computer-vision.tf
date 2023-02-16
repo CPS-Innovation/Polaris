@@ -6,9 +6,15 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
   tags                = local.common_tags
 
   sku_name                           = "S1"
-  custom_subdomain_name              = "polaris${var.env}"
   outbound_network_access_restricted = true
   public_network_access_enabled      = false
+
+  network_acls {
+    default_action = "Deny"
+    virtual_network_rules {
+      subnet_id = data.azurerm_subnet.polaris_textextractor_subnet.id
+    }
+  }
 }
 
 # Create Private Endpoint
