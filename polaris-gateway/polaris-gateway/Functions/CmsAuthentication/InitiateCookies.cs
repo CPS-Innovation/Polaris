@@ -111,6 +111,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
               {
                   HttpOnly = true,
                   Path = "/api/",
+                  SameSite = SameSiteMode.None,
                   Secure = true
               }
             );
