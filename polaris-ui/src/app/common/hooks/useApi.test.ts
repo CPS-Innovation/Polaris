@@ -93,16 +93,22 @@ describe("useApi", () => {
 
   it("should make an api call, only if the 3rd parameter of the useAPi hook is not false", async () => {
     const mockApiCall = jest.fn(
-      (a: string) => new Promise((resolve) => resolve(a))
+      (p: string) =>
+        new Promise((resolve) => setTimeout(() => resolve("mockResult"), 10))
     );
 
-    const { result } = renderHook(() => useApi(mockApiCall, ["1"], false));
+    const { result, rerender } = renderHook(
+      ({ makeCall }) => useApi(mockApiCall, ["1"], makeCall),
+      { initialProps: { makeCall: false } }
+    );
     expect(mockApiCall).not.toHaveBeenCalled();
     expect(result.current).toEqual({ status: "initial" });
 
     //just another assertion to specifically prove the reverse, third parameter by default is true
-    const { result: newResult } = renderHook(() => useApi(mockApiCall, ["1"]));
+    rerender({
+      makeCall: true,
+    });
     expect(mockApiCall).toHaveBeenCalledTimes(1);
-    expect(newResult.current).toEqual({ status: "loading" });
+    expect(result.current).toEqual({ status: "loading" });
   });
 });
