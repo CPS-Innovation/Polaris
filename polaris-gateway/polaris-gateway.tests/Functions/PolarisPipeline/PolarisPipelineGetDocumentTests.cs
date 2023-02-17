@@ -15,7 +15,7 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
-	public class PolarisPipelineGetPdfTests : SharedMethods.SharedMethods
+	public class PolarisPipelineGetDocumentTests : SharedMethods.SharedMethods
 	{
         private readonly string _blobName;
         private readonly string _caseUrn;
@@ -26,9 +26,9 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         private readonly Mock<IPipelineClient> _mockPipelineClient;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
 
-        private readonly PolarisPipelineGetPdf _polarisPipelineGetPdf;
+        private readonly PolarisPipelineGetDocument _polarisPipelineGetPdf;
 
-		public PolarisPipelineGetPdfTests()
+		public PolarisPipelineGetDocumentTests()
 		{
             var fixture = new Fixture();
             _caseUrn = fixture.Create<string>();
@@ -38,15 +38,15 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _blobName = fixture.Create<string>();
 			_blobStream = new MemoryStream();
 
-            var mockLogger = new Mock<ILogger<PolarisPipelineGetPdf>>();
+            var mockLogger = new Mock<ILogger<PolarisPipelineGetDocument>>();
             _mockPipelineClient = new Mock<IPipelineClient>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
-            _mockPipelineClient.Setup(client => client.GetPdfAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.GetDocumentAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ReturnsAsync(_blobStream);
 
-            _polarisPipelineGetPdf = new PolarisPipelineGetPdf(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object);
+            _polarisPipelineGetPdf = new PolarisPipelineGetDocument(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object);
 		}
 		
 		[Fact]
@@ -88,7 +88,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 		[Fact]
 		public async Task Run_ReturnsNotFoundWhenPipelineClientReturnsNull()
 		{
-            _mockPipelineClient.Setup(client => client.GetPdfAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.GetDocumentAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
 				.ReturnsAsync(default(Stream));
 
             var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId);
@@ -115,7 +115,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 		[Fact]
 		public async Task Run_ReturnsInternalServerErrorWhenUnhandledExceptionOccurs()
 		{
-            _mockPipelineClient.Setup(client => client.GetPdfAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.GetDocumentAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception());
 
             var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId) as ObjectResult;

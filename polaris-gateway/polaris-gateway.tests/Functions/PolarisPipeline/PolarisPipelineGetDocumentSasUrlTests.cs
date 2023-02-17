@@ -15,7 +15,7 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
-	public class PolarisPipelineGetSasUrlTests : SharedMethods.SharedMethods
+	public class PolarisPipelineGetDocumentSasUrlTests : SharedMethods.SharedMethods
 	{
         private readonly string _blobName;
         private readonly string _fakeSasUrl;
@@ -25,7 +25,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
         private readonly PolarisPipelineGetSasUrlByBlobName _polarisPipelineGetSasUrl;
 
-		public PolarisPipelineGetSasUrlTests()
+		public PolarisPipelineGetDocumentSasUrlTests()
 		{
             var fixture = new Fixture();
 			_blobName = fixture.Create<string>();

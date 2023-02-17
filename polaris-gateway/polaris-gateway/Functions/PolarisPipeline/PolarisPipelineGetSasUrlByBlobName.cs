@@ -24,6 +24,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
+        [Obsolete]
         [FunctionName(nameof(PolarisPipelineGetSasUrlByBlobName))]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pdf/blob/sasUrl/{*blobName}")]

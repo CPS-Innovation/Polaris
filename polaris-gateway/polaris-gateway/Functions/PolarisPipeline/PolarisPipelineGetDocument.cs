@@ -13,24 +13,24 @@ using System.Net.Http;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class PolarisPipelineGetPdf : BasePolarisFunction
+    public class PolarisPipelineGetDocument : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineGetPdf> _logger;
+        private readonly ILogger<PolarisPipelineGetDocument> _logger;
 
-        public PolarisPipelineGetPdf(IPipelineClient pipelineClient, ILogger<PolarisPipelineGetPdf> logger, IAuthorizationValidator tokenValidator)
+        public PolarisPipelineGetDocument(IPipelineClient pipelineClient, ILogger<PolarisPipelineGetDocument> logger, IAuthorizationValidator tokenValidator)
         : base(logger, tokenValidator)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;
         }
 
-        [FunctionName(nameof(PolarisPipelineGetPdf))]
+        [FunctionName(nameof(PolarisPipelineGetDocument))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/pdfs/{id:guid}")] HttpRequest req, string urn, int caseId, Guid id)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/documents/{id:guid}")] HttpRequest req, string urn, int caseId, Guid id)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = $"{nameof(PolarisPipelineGetPdf)} - Run";
+            const string loggingName = $"{nameof(PolarisPipelineGetDocument)} - Run";
 
             try
             {
@@ -44,18 +44,18 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (string.IsNullOrWhiteSpace(urn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting PDF for urn {urn}, caseId {caseId}, id {id}");
-                var blobStream = await _pipelineClient.GetPdfAsync(urn, caseId, id, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting document for urn {urn}, caseId {caseId}, id {id}");
+                var blobStream = await _pipelineClient.GetDocumentAsync(urn, caseId, id, currentCorrelationId);
 
                 return blobStream != null
                                     ? new OkObjectResult(blobStream)
-                                    : NotFoundErrorResponse($"No pdf document found for document id '{id}'.", currentCorrelationId, loggingName);
+                                    : NotFoundErrorResponse($"No document found for document id '{id}'.", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {
                 return exception switch
                 {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetPdfAsync)}.", currentCorrelationId, loggingName),
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetDocumentAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

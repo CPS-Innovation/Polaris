@@ -67,7 +67,7 @@ namespace PolarisGateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<Tracker>(stringContent, correlationId);
         }
 
-        public async Task<Stream> GetPdfAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Acquiring the PDF with Polaris Document Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
@@ -91,7 +91,7 @@ namespace PolarisGateway.Clients.PolarisPipeline
             return streamContent;
         }
 
-        public async Task<string> GenerateSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        public async Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Generating PDF SAS Url for Polaris Document Id {polarisDocumentId}, urn {caseUrn} and caseId {caseId}");
 

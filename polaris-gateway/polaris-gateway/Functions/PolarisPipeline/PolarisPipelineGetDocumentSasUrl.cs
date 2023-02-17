@@ -12,25 +12,25 @@ using System.Net.Http;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
-    public class PolarisPipelineGetPdfSasUrl : BasePolarisFunction
+    public class PolarisPipelineGetDocumentSasUrl : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineGetPdfSasUrl> _logger;
+        private readonly ILogger<PolarisPipelineGetDocumentSasUrl> _logger;
 
-        public PolarisPipelineGetPdfSasUrl(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetPdfSasUrl> logger, IPipelineClient pipelineClient)
+        public PolarisPipelineGetDocumentSasUrl(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetDocumentSasUrl> logger, IPipelineClient pipelineClient)
             : base(logger, tokenValidator)
         {
             _pipelineClient = pipelineClient ?? throw new ArgumentNullException(nameof(pipelineClient));
             _logger = logger;
         }
 
-        [FunctionName(nameof(PolarisPipelineGetPdfSasUrl))]
+        [FunctionName(nameof(PolarisPipelineGetDocumentSasUrl))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/pdfs/{id:guid}/sasUrl")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/documents/{id:guid}/sasUrl")]
             HttpRequest req, string urn, int caseId, Guid id)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = $"{nameof(PolarisPipelineGetPdfSasUrl)} - Run";
+            const string loggingName = $"{nameof(PolarisPipelineGetDocumentSasUrl)} - Run";
 
             try
             {
@@ -44,19 +44,19 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (string.IsNullOrWhiteSpace(urn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating SAS Url for urn {urn}, caseId {caseId}, id {id}");
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating document SAS Url for urn {urn}, caseId {caseId}, id {id}");
                 // var sasUrl = await _sasGeneratorService.GenerateSasUrlAsync(blobName, currentCorrelationId);
-                var sasUrl = await _pipelineClient.GenerateSasUrlAsync(urn, caseId, id, currentCorrelationId);
+                var sasUrl = await _pipelineClient.GenerateDocumentSasUrlAsync(urn, caseId, id, currentCorrelationId);
 
                 return !string.IsNullOrWhiteSpace(sasUrl)
                     ? new OkObjectResult(sasUrl)
-                    : NotFoundErrorResponse($"No PDF SAS URL found for urn {urn}, caseId {caseId}, id {id}\".", currentCorrelationId, loggingName);
+                    : NotFoundErrorResponse($"No document SAS URL found for urn {urn}, caseId {caseId}, id {id}\".", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {
                 return exception switch
                 {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GenerateSasUrlAsync)}.", currentCorrelationId, loggingName),
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GenerateDocumentSasUrlAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }
