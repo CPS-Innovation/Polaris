@@ -5,11 +5,13 @@ export type CaseDetails = {
   numberOfDefendants: number;
   leadDefendantDetails: DefendantDetails;
   headlineCharge: HeadlineCharge;
-  defendants: {
-    defendantDetails: DefendantDetails;
-    custodyTimeLimit: CustodyTimeLimit;
-    charges: Charge[];
-  }[];
+  defendants: Defendant[];
+};
+
+type Defendant = {
+  defendantDetails: DefendantDetails;
+  custodyTimeLimit: CustodyTimeLimit;
+  charges: Charge[];
 };
 
 type DefendantDetails = {

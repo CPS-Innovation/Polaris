@@ -43,7 +43,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
 
         [FunctionName("Init")]
         public async Task<IActionResult> Get(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "init")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "init")] HttpRequest req,
             ILogger log)
         {
             Guid currentCorrelationId = Guid.NewGuid();
@@ -110,7 +110,9 @@ namespace PolarisGateway.Functions.CmsAuthentication
               new CookieOptions
               {
                   HttpOnly = true,
-                  Path = "/api/"
+                  Path = "/api/",
+                  SameSite = SameSiteMode.None,
+                  Secure = true
               }
             );
         }

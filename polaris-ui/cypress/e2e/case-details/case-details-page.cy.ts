@@ -42,20 +42,52 @@ describe("case details page", () => {
   });
 
   describe("case details", () => {
-    it("can show case details", () => {
+    it("For Single defendant and single charge, should show defendant details, charge details and custody time limits", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("txt-defendant-name").contains("Walsh, Steve");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
-    });
-    it("can show case charge details", () => {
-      cy.visit("/case-search-results?urn=12AB1111111");
-      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("defendant-details").then(($details) => {
+        cy.wrap($details).contains("Walsh, Steve");
+        cy.wrap($details).contains("DOB: 28 Nov 1977. Age: 45");
+      });
+
       cy.findByTestId("div-charges").then(($charges) => {
         cy.wrap($charges).findByTestId("charges-title").contains("Charges");
         cy.wrap($charges).contains("Custody time limit: 20 Days");
         cy.wrap($charges).contains("Custody end: 20 Nov 2022");
       });
+    });
+
+    it("For multiple defendants, should show list of defendant names in the ascending order of listOrder and shouldn't show charge details", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13301");
+      cy.findByTestId("txt-case-urn").contains("12AB1111111");
+      cy.findByTestId("div-charges").should("not.exist");
+      cy.findByTestId("list-defendant-names")
+        .get("li")
+        .first()
+        .should("have.text", "Walsh, Steve")
+        .next()
+        .should("have.text", "Taylor, Scott")
+        .next()
+        .should("have.text", "Victor, Peter");
+      cy.findByTestId("link-defendant-details").contains(
+        "View 3 defendants and charges"
+      );
+    });
+
+    it("For multiple charges, should show list of defendant name and shouldn't show charge details", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13201");
+      cy.findByTestId("txt-case-urn").contains("12AB1111111");
+      cy.findByTestId("div-charges").should("not.exist");
+      cy.findByTestId("list-defendant-names")
+        .get("li")
+        .first()
+        .should("have.text", "Walsh, Steve");
+      cy.findByTestId("link-defendant-details").contains(
+        "View 1 defendant and charges"
+      );
     });
   });
 

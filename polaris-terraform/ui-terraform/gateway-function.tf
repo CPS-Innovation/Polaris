@@ -1,6 +1,4 @@
 #################### Functions ####################
-data "azuread_client_config" "current" {}
-
 resource "azurerm_linux_function_app" "fa_polaris" {
   name                        = "fa-${local.resource_name}-gateway"
   location                    = azurerm_resource_group.rg_polaris.location
@@ -40,7 +38,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidScopes"                    = var.polaris_webapp_details.valid_scopes
     "CallingAppValidRoles"                     = var.polaris_webapp_details.valid_roles
     "Ddei__BaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "Ddei__AccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key,
+    "Ddei__AccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
 
   site_config {

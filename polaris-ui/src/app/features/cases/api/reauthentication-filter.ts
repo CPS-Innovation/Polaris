@@ -9,7 +9,7 @@ const isCmsAuthFail = (response: Response) => response.status === 403;
 const isAuthPageLoad = (window: Window) =>
   window.location.href.includes(REAUTHENTICATION_INDICATOR_QUERY_PARAM);
 
-const tryCleanRefreshInidcator = (window: Window) => {
+const tryCleanRefreshIndicator = (window: Window) => {
   // clean the indicator from the browser address bar
   if (window.location.href.includes(REAUTHENTICATION_INDICATOR_QUERY_PARAM)) {
     const nextUrl = window.location.href.replace(
@@ -29,12 +29,7 @@ const tryHandleFirstAuthFail = (response: Response, window: Window) => {
       window.location.href + delimiter + REAUTHENTICATION_INDICATOR_QUERY_PARAM
     )}`;
 
-    // Cypress tests are unhappy with the window navigation during the failure flow.
-    //  For the time being, we let the test env file disable this step by setting
-    //  REAUTH_REDIRECT_URL to blank. Not optimal but this flow is tested by e2e tests.
-    if (REAUTH_REDIRECT_URL) {
-      window.location.href = nextUrl;
-    }
+    window.location.href = nextUrl;
     // stop any follow-on logic occurring
     throw new CmsAuthRedirectingError();
   }
@@ -43,14 +38,14 @@ const tryHandleFirstAuthFail = (response: Response, window: Window) => {
 
 const tryHandleSecondAuthFail = (response: Response, window: Window) => {
   if (isCmsAuthFail(response) && isAuthPageLoad(window)) {
-    tryCleanRefreshInidcator(window);
+    tryCleanRefreshIndicator(window);
     throw new CmsAuthError("We think you are not logged in to CMS");
   }
   return null;
 };
 
 const handleNonAuthCall = (response: Response, window: Window) => {
-  tryCleanRefreshInidcator(window);
+  tryCleanRefreshIndicator(window);
   return response;
 };
 

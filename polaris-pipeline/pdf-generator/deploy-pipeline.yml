@@ -6,6 +6,7 @@ trigger:
   paths:
     include:
     - "polaris-pipeline/pdf-generator/*"
+    - "polaris-pipeline/pdf-generator.tests/*"
     - "polaris-pipeline/common/*"
 
 pool:

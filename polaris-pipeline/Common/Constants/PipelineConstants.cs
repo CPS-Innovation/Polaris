@@ -1,15 +1,7 @@
 ﻿namespace Common.Constants
 {
-    public static class AuthenticationKeys
-    {
-        public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
-        public const string AzureAuthenticationAssertionType = "urn:ietf:params:oauth:grant-type:jwt-bearer";
-        public const string Bearer = "Bearer";
-    }
-
     public static class HttpHeaderKeys
     {
-        public const string Authorization = "Authorization";
         public const string ContentType = "Content-Type";
         public const string CorrelationId = "Correlation-Id";
         public const string CmsAuthValues = "Cms-Auth-Values";
@@ -24,7 +16,7 @@
     {
         public const string BlobDeletedEvent = "Microsoft.Storage.BlobDeleted";
     }
-    
+
     public static class DocumentTags
     {
         public const string CaseId = "caseId";
@@ -48,7 +40,7 @@
         public const string MockOnBehalfOfTokenClient = "POLARIS_MOCK_ON_BEHALF_OF_TOKEN_CLIENT";
         public const string MockOcrService = "POLARIS_MOCK_OCR_SERVICE";
         public const string MockSearchIndexService = "POLARIS_MOCK_SEARCH_INDEX_SERVICE";
-        public const string MockTokenValidation= "POLARIS_PIPELINE_MOCK_TOKEN_VALIDATION";
+        public const string MockTokenValidation = "POLARIS_PIPELINE_MOCK_TOKEN_VALIDATION";
     }
 #endif
 
