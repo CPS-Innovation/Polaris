@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
 import {
   getCaseDetails,
@@ -8,7 +8,6 @@ import {
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
-import { searchCaseWhenReady } from "./search-case-when-ready";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
@@ -72,12 +71,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         ? combinedState.searchState.submittedSearchTerm
         : "",
     ],
-    !!(
-      combinedState.searchState.submittedSearchTerm &&
-      combinedState.pipelineState.status === "complete" &&
-      combinedState.documentsState.status === "succeeded"
-    )
-
     //  Note: we let the user trigger a search without the pipeline being ready.
     //  If we additionally observe the complete-state of the pipeline here, we can ensure that a search
     //  is triggered when either:
@@ -92,10 +85,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     //   the documents result, and we have to chase up fixing the full mapped objects at that later point.
     //   (Assumption: this is edge-casey stuff as the documents call should always really have come back unless
     //   the user is super quick to trigger a search).
+    !!(
+      combinedState.searchState.submittedSearchTerm &&
+      combinedState.pipelineState.status === "complete" &&
+      combinedState.documentsState.status === "succeeded"
+    )
   );
 
   useEffect(() => {
-    console.log("dispatch>>>>,", searchResults);
     if (searchResults.status !== "initial") {
       dispatch({ type: "UPDATE_SEARCH_RESULTS", payload: searchResults });
     }
