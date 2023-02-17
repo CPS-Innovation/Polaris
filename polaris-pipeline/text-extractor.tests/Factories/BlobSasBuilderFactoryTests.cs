@@ -3,9 +3,10 @@ using AutoFixture;
 using Common.Constants;
 using FluentAssertions;
 using Moq;
-using text_extractor.Factories;
 using Xunit;
 using Microsoft.Extensions.Configuration;
+using Common.Factories;
+using Common.Factories.Contracts;
 
 namespace text_extractor.tests.Factories
 {

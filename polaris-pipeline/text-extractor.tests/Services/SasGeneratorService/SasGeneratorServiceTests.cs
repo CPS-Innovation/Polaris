@@ -11,10 +11,10 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using text_extractor.Factories;
-using text_extractor.Services.SasGeneratorService;
-using text_extractor.Wrappers;
+using Common.Services.SasGeneratorService;
+using Common.Wrappers;
 using Xunit;
+using Common.Factories.Contracts;
 
 namespace text_extractor.tests.Services.SasGeneratorService
 {
@@ -41,7 +41,7 @@ namespace text_extractor.tests.Services.SasGeneratorService
             var mockResponse = new Mock<Response<UserDelegationKey>>();
             var mockUserDelegationKey = new Mock<UserDelegationKey>();
             var mockBlobSasBuilderWrapper = new Mock<IBlobSasBuilderWrapper>();
-            var mockLogger = new Mock<ILogger<text_extractor.Services.SasGeneratorService.SasGeneratorService>>();
+            var mockLogger = new Mock<ILogger<Common.Services.SasGeneratorService.SasGeneratorService>>();
 
             configuration.Setup(x => x[ConfigKeys.SharedKeys.BlobServiceContainerName]).Returns(blobContainerName);
             configuration.Setup(x => x[ConfigKeys.SharedKeys.BlobUserDelegationKeyExpirySecs]).Returns(fixture.Create<int>().ToString());
@@ -56,7 +56,7 @@ namespace text_extractor.tests.Services.SasGeneratorService
                 .Returns(new Mock<SasQueryParameters>().Object.As<BlobSasQueryParameters>());
             mockBlobSasBuilderWrapperFactory.Setup(factory => factory.Create(blobSasBuilder)).Returns(mockBlobSasBuilderWrapper.Object);
 
-            _sasGeneratorService = new text_extractor.Services.SasGeneratorService.SasGeneratorService(mockBlobServiceClient.Object, mockBlobSasBuilderFactory.Object, 
+            _sasGeneratorService = new Common.Services.SasGeneratorService.SasGeneratorService(mockBlobServiceClient.Object, mockBlobSasBuilderFactory.Object, 
                 mockBlobSasBuilderWrapperFactory.Object, configuration.Object, mockLogger.Object);
         }
 

@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 
-namespace text_extractor.Wrappers
+namespace Common.Wrappers
 {
     public interface IBlobSasBuilderWrapper
     {

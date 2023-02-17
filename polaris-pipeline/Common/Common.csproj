@@ -12,7 +12,6 @@
     <None Remove="Handlers\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Wrappers\" />
     <Folder Include="Domain\Exceptions\" />
   </ItemGroup>
   <ItemGroup>

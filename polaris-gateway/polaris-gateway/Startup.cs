@@ -21,6 +21,7 @@ using PolarisGateway.Wrappers;
 using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Microsoft.IdentityModel.Logging;
+using Common.Health;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -70,10 +71,12 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            // TODO - remove when Blob handling code moved to Pipeline
-            BuildBlobServiceClient(builder, configuration);
+            // TODO - remove these services as moving to pipeline
+            {
+                BuildBlobServiceClient(builder, configuration);
+                builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
+            }
 
-            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
             builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
             builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
             builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>();
@@ -106,7 +109,16 @@ namespace PolarisGateway
         // Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddHealthChecks();
+            builder.Services.AddHttpClient();
+
+            builder.Services.AddHttpClient(nameof(coordinator), client =>
+            {
+                client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
+            });
+
+            builder.Services.AddHealthChecks()
+                // TODO - make async?
+                .AddCheck<AzureFunctionHealthCheck>(nameof(coordinator));
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)

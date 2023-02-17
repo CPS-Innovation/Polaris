@@ -6,6 +6,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Common.Health
 {
+    // https://www.davidguida.net/azure-api-management-healthcheck/
     public class AzureFunctionHealthCheck : IHealthCheck
     {
         private readonly HttpClient _httpClient;
@@ -15,14 +16,14 @@ namespace Common.Health
             if (httpClientFactory is null)
                 throw new ArgumentNullException(nameof(httpClientFactory));
 
-            _httpClient = httpClientFactory.CreateClient("APIM");
+            _httpClient = httpClientFactory.CreateClient(nameof(coordinator));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(
             HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
-            var response = await _httpClient.GetAsync("/status-0123456789abcdef");
+            var response = await _httpClient.GetAsync("health");
             return (response.StatusCode == System.Net.HttpStatusCode.OK) ?
                 HealthCheckResult.Healthy() :
                 HealthCheckResult.Unhealthy();

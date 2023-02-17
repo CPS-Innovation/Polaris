@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Handlers\" />
-    <Folder Include="Services\SasGeneratorService\" />
     <Folder Include="Domain\Exceptions\" />
   </ItemGroup>
   <ItemGroup>

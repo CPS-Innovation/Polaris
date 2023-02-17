@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using Common.Services.SasGeneratorService;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Responses;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Health;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.DocumentExtractionService;
@@ -40,6 +40,7 @@ namespace coordinator
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
             builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
+            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
 
             builder.Services.AddHttpClient<IDdeiDocumentExtractionService, DdeiDocumentExtractionService>(client =>
             {
