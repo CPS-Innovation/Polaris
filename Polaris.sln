@@ -1,45 +1,38 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-pipeline", "polaris-pipeline", "{85EF15B6-1D88-496E-933A-0AE602FD336A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-gateway", "polaris-gateway", "{3F04D8CF-B0FB-4776-913A-969ED4CB3F24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "polaris-pipeline\Common\Common.csproj", "{07C594AE-6ADA-47B6-A354-10DD309CF658}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "polaris-pipeline\Common\Common.csproj", "{07C594AE-6ADA-47B6-A354-10DD309CF658}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.tests", "polaris-pipeline\Common.tests\Common.tests.csproj", "{B84BABD7-9481-4C1D-976D-3D794CCD10C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.tests", "polaris-pipeline\Common.tests\Common.tests.csproj", "{B84BABD7-9481-4C1D-976D-3D794CCD10C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "coordinator", "polaris-pipeline\coordinator\coordinator.csproj", "{46B5898D-8C5E-49DC-8155-C7A964E1096D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "coordinator", "polaris-pipeline\coordinator\coordinator.csproj", "{46B5898D-8C5E-49DC-8155-C7A964E1096D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "coordinator.tests", "polaris-pipeline\coordinator.tests\coordinator.tests.csproj", "{59E2E0EB-EDD6-4FFF-ACA5-96CC24612B5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "coordinator.tests", "polaris-pipeline\coordinator.tests\coordinator.tests.csproj", "{59E2E0EB-EDD6-4FFF-ACA5-96CC24612B5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator", "polaris-pipeline\pdf-generator\pdf-generator.csproj", "{6550AF23-A328-4E05-895D-BC7CD320950E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-generator", "polaris-pipeline\pdf-generator\pdf-generator.csproj", "{6550AF23-A328-4E05-895D-BC7CD320950E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-generator.tests", "polaris-pipeline\pdf-generator.tests\pdf-generator.tests.csproj", "{90B70400-E270-4DD2-A0DB-AFDADA556AB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-generator.tests", "polaris-pipeline\pdf-generator.tests\pdf-generator.tests.csproj", "{90B70400-E270-4DD2-A0DB-AFDADA556AB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "text-extractor", "polaris-pipeline\text-extractor\text-extractor.csproj", "{93738F4B-4134-4989-A659-E533701FF345}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "text-extractor", "polaris-pipeline\text-extractor\text-extractor.csproj", "{93738F4B-4134-4989-A659-E533701FF345}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "text-extractor.tests", "polaris-pipeline\text-extractor.tests\text-extractor.tests.csproj", "{32BF16E3-3BAF-406B-88F9-141471FF763B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "text-extractor.tests", "polaris-pipeline\text-extractor.tests\text-extractor.tests.csproj", "{32BF16E3-3BAF-406B-88F9-141471FF763B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway", "polaris-gateway\polaris-gateway\polaris-gateway.csproj", "{5E2A4D67-2BC2-4653-9BB7-A354E0343706}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway", "polaris-gateway\polaris-gateway\polaris-gateway.csproj", "{5E2A4D67-2BC2-4653-9BB7-A354E0343706}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway.tests", "polaris-gateway\polaris-gateway.tests\polaris-gateway.tests.csproj", "{458C1D9C-6753-4EB8-AFB3-93598E925979}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway.tests", "polaris-gateway\polaris-gateway.tests\polaris-gateway.tests.csproj", "{458C1D9C-6753-4EB8-AFB3-93598E925979}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0CB26D53-D834-4ADC-B307-F7F7EE1FC2F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{07C594AE-6ADA-47B6-A354-10DD309CF658} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{B84BABD7-9481-4C1D-976D-3D794CCD10C2} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{46B5898D-8C5E-49DC-8155-C7A964E1096D} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{59E2E0EB-EDD6-4FFF-ACA5-96CC24612B5B} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{6550AF23-A328-4E05-895D-BC7CD320950E} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{90B70400-E270-4DD2-A0DB-AFDADA556AB0} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{93738F4B-4134-4989-A659-E533701FF345} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{32BF16E3-3BAF-406B-88F9-141471FF763B} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
-		{5E2A4D67-2BC2-4653-9BB7-A354E0343706} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
-		{458C1D9C-6753-4EB8-AFB3-93598E925979} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{07C594AE-6ADA-47B6-A354-10DD309CF658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -82,5 +75,23 @@ Global
 		{458C1D9C-6753-4EB8-AFB3-93598E925979}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{458C1D9C-6753-4EB8-AFB3-93598E925979}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{458C1D9C-6753-4EB8-AFB3-93598E925979}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{07C594AE-6ADA-47B6-A354-10DD309CF658} = {0CB26D53-D834-4ADC-B307-F7F7EE1FC2F8}
+		{B84BABD7-9481-4C1D-976D-3D794CCD10C2} = {0CB26D53-D834-4ADC-B307-F7F7EE1FC2F8}
+		{46B5898D-8C5E-49DC-8155-C7A964E1096D} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{59E2E0EB-EDD6-4FFF-ACA5-96CC24612B5B} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{6550AF23-A328-4E05-895D-BC7CD320950E} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{90B70400-E270-4DD2-A0DB-AFDADA556AB0} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{93738F4B-4134-4989-A659-E533701FF345} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{32BF16E3-3BAF-406B-88F9-141471FF763B} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
+		{5E2A4D67-2BC2-4653-9BB7-A354E0343706} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
+		{458C1D9C-6753-4EB8-AFB3-93598E925979} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CCE1AB69-A62F-420B-88D0-216C65C26EAD}
 	EndGlobalSection
 EndGlobal
