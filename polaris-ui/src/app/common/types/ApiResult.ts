@@ -1,4 +1,7 @@
-export type ApiResult<T> =
+export type RawApiResult<T> =
+  | {
+      status: "initial";
+    }
   | {
       status: "loading";
     }
@@ -11,3 +14,10 @@ export type ApiResult<T> =
       status: "succeeded";
       data: T;
     };
+
+export type ApiResult<T> = Exclude<
+  RawApiResult<T>,
+  {
+    status: "initial";
+  }
+>;

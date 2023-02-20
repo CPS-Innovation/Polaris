@@ -1,10 +1,13 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import { getCaseDetails, getCaseDocumentsList } from "../../api/gateway-api";
+import {
+  getCaseDetails,
+  getCaseDocumentsList,
+  searchCase,
+} from "../../api/gateway-api";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
-import { searchCaseWhenReady } from "./search-case-when-ready";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
@@ -34,8 +37,8 @@ export const initialState = {
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
-  const caseState = useApi(getCaseDetails, urn, caseId);
-  const documentsState = useApi(getCaseDocumentsList, urn, caseId);
+  const caseState = useApi(getCaseDetails, [urn, caseId]);
+  const documentsState = useApi(getCaseDocumentsList, [urn, caseId]);
   const pipelineState = usePipelineApi(urn, caseId);
 
   const [combinedState, dispatch] = useReducerAsync(
@@ -44,15 +47,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     reducerAsyncActionHandlers
   );
 
-  useEffect(
-    () => dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState }),
-    [caseState, dispatch]
-  );
+  useEffect(() => {
+    if (caseState.status !== "initial")
+      dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
+  }, [caseState, dispatch]);
 
-  useEffect(
-    () => dispatch({ type: "UPDATE_CASE_DOCUMENTS", payload: documentsState }),
-    [documentsState, dispatch]
-  );
+  useEffect(() => {
+    if (documentsState.status !== "initial")
+      dispatch({ type: "UPDATE_CASE_DOCUMENTS", payload: documentsState });
+  }, [documentsState, dispatch]);
 
   useEffect(
     () => dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState }),
@@ -60,16 +63,20 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const searchResults = useApi(
-    searchCaseWhenReady,
-    urn,
-    caseId,
-    combinedState.searchState.submittedSearchTerm,
+    searchCase,
+    [
+      urn,
+      caseId,
+      combinedState.searchState.submittedSearchTerm
+        ? combinedState.searchState.submittedSearchTerm
+        : "",
+    ],
     //  Note: we let the user trigger a search without the pipeline being ready.
     //  If we additionally observe the complete-state of the pipeline here, we can ensure that a search
     //  is triggered when either:
     //  a) the pipeline is ready and the user subsequently submits a search
     //  b) the user submits a search before the pipeline is ready, but it then becomes ready
-    combinedState.pipelineState.status === "complete",
+    // combinedState.pipelineState.status === "complete",
     //  It makes it much easier if we enforce that the documents need to be known before allowing
     //   a search (logically, we do not need to wait for the documents call to return at the point we trigger a
     //   search, we only need them when we map the eventual result of the search call).  However, this is a tidier
@@ -78,13 +85,18 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     //   the documents result, and we have to chase up fixing the full mapped objects at that later point.
     //   (Assumption: this is edge-casey stuff as the documents call should always really have come back unless
     //   the user is super quick to trigger a search).
-    combinedState.documentsState.status === "succeeded"
+    !!(
+      combinedState.searchState.submittedSearchTerm &&
+      combinedState.pipelineState.status === "complete" &&
+      combinedState.documentsState.status === "succeeded"
+    )
   );
 
-  useEffect(
-    () => dispatch({ type: "UPDATE_SEARCH_RESULTS", payload: searchResults }),
-    [searchResults, dispatch]
-  );
+  useEffect(() => {
+    if (searchResults.status !== "initial") {
+      dispatch({ type: "UPDATE_SEARCH_RESULTS", payload: searchResults });
+    }
+  }, [searchResults, dispatch]);
 
   const handleOpenPdf = useCallback(
     (caseDocument: {

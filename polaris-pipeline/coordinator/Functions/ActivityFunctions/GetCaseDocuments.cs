@@ -35,12 +35,12 @@ namespace coordinator.Functions.ActivityFunctions
             if (payload.CaseId == 0)
                 throw new ArgumentException("CaseId cannot be zero");
             if (string.IsNullOrWhiteSpace(payload.CmsAuthValues))
-                throw new ArgumentException("Upstream Token cannot be null");
+                throw new ArgumentException("Cms Auth Token cannot be null");
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            var caseDetails = await _documentExtractionService.ListDocumentsAsync(payload.CaseUrn, payload.CaseId.ToString(), 
+            var caseDetails = await _documentExtractionService.ListDocumentsAsync(payload.CaseUrn, payload.CaseId.ToString(),
                 payload.CmsAuthValues, payload.CorrelationId);
 
             _log.LogMethodExit(payload.CorrelationId, loggingName, caseDetails.ToJson());

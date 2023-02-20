@@ -32,7 +32,7 @@ namespace text_extractor.Services.OcrService
 
             try
             {
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), "Calling the computer vision client ReadAsync method to begin the OCR process");
+                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Calling the computer vision client ReadAsync method to begin the OCR process, passing in '{sasLink}'");
                 var textHeaders = await _computerVisionClient.ReadAsync(sasLink);
 
                 var operationLocation = textHeaders.OperationLocation;
