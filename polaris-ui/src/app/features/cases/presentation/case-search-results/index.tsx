@@ -40,9 +40,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
     useSearchInputLogic({ initialUrn, setParams });
 
-  const state = useApi(searchUrn, initialUrn!);
+  const state = useApi(searchUrn, [initialUrn!])!;
 
-  if (state.status === "loading") {
+  if (state.status === "loading" || state.status === "initial") {
     return <WaitPage />;
   }
 

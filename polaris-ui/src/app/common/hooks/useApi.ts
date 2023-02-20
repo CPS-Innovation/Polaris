@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../errors/ApiError";
-import { ApiResult } from "../types/ApiResult";
+import { RawApiResult } from "../types/ApiResult";
 
 type UseApiParams = <T extends (...args: any[]) => Promise<any>>(
   del: T,
-  param0?: Parameters<T>[0],
-  param1?: Parameters<T>[1],
-  param2?: Parameters<T>[2],
-  param3?: Parameters<T>[3],
-  param4?: Parameters<T>[4]
-) => ApiResult<Awaited<ReturnType<typeof del>>>;
+  params: Parameters<T>,
+  makeCall?: boolean
+) => RawApiResult<Awaited<ReturnType<typeof del>>>;
 
 /*
   If there is an api method `getFoo(id: number, name: string) => Promise<Model>` then `useApi` is called thus:
@@ -25,30 +22,33 @@ type UseApiParams = <T extends (...args: any[]) => Promise<any>>(
   meaning that on the inside of `useApi` the function is always seen as being different on every execution
   leading to constant refiring of the `useEffect`.
 */
-export const useApi: UseApiParams = (del, p0, p1, p2, p3, p4) => {
+export const useApi: UseApiParams = (del, params, makeCall = true) => {
   const [result, setResult] = useState<ReturnType<UseApiParams>>({
-    status: "loading",
+    status: "initial",
   });
 
   useEffect(() => {
-    setResult({ status: "loading" });
+    if (makeCall) {
+      setResult({ status: "loading" });
 
-    del
-      .apply(del, [p0, p1, p2, p3, p4])
-      .then((data) =>
-        setResult({
-          status: "succeeded",
-          data,
+      del
+        .apply(del, params)
+        .then((data) => {
+          setResult({
+            status: "succeeded",
+            data,
+          });
         })
-      )
-      .catch((error) =>
-        setResult({
-          status: "failed",
-          error,
-          httpStatusCode: error instanceof ApiError ? error.code : undefined,
-        })
-      );
-  }, [del, p0, p1, p2, p3, p4]);
+        .catch((error) =>
+          setResult({
+            status: "failed",
+            error,
+            httpStatusCode: error instanceof ApiError ? error.code : undefined,
+          })
+        );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [del, JSON.stringify(params), makeCall]);
 
   return result;
 };
