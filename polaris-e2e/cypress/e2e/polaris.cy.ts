@@ -13,6 +13,9 @@ const {
 describe("Polaris", () => {
   it("can view a case", () => {
     cy.on("uncaught:exception", () => false)
+
+    cy.safeLogEnvVars()
+
     // have we logged in OK?
     cy.loginToAD()
       .visit(`/case-search-results?urn=${TARGET_URN}`)

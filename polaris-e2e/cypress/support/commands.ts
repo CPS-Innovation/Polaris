@@ -4,6 +4,7 @@ import { injectTokens } from "./inject-tokens"
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
+      safeLogEnvVars(): Chainable<any>
       loginToAD(): Chainable<any>
       loginToCms(): Chainable<any>
       requestToken(): Chainable<Response<unknown>>
@@ -31,6 +32,29 @@ const AUTOMATION_LANDING_PAGE_URL = "/?automation-test-first-visit=true"
 
 let cachedTokenExpiryTime = new Date().getTime()
 let cachedTokenResponse = null
+
+Cypress.Commands.add("safeLogEnvVars", () => {
+  const processSecret = (secret: string) => {
+    const chars = (secret || "").split("")
+    const length = chars.length
+    if (!length) {
+      return "IS EMPTY!!!!"
+    }
+    const [initial] = chars
+
+    return `'${initial}' plus ${length - 1} chars`
+  }
+
+  const rawEnvVars = { ...Cypress.env() }
+  const processedEnvVars = {
+    ...rawEnvVars,
+    CLIENTSECRET: processSecret(rawEnvVars.CLIENTSECRET),
+    AD_PASSWORD: processSecret(rawEnvVars.AD_PASSWORD),
+    CMS_PASSWORD: processSecret(rawEnvVars.CMS_PASSWORD),
+  }
+
+  cy.log(JSON.stringify(processedEnvVars))
+})
 
 Cypress.Commands.add("loginToAD", () => {
   let getToken =
