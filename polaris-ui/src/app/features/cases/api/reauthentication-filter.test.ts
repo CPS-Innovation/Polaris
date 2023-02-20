@@ -3,7 +3,7 @@ import { CmsAuthRedirectingError } from "../../../common/errors/CmsAuthRedirecti
 import { reauthenticationFilter } from "./reauthentication-filter";
 
 jest.mock("../../../config", () => ({
-  REAUTH_REDIRECT_URL: "http://foo?q=",
+  REAUTH_REDIRECT_URL: "http://foo?polaris-ui-url=",
 }));
 
 describe("Reauthentication Filter", () => {
@@ -28,11 +28,11 @@ describe("Reauthentication Filter", () => {
   it.each([
     [
       "http://our-ui-domain.com", // there is no existing query string
-      "http://foo?q=http%3A%2F%2Four-ui-domain.com%3Fauth-refresh",
+      "http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3Fauth-refresh",
     ],
     [
       "http://our-ui-domain.com?caseId=123", // there is an existing query string
-      "http://foo?q=http%3A%2F%2Four-ui-domain.com%3FcaseId%3D123%26auth-refresh",
+      "http://foo?polaris-ui-url=http%3A%2F%2Four-ui-domain.com%3FcaseId%3D123%26auth-refresh",
     ],
   ])("can redirect on a first auth failure ", (url, expectedRedirectUrl) => {
     const mockWindow = {
