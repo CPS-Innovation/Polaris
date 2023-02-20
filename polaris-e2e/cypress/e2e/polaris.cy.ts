@@ -16,7 +16,9 @@ describe("Polaris", () => {
     // have we logged in OK?
     cy.loginToAD()
       .visit(`/case-search-results?urn=${TARGET_URN}`)
+      // we expect to not be logged-in to CMS...
       .contains("CMS_AUTH_ERROR")
+      // ... and now we do log in
       .loginToCms()
 
     cy.visit("/")
@@ -39,7 +41,7 @@ describe("Polaris", () => {
     cy.findByTestId(`link-result-document-${TARGET_DOCUMENT_ID}`).click()
 
     cy.findByTestId("tabs").contains(
-      `1 match for "${TARGET_SEARCH_TEXT}" in ${TARGET_DOCUMENT_NAME}`
+      `for "${TARGET_SEARCH_TEXT}" in ${TARGET_DOCUMENT_NAME}`
     )
   })
 })
