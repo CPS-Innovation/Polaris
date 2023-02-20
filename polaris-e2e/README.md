@@ -6,7 +6,7 @@
 - either:
   - create a `scripts/run.sh` shell script by copying `run.example.sh` and adding the secrets to the `FOO=bar`
     env variable declarations
-  - in the terminal run `CYPRESS_CLIENTSECRET=SECRET-GOES-HERE CYPRESS_PASSWORD=PASSWORD-GOES-HERE npm run cy:run`
+  - in the terminal run `CYPRESS_CLIENTSECRET=SECRET-GOES-HERE CYPRESS_PASSWORD=PASSWORD-GOES-HERE CYPRESS_CMS_PASSWORD=CYPRESS_CMS_PASSWORD-GOES-HERE npm run cy:run`
     (see below for more details)
 
 ## Config
@@ -64,6 +64,8 @@ baseUrl: "https://as-web-polaris-dev.azurewebsites.net/" // is the root URL of t
 ### Passed-in values
 
 - `CYPRESS_CLIENTSECRET` - if you do not know this you will need to generate a new secret on the `Certificates & secrets`
-  page of the app registration for the app service under test i Azure AD
+  page of the app registration for the app service under test in Azure AD
 
-- `CYPRESS_PASSWORD` - get this from someone who knows!
+- `CYPRESS_PASSWORD` - the password of the AD account, get this from someone who knows!
+
+- `CYPRESS_CMS_PASSWORD` - the password of the CMS user account used in the test
