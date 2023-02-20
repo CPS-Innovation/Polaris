@@ -58,7 +58,10 @@ export const KeyDetails: React.FC<{
           className={classes.defendantDetails}
           data-testid="defendant-details"
         >
-          <span className={`govuk-heading-s ${classes.defendantName}`}>
+          <span
+            className={`govuk-heading-s ${classes.defendantName}`}
+            data-testid="txt-defendant-name"
+          >
             {caseDetails.leadDefendantDetails.surname},{" "}
             {caseDetails.leadDefendantDetails.firstNames}
           </span>
