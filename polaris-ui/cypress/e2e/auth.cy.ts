@@ -10,7 +10,7 @@ describe("Cms Authentication", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
     cy.location().should((location) => {
       expect(location.href).to.eq(
-        "http://127.0.0.1:3000/case-search-results?polaris-url=http%3A%2F%2F127.0.0.1%3A3000%2Fcase-search-results%3Furn%3D12AB1111111%26auth-refresh"
+        "http://127.0.0.1:3000/case-search-results?polaris-ui-url=http%3A%2F%2F127.0.0.1%3A3000%2Fcase-search-results%3Furn%3D12AB1111111%26auth-refresh"
       );
     });
   });
