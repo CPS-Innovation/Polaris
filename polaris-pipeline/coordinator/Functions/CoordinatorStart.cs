@@ -20,7 +20,7 @@ namespace coordinator.Functions
     public class CoordinatorStart
     {
         private readonly ILogger<CoordinatorStart> _logger;
-        
+
         public CoordinatorStart(ILogger<CoordinatorStart> logger)
         {
             _logger = logger;
@@ -46,10 +46,10 @@ namespace coordinator.Functions
 
                 req.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
                 if (cmsAuthValuesValues == null)
-                    throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(req));
+                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(req));
                 var cmsAuthValues = cmsAuthValuesValues.First();
                 if (string.IsNullOrWhiteSpace(cmsAuthValues))
-                    throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(req));
+                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(req));
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, req.RequestUri?.Query);
 

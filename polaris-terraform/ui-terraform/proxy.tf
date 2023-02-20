@@ -11,15 +11,17 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    "UPSTREAM_HOST"                            = "10.2.177.14"
-    "UPSTREAM_HOSTNAME"                        = "10.2.177.14"
+    "UPSTREAM_CMS_DOMAIN_NAME"                 = "10.2.177.14"
+    "API_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
+    "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"       = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
+    "DDEI_ENDPOINT_DOMAIN_NAME"                = "fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DDEI_ENDPOINT_FUNCTION_APP_KEY"           = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "ENDPOINT_HTTP_PROTOCOL"                   = "https"
     "RESOLVER"                                 = "10.2.64.10 10.3.64.10 10.7.197.20"
     "DOCKER_REGISTRY_SERVER_URL"               = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
     "DOCKER_REGISTRY_SERVER_USERNAME"          = data.azurerm_container_registry.polaris_container_registry.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD"          = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                = "/etc/nginx"
-    "API_ENDPOINT"                             = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net/api"
-    "DDEI_ENDPOINT"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/login?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
     "FORCE_REFRESH_CONFIG"                     = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
   }
   site_config {
