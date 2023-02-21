@@ -85,12 +85,9 @@ namespace PolarisGateway
                 return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
             });
 
-                        // TODO - remove these services as moving to pipeline
-            builder.Services.AddAzureClients(azureBuilder =>
-            {
-                BuildBlobServiceClient(builder, configuration);
-                builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
-            }
+            // TODO - remove these services as moving to pipeline
+            BuildBlobServiceClient(builder, configuration);
+            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
 
             /* Moved to pipeline
              * builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
