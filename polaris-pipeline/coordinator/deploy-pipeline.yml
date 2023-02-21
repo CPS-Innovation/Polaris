@@ -8,6 +8,7 @@ trigger:
     - "polaris-pipeline/coordinator/*"
     - "polaris-pipeline/coordinator.tests/*"
     - "polaris-pipeline/common/*"
+    - "polaris-pipeline/common.tests/*"
 
 pool:
   vmImage: "ubuntu-latest"

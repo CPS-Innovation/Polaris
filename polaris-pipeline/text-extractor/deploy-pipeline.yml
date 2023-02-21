@@ -8,6 +8,7 @@ trigger:
     - "polaris-pipeline/text-extractor/*"
     - "polaris-pipeline/text-extractor.tests/*"
     - "polaris-pipeline/common/*"
+    - "polaris-pipeline/common.tests/*"
 
 pool:
   vmImage: "ubuntu-latest"
@@ -37,17 +38,24 @@ steps:
       command: "test"
       projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/"
-    displayName: "Run tests"
+    displayName: "Run Text Extractor tests"
+    
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "test"
+      projects: "$(rootFolder)/Common.tests/Common.tests.csproj"
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+    displayName: "Run Common Library tests"
     
   - script: |
-      reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
+      reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
     displayName: 'Create code coverage report'
 
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish code coverage report'
     inputs:
       codeCoverageTool: 'cobertura'
-      summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+      summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
 
   - task: DotNetCoreCLI@2
     inputs:
