@@ -3,12 +3,28 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   kind                = "ComputerVision"
-  tags                = local.common_tags
 
   sku_name                           = "S1"
   custom_subdomain_name              = "polaris${var.env}"
-  outbound_network_access_restricted = true
+  outbound_network_access_restricted = false
   public_network_access_enabled      = false
+
+  network_acls {
+    default_action = "Deny"
+    virtual_network_rules {
+      subnet_id = data.azurerm_subnet.polaris_textextractor_subnet.id
+    }
+    virtual_network_rules {
+      subnet_id = data.azurerm_subnet.polaris_apps_subnet.id
+    }
+    virtual_network_rules {
+      subnet_id = data.azurerm_subnet.polaris_sa_subnet.id
+    }
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 # Create Private Endpoint
@@ -20,7 +36,7 @@ resource "azurerm_private_endpoint" "pipeline_computer_vision_service_pe" {
   tags                = local.common_tags
 
   private_dns_zone_group {
-    name                 = data.azurerm_private_dns_zone.dns_zone_cognitive_account.name
+    name                 = "polaris-dns-zone-group"
     private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_cognitive_account.id]
   }
 

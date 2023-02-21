@@ -14,10 +14,5 @@ namespace Common.Domain.Extensions
         {
             return string.IsNullOrWhiteSpace(value) ? string.Empty : Uri.UnescapeDataString(value);
         }
-        
-        public static string ToJwtString(this string values)
-        {
-            return string.IsNullOrWhiteSpace(values) ? string.Empty : values.Replace($"{AuthenticationKeys.Bearer} ", string.Empty).Trim();
-        }
     }
 }

@@ -43,7 +43,7 @@ namespace PolarisGateway.Functions.CmsAuthentication
 
         [FunctionName("Init")]
         public async Task<IActionResult> Get(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "init")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "init")] HttpRequest req,
             ILogger log)
         {
             Guid currentCorrelationId = Guid.NewGuid();
@@ -53,13 +53,13 @@ namespace PolarisGateway.Functions.CmsAuthentication
             {
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                var returnUrl = WebUtility.UrlDecode(req.Query["q"]);
+                var returnUrl = WebUtility.UrlDecode(req.Query[CmsAuthConstants.PolarisUiQueryParamName]);
                 if (string.IsNullOrWhiteSpace(returnUrl))
                 {
-                    throw new ArgumentNullException("q");
+                    throw new ArgumentNullException(CmsAuthConstants.PolarisUiQueryParamName);
                 }
 
-                var cookiesString = WebUtility.UrlDecode(req.Query["cookie"]);
+                var cookiesString = WebUtility.UrlDecode(req.Query[CmsAuthConstants.CookieQueryParamName]);
                 var cmsToken = await GetCmsModernToken(cookiesString, currentCorrelationId, loggingName);
 
                 AppendAuthCookies(req, cookiesString, cmsToken);
@@ -110,7 +110,9 @@ namespace PolarisGateway.Functions.CmsAuthentication
               new CookieOptions
               {
                   HttpOnly = true,
-                  Path = "/api/"
+                  Path = "/api/",
+                  SameSite = SameSiteMode.None,
+                  Secure = true
               }
             );
         }

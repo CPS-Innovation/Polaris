@@ -1,3 +1,5 @@
+data "azuread_client_config" "current" {}
+
 data "azuread_application" "fa_pipeline_coordinator" {
   display_name = "fa-${local.pipeline_resource_name}-coordinator-appreg"
 }
@@ -73,6 +75,12 @@ data "azurerm_subnet" "polaris_apps_subnet" {
 
 data "azurerm_subnet" "polaris_ci_subnet" {
   name                 = "${var.resource_name_prefix}-ci-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_subnet" "polaris_auth_handover_subnet" {
+  name                 = "${var.resource_name_prefix}-auth-handover-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }

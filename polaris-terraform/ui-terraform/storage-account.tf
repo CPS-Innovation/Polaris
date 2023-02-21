@@ -21,7 +21,8 @@ resource "azurerm_storage_account_network_rules" "polaris_sacpspolaris_rules" {
   virtual_network_subnet_ids = [
     data.azurerm_subnet.polaris_ci_subnet.id,
     data.azurerm_subnet.polaris_gateway_subnet.id,
-    data.azurerm_subnet.polaris_proxy_subnet.id
+    data.azurerm_subnet.polaris_proxy_subnet.id,
+    data.azurerm_subnet.polaris_auth_handover_subnet.id
   ]
 }
 
@@ -129,6 +130,14 @@ resource "azapi_resource" "polaris_sacpspolaris_gateway_file_share" {
 resource "azapi_resource" "polaris_sacpspolaris_proxy_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-proxy-content-share"
+  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
+
+  depends_on = [azurerm_storage_account.sacpspolaris]
+}
+
+resource "azapi_resource" "polaris_sacpspolaris_auth_handover_file_share" {
+  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
+  name      = "polaris-auth-handover-content-share"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
 
   depends_on = [azurerm_storage_account.sacpspolaris]

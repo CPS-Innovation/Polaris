@@ -8,6 +8,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
@@ -64,8 +65,28 @@ namespace PolarisGateway
                 client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
+            
+            builder.Services.AddSingleton(_ =>
+            {
+                const string authInstanceUrl = AuthenticationKeys.AzureAuthenticationInstanceUrl;
+                var tenantId = GetValueFromConfig(configuration, ConfigurationKeys.TenantId);
+                var clientId = GetValueFromConfig(configuration, ConfigurationKeys.ClientId);
+                var clientSecret = GetValueFromConfig(configuration, ConfigurationKeys.ClientSecret);
+                var appOptions = new ConfidentialClientApplicationOptions
+                {
+                    Instance = authInstanceUrl,
+                    TenantId = tenantId,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret
+                };
 
-            // TODO - remove these services as moving to pipeline
+                var authority = $"{authInstanceUrl}{tenantId}/";
+
+                return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
+            });
+
+                        // TODO - remove these services as moving to pipeline
+            builder.Services.AddAzureClients(azureBuilder =>
             {
                 BuildBlobServiceClient(builder, configuration);
                 builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();

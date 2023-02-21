@@ -55,6 +55,9 @@
     <None Remove="Azure.Search.Documents" />
     <None Remove="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" />
     <None Remove="Microsoft.Azure.Core.NewtonsoftJson" />
+    <None Update="authorization.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

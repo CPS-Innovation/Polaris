@@ -23,8 +23,6 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         private readonly HttpRequest _request;
         private readonly string _caseUrn;
         private readonly int _caseId;
-        private readonly string _cmsAuthValues;
-        private readonly string _polarisPipelineCoordinatorScope;
         private readonly TriggerCoordinatorResponse _triggerCoordinatorResponse;
 
         private readonly Mock<IPipelineClient> _mockPipelineClient;
@@ -37,8 +35,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             var fixture = new Fixture();
             _caseUrn = fixture.Create<string>();
             _caseId = fixture.Create<int>();
-            _polarisPipelineCoordinatorScope = fixture.Create<string>();
-            _cmsAuthValues = "sample-token";
+            fixture.Create<string>();
             _request = CreateHttpRequest();
             _triggerCoordinatorResponse = fixture.Create<TriggerCoordinatorResponse>();
 
@@ -112,7 +109,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         {
             await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
 
-            _mockPipelineClient.Verify(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, false, It.IsAny<Guid>()));
+            _mockPipelineClient.Verify(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -135,7 +132,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenHttpExceptionOccurs()
         {
-            _mockPipelineClient.Setup(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, false, It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()))
                 .ThrowsAsync(new HttpRequestException());
 
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
@@ -146,7 +143,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledExceptionOccurs()
         {
-            _mockPipelineClient.Setup(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, false, It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception());
 
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
