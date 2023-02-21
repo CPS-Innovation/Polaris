@@ -46,10 +46,9 @@ steps:
       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
     displayName: "Run Common Library tests"
 
-  - task: reportgenerator@4
-    inputs:
-      reports: '$(Build.SourcesDirectory)/**/*.cobertura.xml'
-      targetdir: '$(Build.SourcesDirectory)/CoverageResults'
+  - script: |
+      reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CoverageResults -reporttypes:HtmlInline_AzurePipelines
+    displayName: 'Create code coverage report'
 
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish code coverage report'
