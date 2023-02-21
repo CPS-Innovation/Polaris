@@ -51,8 +51,7 @@ export const useNavigationAlert = (
     return () => {
       navigationUnblockHandle.current && navigationUnblockHandle.current();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unSavedRedactionDocs, location.pathname]);
+  }, [unSavedRedactionDocs, location.pathname, history]);
 
   useEffect(() => {
     window.onbeforeunload = unSavedRedactionDocs.length

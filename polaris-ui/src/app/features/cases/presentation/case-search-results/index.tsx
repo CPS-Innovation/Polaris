@@ -183,7 +183,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       </div>
                     </div>
                   </div>
-                  {index !== data.length - 1 && <SectionBreak />}
+                  {index < data.length - 1 && <SectionBreak />}
                 </div>
               ))}
             </div>
