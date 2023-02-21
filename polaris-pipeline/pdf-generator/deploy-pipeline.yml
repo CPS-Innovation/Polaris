@@ -35,9 +35,7 @@ steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
-      projects: |
-        "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
-        "$(rootFolder)/Common.tests/Common.tests.csproj"
+      projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/"
     displayName: "Run tests"
     
