@@ -32,8 +32,8 @@ steps:
       displayName: "Build"
       
     - task: DotNetCoreCLI@2
-        displayName: 'Install ReportGenerator'
-        inputs:
+      displayName: 'Install ReportGenerator'
+      inputs:
           command: custom
           custom: tool
           arguments: 'install --global dotnet-reportgenerator-globaltool'
