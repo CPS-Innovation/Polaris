@@ -1,7 +1,7 @@
 ﻿using Azure.Storage.Sas;
 using FluentAssertions;
-using text_extractor.Factories;
-using text_extractor.Wrappers;
+using Common.Factories;
+using Common.Wrappers;
 using Xunit;
 
 namespace text_extractor.tests.Factories

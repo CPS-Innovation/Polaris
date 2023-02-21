@@ -21,6 +21,7 @@ using PolarisGateway.Wrappers;
 using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Microsoft.IdentityModel.Logging;
+using Common.Health;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -70,29 +71,12 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            builder.Services.AddSingleton(_ =>
+            // TODO - remove these services as moving to pipeline
             {
-                const string authInstanceUrl = AuthenticationKeys.AzureAuthenticationInstanceUrl;
-                var tenantId = GetValueFromConfig(configuration, ConfigurationKeys.TenantId);
-                var clientId = GetValueFromConfig(configuration, ConfigurationKeys.ClientId);
-                var clientSecret = GetValueFromConfig(configuration, ConfigurationKeys.ClientSecret);
-                var appOptions = new ConfidentialClientApplicationOptions
-                {
-                    Instance = authInstanceUrl,
-                    TenantId = tenantId,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret
-                };
+                BuildBlobServiceClient(builder, configuration);
+                builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
+            }
 
-                var authority = $"{authInstanceUrl}{tenantId}/";
-
-                return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
-            });
-
-            // TODO - remove when Blob handling code moved to Pipeline
-            BuildBlobServiceClient(builder, configuration);
-
-            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
             builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
             builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
             builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>();
@@ -117,6 +101,24 @@ namespace PolarisGateway
             });
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+
+            BuildHealthChecks(builder);
+        }
+
+        // see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        // Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHttpClient();
+
+            builder.Services.AddHttpClient(nameof(coordinator), client =>
+            {
+                client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
+            });
+
+            builder.Services.AddHealthChecks()
+                // TODO - make async?
+                .AddCheck<AzureFunctionHealthCheck>(nameof(coordinator));
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)

@@ -11,7 +11,9 @@ namespace PolarisGateway.Clients.PolarisPipeline
 
         Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId);
 
-        Task<Stream> GetPdfAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
+        Task<Stream> GetDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
+
+        Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
     }
 }
 

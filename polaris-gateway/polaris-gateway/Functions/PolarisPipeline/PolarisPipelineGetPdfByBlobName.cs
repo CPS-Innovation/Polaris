@@ -24,6 +24,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
+        [Obsolete]
         [FunctionName(nameof(PolarisPipelineGetPdfByBlobName))]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pdfs/blob/{*blobName}")] HttpRequest req, string blobName)

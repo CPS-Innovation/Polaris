@@ -5,19 +5,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using text_extractor.Handlers;
 using text_extractor.Services.OcrService;
-using text_extractor.Services.SasGeneratorService;
+using Common.Services.SasGeneratorService;
 using text_extractor.Factories;
-using text_extractor.Wrappers;
+using Common.Wrappers;
 using Azure.Identity;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
 using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
-using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
+using Common.Factories;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -51,6 +51,8 @@ namespace text_extractor
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
+
+            BuildHealthChecks(builder);
         }
 
         private static void BuildAzureClients(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
@@ -105,6 +107,16 @@ namespace text_extractor
 #else
             builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
 #endif
+        }
+
+        /// <summary>
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHealthChecks();
         }
     }
 }

@@ -15,7 +15,7 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
-	public class PolarisPipelineGetSasUrlTests : SharedMethods.SharedMethods
+	public class PolarisPipelineGetDocumentSasUrlTests : SharedMethods.SharedMethods
 	{
         private readonly string _blobName;
         private readonly string _fakeSasUrl;
@@ -23,9 +23,9 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 		private readonly Mock<ISasGeneratorService> _mockSasGeneratorService;
 		private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
 
-        private readonly PolarisPipelineGetSasUrl _polarisPipelineGetSasUrl;
+        private readonly PolarisPipelineGetSasUrlByBlobName _polarisPipelineGetSasUrl;
 
-		public PolarisPipelineGetSasUrlTests()
+		public PolarisPipelineGetDocumentSasUrlTests()
 		{
             var fixture = new Fixture();
 			_blobName = fixture.Create<string>();
@@ -33,12 +33,12 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
 			_mockSasGeneratorService = new Mock<ISasGeneratorService>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
-			var mockLogger = new Mock<ILogger<PolarisPipelineGetSasUrl>>();
+			var mockLogger = new Mock<ILogger<PolarisPipelineGetSasUrlByBlobName>>();
 
             _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
             _mockSasGeneratorService.Setup(client => client.GenerateSasUrlAsync(_blobName, It.IsAny<Guid>())).ReturnsAsync(_fakeSasUrl);
 
-            _polarisPipelineGetSasUrl = new PolarisPipelineGetSasUrl(_mockTokenValidator.Object, mockLogger.Object, _mockSasGeneratorService.Object);
+            _polarisPipelineGetSasUrl = new PolarisPipelineGetSasUrlByBlobName(_mockTokenValidator.Object, mockLogger.Object, _mockSasGeneratorService.Object);
 		}
 		
 		[Fact]

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace text_extractor.Services.SasGeneratorService
+namespace Common.Services.SasGeneratorService
 {
     public interface ISasGeneratorService
     {

@@ -5,9 +5,9 @@ using Common.Constants;
 using Common.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using text_extractor.Factories;
+using Common.Factories.Contracts;
 
-namespace text_extractor.Services.SasGeneratorService
+namespace Common.Services.SasGeneratorService
 {
     public class SasGeneratorService : ISasGeneratorService
     {

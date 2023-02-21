@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using Common.Services.SasGeneratorService;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Responses;
@@ -39,6 +40,7 @@ namespace coordinator
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
             builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
+            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
 
             builder.Services.AddHttpClient<IDdeiDocumentExtractionService, DdeiDocumentExtractionService>(client =>
             {
@@ -47,6 +49,18 @@ namespace coordinator
             });
 
             builder.Services.AddBlobStorage(configuration);
+
+            BuildHealthChecks(builder);
+        }
+
+        /// <summary>
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHealthChecks();
         }
     }
 }

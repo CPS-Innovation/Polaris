@@ -6,7 +6,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using text_extractor.Domain.Exceptions;
 using text_extractor.Factories;
-using text_extractor.Services.SasGeneratorService;
+using Common.Services.SasGeneratorService;
 
 namespace text_extractor.Services.OcrService
 {

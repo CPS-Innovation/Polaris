@@ -67,7 +67,7 @@ namespace PolarisGateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<Tracker>(stringContent, correlationId);
         }
 
-        public async Task<Stream> GetPdfAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Acquiring the PDF with Polaris Document Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
@@ -89,6 +89,30 @@ namespace PolarisGateway.Clients.PolarisPipeline
             var streamContent = await response.Content.ReadAsStreamAsync();
 
             return streamContent;
+        }
+
+        public async Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Generating PDF SAS Url for Polaris Document Id {polarisDocumentId}, urn {caseUrn} and caseId {caseId}");
+
+            HttpResponseMessage response;
+            try
+            {
+                response = await SendGetRequestAsync($"cases/{caseUrn}/{caseId}/documents/{polarisDocumentId}/sasUrl?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", correlationId);
+            }
+            catch (HttpRequestException exception)
+            {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                throw;
+            }
+
+            var url = await response.Content.ReadAsStringAsync();
+
+            return url;
         }
 
         private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, Guid correlationId)

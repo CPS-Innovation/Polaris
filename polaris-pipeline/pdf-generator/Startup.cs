@@ -117,6 +117,18 @@ namespace pdf_generator
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
+
+            BuildHealthChecks(builder);
+        }
+
+        /// <summary>
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHealthChecks();
         }
     }
 }
