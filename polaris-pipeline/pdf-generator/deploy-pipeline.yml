@@ -24,14 +24,32 @@ steps:
       projects: "$(rootFolder)/$(functionName)/$(functionName).csproj"
       arguments: "--configuration $(buildConfiguration)"
     displayName: "Build"
+    
+  - task: DotNetCoreCLI@2
+    displayName: 'Install ReportGenerator'
+    inputs:
+        command: custom
+        custom: tool
+        arguments: 'install --global dotnet-reportgenerator-globaltool'
 
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
-      projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
-      arguments: "--configuration $(buildConfiguration)"
+      projects: |
+        "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
+        "$(rootFolder)/Common.tests/Common.tests.csproj"
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/"
     displayName: "Run tests"
-    enabled: false
+    
+  - script: |
+      reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
+    displayName: 'Create code coverage report'
+
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish code coverage report'
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
 
   - task: DotNetCoreCLI@2
     inputs:
