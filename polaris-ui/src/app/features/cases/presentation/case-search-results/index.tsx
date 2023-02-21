@@ -40,9 +40,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
     useSearchInputLogic({ initialUrn, setParams });
 
-  const state = useApi(searchUrn, initialUrn!);
+  const state = useApi(searchUrn, [initialUrn!])!;
 
-  if (state.status === "loading") {
+  if (state.status === "loading" || state.status === "initial") {
     return <WaitPage />;
   }
 
@@ -116,7 +116,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
 
               <SectionBreak />
 
-              {data.map((item) => (
+              {data.map((item, index) => (
                 <div key={item.id} className={classes.result}>
                   <h2 className="govuk-heading-m ">
                     <Link
@@ -183,6 +183,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       </div>
                     </div>
                   </div>
+                  {index < data.length - 1 && <SectionBreak />}
                 </div>
               ))}
             </div>
