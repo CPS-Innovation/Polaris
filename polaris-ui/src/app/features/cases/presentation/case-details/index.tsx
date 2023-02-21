@@ -3,7 +3,6 @@ import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
 import { Wait as AccordionWait } from "./accordion/Wait";
-import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
 import { Accordion } from "./accordion/Accordion";
 import { KeyDetails } from "./KeyDetails";
 import classes from "./index.module.scss";
@@ -17,14 +16,12 @@ import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
 import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
+import { path as caseSearchResultPath } from "../case-search-results";
 export const path = "/case-details/:urn/:id";
 
-type Props = BackLinkingPageProps & {};
-
-export const Page: React.FC<Props> = ({ backLinkProps }) => {
+export const Page: React.FC = () => {
   const history = useHistory();
   const { id, urn } = useParams<{ id: string; urn: string }>();
-
   const {
     caseState,
     accordionState,
@@ -107,7 +104,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         />
       )}
 
-      <BackLink to={backLinkProps.to}>{backLinkProps.label}</BackLink>
+      <BackLink to={`${caseSearchResultPath}?urn=${urn}`}>Find a case</BackLink>
 
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>

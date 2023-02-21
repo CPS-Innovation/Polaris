@@ -11,11 +11,11 @@ import { useQueryParamsState } from "../../../../common/hooks/useQueryParamsStat
 import { useSearchInputLogic } from "../../hooks/useSearchInputLogic";
 import { generatePath, Link } from "react-router-dom";
 import { path as casePath } from "../case-details";
+import { path as caseSearchPath } from "../case-search";
 import {
   formatDate,
   CommonDateTimeFormats,
 } from "../../../../common/utils/dates";
-import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
 import { useApi } from "../../../../common/hooks/useApi";
@@ -28,9 +28,7 @@ export const path = "/case-search-results";
 
 const validationFailMessage = "Enter a URN in the right format";
 
-type Props = BackLinkingPageProps & {};
-
-const Page: React.FC<Props> = ({ backLinkProps }) => {
+const Page: React.FC = () => {
   const {
     urn: initialUrn,
     setParams,
@@ -54,7 +52,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   return (
     <>
-      <BackLink to={backLinkProps.to}>{backLinkProps.label}</BackLink>
+      <BackLink to={caseSearchPath} />
       <PageContentWrapper>
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
