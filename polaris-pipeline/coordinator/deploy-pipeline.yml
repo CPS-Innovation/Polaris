@@ -36,25 +36,26 @@ steps:
     inputs:
       command: "test"
       projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
-      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/$(functionName)TestResults/Coverage/"
-    displayName: "Run Coordinator and Common Library tests"
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+    displayName: "Run Coordinator tests"
     
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
       projects: "$(rootFolder)/Common.tests/Common.tests.csproj"
-      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/CommonTestResults/Coverage/"
-    displayName: "Run Coordinator and Common Library tests"
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+    displayName: "Run Common Library tests"
 
-  - script: |
-      reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
-      displayName: 'Create code coverage report'
+  - task: reportgenerator@4
+    inputs:
+      reports: '$(Build.SourcesDirectory)/**/*.cobertura.xml'
+      targetdir: '$(Build.SourcesDirectory)/CoverageResults'
 
   - task: PublishCodeCoverageResults@1
     displayName: 'Publish code coverage report'
     inputs:
       codeCoverageTool: 'cobertura'
-      summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+      summaryFileLocation: '$(Build.SourcesDirectory)/CoverageResults/Cobertura.xml'
 
   - task: DotNetCoreCLI@2
     inputs:
