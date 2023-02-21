@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using Azure;
+using Common.Services.SasGeneratorService;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,6 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Functions.PolarisPipeline;
-using PolarisGateway.Services;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline

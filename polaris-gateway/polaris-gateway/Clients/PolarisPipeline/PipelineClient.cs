@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Domain.SearchIndex;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.PolarisPipeline;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Clients.PolarisPipeline
@@ -113,6 +115,32 @@ namespace PolarisGateway.Clients.PolarisPipeline
             var url = await response.Content.ReadAsStringAsync();
 
             return url;
+        }
+
+        public async Task<IList<StreamlinedSearchLine>> SearchCase(string caseUrn, int caseId, string searchTerm, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(SearchCase), $"Searching case {caseUrn} / {caseId} for search Term '{searchTerm}'");
+
+            HttpResponseMessage response;
+            try
+            {
+                response = await SendGetRequestAsync($"urns/{caseUrn}/cases/{caseId}/documents/search/{searchTerm}", correlationId);
+            }
+            catch (HttpRequestException exception)
+            {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                throw;
+            }
+
+            var stringContent = await response.Content.ReadAsStringAsync();
+
+            _logger.LogMethodExit(correlationId, nameof(SearchCase), $"Search Result: {stringContent}");
+
+            return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(stringContent, correlationId);
         }
 
         private async Task<HttpResponseMessage> SendGetRequestAsync(string requestUri, Guid correlationId)

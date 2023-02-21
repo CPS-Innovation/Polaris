@@ -12,7 +12,7 @@ using PolarisGateway.Domain.CaseData.Args;
 using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Services;
 
 namespace PolarisGateway.Functions.CmsAuthentication

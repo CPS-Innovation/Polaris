@@ -41,7 +41,7 @@ namespace Common.Services.SasGeneratorService
 
             var blobUri = new Uri($"{_blobServiceClient.Uri}{_configuration[ConfigKeys.SharedKeys.BlobServiceContainerName]}/{blobName}");
             var blobUriBuilder = new BlobUriBuilder(blobUri); 
-            var sasBuilder = _blobSasBuilderFactory.Create(blobUriBuilder.BlobName);
+            var sasBuilder = _blobSasBuilderFactory.Create(blobUriBuilder.BlobName, correlationId);
             var sasBuilderWrapper = _blobSasBuilderWrapperFactory.Create(sasBuilder);        
             blobUriBuilder.Sas = sasBuilderWrapper.ToSasQueryParameters(userDelegationKey, _blobServiceClient.AccountName, correlationId);
 

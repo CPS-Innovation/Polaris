@@ -15,6 +15,7 @@ namespace coordinator.tests.Factories
 {
 	public class TextExtractorHttpRequestFactoryTests
 	{
+        private readonly Guid _polarisDocumentId;
         private readonly long _caseId;
 		private readonly string _documentId;
 		private readonly long _versionId;
@@ -28,6 +29,7 @@ namespace coordinator.tests.Factories
 		public TextExtractorHttpRequestFactoryTests()
 		{
 			var fixture = new Fixture();
+			_polarisDocumentId = fixture.Create<Guid>();
 			_caseId = fixture.Create<int>();
 			_documentId = fixture.Create<string>();
 			_versionId = fixture.Create<long>();
@@ -39,7 +41,7 @@ namespace coordinator.tests.Factories
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
 			var mockConfiguration = new Mock<IConfiguration>();
 			
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<ExtractTextRequest>(r => r.CaseId == _caseId && r.DocumentId == _documentId && r.BlobName == _blobName)))
+            mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<ExtractTextRequest>(r => r.CmsCaseId == _caseId && r.CmsDocumentId == _documentId && r.BlobName == _blobName)))
 				.Returns(_content);
 
 			mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.TextExtractorUrl]).Returns(_textExtractorUrl);
@@ -52,7 +54,7 @@ namespace coordinator.tests.Factories
 		[Fact]
 		public void Create_SetsExpectedHttpMethodOnDurableRequest()
 		{
-			var durableRequest = _textExtractorHttpRequestFactory.Create(_caseId, _documentId, _versionId, _blobName, _correlationId);
+			var durableRequest = _textExtractorHttpRequestFactory.Create(_polarisDocumentId, _caseId, _documentId, _versionId, _blobName, _correlationId);
 
 			durableRequest.Method.Should().Be(HttpMethod.Post);
 		}
@@ -60,7 +62,7 @@ namespace coordinator.tests.Factories
 		[Fact]
 		public void Create_SetsExpectedUriOnDurableRequest()
 		{
-			var durableRequest = _textExtractorHttpRequestFactory.Create(_caseId, _documentId, _versionId, _blobName, _correlationId);
+			var durableRequest = _textExtractorHttpRequestFactory.Create(_polarisDocumentId, _caseId, _documentId, _versionId, _blobName, _correlationId);
 
 			durableRequest.Uri.AbsoluteUri.Should().Be(_textExtractorUrl);
 		}
@@ -68,7 +70,7 @@ namespace coordinator.tests.Factories
 		[Fact]
 		public void Create_SetsExpectedHeadersOnDurableRequest()
 		{
-			var durableRequest = _textExtractorHttpRequestFactory.Create(_caseId, _documentId, _versionId, _blobName, _correlationId);
+			var durableRequest = _textExtractorHttpRequestFactory.Create(_polarisDocumentId, _caseId, _documentId, _versionId, _blobName, _correlationId);
 
 			durableRequest.Headers.Should().Contain("Content-Type", "application/json");
 			durableRequest.Headers.Should().Contain("Correlation-Id", _correlationId.ToString());
@@ -77,7 +79,7 @@ namespace coordinator.tests.Factories
 		[Fact]
 		public void Create_SetsExpectedContentOnDurableRequest()
 		{
-			var durableRequest = _textExtractorHttpRequestFactory.Create(_caseId, _documentId, _versionId, _blobName, _correlationId);
+			var durableRequest = _textExtractorHttpRequestFactory.Create(_polarisDocumentId, _caseId, _documentId, _versionId, _blobName, _correlationId);
 
 			durableRequest.Content.Should().Be(_content);
 		}

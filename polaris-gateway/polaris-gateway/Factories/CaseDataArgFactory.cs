@@ -2,6 +2,7 @@
 
 using System;
 using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.Factories.Contracts;
 
 namespace PolarisGateway.Factories
 {

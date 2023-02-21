@@ -45,7 +45,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating document SAS Url for urn {urn}, caseId {caseId}, id {id}");
-                // var sasUrl = await _sasGeneratorService.GenerateSasUrlAsync(blobName, currentCorrelationId);
                 var sasUrl = await _pipelineClient.GenerateDocumentSasUrlAsync(urn, caseId, id, currentCorrelationId);
 
                 return !string.IsNullOrWhiteSpace(sasUrl)

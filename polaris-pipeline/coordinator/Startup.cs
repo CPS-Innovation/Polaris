@@ -18,6 +18,7 @@ using coordinator.Factories;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Common.Health;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -49,6 +50,7 @@ namespace coordinator
             });
 
             builder.Services.AddBlobStorage(configuration);
+            builder.Services.AddSearchClient(configuration);
 
             BuildHealthChecks(builder);
         }
@@ -60,7 +62,8 @@ namespace coordinator
         /// <param name="builder"></param>
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddHealthChecks();
+            builder.Services.AddHealthChecks()
+                .AddCheck<AzureSearchHealthCheck>("Azure Search");
         }
     }
 }

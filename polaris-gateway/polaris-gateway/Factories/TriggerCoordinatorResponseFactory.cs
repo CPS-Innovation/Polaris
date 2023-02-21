@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Mappers;
 
 namespace PolarisGateway.Factories
 {
-	public class TriggerCoordinatorResponseFactory : ITriggerCoordinatorResponseFactory
+    public class TriggerCoordinatorResponseFactory : ITriggerCoordinatorResponseFactory
 	{
         private readonly ITrackerUrlMapper _trackerUrlMapper;
         private readonly ILogger<TriggerCoordinatorResponseFactory> _logger;

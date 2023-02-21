@@ -12,7 +12,7 @@ using Moq;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Functions.PolarisPipeline;
 using Xunit;
 
