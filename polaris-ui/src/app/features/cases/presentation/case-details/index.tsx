@@ -21,6 +21,7 @@ export const path = "/case-details/:urn/:id";
 
 export const Page: React.FC = () => {
   const history = useHistory();
+  console.log("history>>>>>>", history);
   const { id, urn } = useParams<{ id: string; urn: string }>();
   const {
     caseState,
@@ -56,7 +57,9 @@ export const Page: React.FC = () => {
     //  (we are prepared to show page whilst waiting for docs to load though)
     return <WaitPage />;
   }
-
+  const backLink = history.location.state
+    ? `${caseSearchResultPath}?urn=${urn}`
+    : "/";
   const isMultipleDefendantsOrCharges = isMultipleChargeCase(caseState.data);
 
   return (
@@ -104,7 +107,7 @@ export const Page: React.FC = () => {
         />
       )}
 
-      <BackLink to={`${caseSearchResultPath}?urn=${urn}`}>Find a case</BackLink>
+      <BackLink to={backLink}>Find a case</BackLink>
 
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>

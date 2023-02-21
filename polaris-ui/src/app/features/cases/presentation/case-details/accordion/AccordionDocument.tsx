@@ -3,6 +3,7 @@ import {
   formatDate,
 } from "../../../../../common/utils/dates";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
+import { Link, useLocation } from "react-router-dom";
 
 import classes from "./Accordion.module.scss";
 
@@ -18,21 +19,25 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   handleOpenPdf,
 }) => {
+  const location = useLocation();
   return (
     <tr className="govuk-table__row">
       <td
         className="govuk-table__cell govuk-body-s openMe"
         style={{ wordWrap: "break-word" }}
       >
-        <a
-          href={`#${caseDocument.tabSafeId}`}
+        <Link
+          to={{
+            hash: `${caseDocument.tabSafeId}`,
+            state: location.state,
+          }}
           onClick={(ev) => {
             handleOpenPdf(caseDocument);
           }}
           data-testid={`link-document-${caseDocument.documentId}`}
         >
           {caseDocument.presentationFileName}
-        </a>
+        </Link>
       </td>
       <td className={`govuk-table__cell govuk-body-s ${classes.date}`}>
         {caseDocument.createdDate &&
