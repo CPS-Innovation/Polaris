@@ -1,9 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { CommonTabsProps } from "./types";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
-
 import classes from "./Tabs.module.scss";
 
 const ARROW_KEY_SHIFTS = {
@@ -32,7 +31,7 @@ export const Tabs: React.FC<TabsProps> = ({
 }) => {
   const history = useHistory();
   const activeTabRef = useRef<HTMLAnchorElement>(null);
-  const { hash } = useLocation();
+  const { hash, state } = useLocation();
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 
   useEffect(() => {
@@ -63,7 +62,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabIndex = activeTabIndex + ARROW_KEY_SHIFTS[typedKeyCode];
     const nextTabId = items[nextTabIndex].id;
-    history.push(`#${nextTabId}`);
+    history.push({ hash: `${nextTabId}`, state: state });
 
     // prevent awkward vertical scroll on up/down key press
     ev.preventDefault();
@@ -88,7 +87,7 @@ export const Tabs: React.FC<TabsProps> = ({
         : thisItemIndex - 1; // otherwise, we need the item to the left
 
     const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
-    history.push(`#${nextTabId}`);
+    history.push({ hash: `${nextTabId}`, state: state });
     handleClosePdf({ tabSafeId: items[activeTabIndex].id });
   };
 
@@ -127,16 +126,14 @@ export const Tabs: React.FC<TabsProps> = ({
   );
 
   const tabContent = items.map((item, index) => {
-    const { id: itemId, label, panel, isDirty, ...itemAttributes } = item;
+    const { id: itemId, label, panel, isDirty } = item;
     const tabId = itemId;
 
     const coreHyperlinkProps = {
       className: "govuk-tabs__tab",
       role: "tab",
-      href: `#${tabId}`,
       "aria-controls": String(index),
       id: `tab_${index}`,
-      ...itemAttributes,
     };
 
     return index === activeTabIndex ? (
@@ -145,8 +142,12 @@ export const Tabs: React.FC<TabsProps> = ({
         className="govuk-tabs__list-item govuk-tabs__list-item--selected"
         role="presentation"
       >
-        <a
+        <Link
           {...coreHyperlinkProps}
+          to={{
+            hash: `${tabId}`,
+            state: state,
+          }}
           data-testid="tab-active"
           tabIndex={0}
           aria-selected="true"
@@ -154,7 +155,7 @@ export const Tabs: React.FC<TabsProps> = ({
           ref={activeTabRef}
         >
           {label}
-        </a>
+        </Link>
         <span>
           <button onClick={handleCloseTab} data-testid="tab-remove">
             {closeIcon}
@@ -163,9 +164,17 @@ export const Tabs: React.FC<TabsProps> = ({
       </li>
     ) : (
       <li key={tabId} className="govuk-tabs__list-item" role="presentation">
-        <a {...coreHyperlinkProps} tabIndex={-1} aria-selected="false">
-          <span>{label}</span>
-        </a>
+        <Link
+          {...coreHyperlinkProps}
+          to={{
+            hash: `${tabId}`,
+            state: state,
+          }}
+          tabIndex={-1}
+          aria-selected="false"
+        >
+          {label}
+        </Link>
       </li>
     );
   });
