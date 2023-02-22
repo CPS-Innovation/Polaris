@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using PolarisGateway.Factories.Contracts;
 
 namespace PolarisGateway.Factories
 {

@@ -7,8 +7,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Domain.Logging;
-using PolarisGateway.Services;
 using PolarisGateway.Domain.Validators;
+using Common.Services.SasGeneratorService;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {

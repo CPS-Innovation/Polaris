@@ -177,7 +177,11 @@ export const reducer = (
         );
 
         if (matchingFreshPdfRecord) {
-          const url = resolvePdfUrl(matchingFreshPdfRecord.pdfBlobName);
+          const url = resolvePdfUrl(
+            state.urn,
+            state.caseId,
+            matchingFreshPdfRecord.documentId
+          );
           return [
             ...prev,
             { ...curr, url, pdfBlobName: matchingFreshPdfRecord.pdfBlobName },
@@ -258,13 +262,17 @@ export const reducer = (
         (item) => item.documentId === documentId
       )!;
 
-      const blobName = state.pipelineState.haveData
+      const pipelineDocument = state.pipelineState.haveData
         ? state.pipelineState.data.documents.find(
             (item) => item.documentId === documentId
-          )?.pdfBlobName
+          )
         : undefined;
 
-      const url = blobName && resolvePdfUrl(blobName);
+      const blobName = pipelineDocument?.pdfBlobName;
+
+      const url =
+        blobName &&
+        resolvePdfUrl(state.urn, state.caseId, pipelineDocument.documentId);
 
       let item: CaseDocumentViewModel;
 

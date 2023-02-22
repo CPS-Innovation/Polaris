@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using PolarisGateway.Domain.DocumentRedaction;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Extensions;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Clients.PolarisPipeline

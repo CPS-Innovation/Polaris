@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure;
@@ -34,15 +35,30 @@ namespace Common.Services.SearchIndexService
             _logger = logger;
         }
 
-        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
+        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, Guid polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(StoreResultsAsync), $"CaseId: {caseId}, Blob Name: {blobName}");
+            string blobName = Path.GetFileName(blobPath);
+            _logger.LogMethodEntry(correlationId, nameof(StoreResultsAsync), $"PolarisDocumentId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, Blob Name: {blobName}");
             
             _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "Building search line results");
             var lines = new List<SearchLine>();
             foreach (var readResult in analyzeResults.ReadResults)
             {
-                lines.AddRange(readResult.Lines.Select((line, index) => _searchLineFactory.Create(caseId, documentId, versionId, blobName, readResult, line, index)));
+                var searchLines = readResult.Lines.Select
+                    (
+                        (line, index) => _searchLineFactory.Create
+                                            (
+                                                polarisDocumentId, 
+                                                cmsCaseId, 
+                                                cmsDocumentId, 
+                                                versionId,
+                                                blobName, 
+                                                readResult, 
+                                                line, 
+                                                index
+                                             )
+                    );
+                lines.AddRange(searchLines);
             }
 
             if (lines.Count > 0)

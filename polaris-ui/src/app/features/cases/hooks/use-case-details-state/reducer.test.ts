@@ -303,15 +303,20 @@ describe("useCaseDetailsState reducer", () => {
         ],
       } as CombinedState["tabsState"];
 
-      jest.spyOn(apiGateway, "resolvePdfUrl").mockImplementation((blobName) => {
-        if (blobName !== "foo") throw new Error();
-        return "baz";
-      });
+      jest
+        .spyOn(apiGateway, "resolvePdfUrl")
+        .mockImplementation((urn, caseId, documentId) => {
+          if (urn !== "bar" || caseId !== 99 || documentId !== "2")
+            throw new Error();
+          return "baz";
+        });
 
       const nextState = reducer(
         {
           tabsState: existingTabsState,
           documentsState: { status: "succeeded" },
+          urn: "bar",
+          caseId: 99,
         } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
@@ -414,16 +419,21 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as CombinedState["pipelineState"];
 
-      jest.spyOn(apiGateway, "resolvePdfUrl").mockImplementation((blobName) => {
-        if (blobName !== "foo") throw new Error();
-        return "baz";
-      });
+      jest
+        .spyOn(apiGateway, "resolvePdfUrl")
+        .mockImplementation((urn, caseId, documentId) => {
+          if (urn !== "bar" || caseId !== 99 || documentId !== "1")
+            throw new Error();
+          return "baz";
+        });
 
       const nextState = reducer(
         {
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
+          urn: "bar",
+          caseId: 99,
         } as CombinedState,
         {
           type: "OPEN_PDF",

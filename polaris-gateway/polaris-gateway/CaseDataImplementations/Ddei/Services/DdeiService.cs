@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Domain.CaseData.Args;
-using PolarisGateway.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Clients;
 using PolarisGateway.Services;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using PolarisGateway.Domain.Exceptions;
 using System.IO;
+using PolarisGateway.Factories.Contracts;
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Services
 {

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
@@ -22,6 +23,9 @@ using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Microsoft.IdentityModel.Logging;
 using Common.Health;
+using PolarisGateway.Factories.Contracts;
+using Common.Factories;
+using Common.Services.SasGeneratorService;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -43,20 +47,11 @@ namespace PolarisGateway
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddOptions<SearchClientOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("searchClient").Bind(settings);
-            });
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
             builder.Services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            builder.Services.AddTransient<ISearchIndexClient, SearchIndexClient>();
-            builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
-            builder.Services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
-            builder.Services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
-            builder.Services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
             builder.Services.AddTransient<ICmsAuthValuesFactory, CmsAuthValuesFactory>();
 
             builder.Services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
@@ -72,14 +67,14 @@ namespace PolarisGateway
             });
 
             // TODO - remove these services as moving to pipeline
-            {
-                BuildBlobServiceClient(builder, configuration);
-                builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
-            }
+            BuildBlobServiceClient(builder, configuration);
+            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
 
-            builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
+            /* Moved to pipeline
+             * builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
             builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
-            builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>();
+            builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>(); */
+
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
@@ -117,8 +112,7 @@ namespace PolarisGateway
             });
 
             builder.Services.AddHealthChecks()
-                // TODO - make async?
-                .AddCheck<AzureFunctionHealthCheck>(nameof(coordinator));
+                .AddCheck<AzureFunctionHealthCheck>("Pipeline / Co-ordinator");
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)

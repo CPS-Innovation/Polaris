@@ -7,7 +7,6 @@ using text_extractor.Handlers;
 using text_extractor.Services.OcrService;
 using Common.Services.SasGeneratorService;
 using text_extractor.Factories;
-using Common.Wrappers;
 using Azure.Identity;
 using System;
 using System.Diagnostics.CodeAnalysis;

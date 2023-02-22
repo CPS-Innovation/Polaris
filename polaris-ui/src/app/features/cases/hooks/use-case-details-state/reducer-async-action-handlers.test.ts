@@ -25,6 +25,8 @@ describe("reducerAsyncActionHandlers", () => {
         .mockImplementation(() => Promise.resolve("baz"));
 
       combinedStateMock = {
+        urn: "foo",
+        caseId: 99,
         tabsState: {
           items: [
             { documentId: "1", pdfBlobName: "bar1" },
@@ -48,7 +50,7 @@ describe("reducerAsyncActionHandlers", () => {
       });
 
       // assert
-      expect(getPdfSasUrlSpy).toBeCalledWith("bar1");
+      expect(getPdfSasUrlSpy).toBeCalledWith("foo", 99, "1");
 
       expect(dispatchMock.mock.calls.length).toBe(1);
       expect(dispatchMock.mock.calls[0][0]).toEqual({

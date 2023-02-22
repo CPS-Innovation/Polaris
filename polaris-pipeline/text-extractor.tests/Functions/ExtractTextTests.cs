@@ -167,7 +167,7 @@ namespace text_extractor.tests.Functions
 			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
 			await _extractText.Run(_httpRequestMessage);
 
-			_mockSearchIndexService.Verify(service => service.StoreResultsAsync(_mockAnalyzeResults.Object, _extractTextRequest.CaseId, _extractTextRequest.DocumentId,
+			_mockSearchIndexService.Verify(service => service.StoreResultsAsync(_mockAnalyzeResults.Object, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CmsCaseId, _extractTextRequest.CmsDocumentId,
 				_extractTextRequest.VersionId, _extractTextRequest.BlobName, _correlationId));
 		}
 

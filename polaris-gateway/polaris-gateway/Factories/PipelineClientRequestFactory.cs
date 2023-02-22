@@ -2,6 +2,7 @@
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Domain.Logging;
+using PolarisGateway.Factories.Contracts;
 
 namespace PolarisGateway.Factories
 {

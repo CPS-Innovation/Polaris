@@ -16,7 +16,7 @@ using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Services;
 
 namespace PolarisGateway.Functions.CaseData

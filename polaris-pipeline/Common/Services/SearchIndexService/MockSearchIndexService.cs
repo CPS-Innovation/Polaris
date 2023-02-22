@@ -20,9 +20,9 @@ namespace Common.Services.SearchIndexService
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
+        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, Guid polarisDocumentId, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, $"{nameof(MockSearchIndexService)}.{nameof(StoreResultsAsync)}", $"CaseId: {caseId}, Blob Name: {blobName}");
+            _logger.LogMethodEntry(correlationId, $"{nameof(MockSearchIndexService)}.{nameof(StoreResultsAsync)}", $"PolarisDocumentId: {polarisDocumentId}, CaseId: {caseId}, Blob Name: {blobName}");
         }
 
         public async Task RemoveResultsByBlobNameAsync(long caseId, string blobName, Guid correlationId)

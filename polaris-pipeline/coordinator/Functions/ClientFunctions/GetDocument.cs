@@ -54,7 +54,7 @@ namespace coordinator.Functions.ClientFunctions
             log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
 
             var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<Domain.Tracker.Tracker>(entityId);
+            var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
             if (!stateResponse.EntityExists)
             {
                 var baseMessage = $"No pipeline tracker found with id '{caseId}'";

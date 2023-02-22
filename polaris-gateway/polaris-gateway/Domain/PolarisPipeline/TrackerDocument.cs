@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -29,6 +29,9 @@ namespace PolarisGateway.Domain.PolarisPipeline
 
         [JsonProperty("pdfBlobName")]
         public string PdfBlobName { get; set; }
+
+        [JsonProperty("isPdfReady")]
+        public bool IsPdfAvailable { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]

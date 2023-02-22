@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using PolarisGateway.Factories;
 using PolarisGateway.Wrappers;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -15,6 +14,7 @@ using System.Net;
 using PolarisGateway.Domain.DocumentRedaction;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using PolarisGateway.Factories.Contracts;
 
 namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {

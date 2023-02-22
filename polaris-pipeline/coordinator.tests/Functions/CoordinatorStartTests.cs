@@ -128,7 +128,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(CoordinatorOrchestrator),
                     _instanceId,
-                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false)));
+                    It.Is<CoordinatorOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum && p.ForceRefresh == false)));
         }
 
         [Theory]
@@ -146,7 +146,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(CoordinatorOrchestrator),
                     _instanceId,
-                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false)));
+                    It.Is<CoordinatorOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum && p.ForceRefresh == false)));
         }
 
         [Fact]
@@ -195,7 +195,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(CoordinatorOrchestrator),
                     _caseId,
-                    It.Is<CoordinatorOrchestrationPayload>(p => p.CaseId == _caseIdNum && p.ForceRefresh == false)),
+                    It.Is<CoordinatorOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum && p.ForceRefresh == false)),
                 Times.Never);
         }
 

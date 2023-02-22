@@ -80,11 +80,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId },
       } = action;
 
-      const pdfBlobName = getState().tabsState.items.find(
-        (item) => item.documentId === documentId
-      )!.pdfBlobName!;
+      const { urn, caseId } = getState();
 
-      const sasUrl = await getPdfSasUrl(pdfBlobName);
+      const sasUrl = await getPdfSasUrl(urn, caseId, documentId);
 
       dispatch({
         type: "OPEN_PDF_IN_NEW_TAB",

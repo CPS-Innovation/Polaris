@@ -21,16 +21,17 @@ namespace coordinator.Functions.SubOrchestrators
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<CaseDocumentOrchestrator> _log;
 
+        const string loggingName = $"{nameof(CaseDocumentOrchestrator)} - {nameof(Run)}";
+
         public CaseDocumentOrchestrator(IJsonConvertWrapper jsonConvertWrapper, ILogger<CaseDocumentOrchestrator> log)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _log = log;
         }
 
-        [FunctionName("CaseDocumentOrchestrator")]
+        [FunctionName(nameof(CaseDocumentOrchestrator))]
         public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            const string loggingName = $"{nameof(CaseDocumentOrchestrator)} - {nameof(Run)}";
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
             if (payload == null)
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
@@ -39,15 +40,15 @@ namespace coordinator.Functions.SubOrchestrators
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get the pipeline tracker for DocumentId: '{payload.DocumentId}'");
-            var tracker = GetTracker(context, payload.CaseId, payload.CorrelationId, log);
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get the pipeline tracker for DocumentId: '{payload.CmsDocumentId}'");
+            var tracker = GetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for DocumentId: '{payload.DocumentId}', FileName: '{payload.FileName}'");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for DocumentId: '{payload.CmsDocumentId}', FileName: '{payload.CmsFileName}'");
             var pdfGeneratorResponse = await CallPdfGeneratorAsync(context, payload, tracker, log);
 
             if (!pdfGeneratorResponse.AlreadyProcessed)
             {
-                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for DocumentId: '{payload.DocumentId}', FileName: '{payload.FileName}'");
+                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for DocumentId: '{payload.CmsDocumentId}', FileName: '{payload.CmsFileName}'");
                 await CallTextExtractorAsync(context, payload, pdfGeneratorResponse.BlobName, tracker, log);
             }
 
@@ -66,19 +67,19 @@ namespace coordinator.Functions.SubOrchestrators
 
                 if (response.AlreadyProcessed)
                 {
-                    await tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(payload.DocumentId, payload.VersionId, response.BlobName));
+                    await tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(payload.CmsDocumentId, payload.CmsVersionId, response.BlobName));
                 }
 
                 else
                 {
-                    await tracker.RegisterPdfBlobName(new RegisterPdfBlobNameArg(payload.DocumentId, payload.VersionId, response.BlobName));
+                    await tracker.RegisterPdfBlobName(new RegisterPdfBlobNameArg(payload.CmsDocumentId, payload.CmsVersionId, response.BlobName));
                 }
 
                 return response;
             }
             catch (Exception exception)
             {
-                await tracker.RegisterUnexpectedPdfDocumentFailure(payload.DocumentId);
+                await tracker.RegisterUnexpectedPdfDocumentFailure(payload.CmsDocumentId);
 
                 log.LogMethodError(payload.CorrelationId, nameof(CaseDocumentOrchestrator),
                     $"Error when running {nameof(CaseDocumentOrchestrator)} orchestration: {exception.Message}",
@@ -98,7 +99,7 @@ namespace coordinator.Functions.SubOrchestrators
 
             var request = await context.CallActivityAsync<DurableHttpRequest>(
                 nameof(CreateGeneratePdfHttpRequest),
-                new GeneratePdfHttpRequestActivityPayload(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.CmsAuthValues, payload.CorrelationId));
+                new GeneratePdfHttpRequestActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsDocumentCategory, payload.CmsDocumentId, payload.CmsFileName, payload.CmsVersionId, payload.CmsAuthValues, payload.CorrelationId));
             var response = await context.CallHttpAsync(request);
 
             switch (response.StatusCode)
@@ -106,14 +107,14 @@ namespace coordinator.Functions.SubOrchestrators
                 case HttpStatusCode.OK:
                     return _jsonConvertWrapper.DeserializeObject<GeneratePdfResponse>(response.Content);
                 case HttpStatusCode.NotFound:
-                    await tracker.RegisterDocumentNotFoundInDDEI(payload.DocumentId);
+                    await tracker.RegisterDocumentNotFoundInDDEI(payload.CmsDocumentId);
                     break;
                 case HttpStatusCode.NotImplemented:
-                    await tracker.RegisterUnableToConvertDocumentToPdf(payload.DocumentId);
+                    await tracker.RegisterUnableToConvertDocumentToPdf(payload.CmsDocumentId);
                     break;
             }
 
-            throw new HttpRequestException($"Failed to generate pdf for document id '{payload.DocumentId}'. Status code: {response.StatusCode}.");
+            throw new HttpRequestException($"Failed to generate pdf for document id '{payload.CmsDocumentId}'. Status code: {response.StatusCode}.");
         }
 
         private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ITracker tracker, ILogger log)
@@ -123,11 +124,11 @@ namespace coordinator.Functions.SubOrchestrators
             try
             {
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
-                await tracker.RegisterIndexed(payload.DocumentId);
+                await tracker.RegisterIndexed(payload.CmsDocumentId);
             }
             catch (Exception exception)
             {
-                await tracker.RegisterOcrAndIndexFailure(payload.DocumentId);
+                await tracker.RegisterOcrAndIndexFailure(payload.CmsDocumentId);
 
                 log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(CaseDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;
@@ -142,13 +143,24 @@ namespace coordinator.Functions.SubOrchestrators
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorHttpAsync), payload.ToJson());
 
-            var request = await context.CallActivityAsync<DurableHttpRequest>(
-                nameof(CreateTextExtractorHttpRequest),
-                new TextExtractorHttpRequestActivityPayload(payload.CaseUrn, payload.CaseId, payload.DocumentId, payload.VersionId, blobName, payload.CorrelationId));
+            var request = await context.CallActivityAsync<DurableHttpRequest>
+                (
+                    nameof(CreateTextExtractorHttpRequest),
+                    new TextExtractorHttpRequestActivityPayload
+                    (
+                        payload.PolarisDocumentId, 
+                        payload.CmsCaseUrn, 
+                        payload.CmsCaseId, 
+                        payload.CmsDocumentId, 
+                        payload.CmsVersionId, 
+                        blobName, 
+                        payload.CorrelationId
+                    )
+                );
             var response = await context.CallHttpAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
-                throw new HttpRequestException($"Failed to ocr/index document with id '{payload.DocumentId}'. Status code: {response.StatusCode}. CorrelationId: {payload.CorrelationId}");
+                throw new HttpRequestException($"Failed to ocr/index document with id '{payload.CmsDocumentId}'. Status code: {response.StatusCode}. CorrelationId: {payload.CorrelationId}");
             
             log.LogMethodExit(payload.CorrelationId, nameof(CallTextExtractorHttpAsync), string.Empty);
         }

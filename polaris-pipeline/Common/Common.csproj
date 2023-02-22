@@ -21,7 +21,8 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
     <PackageReference Include="Azure.Storage.Common" Version="12.13.0" />
     <PackageReference Include="FluentValidation" Version="11.2.0" />
-    <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
+    <PackageReference Include="FuzzySharp" Version="2.0.2" />
+	<PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.0" />
     <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />

@@ -4,6 +4,7 @@ import { CmsDocType } from "./CmsDocType";
 export type PipelineDocumentProperties = {
   documentId: string;
   pdfBlobName: string;
+  isPdfAvailable?: boolean;
   status:
     | "None"
     | "PdfUploadedToBlob"

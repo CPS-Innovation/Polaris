@@ -20,27 +20,27 @@ namespace coordinator.Functions.ActivityFunctions
            _log = logger;
         }
 
-        [FunctionName("CreateTextExtractorHttpRequest")]
+        [FunctionName(nameof(CreateTextExtractorHttpRequest))]
         public DurableHttpRequest Run([ActivityTrigger] IDurableActivityContext context)
         {
             const string loggingName = $"{nameof(CreateTextExtractorHttpRequest)} - {nameof(Run)}";
             var payload = context.GetInput<TextExtractorHttpRequestActivityPayload>();
             
             if (payload == null)
-                throw new ArgumentException("Payload cannot be null.");
-            if (string.IsNullOrWhiteSpace(payload.CaseUrn))
-                throw new ArgumentException("CaseUrn cannot be empty");
-            if (payload.CaseId == 0)
-                throw new ArgumentException("CaseId cannot be zero");
+                throw new ArgumentException($"{nameof(payload)} cannot be null.");
+            if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
+                throw new ArgumentException($"{nameof(payload.CmsCaseUrn)} cannot be empty");
+            if (payload.CmsCaseId == 0)
+                throw new ArgumentException($"{nameof(payload.CmsCaseId)} cannot be zero");
             if (string.IsNullOrWhiteSpace(payload.DocumentId))
-                throw new ArgumentException("DocumentId is empty");
+                throw new ArgumentException($"{nameof(payload.DocumentId)} is empty");
             if (string.IsNullOrWhiteSpace(payload.BlobName))
-                throw new ArgumentException("The supplied blob name is empty");
+                throw new ArgumentException($"The supplied {nameof(payload.BlobName)} is empty");
             if (payload.CorrelationId == Guid.Empty)
-                throw new ArgumentException("CorrelationId must be valid GUID");
+                throw new ArgumentException($"{nameof(payload.CorrelationId)} must be valid GUID");
             
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            var result = _textExtractorHttpRequestFactory.Create(payload.CaseId, payload.DocumentId, payload.VersionId, payload.BlobName, payload.CorrelationId);
+            var result = _textExtractorHttpRequestFactory.Create(payload.PolarisDocumentId, payload.CmsCaseId, payload.DocumentId, payload.VersionId, payload.BlobName, payload.CorrelationId);
             
             _log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
             return result;
