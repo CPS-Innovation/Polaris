@@ -1,11 +1,12 @@
-async function fetch(r) {
-  const endpoint = process.env.API_ENDPOINT ?? ""
+async function polarisAuthRedirect(r) {
+  const redirectHostAddress = r.variables.redirectHostAddress ?? ""
   const cookie = encodeURIComponent(r.headersIn.Cookie ?? "")
   const referer = encodeURIComponent(r.headersIn.Referer ?? "")
-  const q = encodeURIComponent(r.args.q ?? "")
+  const polarisUiUrl = encodeURIComponent(r.args["polaris-ui-url"] ?? "")
   r.return(
-      302,
-    `https://polaris-dev-cmsproxy.azurewebsites.net/api/init?cookie=${cookie}&referer=${referer}&q=${q}`
+    302,
+    `${redirectHostAddress}/api/init?cookie=${cookie}&referer=${referer}&polaris-ui-url=${polarisUiUrl}`
   )
 }
-export default { fetch }
+
+export default { polarisAuthRedirect }

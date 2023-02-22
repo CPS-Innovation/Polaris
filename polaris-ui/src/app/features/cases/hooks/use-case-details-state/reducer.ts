@@ -22,7 +22,10 @@ import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 export const reducer = (
   state: CombinedState,
   action:
-    | { type: "UPDATE_CASE_DETAILS"; payload: ApiResult<CaseDetails> }
+    | {
+        type: "UPDATE_CASE_DETAILS";
+        payload: ApiResult<CaseDetails>;
+      }
     | {
         type: "UPDATE_PIPELINE";
         payload: AsyncPipelineResult<PipelineResults>;

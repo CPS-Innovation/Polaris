@@ -51,7 +51,7 @@ export const useNavigationAlert = (
     return () => {
       navigationUnblockHandle.current && navigationUnblockHandle.current();
     };
-  }, [tabItems]);
+  }, [unSavedRedactionDocs, location.pathname, history]);
 
   useEffect(() => {
     window.onbeforeunload = unSavedRedactionDocs.length

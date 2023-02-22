@@ -339,7 +339,7 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
-                CmsDocumentId: "a",
+                cmsDocumentId: "a",
                 cmsDocCategory: "MGForm",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
@@ -453,7 +453,7 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
-                CmsDocumentId: "a",
+                cmsDocumentId: "a",
                 cmsDocCategory: "MGForm",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
@@ -513,7 +513,7 @@ describe("reducerAsyncActionHandlers", () => {
           items: [
             {
               documentId: "1",
-              CmsDocumentId: "a",
+              cmsDocumentId: "a",
               cmsDocCategory: "MGForm",
               redactionHighlights,
               pdfBlobName: "baz",

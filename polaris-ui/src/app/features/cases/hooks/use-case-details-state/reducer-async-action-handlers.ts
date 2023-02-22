@@ -24,7 +24,7 @@ type Action = Parameters<typeof reducer>[1];
 const getOldWorldId = (document: CaseDocumentViewModel) => {
   // temporary function to allow us to use old-world ids for the redaction endpoints
   //  but new-world guid ids for reading and storing documents.
-  return document.CmsDocumentId!;
+  return document.cmsDocumentId!;
 };
 
 type AsyncActions =
