@@ -5,6 +5,7 @@ using Common.Services.SasGeneratorService;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Responses;
+using Common.Domain.Extensions;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
@@ -19,6 +20,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Health;
+using Microsoft.AspNetCore.Http;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -62,8 +64,32 @@ namespace coordinator
         /// <param name="builder"></param>
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
+            builder.Services.AddHttpClient();
+
+            var pdfGeneratorFunction = "pdfGeneratorFunction";
+            builder.Services.AddHttpClient(pdfGeneratorFunction, client =>
+            {
+                string url = Environment.GetEnvironmentVariable("PdfGeneratorUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
+            });
+
+            var textExtractorFunction = "textExtractorFunction";
+            builder.Services.AddHttpClient(textExtractorFunction, client =>
+            {
+                string url = Environment.GetEnvironmentVariable("TextExtractorUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
+            });
+
             builder.Services.AddHealthChecks()
-                .AddCheck<AzureSearchHealthCheck>("Azure Search");
+                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
+                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction })
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction })
+                .AddCheck<DdeiDocumentExtractionServiceHealthCheck>("DDEI Document Extraction Service");
         }
     }
 }

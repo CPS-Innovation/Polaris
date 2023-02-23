@@ -7,11 +7,11 @@ using Common.Factories.Contracts;
 
 namespace Common.Health
 {
-    public class AzureSearchHealthCheck : IHealthCheck
+    public class AzureSearchClientHealthCheck : IHealthCheck
     {
         private readonly SearchClient _searchClient;
 
-        public AzureSearchHealthCheck(ISearchClientFactory searchClientFactory)
+        public AzureSearchClientHealthCheck(ISearchClientFactory searchClientFactory)
         {
             _searchClient = searchClientFactory.Create();
         }
@@ -23,11 +23,11 @@ namespace Common.Health
             try
             {
                 var response = await _searchClient.GetDocumentCountAsync(cancellationToken);
-                return HealthCheckResult.Healthy();
+                return HealthCheckResult.Healthy($"{(long)response} documents");
             }
-            catch(Exception)
+            catch(Exception e)
             {
-                return HealthCheckResult.Unhealthy();
+                return HealthCheckResult.Unhealthy(e.Message, e);
             }
         }
     }

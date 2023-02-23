@@ -30,6 +30,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0CB26D53-D834-4ADC-B307-F7F7EE1FC2F8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-auth-handover", "polaris-gateway\polaris-auth-handover\polaris-auth-handover.csproj", "{1FA73566-023F-43E9-9903-97E1DD62AC58}"
+	ProjectSection(ProjectDependencies) = postProject
+		{07C594AE-6ADA-47B6-A354-10DD309CF658} = {07C594AE-6ADA-47B6-A354-10DD309CF658}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

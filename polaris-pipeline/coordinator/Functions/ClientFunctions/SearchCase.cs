@@ -2,11 +2,9 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
 using Common.Clients;
 using Common.Constants;
 using Common.Logging;
-using coordinator.Clients;
 using coordinator.Domain.Tracker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
