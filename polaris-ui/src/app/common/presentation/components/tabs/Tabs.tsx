@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import { CommonTabsProps } from "./types";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
@@ -30,18 +29,17 @@ export const Tabs: React.FC<TabsProps> = ({
   handleClosePdf,
   ...attributes
 }) => {
-  const activeTabRef = useRef<HTMLAnchorElement>(null);
-  const { hash } = useLocation();
+  const activeTabRef = useRef<HTMLButtonElement>(null);
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 
   useEffect(() => {
     activeTabRef.current?.focus();
-  }, [hash]);
+  }, [activeTabId]);
 
   const activeTabArrayPos = items.findIndex((item) => item.id === activeTabId);
   const activeTabIndex = activeTabArrayPos === -1 ? 0 : activeTabArrayPos;
 
-  const handleKeyPressOnTab: React.KeyboardEventHandler<HTMLAnchorElement> = (
+  const handleKeyPressOnTab: React.KeyboardEventHandler<HTMLButtonElement> = (
     ev
   ) => {
     const typedKeyCode = ev.code as keyof typeof ARROW_KEY_SHIFTS;
@@ -98,70 +96,9 @@ export const Tabs: React.FC<TabsProps> = ({
     localHandleClosePdf();
   };
 
-  const tabContent = items.map((item, index) => {
-    const { id: itemId, label, panel, isDirty, ...itemAttributes } = item;
-    const tabId = itemId;
-
-    const coreHyperlinkProps = {
-      // className: "govuk-tabs__tab",
-      // role: "tab",
-      // href: `#${tabId}`,
-      // "aria-controls": String(index),
-      id: `tab_${index}`,
-      ...itemAttributes,
-    };
-
-    return index === activeTabIndex ? (
-      <li
-        key={tabId}
-        className="govuk-tabs__list-item govuk-tabs__list-item--selected"
-        role="presentation"
-        onClick={() => {
-          handleTabSelection(tabId);
-        }}
-      >
-        <a
-          {...coreHyperlinkProps}
-          data-testid="tab-active"
-          tabIndex={0}
-          aria-selected="true"
-          onKeyDown={handleKeyPressOnTab}
-          ref={activeTabRef}
-        >
-          {label}
-        </a>
-        <span>
-          <button onClick={handleCloseTab} data-testid="tab-remove">
-            <CloseIcon />
-          </button>
-        </span>
-      </li>
-    ) : (
-      <li
-        key={tabId}
-        className="govuk-tabs__list-item"
-        role="presentation"
-        onClick={() => {
-          handleTabSelection(tabId);
-        }}
-      >
-        <a {...coreHyperlinkProps} tabIndex={-1} aria-selected="false">
-          <span>{label}</span>
-        </a>
-      </li>
-    );
-  });
-
-  const tabs =
-    items.length > 0 ? (
-      <ul className="govuk-tabs__list perma-scrollbar" role="tablist">
-        {tabContent}
-      </ul>
-    ) : null;
-
   const renderTabs = () => {
     return (
-      <div className={classes.tabsButtons}>
+      <div className={classes.tabsButtons} role="tablist">
         {items.map((item, index) => {
           const { id: itemId, label } = item;
 
@@ -172,10 +109,19 @@ export const Tabs: React.FC<TabsProps> = ({
                   ? classes.activeTab
                   : classes.inactiveTab
               } ${classes.tabButtonWrap}`}
+              key={itemId}
+              data-testid={`tab-${index}`}
             >
               <button
+                id={`tab_${index}`}
+                aria-controls={`panel-${index}`}
+                role="tab"
                 className={classes.tabButton}
+                data-testid={index === activeTabIndex ? "tab-active" : ""}
                 onClick={() => handleTabSelection(itemId)}
+                onKeyDown={handleKeyPressOnTab}
+                ref={index === activeTabIndex ? activeTabRef : undefined}
+                tabIndex={index === activeTabIndex ? 0 : -1}
               >
                 {label}
               </button>
@@ -201,21 +147,20 @@ export const Tabs: React.FC<TabsProps> = ({
     const coreProps = {
       key: panelId,
       role: "tabpanel",
+      tabIndex: 0,
       "aria-labelledby": `tab_${index}`,
       "data-testid": "tab-content-" + itemId,
       //disable hash navigation scrolling.  If we uncomment the below (as per standard GDS)
       // and give the panel an id, the screen will jump on every tab navigation
-      // id: panelId,
+      id: `panel-${index}`,
     };
 
-    return index === activeTabIndex ? (
-      <div {...coreProps} className="govuk-tabs__panel">
-        {panel.children}
-      </div>
-    ) : (
+    return (
       <div
         {...coreProps}
-        className="govuk-tabs__panel govuk-tabs__panel--hidden"
+        className={`govuk-tabs__panel ${
+          index !== activeTabIndex ? "govuk-tabs__panel--hidden" : ""
+        }`}
       >
         {panel.children}
       </div>
