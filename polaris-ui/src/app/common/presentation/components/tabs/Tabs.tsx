@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { CommonTabsProps } from "./types";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
-
+import { ReactComponent as CloseIcon } from "../../svgs/closeIcon.svg";
 import classes from "./Tabs.module.scss";
 
 const ARROW_KEY_SHIFTS = {
@@ -13,11 +13,9 @@ const ARROW_KEY_SHIFTS = {
   ArrowDown: 1,
 };
 
-const getIdFromHash = (hash: string) => hash.replace("#", "");
-
-// try and stay as close to GDS...
 export type TabsProps = CommonTabsProps & {
-  // ...but we extend to allow the tabs to have a close icon
+  activeTabId: string;
+  handleTabSelection: (tabSafeId: string) => void;
   handleClosePdf: (caseDocument: { tabSafeId: string }) => void;
 };
 
@@ -27,10 +25,11 @@ export const Tabs: React.FC<TabsProps> = ({
   idPrefix,
   items,
   title,
+  activeTabId,
+  handleTabSelection,
   handleClosePdf,
   ...attributes
 }) => {
-  const history = useHistory();
   const activeTabRef = useRef<HTMLAnchorElement>(null);
   const { hash } = useLocation();
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
@@ -39,9 +38,7 @@ export const Tabs: React.FC<TabsProps> = ({
     activeTabRef.current?.focus();
   }, [hash]);
 
-  const activeTabArrayPos = items.findIndex(
-    (item) => item.id === getIdFromHash(hash)
-  );
+  const activeTabArrayPos = items.findIndex((item) => item.id === activeTabId);
   const activeTabIndex = activeTabArrayPos === -1 ? 0 : activeTabArrayPos;
 
   const handleKeyPressOnTab: React.KeyboardEventHandler<HTMLAnchorElement> = (
@@ -63,7 +60,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabIndex = activeTabIndex + ARROW_KEY_SHIFTS[typedKeyCode];
     const nextTabId = items[nextTabIndex].id;
-    history.push(`#${nextTabId}`);
+    handleTabSelection(nextTabId);
 
     // prevent awkward vertical scroll on up/down key press
     ev.preventDefault();
@@ -88,7 +85,7 @@ export const Tabs: React.FC<TabsProps> = ({
         : thisItemIndex - 1; // otherwise, we need the item to the left
 
     const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
-    history.push(`#${nextTabId}`);
+    handleTabSelection(nextTabId);
     handleClosePdf({ tabSafeId: items[activeTabIndex].id });
   };
 
@@ -101,40 +98,15 @@ export const Tabs: React.FC<TabsProps> = ({
     localHandleClosePdf();
   };
 
-  const closeIcon = (
-    <svg>
-      <circle
-        cx="12"
-        cy="12"
-        r="13"
-        stroke="white"
-        strokeWidth="1"
-        fill="white"
-      ></circle>
-      <path
-        stroke="white"
-        strokeWidth="3"
-        fill="none"
-        d="M6.25,6.25,17.75,17.75"
-      ></path>
-      <path
-        stroke="white"
-        strokeWidth="3"
-        fill="none"
-        d="M6.25,17.75,17.75,6.25"
-      ></path>
-    </svg>
-  );
-
   const tabContent = items.map((item, index) => {
     const { id: itemId, label, panel, isDirty, ...itemAttributes } = item;
     const tabId = itemId;
 
     const coreHyperlinkProps = {
-      className: "govuk-tabs__tab",
-      role: "tab",
-      href: `#${tabId}`,
-      "aria-controls": String(index),
+      // className: "govuk-tabs__tab",
+      // role: "tab",
+      // href: `#${tabId}`,
+      // "aria-controls": String(index),
       id: `tab_${index}`,
       ...itemAttributes,
     };
@@ -144,6 +116,9 @@ export const Tabs: React.FC<TabsProps> = ({
         key={tabId}
         className="govuk-tabs__list-item govuk-tabs__list-item--selected"
         role="presentation"
+        onClick={() => {
+          handleTabSelection(tabId);
+        }}
       >
         <a
           {...coreHyperlinkProps}
@@ -157,12 +132,19 @@ export const Tabs: React.FC<TabsProps> = ({
         </a>
         <span>
           <button onClick={handleCloseTab} data-testid="tab-remove">
-            {closeIcon}
+            <CloseIcon />
           </button>
         </span>
       </li>
     ) : (
-      <li key={tabId} className="govuk-tabs__list-item" role="presentation">
+      <li
+        key={tabId}
+        className="govuk-tabs__list-item"
+        role="presentation"
+        onClick={() => {
+          handleTabSelection(tabId);
+        }}
+      >
         <a {...coreHyperlinkProps} tabIndex={-1} aria-selected="false">
           <span>{label}</span>
         </a>
@@ -176,6 +158,41 @@ export const Tabs: React.FC<TabsProps> = ({
         {tabContent}
       </ul>
     ) : null;
+
+  const renderTabs = () => {
+    return (
+      <div className={classes.tabsButtons}>
+        {items.map((item, index) => {
+          const { id: itemId, label } = item;
+
+          return (
+            <div
+              className={`${
+                activeTabIndex === index
+                  ? classes.activeTab
+                  : classes.inactiveTab
+              } ${classes.tabButtonWrap}`}
+            >
+              <button
+                className={classes.tabButton}
+                onClick={() => handleTabSelection(itemId)}
+              >
+                {label}
+              </button>
+
+              <button
+                className={classes.tabCloseButton}
+                onClick={handleCloseTab}
+                data-testid="tab-remove"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   const panels = items.map((item, index) => {
     const { id: itemId, panel } = item;
@@ -213,10 +230,7 @@ export const Tabs: React.FC<TabsProps> = ({
         className={`govuk-tabs ${classes.tabs} ${className || ""}`}
         {...attributes}
       >
-        <h2 className="govuk-tabs__title" data-testid="txt-tabs-title">
-          {title}
-        </h2>
-        {tabs}
+        {renderTabs()}
         {panels}
       </div>
 

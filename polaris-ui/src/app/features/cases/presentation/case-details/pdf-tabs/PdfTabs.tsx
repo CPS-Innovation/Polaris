@@ -8,7 +8,10 @@ type PdfTabsProps = {
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;
+    activeTabId: string;
   };
+
+  handleTabSelection: (tabSafeId: string) => void;
   handleClosePdf: (caseDocument: { tabSafeId: string }) => void;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
@@ -19,7 +22,8 @@ type PdfTabsProps = {
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
-  tabsState: { items, headers },
+  tabsState: { items, headers, activeTabId },
+  handleTabSelection,
   handleClosePdf,
   handleLaunchSearchResults,
   handleAddRedaction,
@@ -51,7 +55,9 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
         },
       }))}
       title="Contents"
+      activeTabId={activeTabId}
       handleClosePdf={handleClosePdf}
+      handleTabSelection={handleTabSelection}
     />
   );
 };

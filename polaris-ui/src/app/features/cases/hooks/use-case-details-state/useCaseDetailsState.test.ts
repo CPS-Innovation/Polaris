@@ -91,6 +91,7 @@ describe("useCaseDetailsState", () => {
         handleRemoveAllRedactions,
         handleSavedRedactions,
         handleOpenPdfInNewTab,
+        handleTabSelection,
         ...stateProperties
       } = result.current;
 

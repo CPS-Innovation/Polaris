@@ -7,6 +7,7 @@ import { AccordionDocumentSection } from "./types";
 
 type Props = {
   accordionState: AccordionDocumentSection[];
+  handleTabSelection: (tabSafeId: string) => void;
   handleOpenPdf: (caseDocument: {
     tabSafeId: string;
     documentId: number;
@@ -16,6 +17,7 @@ type Props = {
 export const Accordion: React.FC<Props> = ({
   accordionState: sections,
   handleOpenPdf,
+  handleTabSelection,
 }) => {
   const [state, dispatch] = useReducer(
     reducer,
@@ -45,6 +47,7 @@ export const Accordion: React.FC<Props> = ({
           isOpen={state.sections[sectionId]}
           handleToggleOpenSection={handleToggleOpenSection}
           handleOpenPdf={handleOpenPdf}
+          handleTabSelection={handleTabSelection}
         />
       ))}
     </div>

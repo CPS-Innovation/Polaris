@@ -57,3 +57,48 @@
     }
   }
 }
+
+.tabsButtons {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid #b1b4b6;
+}
+.activeTab {
+  background-color: white;
+  border: solid 1px;
+  border-bottom: none;
+}
+.inactiveTab {
+  border: none;
+  background-color: #f3f2f1;
+}
+
+.tabButtonWrap {
+  display: flex;
+  position: relative;
+  max-width: 240px;
+  margin-right: 3px;
+  align-items: center;
+  align-self: center;
+}
+.tabButton {
+  display: flex;
+  width: 100%;
+  padding: 20px;
+  font-size: 16px;
+  border: none;
+  background-color: transparent;
+  padding-right: 35px;
+  cursor: pointer;
+}
+
+.tabCloseButton {
+  width: 25px;
+  height: 25px;
+  background-color: transparent;
+  position: absolute;
+  border: none;
+  right: 5px;
+  padding: 0;
+  cursor: pointer;
+}

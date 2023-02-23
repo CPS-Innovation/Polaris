@@ -20,7 +20,7 @@ export const initialState = {
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false },
   accordionState: { status: "loading" },
-  tabsState: { items: [], headers: {} },
+  tabsState: { items: [], headers: {}, activeTabId: "" },
   searchTerm: "",
   searchState: {
     isResultsVisible: false,
@@ -110,6 +110,18 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           pdfId: caseDocument.documentId,
           tabSafeId: caseDocument.tabSafeId,
           mode: caseDocument.mode,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleTabSelection = useCallback(
+    (tabSafeId: string) => {
+      dispatch({
+        type: "SET_ACTIVE_TAB",
+        payload: {
+          tabSafeId: tabSafeId,
         },
       });
     },
@@ -217,6 +229,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleOpenPdfInNewTab,
     handleOpenPdf,
     handleClosePdf,
+    handleTabSelection,
     handleSearchTermChange,
     handleLaunchSearchResults,
     handleCloseSearchResults,

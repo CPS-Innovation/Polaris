@@ -31,6 +31,12 @@
   margin-top: 0;
   margin-bottom: 0;
 }
+.accordion .accordion-table__cell {
+  padding-right: 5px;
+}
+.accordion .accordion-link-button {
+  font-size: 1rem;
+}
 
 .accordion .accordion-section-header {
   cursor: pointer;

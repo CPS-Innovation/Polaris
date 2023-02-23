@@ -51,7 +51,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
         <Button onClick={handleCancelAction} data-testid="btn-nav-return">
           Return to case file
         </Button>
-        <LinkButton onClick={handleContinueAction} data-testid="btn-nav-ignore">
+        <LinkButton onClick={handleContinueAction} dataTestId="btn-nav-ignore">
           Ignore
         </LinkButton>
       </div>

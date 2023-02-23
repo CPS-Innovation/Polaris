@@ -56,6 +56,12 @@ export const reducer = (
         payload: { tabSafeId: string };
       }
     | {
+        type: "SET_ACTIVE_TAB";
+        payload: {
+          tabSafeId: string;
+        };
+      }
+    | {
         type: "UPDATE_SEARCH_TERM";
         payload: { searchTerm: string };
       }
@@ -375,6 +381,17 @@ export const reducer = (
           items: state.tabsState.items.filter(
             (item) => item.tabSafeId !== tabSafeId
           ),
+        },
+      };
+    }
+
+    case "SET_ACTIVE_TAB": {
+      const { tabSafeId } = action.payload;
+      return {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          activeTabId: tabSafeId,
         },
       };
     }

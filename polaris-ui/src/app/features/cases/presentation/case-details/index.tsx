@@ -34,6 +34,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     handleOpenPdf,
     handleClosePdf,
+    handleTabSelection,
     handleSearchTermChange,
     handleLaunchSearchResults,
     handleCloseSearchResults,
@@ -140,6 +141,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   handleOpenPdf={(caseDoc) =>
                     handleOpenPdf({ ...caseDoc, mode: "read" })
                   }
+                  handleTabSelection={handleTabSelection}
                 />
               )}
             </div>
@@ -152,6 +154,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             ) : (
               <PdfTabs
                 tabsState={tabsState}
+                handleTabSelection={handleTabSelection}
                 handleClosePdf={handleClosePdf}
                 handleLaunchSearchResults={handleLaunchSearchResults}
                 handleAddRedaction={handleAddRedaction}
