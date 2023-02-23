@@ -52,7 +52,8 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
         var results = new List<CmsCaseDocument>();
 
-        var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), 
+        string listDocumentUrlFormat = _configuration[ConfigKeys.SharedKeys.ListDocumentsUrl];
+        var response = await GetHttpContentAsync(string.Format(listDocumentUrlFormat, caseUrn, caseId), 
             cmsAuthValues, correlationId);
         var stringContent = await response.ReadAsStringAsync();
         var ddeiResults = _jsonConvertWrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(stringContent);

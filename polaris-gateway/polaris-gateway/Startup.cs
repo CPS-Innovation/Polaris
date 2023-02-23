@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Clients;
@@ -24,8 +23,8 @@ using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Microsoft.IdentityModel.Logging;
 using Common.Health;
 using PolarisGateway.Factories.Contracts;
-using Common.Factories;
 using Common.Services.SasGeneratorService;
+using Common.Domain.Extensions;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -125,13 +124,27 @@ namespace PolarisGateway
         {
             builder.Services.AddHttpClient();
 
-            builder.Services.AddHttpClient(nameof(coordinator), client =>
+            var pipelineCoordinator = "pipelineCoordinator";
+            builder.Services.AddHttpClient(pipelineCoordinator, client =>
             {
-                client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
+                string url = Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
+            });
+
+            var pdfFunctions = "pdfFunctions";
+            builder.Services.AddHttpClient(pdfFunctions, client =>
+            {
+                string url = Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
             });
 
             builder.Services.AddHealthChecks()
-                .AddCheck<AzureFunctionHealthCheck>("Pipeline / Co-ordinator");
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator })
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions });
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
