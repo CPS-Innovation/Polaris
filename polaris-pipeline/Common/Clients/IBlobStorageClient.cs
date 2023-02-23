@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Clients
+namespace Common.Clients
 {
 	public interface IBlobStorageClient
 	{

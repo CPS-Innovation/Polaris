@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using text_extractor.Handlers;
 using text_extractor.Services.OcrService;
 using Common.Services.SasGeneratorService;
-using text_extractor.Factories;
 using Azure.Identity;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -17,6 +16,7 @@ using Common.Factories.Contracts;
 using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
 using Common.Factories;
+using Common.Health;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -115,7 +115,10 @@ namespace text_extractor
         /// <param name="builder"></param>
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddHealthChecks();
+            builder.Services.AddHealthChecks()
+                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
+                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
+                .AddCheck<AzureComputerVisionClientHealthCheck>("Azure Computer Vision Client");
         }
     }
 }

@@ -1,18 +1,18 @@
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Threading.Tasks;
-using System.Linq;
-using Azure.Core;
+using Common.Constants;
 using Common.Domain.Exceptions;
-using Common.Health;
 using System;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.Logging;
+using Common.Logging;
+using Common.Health;
 
-namespace PolarisGateway.Functions.Health;
+namespace coordinator.Functions;
 
 public class Health
 {
@@ -28,7 +28,7 @@ public class Health
 
     [FunctionName(nameof(Health))]
     public async Task<IActionResult> Healthcheck(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")]
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "health")]
         HttpRequest request)
     {
         request.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationIdValues);

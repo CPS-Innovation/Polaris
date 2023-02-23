@@ -8,8 +8,6 @@ using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
 using Common.Mappers.Contracts;
-using Common.Services.BlobStorageService.Contracts;
-using coordinator.Clients;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
