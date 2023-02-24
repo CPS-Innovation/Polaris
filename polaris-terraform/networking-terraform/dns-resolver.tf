@@ -7,7 +7,7 @@ resource "azurerm_private_dns_resolver" "polaris_private_dns_resolver" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
-resource "azurerm_private_dns_resolver_inbound_endpoint" "cns_private_dns_resolver_inbound_endpoint" {
+resource "azurerm_private_dns_resolver_inbound_endpoint" "polaris_private_dns_resolver_inbound_endpoint" {
   name                    = "polaris-dns-resolve-inbound"
   private_dns_resolver_id = azurerm_private_dns_resolver.polaris_private_dns_resolver.id
   location                = azurerm_private_dns_resolver.polaris_private_dns_resolver.location
