@@ -9,7 +9,7 @@ resource "azurerm_public_ip" "polaris_vpn_gateway_pip" {
   ]
 }
 
-resource "azurerm_virtual_network_gateway" "res-95" {
+resource "azurerm_virtual_network_gateway" "polaris_vpn_gateway" {
   resource_group_name = azurerm_resource_group.rg_networking.name
   location            = azurerm_resource_group.rg_networking.location
   name                = "polaris-vpn-gateway"
