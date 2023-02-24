@@ -71,6 +71,7 @@
 .inactiveTab {
   border: none;
   background-color: #f3f2f1;
+  text-decoration: underline;
 }
 
 .tabButtonWrap {
@@ -90,10 +91,10 @@
   background-color: transparent;
   padding-right: 35px;
   cursor: pointer;
-  text-decoration: underline;
 }
 .tabButton:hover,
 .tabButton:focus {
+  text-decoration: underline;
   text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
 }
 
