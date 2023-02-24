@@ -141,10 +141,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               ) : (
                 <Accordion
                   accordionState={accordionState.data}
-                  handleOpenPdf={(caseDoc) =>
-                    handleOpenPdf({ ...caseDoc, mode: "read" })
-                  }
-                  handleTabSelection={handleTabSelection}
+                  handleOpenPdf={(caseDoc) => {
+                    handleOpenPdf({ ...caseDoc, mode: "read" });
+                    handleTabSelection(caseDoc.tabSafeId);
+                  }}
                 />
               )}
             </div>

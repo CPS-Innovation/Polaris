@@ -9,7 +9,6 @@ import classes from "./Accordion.module.scss";
 
 type Props = {
   caseDocument: MappedCaseDocument;
-  handleTabSelection: (tabSafeId: string) => void;
   handleOpenPdf: (caseDocument: {
     tabSafeId: string;
     documentId: number;
@@ -19,7 +18,6 @@ type Props = {
 export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   handleOpenPdf,
-  handleTabSelection,
 }) => {
   return (
     <tr className="govuk-table__row">
@@ -30,7 +28,6 @@ export const AccordionDocument: React.FC<Props> = ({
         <LinkButton
           onClick={() => {
             handleOpenPdf(caseDocument);
-            handleTabSelection(caseDocument.tabSafeId);
           }}
           className={`${classes["accordion-link-button"]}`}
           dataTestId={`link-document-${caseDocument.documentId}`}
