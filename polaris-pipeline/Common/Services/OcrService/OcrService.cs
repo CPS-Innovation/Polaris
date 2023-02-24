@@ -4,11 +4,11 @@ using Common.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
-using text_extractor.Domain.Exceptions;
+using Common.Domain.Exceptions;
 using Common.Factories.Contracts;
 using Common.Services.SasGeneratorService;
 
-namespace text_extractor.Services.OcrService
+namespace Common.Services.OcrService
 {
     public class OcrService : IOcrService
     {

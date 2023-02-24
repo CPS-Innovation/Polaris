@@ -1,5 +1,5 @@
 ﻿using System;
-namespace text_extractor.Domain.Exceptions
+namespace Common.Domain.Exceptions
 {
 	[Serializable]
 	public class OcrServiceException : Exception

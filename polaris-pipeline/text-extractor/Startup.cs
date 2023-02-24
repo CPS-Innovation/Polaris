@@ -4,7 +4,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using text_extractor.Handlers;
-using text_extractor.Services.OcrService;
+using Common.Services.OcrService;
 using Common.Services.SasGeneratorService;
 using Azure.Identity;
 using System;

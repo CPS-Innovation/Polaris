@@ -5,9 +5,9 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using text_extractor.Domain.Exceptions;
+using Common.Domain.Exceptions;
 
-namespace text_extractor.Services.OcrService
+namespace Common.Services.OcrService
 {
     public class MockOcrService : IOcrService
     {
