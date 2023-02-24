@@ -123,7 +123,10 @@ namespace PolarisGateway
                 client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
             });
 
+            var ddeiClient = "ddeiClient";
+
             builder.Services.AddHealthChecks()
+                .AddCheck<DdeiClientHealthCheck>(ddeiClient)
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator })
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions });
         }
