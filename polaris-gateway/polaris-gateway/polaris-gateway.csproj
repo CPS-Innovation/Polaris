@@ -26,7 +26,7 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.47.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.23.0" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.23.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.4.0" />
@@ -43,14 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Functions\PolarisPipeline\" />
-    <None Remove="Clients\PolarisPipeline\" />
-    <None Remove="Domain\PolarisPipeline\" />
     <None Remove="Wrappers\" />
     <None Remove="Azure.Storage.Blobs" />
     <None Remove="Microsoft.Extensions.Azure" />
     <None Remove="Functions\DocumentExtraction\" />
-    <None Remove="Clients\DocumentExtraction\" />
-    <None Remove="Domain\DocumentExtraction\" />
     <None Remove="Mappers\" />
     <None Remove="Azure.Search.Documents" />
     <None Remove="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" />
@@ -73,9 +69,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Domain\DocumentExtraction\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\polaris-pipeline\Common\Common.csproj" />
+    <ProjectReference Include="..\polaris-gateway.common\polaris-gateway.common.csproj" />
   </ItemGroup>
 </Project>

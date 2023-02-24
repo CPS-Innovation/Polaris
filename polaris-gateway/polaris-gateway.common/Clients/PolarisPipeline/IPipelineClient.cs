@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Common.Domain.SearchIndex;
+﻿using Common.Domain.SearchIndex;
 using PolarisGateway.Domain.PolarisPipeline;
 
 namespace PolarisGateway.Clients.PolarisPipeline

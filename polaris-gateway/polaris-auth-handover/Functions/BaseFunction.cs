@@ -2,9 +2,9 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PolarisAuthHandover.Domain.Logging;
+using PolarisGateway.Domain.Logging;
 
-namespace PolarisAuthHandover.Functions;
+namespace PolarisDomain.Functions;
 
 public class BaseFunction
 {
