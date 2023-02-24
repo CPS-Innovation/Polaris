@@ -33,16 +33,13 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
       {type === "casefile" && (
         <div className={classes.documentLinks}>
           {unSavedRedactionDocs.map((caseDocument) => (
-            <a
+            <LinkButton
               key={caseDocument.tabSafeId}
-              href={`#${caseDocument.tabSafeId}`}
-              onClick={(ev) => {
-                handleOpenPdf && handleOpenPdf(caseDocument);
-              }}
-              data-testid={`link-document-${caseDocument.documentId}`}
+              onClick={() => handleOpenPdf && handleOpenPdf(caseDocument)}
+              dataTestId={`link-document-${caseDocument.documentId}`}
             >
               {caseDocument.presentationFileName}
-            </a>
+            </LinkButton>
           ))}
         </div>
       )}

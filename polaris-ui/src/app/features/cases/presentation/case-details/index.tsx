@@ -87,6 +87,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleOpenPdf={(params) => {
               setShowAlert(false);
               handleOpenPdf({ ...params, mode: "read" });
+              handleTabSelection(params.tabSafeId);
             }}
           />
         </Modal>
