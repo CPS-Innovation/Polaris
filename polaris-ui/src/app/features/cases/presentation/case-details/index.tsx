@@ -103,7 +103,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleCloseSearchResults,
             handleChangeResultsOrder,
             handleUpdateFilter,
-            handleOpenPdf,
+            handleOpenPdf: (caseDoc) => {
+              handleOpenPdf(caseDoc);
+              handleTabSelection(caseDoc.tabSafeId);
+            },
           }}
         />
       )}

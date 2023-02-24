@@ -1,5 +1,6 @@
 import { Details } from "../../../../../../common/presentation/components";
 import { SectionBreak } from "../../../../../../common/presentation/components";
+import { LinkButton } from "../../../../../../common/presentation/components/LinkButton";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -29,15 +30,14 @@ export const ListItem: React.FC<Props> = ({
   return (
     <div data-testid={`div-search-result-${documentId}`}>
       <h2 className="govuk-heading-s results-header">
-        <a
-          href={`#${tabSafeId}`}
-          onClick={(ev) => {
+        <LinkButton
+          onClick={() => {
             handleOpenPdf({ documentId, tabSafeId, mode: "search" });
           }}
-          data-testid={`link-result-document-${documentId}`}
+          dataTestId={`link-result-document-${documentId}`}
         >
           {fileName}
-        </a>
+        </LinkButton>
       </h2>
 
       <div className="govuk-body-s">
