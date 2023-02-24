@@ -188,7 +188,7 @@ resource "azurerm_subnet" "sn_polaris_ui_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisUiSubnet]
-  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Web"]
 
   delegation {
     name = "Microsoft.Web/serverFarms TextExtractor Delegation"
@@ -238,7 +238,7 @@ resource "azurerm_subnet" "sn_polaris_apps_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisAppsSubnet]
-  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.CognitiveServices"]
+  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.CognitiveServices", "Microsoft.Web"]
 
   enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
 
@@ -256,7 +256,7 @@ resource "azurerm_subnet" "sn_polaris_ci_subnet" {
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisCiSubnet]
-  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Web"]
 
   delegation {
     name = "Microsoft.ContainerInstance/containerGroups Delegation"
