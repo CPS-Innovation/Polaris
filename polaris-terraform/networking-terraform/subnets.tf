@@ -16,6 +16,12 @@ resource "azurerm_subnet" "sn_cms_services_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet_route_table_association" "sn_cms_services_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_cms_services_subnet.id
+  depends_on     = [azurerm_subnet.sn_cms_services_subnet]
+}
+
 resource "azurerm_subnet" "sn_ddei_services_subnet" {
   name                 = "polaris-cin-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
@@ -35,6 +41,12 @@ resource "azurerm_subnet" "sn_ddei_services_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet_route_table_association" "sn_ddei_services_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_ddei_services_subnet.id
+  depends_on     = [azurerm_subnet.sn_ddei_services_subnet]
+}
+
 resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   name                 = "polaris-pipeline-sa-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
@@ -45,6 +57,12 @@ resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
   enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
 
   depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_sa_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_pipeline_sa_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_pipeline_sa_subnet]
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
@@ -66,6 +84,12 @@ resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_coordinator_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_pipeline_coordinator_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_pipeline_coordinator_subnet]
+}
+
 resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   name                 = "polaris-pipeline-pdfgenerator-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
@@ -83,6 +107,12 @@ resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
   }
 
   depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_pdfgenerator_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_pipeline_pdfgenerator_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_pipeline_pdfgenerator_subnet]
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
@@ -104,6 +134,12 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_textextractor_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_pipeline_textextractor_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_pipeline_textextractor_subnet]
+}
+
 resource "azurerm_subnet" "sn_polaris_pipeline_keyvault_subnet" {
   name                 = "polaris-pipeline-keyvault-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
@@ -114,6 +150,12 @@ resource "azurerm_subnet" "sn_polaris_pipeline_keyvault_subnet" {
   enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
 
   depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_keyvault_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_pipeline_keyvault_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_pipeline_keyvault_subnet]
 }
 
 resource "azurerm_subnet" "sn_polaris_gateway_subnet" {
@@ -135,6 +177,12 @@ resource "azurerm_subnet" "sn_polaris_gateway_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet_route_table_association" "sn_polaris_gateway_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_gateway_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_gateway_subnet]
+}
+
 resource "azurerm_subnet" "sn_polaris_ui_subnet" {
   name                 = "polaris-ui-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
@@ -152,6 +200,12 @@ resource "azurerm_subnet" "sn_polaris_ui_subnet" {
   }
 
   depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_ui_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_ui_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_ui_subnet]
 }
 
 resource "azurerm_subnet" "sn_polaris_proxy_subnet" {
@@ -173,6 +227,12 @@ resource "azurerm_subnet" "sn_polaris_proxy_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
+resource "azurerm_subnet_route_table_association" "sn_polaris_proxy_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_proxy_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_proxy_subnet]
+}
+
 resource "azurerm_subnet" "sn_polaris_apps_subnet" {
   name                 = "polaris-apps-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
@@ -183,6 +243,12 @@ resource "azurerm_subnet" "sn_polaris_apps_subnet" {
   enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
 
   depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_apps_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_apps_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_apps_subnet]
 }
 
 resource "azurerm_subnet" "sn_polaris_ci_subnet" {
@@ -197,7 +263,58 @@ resource "azurerm_subnet" "sn_polaris_ci_subnet" {
 
     service_delegation {
       name    = "Microsoft.ContainerInstance/containerGroups"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"]
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_ci_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_ci_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_ci_subnet]
+}
+
+resource "azurerm_subnet" "sn_polaris_dns_resolve_subnet" {
+  name                 = "polaris-dns-resolve-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisDnsResolveSubnet]
+
+  delegation {
+    name = "Microsoft.Network/dnsResolvers CnsDns Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Network/dnsResolvers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet" "sn_gateway_subnet" {
+  name                 = "GatewaySubnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.gatewaySubnet]
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet" "sn_polaris_auth_handover_subnet" {
+  name                 = "polaris-auth-handover-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisAuthHandoverSubnet]
+
+  delegation {
+    name = "Microsoft.Web/serverFarms AuthHandover Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
     }
   }
 
