@@ -116,9 +116,11 @@ namespace text_extractor
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
             builder.Services.AddHealthChecks()
-                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<AzureComputerVisionClientHealthCheck>("Azure Computer Vision Client");
+                .AddCheck<OcrServiceHealthCheck>("OCR Service")
+                .AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
+                .AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
+                .AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");
         }
     }
 }

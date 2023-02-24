@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Common.Domain.Exceptions;
+using Common.Constants;
 
 namespace Common.Services.OcrService
 {
@@ -26,7 +27,7 @@ namespace Common.Services.OcrService
 
             try
             {
-                var resultsValue = _configuration["OcrResults"];
+                var resultsValue = _configuration[DebugSettings.MockOcrServiceResults];
                 AnalyzeResults results = JsonConvert.DeserializeObject<AnalyzeResults>(resultsValue);
 
                 _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), "Mock OCR process completed successfully");

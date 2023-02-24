@@ -41,6 +41,8 @@
         public const string MockOcrService = "POLARIS_MOCK_OCR_SERVICE";
         public const string MockSearchIndexService = "POLARIS_MOCK_SEARCH_INDEX_SERVICE";
         public const string MockTokenValidation= "POLARIS_PIPELINE_MOCK_TOKEN_VALIDATION";
+
+        public const string MockOcrServiceResults = nameof(MockOcrServiceResults);
     }
 #endif
 
