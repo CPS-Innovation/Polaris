@@ -1,14 +1,8 @@
-using System.Linq;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using PolarisGateway.Domain.CaseData.Args;
 using PolarisGateway.CaseDataImplementations.Ddei.Domain;
 using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.Wrappers;
 using PolarisGateway.CaseDataImplementations.Ddei.Domain.Exceptions;
-using System.IO;
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Clients
 {
