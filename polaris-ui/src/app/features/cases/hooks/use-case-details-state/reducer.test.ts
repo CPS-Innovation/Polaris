@@ -218,7 +218,7 @@ describe("useCaseDetailsState reducer", () => {
       } as AsyncPipelineResult<PipelineResults>;
 
       const existingTabsState = {
-        activeTabId: "",
+        activeTabId: 0,
         items: [],
         headers: {},
       } as CombinedState["tabsState"];
@@ -319,7 +319,7 @@ describe("useCaseDetailsState reducer", () => {
           type: "OPEN_PDF",
           payload: {
             pdfId: 1,
-            tabSafeId: "t1",
+
             mode: "read",
             headers: { Authorization: "bar", "Correlation-Id": "bar1" },
           },
@@ -347,7 +347,7 @@ describe("useCaseDetailsState reducer", () => {
           "Correlation-Id": "foo1",
         } as HeadersInit,
         items: [],
-        activeTabId: "",
+        activeTabId: 0,
       } as CombinedState["tabsState"];
 
       const existingDocumentsState = {
@@ -379,7 +379,6 @@ describe("useCaseDetailsState reducer", () => {
           type: "OPEN_PDF",
           payload: {
             pdfId: 1,
-            tabSafeId: "t1",
             mode: "read",
             headers: {
               Authorization: "bar",
@@ -402,10 +401,9 @@ describe("useCaseDetailsState reducer", () => {
             pdfBlobName: "foo",
             redactionHighlights: [],
             url: "baz",
-            tabSafeId: "t1",
           },
         ],
-        activeTabId: "",
+        activeTabId: 0,
       });
     });
 
@@ -416,7 +414,7 @@ describe("useCaseDetailsState reducer", () => {
           "Correlation-Id": "foo1",
         } as HeadersInit,
         items: [],
-        activeTabId: "",
+        activeTabId: 0,
       } as CombinedState["tabsState"];
 
       const existingDocumentsState = {
@@ -438,7 +436,6 @@ describe("useCaseDetailsState reducer", () => {
           type: "OPEN_PDF",
           payload: {
             pdfId: 1,
-            tabSafeId: "t1",
             mode: "read",
             headers: {
               Authorization: "bar",
@@ -461,10 +458,9 @@ describe("useCaseDetailsState reducer", () => {
 
             redactionHighlights: [],
             mode: "read",
-            tabSafeId: "t1",
           },
         ],
-        activeTabId: "",
+        activeTabId: 0,
       });
     });
 
@@ -487,7 +483,6 @@ describe("useCaseDetailsState reducer", () => {
             type: "OPEN_PDF",
             payload: {
               pdfId: 1,
-              tabSafeId: "t1",
               mode: "read",
               headers: {
                 Authorization: "bar",
@@ -531,7 +526,6 @@ describe("useCaseDetailsState reducer", () => {
             type: "OPEN_PDF",
             payload: {
               pdfId: 1,
-              tabSafeId: "t1",
               mode: "search",
               headers: {
                 Authorization: "bar",
@@ -612,7 +606,6 @@ describe("useCaseDetailsState reducer", () => {
             type: "OPEN_PDF",
             payload: {
               pdfId: 1,
-              tabSafeId: "t1",
               mode: "search",
               headers: {
                 Authorization: "bar",
@@ -659,7 +652,6 @@ describe("useCaseDetailsState reducer", () => {
                 documentId: 1,
                 mode: "search",
                 clientLockedState: "unlocked",
-                tabSafeId: "t1",
                 searchTerm: "foo",
                 occurrencesInDocumentCount: 3,
                 searchHighlights: [
@@ -736,7 +728,6 @@ describe("useCaseDetailsState reducer", () => {
             type: "OPEN_PDF",
             payload: {
               pdfId: 1,
-              tabSafeId: "t1",
               mode: "read",
               headers: {
                 Authorization: "bar",
@@ -761,7 +752,6 @@ describe("useCaseDetailsState reducer", () => {
                 documentId: 1,
                 clientLockedState: "unlocked",
                 mode: "read",
-                tabSafeId: "t1",
                 url: undefined,
               },
               { documentId: 2, mode: "read" },
@@ -849,7 +839,6 @@ describe("useCaseDetailsState reducer", () => {
             type: "OPEN_PDF",
             payload: {
               pdfId: 1,
-              tabSafeId: "t1",
               mode: "search",
               headers: {
                 Authorization: "bar",
@@ -917,7 +906,6 @@ describe("useCaseDetailsState reducer", () => {
                   },
                 ],
                 clientLockedState: "unlocked",
-                tabSafeId: "t1",
                 searchHighlights: [
                   {
                     id: "0",
@@ -1019,12 +1007,10 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: 1,
             url: undefined,
-            tabSafeId: "t1",
           },
           {
             documentId: 2,
             url: undefined,
-            tabSafeId: "t2",
           },
         ],
       } as CombinedState["tabsState"];
@@ -1033,7 +1019,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           tabsState: existingTabsState,
         } as CombinedState,
-        { type: "CLOSE_PDF", payload: { tabSafeId: "t2" } }
+        { type: "CLOSE_PDF", payload: { pdfId: 2 } }
       );
 
       expect(nextState.tabsState).toEqual({
@@ -1045,7 +1031,6 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: 1,
             url: undefined,
-            tabSafeId: "t1",
           },
         ],
       });
@@ -1063,22 +1048,20 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: 1,
             url: undefined,
-            tabSafeId: "t1",
           },
           {
             documentId: 2,
             url: undefined,
-            tabSafeId: "t2",
           },
         ],
-        activeTabId: "",
+        activeTabId: 0,
       } as CombinedState["tabsState"];
 
       const nextState = reducer(
         {
           tabsState: existingTabsState,
         } as CombinedState,
-        { type: "SET_ACTIVE_TAB", payload: { tabSafeId: "t2" } }
+        { type: "SET_ACTIVE_TAB", payload: { pdfId: 2 } }
       );
 
       expect(nextState.tabsState).toEqual({
@@ -1090,15 +1073,13 @@ describe("useCaseDetailsState reducer", () => {
           {
             documentId: 1,
             url: undefined,
-            tabSafeId: "t1",
           },
           {
             documentId: 2,
             url: undefined,
-            tabSafeId: "t2",
           },
         ],
-        activeTabId: "t2",
+        activeTabId: 2,
       });
     });
   });

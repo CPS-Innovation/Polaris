@@ -178,11 +178,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      act(() => handleClosePdf({ tabSafeId: "1" }));
+      act(() => handleClosePdf({ documentId: 1 }));
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "CLOSE_PDF",
-        payload: { tabSafeId: "1" },
+        payload: { pdfId: 1 },
       });
     });
 
@@ -298,11 +298,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      act(() => handleOpenPdf({ tabSafeId: "1", documentId: 2, mode: "read" }));
+      act(() => handleOpenPdf({ documentId: 2, mode: "read" }));
 
       expect(mockHandler).toBeCalledWith({
         type: "REQUEST_OPEN_PDF",
-        payload: { tabSafeId: "1", pdfId: 2, mode: "read" },
+        payload: { pdfId: 2, mode: "read" },
       });
     });
 

@@ -45,7 +45,6 @@ export const reducer = (
     | {
         type: "OPEN_PDF";
         payload: {
-          tabSafeId: string;
           pdfId: number;
           mode: CaseDocumentViewModel["mode"];
           headers: HeadersInit;
@@ -53,12 +52,12 @@ export const reducer = (
       }
     | {
         type: "CLOSE_PDF";
-        payload: { tabSafeId: string };
+        payload: { pdfId: number };
       }
     | {
         type: "SET_ACTIVE_TAB";
         payload: {
-          tabSafeId: string;
+          pdfId: number;
         };
       }
     | {
@@ -211,7 +210,7 @@ export const reducer = (
       };
     }
     case "OPEN_PDF":
-      const { pdfId, tabSafeId, mode, headers } = action.payload;
+      const { pdfId, mode, headers } = action.payload;
 
       const coreNewState = {
         ...state,
@@ -278,7 +277,6 @@ export const reducer = (
         clientLockedState: "unlocked" as const,
         url,
         pdfBlobName: blobName,
-        tabSafeId,
         redactionHighlights: redactionsHighlightsToRetain,
       };
 
@@ -372,26 +370,26 @@ export const reducer = (
       };
 
     case "CLOSE_PDF": {
-      const { tabSafeId } = action.payload;
+      const { pdfId } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.filter(
-            (item) => item.tabSafeId !== tabSafeId
+            (item) => item.documentId !== pdfId
           ),
         },
       };
     }
 
     case "SET_ACTIVE_TAB": {
-      const { tabSafeId } = action.payload;
+      const { pdfId } = action.payload;
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
-          activeTabId: tabSafeId,
+          activeTabId: pdfId,
         },
       };
     }

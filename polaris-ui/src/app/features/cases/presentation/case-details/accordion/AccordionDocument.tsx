@@ -9,10 +9,7 @@ import classes from "./Accordion.module.scss";
 
 type Props = {
   caseDocument: MappedCaseDocument;
-  handleOpenPdf: (caseDocument: {
-    tabSafeId: string;
-    documentId: number;
-  }) => void;
+  handleOpenPdf: (caseDocument: { documentId: number }) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({

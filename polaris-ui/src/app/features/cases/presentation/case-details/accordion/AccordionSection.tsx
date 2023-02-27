@@ -9,10 +9,7 @@ type Props = {
   docs: MappedCaseDocument[];
   isOpen: boolean;
   handleToggleOpenSection: (id: string) => void;
-  handleOpenPdf: (caseDocument: {
-    tabSafeId: string;
-    documentId: number;
-  }) => void;
+  handleOpenPdf: (caseDocument: { documentId: number }) => void;
 };
 
 export const AccordionSection: React.FC<Props> = ({

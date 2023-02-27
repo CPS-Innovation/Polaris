@@ -82,7 +82,6 @@ describe("reducerAsyncActionHandlers", () => {
         type: "REQUEST_OPEN_PDF",
         payload: {
           pdfId: 1,
-          tabSafeId: "bar",
           mode: "read",
         },
       });
@@ -93,7 +92,6 @@ describe("reducerAsyncActionHandlers", () => {
         type: "OPEN_PDF",
         payload: {
           pdfId: 1,
-          tabSafeId: "bar",
           mode: "read",
           headers: {
             "Correlation-Id": "foo",

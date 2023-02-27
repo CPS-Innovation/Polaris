@@ -87,7 +87,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleOpenPdf={(params) => {
               setShowAlert(false);
               handleOpenPdf({ ...params, mode: "read" });
-              handleTabSelection(params.tabSafeId);
+              handleTabSelection(params.documentId);
             }}
           />
         </Modal>
@@ -106,7 +106,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleUpdateFilter,
             handleOpenPdf: (caseDoc) => {
               handleOpenPdf(caseDoc);
-              handleTabSelection(caseDoc.tabSafeId);
+              handleTabSelection(caseDoc.documentId);
             },
           }}
         />
@@ -144,7 +144,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   accordionState={accordionState.data}
                   handleOpenPdf={(caseDoc) => {
                     handleOpenPdf({ ...caseDoc, mode: "read" });
-                    handleTabSelection(caseDoc.tabSafeId);
+                    handleTabSelection(caseDoc.documentId);
                   }}
                 />
               )}

@@ -3,11 +3,8 @@ type PanelProps = React.DetailedHTMLProps<
   HTMLDivElement
 >;
 
-type ItemProps = React.DetailedHTMLProps<
-  React.AnchorHTMLAttributes<HTMLAnchorElement>,
-  HTMLAnchorElement
-> & {
-  id: string;
+type ItemProps = {
+  id: number;
   label: string;
   panel: PanelProps;
   isDirty: boolean;

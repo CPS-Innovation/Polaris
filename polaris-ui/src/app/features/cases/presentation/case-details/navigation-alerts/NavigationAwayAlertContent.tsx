@@ -9,7 +9,7 @@ type Props = {
   unSavedRedactionDocs?: UnSavedRedactionDoc[];
   handleCancelAction: () => void;
   handleContinueAction: () => void;
-  handleOpenPdf?: (doc: { tabSafeId: string; documentId: number }) => void;
+  handleOpenPdf?: (doc: { documentId: number }) => void;
 };
 
 export const NavigationAwayAlertContent: React.FC<Props> = ({
@@ -34,7 +34,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
         <div className={classes.documentLinks}>
           {unSavedRedactionDocs.map((caseDocument) => (
             <LinkButton
-              key={caseDocument.tabSafeId}
+              key={caseDocument.documentId}
               onClick={() => handleOpenPdf && handleOpenPdf(caseDocument)}
               dataTestId={`link-document-${caseDocument.documentId}`}
             >

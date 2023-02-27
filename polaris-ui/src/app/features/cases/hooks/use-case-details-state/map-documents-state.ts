@@ -13,7 +13,6 @@ export const mapDocumentsState = (
         ...result,
         data: result.data.map((item, index) => ({
           ...item,
-          tabSafeId: `d${index}`,
           presentationFileName: getFileNameWithoutExtension(item.fileName),
           presentationCategory: getCategory(item),
         })),

@@ -18,7 +18,6 @@ type Props = {
 export const ListItem: React.FC<Props> = ({
   documentResult: {
     fileName,
-    tabSafeId,
     documentId,
     createdDate,
     cmsDocType,
@@ -32,7 +31,7 @@ export const ListItem: React.FC<Props> = ({
       <h2 className="govuk-heading-s results-header">
         <LinkButton
           onClick={() => {
-            handleOpenPdf({ documentId, tabSafeId, mode: "search" });
+            handleOpenPdf({ documentId, mode: "search" });
           }}
           dataTestId={`link-result-document-${documentId}`}
         >

@@ -7,10 +7,7 @@ import { AccordionDocumentSection } from "./types";
 
 type Props = {
   accordionState: AccordionDocumentSection[];
-  handleOpenPdf: (caseDocument: {
-    tabSafeId: string;
-    documentId: number;
-  }) => void;
+  handleOpenPdf: (caseDocument: { documentId: number }) => void;
 };
 
 export const Accordion: React.FC<Props> = ({

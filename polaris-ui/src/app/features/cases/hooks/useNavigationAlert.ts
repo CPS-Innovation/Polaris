@@ -4,7 +4,6 @@ import { Location } from "history";
 import { CaseDocumentViewModel } from "../../cases/domain/CaseDocumentViewModel";
 export type UnSavedRedactionDoc = {
   documentId: number;
-  tabSafeId: string;
   presentationFileName: string;
 };
 
@@ -24,14 +23,12 @@ export const useNavigationAlert = (
   const navigationUnblockHandle = useRef<any>();
   const unSavedRedactionDocs = useMemo((): {
     documentId: number;
-    tabSafeId: string;
     presentationFileName: string;
   }[] => {
     const reactionPdfs = tabItems
       .filter((item) => item.redactionHighlights.length > 0)
       .map((item) => ({
         documentId: item.documentId!,
-        tabSafeId: item.tabSafeId!,
         presentationFileName: item.presentationFileName!,
       }));
     return reactionPdfs;
