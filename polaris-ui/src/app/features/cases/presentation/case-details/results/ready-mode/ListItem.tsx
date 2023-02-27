@@ -34,6 +34,7 @@ export const ListItem: React.FC<Props> = ({
             handleOpenPdf({ documentId, mode: "search" });
           }}
           dataTestId={`link-result-document-${documentId}`}
+          className={classes.headingLinkButton}
         >
           {fileName}
         </LinkButton>
