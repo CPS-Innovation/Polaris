@@ -106,7 +106,6 @@ resource "azurerm_key_vault_secret" "kvs_ui_storage_connection_string" {
 
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp,
-    azurerm_role_assignment.kv_role_fa_gateway_secrets_user,
     azurerm_storage_account.sacpspolaris
   ]
 }
