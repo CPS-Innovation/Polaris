@@ -152,8 +152,6 @@ resource "azurerm_key_vault_secret" "kvs_pipeline_storage_connection_string" {
 
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp,
-    azurerm_role_assignment.kv_role_fa_pdf_generator_secrets_user,
-    azurerm_role_assignment.kv_role_fa_text_extractor_secrets_user,
     azurerm_storage_account.sa
   ]
 }
