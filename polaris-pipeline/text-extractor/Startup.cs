@@ -17,6 +17,7 @@ using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
 using Common.Factories;
 using Common.Health;
+using static System.Net.WebRequestMethods;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -29,11 +30,7 @@ namespace text_extractor
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-#if DEBUG
-                .AddJsonFile("mock-ocr.settings.json", optional: true, reloadOnChange: true)
-#endif 
                 .Build();
-
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
             BuildOcrService(builder, configuration);
@@ -58,21 +55,8 @@ namespace text_extractor
         {
             builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-#if DEBUG
-                if (configuration.IsSettingEnabled(DebugSettings.UseAzureStorageEmulatorFlag))
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
-                        .WithCredential(new DefaultAzureCredential());
-                }
-                else
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                        .WithCredential(new DefaultAzureCredential());
-                }
-#else
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                    .WithCredential(new DefaultAzureCredential());
-#endif
+                string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
+                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
             });
         }
 
