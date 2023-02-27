@@ -67,6 +67,10 @@
   background-color: white;
   border: solid 1px;
   border-bottom: none;
+  .tabButton:focus {
+    text-decoration: underline;
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+  }
 }
 .inactiveTab {
   border: none;
@@ -92,6 +96,7 @@
   padding-right: 35px;
   cursor: pointer;
 }
+
 .inactiveTab:hover {
   text-decoration: underline;
   text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
