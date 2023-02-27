@@ -79,7 +79,7 @@ namespace text_extractor
         private static void BuildSearchIndexService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
         {
 #if DEBUG
-            if (configuration.IsSettingEnabled(DebugSettings.MockOcrService))
+            if (configuration.IsSettingEnabled(DebugSettings.MockSearchIndexService))
             {
                 builder.Services.AddSingleton<ISearchIndexService, MockSearchIndexService>();
             }
