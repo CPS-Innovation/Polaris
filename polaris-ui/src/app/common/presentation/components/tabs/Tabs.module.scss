@@ -92,8 +92,7 @@
   padding-right: 35px;
   cursor: pointer;
 }
-.tabButton:hover,
-.tabButton:focus {
+.inactiveTab:hover {
   text-decoration: underline;
   text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
 }
