@@ -19,7 +19,7 @@ export type CombinedState = {
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;
-    activeTabId: number;
+    activeTabId: number | undefined;
   };
   // `searchTerm` is outside of `searchState` as it is more volatile: when
   //  the user is typing away, we prevent `searchState` from continually being

@@ -13,7 +13,7 @@ const ARROW_KEY_SHIFTS = {
 };
 
 export type TabsProps = CommonTabsProps & {
-  activeTabId: number;
+  activeTabId: number | undefined;
   handleTabSelection: (documentId: number) => void;
   handleClosePdf: (caseDocument: { documentId: number }) => void;
 };

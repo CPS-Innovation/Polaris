@@ -20,7 +20,7 @@ export const initialState = {
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false },
   accordionState: { status: "loading" },
-  tabsState: { items: [], headers: {}, activeTabId: 0 },
+  tabsState: { items: [], headers: {}, activeTabId: undefined },
   searchTerm: "",
   searchState: {
     isResultsVisible: false,

@@ -8,7 +8,7 @@ type PdfTabsProps = {
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;
-    activeTabId: number;
+    activeTabId: number | undefined;
   };
 
   handleTabSelection: (documentId: number) => void;
