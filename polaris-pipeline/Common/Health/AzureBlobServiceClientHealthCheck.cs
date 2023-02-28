@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Common.Factories.Contracts;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
@@ -25,7 +24,8 @@ namespace Common.Health
             {
                 var accountInfo = (AccountInfo)(await _blobServiceClient.GetAccountInfoAsync(cancellationToken));
 
-                var isAzuriteEmulator = _blobServiceClient.Uri.Host == "localhost";
+                string host = _blobServiceClient.Uri.Host;
+                var isAzuriteEmulator = (host == "localhost") || (host == "127.0.0.1");
 
                 return HealthCheckResult.Healthy($"{(isAzuriteEmulator ? "Azurite Emulator" : "Azure Blob Storage")} : {accountInfo.AccountKind}, {accountInfo.SkuName}"); 
             }

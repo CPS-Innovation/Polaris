@@ -25,6 +25,7 @@ using Common.Health;
 using PolarisGateway.Factories.Contracts;
 using Common.Services.SasGeneratorService;
 using Common.Domain.Extensions;
+using Common.Constants;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -147,15 +148,15 @@ namespace PolarisGateway
             builder.Services.AddHealthChecks()
                 .AddCheck<DdeiClientHealthCheck>(ddeiClient)
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator })
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions });
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions }); 
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
         {
-            builder.Services.AddAzureClients(azureBuilder =>
+            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                azureBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
-                    .WithCredential(new DefaultAzureCredential());
+                string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
+                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
             });
 
             builder.Services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>

@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Search.Documents;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Common.Health

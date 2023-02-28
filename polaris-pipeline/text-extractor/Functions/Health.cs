@@ -11,6 +11,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Common.Logging;
 using Common.Health;
+using Common.Domain.Extensions;
 
 public class Health
 {
@@ -55,17 +56,7 @@ public class Health
             var healthResult = await _healthService.CheckHealthAsync();
             var status = (healthResult.Status == HealthStatus.Healthy) ? 200 : 500;
 
-            return new JsonResult(new
-            {
-                status = healthResult.Status.ToString(),
-                entries = healthResult.Entries.Select(e => new
-                {
-                    name = e.Key,
-                    status = e.Value.Status.ToString(),
-                    e.Value.Description,
-                    e.Value.Exception
-                })
-            })
+            return new JsonResult(healthResult.ToResult())
             {
                 StatusCode = status
             };
