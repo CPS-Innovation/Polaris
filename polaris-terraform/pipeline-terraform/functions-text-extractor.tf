@@ -16,7 +16,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
+    "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
