@@ -6,7 +6,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   virtual_network_subnet_id = data.azurerm_subnet.polaris_proxy_subnet.id
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
+    "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
