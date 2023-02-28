@@ -1,20 +1,20 @@
 terraform {
-  required_version = ">=1.0.0"
+  required_version = "1.2.8"
 
   required_providers {
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "~> 2.15.0"
-    }
-
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.30.0"
+      version = "3.44.1"
+    }
+
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "2.34.1"
     }
 
     random = {
       source  = "hashicorp/random"
-      version = ">= 3.1.0"
+      version = "3.4.3"
     }
 
     azapi = {
@@ -70,8 +70,8 @@ data "azurerm_client_config" "current" {}
 
 data "azuread_service_principal" "terraform_service_principal" {
   application_id = "__terraform_service_principal_app_id__"
-  //application_id = "ab6f55a4-543f-4f76-bf0a-13bdbd6c324b" // Dev 
-  //application_id = "b92f19b6-be30-4292-9763-d4b3340a8a64" // QA
+  //application_id = "6a2484e4-fd87-41ce-b90d-62f988748192" // Dev 
+  //application_id = "db31e9e4-7fa8-4051-ae7b-b283987d3799" // QA
 }
 
 data "azurerm_subscription" "current" {}

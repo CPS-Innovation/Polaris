@@ -22,21 +22,8 @@ namespace Common.Services.Extensions
         {
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
-#if DEBUG 
-                if (configuration.IsSettingEnabled(DebugSettings.UseAzureStorageEmulatorFlag))
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
-                        .WithCredential(new DefaultAzureCredential());
-                }
-                else
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                        .WithCredential(new DefaultAzureCredential());
-                }
-#else
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
+                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
                     .WithCredential(new DefaultAzureCredential());
-#endif
             });
 
             services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>

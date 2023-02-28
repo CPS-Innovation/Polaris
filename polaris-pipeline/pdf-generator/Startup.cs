@@ -81,21 +81,7 @@ namespace pdf_generator
 
             builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-#if DEBUG 
-                if(configuration.IsSettingEnabled(DebugSettings.UseAzureStorageEmulatorFlag))
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
-                        .WithCredential(new DefaultAzureCredential());
-                }
-                else
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                        .WithCredential(new DefaultAzureCredential());
-                }
-#else
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                    .WithCredential(new DefaultAzureCredential());
-#endif
+                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
             });
             builder.Services.AddTransient<IBlobStorageService>(serviceProvider =>
             {

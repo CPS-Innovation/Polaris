@@ -27,9 +27,9 @@ namespace Common.Health
                 mockService = _ocrService.GetType() == typeof(MockOcrService);
 #endif
 
-                var response = await _ocrService.GetOcrResultsAsync("not a blob", Guid.NewGuid());
+                var response = await _ocrService.GetOcrResultsAsync("2143172/pdfs/TestDOCX.pdf", Guid.NewGuid());
 
-                return HealthCheckResult.Healthy(mockService ? "(MOCKED SERVICE)" : $"Model Version ={response.ModelVersion}");
+                return HealthCheckResult.Healthy(mockService ? "(MOCKED SERVICE)" : $"Model Version={response.ModelVersion}");
             }
             catch (Exception e)
             {

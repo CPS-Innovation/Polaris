@@ -142,3 +142,16 @@ resource "azurerm_role_assignment" "kv_role_fa_text_extractor_secrets_user" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_linux_function_app.fa_text_extractor.identity[0].principal_id
 }
+
+resource "azurerm_key_vault_secret" "kvs_pipeline_storage_connection_string" {
+  name            = "PipelineStorageConnectionString"
+  value           = azurerm_storage_account.sa.primary_connection_string
+  key_vault_id    = azurerm_key_vault.kv.id
+  expiration_date = timeadd(timestamp(), "8760h")
+  content_type    = "password"
+
+  depends_on = [
+    azurerm_role_assignment.kv_role_terraform_sp,
+    azurerm_storage_account.sa
+  ]
+}

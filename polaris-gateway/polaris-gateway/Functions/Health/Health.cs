@@ -5,12 +5,12 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.Tasks;
 using System.Linq;
-using Azure.Core;
 using Common.Domain.Exceptions;
 using Common.Health;
 using System;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Domain.Logging;
+using Common.Domain.Extensions;
 
 namespace PolarisGateway.Functions.Health;
 
@@ -57,17 +57,7 @@ public class Health
             var healthResult = await _healthService.CheckHealthAsync();
             var status = (healthResult.Status == HealthStatus.Healthy) ? 200 : 500;
 
-            return new JsonResult(new
-            {
-                status = healthResult.Status.ToString(),
-                entries = healthResult.Entries.Select(e => new
-                {
-                    name = e.Key,
-                    status = e.Value.Status.ToString(),
-                    e.Value.Description,
-                    e.Value.Exception
-                })
-            })
+            return new JsonResult(healthResult.ToResult())
             {
                 StatusCode = status
             };

@@ -12,8 +12,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
     "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
@@ -29,6 +29,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "PolarisPipelineRedactPdfFunctionAppKey"   = data.azurerm_function_app_host_keys.fa_pipeline_pdf_generator_host_keys.default_function_key
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                        = "documents"
+    "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_ui_storage_connection_string.id})"
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
     "searchClient__EndpointUrl"                = "https://ss-${local.pipeline_resource_name}.search.windows.net"
