@@ -55,8 +55,9 @@ namespace text_extractor
         {
             builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
-                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
+                string blobServiceUrl = configuration[ConfigKeys.SharedKeys.BlobServiceUrl];
+                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl))
+                    .WithCredential(new DefaultAzureCredential());
             });
         }
 
@@ -100,11 +101,11 @@ namespace text_extractor
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
             builder.Services.AddHealthChecks()
-                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<OcrServiceHealthCheck>("OCR Service")
-                .AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
-                .AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
-                .AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");
+                //.AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
+                .AddCheck<OcrServiceHealthCheck>("OCR Service");
+                //.AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
+                //.AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
+                //.AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");*/
         }
     }
 }
