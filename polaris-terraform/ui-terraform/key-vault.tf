@@ -96,3 +96,16 @@ resource "azurerm_role_assignment" "kv_role_fa_gateway_secrets_user" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
 }
+
+resource "azurerm_key_vault_secret" "kvs_ui_storage_connection_string" {
+  name            = "UiStorageConnectionString"
+  value           = azurerm_storage_account.sacpspolaris.primary_connection_string
+  key_vault_id    = azurerm_key_vault.kv_polaris.id
+  expiration_date = timeadd(timestamp(), "8760h")
+  content_type    = "password"
+
+  depends_on = [
+    azurerm_role_assignment.kv_role_terraform_sp,
+    azurerm_storage_account.sacpspolaris
+  ]
+}
