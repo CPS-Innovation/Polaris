@@ -37,7 +37,7 @@ public class BlobSasBuilderFactoryTests
     }
 
     [Fact]
-    public void Create_ReturnsSasBuilderWithExpectedBlobContainerName()
+    public void Create_ReturnsSasBuilderWithExpectedBlobServiceContainerName()
     {
         var sasBuilder = _blobSasBuilderFactory.Create(_blobName, _correlationId);
 

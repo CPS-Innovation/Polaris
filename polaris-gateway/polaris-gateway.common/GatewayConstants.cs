@@ -2,10 +2,6 @@
 
 public static class ConfigurationKeys
 {
-    public const string BlobContainerName = "BlobContainerName";
-    public const string BlobServiceUrl = "BlobServiceUrl";
-    public const string BlobExpirySecs = "BlobExpirySecs";
-    public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
     public const string TenantId = "TenantId";
     public const string ClientId = "ClientId";
     public const string ClientSecret = "ClientSecret";

@@ -144,7 +144,7 @@ namespace PolarisGateway
             {
                 var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
                 BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                string blobServiceContainerName = GetValueFromConfig(configuration, ConfigurationKeys.BlobContainerName);
+                string blobServiceContainerName = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.BlobServiceContainerName);
                 return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
             }));
         }

@@ -30,7 +30,7 @@ namespace Common.Services.Extensions
             {
                 var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
                 BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobContainerName);
+                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
                 return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
             }));
 

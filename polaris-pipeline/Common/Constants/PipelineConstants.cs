@@ -64,10 +64,7 @@
             public const string SearchClientIndexName = "SearchClientIndexName";
             public const string SearchClientAuthorizationKey = "SearchClientAuthorizationKey";
 
-            // TODO - resolve these names to a single value
-            public const string BlobContainerName = "BlobContainerName";
             public const string BlobServiceContainerName = "BlobServiceContainerName";
-
             public const string BlobExpirySecs = "BlobExpirySecs";
             public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
             public const string BlobServiceUrl = nameof(BlobServiceUrl);
