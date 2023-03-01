@@ -22,13 +22,6 @@ variable "vnet_address_space" {
   type = string
 }
 
-variable "gateway_certificate_details" {
-  type = object({
-    root_name        = string
-    public_cert_data = string
-  })
-}
-
 variable "vpn_client_sp_id" {
   type = string
 }
