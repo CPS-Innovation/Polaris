@@ -126,7 +126,14 @@ export const getPipelinePdfResults = async (
     headers,
   });
 
-  return (await response.json()) as PipelineResults;
+  // hack
+  var rawResponse = await response.json();
+  rawResponse.documents = rawResponse.documents.map((item: any) => ({
+    ...item,
+    documentId: item.polarisDocumentId,
+  }));
+
+  return rawResponse as PipelineResults;
 };
 
 export const searchCase = async (
