@@ -19,6 +19,7 @@ import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
 import { PipelineDocument } from "../../domain/PipelineDocument";
+import * as filterApiResults from "./filter-api-results";
 
 const ERROR = new Error();
 
@@ -1294,100 +1295,118 @@ describe("useCaseDetailsState reducer", () => {
       expect(nextState).toBe(existingState);
     });
 
-    // it("can update search results, update missing documents and build filter options", () => {
-    //   const existingState = {
-    //     documentsState: { status: "succeeded", data: {} },
-    //     pipelineState: { status: "complete", haveData: true, data: {} },
-    //     searchState: { submittedSearchTerm: "foo", resultsOrder: "byDateDesc" },
-    //   } as CombinedState;
+    it("can update search results, update missing documents and build filter options", () => {
+      const existingState = {
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
+        pipelineState: { status: "complete", haveData: true, data: {} },
+        searchState: { submittedSearchTerm: "foo", resultsOrder: "byDateDesc" },
+      } as CombinedState;
 
-    //   const inputPayload = {
-    //     status: "succeeded",
-    //     data: [],
-    //   } as ApiResult<undefined | ApiTextSearchResult[]>;
+      const inputPayload = {
+        status: "succeeded",
+        data: [],
+      } as ApiResult<undefined | ApiTextSearchResult[]>;
 
-    //   const mockUnsortedData = {} as MappedTextSearchResult;
-    //   const mockData = {} as MappedTextSearchResult;
-    //   const mockMissingDocs = {} as CombinedState["searchState"]["missingDocs"];
-    //   const mockFilterOptions =
-    //     {} as CombinedState["searchState"]["filterOptions"];
+      const mockFilteredApiResults = [] as ApiTextSearchResult[];
 
-    //   jest
-    //     .spyOn(textSearchMapper, "mapTextSearch")
-    //     .mockImplementation((textSearchResult, mappedCaseDocuments) => {
-    //       if (
-    //         inputPayload.status === "succeeded" &&
-    //         textSearchResult === inputPayload.data &&
-    //         existingState.documentsState.status === "succeeded" &&
-    //         mappedCaseDocuments === existingState.documentsState.data
-    //       ) {
-    //         return mockUnsortedData;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      const mockUnsortedData = {} as MappedTextSearchResult;
+      const mockData = {} as MappedTextSearchResult;
+      const mockMissingDocs = {} as CombinedState["searchState"]["missingDocs"];
+      const mockFilterOptions =
+        {} as CombinedState["searchState"]["filterOptions"];
 
-    //   jest
-    //     .spyOn(sorter, "sortMappedTextSearchResult")
-    //     .mockImplementation((mappedTextSearchResult, resultOrder) => {
-    //       if (
-    //         mappedTextSearchResult === mockUnsortedData &&
-    //         resultOrder === existingState.searchState.resultsOrder
-    //       ) {
-    //         return mockData;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(filterApiResults, "filterApiResults")
+        .mockImplementation((apiResults, existingDocuments) => {
+          if (
+            inputPayload.status === "succeeded" &&
+            apiResults === inputPayload.data &&
+            existingState.documentsState.status === "succeeded" &&
+            existingDocuments === existingState.documentsState.data
+          ) {
+            return mockFilteredApiResults;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   jest
-    //     .spyOn(missingDocuments, "mapMissingDocuments")
-    //     .mockImplementation((pipelineResults, mappedCaseDocuments) => {
-    //       if (
-    //         pipelineResults ===
-    //           (existingState.pipelineState.haveData &&
-    //             existingState.pipelineState.data) &&
-    //         existingState.documentsState.status === "succeeded" &&
-    //         mappedCaseDocuments === existingState.documentsState.data
-    //       ) {
-    //         return mockMissingDocs;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(textSearchMapper, "mapTextSearch")
+        .mockImplementation((textSearchResult, mappedCaseDocuments) => {
+          if (
+            textSearchResult === mockFilteredApiResults &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockUnsortedData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   jest
-    //     .spyOn(filters, "mapFilters")
-    //     .mockImplementation((mappedTextSearchResult) => {
-    //       if (mappedTextSearchResult === mockUnsortedData) {
-    //         return mockFilterOptions;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(sorter, "sortMappedTextSearchResult")
+        .mockImplementation((mappedTextSearchResult, resultOrder) => {
+          if (
+            mappedTextSearchResult === mockUnsortedData &&
+            resultOrder === existingState.searchState.resultsOrder
+          ) {
+            return mockData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   const nextState = reducer(existingState, {
-    //     type: "UPDATE_SEARCH_RESULTS",
-    //     payload: inputPayload,
-    //   });
+      jest
+        .spyOn(missingDocuments, "mapMissingDocuments")
+        .mockImplementation((pipelineResults, mappedCaseDocuments) => {
+          if (
+            pipelineResults ===
+              (existingState.pipelineState.haveData &&
+                existingState.pipelineState.data) &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockMissingDocs;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   expect(nextState).toEqual({
-    //     ...existingState,
-    //     searchState: {
-    //       ...existingState.searchState,
-    //       missingDocs: mockMissingDocs,
-    //       filterOptions: mockFilterOptions,
-    //       results: {
-    //         status: "succeeded",
-    //         data: mockData,
-    //       },
-    //     },
-    //   });
+      jest
+        .spyOn(filters, "mapFilters")
+        .mockImplementation((mappedTextSearchResult) => {
+          if (mappedTextSearchResult === mockUnsortedData) {
+            return mockFilterOptions;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   expect(nextState.searchState.missingDocs).toBe(mockMissingDocs);
-    //   expect(nextState.searchState.filterOptions).toBe(mockFilterOptions);
+      const nextState = reducer(existingState, {
+        type: "UPDATE_SEARCH_RESULTS",
+        payload: inputPayload,
+      });
 
-    //   expect(
-    //     nextState.searchState.results.status === "succeeded" &&
-    //       nextState.searchState.results.data
-    //   ).toBe(mockData);
-    // });
+      expect(nextState).toEqual({
+        ...existingState,
+        searchState: {
+          ...existingState.searchState,
+          missingDocs: mockMissingDocs,
+          filterOptions: mockFilterOptions,
+          results: {
+            status: "succeeded",
+            data: mockData,
+          },
+        },
+      });
+
+      expect(nextState.searchState.missingDocs).toBe(mockMissingDocs);
+      expect(nextState.searchState.filterOptions).toBe(mockFilterOptions);
+
+      expect(
+        nextState.searchState.results.status === "succeeded" &&
+          nextState.searchState.results.data
+      ).toBe(mockData);
+    });
   });
 
   describe("CHANGE_RESULTS_ORDER", () => {

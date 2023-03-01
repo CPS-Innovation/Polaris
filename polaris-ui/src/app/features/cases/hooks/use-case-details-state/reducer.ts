@@ -18,6 +18,7 @@ import { mapSearchHighlights } from "./map-search-highlights";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
+import { filterApiResults } from "./filter-api-results";
 
 export const reducer = (
   state: CombinedState,
@@ -440,8 +441,9 @@ export const reducer = (
           (item) => item.documentId
         );
 
-        const filteredSearchResults = action.payload.data.filter((item) =>
-          knownDocumentIds.includes(item.documentId)
+        const filteredSearchResults = filterApiResults(
+          action.payload.data,
+          state.documentsState.data
         );
 
         const unsortedData = mapTextSearch(
@@ -646,3 +648,9 @@ export const reducer = (
       throw new Error("Unknown action passed to case details reducer");
   }
 };
+function apiResults(
+  data: ApiTextSearchResult[],
+  data1: import("../../domain/MappedCaseDocument").MappedCaseDocument[]
+) {
+  throw new Error("Function not implemented.");
+}
