@@ -69,6 +69,7 @@ module "azurerm_app_reg_as_web_polaris" {
     redirect_uris = ["https://getpostman.com/oauth2/callback"]
     implicit_grant = {
       access_token_issuance_enabled = true
+      id_token_issuance_enabled     = true
     }
   }
   tags = ["terraform"]
