@@ -436,8 +436,16 @@ export const reducer = (
         state.searchState.submittedSearchTerm &&
         action.payload.data
       ) {
+        const knownDocumentIds = state.documentsState.data.map(
+          (item) => item.documentId
+        );
+
+        const filteredSearchResults = action.payload.data.filter((item) =>
+          knownDocumentIds.includes(item.documentId)
+        );
+
         const unsortedData = mapTextSearch(
-          action.payload.data,
+          filteredSearchResults,
           state.documentsState.data
         );
 

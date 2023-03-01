@@ -144,7 +144,7 @@ export const searchCase = async (
   const path = buildEncodedUrl(
     { caseId, searchTerm, urn },
     ({ caseId, searchTerm, urn }) =>
-      `/api/urns/${urn}/cases/${caseId}/query/${searchTerm}`
+      `/api/urns/${urn}/cases/${caseId}/documents/search/?query=${searchTerm}`
   );
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
@@ -154,7 +154,19 @@ export const searchCase = async (
     throw new ApiError("Search Case Text failed", path, response);
   }
 
-  return (await response.json()) as ApiTextSearchResult[];
+  // hack
+  var rawResponse = await response.json();
+  rawResponse = rawResponse.map((item: any) => {
+    // var documentId = atob(item.id).split("-").slice(0, -2).join("-");
+    var documentId = item.polarisDocumentId;
+    console.log(documentId);
+    return {
+      ...item,
+      documentId,
+    };
+  });
+
+  return rawResponse as ApiTextSearchResult[];
 };
 
 export const checkoutDocument = async (
