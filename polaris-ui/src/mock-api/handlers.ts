@@ -90,7 +90,10 @@ export const setupHandlers = ({
     }),
 
     rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
+      console.log("hellooooooo>>>>>>>");
       const result = pipelinePdfResultsDataSources[sourceName]();
+
+      console.log("result>>>", result);
 
       // always maxDelay as we want this to be slow to illustrate async nature of tracker/polling
       //  (when in dev mode)

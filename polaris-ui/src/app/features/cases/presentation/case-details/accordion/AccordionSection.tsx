@@ -24,6 +24,9 @@ export const AccordionSection: React.FC<Props> = ({
   handleToggleOpenSection,
   handleOpenPdf,
 }) => {
+  const documentsWithLimitedView = () => {
+    return docs.filter((doc) => doc.presentationStatuses?.viewStatus !== "Ok");
+  };
   return (
     <div className={`${classes["accordion-section"]}`} aria-expanded={isOpen}>
       <div
@@ -36,7 +39,32 @@ export const AccordionSection: React.FC<Props> = ({
         <span className={`${classes["icon"]}`}></span>
       </div>
       <div className={`${classes["accordion-section-body"]}`}>
-        <table className="govuk-table">
+        {!!documentsWithLimitedView().length && (
+          <span> Some documents for this case are only available in CMS</span>
+        )}
+
+        <div className={`${classes["accordion-section-no-document"]}`}>
+          {!docs.length ? (
+            <div> No Documents</div>
+          ) : (
+            <div>
+              <span className={`${classes["accordion-document-date-title"]}`}>
+                Date added
+              </span>
+
+              <ul className={`${classes["accordion-document-list"]}`}>
+                {docs.map((caseDocument) => (
+                  <AccordionDocument
+                    key={caseDocument.documentId}
+                    caseDocument={caseDocument}
+                    handleOpenPdf={handleOpenPdf}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+        {/* <table className="govuk-table">
           {!docs.length ? (
             <tbody>
               <AccordionNoDocuments />
@@ -66,7 +94,7 @@ export const AccordionSection: React.FC<Props> = ({
               </tbody>
             </>
           )}
-        </table>
+        </table> */}
       </div>
     </div>
   );

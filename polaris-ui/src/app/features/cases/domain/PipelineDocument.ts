@@ -14,6 +14,15 @@ export type PipelineDocumentProperties = {
     | "OcrAndIndexFailure";
 };
 
+export type PresentationStatuses = {
+  viewStatus: "Ok" | "OnlyAvailableInCms" | "FailedConversion";
+  redactStatus:
+    | null
+    | "Ok"
+    | "DocTypeNotAllowed"
+    | "OriginalFileTypeNotAllowed";
+};
+
 export type PresentationDocumentProperties = {
   documentId: string;
   CmsDocumentId?: string;
@@ -23,6 +32,7 @@ export type PresentationDocumentProperties = {
   cmsDocCategory: CmsDocCategory;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
+  presentationStatuses?: PresentationStatuses;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

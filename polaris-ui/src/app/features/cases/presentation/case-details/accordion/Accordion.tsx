@@ -18,6 +18,7 @@ export const Accordion: React.FC<Props> = ({
   accordionState: sections,
   handleOpenPdf,
 }) => {
+  console.log("sections>>>>>", sections);
   const [state, dispatch] = useReducer(
     reducer,
     buildInitialState(sections.map((section) => section.sectionLabel))

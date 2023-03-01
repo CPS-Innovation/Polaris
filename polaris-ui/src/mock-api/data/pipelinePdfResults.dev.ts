@@ -13,7 +13,7 @@ const pipelinePdfResults: PipelineResults = {
       documentId: "1",
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
-      cmsOriginalFileName: "MCLOVEMG3  very long .docx",
+      cmsOriginalFileName: "MCLOVEMG33333  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
@@ -21,6 +21,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 3,
         code: "MG3",
         name: "MG3 File",
+      },
+      presentationStatuses: {
+        viewStatus: "OnlyAvailableInCms", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -36,6 +40,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG11",
         name: "MG11 File",
       },
+      presentationStatuses: {
+        viewStatus: "OnlyAvailableInCms", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "3",
@@ -49,6 +57,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 5,
         code: "MG5",
         name: "MG5 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -64,6 +76,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "5",
@@ -77,6 +93,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 3,
         code: "MG3",
         name: "MG3 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -92,6 +112,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "7",
@@ -105,6 +129,10 @@ const pipelinePdfResults: PipelineResults = {
         id: -1,
         code: "Other Comm (In)",
         name: "Other Comm (In) File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -120,6 +148,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG5",
         name: "MG5 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "9",
@@ -134,6 +166,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "10",
@@ -147,6 +183,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 6,
         code: "MG6",
         name: "MG6 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
   ],

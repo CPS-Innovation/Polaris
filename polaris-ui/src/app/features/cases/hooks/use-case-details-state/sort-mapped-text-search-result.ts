@@ -9,7 +9,7 @@ const SortByPropertyDesc = (
   a: MappedDocumentResult,
   b: MappedDocumentResult
 ) => {
-  return a[property] < b[property] ? 1 : a[property] > b[property] ? -1 : 0;
+  return a[property]! < b[property]! ? 1 : a[property]! > b[property]! ? -1 : 0;
 };
 
 // Sorting on created date then by document id gives deterministic results
