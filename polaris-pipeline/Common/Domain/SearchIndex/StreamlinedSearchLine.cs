@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Common.Domain.SearchIndex;
@@ -7,6 +9,26 @@ public class StreamlinedSearchLine
 {
     [JsonProperty("id")]
     public string Id { get; set; }
+
+    [JsonProperty("polarisDocumentId")]
+    public string PolarisDocumentId
+    {
+        get
+        {
+            var base64EncodedBytes = Convert.FromBase64String(Id);
+            var indexerId = Encoding.UTF8.GetString(base64EncodedBytes);
+
+            try
+            {
+                var polarisDocumentId = indexerId.Substring(0, 36);
+                return polarisDocumentId;
+            }
+            catch 
+            {
+                return string.Empty;
+            }
+        }
+    }
 
     [JsonProperty("fileName")]
     public string FileName { get; set; }
