@@ -95,9 +95,9 @@ namespace Common.Tests.Clients
         {
             var responseMock = new Mock<Response>();
             var fakeSearchLines = _fixture.CreateMany<SearchLine>(3).ToList();
-            fakeSearchLines[0].PolarisDocumentId = Guid.ParseExact("11111111111111111111111111111111", "N");
-            fakeSearchLines[1].PolarisDocumentId = Guid.ParseExact("22222222222222222222222222222222", "N");
-            fakeSearchLines[2].PolarisDocumentId = Guid.ParseExact("33333333333333333333333333333333", "N");
+            fakeSearchLines[0].DocumentId = "3333";
+            fakeSearchLines[1].DocumentId = "2222";
+            fakeSearchLines[2].DocumentId = "1111";
 
             _mockSearchClient.Setup(client => client.SearchAsync<SearchLine>(_searchTerm,
                     It.Is<SearchOptions>(o => o.Filter == $"caseId eq {_caseId}"), It.IsAny<CancellationToken>()))
@@ -124,9 +124,9 @@ namespace Common.Tests.Clients
         {
             var responseMock = new Mock<Response>();
             var fakeSearchLines = _fixture.CreateMany<SearchLine>(3).ToList();
-            fakeSearchLines[0].PolarisDocumentId = Guid.ParseExact("33333333333333333333333333333333", "N");
-            fakeSearchLines[1].PolarisDocumentId = Guid.ParseExact("22222222222222222222222222222222", "N");
-            fakeSearchLines[2].PolarisDocumentId = Guid.ParseExact("11111111111111111111111111111111", "N");
+            fakeSearchLines[0].DocumentId = "3333";
+            fakeSearchLines[1].DocumentId = "2222";
+            fakeSearchLines[2].DocumentId = "1111";
 
             fakeSearchLines[2].Words = _fixture.CreateMany<Word>(2).ToList();
             fakeSearchLines[2].Words[0].Text = string.Join(" ", _searchTerm);

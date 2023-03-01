@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Newtonsoft.Json;
@@ -7,22 +6,13 @@ namespace Common.Domain.SearchIndex;
 
 public class SearchLine : Line
 {
-        public SearchLine(  string id,
-                            Guid polarisDocumentId, 
-                            string blobName, 
-                            int pageIndex, 
-                            int lineIndex, 
-                            string language, 
-                            IList<double?> boundingBox, 
-                            Appearance appearance, 
-                            string text, 
-                            IList<Word> words, 
-                            double pageHeight, 
-                            double pageWidth
-                        )
+    public SearchLine(string id, long caseId, string documentId, long versionId, string blobName, int pageIndex, int lineIndex, string language, IList<double?> boundingBox, Appearance appearance,
+        string text, IList<Word> words, double pageHeight, double pageWidth)
     {
         Id = id;
-        PolarisDocumentId = polarisDocumentId;
+        CaseId = caseId;
+        DocumentId = documentId;
+        VersionId = versionId;
         FileName = blobName;
         PageIndex = pageIndex;
         LineIndex = lineIndex;
@@ -39,12 +29,18 @@ public class SearchLine : Line
     [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonProperty("polarisDocumentId")]
-    public Guid PolarisDocumentId { get; set; }
+    [JsonProperty("caseId")]
+    public long CaseId { get; set; }
+
+    [JsonProperty("documentId")]
+    public string DocumentId { get; set; }
+
+    [JsonProperty("versionId")]
+    public long VersionId { get; set; }
 
     [JsonProperty("fileName")]
     public string FileName { get; set; }
-    
+
     [JsonProperty("pageIndex")]
     public int PageIndex { get; set; }
 

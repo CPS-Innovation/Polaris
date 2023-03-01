@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection.Metadata;
 using System.Text;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
@@ -14,20 +15,7 @@ public class SearchLineFactory : ISearchLineFactory
         var bytes = Encoding.UTF8.GetBytes(indexerId);
         var base64IndexerId = Convert.ToBase64String(bytes);
 
-        return new SearchLine
-            (
-                base64IndexerId,
-                polarisDocumentId, 
-                blobName, 
-                readResult.Page, 
-                index, 
-                line.Language, 
-                line.BoundingBox, 
-	            line.Appearance, 
-                line.Text, 
-                line.Words, 
-                readResult.Height, 
-                readResult.Width
-            );
+        return new SearchLine(base64IndexerId, cmsCaseId, cmsDocumentId, versionId, blobName, readResult.Page, index, line.Language, line.BoundingBox,
+                line.Appearance, line.Text, line.Words, readResult.Height, readResult.Width);
     }
 }
