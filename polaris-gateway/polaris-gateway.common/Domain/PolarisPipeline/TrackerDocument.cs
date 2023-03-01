@@ -6,7 +6,7 @@ namespace PolarisGateway.Domain.PolarisPipeline
 {
     public class TrackerDocument
     {
-        [JsonProperty("documentId")]
+        [JsonProperty("polarisDocumentId")]
         public Guid PolarisDocumentId { get; set; }
 
         [JsonProperty("cmsDocumentId")]

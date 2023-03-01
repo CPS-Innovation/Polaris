@@ -14,6 +14,9 @@ namespace coordinator.Functions.ClientFunctions
 {
     public class TrackerStatus
     {
+        const string loggingName = $"{nameof(TrackerStatus)} - {nameof(HttpStart)}";
+        const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
+
         [FunctionName(nameof(TrackerStatus))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/{caseUrn}/{caseId}/tracker")] HttpRequestMessage req,
@@ -22,9 +25,6 @@ namespace coordinator.Functions.ClientFunctions
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
-            const string loggingName = $"{nameof(TrackerStatus)} - {nameof(HttpStart)}";
-            const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
-
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
