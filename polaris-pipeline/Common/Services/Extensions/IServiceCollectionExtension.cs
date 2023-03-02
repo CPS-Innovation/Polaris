@@ -22,7 +22,9 @@ namespace Common.Services.Extensions
         {
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
+                //string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
+                //azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
+                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl)))
                     .WithCredential(new DefaultAzureCredential());
             });
 
