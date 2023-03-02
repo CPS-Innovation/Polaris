@@ -158,6 +158,7 @@ export const reducer = (
             )
         )
         .map(({ documentId, pdfBlobName }) => ({ documentId, pdfBlobName }));
+
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }
@@ -170,6 +171,7 @@ export const reducer = (
           highlighting from this point on, only setting the URL (i.e. the document will be in 
           "read" mode, not "search" mode)
       */
+
       const nextOpenTabs = state.tabsState.items.reduce((prev, curr) => {
         const matchingFreshPdfRecord = openPdfsWeNeedToUpdate.find(
           (item) => item.documentId === curr.documentId
@@ -188,6 +190,7 @@ export const reducer = (
         }
         return [...prev, curr];
       }, [] as CaseDocumentViewModel[]);
+
       return {
         ...coreNextPipelineState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },

@@ -1,6 +1,5 @@
 import { AccordionDocument } from "./AccordionDocument";
 import classes from "./Accordion.module.scss";
-import { AccordionNoDocuments } from "./AccordionNoDocuments";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 
@@ -64,37 +63,6 @@ export const AccordionSection: React.FC<Props> = ({
             </div>
           )}
         </div>
-        {/* <table className="govuk-table">
-          {!docs.length ? (
-            <tbody>
-              <AccordionNoDocuments />
-            </tbody>
-          ) : (
-            <>
-              <thead>
-                <tr className="govuk-table__row">
-                  <th scope="col" className="govuk-table__header"></th>
-                  <th
-                    scope="col"
-                    className="govuk-table__header govuk-body-s"
-                    style={{ fontWeight: 400 }}
-                  >
-                    Date added
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {docs.map((caseDocument) => (
-                  <AccordionDocument
-                    key={caseDocument.documentId}
-                    caseDocument={caseDocument}
-                    handleOpenPdf={handleOpenPdf}
-                  />
-                ))}
-              </tbody>
-            </>
-          )}
-        </table> */}
       </div>
     </div>
   );

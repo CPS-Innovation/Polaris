@@ -51,28 +51,4 @@ export const AccordionDocument: React.FC<Props> = ({
       {!canViewDocument && <span>Document only available on CMS</span>}
     </li>
   );
-
-  // <tr className="govuk-table__row">
-  //   <td
-  //     className="govuk-table__cell govuk-body-s openMe"
-  //     style={{ wordWrap: "break-word" }}
-  //   >
-  //     <a
-  //       href={`#${caseDocument.tabSafeId}`}
-  //       onClick={(ev) => {
-  //         handleOpenPdf(caseDocument);
-  //       }}
-  //       data-testid={`link-document-${caseDocument.documentId}`}
-  //     >
-  //       {caseDocument.presentationFileName}
-  //     </a>
-  //   </td>
-  //   <td className={`govuk-table__cell govuk-body-s ${classes.date}`}>
-  //     {caseDocument.cmsFileCreatedDate &&
-  //       formatDate(
-  //         caseDocument.cmsFileCreatedDate,
-  //         CommonDateTimeFormats.ShortDateTextMonth
-  //       )}
-  //   </td>
-  // </tr>
 };
