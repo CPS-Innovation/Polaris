@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DEBUG
+using System;
 using System.Threading.Tasks;
 using Common.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -46,3 +47,4 @@ namespace Common.Services.OcrService
         }
     }
 }
+#endif
