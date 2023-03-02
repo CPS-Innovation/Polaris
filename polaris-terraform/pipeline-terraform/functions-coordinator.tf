@@ -32,7 +32,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                        = "documents"
-    "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_ui_storage_connection_string.id})"
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
   }
