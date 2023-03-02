@@ -97,6 +97,13 @@ export const setupHandlers = ({
       return res(ctx.delay(sanitisedMaxDelay), ctx.json(result));
     }),
 
+    rest.get(makeApiPath(routes.TEXT_SEARCH_ROUTE), (req, res, ctx) => {
+      const query = req.url.searchParams.get("query")!;
+      const results = searchCaseDataSources[sourceName](query);
+
+      return res(delay(ctx), ctx.json(results));
+    }),
+
     rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
       const { documentId } = req.params;
 
@@ -125,13 +132,6 @@ export const setupHandlers = ({
           makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName!)
         )
       );
-    }),
-
-    rest.get(makeApiPath(routes.TEXT_SEARCH_ROUTE), (req, res, ctx) => {
-      const { query } = req.params;
-      const results = searchCaseDataSources[sourceName](query);
-
-      return res(delay(ctx), ctx.json(results));
     }),
 
     rest.put(makeApiPath(routes.DOCUMENT_CHECKOUT_ROUTE), (req, res, ctx) => {
