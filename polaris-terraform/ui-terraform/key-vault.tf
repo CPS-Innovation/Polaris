@@ -99,7 +99,7 @@ resource "azurerm_role_assignment" "kv_role_fa_gateway_secrets_user" {
 
 resource "azurerm_key_vault_secret" "kvs_ui_storage_connection_string" {
   name            = "UiStorageConnectionString"
-  value           = azurerm_storage_account.sacpspolaris.primary_connection_string
+  value           = azurerm_storage_account.sa.primary_connection_string
   key_vault_id    = azurerm_key_vault.kv_polaris.id
   expiration_date = timeadd(timestamp(), "8760h")
   content_type    = "password"
