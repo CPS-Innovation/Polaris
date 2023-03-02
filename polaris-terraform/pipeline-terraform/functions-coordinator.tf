@@ -30,6 +30,10 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
+    "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobContainerName"                        = "documents"
+    "BlobExpirySecs"                           = 3600
+    "BlobUserDelegationKeyExpirySecs"          = 3600
   }
   https_only = true
 
