@@ -10,6 +10,7 @@ public static class ConfigurationKeys
     public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
     public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
     public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
+    public const string BlobServiceUrl = "BlobServiceUrl";
 }
 
 public static class AuthenticationKeys
