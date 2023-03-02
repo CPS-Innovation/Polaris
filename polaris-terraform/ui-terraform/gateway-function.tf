@@ -32,9 +32,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_ui_storage_connection_string.id})"
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
-    "searchClient__EndpointUrl"                = "https://ss-${local.pipeline_resource_name}.search.windows.net"
-    "searchClient__AuthorizationKey"           = data.azurerm_search_service.pipeline_ss.primary_key
-    "searchClient__IndexName"                  = "lines-index"
     "CallingAppValidAudience"                  = var.polaris_webapp_details.valid_audience
     "CallingAppValidScopes"                    = var.polaris_webapp_details.valid_scopes
     "CallingAppValidRoles"                     = var.polaris_webapp_details.valid_roles
