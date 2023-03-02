@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.DocumentEvaluation;
+using Common.Domain.DocumentExtraction;
 using coordinator.Domain.Tracker;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -34,6 +35,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Mock<ILogger> _mockLogger;
 
         private readonly coordinator.Domain.Tracker.Tracker _tracker;
+        private readonly coordinator.Functions.ClientFunctions.TrackerStatus _trackerStatus;
 
         public TrackerTests()
         {
@@ -67,6 +69,7 @@ namespace coordinator.tests.Domain.Tracker
                 .ReturnsAsync(_entityStateResponse);
 
             _tracker = new coordinator.Domain.Tracker.Tracker();
+            _trackerStatus = new coordinator.Functions.ClientFunctions.TrackerStatus();
         }
 
         [Fact]
@@ -89,7 +92,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterPdfBlobName(_pdfBlobNameArg);
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _incomingDocuments.First().DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
             document?.PdfBlobName.Should().Be(_pdfBlobNameArg.BlobName);
             document?.Status.Should().Be(DocumentStatus.PdfUploadedToBlob);
 
@@ -103,7 +106,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterDocumentNotFoundInDDEI(_pdfBlobNameArg.DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _incomingDocuments.First().DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.NotFoundInDDEI);
 
             _tracker.Logs.Count.Should().Be(3);
@@ -126,7 +129,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(_pdfBlobNameArg.DocumentId, _pdfBlobNameArg.VersionId, _pdfBlobNameArg.BlobName));
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _pdfBlobNameArg.DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(DocumentStatus.DocumentAlreadyProcessed);
 
             _tracker.Logs.Count.Should().Be(3);
@@ -139,7 +142,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterUnableToConvertDocumentToPdf(_pdfBlobNameArg.DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _pdfBlobNameArg.DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
 
             _tracker.Logs.Count.Should().Be(3);
@@ -151,7 +154,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.Initialise(_transactionId);
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _incomingDocuments.First().DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.None);
 
             _tracker.Logs.Count.Should().Be(2);
@@ -164,7 +167,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterUnexpectedPdfDocumentFailure(_pdfBlobNameArg.DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _incomingDocuments.First().DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.UnexpectedFailure);
 
             _tracker.Logs.Count.Should().Be(3);
@@ -188,7 +191,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterIndexed(_incomingDocuments.First().DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _incomingDocuments.First().DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.Indexed);
 
             _tracker.Logs.Count.Should().Be(3);
@@ -201,7 +204,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterOcrAndIndexFailure(_incomingDocuments.First().DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.DocumentId == _incomingDocuments.First().DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.OcrAndIndexFailure);
 
             _tracker.Logs.Count.Should().Be(3);
@@ -242,9 +245,9 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
             _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
-                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure}
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure}
             };
 
             var output = await _tracker.AllDocumentsFailed();
@@ -256,10 +259,10 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
             _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
-                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new (_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure},
-                new(_fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
             };
 
             var output = await _tracker.AllDocumentsFailed();
@@ -310,7 +313,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             var message = new HttpRequestMessage();
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _tracker.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
             response.Should().BeOfType<OkObjectResult>();
         }
@@ -320,7 +323,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             var message = new HttpRequestMessage();
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response  = await _tracker.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response  = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
             var okObjectResult = response as OkObjectResult;
 
@@ -339,7 +342,7 @@ namespace coordinator.tests.Domain.Tracker
 
             var message = new HttpRequestMessage();
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response = await _tracker.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
             response.Should().BeOfType<NotFoundObjectResult>();
         }
@@ -355,7 +358,7 @@ namespace coordinator.tests.Domain.Tracker
                 .ReturnsAsync(entityStateResponse);
 
             var message = new HttpRequestMessage();
-            var response = await _tracker.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
             response.Should().BeOfType<BadRequestObjectResult>();
         }
@@ -552,10 +555,10 @@ namespace coordinator.tests.Domain.Tracker
             using (new AssertionScope())
             {
                 _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
-                var newVersion = _tracker.Documents.Find(x => x.DocumentId == modifiedDocumentId);
+                var newVersion = _tracker.Documents.Find(x => x.CmsDocumentId == modifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
-                newVersion?.VersionId.Should().Be(newVersionId);
+                newVersion?.CmsVersionId.Should().Be(newVersionId);
             }
         }
         
@@ -594,16 +597,16 @@ namespace coordinator.tests.Domain.Tracker
             using (new AssertionScope())
             {
                 _tracker.Documents.Count.Should().Be(2);
-                var newVersion = _tracker.Documents.Find(x => x.DocumentId == modifiedDocumentId);
-                var unmodifiedDocument = _tracker.Documents.Find(x => x.DocumentId == unmodifiedDocumentId);
+                var newVersion = _tracker.Documents.Find(x => x.CmsDocumentId == modifiedDocumentId);
+                var unmodifiedDocument = _tracker.Documents.Find(x => x.CmsDocumentId == unmodifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
-                newVersion?.VersionId.Should().Be(newVersionId);
+                newVersion?.CmsVersionId.Should().Be(newVersionId);
 
                 unmodifiedDocument.Should().NotBeNull();
-                unmodifiedDocument?.VersionId.Should().Be(unmodifiedDocumentVersionId);
+                unmodifiedDocument?.CmsVersionId.Should().Be(unmodifiedDocumentVersionId);
 
-                var searchResultForDocumentRemovedFromCms = _tracker.Documents.Find(x => x.DocumentId == documentRemovedFromCmsId);
+                var searchResultForDocumentRemovedFromCms = _tracker.Documents.Find(x => x.CmsDocumentId == documentRemovedFromCmsId);
                 searchResultForDocumentRemovedFromCms.Should().BeNull();
             }
         }

@@ -8,12 +8,12 @@ using Common.Domain.Exceptions;
 using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
 using Common.Logging;
+using Common.Services.OcrService;
 using Common.Services.SearchIndexService.Contracts;
 using Common.Wrappers;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using text_extractor.Services.OcrService;
 
 namespace text_extractor.Functions
 {
@@ -76,8 +76,16 @@ namespace text_extractor.Functions
                 var ocrResults = await _ocrService.GetOcrResultsAsync(extractTextRequest.BlobName, currentCorrelationId);
                 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
-                await _searchIndexService.StoreResultsAsync(ocrResults, extractTextRequest.CaseId, extractTextRequest.DocumentId, extractTextRequest.VersionId, 
-                    extractTextRequest.BlobName, currentCorrelationId);
+                await _searchIndexService.StoreResultsAsync
+                    (
+                        ocrResults,
+                        extractTextRequest.PolarisDocumentId,
+                        extractTextRequest.CmsCaseId, 
+                        extractTextRequest.CmsDocumentId, 
+                        extractTextRequest.VersionId, 
+                        extractTextRequest.BlobName, 
+                        currentCorrelationId
+                    );
                 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 

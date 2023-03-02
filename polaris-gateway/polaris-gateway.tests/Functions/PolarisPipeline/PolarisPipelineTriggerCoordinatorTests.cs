@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -12,7 +13,7 @@ using Moq;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Functions.PolarisPipeline;
 using Xunit;
 

@@ -4,7 +4,6 @@ import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { mapAccordionState } from "./map-accordion-state";
 import { CombinedState } from "../../domain/CombinedState";
 import { CaseDetails } from "../../domain/CaseDetails";
-import { CaseDocument } from "../../domain/CaseDocument";
 import { PipelineResults } from "../../domain/PipelineResults";
 import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
 import { mapTextSearch } from "./map-text-search";
@@ -19,6 +18,7 @@ import { mapSearchHighlights } from "./map-search-highlights";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
+import { filterApiResults } from "./filter-api-results";
 
 export const reducer = (
   state: CombinedState,
@@ -28,17 +28,13 @@ export const reducer = (
         payload: ApiResult<CaseDetails>;
       }
     | {
-        type: "UPDATE_CASE_DOCUMENTS";
-        payload: ApiResult<CaseDocument[]>;
-      }
-    | {
         type: "UPDATE_PIPELINE";
         payload: AsyncPipelineResult<PipelineResults>;
       }
     | {
         type: "OPEN_PDF_IN_NEW_TAB";
         payload: {
-          pdfId: number;
+          documentId: CaseDocumentViewModel["documentId"];
           sasUrl: string;
         };
       }
@@ -46,7 +42,7 @@ export const reducer = (
         type: "OPEN_PDF";
         payload: {
           tabSafeId: string;
-          pdfId: number;
+          documentId: CaseDocumentViewModel["documentId"];
           mode: CaseDocumentViewModel["mode"];
           headers: HeadersInit;
         };
@@ -84,27 +80,27 @@ export const reducer = (
     | {
         type: "ADD_REDACTION";
         payload: {
-          pdfId: number;
+          documentId: CaseDocumentViewModel["documentId"];
           redaction: NewPdfHighlight;
         };
       }
     | {
         type: "REMOVE_REDACTION";
         payload: {
-          pdfId: number;
+          documentId: CaseDocumentViewModel["documentId"];
           redactionId: string;
         };
       }
     | {
         type: "REMOVE_ALL_REDACTIONS";
         payload: {
-          pdfId: number;
+          documentId: CaseDocumentViewModel["documentId"];
         };
       }
     | {
         type: "UPDATE_DOCUMENT_LOCK_STATE";
         payload: {
-          pdfId: number;
+          documentId: CaseDocumentViewModel["documentId"];
           lockedState: CaseDocumentViewModel["clientLockedState"];
         };
       }
@@ -116,20 +112,8 @@ export const reducer = (
       }
 
       return { ...state, caseState: action.payload };
-    case "UPDATE_CASE_DOCUMENTS":
-      if (action.payload.status === "failed") {
-        throw action.payload.error;
-      }
-      const documentsState = mapDocumentsState(action.payload);
 
-      const accordionState = mapAccordionState(documentsState);
-
-      return {
-        ...state,
-        documentsState,
-        accordionState,
-      };
-    case "UPDATE_PIPELINE":
+    case "UPDATE_PIPELINE": {
       if (action.payload.status === "failed") {
         throw action.payload.error;
       }
@@ -138,10 +122,27 @@ export const reducer = (
         return state;
       }
 
+      let nextState = { ...state };
+
+      // todo: proper logic to build documents
+      const shouldBuildDocumentsState =
+        action.payload.data.documents.length &&
+        state.documentsState.status === "loading";
+
+      if (shouldBuildDocumentsState) {
+        const documentsState = mapDocumentsState(action.payload.data.documents);
+        const accordionState = mapAccordionState(documentsState);
+        nextState = {
+          ...nextState,
+          documentsState,
+          accordionState,
+        };
+      }
+
       const newPipelineResults = action.payload;
 
       const coreNextPipelineState = {
-        ...state,
+        ...nextState,
         pipelineState: {
           ...newPipelineResults,
         },
@@ -177,7 +178,11 @@ export const reducer = (
         );
 
         if (matchingFreshPdfRecord) {
-          const url = resolvePdfUrl(matchingFreshPdfRecord.pdfBlobName);
+          const url = resolvePdfUrl(
+            state.urn,
+            state.caseId,
+            matchingFreshPdfRecord.documentId
+          );
           return [
             ...prev,
             { ...curr, url, pdfBlobName: matchingFreshPdfRecord.pdfBlobName },
@@ -190,22 +195,23 @@ export const reducer = (
         ...coreNextPipelineState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
       };
+    }
     case "OPEN_PDF_IN_NEW_TAB": {
-      const { pdfId, sasUrl } = action.payload;
+      const { documentId, sasUrl } = action.payload;
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: [
             ...state.tabsState.items.map((item) =>
-              item.documentId === pdfId ? { ...item, sasUrl } : item
+              item.documentId === documentId ? { ...item, sasUrl } : item
             ),
           ],
         },
       };
     }
     case "OPEN_PDF":
-      const { pdfId, tabSafeId, mode, headers } = action.payload;
+      const { documentId, tabSafeId, mode, headers } = action.payload;
 
       const coreNewState = {
         ...state,
@@ -228,7 +234,7 @@ export const reducer = (
 
       const isTabAlreadyOpenedInRequiredState = state.tabsState.items.some(
         (item) =>
-          item.documentId === pdfId &&
+          item.documentId === documentId &&
           // we have found the tab already exists in read mode and we are trying to
           //  open again in read mode
           ((item.mode === "read" && mode === "read") ||
@@ -245,7 +251,7 @@ export const reducer = (
         return coreNewState;
       }
       const alreadyOpenedTabIndex = state.tabsState.items.findIndex(
-        (item) => item.documentId === pdfId
+        (item) => item.documentId === documentId
       );
 
       const redactionsHighlightsToRetain =
@@ -254,16 +260,20 @@ export const reducer = (
           : [];
 
       const foundDocument = state.documentsState.data.find(
-        (item) => item.documentId === pdfId
+        (item) => item.documentId === documentId
       )!;
 
-      const blobName = state.pipelineState.haveData
+      const pipelineDocument = state.pipelineState.haveData
         ? state.pipelineState.data.documents.find(
-            (item) => item.documentId === pdfId
-          )?.pdfBlobName
+            (item) => item.documentId === documentId
+          )
         : undefined;
 
-      const url = blobName && resolvePdfUrl(blobName);
+      const blobName = pipelineDocument?.pdfBlobName;
+
+      const url =
+        blobName &&
+        resolvePdfUrl(state.urn, state.caseId, pipelineDocument.documentId);
 
       let item: CaseDocumentViewModel;
 
@@ -286,7 +296,7 @@ export const reducer = (
         const foundDocumentSearchResult =
           state.searchState.results.status === "succeeded" &&
           state.searchState.results.data.documentResults.find(
-            (item) => item.documentId === pdfId
+            (item) => item.documentId === documentId
           )!;
 
         const pageOccurrences = foundDocumentSearchResult
@@ -427,8 +437,17 @@ export const reducer = (
         state.searchState.submittedSearchTerm &&
         action.payload.data
       ) {
-        const unsortedData = mapTextSearch(
+        const knownDocumentIds = state.documentsState.data.map(
+          (item) => item.documentId
+        );
+
+        const filteredSearchResults = filterApiResults(
           action.payload.data,
+          state.documentsState.data
+        );
+
+        const unsortedData = mapTextSearch(
+          filteredSearchResults,
           state.documentsState.data
         );
 
@@ -547,14 +566,14 @@ export const reducer = (
         },
       };
     case "ADD_REDACTION": {
-      const { pdfId, redaction } = action.payload;
+      const { documentId, redaction } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   redactionHighlights: [
@@ -568,14 +587,14 @@ export const reducer = (
       };
     }
     case "REMOVE_REDACTION": {
-      const { redactionId, pdfId } = action.payload;
+      const { redactionId, documentId } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   redactionHighlights: item.redactionHighlights.filter(
@@ -589,14 +608,14 @@ export const reducer = (
     }
 
     case "REMOVE_ALL_REDACTIONS": {
-      const { pdfId } = action.payload;
+      const { documentId } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   redactionHighlights: [],
@@ -607,14 +626,14 @@ export const reducer = (
       };
     }
     case "UPDATE_DOCUMENT_LOCK_STATE": {
-      const { pdfId, lockedState } = action.payload;
+      const { documentId, lockedState } = action.payload;
 
       return {
         ...state,
         tabsState: {
           ...state.tabsState,
           items: state.tabsState.items.map((item) =>
-            item.documentId === pdfId
+            item.documentId === documentId
               ? {
                   ...item,
                   clientLockedState: lockedState,
@@ -629,3 +648,9 @@ export const reducer = (
       throw new Error("Unknown action passed to case details reducer");
   }
 };
+function apiResults(
+  data: ApiTextSearchResult[],
+  data1: import("../../domain/MappedCaseDocument").MappedCaseDocument[]
+) {
+  throw new Error("Function not implemented.");
+}

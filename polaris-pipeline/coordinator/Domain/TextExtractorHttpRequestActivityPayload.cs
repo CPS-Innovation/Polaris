@@ -4,11 +4,12 @@ namespace coordinator.Domain
 {
     public class TextExtractorHttpRequestActivityPayload : BasePipelinePayload
     {
-        public TextExtractorHttpRequestActivityPayload(string caseUrn, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
-            : base(caseUrn, caseId, correlationId)
+        // TODO - move over to PolarisDocumentId
+        public TextExtractorHttpRequestActivityPayload(Guid polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long cmsVersionId, string blobName, Guid correlationId)
+            : base(polarisDocumentId, cmsCaseUrn, cmsCaseId, correlationId)
         {
-            DocumentId = documentId;
-            VersionId = versionId;
+            DocumentId = cmsDocumentId;
+            VersionId = cmsVersionId;
             BlobName = blobName;
         }
         

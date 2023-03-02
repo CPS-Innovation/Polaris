@@ -18,6 +18,8 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
+import { PipelineDocument } from "../../domain/PipelineDocument";
+import * as filterApiResults from "./filter-api-results";
 
 const ERROR = new Error();
 
@@ -53,56 +55,97 @@ describe("useCaseDetailsState reducer", () => {
     });
   });
 
-  describe("UPDATE_CASE_DOCUMENTS", () => {
-    it("throws if update case documents fails", () => {
-      expect(() =>
-        reducer({} as CombinedState, {
-          type: "UPDATE_CASE_DOCUMENTS",
-          payload: {
-            status: "failed",
-            error: ERROR,
-            httpStatusCode: undefined,
-          },
-        })
-      ).toThrowError(ERROR);
-    });
-
-    it("can update accordionState if incoming documentsState is ready", () => {
-      const existingAccordionState = {} as CombinedState["accordionState"];
-
-      const newAccordionState = {} as CombinedState["accordionState"];
-      const newDocumentsState = {
-        status: "succeeded",
-      } as CombinedState["documentsState"];
-
-      jest
-        .spyOn(accordionMapper, "mapAccordionState")
-        .mockImplementation((documentsState) => {
-          if (documentsState !== newDocumentsState) throw new Error();
-          return newAccordionState;
-        });
-
-      jest
-        .spyOn(documentsMapper, "mapDocumentsState")
-        .mockImplementation((documentsState) => {
-          if (documentsState !== newDocumentsState) throw new Error();
-          return newDocumentsState;
-        });
-
-      const nextState = reducer(
-        { accordionState: existingAccordionState } as CombinedState,
-        {
-          type: "UPDATE_CASE_DOCUMENTS",
-          payload: newDocumentsState,
-        }
-      );
-
-      expect(nextState.documentsState).toBe(newDocumentsState);
-      expect(nextState.accordionState).toBe(newAccordionState);
-    });
-  });
-
   describe("UPDATE_PIPELINE", () => {
+    describe("building documents state", () => {
+      it("should not build documents state if there are no documents in the payload", () => {
+        const existingState = {
+          pipelineState: {},
+          documentsState: { status: "loading" },
+        } as CombinedState;
+
+        const nextState = reducer(existingState, {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            haveData: true,
+            data: {
+              transactionId: "123",
+              status: "Running",
+              documents: [],
+            },
+          } as AsyncPipelineResult<PipelineResults>,
+        });
+
+        expect(nextState.documentsState).toBe(existingState.documentsState);
+      });
+
+      it("should not build documents state if the document state is already built", () => {
+        const existingState = {
+          pipelineState: {},
+          documentsState: { status: "succeeded" },
+        } as CombinedState;
+
+        const nextState = reducer(existingState, {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            haveData: true,
+            data: {
+              transactionId: "123",
+              status: "Running",
+              documents: [{}],
+            },
+          } as AsyncPipelineResult<PipelineResults>,
+        });
+
+        expect(nextState.documentsState).toBe(existingState.documentsState);
+      });
+
+      it("should build documents state if there are are no documents in the payload and document state is not already built", () => {
+        const mockNewPdfDocuments = [{}] as PipelineDocument[];
+        const mockDocumentsState = {} as CombinedState["documentsState"];
+        const mockAccordionState = {} as CombinedState["accordionState"];
+
+        jest
+          .spyOn(documentsMapper, "mapDocumentsState")
+          .mockImplementation((documents) => {
+            if (documents !== mockNewPdfDocuments)
+              throw new Error("Unexpected mock documents array");
+            return mockDocumentsState;
+          });
+
+        jest
+          .spyOn(accordionMapper, "mapAccordionState")
+          .mockImplementation((documentState) => {
+            if (documentState !== mockDocumentsState)
+              throw new Error("Unexpected mock documents state");
+            return mockAccordionState;
+          });
+
+        const nextState = reducer(
+          {
+            pipelineState: {},
+            documentsState: { status: "loading" },
+          } as CombinedState,
+          {
+            type: "UPDATE_PIPELINE",
+            payload: {
+              status: "incomplete",
+              haveData: true,
+              data: {
+                transactionId: "123",
+                status: "Running",
+                documents: mockNewPdfDocuments,
+              },
+            } as AsyncPipelineResult<PipelineResults>,
+          }
+        );
+
+        expect(nextState.documentsState).toBe(mockDocumentsState);
+        expect(nextState.accordionState).toBe(mockAccordionState);
+      });
+    });
+
     it("throws if update pipelineState fails", () => {
       expect(() =>
         reducer({} as CombinedState, {
@@ -145,13 +188,14 @@ describe("useCaseDetailsState reducer", () => {
         data: {
           transactionId: "123",
           status: "Running",
-          documents: [{ documentId: 1 }],
+          documents: [{ documentId: "1" }],
         },
       } as AsyncPipelineResult<PipelineResults>;
 
       const nextState = reducer(
         {
           pipelineState: {},
+          documentsState: { status: "succeeded" },
         } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
@@ -161,7 +205,7 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               transactionId: "123",
               status: "Running",
-              documents: [{ documentId: 1 }],
+              documents: [{ documentId: "1" }],
             },
           } as AsyncPipelineResult<PipelineResults>,
         }
@@ -175,7 +219,7 @@ describe("useCaseDetailsState reducer", () => {
         status: "complete",
         haveData: true,
         data: {
-          documents: [{ documentId: 1, pdfBlobName: "foo" }],
+          documents: [{ documentId: "1", pdfBlobName: "foo" }],
           transactionId: "123",
           status: "Completed",
         },
@@ -185,14 +229,17 @@ describe("useCaseDetailsState reducer", () => {
         {
           pipelineState: {},
           tabsState: { items: [] },
-        } as unknown as CombinedState,
+          documentsState: {
+            status: "succeeded",
+          },
+        } as unknown as CombinedState, // todo: remove the "as unkwon"
         {
           type: "UPDATE_PIPELINE",
           payload: {
             status: "complete",
             haveData: true,
             data: {
-              documents: [{ documentId: 1, pdfBlobName: "foo" }],
+              documents: [{ documentId: "1", pdfBlobName: "foo" }],
               status: "Completed",
               transactionId: "123",
             },
@@ -210,7 +257,7 @@ describe("useCaseDetailsState reducer", () => {
         data: {
           documents: [
             {
-              documentId: 2,
+              documentId: "2",
               pdfBlobName: "foo",
             },
           ],
@@ -223,7 +270,10 @@ describe("useCaseDetailsState reducer", () => {
       } as CombinedState["tabsState"];
 
       const nextState = reducer(
-        { tabsState: existingTabsState } as CombinedState,
+        {
+          tabsState: existingTabsState,
+          documentsState: { status: "succeeded" },
+        } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
           payload: newPipelineState,
@@ -239,7 +289,7 @@ describe("useCaseDetailsState reducer", () => {
         data: {
           documents: [
             {
-              documentId: 2,
+              documentId: "2",
               pdfBlobName: "foo",
             },
           ],
@@ -248,19 +298,27 @@ describe("useCaseDetailsState reducer", () => {
 
       const existingTabsState = {
         items: [
-          { documentId: 1, url: undefined },
-          { documentId: 2, url: undefined },
-          { documentId: 3, url: undefined },
+          { documentId: "1", url: undefined },
+          { documentId: "2", url: undefined },
+          { documentId: "3", url: undefined },
         ],
       } as CombinedState["tabsState"];
 
-      jest.spyOn(apiGateway, "resolvePdfUrl").mockImplementation((blobName) => {
-        if (blobName !== "foo") throw new Error();
-        return "baz";
-      });
+      jest
+        .spyOn(apiGateway, "resolvePdfUrl")
+        .mockImplementation((urn, caseId, documentId) => {
+          if (urn !== "bar" || caseId !== 99 || documentId !== "2")
+            throw new Error();
+          return "baz";
+        });
 
       const nextState = reducer(
-        { tabsState: existingTabsState } as CombinedState,
+        {
+          tabsState: existingTabsState,
+          documentsState: { status: "succeeded" },
+          urn: "bar",
+          caseId: 99,
+        } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
           payload: newPipelineState,
@@ -269,9 +327,9 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(nextState.tabsState).toEqual({
         items: [
-          { documentId: 1, url: undefined },
-          { documentId: 2, url: "baz", pdfBlobName: "foo" },
-          { documentId: 3, url: undefined },
+          { documentId: "1", url: undefined },
+          { documentId: "2", url: "baz", pdfBlobName: "foo" },
+          { documentId: "3", url: undefined },
         ],
       });
     });
@@ -282,13 +340,13 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           tabsState: {
-            items: [{ documentId: 1 }, { documentId: "bar" }],
+            items: [{ documentId: "1" }, { documentId: "bar" }],
           },
         } as CombinedState,
         {
           type: "OPEN_PDF_IN_NEW_TAB",
           payload: {
-            pdfId: 1,
+            documentId: "1",
             sasUrl: "baz",
           },
         }
@@ -296,7 +354,7 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(nextState).toEqual({
         tabsState: {
-          items: [{ documentId: 1, sasUrl: "baz" }, { documentId: "bar" }],
+          items: [{ documentId: "1", sasUrl: "baz" }, { documentId: "bar" }],
         },
       });
     });
@@ -317,7 +375,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "OPEN_PDF",
           payload: {
-            pdfId: 1,
+            documentId: "1",
             tabSafeId: "t1",
             mode: "read",
             headers: { Authorization: "bar", "Correlation-Id": "bar1" },
@@ -350,7 +408,7 @@ describe("useCaseDetailsState reducer", () => {
 
       const existingDocumentsState = {
         status: "succeeded",
-        data: [{ documentId: 1 }],
+        data: [{ documentId: "1" }],
       } as CombinedState["documentsState"];
 
       const existingPipelineState = {
@@ -358,25 +416,30 @@ describe("useCaseDetailsState reducer", () => {
         haveData: true,
         data: {
           transactionId: "",
-          documents: [{ documentId: 1, pdfBlobName: "foo" }],
+          documents: [{ documentId: "1", pdfBlobName: "foo" }],
         },
       } as CombinedState["pipelineState"];
 
-      jest.spyOn(apiGateway, "resolvePdfUrl").mockImplementation((blobName) => {
-        if (blobName !== "foo") throw new Error();
-        return "baz";
-      });
+      jest
+        .spyOn(apiGateway, "resolvePdfUrl")
+        .mockImplementation((urn, caseId, documentId) => {
+          if (urn !== "bar" || caseId !== 99 || documentId !== "1")
+            throw new Error();
+          return "baz";
+        });
 
       const nextState = reducer(
         {
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
+          urn: "bar",
+          caseId: 99,
         } as CombinedState,
         {
           type: "OPEN_PDF",
           payload: {
-            pdfId: 1,
+            documentId: "1",
             tabSafeId: "t1",
             mode: "read",
             headers: {
@@ -394,7 +457,7 @@ describe("useCaseDetailsState reducer", () => {
         },
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             clientLockedState: "unlocked",
             mode: "read",
             pdfBlobName: "foo",
@@ -417,7 +480,7 @@ describe("useCaseDetailsState reducer", () => {
 
       const existingDocumentsState = {
         status: "succeeded",
-        data: [{ documentId: 1 }],
+        data: [{ documentId: "1" }],
       } as CombinedState["documentsState"];
 
       const existingPipelineState = {
@@ -433,7 +496,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "OPEN_PDF",
           payload: {
-            pdfId: 1,
+            documentId: "1",
             tabSafeId: "t1",
             mode: "read",
             headers: {
@@ -451,7 +514,7 @@ describe("useCaseDetailsState reducer", () => {
         } as HeadersInit,
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             clientLockedState: "unlocked",
             url: undefined,
 
@@ -470,7 +533,7 @@ describe("useCaseDetailsState reducer", () => {
             Authorization: "foo",
             "Correlation-Id": "foo1",
           } as HeadersInit,
-          items: [{ documentId: 1, mode: "read" }],
+          items: [{ documentId: "1", mode: "read" }],
         } as CombinedState["tabsState"];
 
         const nextState = reducer(
@@ -481,7 +544,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: 1,
+              documentId: "1",
               tabSafeId: "t1",
               mode: "read",
               headers: {
@@ -513,7 +576,7 @@ describe("useCaseDetailsState reducer", () => {
             Authorization: "foo",
             "Correlation-Id": "foo1",
           } as HeadersInit,
-          items: [{ documentId: 1, mode: "search", searchTerm: "foo" }],
+          items: [{ documentId: "1", mode: "search", searchTerm: "foo" }],
         } as CombinedState["tabsState"];
 
         const nextState = reducer(
@@ -525,7 +588,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: 1,
+              documentId: "1",
               tabSafeId: "t1",
               mode: "search",
               headers: {
@@ -559,9 +622,9 @@ describe("useCaseDetailsState reducer", () => {
             "Correlation-Id": "foo1",
           } as HeadersInit,
           items: [
-            { documentId: 0, mode: "read" },
-            { documentId: 1, mode: "read" },
-            { documentId: 2, mode: "read" },
+            { documentId: "0", mode: "read" },
+            { documentId: "1", mode: "read" },
+            { documentId: "2", mode: "read" },
           ],
         } as CombinedState["tabsState"];
 
@@ -577,7 +640,7 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               documentResults: [
                 {
-                  documentId: 1,
+                  documentId: "1",
                   occurrences: [
                     {
                       pageIndex: 0,
@@ -606,7 +669,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: 1,
+              documentId: "1",
               tabSafeId: "t1",
               mode: "search",
               headers: {
@@ -625,7 +688,7 @@ describe("useCaseDetailsState reducer", () => {
               data: {
                 documentResults: [
                   {
-                    documentId: 1,
+                    documentId: "1",
                     occurrences: [
                       {
                         pageIndex: 0,
@@ -649,9 +712,9 @@ describe("useCaseDetailsState reducer", () => {
               "Correlation-Id": "bar1",
             } as HeadersInit,
             items: [
-              { documentId: 0, mode: "read" },
+              { documentId: "0", mode: "read" },
               {
-                documentId: 1,
+                documentId: "1",
                 mode: "search",
                 clientLockedState: "unlocked",
                 tabSafeId: "t1",
@@ -686,7 +749,7 @@ describe("useCaseDetailsState reducer", () => {
                   },
                 ],
               },
-              { documentId: 2, mode: "read" },
+              { documentId: "2", mode: "read" },
             ],
           },
           pipelineState: {},
@@ -701,8 +764,8 @@ describe("useCaseDetailsState reducer", () => {
           } as HeadersInit,
           items: [
             { documentId: "d0", mode: "read" },
-            { documentId: 1, mode: "search" },
-            { documentId: 2, mode: "read" },
+            { documentId: "1", mode: "search" },
+            { documentId: "2", mode: "read" },
           ],
         } as CombinedState["tabsState"];
 
@@ -730,7 +793,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: 1,
+              documentId: "1",
               tabSafeId: "t1",
               mode: "read",
               headers: {
@@ -753,13 +816,13 @@ describe("useCaseDetailsState reducer", () => {
             items: [
               { documentId: "d0", mode: "read" },
               {
-                documentId: 1,
+                documentId: "1",
                 clientLockedState: "unlocked",
                 mode: "read",
                 tabSafeId: "t1",
                 url: undefined,
               },
-              { documentId: 2, mode: "read" },
+              { documentId: "2", mode: "read" },
             ],
           },
         });
@@ -774,7 +837,7 @@ describe("useCaseDetailsState reducer", () => {
           items: [
             { documentId: "d0", mode: "read" },
             {
-              documentId: 1,
+              documentId: "1",
               mode: "search",
               searchTerm: "foo",
               occurrencesInDocumentCount: 1,
@@ -787,7 +850,7 @@ describe("useCaseDetailsState reducer", () => {
                 },
               ],
             },
-            { documentId: 2, mode: "read" },
+            { documentId: "2", mode: "read" },
           ],
         } as CombinedState["tabsState"];
 
@@ -803,7 +866,7 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               documentResults: [
                 {
-                  documentId: 1,
+                  documentId: "1",
                   occurrences: [
                     {
                       pageIndex: 1,
@@ -843,7 +906,7 @@ describe("useCaseDetailsState reducer", () => {
           {
             type: "OPEN_PDF",
             payload: {
-              pdfId: 1,
+              documentId: "1",
               tabSafeId: "t1",
               mode: "search",
               headers: {
@@ -862,7 +925,7 @@ describe("useCaseDetailsState reducer", () => {
               data: {
                 documentResults: [
                   {
-                    documentId: 1,
+                    documentId: "1",
                     occurrences: [
                       {
                         pageIndex: 1,
@@ -899,7 +962,7 @@ describe("useCaseDetailsState reducer", () => {
             items: [
               { documentId: "d0", mode: "read" },
               {
-                documentId: 1,
+                documentId: "1",
                 mode: "search",
                 searchTerm: "bar",
                 occurrencesInDocumentCount: 4,
@@ -994,7 +1057,7 @@ describe("useCaseDetailsState reducer", () => {
                   },
                 ],
               },
-              { documentId: 2, mode: "read" },
+              { documentId: "2", mode: "read" },
             ],
           },
           pipelineState: {},
@@ -1012,12 +1075,12 @@ describe("useCaseDetailsState reducer", () => {
         } as HeadersInit,
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             url: undefined,
             tabSafeId: "t1",
           },
           {
-            documentId: 2,
+            documentId: "2",
             url: undefined,
             tabSafeId: "t2",
           },
@@ -1038,7 +1101,7 @@ describe("useCaseDetailsState reducer", () => {
         } as HeadersInit,
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             url: undefined,
             tabSafeId: "t1",
           },
@@ -1234,7 +1297,10 @@ describe("useCaseDetailsState reducer", () => {
 
     it("can update search results, update missing documents and build filter options", () => {
       const existingState = {
-        documentsState: { status: "succeeded", data: {} },
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
         pipelineState: { status: "complete", haveData: true, data: {} },
         searchState: { submittedSearchTerm: "foo", resultsOrder: "byDateDesc" },
       } as CombinedState;
@@ -1244,6 +1310,8 @@ describe("useCaseDetailsState reducer", () => {
         data: [],
       } as ApiResult<undefined | ApiTextSearchResult[]>;
 
+      const mockFilteredApiResults = [] as ApiTextSearchResult[];
+
       const mockUnsortedData = {} as MappedTextSearchResult;
       const mockData = {} as MappedTextSearchResult;
       const mockMissingDocs = {} as CombinedState["searchState"]["missingDocs"];
@@ -1251,11 +1319,24 @@ describe("useCaseDetailsState reducer", () => {
         {} as CombinedState["searchState"]["filterOptions"];
 
       jest
+        .spyOn(filterApiResults, "filterApiResults")
+        .mockImplementation((apiResults, existingDocuments) => {
+          if (
+            inputPayload.status === "succeeded" &&
+            apiResults === inputPayload.data &&
+            existingState.documentsState.status === "succeeded" &&
+            existingDocuments === existingState.documentsState.data
+          ) {
+            return mockFilteredApiResults;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
         .spyOn(textSearchMapper, "mapTextSearch")
         .mockImplementation((textSearchResult, mappedCaseDocuments) => {
           if (
-            inputPayload.status === "succeeded" &&
-            textSearchResult === inputPayload.data &&
+            textSearchResult === mockFilteredApiResults &&
             existingState.documentsState.status === "succeeded" &&
             mappedCaseDocuments === existingState.documentsState.data
           ) {
@@ -1457,11 +1538,11 @@ describe("useCaseDetailsState reducer", () => {
         .spyOn(documentVisibility, "isDocumentVisible")
         .mockImplementation(({ documentId }, filterOptions) => {
           switch (documentId) {
-            case 1:
+            case "1":
               return { isVisible: true, hasChanged: true };
-            case 2:
+            case "2":
               return { isVisible: false, hasChanged: true };
-            case 3:
+            case "3":
               return { isVisible: true, hasChanged: false };
             default:
               throw new Error("Unexpected mock function arguments");
@@ -1473,9 +1554,9 @@ describe("useCaseDetailsState reducer", () => {
           status: "succeeded",
           data: {
             documentResults: [
-              { documentId: 1, occurrencesInDocumentCount: 2 },
-              { documentId: 2, occurrencesInDocumentCount: 3 },
-              { documentId: 3, occurrencesInDocumentCount: 7 },
+              { documentId: "1", occurrencesInDocumentCount: 2 },
+              { documentId: "2", occurrencesInDocumentCount: 3 },
+              { documentId: "3", occurrencesInDocumentCount: 7 },
             ] as MappedDocumentResult[],
           },
         },
@@ -1506,16 +1587,16 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               documentResults: [
                 {
-                  documentId: 1,
+                  documentId: "1",
                   isVisible: true,
                   occurrencesInDocumentCount: 2,
                 },
                 {
-                  documentId: 2,
+                  documentId: "2",
                   isVisible: false,
                   occurrencesInDocumentCount: 3,
                 },
-                { documentId: 3, occurrencesInDocumentCount: 7 },
+                { documentId: "3", occurrencesInDocumentCount: 7 },
               ],
               filteredDocumentCount: 1,
               filteredOccurrencesCount: 2,
@@ -1544,7 +1625,7 @@ describe("useCaseDetailsState reducer", () => {
       const existingTabsState = {
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             redactionHighlights: [
               {
                 type: "redaction",
@@ -1562,7 +1643,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "ADD_REDACTION",
           payload: {
-            pdfId: 1,
+            documentId: "1",
             redaction: {
               type: "redaction",
               position: { pageNumber: 1 },
@@ -1575,7 +1656,7 @@ describe("useCaseDetailsState reducer", () => {
         tabsState: {
           items: [
             {
-              documentId: 1,
+              documentId: "1",
               redactionHighlights: [
                 {
                   type: "redaction",
@@ -1603,7 +1684,7 @@ describe("useCaseDetailsState reducer", () => {
       const existingTabsState = {
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             redactionHighlights: [
               {
                 type: "redaction",
@@ -1626,7 +1707,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "REMOVE_REDACTION",
           payload: {
-            pdfId: 1,
+            documentId: "1",
             redactionId: "1640995200000",
           },
         }
@@ -1636,7 +1717,7 @@ describe("useCaseDetailsState reducer", () => {
         tabsState: {
           items: [
             {
-              documentId: 1,
+              documentId: "1",
               redactionHighlights: [
                 {
                   type: "redaction",
@@ -1659,7 +1740,7 @@ describe("useCaseDetailsState reducer", () => {
       const existingTabsState = {
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             redactionHighlights: [
               {
                 type: "redaction",
@@ -1674,7 +1755,7 @@ describe("useCaseDetailsState reducer", () => {
             ] as IPdfHighlight[],
           },
           {
-            documentId: 2,
+            documentId: "2",
             redactionHighlights: [
               {
                 type: "redaction",
@@ -1691,7 +1772,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "REMOVE_ALL_REDACTIONS",
           payload: {
-            pdfId: 1,
+            documentId: "1",
           },
         }
       );
@@ -1700,11 +1781,11 @@ describe("useCaseDetailsState reducer", () => {
         tabsState: {
           items: [
             {
-              documentId: 1,
+              documentId: "1",
               redactionHighlights: [],
             },
             {
-              documentId: 2,
+              documentId: "2",
               redactionHighlights: [
                 {
                   type: "redaction",
@@ -1724,11 +1805,11 @@ describe("useCaseDetailsState reducer", () => {
       const existingTabsState = {
         items: [
           {
-            documentId: 1,
+            documentId: "1",
             clientLockedState: "unlocked",
           },
           {
-            documentId: 2,
+            documentId: "2",
             clientLockedState: "unlocking",
           },
         ],
@@ -1739,7 +1820,7 @@ describe("useCaseDetailsState reducer", () => {
         {
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: {
-            pdfId: 1,
+            documentId: "1",
             lockedState: "locked",
           },
         }
@@ -1748,8 +1829,8 @@ describe("useCaseDetailsState reducer", () => {
       expect(result).toEqual({
         tabsState: {
           items: [
-            { documentId: 1, clientLockedState: "locked" },
-            { documentId: 2, clientLockedState: "unlocking" },
+            { documentId: "1", clientLockedState: "locked" },
+            { documentId: "2", clientLockedState: "unlocking" },
           ],
         },
       });

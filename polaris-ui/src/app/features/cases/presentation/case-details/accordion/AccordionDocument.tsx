@@ -2,6 +2,7 @@ import {
   CommonDateTimeFormats,
   formatDate,
 } from "../../../../../common/utils/dates";
+import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 
 import classes from "./Accordion.module.scss";
@@ -10,7 +11,7 @@ type Props = {
   caseDocument: MappedCaseDocument;
   handleOpenPdf: (caseDocument: {
     tabSafeId: string;
-    documentId: number;
+    documentId: CaseDocumentViewModel["documentId"];
   }) => void;
 };
 
@@ -35,9 +36,9 @@ export const AccordionDocument: React.FC<Props> = ({
         </a>
       </td>
       <td className={`govuk-table__cell govuk-body-s ${classes.date}`}>
-        {caseDocument.createdDate &&
+        {caseDocument.cmsFileCreatedDate &&
           formatDate(
-            caseDocument.createdDate,
+            caseDocument.cmsFileCreatedDate,
             CommonDateTimeFormats.ShortDateTextMonth
           )}
       </td>

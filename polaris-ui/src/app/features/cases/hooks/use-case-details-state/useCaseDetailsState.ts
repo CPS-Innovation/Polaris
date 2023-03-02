@@ -1,10 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import {
-  getCaseDetails,
-  getCaseDocumentsList,
-  searchCase,
-} from "../../api/gateway-api";
+import { getCaseDetails, searchCase } from "../../api/gateway-api";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
@@ -38,7 +34,7 @@ export const initialState = {
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
   const caseState = useApi(getCaseDetails, [urn, caseId]);
-  const documentsState = useApi(getCaseDocumentsList, [urn, caseId]);
+
   const pipelineState = usePipelineApi(urn, caseId);
 
   const [combinedState, dispatch] = useReducerAsync(
@@ -51,11 +47,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     if (caseState.status !== "initial")
       dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
   }, [caseState, dispatch]);
-
-  useEffect(() => {
-    if (documentsState.status !== "initial")
-      dispatch({ type: "UPDATE_CASE_DOCUMENTS", payload: documentsState });
-  }, [documentsState, dispatch]);
 
   useEffect(
     () => dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState }),
@@ -100,14 +91,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
 
   const handleOpenPdf = useCallback(
     (caseDocument: {
-      tabSafeId: string;
-      documentId: number;
+      tabSafeId: CaseDocumentViewModel["tabSafeId"];
+      documentId: CaseDocumentViewModel["documentId"];
       mode: CaseDocumentViewModel["mode"];
     }) => {
       dispatch({
         type: "REQUEST_OPEN_PDF",
         payload: {
-          pdfId: caseDocument.documentId,
+          documentId: caseDocument.documentId,
           tabSafeId: caseDocument.tabSafeId,
           mode: caseDocument.mode,
         },
@@ -117,7 +108,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleClosePdf = useCallback(
-    (caseDocument: { tabSafeId: string }) => {
+    (caseDocument: { tabSafeId: CaseDocumentViewModel["tabSafeId"] }) => {
       dispatch({
         type: "CLOSE_PDF",
         payload: {
@@ -175,41 +166,47 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleAddRedaction = useCallback(
-    (pdfId: number, redaction: NewPdfHighlight) =>
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      redaction: NewPdfHighlight
+    ) =>
       dispatch({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { pdfId, redaction },
+        payload: { documentId, redaction },
       }),
     [dispatch]
   );
 
   const handleRemoveRedaction = useCallback(
-    (pdfId: number, redactionId: string) =>
+    (documentId: CaseDocumentViewModel["documentId"], redactionId: string) =>
       dispatch({
         type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
-        payload: { pdfId, redactionId },
+        payload: { documentId, redactionId },
       }),
     [dispatch]
   );
 
   const handleRemoveAllRedactions = useCallback(
-    (pdfId: number) =>
+    (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
-        payload: { pdfId },
+        payload: { documentId },
       }),
     [dispatch]
   );
 
   const handleSavedRedactions = useCallback(
-    (pdfId: number) =>
-      dispatch({ type: "SAVE_REDACTIONS", payload: { pdfId } }),
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({ type: "SAVE_REDACTIONS", payload: { documentId } }),
     [dispatch]
   );
 
   const handleOpenPdfInNewTab = useCallback(
-    (pdfId: number) =>
-      dispatch({ type: "REQUEST_OPEN_PDF_IN_NEW_TAB", payload: { pdfId } }),
+    (documentId: CaseDocumentViewModel["documentId"]) =>
+      dispatch({
+        type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
+        payload: { documentId },
+      }),
     [dispatch]
   );
   return {

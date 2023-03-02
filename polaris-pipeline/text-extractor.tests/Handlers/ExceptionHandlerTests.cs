@@ -7,7 +7,6 @@ using Common.Exceptions.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using text_extractor.Domain.Exceptions;
 using text_extractor.Handlers;
 using Xunit;
 

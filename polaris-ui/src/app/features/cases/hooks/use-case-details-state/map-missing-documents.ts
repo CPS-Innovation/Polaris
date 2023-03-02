@@ -1,9 +1,9 @@
-import { CaseDocument } from "../../domain/CaseDocument";
+import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
 import { PipelineResults } from "../../domain/PipelineResults";
 
 export const mapMissingDocuments = (
   pipelineResults: PipelineResults,
-  caseDocuments: CaseDocument[]
+  caseDocuments: PresentationDocumentProperties[]
 ) => {
   const missingDocumentIds = pipelineResults.documents
     .filter((doc) => doc.status !== "Indexed")
@@ -13,7 +13,7 @@ export const mapMissingDocuments = (
     const fileName =
       caseDocuments.find(
         (caseDocument) => caseDocument.documentId === documentId
-      )?.fileName || "";
+      )?.cmsOriginalFileName || "";
 
     return { documentId, fileName };
   });

@@ -33,7 +33,10 @@ export type CombinedState = {
       docType: { [key: string]: FilterOption };
       category: { [key: string]: FilterOption };
     };
-    missingDocs: { documentId: number; fileName: string }[];
+    missingDocs: {
+      documentId: CaseDocumentViewModel["documentId"];
+      fileName: string;
+    }[];
     results: AsyncResult<MappedTextSearchResult>;
   };
 };

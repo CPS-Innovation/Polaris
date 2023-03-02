@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
@@ -9,7 +10,7 @@ type Props = {
   accordionState: AccordionDocumentSection[];
   handleOpenPdf: (caseDocument: {
     tabSafeId: string;
-    documentId: number;
+    documentId: CaseDocumentViewModel["documentId"];
   }) => void;
 };
 
