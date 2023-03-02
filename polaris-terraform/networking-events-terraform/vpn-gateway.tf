@@ -31,10 +31,6 @@ resource "azurerm_virtual_network_gateway" "polaris_vpn_gateway" {
     aad_issuer    = "https://sts.windows.net/${data.azurerm_subscription.current.tenant_id}/"
     aad_tenant    = "https://login.microsoftonline.com/${data.azurerm_subscription.current.tenant_id}"
     address_space = [var.vnet_address_space]
-    root_certificate {
-      name             = var.gateway_certificate_details.root_name
-      public_cert_data = var.gateway_certificate_details.public_cert_data
-    }
   }
   depends_on = [
     azurerm_public_ip.polaris_vpn_gateway_pip
