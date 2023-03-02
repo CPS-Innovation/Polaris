@@ -41,7 +41,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               caseDocumentViewModel={item}
-              redactStatus={getRedactStatus("1", pipelineState)}
+              redactStatus={getRedactStatus(item.documentId, pipelineState)}
               headers={headers}
               handleLaunchSearchResults={handleLaunchSearchResults}
               handleAddRedaction={handleAddRedaction}

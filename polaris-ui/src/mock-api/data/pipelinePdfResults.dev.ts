@@ -14,7 +14,7 @@ const pipelinePdfResults: PipelineResults = {
       cmsDocumentId: "1",
       pdfBlobName: "MCLOVEMG3",
       status: "Indexed",
-      cmsOriginalFileName: "MCLOVEMG33333  very long .docx",
+      cmsOriginalFileName: "MCLOVEMG3 very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
@@ -43,7 +43,7 @@ const pipelinePdfResults: PipelineResults = {
         name: "MG11 File",
       },
       presentationStatuses: {
-        viewStatus: "OnlyAvailableInCms", //| "OnlyAvailableInCms" | "FailedConversion"
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
         redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
@@ -82,7 +82,7 @@ const pipelinePdfResults: PipelineResults = {
       },
       presentationStatuses: {
         viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
-        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+        redactStatus: "OriginalFileTypeNotAllowed", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {

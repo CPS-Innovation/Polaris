@@ -23,6 +23,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG11",
         name: "MG11 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "2",
@@ -37,6 +41,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 2,
         code: "MG12",
         name: "MG12 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -53,6 +61,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG13",
         name: "MG13 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "4",
@@ -68,6 +80,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG14",
         name: "MG14 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "5",
@@ -82,6 +98,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 5,
         code: "MG15",
         name: "MG15 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
   ],
@@ -105,6 +125,10 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "2",
@@ -119,6 +143,10 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         id: 11,
         code: "MG11",
         name: "MG11 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -135,6 +163,10 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         code: "MG5",
         name: "MG5 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "4",
@@ -150,6 +182,10 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "5",
@@ -164,6 +200,10 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         id: 3,
         code: "MG3",
         name: "MG3 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
   ],
@@ -187,6 +227,10 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "2",
@@ -201,6 +245,10 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         id: 11,
         code: "MG11",
         name: "MG11 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -232,6 +280,10 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+      },
     },
     {
       documentId: "5",
@@ -246,6 +298,10 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         id: 3,
         code: "MG3",
         name: "MG3 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
   ],
