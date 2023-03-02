@@ -24,7 +24,7 @@ namespace coordinator.Domain.Tracker
 
         [JsonProperty("cmsDocumentId")]
         public string CmsDocumentId { get; set; }
-        
+
         [JsonProperty("cmsVersionId")]
         public long CmsVersionId { get; set; }
 
@@ -34,7 +34,7 @@ namespace coordinator.Domain.Tracker
         [JsonProperty("cmsMimeType")]
         public string CmsMimeType { get; set; }
 
-        [JsonProperty("cmsOriginalFileName")] 
+        [JsonProperty("cmsOriginalFileName")]
         public string CmsOriginalFileName { get; set; }
 
         [JsonProperty("cmsFileCreatedDate")]
@@ -42,6 +42,9 @@ namespace coordinator.Domain.Tracker
 
         [JsonProperty("pdfBlobName")]
         public string PdfBlobName { get; set; }
+
+        [JsonProperty("isPdfAvailable")]
+        public bool IsPdfAvailable { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]

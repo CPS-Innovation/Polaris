@@ -5,7 +5,10 @@ import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 type SortFn = (a: MappedDocumentResult, b: MappedDocumentResult) => 1 | 0 | -1;
 
 const SortByPropertyDesc = (
-  property: keyof MappedDocumentResult,
+  property: Extract<
+    keyof MappedDocumentResult,
+    "documentId" | "cmsFileCreatedDate" | "occurrencesInDocumentCount"
+  >,
   a: MappedDocumentResult,
   b: MappedDocumentResult
 ) => {

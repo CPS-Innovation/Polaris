@@ -8,8 +8,8 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Clients;
@@ -22,6 +22,10 @@ using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Microsoft.IdentityModel.Logging;
 using Common.Health;
+using PolarisGateway.Factories.Contracts;
+using Common.Services.SasGeneratorService;
+using Common.Domain.Extensions;
+using Common.Constants;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -43,20 +47,11 @@ namespace PolarisGateway
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddOptions<SearchClientOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("searchClient").Bind(settings);
-            });
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
             builder.Services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            builder.Services.AddTransient<ISearchIndexClient, SearchIndexClient>();
-            builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
-            builder.Services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
-            builder.Services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
-            builder.Services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
             builder.Services.AddTransient<ICmsAuthValuesFactory, CmsAuthValuesFactory>();
 
             builder.Services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
@@ -72,14 +67,14 @@ namespace PolarisGateway
             });
 
             // TODO - remove these services as moving to pipeline
-            {
-                BuildBlobServiceClient(builder, configuration);
-                builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
-            }
+            BuildBlobServiceClient(builder, configuration);
+            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
 
-            builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
+            /* Moved to pipeline
+             * builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
             builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
-            builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>();
+            builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>(); */
+
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
@@ -111,29 +106,45 @@ namespace PolarisGateway
         {
             builder.Services.AddHttpClient();
 
-            builder.Services.AddHttpClient(nameof(coordinator), client =>
+            var pipelineCoordinator = "pipelineCoordinator";
+            builder.Services.AddHttpClient(pipelineCoordinator, client =>
             {
-                client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
+                string url = Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
             });
 
+            var pdfFunctions = "pdfFunctions";
+            builder.Services.AddHttpClient(pdfFunctions, client =>
+            {
+                string url = Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
+            });
+
+            var ddeiClient = "ddeiClient";
+
             builder.Services.AddHealthChecks()
-                // TODO - make async?
-                .AddCheck<AzureFunctionHealthCheck>(nameof(coordinator));
+                .AddCheck<DdeiClientHealthCheck>(ddeiClient)
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator })
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions }); 
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
         {
-            builder.Services.AddAzureClients(azureBuilder =>
+            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                azureBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
-                    .WithCredential(new DefaultAzureCredential());
+                string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
+                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
             });
 
             builder.Services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
             {
                 var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
                 BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                string blobServiceContainerName = GetValueFromConfig(configuration, ConfigurationKeys.BlobContainerName);
+                string blobServiceContainerName = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.BlobServiceContainerName);
                 return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
             }));
         }

@@ -1,9 +1,13 @@
 ﻿using Azure.Identity;
+using Azure.Search.Documents;
 using Azure.Storage.Blobs;
+using Common.Clients;
 using Common.Configuration;
 using Common.Constants;
-using Common.Services.BlobStorageService.Contracts;
-using coordinator.Clients;
+using Common.Factories;
+using Common.Factories.Contracts;
+using Common.Mappers;
+using Common.Mappers.Contracts;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,28 +22,15 @@ namespace Common.Services.Extensions
         {
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
-#if DEBUG 
-                if (configuration.IsSettingEnabled(DebugSettings.UseAzureStorageEmulatorFlag))
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
-                        .WithCredential(new DefaultAzureCredential());
-                }
-                else
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                        .WithCredential(new DefaultAzureCredential());
-                }
-#else
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
+                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
                     .WithCredential(new DefaultAzureCredential());
-#endif
             });
 
             services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
             {
                 var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
                 BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobContainerName);
+                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
                 return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
             }));
 
@@ -51,6 +42,20 @@ namespace Common.Services.Extensions
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
 
             }); */
+        }
+
+        public static void AddSearchClient(this IServiceCollection services, IConfigurationRoot configuration)
+        {
+            services.AddOptions<SearchClientOptions>().Configure<IConfiguration>((settings, _) =>
+            {
+                configuration.GetSection("searchClient").Bind(settings);
+            });
+
+            services.AddTransient<ISearchIndexClient, SearchIndexClient>();
+            services.AddTransient<ISearchClientFactory, SearchClientFactory>();
+            services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
+            services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
+            services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
         }
     }
 }

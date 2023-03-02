@@ -101,11 +101,33 @@ export const setupHandlers = ({
     }),
 
     rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
-      const { blobName } = req.params;
+      const { documentId } = req.params;
 
-      const fileBase64 = (pdfStrings as { [key: string]: string })[blobName];
+      const blobName = pipelinePdfResultsDataSources[
+        sourceName
+      ]().documents.find(
+        (document) => document.documentId === documentId
+      )?.pdfBlobName;
+
+      const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];
 
       return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
+    }),
+
+    rest.get(makeApiPath(routes.GET_SAS_URL_ROUTE), (req, res, ctx) => {
+      const { documentId } = req.params;
+
+      const blobName = pipelinePdfResultsDataSources[
+        sourceName
+      ]().documents.find(
+        (document) => document.documentId === documentId
+      )?.pdfBlobName;
+
+      return res(
+        ctx.text(
+          makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName!)
+        )
+      );
     }),
 
     rest.get(makeApiPath(routes.TEXT_SEARCH_ROUTE), (req, res, ctx) => {
@@ -121,15 +143,6 @@ export const setupHandlers = ({
 
     rest.put(makeApiPath(routes.DOCUMENT_CHECKIN_ROUTE), (req, res, ctx) => {
       return res(ctx.json({ successful: true, documentStatus: "CheckedOut" }));
-    }),
-
-    rest.get(makeApiPath(routes.GET_SAS_URL_ROUTE), (req, res, ctx) => {
-      const { blobName } = req.params;
-      return res(
-        ctx.text(
-          makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName)
-        )
-      );
     }),
   ];
 };

@@ -38,3 +38,7 @@ variable "polaris_webapp_details" {
     valid_roles    = string
   })
 }
+
+variable "dns_server" {
+  type = string
+}

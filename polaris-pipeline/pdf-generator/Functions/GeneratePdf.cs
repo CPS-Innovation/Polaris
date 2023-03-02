@@ -32,7 +32,7 @@ namespace pdf_generator.Functions
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<GeneratePdf> _log;
-        
+
         public GeneratePdf(
              IJsonConvertWrapper jsonConvertWrapper, 
              IValidatorWrapper<GeneratePdfRequest> validatorWrapper,
@@ -70,10 +70,10 @@ namespace pdf_generator.Functions
 
                 request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
                 if (cmsAuthValuesValues == null)
-                    throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(request));
+                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
                 var cmsAuthValues = cmsAuthValuesValues.First();
                 if (string.IsNullOrWhiteSpace(cmsAuthValues))
-                    throw new BadRequestException("Invalid upstream token. A valid DDEI token must be received for this request.", nameof(request));
+                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
 
                 _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 

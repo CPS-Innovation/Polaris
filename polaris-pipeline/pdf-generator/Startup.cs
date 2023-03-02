@@ -10,6 +10,7 @@ using Common.Domain.Responses;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
+using Common.Health;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.BlobStorageService;
@@ -80,21 +81,7 @@ namespace pdf_generator
 
             builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-#if DEBUG 
-                if(configuration.IsSettingEnabled(DebugSettings.UseAzureStorageEmulatorFlag))
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString])
-                        .WithCredential(new DefaultAzureCredential());
-                }
-                else
-                {
-                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                        .WithCredential(new DefaultAzureCredential());
-                }
-#else
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                    .WithCredential(new DefaultAzureCredential());
-#endif
+                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
             });
             builder.Services.AddTransient<IBlobStorageService>(serviceProvider =>
             {
@@ -128,7 +115,10 @@ namespace pdf_generator
         /// <param name="builder"></param>
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddHealthChecks();
+            builder.Services.AddHealthChecks()
+                 .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
+                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
+                 .AddCheck<DdeiDocumentExtractionServiceHealthCheck>("DDEI Document Extraction Service");
         }
     }
 }

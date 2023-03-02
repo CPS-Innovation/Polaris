@@ -1,5 +1,4 @@
 import { useCaseDetailsState, initialState } from "./useCaseDetailsState";
-import * as searchCaseWhenReady from "./search-case-when-ready";
 import * as api from "../../api/gateway-api";
 import * as pipelineApi from "../use-pipeline-api/usePipelineApi";
 
@@ -30,15 +29,6 @@ describe("useCaseDetailsState", () => {
           )
       );
 
-    const mockSearchCaseWhenAllReady = jest
-      .spyOn(searchCaseWhenReady, "searchCaseWhenReady")
-      .mockImplementation(
-        () =>
-          new Promise((resolve) =>
-            setTimeout(() => resolve([] as ApiTextSearchResult[]), 100)
-          )
-      );
-
     const mockSearchCase = jest
       .spyOn(api, "searchCase")
       .mockImplementation(
@@ -48,23 +38,15 @@ describe("useCaseDetailsState", () => {
           )
       );
 
-    jest.spyOn(useApi, "useApi").mockImplementation((del, p0, p1, p2, p3) => {
+    jest.spyOn(useApi, "useApi").mockImplementation((del, params) => {
       if (isSameRef(del, mockGetCaseDetails)) {
         return { status: "succeeded", data: "getCaseDetails" };
       }
-      // if (isSameRef(del, mockgetCaseDocumentsList)) {
-      //   return { status: "succeeded", data: "getCaseDocumentsList" };
-      // }
+
       if (isSameRef(del, mockSearchCase)) {
         return {
           status: "succeeded",
           data: "searchCase",
-        };
-      }
-      if (isSameRef(del, mockSearchCaseWhenAllReady)) {
-        return {
-          status: "succeeded",
-          data: "searchCaseWhenAllReady",
         };
       }
       throw new Error("Should not be here");
@@ -123,10 +105,40 @@ describe("useCaseDetailsState", () => {
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "UPDATE_SEARCH_RESULTS",
-        payload: {
-          status: "succeeded",
-          data: "searchCaseWhenAllReady",
-        },
+        payload: { status: "succeeded", data: "searchCase" },
+      });
+    });
+    it("should dispatch reducer actions, if the useApi hook return with status 'loading'", () => {
+      jest.spyOn(useApi, "useApi").mockImplementation(() => {
+        return { status: "loading" };
+      });
+      renderHook(() => useCaseDetailsState("bar", 1));
+
+      expect(reducerSpy).toBeCalledWith(expect.anything(), {
+        type: "UPDATE_CASE_DETAILS",
+        payload: { status: "loading" },
+      });
+
+      expect(reducerSpy).toBeCalledWith(expect.anything(), {
+        type: "UPDATE_SEARCH_RESULTS",
+        payload: { status: "loading" },
+      });
+    });
+
+    it("should not dispatch reducer actions, if the useApi hook return with status 'initial'", () => {
+      jest.spyOn(useApi, "useApi").mockImplementation(() => {
+        return { status: "initial" };
+      });
+      renderHook(() => useCaseDetailsState("bar", 1));
+
+      expect(reducerSpy).not.toBeCalledWith(expect.anything(), {
+        type: "UPDATE_CASE_DETAILS",
+        payload: { status: "initial" },
+      });
+
+      expect(reducerSpy).not.toBeCalledWith(expect.anything(), {
+        type: "UPDATE_SEARCH_RESULTS",
+        payload: { status: "initial" },
       });
     });
   });

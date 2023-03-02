@@ -4,6 +4,7 @@ import { CmsDocType } from "./CmsDocType";
 export type PipelineDocumentProperties = {
   documentId: string;
   pdfBlobName: string;
+  isPdfAvailable?: boolean;
   status:
     | "None"
     | "PdfUploadedToBlob"
@@ -25,7 +26,7 @@ export type PresentationStatuses = {
 
 export type PresentationDocumentProperties = {
   documentId: string;
-  CmsDocumentId?: string;
+  cmsDocumentId: string;
   cmsOriginalFileName: string;
   cmsMimeType: string;
   cmsFileCreatedDate: string;

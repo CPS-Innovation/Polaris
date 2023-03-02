@@ -30,8 +30,12 @@ const buildHeaders = async (
   return headers;
 };
 
-export const resolvePdfUrl = (blobNameUrlFragment: string) =>
-  buildUnencodedUrl(`/api/pdfs/${blobNameUrlFragment}`);
+export const resolvePdfUrl = (
+  urn: string,
+  caseId: number,
+  documentId: string
+) =>
+  buildUnencodedUrl(`api/urns/${urn}/cases/${caseId}/documents/${documentId}`);
 
 export const searchUrn = async (urn: string) => {
   const url = buildEncodedUrl({ urn }, ({ urn }) => `/api/urns/${urn}/cases`);
@@ -69,8 +73,14 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   return (await response.json()) as CaseDetails;
 };
 
-export const getPdfSasUrl = async (pdfBlobName: string) => {
-  const url = buildUnencodedUrl(`/api/pdf/sasUrl/${pdfBlobName}`);
+export const getPdfSasUrl = async (
+  urn: string,
+  caseId: number,
+  documentId: string
+) => {
+  const url = buildUnencodedUrl(
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/sasUrl`
+  );
   const response = await internalFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
@@ -116,7 +126,14 @@ export const getPipelinePdfResults = async (
     headers,
   });
 
-  return (await response.json()) as PipelineResults;
+  // hack
+  var rawResponse = await response.json();
+  rawResponse.documents = rawResponse.documents.map((item: any) => ({
+    ...item,
+    documentId: item.polarisDocumentId,
+  }));
+
+  return rawResponse as PipelineResults;
 };
 
 export const searchCase = async (
@@ -127,7 +144,7 @@ export const searchCase = async (
   const path = buildEncodedUrl(
     { caseId, searchTerm, urn },
     ({ caseId, searchTerm, urn }) =>
-      `/api/urns/${urn}/cases/${caseId}/query/${searchTerm}`
+      `/api/urns/${urn}/cases/${caseId}/documents/search/?query=${searchTerm}`
   );
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
@@ -137,7 +154,19 @@ export const searchCase = async (
     throw new ApiError("Search Case Text failed", path, response);
   }
 
-  return (await response.json()) as ApiTextSearchResult[];
+  // hack
+  var rawResponse = await response.json();
+  rawResponse = rawResponse.map((item: any) => {
+    // var documentId = atob(item.id).split("-").slice(0, -2).join("-");
+    var documentId = item.polarisDocumentId;
+    console.log(documentId);
+    return {
+      ...item,
+      documentId,
+    };
+  });
+
+  return rawResponse as ApiTextSearchResult[];
 };
 
 export const checkoutDocument = async (

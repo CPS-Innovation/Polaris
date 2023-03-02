@@ -5,13 +5,13 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Factories;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using System.Net;
+using PolarisGateway.Factories.Contracts;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {

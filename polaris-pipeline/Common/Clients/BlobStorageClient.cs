@@ -7,7 +7,7 @@ using Azure.Storage.Blobs;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Clients
+namespace Common.Clients
 {
 	public class BlobStorageClient : IBlobStorageClient
 	{

@@ -2,10 +2,9 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
+using Common.Clients;
 using Common.Constants;
 using Common.Logging;
-using coordinator.Clients;
 using coordinator.Domain.Tracker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -54,7 +53,7 @@ namespace coordinator.Functions.ClientFunctions
             log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
 
             var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<Domain.Tracker.Tracker>(entityId);
+            var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
             if (!stateResponse.EntityExists)
             {
                 var baseMessage = $"No pipeline tracker found with id '{caseId}'";

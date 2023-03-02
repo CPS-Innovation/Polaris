@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Domain.DocumentEvaluation;
-using Common.Logging;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -32,16 +26,16 @@ namespace coordinator.Domain.Tracker
 
         [JsonProperty("logs")]
         public List<Log> Logs { get; set; }
-        
+
         [JsonProperty("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
 
         public Task Initialise(string transactionId)
         {
             TransactionId = transactionId;
-            
+
             Documents = new List<TrackerDocument>();
-            
+
             Status = TrackerStatus.Running;
             Logs = new List<Log>();
             ProcessingCompleted = null; //reset the processing date
@@ -64,27 +58,30 @@ namespace coordinator.Domain.Tracker
             else
             {
                 //remove any documents that are no longer present in the list retrieved from CMS from the tracker so they are no reprocessed
-                foreach (var trackedDocument in 
-                         Documents.Where(trackedDocument => 
+                foreach (var trackedDocument in
+                         Documents.Where(trackedDocument =>
                              !arg.IncomingDocuments.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
                 {
                     evaluationResults.DocumentsToRemove.Add(new DocumentToRemove(trackedDocument.CmsDocumentId, trackedDocument.CmsVersionId));
                 }
-                
+
                 //now remove any invalid documents from the tracker so they are not reprocessed
-                foreach (var item in 
-                         evaluationResults.DocumentsToRemove.Select(invalidDocument => 
+                foreach (var item in
+                         evaluationResults.DocumentsToRemove.Select(invalidDocument =>
                              Documents.Find(x => x.CmsDocumentId == invalidDocument.DocumentId && x.CmsVersionId == invalidDocument.VersionId)))
                 {
                     Documents.Remove(item);
                 }
-                
+
                 //now evaluate all incoming documents against the existing tracker record that are not already identified for removal and make sure
                 //that anything new is added to the tracker
-                foreach (var cmsDocument in from cmsDocument in 
-                             arg.IncomingDocuments where !evaluationResults.DocumentsToRemove
-                             .Exists(x => x.DocumentId == cmsDocument.DocumentId && x.VersionId == cmsDocument.VersionId) 
-                         let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId) where item == null select cmsDocument)
+                foreach (var cmsDocument in from cmsDocument in
+                             arg.IncomingDocuments
+                                            where !evaluationResults.DocumentsToRemove
+                             .Exists(x => x.DocumentId == cmsDocument.DocumentId && x.VersionId == cmsDocument.VersionId)
+                                            let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId)
+                                            where item == null
+                                            select cmsDocument)
                 {
                     TrackerDocument trackerDocument = CreateTrackerDocument(cmsDocument);
                     Documents.Add(trackerDocument);
@@ -105,7 +102,7 @@ namespace coordinator.Domain.Tracker
 
             return Task.CompletedTask;
         }
-        
+
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
@@ -113,13 +110,14 @@ namespace coordinator.Domain.Tracker
             {
                 document.PdfBlobName = arg.BlobName;
                 document.Status = DocumentStatus.PdfUploadedToBlob;
+                document.IsPdfAvailable = true;
             }
 
             Log(LogType.RegisteredPdfBlobName, arg.DocumentId);
 
             return Task.CompletedTask;
         }
-        
+
         public Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg)
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
@@ -139,7 +137,7 @@ namespace coordinator.Domain.Tracker
             var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.NotFoundInDDEI;
-            
+
             Log(LogType.DocumentNotFoundInDDEI, documentId);
 
             return Task.CompletedTask;
@@ -224,7 +222,7 @@ namespace coordinator.Domain.Tracker
         public Task<bool> AllDocumentsFailed()
         {
             return Task.FromResult(
-                Documents.All(d => d.Status is DocumentStatus.NotFoundInDDEI 
+                Documents.All(d => d.Status is DocumentStatus.NotFoundInDDEI
                     or DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
         }
 
@@ -237,12 +235,12 @@ namespace coordinator.Domain.Tracker
         {
             if (Status is TrackerStatus.Running)
                 return Task.FromResult(false);
-            
+
             if (forceRefresh || Status is TrackerStatus.Failed)
                 return Task.FromResult(true);
 
-            return ProcessingCompleted.HasValue 
-                ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date) 
+            return ProcessingCompleted.HasValue
+                ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date)
                 : Task.FromResult(false);
         }
 

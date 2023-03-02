@@ -18,11 +18,15 @@ import { mapSearchHighlights } from "./map-search-highlights";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
+import { filterApiResults } from "./filter-api-results";
 
 export const reducer = (
   state: CombinedState,
   action:
-    | { type: "UPDATE_CASE_DETAILS"; payload: ApiResult<CaseDetails> }
+    | {
+        type: "UPDATE_CASE_DETAILS";
+        payload: ApiResult<CaseDetails>;
+      }
     | {
         type: "UPDATE_PIPELINE";
         payload: AsyncPipelineResult<PipelineResults>;
@@ -175,7 +179,11 @@ export const reducer = (
         );
 
         if (matchingFreshPdfRecord) {
-          const url = resolvePdfUrl(matchingFreshPdfRecord.pdfBlobName);
+          const url = resolvePdfUrl(
+            state.urn,
+            state.caseId,
+            matchingFreshPdfRecord.documentId
+          );
           return [
             ...prev,
             { ...curr, url, pdfBlobName: matchingFreshPdfRecord.pdfBlobName },
@@ -256,13 +264,17 @@ export const reducer = (
         (item) => item.documentId === documentId
       )!;
 
-      const blobName = state.pipelineState.haveData
+      const pipelineDocument = state.pipelineState.haveData
         ? state.pipelineState.data.documents.find(
             (item) => item.documentId === documentId
-          )?.pdfBlobName
+          )
         : undefined;
 
-      const url = blobName && resolvePdfUrl(blobName);
+      const blobName = pipelineDocument?.pdfBlobName;
+
+      const url =
+        blobName &&
+        resolvePdfUrl(state.urn, state.caseId, pipelineDocument.documentId);
 
       let item: CaseDocumentViewModel;
 
@@ -426,8 +438,17 @@ export const reducer = (
         state.searchState.submittedSearchTerm &&
         action.payload.data
       ) {
-        const unsortedData = mapTextSearch(
+        const knownDocumentIds = state.documentsState.data.map(
+          (item) => item.documentId
+        );
+
+        const filteredSearchResults = filterApiResults(
           action.payload.data,
+          state.documentsState.data
+        );
+
+        const unsortedData = mapTextSearch(
+          filteredSearchResults,
           state.documentsState.data
         );
 
@@ -628,3 +649,9 @@ export const reducer = (
       throw new Error("Unknown action passed to case details reducer");
   }
 };
+function apiResults(
+  data: ApiTextSearchResult[],
+  data1: import("../../domain/MappedCaseDocument").MappedCaseDocument[]
+) {
+  throw new Error("Function not implemented.");
+}

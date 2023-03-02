@@ -19,6 +19,7 @@ import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
 import { PipelineDocument } from "../../domain/PipelineDocument";
+import * as filterApiResults from "./filter-api-results";
 
 const ERROR = new Error();
 
@@ -303,15 +304,20 @@ describe("useCaseDetailsState reducer", () => {
         ],
       } as CombinedState["tabsState"];
 
-      jest.spyOn(apiGateway, "resolvePdfUrl").mockImplementation((blobName) => {
-        if (blobName !== "foo") throw new Error();
-        return "baz";
-      });
+      jest
+        .spyOn(apiGateway, "resolvePdfUrl")
+        .mockImplementation((urn, caseId, documentId) => {
+          if (urn !== "bar" || caseId !== 99 || documentId !== "2")
+            throw new Error();
+          return "baz";
+        });
 
       const nextState = reducer(
         {
           tabsState: existingTabsState,
           documentsState: { status: "succeeded" },
+          urn: "bar",
+          caseId: 99,
         } as CombinedState,
         {
           type: "UPDATE_PIPELINE",
@@ -414,16 +420,21 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as CombinedState["pipelineState"];
 
-      jest.spyOn(apiGateway, "resolvePdfUrl").mockImplementation((blobName) => {
-        if (blobName !== "foo") throw new Error();
-        return "baz";
-      });
+      jest
+        .spyOn(apiGateway, "resolvePdfUrl")
+        .mockImplementation((urn, caseId, documentId) => {
+          if (urn !== "bar" || caseId !== 99 || documentId !== "1")
+            throw new Error();
+          return "baz";
+        });
 
       const nextState = reducer(
         {
           documentsState: existingDocumentsState,
           pipelineState: existingPipelineState,
           tabsState: existingTabsState,
+          urn: "bar",
+          caseId: 99,
         } as CombinedState,
         {
           type: "OPEN_PDF",
@@ -1286,7 +1297,10 @@ describe("useCaseDetailsState reducer", () => {
 
     it("can update search results, update missing documents and build filter options", () => {
       const existingState = {
-        documentsState: { status: "succeeded", data: {} },
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
         pipelineState: { status: "complete", haveData: true, data: {} },
         searchState: { submittedSearchTerm: "foo", resultsOrder: "byDateDesc" },
       } as CombinedState;
@@ -1296,6 +1310,8 @@ describe("useCaseDetailsState reducer", () => {
         data: [],
       } as ApiResult<undefined | ApiTextSearchResult[]>;
 
+      const mockFilteredApiResults = [] as ApiTextSearchResult[];
+
       const mockUnsortedData = {} as MappedTextSearchResult;
       const mockData = {} as MappedTextSearchResult;
       const mockMissingDocs = {} as CombinedState["searchState"]["missingDocs"];
@@ -1303,11 +1319,24 @@ describe("useCaseDetailsState reducer", () => {
         {} as CombinedState["searchState"]["filterOptions"];
 
       jest
+        .spyOn(filterApiResults, "filterApiResults")
+        .mockImplementation((apiResults, existingDocuments) => {
+          if (
+            inputPayload.status === "succeeded" &&
+            apiResults === inputPayload.data &&
+            existingState.documentsState.status === "succeeded" &&
+            existingDocuments === existingState.documentsState.data
+          ) {
+            return mockFilteredApiResults;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
         .spyOn(textSearchMapper, "mapTextSearch")
         .mockImplementation((textSearchResult, mappedCaseDocuments) => {
           if (
-            inputPayload.status === "succeeded" &&
-            textSearchResult === inputPayload.data &&
+            textSearchResult === mockFilteredApiResults &&
             existingState.documentsState.status === "succeeded" &&
             mappedCaseDocuments === existingState.documentsState.data
           ) {

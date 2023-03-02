@@ -10,9 +10,9 @@ public class SearchIndexingBufferedSenderFactory: ISearchIndexingBufferedSenderF
     {
 		return new SearchIndexingBufferedSender<SearchLine>(searchClient,
 			new SearchIndexingBufferedSenderOptions<SearchLine>
-				{
-					KeyFieldAccessor = searchLine => searchLine.Id
-				});
+			{
+				KeyFieldAccessor = searchLine => searchLine.Id
+			}); 
 	}
 }
 

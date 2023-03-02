@@ -7,7 +7,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
 
-namespace Common.tests.Mappers;
+namespace Common.Tests.Mappers;
 
 public class DdeiCaseDocumentMapperTests
 {

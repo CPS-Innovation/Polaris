@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-pipeline", "polaris-pipeline", "{85EF15B6-1D88-496E-933A-0AE602FD336A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-gateway", "polaris-gateway", "{3F04D8CF-B0FB-4776-913A-969ED4CB3F24}"
+	ProjectSection(SolutionItems) = preProject
+		polaris-gateway\polaris-gateway.common\Extensions\ValidationExtensions.cs = polaris-gateway\polaris-gateway.common\Extensions\ValidationExtensions.cs
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "polaris-pipeline\Common\Common.csproj", "{07C594AE-6ADA-47B6-A354-10DD309CF658}"
 EndProject
@@ -29,7 +32,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway.tests", "po
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0CB26D53-D834-4ADC-B307-F7F7EE1FC2F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-auth-handover", "polaris-gateway\polaris-auth-handover\polaris-auth-handover.csproj", "{0A703AF7-C5B4-48CB-98A6-6507B435D2F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-auth-handover", "polaris-gateway\polaris-auth-handover\polaris-auth-handover.csproj", "{1FA73566-023F-43E9-9903-97E1DD62AC58}"
+	ProjectSection(ProjectDependencies) = postProject
+		{07C594AE-6ADA-47B6-A354-10DD309CF658} = {07C594AE-6ADA-47B6-A354-10DD309CF658}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway.common", "polaris-gateway\polaris-gateway.common\polaris-gateway.common.csproj", "{B1DB5ED8-D60E-467C-BC74-C7077DC834B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,10 +85,14 @@ Global
 		{458C1D9C-6753-4EB8-AFB3-93598E925979}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{458C1D9C-6753-4EB8-AFB3-93598E925979}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{458C1D9C-6753-4EB8-AFB3-93598E925979}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A703AF7-C5B4-48CB-98A6-6507B435D2F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A703AF7-C5B4-48CB-98A6-6507B435D2F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A703AF7-C5B4-48CB-98A6-6507B435D2F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A703AF7-C5B4-48CB-98A6-6507B435D2F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FA73566-023F-43E9-9903-97E1DD62AC58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FA73566-023F-43E9-9903-97E1DD62AC58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FA73566-023F-43E9-9903-97E1DD62AC58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FA73566-023F-43E9-9903-97E1DD62AC58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1DB5ED8-D60E-467C-BC74-C7077DC834B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1DB5ED8-D60E-467C-BC74-C7077DC834B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1DB5ED8-D60E-467C-BC74-C7077DC834B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1DB5ED8-D60E-467C-BC74-C7077DC834B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +108,8 @@ Global
 		{32BF16E3-3BAF-406B-88F9-141471FF763B} = {85EF15B6-1D88-496E-933A-0AE602FD336A}
 		{5E2A4D67-2BC2-4653-9BB7-A354E0343706} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
 		{458C1D9C-6753-4EB8-AFB3-93598E925979} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
+		{1FA73566-023F-43E9-9903-97E1DD62AC58} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
+		{B1DB5ED8-D60E-467C-BC74-C7077DC834B0} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CCE1AB69-A62F-420B-88D0-216C65C26EAD}

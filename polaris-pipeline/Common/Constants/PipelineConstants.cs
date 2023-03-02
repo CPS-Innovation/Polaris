@@ -37,10 +37,9 @@
     public static class DebugSettings
     {
         public const string UseAzureStorageEmulatorFlag = "POLARIS_AZURE_STORAGE_EMULATOR";
-        public const string MockOnBehalfOfTokenClient = "POLARIS_MOCK_ON_BEHALF_OF_TOKEN_CLIENT";
         public const string MockOcrService = "POLARIS_MOCK_OCR_SERVICE";
         public const string MockSearchIndexService = "POLARIS_MOCK_SEARCH_INDEX_SERVICE";
-        public const string MockTokenValidation = "POLARIS_PIPELINE_MOCK_TOKEN_VALIDATION";
+        public const string MockOcrServiceResults = nameof(MockOcrServiceResults);
     }
 #endif
 
@@ -65,19 +64,14 @@
             public const string SearchClientIndexName = "SearchClientIndexName";
             public const string SearchClientAuthorizationKey = "SearchClientAuthorizationKey";
 
-            // TODO - resolve these names to a single value
-            public const string BlobContainerName = "BlobContainerName";
             public const string BlobServiceContainerName = "BlobServiceContainerName";
-
             public const string BlobExpirySecs = "BlobExpirySecs";
             public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
-            public const string BlobServiceUrl = "BlobServiceUrl";
+            public const string BlobServiceUrl = nameof(BlobServiceUrl);
+            public const string BlobServiceConnectionString = nameof(BlobServiceConnectionString);
             public const string DocumentsRepositoryBaseUrl = "DocumentsRepositoryBaseUrl";
             public const string GetDocumentUrl = "GetDocumentUrl";
             public const string ListDocumentsUrl = "ListDocumentsUrl";
-#if DEBUG
-            public const string BlobServiceConnectionString = nameof(BlobServiceConnectionString);
-#endif
         }
     }
 }
