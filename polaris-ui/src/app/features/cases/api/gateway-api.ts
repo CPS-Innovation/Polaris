@@ -30,6 +30,14 @@ const buildHeaders = async (
   return headers;
 };
 
+// hack
+const temporaryApiModelMapping = (arr: any[]) =>
+  arr.forEach((item) => {
+    if (item.polarisDocumentId) {
+      item.documentId = item.polarisDocumentId;
+    }
+  });
+
 export const resolvePdfUrl = (
   urn: string,
   caseId: number,
@@ -126,12 +134,8 @@ export const getPipelinePdfResults = async (
     headers,
   });
 
-  // hack
   var rawResponse = await response.json();
-  rawResponse.documents = rawResponse.documents.map((item: any) => ({
-    ...item,
-    documentId: item.polarisDocumentId,
-  }));
+  temporaryApiModelMapping(rawResponse.documents);
 
   return rawResponse as PipelineResults;
 };
@@ -154,17 +158,8 @@ export const searchCase = async (
     throw new ApiError("Search Case Text failed", path, response);
   }
 
-  // hack
   var rawResponse = await response.json();
-  rawResponse = rawResponse.map((item: any) => {
-    // var documentId = atob(item.id).split("-").slice(0, -2).join("-");
-    var documentId = item.polarisDocumentId;
-    console.log(documentId);
-    return {
-      ...item,
-      documentId,
-    };
-  });
+  temporaryApiModelMapping(rawResponse);
 
   return rawResponse as ApiTextSearchResult[];
 };
