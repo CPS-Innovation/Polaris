@@ -37,10 +37,11 @@ terraform {
   /*backend "azurerm" {
     resource_group_name  = "rg-terraform"
     //storage_account_name = "cpsqastorageterraform" //QA
-    storage_account_name = "cpsdevstorageterraform" //DEV
+    //storage_account_name = "cpsdevstorageterraform" //DEV
+    storage_account_name = "cpsprodstorageterraform" //PROD
     container_name       = "terraform-polaris-pipeline"
     key                  = "terraform.tfstate"
-    access_key           = "[Manually Acquired]"
+    access_key           = "[acquire]"
   }*/
 }
 
