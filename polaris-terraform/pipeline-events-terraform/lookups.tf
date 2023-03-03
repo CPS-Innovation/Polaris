@@ -1,3 +1,8 @@
+data "azurerm_windows_function_app" "fa_coordinator" {
+  name                = "fa-${local.pipeline_resource_name}-fa-coordinator"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
 data "azurerm_windows_function_app" "fa_pdf_generator" {
   name                = "fa-${local.pipeline_resource_name}-pdf-generator"
   resource_group_name = "rg-${local.pipeline_resource_name}"
