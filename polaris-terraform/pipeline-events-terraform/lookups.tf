@@ -1,4 +1,4 @@
-data "azurerm_windows_function_app" "fa_coordinator" {
+data "azurerm_linux_function_app" "fa_coordinator" {
   name                = "fa-${local.pipeline_resource_name}-fa-coordinator"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
