@@ -139,15 +139,17 @@ export const getPipelinePdfResults = async (
   temporaryApiModelMapping(documents);
 
   documents.forEach((document) => {
-    const { cmsDocType } = document;
-    if (cmsDocType.documentTypeId) {
-      cmsDocType.id = cmsDocType.documentTypeId;
+    if (document.cmsDocType.documentTypeId) {
+      document.cmsDocType.id = document.cmsDocType.documentTypeId;
     }
-    if (cmsDocType.documentType) {
-      cmsDocType.code = cmsDocType.documentType;
+    if (document.cmsDocType.documentType) {
+      document.cmsDocType.code = document.cmsDocType.documentType;
     }
-    if (cmsDocType.documentCategory) {
-      document.cmsDocCategory = cmsDocType.documentCategory;
+    if (document.cmsDocType.documentType) {
+      document.cmsDocType.name = document.cmsDocType.documentType;
+    }
+    if (document.cmsDocType.documentCategory) {
+      document.cmsDocCategory = document.cmsDocType.documentCategory;
     }
   });
 
