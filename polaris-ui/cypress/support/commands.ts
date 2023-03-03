@@ -54,8 +54,9 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response) => {
 Cypress.Commands.add(
   "selectPDFTextElement",
   (matchString: string, targetCount = 0) => {
-    cy.get(`.markedContent > span:contains(${matchString})`).each(
-      (element, index) => {
+    cy.get(`.textLayer span:contains(${matchString})`)
+      .last()
+      .each((element, index) => {
         if (index === targetCount) {
           cy.wrap(element)
             .trigger("mousedown")
@@ -71,8 +72,7 @@ Cypress.Commands.add(
           cy.document().trigger("selectionchange");
           return false;
         }
-      }
-    );
+      });
   }
 );
 

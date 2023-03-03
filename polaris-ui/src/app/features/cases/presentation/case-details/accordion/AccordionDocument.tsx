@@ -36,7 +36,10 @@ export const AccordionDocument: React.FC<Props> = ({
             {caseDocument.presentationFileName}
           </a>
         ) : (
-          <span className={`${classes["accordion-document-link-name"]}`}>
+          <span
+            className={`${classes["accordion-document-link-name"]}`}
+            data-testid={`name-text-document-${caseDocument.documentId}`}
+          >
             {caseDocument.presentationFileName}
           </span>
         )}
@@ -48,7 +51,11 @@ export const AccordionDocument: React.FC<Props> = ({
             )}
         </span>
       </div>
-      {!canViewDocument && <span>Document only available on CMS</span>}
+      {!canViewDocument && (
+        <span data-testid={`view-warning-document-${caseDocument.documentId}`}>
+          Document only available on CMS
+        </span>
+      )}
     </li>
   );
 };

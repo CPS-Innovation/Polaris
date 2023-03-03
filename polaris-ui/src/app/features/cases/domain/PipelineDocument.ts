@@ -33,7 +33,7 @@ export type PresentationDocumentProperties = {
   cmsDocCategory: CmsDocCategory;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
-  presentationStatuses: PresentationStatuses;
+  presentationStatuses?: PresentationStatuses;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

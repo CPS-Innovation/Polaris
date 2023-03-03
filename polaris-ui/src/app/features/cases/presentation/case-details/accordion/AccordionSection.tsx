@@ -15,6 +15,13 @@ type Props = {
   }) => void;
 };
 
+const getCaseIDText = (id: string) => {
+  return id
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .map((word) => word.toLowerCase())
+    .join("-");
+};
 export const AccordionSection: React.FC<Props> = ({
   sectionId,
   sectionLabel,
@@ -27,7 +34,11 @@ export const AccordionSection: React.FC<Props> = ({
     return docs.filter((doc) => doc.presentationStatuses?.viewStatus !== "Ok");
   };
   return (
-    <div className={`${classes["accordion-section"]}`} aria-expanded={isOpen}>
+    <div
+      className={`${classes["accordion-section"]}`}
+      aria-expanded={isOpen}
+      data-testid={`${getCaseIDText(sectionId)}`}
+    >
       <div
         className={`${classes["accordion-section-header"]}`}
         role="button"
@@ -39,7 +50,9 @@ export const AccordionSection: React.FC<Props> = ({
       </div>
       <div className={`${classes["accordion-section-body"]}`}>
         {!!documentsWithLimitedView().length && (
-          <span> Some documents for this case are only available in CMS</span>
+          <span data-testid={`view-warning-${getCaseIDText(sectionId)}`}>
+            Some documents for this case are only available in CMS
+          </span>
         )}
 
         <div className={`${classes["accordion-section-no-document"]}`}>

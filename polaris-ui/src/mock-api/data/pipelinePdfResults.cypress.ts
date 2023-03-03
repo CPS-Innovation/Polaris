@@ -44,7 +44,7 @@ const pipelinePdfResults: PipelineResults = {
       },
       presentationStatuses: {
         viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
-        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
+        redactStatus: "DocTypeNotAllowed", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
@@ -62,7 +62,7 @@ const pipelinePdfResults: PipelineResults = {
         name: "MG13 File",
       },
       presentationStatuses: {
-        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        viewStatus: "OnlyAvailableInCms", //| "OnlyAvailableInCms" | "FailedConversion"
         redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
@@ -264,6 +264,10 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         id: 5,
         code: "MG5",
         name: "MG5 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok", //| "OnlyAvailableInCms" | "FailedConversion"
+        redactStatus: "Ok", // null | "DocTypeNotAllowed"| "OriginalFileTypeNotAllowed";
       },
     },
     {
