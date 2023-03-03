@@ -136,8 +136,10 @@ namespace PolarisGateway
         {
             builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
-                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
+                //string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
+                //azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
+                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
+                    .WithCredential(new DefaultAzureCredential());
             });
 
             builder.Services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
