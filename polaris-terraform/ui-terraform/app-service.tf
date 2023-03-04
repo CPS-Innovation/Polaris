@@ -1,11 +1,12 @@
 #################### App Service ####################
 
-resource "azurerm_app_service" "as_web_polaris" {
-  name                = "as-web-${local.resource_name}"
-  location            = azurerm_resource_group.rg_polaris.location
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  app_service_plan_id = azurerm_service_plan.asp_polaris.id
-  https_only          = true
+resource "azurerm_linux_web_app" "as_web_polaris" {
+  name                      = "as-web-${local.resource_name}"
+  location                  = azurerm_resource_group.rg_polaris.location
+  resource_group_name       = azurerm_resource_group.rg_polaris.name
+  service_plan_id           = azurerm_service_plan.asp_polaris.id
+  https_only                = true
+  virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"        = "1"
@@ -20,11 +21,13 @@ resource "azurerm_app_service" "as_web_polaris" {
   }
 
   site_config {
-    ftps_state             = "FtpsOnly"
-    http2_enabled          = true
-    ip_restriction         = []
-    app_command_line       = "node subsititute-config.js; npx serve -s"
-    linux_fx_version       = "NODE|14-lts"
+    ftps_state       = "FtpsOnly"
+    http2_enabled    = true
+    ip_restriction   = []
+    app_command_line = "node subsititute-config.js; npx serve -s"
+    application_stack {
+      node_version = "14-lts"
+    }
     vnet_route_all_enabled = true
   }
 
