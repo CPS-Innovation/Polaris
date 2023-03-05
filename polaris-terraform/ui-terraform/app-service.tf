@@ -1,12 +1,14 @@
 #################### App Service ####################
 
 resource "azurerm_linux_web_app" "as_web_polaris" {
-  name                = "as-web-${local.resource_name}"
-  location            = azurerm_resource_group.rg_polaris.location
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  service_plan_id     = azurerm_service_plan.asp_polaris.id
-  https_only          = true
-  //virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
+  name                       = "as-web-${local.resource_name}"
+  location                   = azurerm_resource_group.rg_polaris.location
+  resource_group_name        = azurerm_resource_group.rg_polaris.name
+  service_plan_id            = azurerm_service_plan.asp_polaris.id
+  https_only                 = true
+  storage_account_name       = azurerm_storage_account.sacpspolaris.name
+  storage_account_access_key = azurerm_storage_account.sacpspolaris.primary_access_key
+  virtual_network_subnet_id  = data.azurerm_subnet.polaris_ui_subnet.id
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                  = "1"
