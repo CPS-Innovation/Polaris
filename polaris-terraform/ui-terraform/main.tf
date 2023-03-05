@@ -36,7 +36,7 @@ terraform {
     //storage_account_name = "cpsprodstorageterraform" //PROD
     container_name = "terraform-polaris"
     key            = "terraform.tfstate"
-    access_key     = "XU+qbfLnRlf/gUW1OANanfvv4eBBMsmNooQj3RbwK/+VvUP/xPbxPNVp03i7VghcUvHWIlZy2y8ssuFBg6/IFQ=="
+    access_key     = "[acquire]"
   }
 }
 
