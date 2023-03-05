@@ -1,23 +1,25 @@
 #################### App Service ####################
 
 resource "azurerm_linux_web_app" "as_web_polaris" {
-  name                = "as-web-${local.resource_name}"
-  location            = azurerm_resource_group.rg_polaris.location
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  service_plan_id     = azurerm_service_plan.asp_polaris.id
-  https_only          = true
-  //virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
+  name                      = "as-web-${local.resource_name}"
+  location                  = azurerm_resource_group.rg_polaris.location
+  resource_group_name       = azurerm_resource_group.rg_polaris.name
+  service_plan_id           = azurerm_service_plan.asp_polaris.id
+  https_only                = true
+  virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
 
   app_settings = {
-    "WEBSITE_CONTENTOVERVNET"        = "1"
-    "WEBSITE_DNS_SERVER"             = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"         = "168.63.129.16"
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.ai_polaris.instrumentation_key
-    "REACT_APP_CLIENT_ID"            = module.azurerm_app_reg_as_web_polaris.client_id
-    "REACT_APP_TENANT_ID"            = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"     = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net"
-    "REACT_APP_GATEWAY_SCOPE"        = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"  = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/polaris?polaris-ui-url="
+    "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_DNS_SERVER"                       = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_ui_file_share.name
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
+    "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
+    "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id
+    "REACT_APP_GATEWAY_BASE_URL"               = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net"
+    "REACT_APP_GATEWAY_SCOPE"                  = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
+    "REACT_APP_REAUTH_REDIRECT_URL"            = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/polaris?polaris-ui-url="
   }
 
   site_config {
