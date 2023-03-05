@@ -17,13 +17,23 @@ resource "azurerm_storage_account_network_rules" "polaris_sacpspolaris_rules" {
 
   default_action = "Deny"
   bypass         = ["Metrics", "Logging", "AzureServices"]
-  depends_on     = [azurerm_storage_account.sacpspolaris]
   virtual_network_subnet_ids = [
     data.azurerm_subnet.polaris_ci_subnet.id,
     data.azurerm_subnet.polaris_ui_subnet.id,
     data.azurerm_subnet.polaris_gateway_subnet.id,
     data.azurerm_subnet.polaris_proxy_subnet.id,
     data.azurerm_subnet.polaris_auth_handover_subnet.id
+  ]
+
+  depends_on = [
+    azurerm_storage_account.sacpspolaris,
+    azurerm_service_plan.asp_polaris,
+    azurerm_service_plan.asp_polaris_gateway,
+    azurerm_linux_function_app.fa_polaris,
+    azurerm_linux_function_app.fa_polaris_auth_handover,
+    azurerm_linux_web_app.as_web_polaris,
+    azurerm_linux_web_app.polaris_proxy,
+    azurerm_application_insights.ai_polaris
   ]
 }
 
