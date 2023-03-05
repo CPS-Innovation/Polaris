@@ -22,14 +22,14 @@ terraform {
     }
   }
 
-  /*backend "azurerm" {
+  backend "azurerm" {
     storage_account_name = "__terraform_storage_account__"
     container_name       = "__terraform_container_name__"
     key                  = "__terraform_key__"
     access_key           = "__storage_key__"
-  }*/
+  }
 
-  backend "azurerm" {
+  /*backend "azurerm" {
     resource_group_name = "rg-terraform"
     //storage_account_name = "cpsdevstorageterraform" //DEV
     storage_account_name = "cpsqastorageterraform" //QA
@@ -37,7 +37,7 @@ terraform {
     container_name = "terraform-polaris"
     key            = "terraform.tfstate"
     access_key     = "[acquire]"
-  }
+  }*/
 }
 
 provider "azurerm" {
