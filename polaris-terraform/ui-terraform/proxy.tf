@@ -1,11 +1,10 @@
 resource "azurerm_linux_web_app" "polaris_proxy" {
-  name                       = "${local.resource_name}-cmsproxy"
-  resource_group_name        = azurerm_resource_group.rg_polaris.name
-  location                   = azurerm_resource_group.rg_polaris.location
-  service_plan_id            = azurerm_service_plan.asp_polaris.id
-  storage_account_name       = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key = azurerm_storage_account.sacpspolaris.primary_access_key
-  virtual_network_subnet_id  = data.azurerm_subnet.polaris_proxy_subnet.id
+  name                      = "${local.resource_name}-cmsproxy"
+  resource_group_name       = azurerm_resource_group.rg_polaris.name
+  location                  = azurerm_resource_group.rg_polaris.location
+  service_plan_id           = azurerm_service_plan.asp_polaris.id
+  virtual_network_subnet_id = data.azurerm_subnet.polaris_proxy_subnet.id
+
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                  = "1"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
