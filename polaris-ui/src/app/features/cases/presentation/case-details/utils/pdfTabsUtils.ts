@@ -7,7 +7,7 @@ export const getRedactStatus = (
   if (pipelineState.haveData) {
     const redactStatus = pipelineState.data.documents.find(
       (document) => document.documentId === id
-    )?.presentationStatuses?.redactStatus;
+    )?.presentationStatuses.redactStatus;
     if (redactStatus) {
       return redactStatus;
     }

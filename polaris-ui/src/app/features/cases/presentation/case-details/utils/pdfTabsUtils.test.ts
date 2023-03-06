@@ -57,12 +57,32 @@ describe("getRedactStatus util", () => {
               redactStatus: "DocTypeNotAllowed",
             },
           },
+          {
+            documentId: "3",
+            cmsDocumentId: "3",
+            pdfBlobName: "CM01",
+            status: "Indexed",
+            cmsOriginalFileName: "CM01  very long .docx",
+            cmsMimeType: "application/pdf",
+            cmsFileCreatedDate: "2020-06-02",
+            cmsDocCategory: "MGForm",
+            cmsDocType: {
+              id: 11,
+              code: "MG11",
+              name: "MG11 File",
+            },
+            presentationStatuses: {
+              viewStatus: "Ok",
+              redactStatus: null,
+            },
+          },
         ],
       },
     };
 
     expect(getRedactStatus("1", pipelineState)).toEqual("Ok");
     expect(getRedactStatus("2", pipelineState)).toEqual("DocTypeNotAllowed");
+    expect(getRedactStatus("3", pipelineState)).toEqual(null);
   });
   it("getRedactStatus should return null, if it couldn't find a matching documentId from pipelineSate documents", () => {
     const pipelineState: AsyncPipelineResult<PipelineResults> = {
