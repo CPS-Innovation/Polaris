@@ -38,19 +38,6 @@ steps:
       projects: "$(rootFolder)/$(functionName)/$(functionName).csproj"
       arguments: "--configuration $(buildConfiguration)"
     displayName: "Build"
-    
-  - task: DownloadSecureFile@1
-    name: licence
-    inputs:
-      secureFile: 'Aspose.Total.NET.lic'
-    displayName: 'Download Aspose Licence'
-
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: $(Agent.TempDirectory)
-      contents: Aspose.Total.NET.lic
-      targetFolder: '$(rootFolder)/$(functionName)/$(functionName)'
-    displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
 
   - task: DotNetCoreCLI@2
     displayName: 'Install ReportGenerator'
