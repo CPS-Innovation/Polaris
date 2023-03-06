@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Net;
 using Common.Domain.SearchIndex;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -100,7 +95,7 @@ namespace PolarisGateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                response = await SendGetRequestAsync($"cases/{caseUrn}/{caseId}/documents/{polarisDocumentId}/sasUrl?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", correlationId);
+                response = await SendGetRequestAsync($"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sasUrl?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", correlationId);
             }
             catch (HttpRequestException exception)
             {

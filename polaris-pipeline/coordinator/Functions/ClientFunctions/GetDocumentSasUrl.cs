@@ -25,7 +25,7 @@ namespace coordinator.Functions.ClientFunctions
 
         [FunctionName(nameof(GetDocumentSasUrl))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/{caseUrn}/{caseId}/documents/{documentId}/sasUrl")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/sasUrl")] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             Guid documentId, 
