@@ -66,22 +66,8 @@ steps:
       zipAfterPublish: False
     displayName: "Publish"
 
-  - task: DownloadSecureFile@1
-    name: licence
-    inputs:
-      secureFile: 'Aspose.Total.NET.lic'
-    displayName: 'Download Aspose Licence'
-
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder:  $(Agent.TempDirectory)
-      contents: Aspose.Total.NET.lic
-      targetFolder: '$(Build.ArtifactStagingDirectory)/bin/'
-    displayName: 'Copy Aspose.Total.NET.lic to bin folder'
-
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: "$(Build.ArtifactStagingDirectory)"
       artifactName: "$(functionName)-drop"
       publishLocation: "Container"
-    displayName: "Publish Artifacts to Staging"
