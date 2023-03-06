@@ -5,10 +5,8 @@
         Initialised,
         NotStarted,
         Running,
-
-        // Another Status here for document list ready
-
         NoDocumentsFoundInDDEI,
+        DocumentsRetrieved,
         Completed,
         Failed,
         UnableToEvaluateExistingDocuments
