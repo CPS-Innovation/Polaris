@@ -36,7 +36,7 @@ steps:
     inputs:
       sourceFolder: $(Agent.TempDirectory)
       contents: Aspose.Total.NET.lic
-      targetFolder: '$(rootFolder)/$(functionName)/$(functionName)'
+      targetFolder: '$(rootFolder)/$(functionName)/$(functionName)/bin'
     displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
 
   - task: DotNetCoreCLI@2
