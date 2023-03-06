@@ -17,7 +17,7 @@ using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
 using Common.Factories;
 using Common.Health;
-using static System.Net.WebRequestMethods;
+using Common.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -40,9 +40,9 @@ namespace text_extractor
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequest>, ValidatorWrapper<ExtractTextRequest>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
-            builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
-            builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>();
+
+            builder.Services.AddBlobSasGenerator();
+
             builder.Services.AddTransient<ISearchLineFactory, SearchLineFactory>();
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();

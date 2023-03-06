@@ -145,6 +145,11 @@ export const getPipelinePdfResults = async (
     if (document.cmsDocType.documentCategory) {
       document.cmsDocCategory = document.cmsDocType.documentCategory;
     }
+    //TODO:Remove the below temporary solution when server is ready.
+    document.presentationStatuses = {
+      viewStatus: "Ok",
+      redactStatus: "Ok",
+    };
   });
 
   return rawResponse as PipelineResults;
