@@ -27,10 +27,10 @@ steps:
     displayName: "Build"
     
   - task: DownloadSecureFile@1
-      name: licence
-      inputs:
-        secureFile: 'Aspose.Total.NET.lic'
-      displayName: 'Download Aspose Licence'
+    name: licence
+    inputs:
+      secureFile: 'Aspose.Total.NET.lic'
+    displayName: 'Download Aspose Licence'
 
   - task: CopyFiles@2
     inputs:
