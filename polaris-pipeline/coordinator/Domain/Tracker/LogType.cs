@@ -8,6 +8,7 @@
         DocumentAlreadyProcessed,
         UnableToConvertDocumentToPdf,
         DocumentNotFoundInDDEI,
+        DocumentRetrieved,
         UnexpectedDocumentFailure,
         NoDocumentsFoundInDDEI,
         Indexed,
