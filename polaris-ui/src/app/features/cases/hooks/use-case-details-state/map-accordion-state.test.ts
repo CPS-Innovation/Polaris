@@ -50,6 +50,10 @@ describe("mapAccordionState", () => {
             name: "MG11 File",
           },
           cmsFileCreatedDate: "2020-01-01",
+          presentationStatuses: {
+            viewStatus: "Ok",
+            redactStatus: "Ok",
+          },
         },
         {
           documentId: "2",
@@ -66,6 +70,10 @@ describe("mapAccordionState", () => {
             name: "MG12 File",
           },
           cmsFileCreatedDate: "2020-01-02",
+          presentationStatuses: {
+            viewStatus: "Ok",
+            redactStatus: "Ok",
+          },
         },
       ],
     };
@@ -94,6 +102,10 @@ describe("mapAccordionState", () => {
                 name: "MG11 File",
               },
               cmsFileCreatedDate: "2020-01-01",
+              presentationStatuses: {
+                viewStatus: "Ok",
+                redactStatus: "Ok",
+              },
             },
           ],
         },
@@ -116,6 +128,10 @@ describe("mapAccordionState", () => {
                 name: "MG12 File",
               },
               cmsFileCreatedDate: "2020-01-02",
+              presentationStatuses: {
+                viewStatus: "Ok",
+                redactStatus: "Ok",
+              },
             },
           ],
         },
