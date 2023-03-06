@@ -1,14 +1,14 @@
 trigger:
   branches:
     include:
-    - main
-    
+      - main
+  
   paths:
     include:
-    - "polaris-pipeline/pdf-generator/*"
-    - "polaris-pipeline/pdf-generator.tests/*"
-    - "polaris-pipeline/common/*"
-    - "polaris-pipeline/common.tests/*"
+      - "polaris-pipeline/pdf-generator/*"
+      - "polaris-pipeline/pdf-generator.tests/*"
+      - "polaris-pipeline/common/*"
+      - "polaris-pipeline/common.tests/*"
 
 pool:
   vmImage: "ubuntu-latest"
@@ -25,13 +25,13 @@ steps:
       projects: "$(rootFolder)/$(functionName)/$(functionName).csproj"
       arguments: "--configuration $(buildConfiguration)"
     displayName: "Build"
-    
+
   - task: DotNetCoreCLI@2
     displayName: 'Install ReportGenerator'
     inputs:
-        command: custom
-        custom: tool
-        arguments: 'install --global dotnet-reportgenerator-globaltool'
+      command: custom
+      custom: tool
+      arguments: 'install --global dotnet-reportgenerator-globaltool'
 
   - task: DotNetCoreCLI@2
     inputs:
@@ -39,14 +39,14 @@ steps:
       projects: "$(rootFolder)/$(functionName)*tests/$(functionName)*tests.csproj"
       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
     displayName: "Run PDF Generator tests"
-    
+
   - task: DotNetCoreCLI@2
     inputs:
       command: "test"
       projects: "$(rootFolder)/Common.tests/Common.tests.csproj"
       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
     displayName: "Run Common Library tests"
-    
+
   - script: |
       reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
     displayName: 'Create code coverage report'
@@ -66,8 +66,22 @@ steps:
       zipAfterPublish: False
     displayName: "Publish"
 
+  - task: DownloadSecureFile@1
+    name: licence
+    inputs:
+      secureFile: 'Aspose.Total.NET.lic'
+    displayName: 'Download Aspose Licence'
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder:  $(Agent.TempDirectory)
+      contents: Aspose.Total.NET.lic
+      targetFolder: '$(Build.ArtifactStagingDirectory)/bin/'
+    displayName: 'Copy Aspose.Total.NET.lic to bin folder'
+
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: "$(Build.ArtifactStagingDirectory)"
       artifactName: "$(functionName)-drop"
       publishLocation: "Container"
+    displayName: "Publish Artifacts to Staging"
