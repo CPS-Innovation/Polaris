@@ -151,6 +151,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty />
             ) : (
               <PdfTabs
+                pipelineState={pipelineState}
                 tabsState={tabsState}
                 handleClosePdf={handleClosePdf}
                 handleLaunchSearchResults={handleLaunchSearchResults}

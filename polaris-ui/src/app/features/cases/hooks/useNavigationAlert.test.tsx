@@ -20,6 +20,10 @@ describe("useNavigationAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG3  very long",
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
       redactionHighlights: [
         {
           id: "1",
@@ -45,6 +49,10 @@ describe("useNavigationAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG4 test",
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
       redactionHighlights: [
         {
           id: "1",

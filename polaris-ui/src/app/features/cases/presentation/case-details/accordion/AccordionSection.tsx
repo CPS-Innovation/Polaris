@@ -1,6 +1,5 @@
 import { AccordionDocument } from "./AccordionDocument";
 import classes from "./Accordion.module.scss";
-import { AccordionNoDocuments } from "./AccordionNoDocuments";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 
@@ -15,6 +14,13 @@ type Props = {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
 };
+const formatTestIdText = (id: string) => {
+  return id
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .map((word) => word.toLowerCase())
+    .join("-");
+};
 
 export const AccordionSection: React.FC<Props> = ({
   sectionId,
@@ -24,8 +30,15 @@ export const AccordionSection: React.FC<Props> = ({
   handleToggleOpenSection,
   handleOpenPdf,
 }) => {
+  const documentsWithLimitedView = () => {
+    return docs.filter((doc) => doc.presentationStatuses?.viewStatus !== "Ok");
+  };
   return (
-    <div className={`${classes["accordion-section"]}`} aria-expanded={isOpen}>
+    <div
+      className={`${classes["accordion-section"]}`}
+      aria-expanded={isOpen}
+      data-testid={`${formatTestIdText(sectionId)}`}
+    >
       <div
         className={`${classes["accordion-section-header"]}`}
         role="button"
@@ -36,26 +49,22 @@ export const AccordionSection: React.FC<Props> = ({
         <span className={`${classes["icon"]}`}></span>
       </div>
       <div className={`${classes["accordion-section-body"]}`}>
-        <table className="govuk-table">
+        {!!documentsWithLimitedView().length && (
+          <span data-testid={`view-warning-${formatTestIdText(sectionId)}`}>
+            Some documents for this case are only available in CMS
+          </span>
+        )}
+
+        <div className={`${classes["accordion-section-no-document"]}`}>
           {!docs.length ? (
-            <tbody>
-              <AccordionNoDocuments />
-            </tbody>
+            <div> No Documents</div>
           ) : (
-            <>
-              <thead>
-                <tr className="govuk-table__row">
-                  <th scope="col" className="govuk-table__header"></th>
-                  <th
-                    scope="col"
-                    className="govuk-table__header govuk-body-s"
-                    style={{ fontWeight: 400 }}
-                  >
-                    Date added
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+            <div>
+              <span className={`${classes["accordion-document-date-title"]}`}>
+                Date added
+              </span>
+
+              <ul className={`${classes["accordion-document-list"]}`}>
                 {docs.map((caseDocument) => (
                   <AccordionDocument
                     key={caseDocument.documentId}
@@ -63,10 +72,10 @@ export const AccordionSection: React.FC<Props> = ({
                     handleOpenPdf={handleOpenPdf}
                   />
                 ))}
-              </tbody>
-            </>
+              </ul>
+            </div>
           )}
-        </table>
+        </div>
       </div>
     </div>
   );

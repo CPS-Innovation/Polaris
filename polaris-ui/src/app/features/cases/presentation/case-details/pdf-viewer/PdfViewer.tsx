@@ -10,7 +10,8 @@ import {
 import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
-
+import { RedactionWarning } from "./RedactionWarning";
+import { PresentationStatuses } from "../../../../../features/cases/domain/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
@@ -21,6 +22,7 @@ const SCROLL_TO_OFFSET = 120;
 type Props = {
   url: string;
   headers: HeadersInit;
+  redactStatus: PresentationStatuses["redactStatus"];
   searchHighlights: undefined | IPdfHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
@@ -37,6 +39,7 @@ const ensureAllPdfInView = () =>
 export const PdfViewer: React.FC<Props> = ({
   url,
   headers,
+  redactStatus,
   searchHighlights = [],
   redactionHighlights,
   handleAddRedaction,
@@ -99,14 +102,19 @@ export const PdfViewer: React.FC<Props> = ({
                   scrollTo(highlights[0]);
                 }
               }}
-              onSelectionFinished={(position, content, hideTipAndSelection) => (
-                <RedactButton
-                  onConfirm={() => {
-                    addRedaction(position, !!content.image);
-                    hideTipAndSelection();
-                  }}
-                />
-              )}
+              onSelectionFinished={(position, content, hideTipAndSelection) => {
+                if (redactStatus !== "Ok") {
+                  return <RedactionWarning />;
+                }
+                return (
+                  <RedactButton
+                    onConfirm={() => {
+                      addRedaction(position, !!content.image);
+                      hideTipAndSelection();
+                    }}
+                  />
+                );
+              }}
               highlightTransform={(
                 highlight,
                 index,
