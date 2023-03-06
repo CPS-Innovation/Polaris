@@ -23,6 +23,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
     },
     {
       documentId: "2",
@@ -37,6 +41,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 11,
         code: "MG11",
         name: "MG11 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
       },
     },
     {
@@ -53,6 +61,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG5",
         name: "MG5 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
     },
     {
       documentId: "4",
@@ -67,6 +79,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 6,
         code: "MG6",
         name: "MG6 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
       },
     },
     {
@@ -83,6 +99,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
     },
     {
       documentId: "6",
@@ -97,6 +117,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 3,
         code: "MG3",
         name: "MG3 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
       },
     },
     {
@@ -113,6 +137,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "Other Comm (In)",
         name: "Other Comm (In) File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
     },
     {
       documentId: "8",
@@ -127,6 +155,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 5,
         code: "MG5",
         name: "MG5 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
       },
     },
     {
@@ -143,6 +175,10 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
     },
     {
       documentId: "10",
@@ -157,6 +193,10 @@ const pipelinePdfResults: PipelineResults = {
         id: 6,
         code: "MG6",
         name: "MG6 File",
+      },
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
       },
     },
   ],

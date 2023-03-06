@@ -64,10 +64,56 @@
   background-position: 0 -16px;
 }
 
+.accordion .accordion-section-body {
+  font-size: 16px;
+}
+
 .accordion .accordion-section[aria-expanded="true"] .icon {
   background-position: 0 0;
 }
 
-.date {
+.accordion .accordion-section-no-document {
+  padding: 10px 0;
+}
+.accordion .accordion-document-date-title {
+  font-size: 16px;
+  display: block;
+  text-align: right;
+  margin-top: 5px;
+  margin-right: 10px;
+}
+.accordion .accordion-document-list {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid #bfc1c3;
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+.accordion .accordion-document-list :last-child {
+  border-bottom: none;
+}
+.accordion .accordion-document-list-item {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #bfc1c3;
+}
+
+.accordion .accordion-document-item-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  font-size: 16px;
+  justify-content: space-between;
+}
+
+.accordion .accordion-document-link-button,
+.accordion .accordion-document-link-name {
+  padding: 10px 15px 10px 0;
+  min-width: 30%;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.accordion .accordion-document-date {
   white-space: nowrap;
 }
