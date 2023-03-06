@@ -43,8 +43,6 @@ namespace coordinator
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
             builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
-            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
-
             builder.Services.AddHttpClient<IDdeiDocumentExtractionService, DdeiDocumentExtractionService>(client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValueFromConfig(ConfigKeys.SharedKeys.DocumentsRepositoryBaseUrl));
@@ -52,6 +50,7 @@ namespace coordinator
             });
 
             builder.Services.AddBlobStorage(configuration);
+            builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
 
             BuildHealthChecks(builder);

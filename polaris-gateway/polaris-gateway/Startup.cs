@@ -70,11 +70,6 @@ namespace PolarisGateway
             BuildBlobServiceClient(builder, configuration);
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
 
-            /* Moved to pipeline
-             * builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
-            builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
-            builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>(); */
-
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();

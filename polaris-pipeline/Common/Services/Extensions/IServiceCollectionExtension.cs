@@ -8,6 +8,8 @@ using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
 using Common.Mappers.Contracts;
+using Common.Services.SasGeneratorService;
+using Common.Wrappers;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +46,14 @@ namespace Common.Services.Extensions
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
 
             }); */
+        }
+
+        public static void AddBlobSasGenerator(this IServiceCollection services)
+        {
+            services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
+            services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
+            services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>();
+            services.AddTransient<ISasGeneratorService, SasGeneratorService.SasGeneratorService>();
         }
 
         public static void AddSearchClient(this IServiceCollection services, IConfigurationRoot configuration)
