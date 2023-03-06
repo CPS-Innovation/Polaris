@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
+﻿using System.Net;
 using Common.Domain.SearchIndex;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -95,7 +92,21 @@ namespace PolarisGateway.Clients.PolarisPipeline
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Generating PDF SAS Url for Polaris Document Id {polarisDocumentId}, urn {caseUrn} and caseId {caseId}");
 
-            var response = await SendGetRequestAsync($"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sasUrl?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", correlationId);
+            HttpResponseMessage response;
+            try
+            {
+                response = await SendGetRequestAsync($"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sasUrl?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}", correlationId);
+            }
+            catch (HttpRequestException exception)
+            {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                throw;
+            }
+
             var url = await response.Content.ReadAsStringAsync();
 
             return url;
@@ -105,8 +116,22 @@ namespace PolarisGateway.Clients.PolarisPipeline
         {
             _logger.LogMethodEntry(correlationId, nameof(SearchCase), $"Searching case {caseUrn} / {caseId} for search Term '{searchTerm}'");
 
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents/search/{searchTerm}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
-            var response = await SendGetRequestAsync(url, correlationId);
+            HttpResponseMessage response;
+            try
+            {
+                var url = $"urns/{caseUrn}/cases/{caseId}/documents/search/{searchTerm}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
+                response = await SendGetRequestAsync(url, correlationId);
+            }
+            catch (HttpRequestException exception)
+            {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                throw;
+            }
+
             var stringContent = await response.Content.ReadAsStringAsync();
 
             _logger.LogMethodExit(correlationId, nameof(SearchCase), $"Search Result: {stringContent}");
