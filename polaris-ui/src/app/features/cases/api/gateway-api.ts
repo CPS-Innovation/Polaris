@@ -6,13 +6,10 @@ import { ApiTextSearchResult } from "../domain/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/RedactionSaveRequest";
 import { RedactionSaveResponse } from "../domain/RedactionSaveResponse";
 import * as HEADERS from "./header-factory";
-import {
-  buildFullUrl as buildEncodedUrl,
-  fullUrl as buildUnencodedUrl,
-} from "./url-helpers";
 import { CaseDetails } from "../domain/CaseDetails";
 import { CmsDocCategory } from "../domain/CmsDocCategory";
 import { reauthenticationFilter } from "./reauthentication-filter";
+import { GATEWAY_BASE_URL } from "../../../config";
 
 const buildHeaders = async (
   ...args: (
@@ -30,6 +27,10 @@ const buildHeaders = async (
   return headers;
 };
 
+const fullUrl = (path: string) => {
+  return new URL(path, GATEWAY_BASE_URL).toString();
+};
+
 // hack
 const temporaryApiModelMapping = (arr: any[]) =>
   arr.forEach((item) => {
@@ -42,11 +43,10 @@ export const resolvePdfUrl = (
   urn: string,
   caseId: number,
   documentId: string
-) =>
-  buildUnencodedUrl(`api/urns/${urn}/cases/${caseId}/documents/${documentId}`);
+) => fullUrl(`api/urns/${urn}/cases/${caseId}/documents/${documentId}`);
 
 export const searchUrn = async (urn: string) => {
-  const url = buildEncodedUrl({ urn }, ({ urn }) => `/api/urns/${urn}/cases`);
+  const url = fullUrl(`/api/urns/${urn}/cases`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
   const response = await internalFetch(url, {
     headers,
@@ -65,10 +65,7 @@ export const searchUrn = async (urn: string) => {
 };
 
 export const getCaseDetails = async (urn: string, caseId: number) => {
-  const url = buildEncodedUrl(
-    { urn, caseId },
-    ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}`
-  );
+  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
   const response = await internalFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
@@ -86,7 +83,7 @@ export const getPdfSasUrl = async (
   caseId: number,
   documentId: string
 ) => {
-  const url = buildUnencodedUrl(
+  const url = fullUrl(
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}/sasUrl`
   );
   const response = await internalFetch(url, {
@@ -101,10 +98,7 @@ export const getPdfSasUrl = async (
 };
 
 export const initiatePipeline = async (urn: string, caseId: number) => {
-  const path = buildEncodedUrl(
-    { urn, caseId },
-    ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}?force=true`
-  );
+  const path = fullUrl(`/api/urns/${urn}/cases/${caseId}?force=true`);
 
   const correlationIdHeader = HEADERS.correlationId();
   const response = await internalFetch(path, {
@@ -161,10 +155,8 @@ export const searchCase = async (
   caseId: number,
   searchTerm: string
 ) => {
-  const path = buildEncodedUrl(
-    { caseId, searchTerm, urn },
-    ({ caseId, searchTerm, urn }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/search/?query=${searchTerm}`
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/search/?query=${searchTerm}`
   );
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
@@ -186,10 +178,8 @@ export const checkoutDocument = async (
   cmsDocCategory: CmsDocCategory,
   documentId: string
 ) => {
-  const url = buildEncodedUrl(
-    { caseId, documentId, cmsDocCategory },
-    ({ caseId, documentId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -210,10 +200,8 @@ export const cancelCheckoutDocument = async (
   cmsDocCategory: CmsDocCategory,
   documentId: string
 ) => {
-  const url = buildEncodedUrl(
-    { caseId, documentId, cmsDocCategory },
-    ({ caseId, documentId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -236,10 +224,8 @@ export const saveRedactions = async (
   fileName: string,
   redactionSaveRequest: RedactionSaveRequest
 ) => {
-  const url = buildEncodedUrl(
-    { urn, caseId, documentId, fileName, cmsDocCategory },
-    ({ urn, caseId, documentId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/${fileName}`
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/${fileName}`
   );
 
   const response = await internalFetch(url, {

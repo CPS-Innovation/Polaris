@@ -1,15 +1,15 @@
 import { useState, KeyboardEvent } from "react";
-import { isUrnValid } from "../logic/is-urn-valid";
+import { validateUrn } from "../logic/validate-urn";
 import { CaseSearchQueryParams } from "../types/CaseSearchQueryParams";
 
 export const useSearchInputLogic = ({
-  initialUrn,
+  urnFromSearchParams,
   setParams,
 }: {
-  initialUrn: string | undefined;
+  urnFromSearchParams: string | undefined;
   setParams: (params: Partial<CaseSearchQueryParams>) => void;
 }) => {
-  const [urn, setUrn] = useState(initialUrn || "");
+  const [urn, setUrn] = useState(urnFromSearchParams || "");
   const [isError, setIsError] = useState(false);
 
   const handleChange = (val: string) => {
@@ -17,10 +17,14 @@ export const useSearchInputLogic = ({
   };
 
   const handleSubmit = () => {
-    const isValid = isUrnValid(urn);
+    const { isValid, rootUrn } = validateUrn(urn);
     setIsError(!isValid);
     if (isValid) {
-      setParams({ urn });
+      // For technical purposes the rootUrn is what we need.
+      //  If a user enters e.g. 12AB121212/9, we want to sanitize this
+      //  to 12AB121212.  The caseId that is then selected lets us then continue
+      //  with the correct split case
+      setParams({ urn: rootUrn });
     }
   };
 
