@@ -1,30 +1,36 @@
 #################### App Service ####################
 
-resource "azurerm_app_service" "as_web_polaris" {
-  name                = "as-web-${local.resource_name}"
-  location            = azurerm_resource_group.rg_polaris.location
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  app_service_plan_id = azurerm_service_plan.asp_polaris.id
-  https_only          = true
+resource "azurerm_linux_web_app" "as_web_polaris" {
+  name                      = "as-web-${local.resource_name}"
+  location                  = azurerm_resource_group.rg_polaris.location
+  resource_group_name       = azurerm_resource_group.rg_polaris.name
+  service_plan_id           = azurerm_service_plan.asp_polaris_spa.id
+  https_only                = true
+  virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
 
   app_settings = {
-    "WEBSITE_CONTENTOVERVNET"        = "1"
-    "WEBSITE_DNS_SERVER"             = "10.7.197.20"
-    "WEBSITE_DNS_ALT_SERVER"         = "168.63.129.16"
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.ai_polaris.instrumentation_key
-    "REACT_APP_CLIENT_ID"            = module.azurerm_app_reg_as_web_polaris.client_id
-    "REACT_APP_TENANT_ID"            = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"     = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net"
-    "REACT_APP_GATEWAY_SCOPE"        = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"  = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/polaris?polaris-ui-url="
+    "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_DNS_SERVER"                       = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_ui_file_share.name
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
+    "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
+    "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id
+    "REACT_APP_GATEWAY_BASE_URL"               = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net"
+    "REACT_APP_GATEWAY_SCOPE"                  = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
+    "REACT_APP_REAUTH_REDIRECT_URL"            = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/polaris?polaris-ui-url="
   }
 
   site_config {
-    ftps_state             = "FtpsOnly"
-    http2_enabled          = true
-    ip_restriction         = []
-    app_command_line       = "node subsititute-config.js; npx serve -s"
-    linux_fx_version       = "NODE|14-lts"
+    ftps_state       = "FtpsOnly"
+    http2_enabled    = true
+    ip_restriction   = []
+    app_command_line = "node subsititute-config.js; npx serve -s"
+    application_stack {
+      node_version = "14-lts"
+    }
+    always_on              = true
     vnet_route_all_enabled = true
   }
 
@@ -109,7 +115,7 @@ resource "azuread_service_principal_delegated_permission_grant" "polaris_web_gra
 
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_ui_pe" {
-  name                = "${azurerm_app_service.as_web_polaris.name}-pe"
+  name                = "${azurerm_linux_web_app.as_web_polaris.name}-pe"
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
@@ -121,8 +127,8 @@ resource "azurerm_private_endpoint" "polaris_ui_pe" {
   }
 
   private_service_connection {
-    name                           = "${azurerm_app_service.as_web_polaris.name}-psc"
-    private_connection_resource_id = azurerm_app_service.as_web_polaris.id
+    name                           = "${azurerm_linux_web_app.as_web_polaris.name}-psc"
+    private_connection_resource_id = azurerm_linux_web_app.as_web_polaris.id
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
@@ -130,7 +136,7 @@ resource "azurerm_private_endpoint" "polaris_ui_pe" {
 
 # Create DNS A Record
 resource "azurerm_private_dns_a_record" "polaris_ui_dns_a" {
-  name                = azurerm_app_service.as_web_polaris.name
+  name                = azurerm_linux_web_app.as_web_polaris.name
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300
@@ -141,7 +147,7 @@ resource "azurerm_private_dns_a_record" "polaris_ui_dns_a" {
 
 # Create DNS A Record for SCM site
 resource "azurerm_private_dns_a_record" "polaris_ui_scm_dns_a" {
-  name                = "${azurerm_app_service.as_web_polaris.name}.scm"
+  name                = "${azurerm_linux_web_app.as_web_polaris.name}.scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
   ttl                 = 300

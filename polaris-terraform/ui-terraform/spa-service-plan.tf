@@ -1,7 +1,7 @@
 #################### App Service Plan ####################
 
-resource "azurerm_service_plan" "asp_polaris" {
-  name                = "asp-${local.resource_name}"
+resource "azurerm_service_plan" "asp_polaris_spa" {
+  name                = "asp-spa-${local.resource_name}"
   location            = azurerm_resource_group.rg_polaris.location
   resource_group_name = azurerm_resource_group.rg_polaris.name
   os_type             = "Linux"
@@ -9,14 +9,14 @@ resource "azurerm_service_plan" "asp_polaris" {
   tags                = local.common_tags
 }
 
-resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
-  name                = "amas-${local.resource_name}"
+resource "azurerm_monitor_autoscale_setting" "amas_polaris_spa" {
+  name                = "amas-spa-${local.resource_name}"
   tags                = local.common_tags
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
-  target_resource_id  = azurerm_service_plan.asp_polaris.id
+  target_resource_id  = azurerm_service_plan.asp_polaris_spa.id
   profile {
-    name = "Polaris App Service Performance Scaling Profile"
+    name = "Polaris SPA Performance Scaling Profile"
     capacity {
       default = 1
       minimum = 1
@@ -25,7 +25,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_service_plan.asp_polaris.id
+        metric_resource_id = azurerm_service_plan.asp_polaris_spa.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -43,7 +43,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
-        metric_resource_id = azurerm_service_plan.asp_polaris.id
+        metric_resource_id = azurerm_service_plan.asp_polaris_spa.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"

@@ -124,7 +124,8 @@ namespace PolarisGateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                response = await SendGetRequestAsync($"urns/{caseUrn}/cases/{caseId}/documents/search/{searchTerm}", correlationId);
+                var url = $"urns/{caseUrn}/cases/{caseId}/documents/search/{searchTerm}?code={_configuration[ConfigurationKeys.PipelineCoordinatorFunctionAppKey]}";
+                response = await SendGetRequestAsync(url, correlationId);
             }
             catch (HttpRequestException exception)
             {

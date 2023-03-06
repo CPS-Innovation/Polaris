@@ -134,8 +134,24 @@ export const getPipelinePdfResults = async (
     headers,
   });
 
-  var rawResponse = await response.json();
-  temporaryApiModelMapping(rawResponse.documents);
+  const rawResponse: { documents: any[] } = await response.json();
+  const { documents } = rawResponse;
+  temporaryApiModelMapping(documents);
+
+  documents.forEach((document) => {
+    if (document.cmsDocType.documentTypeId) {
+      document.cmsDocType.id = document.cmsDocType.documentTypeId;
+    }
+    if (document.cmsDocType.documentType) {
+      document.cmsDocType.code = document.cmsDocType.documentType;
+    }
+    if (document.cmsDocType.documentType) {
+      document.cmsDocType.name = document.cmsDocType.documentType;
+    }
+    if (document.cmsDocType.documentCategory) {
+      document.cmsDocCategory = document.cmsDocType.documentCategory;
+    }
+  });
 
   return rawResponse as PipelineResults;
 };
@@ -158,7 +174,7 @@ export const searchCase = async (
     throw new ApiError("Search Case Text failed", path, response);
   }
 
-  var rawResponse = await response.json();
+  const rawResponse = await response.json();
   temporaryApiModelMapping(rawResponse);
 
   return rawResponse as ApiTextSearchResult[];
