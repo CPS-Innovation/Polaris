@@ -39,7 +39,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
             try
             {
-                urn = WebUtility.UrlDecode(urn); // todo: inject or move to validator
                 var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
