@@ -20,10 +20,10 @@ export const useSearchInputLogic = ({
     const { isValid, rootUrn } = validateUrn(urn);
     setIsError(!isValid);
     if (isValid) {
-      // For technical purposes the rootUrn is what we need.
+      // For technical purposes (when forming API URLs) the rootUrn is what we need.
       //  If a user enters e.g. 12AB121212/9, we want to sanitize this
       //  to 12AB121212.  The caseId that is then selected lets us then continue
-      //  with the correct split case
+      //  with the correct split case.
       setParams({ urn: rootUrn });
     }
   };
