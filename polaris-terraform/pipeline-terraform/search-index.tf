@@ -5,15 +5,15 @@ provider "restapi" {
   alias                = "restapi_headers"
   headers = {
     Content-Type = "application/json"
-    api-key = azurerm_search_service.ss.primary_key
+    api-key      = azurerm_search_service.ss.primary_key
   }
-  id_attribute        = "name"
+  id_attribute = "name"
 }
 
 resource "restapi_object" "definition" {
-  provider = restapi.restapi_headers
-  path = "/indexes"
+  provider     = restapi.restapi_headers
+  path         = "/indexes"
   query_string = "api-version=2021-04-30-Preview"
-  data = file("search-index-definition.json")
-  depends_on = [azurerm_search_service.ss]
+  data         = file("search-index-definition.json")
+  depends_on   = [azurerm_search_service.ss]
 }

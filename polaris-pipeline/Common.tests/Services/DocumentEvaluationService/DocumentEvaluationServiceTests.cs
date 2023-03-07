@@ -29,7 +29,7 @@ public class DocumentEvaluationServiceTests
 
         _correlationId = Guid.NewGuid();
 
-        var incomingDocument = _fixture.Create<CaseDocument>();
+        var incomingDocument = _fixture.Create<CmsCaseDocument>();
 
         _documentEvaluationService = new Common.Services.DocumentEvaluation.DocumentEvaluationService(_mockBlobStorageService.Object, mockLogger.Object);
 

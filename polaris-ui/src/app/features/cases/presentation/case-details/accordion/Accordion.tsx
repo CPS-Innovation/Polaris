@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import classes from "./Accordion.module.scss";
 import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
@@ -7,7 +8,9 @@ import { AccordionDocumentSection } from "./types";
 
 type Props = {
   accordionState: AccordionDocumentSection[];
-  handleOpenPdf: (caseDocument: { documentId: number }) => void;
+  handleOpenPdf: (caseDocument: {
+    documentId: CaseDocumentViewModel["documentId"];
+  }) => void;
 };
 
 export const Accordion: React.FC<Props> = ({

@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Domain.DocumentEvaluation;
-using Common.Logging;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -32,16 +26,16 @@ namespace coordinator.Domain.Tracker
 
         [JsonProperty("logs")]
         public List<Log> Logs { get; set; }
-        
+
         [JsonProperty("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
 
         public Task Initialise(string transactionId)
         {
             TransactionId = transactionId;
-            
+
             Documents = new List<TrackerDocument>();
-            
+
             Status = TrackerStatus.Running;
             Logs = new List<Log>();
             ProcessingCompleted = null; //reset the processing date
@@ -57,40 +51,49 @@ namespace coordinator.Domain.Tracker
             if (Documents.Count == 0) //no documents yet loaded in the tracker for this case, grab them all
             {
                 Documents = arg.IncomingDocuments
-                    .Select(item => new TrackerDocument(item.DocumentId, item.VersionId, item.OriginalFileName))
+                    .Select(item => CreateTrackerDocument(item))
                     .ToList();
                 Log(LogType.RegisteredDocumentIds);
             }
             else
             {
                 //remove any documents that are no longer present in the list retrieved from CMS from the tracker so they are no reprocessed
-                foreach (var trackedDocument in 
-                         Documents.Where(trackedDocument => 
-                             !arg.IncomingDocuments.Exists(x => x.DocumentId == trackedDocument.DocumentId && x.VersionId == trackedDocument.VersionId)))
+                foreach (var trackedDocument in
+                         Documents.Where(trackedDocument =>
+                             !arg.IncomingDocuments.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
                 {
-                    evaluationResults.DocumentsToRemove.Add(new DocumentToRemove(trackedDocument.DocumentId, trackedDocument.VersionId));
+                    evaluationResults.DocumentsToRemove.Add(new DocumentToRemove(trackedDocument.CmsDocumentId, trackedDocument.CmsVersionId));
                 }
-                
+
                 //now remove any invalid documents from the tracker so they are not reprocessed
-                foreach (var item in 
-                         evaluationResults.DocumentsToRemove.Select(invalidDocument => 
-                             Documents.Find(x => x.DocumentId == invalidDocument.DocumentId && x.VersionId == invalidDocument.VersionId)))
+                foreach (var item in
+                         evaluationResults.DocumentsToRemove.Select(invalidDocument =>
+                             Documents.Find(x => x.CmsDocumentId == invalidDocument.DocumentId && x.CmsVersionId == invalidDocument.VersionId)))
                 {
                     Documents.Remove(item);
                 }
-                
+
                 //now evaluate all incoming documents against the existing tracker record that are not already identified for removal and make sure
                 //that anything new is added to the tracker
-                foreach (var cmsDocument in from cmsDocument in 
-                             arg.IncomingDocuments where !evaluationResults.DocumentsToRemove
-                             .Exists(x => x.DocumentId == cmsDocument.DocumentId && x.VersionId == cmsDocument.VersionId) 
-                         let item = Documents.Find(x => x.DocumentId == cmsDocument.DocumentId) where item == null select cmsDocument)
+                foreach (var cmsDocument in from cmsDocument in
+                             arg.IncomingDocuments
+                                            where !evaluationResults.DocumentsToRemove
+                             .Exists(x => x.DocumentId == cmsDocument.DocumentId && x.VersionId == cmsDocument.VersionId)
+                                            let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId)
+                                            where item == null
+                                            select cmsDocument)
                 {
-                    Documents.Add(new TrackerDocument(cmsDocument.DocumentId, cmsDocument.VersionId, cmsDocument.OriginalFileName));
+                    TrackerDocument trackerDocument = CreateTrackerDocument(cmsDocument);
+                    Documents.Add(trackerDocument);
                 }
             }
 
             return Task.CompletedTask;
+        }
+
+        private TrackerDocument CreateTrackerDocument(IncomingDocument document)
+        {
+            return new TrackerDocument(document.PolarisDocumentId, document.DocumentId, document.VersionId, document.CmsDocType, document.MimeType, document.CreatedDate, document.OriginalFileName);
         }
 
         public Task ProcessEvaluatedDocuments()
@@ -99,24 +102,25 @@ namespace coordinator.Domain.Tracker
 
             return Task.CompletedTask;
         }
-        
+
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
             {
                 document.PdfBlobName = arg.BlobName;
                 document.Status = DocumentStatus.PdfUploadedToBlob;
+                document.IsPdfAvailable = true;
             }
 
             Log(LogType.RegisteredPdfBlobName, arg.DocumentId);
 
             return Task.CompletedTask;
         }
-        
+
         public Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
             {
                 document.PdfBlobName = arg.BlobName;
@@ -130,10 +134,10 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterDocumentNotFoundInDDEI(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.NotFoundInDDEI;
-            
+
             Log(LogType.DocumentNotFoundInDDEI, documentId);
 
             return Task.CompletedTask;
@@ -141,7 +145,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterUnableToConvertDocumentToPdf(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.UnableToConvertToPdf;
 
@@ -152,7 +156,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterUnexpectedPdfDocumentFailure(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.UnexpectedFailure;
 
@@ -172,7 +176,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterIndexed(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.Indexed;
 
@@ -183,7 +187,7 @@ namespace coordinator.Domain.Tracker
 
         public Task RegisterOcrAndIndexFailure(string documentId)
         {
-            var document = Documents.Find(document => document.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
                 document.Status = DocumentStatus.OcrAndIndexFailure;
 
@@ -218,7 +222,7 @@ namespace coordinator.Domain.Tracker
         public Task<bool> AllDocumentsFailed()
         {
             return Task.FromResult(
-                Documents.All(d => d.Status is DocumentStatus.NotFoundInDDEI 
+                Documents.All(d => d.Status is DocumentStatus.NotFoundInDDEI
                     or DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
         }
 
@@ -231,12 +235,12 @@ namespace coordinator.Domain.Tracker
         {
             if (Status is TrackerStatus.Running)
                 return Task.FromResult(false);
-            
+
             if (forceRefresh || Status is TrackerStatus.Failed)
                 return Task.FromResult(true);
 
-            return ProcessingCompleted.HasValue 
-                ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date) 
+            return ProcessingCompleted.HasValue
+                ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date)
                 : Task.FromResult(false);
         }
 
@@ -254,47 +258,6 @@ namespace coordinator.Domain.Tracker
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
             return context.DispatchAsync<Tracker>();
-        }
-
-        [FunctionName("TrackerStatus")]
-        public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/{caseUrn}/{caseId}/tracker")] HttpRequestMessage req,
-            string caseUrn,
-            string caseId,
-            [DurableClient] IDurableEntityClient client,
-            ILogger log)
-        {
-            const string loggingName = $"TrackerStatus - {nameof(HttpStart)}";
-            const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
-            
-            req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-            if (correlationIdValues == null)
-            {
-                log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
-                return new BadRequestObjectResult(correlationErrorMessage);
-            }
-
-            var correlationId = correlationIdValues.FirstOrDefault();
-            if (!Guid.TryParse(correlationId, out var currentCorrelationId))
-                if (currentCorrelationId == Guid.Empty)
-                {
-                    log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
-                    return new BadRequestObjectResult(correlationErrorMessage);
-                }
-
-            log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
-
-            var entityId = new EntityId(nameof(Tracker), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
-            if (!stateResponse.EntityExists)
-            {
-                var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
-                return new NotFoundObjectResult(baseMessage);
-            }
-
-            log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-            return new OkObjectResult(stateResponse.EntityState);
         }
     }
 }

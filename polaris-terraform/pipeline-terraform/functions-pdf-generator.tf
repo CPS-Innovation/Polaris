@@ -13,20 +13,22 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = "10.7.197.20"
+    "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_pdf_generator_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
+    "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_pipeline_storage_connection_string.id})"
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
     "DocumentsRepositoryBaseUrl"               = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
+    "ListDocumentsUrl"                         = "urns/{0}/cases/{1}/documents?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}",
     "GetDocumentUrl"                           = "urns/{0}/cases/{1}/documents/{2}/{3}?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
   }
   https_only = true
@@ -47,14 +49,6 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
     unauthenticated_client_action = "AllowAnonymous"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
-
-    ]
   }
 
   tags = local.common_tags

@@ -4,23 +4,34 @@ namespace coordinator.Domain
 {
     public class CaseDocumentOrchestrationPayload : BasePipelinePayload
     {
-        public CaseDocumentOrchestrationPayload(string caseUrn, long caseId, string documentCategory, string documentId, long versionId, string fileName, string cmsAuthValues, Guid correlationId)
-            : base(caseUrn, caseId, correlationId)
+        public CaseDocumentOrchestrationPayload
+            (
+                Guid polarisDocumentId,
+                string cmsCaseUrn, 
+                long cmsCaseId, 
+                string cmsDocumentCategory, 
+                string cmsDocumentId, 
+                long cmsVersionId, 
+                string cmsFileName, 
+                string cmsAuthValues, 
+                Guid correlationId
+            )
+            : base(polarisDocumentId, cmsCaseUrn, cmsCaseId, correlationId)
         {
-            DocumentCategory = documentCategory;
-            DocumentId = documentId;
-            VersionId = versionId;
-            FileName = fileName;
+            CmsDocumentCategory = cmsDocumentCategory;
+            CmsDocumentId = cmsDocumentId;
+            CmsVersionId = cmsVersionId;
+            CmsFileName = cmsFileName;
             CmsAuthValues = cmsAuthValues;
         }
 
-        public string DocumentCategory { get; set; }
+        public string CmsDocumentCategory { get; set; }
 
-        public string DocumentId { get; set; }
+        public string CmsDocumentId { get; set; }
 
-        public long VersionId { get; set; }
+        public long CmsVersionId { get; set; }
 
-        public string FileName { get; set; }
+        public string CmsFileName { get; set; }
 
         public string CmsAuthValues { get; set; }
     }

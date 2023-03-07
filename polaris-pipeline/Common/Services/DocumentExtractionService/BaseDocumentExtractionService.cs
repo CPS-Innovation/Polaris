@@ -26,6 +26,8 @@ public abstract class BaseDocumentExtractionService
         _logger.LogMethodEntry(correlationId, nameof(GetHttpContentAsync), $"RequestUri: {requestUri}");
 
         var request = _httpRequestFactory.CreateGet(requestUri, cmsAuthValues, correlationId);
+        _logger.LogMethodFlow(correlationId, nameof(GetHttpContentAsync), $"{request.Method} {_httpClient.BaseAddress}{requestUri}");
+
         var response = await _httpClient.SendAsync(request);
 
         try

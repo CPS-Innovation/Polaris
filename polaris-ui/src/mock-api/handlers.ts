@@ -4,19 +4,16 @@ import devSearchDataSource from "./data/searchResults.dev";
 import cypressSearchDataSource from "./data/searchResults.cypress";
 import devCaseDetailsDataSource from "./data/caseDetails.dev";
 import cypressDetailsDataSource from "./data/caseDetails.cypress";
-import devDocumentsDataSource from "./data/documents.dev";
-import cypressDocumentsDataSource from "./data/documents.cypress";
 import devpipelinePdfResultsDataSource from "./data/pipelinePdfResults.dev";
 import cypresspipelinePdfResultsDataSource from "./data/pipelinePdfResults.cypress";
 import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
-
 import { SearchDataSource } from "./data/types/SearchDataSource";
 import {
   CaseDetailsDataSource,
   lastRequestedUrnCache,
 } from "./data/types/CaseDetailsDataSource";
-import { DocumentsDataSource } from "./data/types/DocumentsDataSource";
+
 import { PipelinePdfResultsDataSource } from "./data/types/PipelinePdfResultsDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
 import * as routes from "./routes";
@@ -33,11 +30,6 @@ const searchDataSources: { [key: string]: SearchDataSource } = {
 const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
   dev: devCaseDetailsDataSource,
   cypress: cypressDetailsDataSource,
-};
-
-const documentsDataSources: { [key: string]: DocumentsDataSource } = {
-  dev: devDocumentsDataSource,
-  cypress: cypressDocumentsDataSource,
 };
 
 const pipelinePdfResultsDataSources: {
@@ -87,14 +79,6 @@ export const setupHandlers = ({
       return res(delay(ctx), ctx.json(result));
     }),
 
-    rest.get(makeApiPath(routes.DOCUMENTS_ROUTE), (req, res, ctx) => {
-      const { caseId } = req.params;
-
-      const result = documentsDataSources[sourceName](+caseId);
-
-      return res(delay(ctx), ctx.json(result));
-    }),
-
     rest.post(makeApiPath(routes.INITIATE_PIPELINE_ROUTE), (req, res, ctx) => {
       const { caseId, urn } = req.params;
       return res(
@@ -113,19 +97,41 @@ export const setupHandlers = ({
       return res(ctx.delay(sanitisedMaxDelay), ctx.json(result));
     }),
 
-    rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
-      const { blobName } = req.params;
+    rest.get(makeApiPath(routes.TEXT_SEARCH_ROUTE), (req, res, ctx) => {
+      const query = req.url.searchParams.get("query")!;
+      const results = searchCaseDataSources[sourceName](query);
 
-      const fileBase64 = (pdfStrings as { [key: string]: string })[blobName];
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.get(makeApiPath(routes.FILE_ROUTE), (req, res, ctx) => {
+      const { documentId } = req.params;
+
+      const blobName = pipelinePdfResultsDataSources[
+        sourceName
+      ]().documents.find(
+        (document) => document.documentId === documentId
+      )?.pdfBlobName;
+
+      const fileBase64 = (pdfStrings as { [key: string]: string })[blobName!];
 
       return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
     }),
 
-    rest.get(makeApiPath(routes.TEXT_SEARCH_ROUTE), (req, res, ctx) => {
-      const { query } = req.params;
-      const results = searchCaseDataSources[sourceName](query);
+    rest.get(makeApiPath(routes.GET_SAS_URL_ROUTE), (req, res, ctx) => {
+      const { documentId } = req.params;
 
-      return res(delay(ctx), ctx.json(results));
+      const blobName = pipelinePdfResultsDataSources[
+        sourceName
+      ]().documents.find(
+        (document) => document.documentId === documentId
+      )?.pdfBlobName;
+
+      return res(
+        ctx.text(
+          makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName!)
+        )
+      );
     }),
 
     rest.put(makeApiPath(routes.DOCUMENT_CHECKOUT_ROUTE), (req, res, ctx) => {
@@ -134,15 +140,6 @@ export const setupHandlers = ({
 
     rest.put(makeApiPath(routes.DOCUMENT_CHECKIN_ROUTE), (req, res, ctx) => {
       return res(ctx.json({ successful: true, documentStatus: "CheckedOut" }));
-    }),
-
-    rest.get(makeApiPath(routes.GET_SAS_URL_ROUTE), (req, res, ctx) => {
-      const { blobName } = req.params;
-      return res(
-        ctx.text(
-          makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName)
-        )
-      );
     }),
   ];
 };

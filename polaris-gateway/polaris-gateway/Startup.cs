@@ -9,10 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-// using PolarisGateway.Clients.DocumentExtraction;
-// using PolarisGateway.Clients.DocumentRedaction;
 using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Clients;
@@ -23,6 +20,12 @@ using PolarisGateway.Services;
 using PolarisGateway.Wrappers;
 using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
+using Microsoft.IdentityModel.Logging;
+using Common.Health;
+using PolarisGateway.Factories.Contracts;
+using Common.Services.SasGeneratorService;
+using Common.Domain.Extensions;
+using Common.Constants;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -33,26 +36,22 @@ namespace PolarisGateway
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+#if DEBUG
+            // https://stackoverflow.com/questions/54435551/invalidoperationexception-idx20803-unable-to-obtain-configuration-from-pii
+            IdentityModelEventSource.ShowPII = true;
+#endif
+
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddOptions<SearchClientOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("searchClient").Bind(settings);
-            });
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
             builder.Services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            builder.Services.AddTransient<ISearchIndexClient, SearchIndexClient>();
-            builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
-            builder.Services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
-            builder.Services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
-            builder.Services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
             builder.Services.AddTransient<ICmsAuthValuesFactory, CmsAuthValuesFactory>();
 
             builder.Services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
@@ -66,43 +65,11 @@ namespace PolarisGateway
                 client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            
-            builder.Services.AddSingleton(_ =>
-            {
-                const string authInstanceUrl = AuthenticationKeys.AzureAuthenticationInstanceUrl;
-                var tenantId = GetValueFromConfig(configuration, ConfigurationKeys.TenantId);
-                var clientId = GetValueFromConfig(configuration, ConfigurationKeys.ClientId);
-                var clientSecret = GetValueFromConfig(configuration, ConfigurationKeys.ClientSecret);
-                var appOptions = new ConfidentialClientApplicationOptions
-                {
-                    Instance = authInstanceUrl,
-                    TenantId = tenantId,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret
-                };
 
-                var authority = $"{authInstanceUrl}{tenantId}/";
-
-                return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(appOptions).WithAuthority(authority).Build();
-            });
-
-            builder.Services.AddAzureClients(azureBuilder =>
-            {
-                azureBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
-                    .WithCredential(new DefaultAzureCredential());
-            });
-
-            builder.Services.AddTransient<IBlobStorageClient>(serviceProvider =>
-            {
-                var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
-                return new BlobStorageClient(serviceProvider.GetRequiredService<BlobServiceClient>(),
-                    GetValueFromConfig(configuration, ConfigurationKeys.BlobContainerName), logger);
-            });
-
+            // TODO - remove these services as moving to pipeline
+            BuildBlobServiceClient(builder, configuration);
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
-            builder.Services.AddTransient<IBlobSasBuilderWrapper, BlobSasBuilderWrapper>();
-            builder.Services.AddTransient<IBlobSasBuilderFactory, BlobSasBuilderFactory>();
-            builder.Services.AddTransient<IBlobSasBuilderWrapperFactory, BlobSasBuilderWrapperFactory>();
+
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
@@ -124,6 +91,59 @@ namespace PolarisGateway
             });
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+
+            BuildHealthChecks(builder);
+        }
+
+        // see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        // Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHttpClient();
+
+            var pipelineCoordinator = "pipelineCoordinator";
+            builder.Services.AddHttpClient(pipelineCoordinator, client =>
+            {
+                string url = Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
+            });
+
+            var pdfFunctions = "pdfFunctions";
+            builder.Services.AddHttpClient(pdfFunctions, client =>
+            {
+                string url = Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl");
+                client.BaseAddress = new Uri(url.GetBaseUrl());
+                client.DefaultRequestHeaders.Add("Cms-Auth-Values", AuthenticatedHealthCheck.CmsAuthValue);
+                client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
+            });
+
+            var ddeiClient = "ddeiClient";
+
+            builder.Services.AddHealthChecks()
+                .AddCheck<DdeiClientHealthCheck>(ddeiClient)
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator })
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions }); 
+        }
+
+        private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
+        {
+            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
+            {
+                //string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
+                //azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
+                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
+                    .WithCredential(new DefaultAzureCredential());
+            });
+
+            builder.Services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
+            {
+                var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
+                BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
+                string blobServiceContainerName = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.BlobServiceContainerName);
+                return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
+            }));
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

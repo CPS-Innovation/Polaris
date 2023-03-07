@@ -4,17 +4,17 @@ namespace coordinator.Domain
 {
     public class CoordinatorOrchestrationPayload : BasePipelinePayload
     {
-        public CoordinatorOrchestrationPayload(string caseUrn, long caseId, bool forceRefresh, string cmsAuthValues, Guid correlationId)
-            : base(caseUrn, caseId, correlationId)
+        public CoordinatorOrchestrationPayload(string cmsCaseUrn, long cmsCaseId, bool forceRefresh, string cmsAuthValues, Guid correlationId)
+            : base(default, cmsCaseUrn, cmsCaseId, correlationId)
         {
             ForceRefresh = forceRefresh;
             CmsAuthValues = cmsAuthValues;
         }
 
-        public bool ForceRefresh { get; set; }
+        public bool ForceRefresh { get; init; }
 
-        public string AccessToken { get; set; }
+        public string AccessToken { get; init; }
 
-        public string CmsAuthValues { get; set; }
+        public string CmsAuthValues { get; init; }
     }
 }

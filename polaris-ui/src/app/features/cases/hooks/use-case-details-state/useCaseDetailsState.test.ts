@@ -1,7 +1,7 @@
 import { useCaseDetailsState, initialState } from "./useCaseDetailsState";
 import * as api from "../../api/gateway-api";
 import * as pipelineApi from "../use-pipeline-api/usePipelineApi";
-import { CaseDocument } from "../../domain/CaseDocument";
+
 import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
 import { PipelineResults } from "../../domain/PipelineResults";
 import { AsyncPipelineResult } from "../use-pipeline-api/AsyncPipelineResult";
@@ -29,15 +29,6 @@ describe("useCaseDetailsState", () => {
           )
       );
 
-    const mockgetCaseDocumentsList = jest
-      .spyOn(api, "getCaseDocumentsList")
-      .mockImplementation(
-        () =>
-          new Promise((resolve) =>
-            setTimeout(() => resolve([] as CaseDocument[]), 100)
-          )
-      );
-
     const mockSearchCase = jest
       .spyOn(api, "searchCase")
       .mockImplementation(
@@ -51,9 +42,7 @@ describe("useCaseDetailsState", () => {
       if (isSameRef(del, mockGetCaseDetails)) {
         return { status: "succeeded", data: "getCaseDetails" };
       }
-      if (isSameRef(del, mockgetCaseDocumentsList)) {
-        return { status: "succeeded", data: "getCaseDocumentsList" };
-      }
+
       if (isSameRef(del, mockSearchCase)) {
         return {
           status: "succeeded",
@@ -111,11 +100,6 @@ describe("useCaseDetailsState", () => {
       });
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
-        type: "UPDATE_CASE_DOCUMENTS",
-        payload: { status: "succeeded", data: "getCaseDocumentsList" },
-      });
-
-      expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "UPDATE_PIPELINE",
         payload: {},
       });
@@ -137,11 +121,6 @@ describe("useCaseDetailsState", () => {
       });
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
-        type: "UPDATE_CASE_DOCUMENTS",
-        payload: { status: "loading" },
-      });
-
-      expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "UPDATE_SEARCH_RESULTS",
         payload: { status: "loading" },
       });
@@ -155,11 +134,6 @@ describe("useCaseDetailsState", () => {
 
       expect(reducerSpy).not.toBeCalledWith(expect.anything(), {
         type: "UPDATE_CASE_DETAILS",
-        payload: { status: "initial" },
-      });
-
-      expect(reducerSpy).not.toBeCalledWith(expect.anything(), {
-        type: "UPDATE_CASE_DOCUMENTS",
         payload: { status: "initial" },
       });
 
@@ -178,11 +152,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      act(() => handleClosePdf({ documentId: 1 }));
+      act(() => handleClosePdf({ documentId: "1" }));
 
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "CLOSE_PDF",
-        payload: { pdfId: 1 },
+        payload: { pdfId: "1" },
       });
     });
 
@@ -277,11 +251,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      act(() => handleOpenPdfInNewTab(2));
+      act(() => handleOpenPdfInNewTab("2"));
 
       expect(mockHandler).toBeCalledWith({
         type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: { pdfId: 2 },
+        payload: { documentId: "2" },
       });
     });
 
@@ -298,11 +272,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      act(() => handleOpenPdf({ documentId: 2, mode: "read" }));
+      act(() => handleOpenPdf({ documentId: "2", mode: "read" }));
 
       expect(mockHandler).toBeCalledWith({
         type: "REQUEST_OPEN_PDF",
-        payload: { pdfId: 2, mode: "read" },
+        payload: { documentId: "2", mode: "read" },
       });
     });
 
@@ -319,11 +293,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleAddRedaction(2, { type: "redaction" } as NewPdfHighlight);
+      handleAddRedaction("2", { type: "redaction" } as NewPdfHighlight);
 
       expect(mockHandler).toBeCalledWith({
         type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
-        payload: { pdfId: 2, redaction: { type: "redaction" } },
+        payload: { documentId: "2", redaction: { type: "redaction" } },
       });
     });
 
@@ -343,11 +317,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleRemoveRedaction(2, "baz");
+      handleRemoveRedaction("2", "baz");
 
       expect(mockHandler).toBeCalledWith({
         type: "REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK",
-        payload: { pdfId: 2, redactionId: "baz" },
+        payload: { documentId: "2", redactionId: "baz" },
       });
     });
 
@@ -364,11 +338,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleRemoveAllRedactions(2);
+      handleRemoveAllRedactions("2");
 
       expect(mockHandler).toBeCalledWith({
         type: "REMOVE_ALL_REDACTIONS_AND_UNLOCK",
-        payload: { pdfId: 2 },
+        payload: { documentId: "2" },
       });
     });
 
@@ -385,11 +359,11 @@ describe("useCaseDetailsState", () => {
         },
       } = renderHook(() => useCaseDetailsState("bar", 1));
 
-      handleSavedRedactions(2);
+      handleSavedRedactions("2");
 
       expect(mockHandler).toBeCalledWith({
         type: "SAVE_REDACTIONS",
-        payload: { pdfId: 2 },
+        payload: { documentId: "2" },
       });
     });
   });

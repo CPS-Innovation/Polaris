@@ -5,7 +5,10 @@ import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 type SortFn = (a: MappedDocumentResult, b: MappedDocumentResult) => 1 | 0 | -1;
 
 const SortByPropertyDesc = (
-  property: keyof MappedDocumentResult,
+  property: Extract<
+    keyof MappedDocumentResult,
+    "documentId" | "cmsFileCreatedDate" | "occurrencesInDocumentCount"
+  >,
   a: MappedDocumentResult,
   b: MappedDocumentResult
 ) => {
@@ -15,7 +18,7 @@ const SortByPropertyDesc = (
 // Sorting on created date then by document id gives deterministic results
 const sortByDateDesc: SortFn = (a, b) =>
   // sort by created date desc
-  SortByPropertyDesc("createdDate", a, b) ||
+  SortByPropertyDesc("cmsFileCreatedDate", a, b) ||
   // then by documentId
   SortByPropertyDesc("documentId", a, b);
 
@@ -27,7 +30,7 @@ const sortByOccurancesPerDocumentDesc: SortFn = (a, b) =>
   // sort by occurrences desc
   SortByPropertyDesc("occurrencesInDocumentCount", a, b) ||
   // sort by created date desc
-  SortByPropertyDesc("createdDate", a, b) ||
+  SortByPropertyDesc("cmsFileCreatedDate", a, b) ||
   // then by documentId
   SortByPropertyDesc("documentId", a, b);
 

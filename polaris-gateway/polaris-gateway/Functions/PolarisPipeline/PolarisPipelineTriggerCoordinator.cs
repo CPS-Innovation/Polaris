@@ -5,13 +5,13 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Factories;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using System.Net;
+using PolarisGateway.Factories.Contracts;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -49,9 +49,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
                 if (string.IsNullOrWhiteSpace(urn))
                     return BadRequestErrorResponse("An empty case URN was received - please correct.", currentCorrelationId, loggingName);
-
-                // if (!int.TryParse(caseId, out var _))
-                //     return BadRequestErrorResponse("Invalid case id. A 32-bit integer is required.", currentCorrelationId, loggingName);
 
                 var force = false;
                 if (req.Query.ContainsKey("force") && !bool.TryParse(req.Query["force"], out force))

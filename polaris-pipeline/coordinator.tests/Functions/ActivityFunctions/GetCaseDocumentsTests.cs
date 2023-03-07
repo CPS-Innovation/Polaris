@@ -15,7 +15,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 {
     public class GetCaseDocumentsTests
     {
-        private readonly Case _case;
+        private readonly CmsCase _case;
         private readonly GetCaseDocumentsActivityPayload _payload;
 
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
@@ -26,7 +26,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
         {
             var fixture = new Fixture();
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
-            _case = fixture.Create<Case>();
+            _case = fixture.Create<CmsCase>();
 
             var mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();
@@ -34,7 +34,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 
-            mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CaseUrn, _payload.CaseId.ToString(),
+            mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(),
                     _payload.CmsAuthValues, _payload.CorrelationId))
                 .ReturnsAsync(_case.CaseDocuments);
 
@@ -54,7 +54,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
         [Fact]
         public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
-            _payload.CaseId = 0;
+            _payload.CmsCaseId = 0;
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 
@@ -80,7 +80,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
         [InlineData(" ")]
         public async Task Run_WhenCaseUrnIsNullOrWhitespace_ThrowsArgumentException(string caseUrn)
         {
-            _payload.CaseUrn = caseUrn;
+            _payload.CmsCaseUrn = caseUrn;
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 

@@ -1,7 +1,8 @@
 import { mapAccordionState } from "./map-accordion-state";
-import { CaseDocument } from "../../domain/CaseDocument";
+
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
+import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
 
 jest.mock("./document-category-definitions", () => ({
   categoryNamesInPresentationOrder: ["category-a", "category-b"],
@@ -9,7 +10,7 @@ jest.mock("./document-category-definitions", () => ({
 
 describe("mapAccordionState", () => {
   it("can return a loading status when the api result is  'loading'", () => {
-    const apiResult: ApiResult<CaseDocument[]> = {
+    const apiResult: ApiResult<PresentationDocumentProperties[]> = {
       status: "loading",
     };
 
@@ -19,7 +20,7 @@ describe("mapAccordionState", () => {
   });
 
   it("can return a loading status when the api is result is 'failed'", () => {
-    const apiResult: ApiResult<CaseDocument[]> = {
+    const apiResult: ApiResult<PresentationDocumentProperties[]> = {
       status: "failed",
       error: null,
       httpStatusCode: undefined,
@@ -35,9 +36,11 @@ describe("mapAccordionState", () => {
       status: "succeeded",
       data: [
         {
-          documentId: 1,
+          documentId: "1",
+          cmsDocumentId: "1",
           presentationCategory: "category-a",
-          fileName: "foo",
+          cmsOriginalFileName: "foo",
+          cmsMimeType: "application/pdf",
           presentationFileName: "foo!",
           cmsDocCategory: "MGForm",
           cmsDocType: {
@@ -45,12 +48,18 @@ describe("mapAccordionState", () => {
             code: "MG11",
             name: "MG11 File",
           },
-          createdDate: "2020-01-01",
+          cmsFileCreatedDate: "2020-01-01",
+          presentationStatuses: {
+            viewStatus: "Ok",
+            redactStatus: "Ok",
+          },
         },
         {
-          documentId: 2,
+          documentId: "2",
+          cmsDocumentId: "2",
           presentationCategory: "category-b",
-          fileName: "bar",
+          cmsOriginalFileName: "bar",
+          cmsMimeType: "application/pdf",
           presentationFileName: "bar!",
           cmsDocCategory: "MGForm",
           cmsDocType: {
@@ -58,7 +67,11 @@ describe("mapAccordionState", () => {
             code: "MG12",
             name: "MG12 File",
           },
-          createdDate: "2020-01-02",
+          cmsFileCreatedDate: "2020-01-02",
+          presentationStatuses: {
+            viewStatus: "Ok",
+            redactStatus: "Ok",
+          },
         },
       ],
     };
@@ -73,9 +86,11 @@ describe("mapAccordionState", () => {
           sectionLabel: "category-a",
           docs: [
             {
-              documentId: 1,
+              documentId: "1",
+              cmsDocumentId: "1",
               presentationCategory: "category-a",
-              fileName: "foo",
+              cmsOriginalFileName: "foo",
+              cmsMimeType: "application/pdf",
               presentationFileName: "foo!",
               cmsDocCategory: "MGForm",
               cmsDocType: {
@@ -83,7 +98,11 @@ describe("mapAccordionState", () => {
                 code: "MG11",
                 name: "MG11 File",
               },
-              createdDate: "2020-01-01",
+              cmsFileCreatedDate: "2020-01-01",
+              presentationStatuses: {
+                viewStatus: "Ok",
+                redactStatus: "Ok",
+              },
             },
           ],
         },
@@ -92,9 +111,11 @@ describe("mapAccordionState", () => {
           sectionLabel: "category-b",
           docs: [
             {
-              documentId: 2,
+              documentId: "2",
+              cmsDocumentId: "2",
               presentationCategory: "category-b",
-              fileName: "bar",
+              cmsOriginalFileName: "bar",
+              cmsMimeType: "application/pdf",
               presentationFileName: "bar!",
               cmsDocCategory: "MGForm",
               cmsDocType: {
@@ -102,7 +123,11 @@ describe("mapAccordionState", () => {
                 code: "MG12",
                 name: "MG12 File",
               },
-              createdDate: "2020-01-02",
+              cmsFileCreatedDate: "2020-01-02",
+              presentationStatuses: {
+                viewStatus: "Ok",
+                redactStatus: "Ok",
+              },
             },
           ],
         },

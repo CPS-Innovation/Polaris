@@ -1,6 +1,9 @@
-import { CaseDocument } from "../../domain/CaseDocument";
+import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
 
-const docTypeTest = (caseDocument: CaseDocument, codes: string[]) =>
+const docTypeTest = (
+  caseDocument: PresentationDocumentProperties,
+  codes: string[]
+) =>
   !!caseDocument.cmsDocType.code &&
   codes.some(
     (code) =>
@@ -12,7 +15,7 @@ const docTypeTest = (caseDocument: CaseDocument, codes: string[]) =>
 const documentCategoryDefinitions: {
   category: string;
   showIfEmpty: boolean;
-  test: (caseDocument: CaseDocument) => boolean;
+  test: (caseDocument: PresentationDocumentProperties) => boolean;
 }[] = [
   // todo: when we know, write the `test` logic to identify which document goes in which section
   {
@@ -100,5 +103,5 @@ export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
   ({ category }) => category
 );
 
-export const getCategory = (item: CaseDocument) =>
+export const getCategory = (item: PresentationDocumentProperties) =>
   documentCategoryDefinitions.find(({ test }) => test(item))!.category;

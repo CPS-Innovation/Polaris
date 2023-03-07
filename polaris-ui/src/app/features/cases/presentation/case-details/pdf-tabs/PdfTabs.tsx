@@ -1,18 +1,18 @@
 import { Tabs } from "../../../../../common/presentation/components/tabs";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-
+import { getRedactStatus } from "../utils/pdfTabsUtils";
 import { PdfTab } from "./PdfTab";
 
 type PdfTabsProps = {
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;
-    activeTabId: number | undefined;
+    activeTabId: string | undefined;
   };
-
-  handleTabSelection: (documentId: number) => void;
-  handleClosePdf: (caseDocument: { documentId: number }) => void;
+  pipelineState: CaseDetailsState["pipelineState"];
+  handleTabSelection: (documentId: string) => void;
+  handleClosePdf: (caseDocument: { documentId: string }) => void;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -24,6 +24,7 @@ type PdfTabsProps = {
 export const PdfTabs: React.FC<PdfTabsProps> = ({
   tabsState: { items, headers, activeTabId },
   handleTabSelection,
+  pipelineState,
   handleClosePdf,
   handleLaunchSearchResults,
   handleAddRedaction,
@@ -43,6 +44,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               caseDocumentViewModel={item}
+              redactStatus={getRedactStatus(item.documentId, pipelineState)}
               headers={headers}
               handleLaunchSearchResults={handleLaunchSearchResults}
               handleAddRedaction={handleAddRedaction}

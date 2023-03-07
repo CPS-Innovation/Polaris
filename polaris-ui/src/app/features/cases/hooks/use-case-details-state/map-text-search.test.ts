@@ -7,7 +7,7 @@ describe("mapTextSearch", () => {
     const apiResults = [
       {
         id: "1",
-        documentId: 1,
+        documentId: "1",
         pageIndex: 0,
         words: [
           { boundingBox: [1], text: "foo", confidence: 1, matchType: "Exact" },
@@ -16,7 +16,7 @@ describe("mapTextSearch", () => {
       },
       {
         id: "2",
-        documentId: 2,
+        documentId: "2",
         pageIndex: 0,
         words: [
           { boundingBox: null, text: "baz", confidence: 1, matchType: "None" },
@@ -25,7 +25,7 @@ describe("mapTextSearch", () => {
       },
       {
         id: "3",
-        documentId: 2,
+        documentId: "2",
         pageIndex: 0,
         words: [
           { boundingBox: [1], text: "foo", confidence: 1, matchType: "Fuzzy" },
@@ -34,7 +34,7 @@ describe("mapTextSearch", () => {
       },
       {
         id: "4",
-        documentId: 2,
+        documentId: "2",
         pageIndex: 1,
         words: [
           { boundingBox: [1], text: "foo", confidence: 1, matchType: "Exact" },
@@ -44,8 +44,8 @@ describe("mapTextSearch", () => {
     ] as ApiTextSearchResult[];
 
     const caseDocuments = [
-      { documentId: 1 },
-      { documentId: 2 },
+      { documentId: "1" },
+      { documentId: "2" },
     ] as MappedCaseDocument[];
 
     const result = mapTextSearch(apiResults, caseDocuments);
@@ -53,7 +53,7 @@ describe("mapTextSearch", () => {
     expect(result).toEqual({
       documentResults: [
         {
-          documentId: 1,
+          documentId: "1",
           isVisible: true,
           occurrences: [
             {
@@ -75,7 +75,7 @@ describe("mapTextSearch", () => {
           occurrencesInDocumentCount: 1,
         },
         {
-          documentId: 2,
+          documentId: "2",
           isVisible: true,
           occurrences: [
             {

@@ -13,9 +13,9 @@ const ARROW_KEY_SHIFTS = {
 };
 
 export type TabsProps = CommonTabsProps & {
-  activeTabId: number | undefined;
-  handleTabSelection: (documentId: number) => void;
-  handleClosePdf: (caseDocument: { documentId: number }) => void;
+  activeTabId: string | undefined;
+  handleTabSelection: (documentId: string) => void;
+  handleClosePdf: (caseDocument: { documentId: string }) => void;
 };
 
 export const Tabs: React.FC<TabsProps> = ({
@@ -82,7 +82,7 @@ export const Tabs: React.FC<TabsProps> = ({
         ? 1 // we are removing the first item, so we need the item to the right
         : thisItemIndex - 1; // otherwise, we need the item to the left
 
-    const nextTabId = nextTabIndex === undefined ? 0 : items[nextTabIndex].id;
+    const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
     handleTabSelection(nextTabId);
     handleClosePdf({ documentId: items[activeTabIndex].id });
   };

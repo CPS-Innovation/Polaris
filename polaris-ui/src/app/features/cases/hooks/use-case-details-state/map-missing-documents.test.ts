@@ -1,11 +1,11 @@
-import { CaseDocument } from "../../domain/CaseDocument";
+import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { PipelineResults } from "../../domain/PipelineResults";
 import { mapMissingDocuments } from "./map-missing-documents";
 
 const CASE_DOCUMENTS = [
-  { documentId: 1, fileName: "file-name-1" },
-  { documentId: 2, fileName: "file-name-2" },
-] as CaseDocument[];
+  { documentId: "1", cmsOriginalFileName: "file-name-1" },
+  { documentId: "2", cmsOriginalFileName: "file-name-2" },
+] as MappedCaseDocument[];
 
 describe("mapMissingDocuments", () => {
   it("can return missing documents when pipeline is complete", () => {
@@ -13,8 +13,8 @@ describe("mapMissingDocuments", () => {
       status: "Completed",
       transactionId: "",
       documents: [
-        { documentId: 1, status: "OcrAndIndexFailure" },
-        { documentId: 2, status: "Indexed" },
+        { documentId: "1", status: "OcrAndIndexFailure" },
+        { documentId: "2", status: "Indexed" },
       ],
     } as PipelineResults;
 
@@ -22,7 +22,7 @@ describe("mapMissingDocuments", () => {
 
     expect(result).toEqual([
       {
-        documentId: 1,
+        documentId: "1",
         fileName: "file-name-1",
       },
     ]);
@@ -33,8 +33,8 @@ describe("mapMissingDocuments", () => {
       status: "Completed",
       transactionId: "",
       documents: [
-        { documentId: 3, status: "OcrAndIndexFailure" },
-        { documentId: 1, status: "Indexed" },
+        { documentId: "3", status: "OcrAndIndexFailure" },
+        { documentId: "1", status: "Indexed" },
       ],
     } as PipelineResults;
 
@@ -42,7 +42,7 @@ describe("mapMissingDocuments", () => {
 
     expect(result).toEqual([
       {
-        documentId: 3,
+        documentId: "3",
         fileName: "",
       },
     ]);

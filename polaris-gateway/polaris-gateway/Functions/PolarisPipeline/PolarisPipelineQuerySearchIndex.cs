@@ -14,19 +14,22 @@ namespace PolarisGateway.Functions.PolarisPipeline
 {
     public class PolarisPipelineQuerySearchIndex : BasePolarisFunction
     {
-        private readonly ISearchIndexClient _searchIndexClient;
+        private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineQuerySearchIndex> _logger;
 
-        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger, ISearchIndexClient searchIndexClient, IAuthorizationValidator tokenValidator)
+        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger, IPipelineClient pipelineClient, IAuthorizationValidator tokenValidator)
             : base(logger, tokenValidator)
         {
-            _searchIndexClient = searchIndexClient;
+            _pipelineClient = pipelineClient;
             _logger = logger;
         }
 
         [FunctionName("PolarisPipelineQuerySearchIndex")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/query/{*searchTerm}")] HttpRequest req, int caseId, string searchTerm)
+            [HttpTrigger(AuthorizationLevel.Anonymous, 
+            "get", 
+            Route = "urns/{urn}/cases/{caseId}/documents/search")] HttpRequest req, 
+            string urn, int caseId)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "PolarisPipelineQuerySearchIndex - Run";
@@ -43,10 +46,15 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (caseId <= 0)
                     return BadRequestErrorResponse("A valid caseId must be supplied, one that is greater than zero", currentCorrelationId, loggingName);
 
-                if (string.IsNullOrWhiteSpace(searchTerm))
-                    return BadRequestErrorResponse("Search term is not supplied.", currentCorrelationId, loggingName);
+                string searchTerm;
+                if (!req.Query.ContainsKey("query"))
+                    return BadRequestErrorResponse("Search query is not supplied.", currentCorrelationId, loggingName);
 
-                var searchResults = await _searchIndexClient.Query(caseId, searchTerm, currentCorrelationId);
+                searchTerm = req.Query["query"];
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                    return BadRequestErrorResponse("Search query term is not supplied.", currentCorrelationId, loggingName);
+
+                var searchResults = await _pipelineClient.SearchCase(urn, caseId, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }
