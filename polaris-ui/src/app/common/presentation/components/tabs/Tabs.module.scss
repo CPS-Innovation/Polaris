@@ -1,75 +1,26 @@
 @import "../../../../../styles.scss";
-// essentially an override of the GDS Tabs styling to make our pdf tabs look and act as we need
-.tabs {
-  :global(.govuk-tabs__list) {
-    display: flex;
-
-    overflow-y: hidden;
-    overflow-x: auto;
-    padding-top: 5px;
-  }
-
-  :global(.govuk-tabs__panel) {
-    padding: 0 !important;
-  }
-
-  :global(.govuk-tabs__list-item) {
-    // make inactive tabs touch the top of the content, rather than have a separation
-    padding-bottom: 12px !important;
-    display: flex;
-    :global(.govuk-tabs__tab) {
-      display: inline-block;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      max-width: 180px;
-
-      // the GDS styling uses an ::after set of rules to make the standard hyperlink's
-      //  click area expand to fill the entire area of the containing tab.  We now have the "close"
-      //  icon so we switch away from pinning the hyperlink's footprint to the right-hand edge to only going up
-      //  to 50 px from the edge, giving the close button a chance to accept mouse click.
-      &::after {
-        right: 50px;
-      }
-    }
-  }
-
-  :global(.govuk-tabs__list-item--selected) span {
-    display: inline-block;
-    margin-left: 10px;
-    button {
-      background: none;
-      color: inherit;
-      border: none;
-      padding: 0;
-      font: inherit;
-      cursor: pointer;
-
-      svg {
-        cursor: pointer;
-        height: 28px;
-        width: 28px;
-        circle {
-          stroke: white;
-          fill: $govuk-border-colour;
-        }
-      }
-    }
-  }
-}
-
-.tabsButtons {
+.tabsWrapper {
   display: flex;
-  flex-direction: row;
-  border-bottom: 1px solid #b1b4b6;
+  padding-top: 5px;
+  overflow-y: hidden;
+  overflow-x: auto;
+  border-bottom: 1px solid $govuk-border-colour;
 }
+.tabsList {
+  display: flex;
+  align-items: flex-end;
+  align-content: baseline;
+  margin-bottom: 0px;
+  padding: 0;
+}
+
 .activeTab {
   background-color: white;
-  border: solid 1px;
+  border: 1px solid $govuk-border-colour;
   border-bottom: none;
-  .tabButton:focus {
-    text-decoration: underline;
-    text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+  .tabButton {
+    padding-right: 50px;
+    padding-top: 30px;
   }
 }
 .inactiveTab {
@@ -78,23 +29,26 @@
   text-decoration: underline;
 }
 
-.tabButtonWrap {
+.tabListItem {
   display: flex;
   position: relative;
-  max-width: 240px;
-  margin-right: 3px;
-  align-items: center;
-  align-self: center;
+  max-width: 250px;
+  margin-right: 5px;
 }
 .tabButton {
   display: flex;
   width: 100%;
+  white-space: nowrap;
   padding: 20px;
   font-size: 16px;
   border: none;
   background-color: transparent;
-  padding-right: 35px;
   cursor: pointer;
+}
+.tabLabel {
+  max-width: 180px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .inactiveTab:hover {
@@ -108,7 +62,8 @@
   background-color: transparent;
   position: absolute;
   border: none;
-  right: 5px;
+  right: 10px;
+  top: 25px;
   padding: 0;
   cursor: pointer;
 }

@@ -97,45 +97,53 @@ export const Tabs: React.FC<TabsProps> = ({
   };
 
   const renderTabs = () => {
+    if (!items.length) {
+      return null;
+    }
     return (
-      <div className={classes.tabsButtons} role="tablist">
-        {items.map((item, index) => {
-          const { id: itemId, label } = item;
+      <div className={`${classes.tabsWrapper}`}>
+        <ul className={`${classes.tabsList}   perma-scrollbar`} role="tablist">
+          {items.map((item, index) => {
+            const { id: itemId, label } = item;
 
-          return (
-            <div
-              className={`${
-                activeTabIndex === index
-                  ? classes.activeTab
-                  : classes.inactiveTab
-              } ${classes.tabButtonWrap}`}
-              key={itemId}
-              data-testid={`tab-${index}`}
-            >
-              <button
-                id={`tab_${index}`}
-                aria-controls={`panel-${index}`}
-                role="tab"
-                className={classes.tabButton}
-                data-testid={index === activeTabIndex ? "tab-active" : ""}
-                onClick={() => handleTabSelection(itemId)}
-                onKeyDown={handleKeyPressOnTab}
-                ref={index === activeTabIndex ? activeTabRef : undefined}
-                tabIndex={index === activeTabIndex ? 0 : -1}
+            return (
+              <li
+                className={`${
+                  activeTabIndex === index
+                    ? classes.activeTab
+                    : classes.inactiveTab
+                } ${classes.tabListItem}`}
+                key={itemId}
+                data-testid={`tab-${index}`}
+                role="presentation"
               >
-                {label}
-              </button>
+                <button
+                  id={`tab_${index}`}
+                  aria-controls={`panel-${index}`}
+                  role="tab"
+                  className={classes.tabButton}
+                  data-testid={index === activeTabIndex ? "tab-active" : ""}
+                  onClick={() => handleTabSelection(itemId)}
+                  onKeyDown={handleKeyPressOnTab}
+                  ref={index === activeTabIndex ? activeTabRef : undefined}
+                  tabIndex={index === activeTabIndex ? 0 : -1}
+                >
+                  <span className={classes.tabLabel}> {label}</span>
+                </button>
 
-              <button
-                className={classes.tabCloseButton}
-                onClick={handleCloseTab}
-                data-testid="tab-remove"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-          );
-        })}
+                {activeTabIndex === index && (
+                  <button
+                    className={classes.tabCloseButton}
+                    onClick={handleCloseTab}
+                    data-testid="tab-remove"
+                  >
+                    <CloseIcon />
+                  </button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
     );
   };
