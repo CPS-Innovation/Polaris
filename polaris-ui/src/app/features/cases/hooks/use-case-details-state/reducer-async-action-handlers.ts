@@ -57,7 +57,6 @@ type AsyncActions =
   | {
       type: "REQUEST_OPEN_PDF";
       payload: {
-        tabSafeId: CaseDocumentViewModel["tabSafeId"];
         documentId: CaseDocumentViewModel["documentId"];
         mode: CaseDocumentViewModel["mode"];
       };

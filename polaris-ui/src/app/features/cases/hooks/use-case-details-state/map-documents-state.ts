@@ -8,9 +8,8 @@ export const mapDocumentsState = (
   result: PresentationDocumentProperties[]
 ): AsyncResult<MappedCaseDocument[]> => ({
   status: "succeeded",
-  data: result.map((item, index) => ({
+  data: result.map((item) => ({
     ...item,
-    tabSafeId: `d${index}`,
     presentationFileName: getFileNameWithoutExtension(item.cmsOriginalFileName),
     presentationCategory: getCategory(item),
   })),

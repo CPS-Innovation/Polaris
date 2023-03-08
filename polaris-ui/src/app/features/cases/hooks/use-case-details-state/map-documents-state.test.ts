@@ -35,14 +35,12 @@ describe("mapDocumentsState", () => {
       data: [
         {
           ...doc1,
-          tabSafeId: "d0",
           presentationCategory: "category0",
           cmsOriginalFileName: "foo",
           presentationFileName: "foo!",
         },
         {
           ...doc2,
-          tabSafeId: "d1",
           presentationCategory: "category1",
           cmsOriginalFileName: "bar",
           presentationFileName: "bar!",

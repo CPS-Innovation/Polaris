@@ -38,7 +38,6 @@ describe("mapAccordionState", () => {
         {
           documentId: "1",
           cmsDocumentId: "1",
-          tabSafeId: "d0",
           presentationCategory: "category-a",
           cmsOriginalFileName: "foo",
           cmsMimeType: "application/pdf",
@@ -58,7 +57,6 @@ describe("mapAccordionState", () => {
         {
           documentId: "2",
           cmsDocumentId: "2",
-          tabSafeId: "d1",
           presentationCategory: "category-b",
           cmsOriginalFileName: "bar",
           cmsMimeType: "application/pdf",
@@ -90,7 +88,6 @@ describe("mapAccordionState", () => {
             {
               documentId: "1",
               cmsDocumentId: "1",
-              tabSafeId: "d0",
               presentationCategory: "category-a",
               cmsOriginalFileName: "foo",
               cmsMimeType: "application/pdf",
@@ -116,7 +113,6 @@ describe("mapAccordionState", () => {
             {
               documentId: "2",
               cmsDocumentId: "2",
-              tabSafeId: "d1",
               presentationCategory: "category-b",
               cmsOriginalFileName: "bar",
               cmsMimeType: "application/pdf",
