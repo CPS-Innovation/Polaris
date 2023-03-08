@@ -5,9 +5,9 @@
 		Initialised,
 		NotStarted,
 		Running,
-		// ReSharper disable once InconsistentNaming
 		NoDocumentsFoundInDDEI,
-		Completed,
+        DocumentsRetrieved,
+        Completed,
 		Failed,
 		UnableToEvaluateExistingDocuments
 	}
