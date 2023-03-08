@@ -34,6 +34,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     handleOpenPdf,
     handleClosePdf,
+    handleTabSelection,
     handleSearchTermChange,
     handleLaunchSearchResults,
     handleCloseSearchResults,
@@ -86,6 +87,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleOpenPdf={(params) => {
               setShowAlert(false);
               handleOpenPdf({ ...params, mode: "read" });
+              handleTabSelection(params.documentId);
             }}
           />
         </Modal>
@@ -102,7 +104,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleCloseSearchResults,
             handleChangeResultsOrder,
             handleUpdateFilter,
-            handleOpenPdf,
+            handleOpenPdf: (caseDoc) => {
+              handleOpenPdf(caseDoc);
+              handleTabSelection(caseDoc.documentId);
+            },
           }}
         />
       )}
@@ -137,9 +142,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               ) : (
                 <Accordion
                   accordionState={accordionState.data}
-                  handleOpenPdf={(caseDoc) =>
-                    handleOpenPdf({ ...caseDoc, mode: "read" })
-                  }
+                  handleOpenPdf={(caseDoc) => {
+                    handleOpenPdf({ ...caseDoc, mode: "read" });
+                    handleTabSelection(caseDoc.documentId);
+                  }}
                 />
               )}
             </div>
@@ -153,6 +159,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabs
                 pipelineState={pipelineState}
                 tabsState={tabsState}
+                handleTabSelection={handleTabSelection}
                 handleClosePdf={handleClosePdf}
                 handleLaunchSearchResults={handleLaunchSearchResults}
                 handleAddRedaction={handleAddRedaction}

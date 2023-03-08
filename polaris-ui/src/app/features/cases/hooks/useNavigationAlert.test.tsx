@@ -33,7 +33,6 @@ describe("useNavigationAlert hook", () => {
         },
       ],
       sasUrl: undefined,
-      tabSafeId: "d0",
       url: undefined,
     },
     {
@@ -62,7 +61,7 @@ describe("useNavigationAlert hook", () => {
         },
       ],
       sasUrl: undefined,
-      tabSafeId: "d1",
+
       url: undefined,
     },
   ];
@@ -80,12 +79,10 @@ describe("useNavigationAlert hook", () => {
     expect(result.current.unSavedRedactionDocs).toEqual([
       {
         documentId: "1",
-        tabSafeId: "d0",
         presentationFileName: "MCLOVEMG3  very long",
       },
       {
         documentId: "2",
-        tabSafeId: "d1",
         presentationFileName: "MCLOVEMG4 test",
       },
     ]);

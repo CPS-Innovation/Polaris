@@ -23,7 +23,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   return (
     <div className={classes.content}>
       <LinkButton
-        data-testid="btn-open-pdf"
+        dataTestId="btn-open-pdf"
         onClick={() => handleOpenPdfInNewTab(documentId)}
       >
         {presentationFileName} (opens in a new window)
