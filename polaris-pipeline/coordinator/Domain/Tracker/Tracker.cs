@@ -85,8 +85,11 @@ namespace coordinator.Domain.Tracker
                 {
                     TrackerDocument trackerDocument = CreateTrackerDocument(cmsDocument);
                     Documents.Add(trackerDocument);
+                    Log(LogType.DocumentRetrieved, trackerDocument.CmsDocumentId);
                 }
             }
+
+            Status = TrackerStatus.DocumentsRetrieved;
 
             return Task.CompletedTask;
         }
@@ -244,13 +247,13 @@ namespace coordinator.Domain.Tracker
                 : Task.FromResult(false);
         }
 
-        private void Log(LogType status, string documentId = null)
+        private void Log(LogType status, string cmsDocumentId = null)
         {
             Logs.Add(new Log
             {
                 LogType = status.ToString(),
                 TimeStamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),
-                DocumentId = documentId
+                CmsDocumentId = cmsDocumentId
             });
         }
 
