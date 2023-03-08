@@ -1,19 +1,26 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 import { useSearchInputLogic } from "./useSearchInputLogic";
-import * as isUrnValid from "../logic/is-urn-valid";
+import * as isUrnValid from "../logic/validate-urn";
 
-let mockIsValidValue: boolean;
+let mockIsValidValue: isUrnValid.ValidateUrnReturnType = {
+  isValid: false,
+  rootUrn: null,
+};
 
 describe("useSearchInputLogic", () => {
   beforeEach(() => {
+    mockIsValidValue = { isValid: false, rootUrn: null };
     jest
-      .spyOn(isUrnValid, "isUrnValid")
+      .spyOn(isUrnValid, "validateUrn")
       .mockImplementation((urn: string) => mockIsValidValue);
   });
 
   it("can set URN values", async () => {
     const { result } = renderHook(() =>
-      useSearchInputLogic({ initialUrn: "A", setParams: (params) => {} })
+      useSearchInputLogic({
+        urnFromSearchParams: "A",
+        setParams: (params) => {},
+      })
     );
 
     expect(result.current.urn).toBe("A");
@@ -25,7 +32,10 @@ describe("useSearchInputLogic", () => {
 
   it("can initialise with an undefined inittialUrn", () => {
     const { result } = renderHook(() =>
-      useSearchInputLogic({ initialUrn: undefined, setParams: (params) => {} })
+      useSearchInputLogic({
+        urnFromSearchParams: undefined,
+        setParams: (params) => {},
+      })
     );
 
     expect(result.current.urn).toBe("");
@@ -33,24 +43,29 @@ describe("useSearchInputLogic", () => {
 
   it("can submit a valid urn and call setParams", () => {
     const mockSetParams = jest.fn();
-    mockIsValidValue = true;
+    mockIsValidValue = { isValid: true, rootUrn: "B" };
 
     const { result } = renderHook(() =>
-      useSearchInputLogic({ initialUrn: "A", setParams: mockSetParams })
+      useSearchInputLogic({
+        urnFromSearchParams: "A",
+        setParams: mockSetParams,
+      })
     );
 
     act(() => result.current.handleSubmit());
 
     expect(result.current.isError).toBe(false);
-    expect(mockSetParams).toBeCalledWith({ urn: "A" });
+    expect(mockSetParams).toBeCalledWith({ urn: "B" });
   });
 
   it("can submit an invalid urn and not call setParams", () => {
     const mockSetParams = jest.fn();
-    mockIsValidValue = false;
 
     const { result } = renderHook(() =>
-      useSearchInputLogic({ initialUrn: "A", setParams: mockSetParams })
+      useSearchInputLogic({
+        urnFromSearchParams: "A",
+        setParams: mockSetParams,
+      })
     );
 
     act(() => result.current.handleSubmit());
@@ -61,10 +76,13 @@ describe("useSearchInputLogic", () => {
 
   it("can submit with by pressing enter", () => {
     const mockSetParams = jest.fn();
-    mockIsValidValue = true;
+    mockIsValidValue = { isValid: true, rootUrn: "B" };
 
     const { result } = renderHook(() =>
-      useSearchInputLogic({ initialUrn: "A", setParams: mockSetParams })
+      useSearchInputLogic({
+        urnFromSearchParams: "A",
+        setParams: mockSetParams,
+      })
     );
 
     act(() =>
@@ -73,15 +91,17 @@ describe("useSearchInputLogic", () => {
       } as React.KeyboardEvent<HTMLInputElement>)
     );
 
-    expect(mockSetParams).toBeCalledWith({ urn: "A" });
+    expect(mockSetParams).toBeCalledWith({ urn: "B" });
   });
 
-  it("can not submit with by pressing space", () => {
+  it("can not submit by pressing space", () => {
     const mockSetParams = jest.fn();
-    mockIsValidValue = true;
 
     const { result } = renderHook(() =>
-      useSearchInputLogic({ initialUrn: "A", setParams: mockSetParams })
+      useSearchInputLogic({
+        urnFromSearchParams: "A",
+        setParams: mockSetParams,
+      })
     );
 
     act(() =>
