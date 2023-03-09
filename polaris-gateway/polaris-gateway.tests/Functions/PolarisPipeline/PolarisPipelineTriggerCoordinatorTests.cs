@@ -12,6 +12,7 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Domain.Validation;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Functions.PolarisPipeline;
@@ -48,7 +49,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
-            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user" });
 
             _polarisPipelineTriggerCoordinator =
                 new PolarisPipelineTriggerCoordinator(mockLogger.Object, _mockPipelineClient.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTokenValidator.Object);
@@ -82,7 +83,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
         {
-            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
+            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = false });
             var response = await _polarisPipelineTriggerCoordinator.Run(CreateHttpRequest(), _caseUrn, _caseId);
 
             response.Should().BeOfType<UnauthorizedObjectResult>();

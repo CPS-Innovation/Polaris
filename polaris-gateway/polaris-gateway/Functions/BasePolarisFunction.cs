@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +31,14 @@ namespace PolarisGateway.Functions
             try
             {
                 result.CurrentCorrelationId = EstablishCorrelation(req);
-                result.AccessTokenValue = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
+                // Important that we call AuthenticateRequest as soon as we have CurrentCorrelationId and before EstablishCmsAuthValues.
+                //  Inside AuthenticateRequest we are adding our user identity in to the AppInsights logs, so best to do this before
+                //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
+                var (username, accessToken) = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
+                result.AccessTokenValue = accessToken;
+
+                RegisterCriticalTelemetry(username, result.CurrentCorrelationId);
+
                 // todo: only DDEI-bound requests need to have a cms auth values
                 result.CmsAuthValues = EstablishCmsAuthValues(req);
             }
@@ -65,17 +73,17 @@ namespace PolarisGateway.Functions
             return currentCorrelationId;
         }
 
-        private async Task<StringValues> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
+        private async Task<(String, StringValues)> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
         {
             if (!req.Headers.TryGetValue(AuthenticationKeys.Authorization, out var accessTokenValue) ||
                 string.IsNullOrWhiteSpace(accessTokenValue))
                 throw new CpsAuthenticationException();
 
-            var validToken = await _tokenValidator.ValidateTokenAsync(accessTokenValue, currentCorrelationId, validScopes, validRoles);
-            if (!validToken)
+            var validateTokenResult = await _tokenValidator.ValidateTokenAsync(accessTokenValue, currentCorrelationId, validScopes, validRoles);
+            if (!validateTokenResult.IsValid)
                 throw new CpsAuthorizationException();
 
-            return accessTokenValue;
+            return (validateTokenResult.UserName, accessTokenValue);
         }
 
         private static string EstablishCmsAuthValues(HttpRequest req)
@@ -139,6 +147,33 @@ namespace PolarisGateway.Functions
         protected void LogInformation(string message, Guid correlationId, string loggerSource)
         {
             _logger.LogMethodFlow(correlationId, loggerSource, message);
+        }
+
+        private void RegisterCriticalTelemetry(string userName, Guid correlationId)
+        {
+            Activity activity = Activity.Current;
+            if (activity == null)
+            {
+                throw new CriticalTelemetryException("System.Diagnostics.Activity.Current was expected but found to be null");
+            }
+
+            try
+            {
+                activity.AddTag(TelemetryConstants.UserCustomDimensionName, userName);
+            }
+            catch (Exception exception)
+            {
+                throw new CriticalTelemetryException($"Unable to set {TelemetryConstants.UserCustomDimensionName}", exception);
+            }
+
+            try
+            {
+                activity.AddTag(TelemetryConstants.CorrelationIdCustomDimensionName, correlationId.ToString());
+            }
+            catch (Exception exception)
+            {
+                throw new CriticalTelemetryException($"Unable to set {TelemetryConstants.CorrelationIdCustomDimensionName}", exception);
+            }
         }
     }
 }
