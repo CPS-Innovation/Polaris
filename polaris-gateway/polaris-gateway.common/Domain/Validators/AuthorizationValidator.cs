@@ -1,18 +1,15 @@
 ﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Extensions;
-using System.Security;
+using System.Diagnostics;
+using PolarisGateway.Domain.Exceptions;
 
 namespace PolarisGateway.Domain.Validators
 {
@@ -33,7 +30,6 @@ namespace PolarisGateway.Domain.Validators
             _log.LogMethodEntry(correlationId, nameof(ValidateTokenAsync), string.Empty);
             if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
             _correlationId = correlationId;
-            
             try
             {
                 var issuer = $"https://sts.windows.net/{Environment.GetEnvironmentVariable(ConfigurationKeys.TenantId)}/";
@@ -58,9 +54,12 @@ namespace PolarisGateway.Domain.Validators
                     ClockSkew = TimeSpan.FromMinutes(2),
                 };
 
-                var tokenValidator = new JwtSecurityTokenHandler(); 
-                var claimsPrincipal = tokenValidator.ValidateToken(token.ToJwtString(), validationParameters, out _);
-                
+                var tokenValidator = new JwtSecurityTokenHandler();
+                var jwt = token.ToJwtString();
+                var claimsPrincipal = tokenValidator.ValidateToken(jwt, validationParameters, out _);
+
+                RegisterCriticalTelemetry(claimsPrincipal, correlationId);
+
                 return IsValid(claimsPrincipal, requiredScopes, requiredRoles);
             }
             catch (InvalidOperationException invalidOperationException)
@@ -87,7 +86,7 @@ namespace PolarisGateway.Domain.Validators
         private bool IsValid(ClaimsPrincipal claimsPrincipal, string scopes = null, string roles = null)
         {
             _log.LogMethodEntry(_correlationId, nameof(IsValid), string.Empty);
-            
+
             if (claimsPrincipal == null)
             {
                 _log.LogMethodFlow(_correlationId, nameof(IsValid), "Claims Principal not found - returning 'false' indicating an authorization failure");
@@ -104,7 +103,7 @@ namespace PolarisGateway.Domain.Validators
             }
 
             var hasAccessToRoles = !requiredRoles.Any() || requiredRoles.All(claimsPrincipal.IsInRole);
-            
+
             var scopeClaim = claimsPrincipal.HasClaim(x => x.Type == ScopeType)
                 ? claimsPrincipal.Claims.First(x => x.Type == ScopeType).Value
                 : string.Empty;
@@ -115,12 +114,45 @@ namespace PolarisGateway.Domain.Validators
             _log.LogMethodExit(_correlationId, nameof(IsValid), $"Outcome role and scope checks - hasAccessToRoles: {hasAccessToRoles}, hasAccessToScopes: {hasAccessToScopes}");
             return hasAccessToRoles && hasAccessToScopes;
         }
-        
+
+        private void RegisterCriticalTelemetry(ClaimsPrincipal claimsPrincipal, Guid correlationId)
+        {
+            Activity activity = Activity.Current;
+            if (activity == null)
+            {
+                throw new CriticalTelemetryException("System.Diagnostics.Activity.Current was expected but found to be null");
+            }
+
+            string userName = claimsPrincipal.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                throw new CriticalTelemetryException("User not found in ClaimsPrincipal.Identity");
+            }
+
+            try
+            {
+                activity.AddTag(TelemetryConstants.UserCustomDimensionName, userName);
+            }
+            catch (Exception exception)
+            {
+                throw new CriticalTelemetryException($"Unable to set {TelemetryConstants.UserCustomDimensionName}", exception);
+            }
+
+            try
+            {
+                activity.AddTag(TelemetryConstants.CorrelationIdCustomDimensionName, correlationId.ToString());
+            }
+            catch (Exception exception)
+            {
+                throw new CriticalTelemetryException($"Unable to set {TelemetryConstants.CorrelationIdCustomDimensionName}", exception);
+            }
+        }
+
         private static List<string> LoadRequiredItems(string items)
         {
-            return string.IsNullOrWhiteSpace(items) 
-                ? new List<string>() 
-                : items.Replace(" ", string.Empty).Split(new[] {","}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            return string.IsNullOrWhiteSpace(items)
+                ? new List<string>()
+                : items.Replace(" ", string.Empty).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
     }
 }

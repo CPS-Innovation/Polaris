@@ -30,9 +30,9 @@ namespace PolarisGateway.Functions
             try
             {
                 result.CurrentCorrelationId = EstablishCorrelation(req);
+                result.AccessTokenValue = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
                 // todo: only DDEI-bound requests need to have a cms auth values
                 result.CmsAuthValues = EstablishCmsAuthValues(req);
-                result.AccessTokenValue = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
             }
             catch (CorrelationException correlationException)
             {
