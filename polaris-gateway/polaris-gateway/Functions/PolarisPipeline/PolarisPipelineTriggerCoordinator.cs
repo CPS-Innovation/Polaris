@@ -12,6 +12,7 @@ using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using System.Net;
 using PolarisGateway.Factories.Contracts;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -21,9 +22,12 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
         private readonly ILogger<PolarisPipelineTriggerCoordinator> _logger;
 
-        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger, 
-                                 IPipelineClient pipelineClient, ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger,
+                                                 IPipelineClient pipelineClient,
+                                                 ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
+                                                 IAuthorizationValidator tokenValidator,
+                                                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _triggerCoordinatorResponseFactory = triggerCoordinatorResponseFactory;

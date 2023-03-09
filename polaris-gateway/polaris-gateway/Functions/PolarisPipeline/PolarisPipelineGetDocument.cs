@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using System.Net.Http;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -18,8 +19,11 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineGetDocument> _logger;
 
-        public PolarisPipelineGetDocument(IPipelineClient pipelineClient, ILogger<PolarisPipelineGetDocument> logger, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+        public PolarisPipelineGetDocument(IPipelineClient pipelineClient,
+                                          ILogger<PolarisPipelineGetDocument> logger,
+                                          IAuthorizationValidator tokenValidator,
+                                          ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;

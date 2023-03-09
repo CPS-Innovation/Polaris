@@ -17,6 +17,7 @@ using PolarisGateway.Mappers;
 using PolarisGateway.Services;
 using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.DocumentRedaction
 {
@@ -38,8 +39,10 @@ namespace PolarisGateway.Functions.DocumentRedaction
             IRedactPdfRequestMapper redactPdfRequestMapper,
             IDocumentService documentService,
             IBlobStorageClient blobStorageClient,
-            IConfiguration configuration, IAuthorizationValidator tokenValidator)
-            : base(logger, tokenValidator)
+            IConfiguration configuration,
+            IAuthorizationValidator tokenValidator,
+             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _redactionClient = redactionClient ?? throw new ArgumentNullException(nameof(redactionClient));
             _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));

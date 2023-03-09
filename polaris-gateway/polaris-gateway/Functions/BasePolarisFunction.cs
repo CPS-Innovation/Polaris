@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Domain.Validators;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions
 {
@@ -16,11 +18,13 @@ namespace PolarisGateway.Functions
     {
         private readonly ILogger _logger;
         private readonly IAuthorizationValidator _tokenValidator;
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
-        protected BasePolarisFunction(ILogger logger, IAuthorizationValidator tokenValidator)
+        protected BasePolarisFunction(ILogger logger, IAuthorizationValidator tokenValidator, ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _tokenValidator = tokenValidator ?? throw new ArgumentNullException(nameof(tokenValidator));
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         protected async Task<ValidateRequestResult> ValidateRequest(HttpRequest req, string loggingSource, string validScopes, string validRoles = "")
@@ -30,9 +34,15 @@ namespace PolarisGateway.Functions
             try
             {
                 result.CurrentCorrelationId = EstablishCorrelation(req);
+                var (username, accessToken) = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
+                result.AccessTokenValue = accessToken;
+                // Important that we call RegisterCriticalTelemetry as soon as we have called AuthenticateRequest.
+                //  We are adding our user identity in to the AppInsights logs, so best to do this before
+                //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
+                _telemetryAugmentationWrapper.AugmentRequestTelemetry(username, result.CurrentCorrelationId);
+
                 // todo: only DDEI-bound requests need to have a cms auth values
                 result.CmsAuthValues = EstablishCmsAuthValues(req);
-                result.AccessTokenValue = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
             }
             catch (CorrelationException correlationException)
             {
@@ -65,17 +75,17 @@ namespace PolarisGateway.Functions
             return currentCorrelationId;
         }
 
-        private async Task<StringValues> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
+        private async Task<(String, StringValues)> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
         {
             if (!req.Headers.TryGetValue(AuthenticationKeys.Authorization, out var accessTokenValue) ||
                 string.IsNullOrWhiteSpace(accessTokenValue))
                 throw new CpsAuthenticationException();
 
-            var validToken = await _tokenValidator.ValidateTokenAsync(accessTokenValue, currentCorrelationId, validScopes, validRoles);
-            if (!validToken)
+            var validateTokenResult = await _tokenValidator.ValidateTokenAsync(accessTokenValue, currentCorrelationId, validScopes, validRoles);
+            if (!validateTokenResult.IsValid)
                 throw new CpsAuthorizationException();
 
-            return accessTokenValue;
+            return (validateTokenResult.UserName, accessTokenValue);
         }
 
         private static string EstablishCmsAuthValues(HttpRequest req)
