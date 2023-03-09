@@ -43,7 +43,7 @@ const caseDetails: CaseDetails[] = [
         custodyTimeLimit: {
           expiryDate: "2022-11-20",
           expiryDays: 20,
-          expiryIndicator: "Active",
+          expiryIndicator: "ACTIVE",
         },
         charges: [],
       },
@@ -84,7 +84,7 @@ const caseDetails: CaseDetails[] = [
         custodyTimeLimit: {
           expiryDate: "2022-11-20",
           expiryDays: 20,
-          expiryIndicator: "Active",
+          expiryIndicator: "ACTIVE",
         },
         charges: [],
       },
@@ -102,7 +102,7 @@ const caseDetails: CaseDetails[] = [
         custodyTimeLimit: {
           expiryDate: "2022-11-20",
           expiryDays: 120,
-          expiryIndicator: "Active",
+          expiryIndicator: "ACTIVE",
         },
         charges: [],
       },
@@ -120,7 +120,7 @@ const caseDetails: CaseDetails[] = [
         custodyTimeLimit: {
           expiryDate: "2022-11-20",
           expiryDays: 180,
-          expiryIndicator: "Active",
+          expiryIndicator: "ACTIVE",
         },
         charges: [],
       },
@@ -162,7 +162,7 @@ const caseDetails: CaseDetails[] = [
         custodyTimeLimit: {
           expiryDate: "2022-11-20",
           expiryDays: 20,
-          expiryIndicator: "Active",
+          expiryIndicator: "ACTIVE",
         },
         charges: [
           {
@@ -178,7 +178,7 @@ const caseDetails: CaseDetails[] = [
             custodyTimeLimit: {
               expiryDate: "2022-11-20",
               expiryDays: 20,
-              expiryIndicator: "Active",
+              expiryIndicator: "ACTIVE",
             },
           },
           {
@@ -194,7 +194,7 @@ const caseDetails: CaseDetails[] = [
             custodyTimeLimit: {
               expiryDate: "2022-11-20",
               expiryDays: 20,
-              expiryIndicator: "Active",
+              expiryIndicator: "ACTIVE",
             },
           },
         ],

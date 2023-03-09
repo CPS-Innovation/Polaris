@@ -15,7 +15,7 @@ export const getFormattedCustodyTimeData = (
   const { expiryDate, expiryDays, expiryIndicator } = custodyTimeLimit;
 
   switch (expiryIndicator) {
-    case "Active":
+    case "ACTIVE":
       return {
         custodyExpiryDays: `${expiryDays} ${expiryDays > 1 ? "Days" : "Day"}`,
         custodyExpiryDate: formatDate(
@@ -24,7 +24,7 @@ export const getFormattedCustodyTimeData = (
         ),
       };
 
-    case "Expired":
+    case "EXPIRED":
       return {
         custodyExpiryDays: "Expired",
         custodyExpiryDate: formatDate(

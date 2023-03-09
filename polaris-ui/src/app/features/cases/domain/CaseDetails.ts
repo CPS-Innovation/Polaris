@@ -47,5 +47,5 @@ type Charge = {
 export type CustodyTimeLimit = {
   expiryDate: string;
   expiryDays: number;
-  expiryIndicator: "Active" | "Expired" | null;
+  expiryIndicator: "ACTIVE" | "EXPIRED" | null;
 };
