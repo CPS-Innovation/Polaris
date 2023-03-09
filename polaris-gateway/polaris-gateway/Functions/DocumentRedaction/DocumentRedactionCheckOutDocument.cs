@@ -10,6 +10,7 @@ using PolarisGateway.Domain.Validators;
 using PolarisGateway.Services;
 using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Domain.CaseData.Args;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.DocumentRedaction
 {
@@ -18,8 +19,11 @@ namespace PolarisGateway.Functions.DocumentRedaction
         private readonly IDocumentService _documentService;
         private readonly ILogger<DocumentRedactionCheckoutDocument> _logger;
 
-        public DocumentRedactionCheckoutDocument(ILogger<DocumentRedactionCheckoutDocument> logger, IDocumentService documentService, IAuthorizationValidator tokenValidator)
-            : base(logger, tokenValidator)
+        public DocumentRedactionCheckoutDocument(ILogger<DocumentRedactionCheckoutDocument> logger,
+                                                 IDocumentService documentService,
+                                                 IAuthorizationValidator tokenValidator,
+                                                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _documentService = documentService ?? throw new ArgumentNullException(nameof(documentService));
             _logger = logger;

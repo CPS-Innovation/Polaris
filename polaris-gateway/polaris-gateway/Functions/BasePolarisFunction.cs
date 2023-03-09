@@ -10,6 +10,7 @@ using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Domain.Validators;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions
 {
@@ -17,11 +18,13 @@ namespace PolarisGateway.Functions
     {
         private readonly ILogger _logger;
         private readonly IAuthorizationValidator _tokenValidator;
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
-        protected BasePolarisFunction(ILogger logger, IAuthorizationValidator tokenValidator)
+        protected BasePolarisFunction(ILogger logger, IAuthorizationValidator tokenValidator, ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _tokenValidator = tokenValidator ?? throw new ArgumentNullException(nameof(tokenValidator));
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         protected async Task<ValidateRequestResult> ValidateRequest(HttpRequest req, string loggingSource, string validScopes, string validRoles = "")
@@ -31,13 +34,12 @@ namespace PolarisGateway.Functions
             try
             {
                 result.CurrentCorrelationId = EstablishCorrelation(req);
-                // Important that we call AuthenticateRequest as soon as we have CurrentCorrelationId and before EstablishCmsAuthValues.
-                //  Inside AuthenticateRequest we are adding our user identity in to the AppInsights logs, so best to do this before
-                //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
                 var (username, accessToken) = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
                 result.AccessTokenValue = accessToken;
-
-                RegisterCriticalTelemetry(username, result.CurrentCorrelationId);
+                // Important that we call RegisterCriticalTelemetry as soon as we have called AuthenticateRequest.
+                //  We are adding our user identity in to the AppInsights logs, so best to do this before
+                //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
+                _telemetryAugmentationWrapper.AugmentRequestTelemetry(username, result.CurrentCorrelationId);
 
                 // todo: only DDEI-bound requests need to have a cms auth values
                 result.CmsAuthValues = EstablishCmsAuthValues(req);

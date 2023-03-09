@@ -12,6 +12,7 @@ using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Wrappers;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
@@ -26,6 +27,8 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
         private readonly Mock<IPipelineClient> _mockPipelineClient;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
+
+        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
         private readonly PolarisPipelineGetDocument _polarisPipelineGetPdf;
 
@@ -47,7 +50,10 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _mockPipelineClient.Setup(client => client.GetDocumentAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ReturnsAsync(_blobStream);
 
-            _polarisPipelineGetPdf = new PolarisPipelineGetDocument(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object);
+            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
+
+            _polarisPipelineGetPdf = new PolarisPipelineGetDocument(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]

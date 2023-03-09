@@ -9,6 +9,7 @@ using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Clients.PolarisPipeline;
 using System.Net.Http;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -17,8 +18,11 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineGetDocumentSasUrl> _logger;
 
-        public PolarisPipelineGetDocumentSasUrl(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetDocumentSasUrl> logger, IPipelineClient pipelineClient)
-            : base(logger, tokenValidator)
+        public PolarisPipelineGetDocumentSasUrl(IAuthorizationValidator tokenValidator,
+                                                ILogger<PolarisPipelineGetDocumentSasUrl> logger,
+                                                IPipelineClient pipelineClient,
+                                                ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient ?? throw new ArgumentNullException(nameof(pipelineClient));
             _logger = logger;
@@ -37,7 +41,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
-                
+
                 currentCorrelationId = validationResult.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 

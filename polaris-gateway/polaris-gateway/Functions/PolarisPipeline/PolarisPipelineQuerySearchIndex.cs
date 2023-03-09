@@ -9,6 +9,7 @@ using System;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -17,8 +18,11 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineQuerySearchIndex> _logger;
 
-        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger, IPipelineClient pipelineClient, IAuthorizationValidator tokenValidator)
-            : base(logger, tokenValidator)
+        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger,
+                                               IPipelineClient pipelineClient,
+                                               IAuthorizationValidator tokenValidator,
+                                               ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;
@@ -26,9 +30,9 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         [FunctionName("PolarisPipelineQuerySearchIndex")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, 
-            "get", 
-            Route = "urns/{urn}/cases/{caseId}/documents/search")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous,
+            "get",
+            Route = "urns/{urn}/cases/{caseId}/documents/search")] HttpRequest req,
             string urn, int caseId)
         {
             Guid currentCorrelationId = default;

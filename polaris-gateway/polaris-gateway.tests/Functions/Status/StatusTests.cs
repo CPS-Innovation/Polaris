@@ -6,6 +6,7 @@ using Moq;
 using NSubstitute;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Domain.Validators;
+using PolarisGateway.Wrappers;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.Status
@@ -14,6 +15,8 @@ namespace PolarisGateway.Tests.Functions.Status
     {
         private readonly ILogger<PolarisGateway.Functions.Status.Status> _mockLogger = Substitute.For<ILogger<PolarisGateway.Functions.Status.Status>>();
         private readonly IAuthorizationValidator _mockTokenValidator = Substitute.For<IAuthorizationValidator>();
+
+        private readonly ITelemetryAugmentationWrapper _mockTelemetryAugmentationWrapper = Substitute.For<ITelemetryAugmentationWrapper>();
 
 
         public CoreDataApiCaseInformationByUrnFunctionTests()
@@ -78,7 +81,7 @@ namespace PolarisGateway.Tests.Functions.Status
 
         private PolarisGateway.Functions.Status.Status GetStatusFunction()
         {
-            return new PolarisGateway.Functions.Status.Status(_mockLogger, _mockTokenValidator);
+            return new PolarisGateway.Functions.Status.Status(_mockLogger, _mockTokenValidator, _mockTelemetryAugmentationWrapper);
         }
 
     }

@@ -16,6 +16,7 @@ using PolarisGateway.Domain.Validation;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Wrappers;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
@@ -29,6 +30,8 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
         private readonly Mock<IPipelineClient> _mockPipelineClient;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
+
+        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
         private readonly PolarisPipelineTriggerCoordinator _polarisPipelineTriggerCoordinator;
 
@@ -49,10 +52,13 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
-            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user" });
+            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user-name" });
+
+            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
 
             _polarisPipelineTriggerCoordinator =
-                new PolarisPipelineTriggerCoordinator(mockLogger.Object, _mockPipelineClient.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTokenValidator.Object);
+                new PolarisPipelineTriggerCoordinator(mockLogger.Object, _mockPipelineClient.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]

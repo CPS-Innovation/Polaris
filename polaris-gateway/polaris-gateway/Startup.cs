@@ -91,6 +91,7 @@ namespace PolarisGateway
             });
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
 
             BuildHealthChecks(builder);
         }
@@ -124,7 +125,7 @@ namespace PolarisGateway
             builder.Services.AddHealthChecks()
                 .AddCheck<DdeiClientHealthCheck>(ddeiClient)
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator })
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions }); 
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions });
         }
 
         private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
