@@ -8,7 +8,7 @@ describe("getFormattedCustodyTimeData util", () => {
     };
     const result = getFormattedCustodyTimeData(custodyTimeLimit);
     const expectedResult = {
-      custodyExpiryDays: "EXPIRED",
+      custodyExpiryDays: "Expired",
       custodyExpiryDate: "20 Nov 2022",
     };
 
