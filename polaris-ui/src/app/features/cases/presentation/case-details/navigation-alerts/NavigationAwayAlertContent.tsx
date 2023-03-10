@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../../../../../common/presentation/components/Button";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
+import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { UnSavedRedactionDoc } from "../../../hooks/useNavigationAlert";
 import classes from "./NavigationAwayAlertContent.module.scss";
 
@@ -9,7 +10,9 @@ type Props = {
   unSavedRedactionDocs?: UnSavedRedactionDoc[];
   handleCancelAction: () => void;
   handleContinueAction: () => void;
-  handleOpenPdf?: (doc: { tabSafeId: string; documentId: number }) => void;
+  handleOpenPdf?: (doc: {
+    documentId: CaseDocumentViewModel["documentId"];
+  }) => void;
 };
 
 export const NavigationAwayAlertContent: React.FC<Props> = ({
@@ -33,16 +36,13 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
       {type === "casefile" && (
         <div className={classes.documentLinks}>
           {unSavedRedactionDocs.map((caseDocument) => (
-            <a
-              key={caseDocument.tabSafeId}
-              href={`#${caseDocument.tabSafeId}`}
-              onClick={(ev) => {
-                handleOpenPdf && handleOpenPdf(caseDocument);
-              }}
-              data-testid={`link-document-${caseDocument.documentId}`}
+            <LinkButton
+              key={caseDocument.documentId}
+              onClick={() => handleOpenPdf && handleOpenPdf(caseDocument)}
+              dataTestId={`link-document-${caseDocument.documentId}`}
             >
               {caseDocument.presentationFileName}
-            </a>
+            </LinkButton>
           ))}
         </div>
       )}
@@ -51,7 +51,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
         <Button onClick={handleCancelAction} data-testid="btn-nav-return">
           Return to case file
         </Button>
-        <LinkButton onClick={handleContinueAction} data-testid="btn-nav-ignore">
+        <LinkButton onClick={handleContinueAction} dataTestId="btn-nav-ignore">
           Ignore
         </LinkButton>
       </div>

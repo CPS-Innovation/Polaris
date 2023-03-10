@@ -17,7 +17,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Functions;
-using text_extractor.Services.OcrService;
+using Common.Services.OcrService;
 using Xunit;
 
 namespace text_extractor.tests.Functions
@@ -167,7 +167,7 @@ namespace text_extractor.tests.Functions
 			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
 			await _extractText.Run(_httpRequestMessage);
 
-			_mockSearchIndexService.Verify(service => service.StoreResultsAsync(_mockAnalyzeResults.Object, _extractTextRequest.CaseId, _extractTextRequest.DocumentId,
+			_mockSearchIndexService.Verify(service => service.StoreResultsAsync(_mockAnalyzeResults.Object, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CmsCaseId, _extractTextRequest.CmsDocumentId,
 				_extractTextRequest.VersionId, _extractTextRequest.BlobName, _correlationId));
 		}
 

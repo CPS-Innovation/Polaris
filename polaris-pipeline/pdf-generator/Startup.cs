@@ -10,6 +10,7 @@ using Common.Domain.Responses;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
+using Common.Health;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.BlobStorageService;
@@ -80,8 +81,7 @@ namespace pdf_generator
 
             builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration[ConfigKeys.SharedKeys.BlobServiceUrl]))
-                    .WithCredential(new DefaultAzureCredential());
+                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
             });
             builder.Services.AddTransient<IBlobStorageService>(serviceProvider =>
             {
@@ -104,6 +104,21 @@ namespace pdf_generator
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
+
+            BuildHealthChecks(builder);
+        }
+
+        /// <summary>
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
+        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        {
+            builder.Services.AddHealthChecks()
+                 .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
+                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
+                 .AddCheck<DdeiDocumentExtractionServiceHealthCheck>("DDEI Document Extraction Service");
         }
     }
 }

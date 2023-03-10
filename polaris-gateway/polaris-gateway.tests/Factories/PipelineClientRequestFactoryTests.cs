@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using Xunit;
 
 namespace PolarisGateway.Tests.Factories

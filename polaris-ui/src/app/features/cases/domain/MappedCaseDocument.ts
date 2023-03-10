@@ -1,7 +1,6 @@
-import { CaseDocument } from "./CaseDocument";
+import { PresentationDocumentProperties } from "./PipelineDocument";
 
-export type MappedCaseDocument = CaseDocument & {
-  tabSafeId: string;
+export type MappedCaseDocument = PresentationDocumentProperties & {
   presentationCategory: string;
   presentationFileName: string;
 };

@@ -47,12 +47,13 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         return result;
     }
 
-    public async Task<CaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
+    public async Task<CmsCaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
-        var results = new List<CaseDocument>();
+        var results = new List<CmsCaseDocument>();
 
-        var response = await GetHttpContentAsync(string.Format(_configuration[ConfigKeys.SharedKeys.ListDocumentsUrl], caseUrn, caseId), 
+        string listDocumentUrlFormat = _configuration[ConfigKeys.SharedKeys.ListDocumentsUrl];
+        var response = await GetHttpContentAsync(string.Format(listDocumentUrlFormat, caseUrn, caseId), 
             cmsAuthValues, correlationId);
         var stringContent = await response.ReadAsStringAsync();
         var ddeiResults = _jsonConvertWrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(stringContent);
@@ -63,6 +64,5 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), results.ToJson());
 
         return results.ToArray();
-        //return results.Where(x => x.FileName.StartsWith("msgTestFile")).ToArray();
     }
 }

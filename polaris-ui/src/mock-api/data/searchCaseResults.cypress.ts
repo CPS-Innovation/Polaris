@@ -10,7 +10,7 @@ const searchResults: ApiTextSearchResult[] = [
   {
     id: "MTg4NDYtTUcyMCA1IEpVTkUtMS0zNA==",
     caseId: 17428,
-    documentId: 1,
+    documentId: "1",
     pageIndex: 1,
     lineIndex: 34,
     pageHeight: 11.6806,
@@ -72,7 +72,7 @@ const searchResults: ApiTextSearchResult[] = [
   {
     id: "MTg4NDYtTUcyMCAxMCBKVU5FLTEtMzQ=",
     caseId: 17428,
-    documentId: 1,
+    documentId: "1",
     pageIndex: 1,
     lineIndex: 34,
     pageHeight: 11.6806,
@@ -134,7 +134,7 @@ const searchResults: ApiTextSearchResult[] = [
   {
     id: "MTg4NDYtTUcyMCAxMCBKVU5FLTEtMzQ1=",
     caseId: 17428,
-    documentId: 1,
+    documentId: "1",
     pageIndex: 1,
     lineIndex: 34,
     pageHeight: 11.6806,
@@ -196,7 +196,7 @@ const searchResults: ApiTextSearchResult[] = [
   {
     id: "MTg4NDYtU0RDIGl0ZW1zIHRvIGJlIERpc2Nsb3NlZCAoMS02KSBNQ0xPVkUtMS0xOA==",
     caseId: 17428,
-    documentId: 2,
+    documentId: "2",
     pageIndex: 1,
     lineIndex: 18,
     pageHeight: 11.6806,
@@ -252,7 +252,7 @@ const searchResults: ApiTextSearchResult[] = [
   {
     id: "MTg4NDYtVU5VU0VEIDEgLSBTVE9STSBMT0cgMTg4MSAwMS42LjIwIC0gRURJVEVEIDIwMjAtMTEtMjMgTUNMT1ZFLTMtNDQ=",
     caseId: 17428,
-    documentId: 3,
+    documentId: "3",
     pageIndex: 3,
     lineIndex: 44,
     pageHeight: 11.6806,

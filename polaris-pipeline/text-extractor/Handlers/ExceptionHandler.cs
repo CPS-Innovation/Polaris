@@ -8,7 +8,6 @@ using Common.Domain.Exceptions;
 using Common.Exceptions.Contracts;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
-using text_extractor.Domain.Exceptions;
 
 namespace text_extractor.Handlers
 {

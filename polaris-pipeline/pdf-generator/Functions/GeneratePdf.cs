@@ -34,9 +34,13 @@ namespace pdf_generator.Functions
         private readonly ILogger<GeneratePdf> _log;
 
         public GeneratePdf(
-             IJsonConvertWrapper jsonConvertWrapper, IValidatorWrapper<GeneratePdfRequest> validatorWrapper,
+             IJsonConvertWrapper jsonConvertWrapper, 
+             IValidatorWrapper<GeneratePdfRequest> validatorWrapper,
              IDdeiDocumentExtractionService documentExtractionService,
-             IBlobStorageService blobStorageService, IPdfOrchestratorService pdfOrchestratorService, IExceptionHandler exceptionHandler, ILogger<GeneratePdf> logger)
+             IBlobStorageService blobStorageService, 
+             IPdfOrchestratorService pdfOrchestratorService, 
+             IExceptionHandler exceptionHandler, 
+             ILogger<GeneratePdf> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;

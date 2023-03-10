@@ -1,19 +1,15 @@
 import { ApiError } from "../../../common/errors/ApiError";
 
-import { CaseDocument } from "../domain/CaseDocument";
 import { CaseSearchResult } from "../domain/CaseSearchResult";
 import { PipelineResults } from "../domain/PipelineResults";
 import { ApiTextSearchResult } from "../domain/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/RedactionSaveRequest";
 import { RedactionSaveResponse } from "../domain/RedactionSaveResponse";
 import * as HEADERS from "./header-factory";
-import {
-  buildFullUrl as buildEncodedUrl,
-  fullUrl as buildUnencodedUrl,
-} from "./url-helpers";
 import { CaseDetails } from "../domain/CaseDetails";
 import { CmsDocCategory } from "../domain/CmsDocCategory";
 import { reauthenticationFilter } from "./reauthentication-filter";
+import { GATEWAY_BASE_URL } from "../../../config";
 
 const buildHeaders = async (
   ...args: (
@@ -31,11 +27,26 @@ const buildHeaders = async (
   return headers;
 };
 
-export const resolvePdfUrl = (blobNameUrlFragment: string) =>
-  buildUnencodedUrl(`/api/pdfs/${blobNameUrlFragment}`);
+const fullUrl = (path: string) => {
+  return new URL(path, GATEWAY_BASE_URL).toString();
+};
+
+// hack
+const temporaryApiModelMapping = (arr: any[]) =>
+  arr.forEach((item) => {
+    if (item.polarisDocumentId) {
+      item.documentId = item.polarisDocumentId;
+    }
+  });
+
+export const resolvePdfUrl = (
+  urn: string,
+  caseId: number,
+  documentId: string
+) => fullUrl(`api/urns/${urn}/cases/${caseId}/documents/${documentId}`);
 
 export const searchUrn = async (urn: string) => {
-  const url = buildEncodedUrl({ urn }, ({ urn }) => `/api/urns/${urn}/cases`);
+  const url = fullUrl(`/api/urns/${urn}/cases`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
   const response = await internalFetch(url, {
     headers,
@@ -54,10 +65,7 @@ export const searchUrn = async (urn: string) => {
 };
 
 export const getCaseDetails = async (urn: string, caseId: number) => {
-  const url = buildEncodedUrl(
-    { urn, caseId },
-    ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}`
-  );
+  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
   const response = await internalFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
@@ -70,26 +78,14 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   return (await response.json()) as CaseDetails;
 };
 
-export const getCaseDocumentsList = async (urn: string, caseId: number) => {
-  const url = buildEncodedUrl(
-    { urn, caseId },
-    ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}/documents`
+export const getPdfSasUrl = async (
+  urn: string,
+  caseId: number,
+  documentId: string
+) => {
+  const url = fullUrl(
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/sasUrl`
   );
-  const response = await internalFetch(url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get Case Documents failed", url, response);
-  }
-
-  const apiReponse: CaseDocument[] = await response.json();
-
-  return apiReponse;
-};
-
-export const getPdfSasUrl = async (pdfBlobName: string) => {
-  const url = buildUnencodedUrl(`/api/pdf/sasUrl/${pdfBlobName}`);
   const response = await internalFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
@@ -102,10 +98,7 @@ export const getPdfSasUrl = async (pdfBlobName: string) => {
 };
 
 export const initiatePipeline = async (urn: string, caseId: number) => {
-  const path = buildEncodedUrl(
-    { urn, caseId },
-    ({ urn, caseId }) => `/api/urns/${urn}/cases/${caseId}?force=true`
-  );
+  const path = fullUrl(`/api/urns/${urn}/cases/${caseId}?force=true`);
 
   const correlationIdHeader = HEADERS.correlationId();
   const response = await internalFetch(path, {
@@ -135,7 +128,33 @@ export const getPipelinePdfResults = async (
     headers,
   });
 
-  return (await response.json()) as PipelineResults;
+  const rawResponse: { documents: any[] } = await response.json();
+  const { documents } = rawResponse;
+  temporaryApiModelMapping(documents);
+
+  documents.forEach((document) => {
+    if (document.cmsDocType.documentTypeId) {
+      document.cmsDocType.id = document.cmsDocType.documentTypeId;
+    }
+    if (document.cmsDocType.documentType) {
+      document.cmsDocType.code = document.cmsDocType.documentType;
+    }
+    if (document.cmsDocType.documentType) {
+      document.cmsDocType.name = document.cmsDocType.documentType;
+    }
+    if (document.cmsDocType.documentCategory) {
+      document.cmsDocCategory = document.cmsDocType.documentCategory;
+    }
+    //TODO:Remove the below temporary solution when server is ready.
+    if (!document.presentationStatuses) {
+      document.presentationStatuses = {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      };
+    }
+  });
+
+  return rawResponse as PipelineResults;
 };
 
 export const searchCase = async (
@@ -143,10 +162,8 @@ export const searchCase = async (
   caseId: number,
   searchTerm: string
 ) => {
-  const path = buildEncodedUrl(
-    { caseId, searchTerm, urn },
-    ({ caseId, searchTerm, urn }) =>
-      `/api/urns/${urn}/cases/${caseId}/query/${searchTerm}`
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/search/?query=${searchTerm}`
   );
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
@@ -156,19 +173,20 @@ export const searchCase = async (
     throw new ApiError("Search Case Text failed", path, response);
   }
 
-  return (await response.json()) as ApiTextSearchResult[];
+  const rawResponse = await response.json();
+  temporaryApiModelMapping(rawResponse);
+
+  return rawResponse as ApiTextSearchResult[];
 };
 
 export const checkoutDocument = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: number
+  documentId: string
 ) => {
-  const url = buildEncodedUrl(
-    { caseId, docId, cmsDocCategory },
-    ({ caseId, docId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/checkout`
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -187,12 +205,10 @@ export const cancelCheckoutDocument = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: number
+  documentId: string
 ) => {
-  const url = buildEncodedUrl(
-    { caseId, docId, cmsDocCategory },
-    ({ caseId, docId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/checkout`
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -211,14 +227,12 @@ export const saveRedactions = async (
   urn: string,
   caseId: number,
   cmsDocCategory: CmsDocCategory,
-  docId: number,
+  documentId: string,
   fileName: string,
   redactionSaveRequest: RedactionSaveRequest
 ) => {
-  const url = buildEncodedUrl(
-    { urn, caseId, docId, fileName, cmsDocCategory },
-    ({ urn, caseId, docId, cmsDocCategory }) =>
-      `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${docId}/${fileName}`
+  const url = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/${fileName}`
   );
 
   const response = await internalFetch(url, {

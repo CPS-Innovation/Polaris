@@ -16,11 +16,11 @@ export const path = "/case-search";
 const validationFailMessage = "Enter a URN in the right format";
 
 const Page: React.FC = () => {
-  const { urn: initialUrn, setParams } =
+  const { urn: urnFromSearchParams, setParams } =
     useQueryParamsState<CaseSearchQueryParams>();
 
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
-    useSearchInputLogic({ initialUrn, setParams });
+    useSearchInputLogic({ urnFromSearchParams, setParams });
 
   return (
     <PageContentWrapper>

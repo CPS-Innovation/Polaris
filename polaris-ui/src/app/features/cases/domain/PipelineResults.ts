@@ -1,11 +1,12 @@
-import { PdfDocument } from "./PdfDocument";
+import { PipelineDocument } from "./PipelineDocument";
 
 export type PipelineResults = {
   transactionId: string;
-  documents: PdfDocument[];
+  documents: PipelineDocument[];
   status:
     | "NotStarted"
     | "Running"
+    // another status here for docs ready?
     | "NoDocumentsFoundInCDE"
     | "Completed"
     | "Failed";

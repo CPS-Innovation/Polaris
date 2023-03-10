@@ -11,13 +11,19 @@ describe("useNavigationAlert hook", () => {
       clientLockedState: "unlocked",
       cmsDocCategory: "MGForm",
       cmsDocType: { id: 3, code: "MG3", name: "MG3 File" },
-      createdDate: "2020-06-02",
-      documentId: 1,
-      fileName: "MCLOVEMG3  very long .docx",
+      cmsFileCreatedDate: "2020-06-02",
+      documentId: "1",
+      cmsDocumentId: "1",
+      cmsOriginalFileName: "MCLOVEMG3  very long .docx",
+      cmsMimeType: "application/pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG3  very long",
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
       redactionHighlights: [
         {
           id: "1",
@@ -27,20 +33,25 @@ describe("useNavigationAlert hook", () => {
         },
       ],
       sasUrl: undefined,
-      tabSafeId: "d0",
       url: undefined,
     },
     {
       clientLockedState: "unlocked",
       cmsDocCategory: "MGForm",
       cmsDocType: { id: 3, code: "MG3", name: "MG3 File" },
-      createdDate: "2020-06-02",
-      documentId: 2,
-      fileName: "MCLOVEMG4 very long .docx",
+      cmsFileCreatedDate: "2020-06-02",
+      documentId: "2",
+      cmsDocumentId: "2",
+      cmsOriginalFileName: "MCLOVEMG4 very long .docx",
+      cmsMimeType: "application/pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG4 test",
+      presentationStatuses: {
+        viewStatus: "Ok",
+        redactStatus: "Ok",
+      },
       redactionHighlights: [
         {
           id: "1",
@@ -50,7 +61,7 @@ describe("useNavigationAlert hook", () => {
         },
       ],
       sasUrl: undefined,
-      tabSafeId: "d1",
+
       url: undefined,
     },
   ];
@@ -67,13 +78,11 @@ describe("useNavigationAlert hook", () => {
     });
     expect(result.current.unSavedRedactionDocs).toEqual([
       {
-        documentId: 1,
-        tabSafeId: "d0",
+        documentId: "1",
         presentationFileName: "MCLOVEMG3  very long",
       },
       {
-        documentId: 2,
-        tabSafeId: "d1",
+        documentId: "2",
         presentationFileName: "MCLOVEMG4 test",
       },
     ]);

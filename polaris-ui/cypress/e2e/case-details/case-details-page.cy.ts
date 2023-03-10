@@ -317,6 +317,50 @@ describe("case details page", () => {
       }
     );
   });
+
+  describe("feature toggle", () => {
+    it(
+      "Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentation redact status is not 'Ok'",
+      { defaultCommandTimeout: 15000 },
+      () => {
+        cy.visit("/case-details/12AB1111111/13401");
+        cy.findByTestId("btn-accordion-open-close-all").click();
+        cy.findByTestId("link-document-2").click();
+        cy.findByTestId("div-pdfviewer")
+          .should("exist")
+          .contains("CASE OUTLINE");
+        cy.selectPDFTextElement("This is a DV case.");
+        cy.findByTestId("btn-redact").should("have.length", 0);
+        cy.findByTestId("redaction-warning").should("have.length", 1);
+        cy.findByTestId("redaction-warning").contains(
+          "This document can only be redacted in CMS."
+        );
+      }
+    );
+
+    it(
+      "User shouldn't be allowed to view document and there should be document view warnings, if presentation view status is not 'Ok'",
+      { defaultCommandTimeout: 15000 },
+      () => {
+        cy.visit("/case-details/12AB1111111/13401");
+        cy.findByTestId("btn-accordion-open-close-all").click();
+        cy.findByTestId("link-document-3").should("have.length", 0);
+        cy.findByTestId("view-warning-court-preparation").should(
+          "have.length",
+          1
+        );
+        cy.findByTestId("view-warning-court-preparation").contains(
+          "Some documents for this case are only available in CMS"
+        );
+        cy.findByTestId("name-text-document-3").should("have.length", 1);
+        cy.findByTestId("name-text-document-3").contains("MG05MCLOVE");
+        cy.findByTestId("view-warning-document-3").should("have.length", 1);
+        cy.findByTestId("view-warning-document-3").contains(
+          "Document only available on CMS"
+        );
+      }
+    );
+  });
 });
 
 export {};

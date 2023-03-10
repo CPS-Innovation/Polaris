@@ -1,72 +1,73 @@
 trigger:
-    branches:
-      include:
+  branches:
+    include:
       - main
-      
-    paths:
-      include:
+
+  paths:
+    include:
       - "polaris-gateway/polaris-gateway/*"
       - "polaris-gateway/polaris-gateway.tests/*"
+      - "polaris-gateway/polaris-gateway.common/*"
 
 pool:
-    vmImage: "ubuntu-latest"
+  vmImage: "ubuntu-latest"
 
 variables:
-    functionName: "polaris-gateway"
-    appName: "fa-polaris-gateway"
-    buildConfiguration: "Release"
+  functionName: "polaris-gateway"
+  appName: "fa-polaris-gateway"
+  buildConfiguration: "Release"
 
 steps:
-    - task: UseDotNet@2
-      displayName: "Use .NET Core sdk"
-      inputs:
-          packageType: "sdk"
-          version: "6.0.x"
-          includePreviewVersions: true
-          
-    - task: DotNetCoreCLI@2
-      inputs:
-          command: "build"
-          projects: "$(functionName)/$(functionName)/$(functionName).csproj"
-          arguments: "--configuration $(buildConfiguration)"
-      displayName: "Build"
-      
-    - task: DotNetCoreCLI@2
-      displayName: 'Install ReportGenerator'
-      inputs:
-          command: custom
-          custom: tool
-          arguments: 'install --global dotnet-reportgenerator-globaltool'
+  - task: UseDotNet@2
+    displayName: "Use .NET Core sdk"
+    inputs:
+      packageType: "sdk"
+      version: "6.0.x"
+      includePreviewVersions: true
 
-    - task: DotNetCoreCLI@2
-      inputs:
-          command: "test"
-          projects: "$(functionName)/$(functionName)*tests/$(functionName)*tests.csproj"
-          publishTestResults: true
-          arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/"
-      displayName: "Run tests"
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "build"
+      projects: "$(functionName)/$(functionName)/$(functionName).csproj"
+      arguments: "--configuration $(buildConfiguration)"
+    displayName: "Build"
 
-    - script: |
-        reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
-      displayName: 'Create code coverage report'
+  - task: DotNetCoreCLI@2
+    displayName: "Install ReportGenerator"
+    inputs:
+      command: custom
+      custom: tool
+      arguments: "install --global dotnet-reportgenerator-globaltool"
 
-    - task: PublishCodeCoverageResults@1
-      displayName: 'Publish code coverage report'
-      inputs:
-        codeCoverageTool: 'cobertura'
-        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "test"
+      projects: "$(functionName)/$(functionName)*tests/$(functionName)*tests.csproj"
+      publishTestResults: true
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/"
+    displayName: "Run tests"
 
-    - task: DotNetCoreCLI@2
-      inputs:
-          command: publish
-          publishWebProjects: false
-          projects: "$(functionName)/$(functionName)/$(functionName).csproj"
-          arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
-          zipAfterPublish: False
-      displayName: "Publish"
+  - script: |
+      reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
+    displayName: "Create code coverage report"
 
-    - task: PublishBuildArtifacts@1
-      inputs:
-          pathtoPublish: "$(Build.ArtifactStagingDirectory)"
-          artifactName: "$(functionName)-drop"
-          publishLocation: "Container"
+  - task: PublishCodeCoverageResults@1
+    displayName: "Publish code coverage report"
+    inputs:
+      codeCoverageTool: "cobertura"
+      summaryFileLocation: "$(Build.SourcesDirectory)/**/coverage.cobertura.xml"
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: "$(functionName)/$(functionName)/$(functionName).csproj"
+      arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)"
+      zipAfterPublish: False
+    displayName: "Publish"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+      artifactName: "$(functionName)-drop"
+      publishLocation: "Container"

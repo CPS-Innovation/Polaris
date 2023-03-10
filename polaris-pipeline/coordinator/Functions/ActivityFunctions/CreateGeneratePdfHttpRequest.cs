@@ -28,9 +28,9 @@ namespace coordinator.Functions.ActivityFunctions
 
             if (payload == null)
                 throw new ArgumentException("Payload cannot be null.");
-            if (string.IsNullOrWhiteSpace(payload.CaseUrn))
+            if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
                 throw new ArgumentException("CaseUrn cannot be empty");
-            if (payload.CaseId == 0)
+            if (payload.CmsCaseId == 0)
                 throw new ArgumentException("CaseId cannot be zero");
             if (string.IsNullOrWhiteSpace(payload.DocumentId))
                 throw new ArgumentException("DocumentId is empty");
@@ -41,7 +41,7 @@ namespace coordinator.Functions.ActivityFunctions
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            var result = _generatePdfHttpRequestFactory.Create(payload.CaseUrn, payload.CaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.CmsAuthValues, payload.CorrelationId);
+            var result = _generatePdfHttpRequestFactory.Create(payload.CmsCaseUrn, payload.CmsCaseId, payload.DocumentCategory, payload.DocumentId, payload.FileName, payload.VersionId, payload.CmsAuthValues, payload.CorrelationId);
 
             _log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
             return result;

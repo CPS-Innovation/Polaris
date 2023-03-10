@@ -43,7 +43,7 @@ export const KeyDetails: React.FC<{
             ))}
           </ul>
           <LinkButton
-            data-testid="link-defendant-details"
+            dataTestId="link-defendant-details"
             className={classes.defendantDetailsLink}
             onClick={() => {}}
           >

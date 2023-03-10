@@ -1,19 +1,25 @@
 import classes from "./LinkButton.module.scss";
 
-type AnchorProps = React.DetailedHTMLProps<
-  React.AnchorHTMLAttributes<HTMLAnchorElement>,
-  HTMLAnchorElement
->;
+type LinkButtonProps = {
+  className?: string;
+  dataTestId?: string;
+  onClick: () => void;
+};
 
-export const LinkButton: React.FC<AnchorProps> = ({
+export const LinkButton: React.FC<LinkButtonProps> = ({
   children,
   className,
-  ...props
+  dataTestId,
+  onClick,
 }) => {
   const resolvedClassName = `${classes.linkButton} ${className}`;
   return (
-    <a className={resolvedClassName} {...props}>
+    <button
+      className={resolvedClassName}
+      onClick={onClick}
+      data-testid={dataTestId}
+    >
       {children}
-    </a>
+    </button>
   );
 };

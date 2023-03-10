@@ -36,7 +36,7 @@ export const mapFilters = (
   for (var doc of orderedDocumentResults) {
     if (!docType[doc.cmsDocType.code]) {
       docType[doc.cmsDocType.code] = {
-        label: doc.cmsDocType.name,
+        label: doc.cmsDocType.name || "Unknown",
         count: 0,
         isSelected: false,
       };

@@ -5,6 +5,9 @@
 local.settings.json
 local.settings.json.example
 
+# Licence Files
+*.lic
+
 # User-specific files
 *.suo
 *.user

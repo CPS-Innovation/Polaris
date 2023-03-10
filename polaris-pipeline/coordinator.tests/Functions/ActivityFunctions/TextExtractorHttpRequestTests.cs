@@ -33,7 +33,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
             _mockDurableActivityContext.Setup(context => context.GetInput<TextExtractorHttpRequestActivityPayload>())
                 .Returns(_payload);
 
-            mockTextExtractorHttpFactory.Setup(client => client.Create(_payload.CaseId, _payload.DocumentId, _payload.VersionId,
+            mockTextExtractorHttpFactory.Setup(client => client.Create(_payload.PolarisDocumentId, _payload.CmsCaseId, _payload.DocumentId, _payload.VersionId,
                     _payload.BlobName, _payload.CorrelationId))
                 .Returns(_durableRequest);
 
@@ -53,7 +53,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
         [Fact]
         public void Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
-            _payload.CaseId = 0;
+            _payload.CmsCaseId = 0;
             _mockDurableActivityContext.Setup(context => context.GetInput<TextExtractorHttpRequestActivityPayload>())
                 .Returns(_payload);
 

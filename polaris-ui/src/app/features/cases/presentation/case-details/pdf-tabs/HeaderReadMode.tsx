@@ -5,7 +5,9 @@ import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
-  handleOpenPdfInNewTab: (pdfId: number) => void;
+  handleOpenPdfInNewTab: (
+    documentId: CaseDocumentViewModel["documentId"]
+  ) => void;
 };
 
 export const HeaderReadMode: React.FC<Props> = ({
@@ -21,7 +23,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   return (
     <div className={classes.content}>
       <LinkButton
-        data-testid="btn-open-pdf"
+        dataTestId="btn-open-pdf"
         onClick={() => handleOpenPdfInNewTab(documentId)}
       >
         {presentationFileName} (opens in a new window)

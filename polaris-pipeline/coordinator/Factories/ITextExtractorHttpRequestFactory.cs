@@ -5,7 +5,7 @@ namespace coordinator.Factories
 {
 	public interface ITextExtractorHttpRequestFactory
 	{
-		DurableHttpRequest Create(long caseId, string documentId, long versionId, string blobName, Guid correlationId);
+		DurableHttpRequest Create(Guid polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId);
 	}
 }
 

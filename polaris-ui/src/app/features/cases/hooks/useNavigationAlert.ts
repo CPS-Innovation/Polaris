@@ -3,8 +3,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { Location } from "history";
 import { CaseDocumentViewModel } from "../../cases/domain/CaseDocumentViewModel";
 export type UnSavedRedactionDoc = {
-  documentId: number;
-  tabSafeId: string;
+  documentId: CaseDocumentViewModel["documentId"];
   presentationFileName: string;
 };
 
@@ -23,15 +22,13 @@ export const useNavigationAlert = (
   const location = useLocation();
   const navigationUnblockHandle = useRef<any>();
   const unSavedRedactionDocs = useMemo((): {
-    documentId: number;
-    tabSafeId: string;
+    documentId: CaseDocumentViewModel["documentId"];
     presentationFileName: string;
   }[] => {
     const reactionPdfs = tabItems
       .filter((item) => item.redactionHighlights.length > 0)
       .map((item) => ({
         documentId: item.documentId!,
-        tabSafeId: item.tabSafeId!,
         presentationFileName: item.presentationFileName!,
       }));
     return reactionPdfs;

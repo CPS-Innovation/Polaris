@@ -1,7 +1,7 @@
 export type ApiTextSearchResult = {
   id: string;
   caseId: number;
-  documentId: number;
+  documentId: string;
   pageIndex: number;
   lineIndex: number;
   pageHeight: number;

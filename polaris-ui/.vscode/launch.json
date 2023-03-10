@@ -2,14 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Chrome",
-      "type": "chrome",
+      "name": "npm start",
+      "type": "node",
       "request": "launch",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}/src",
-      "sourceMapPathOverrides": {
-        "webpack:///src/*": "${webRoot}/*"
-      }
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"]
     },
     {
       "name": "Debug CRA Tests",
@@ -25,12 +23,6 @@
         "CI": "true"
       },
       "disableOptimisticBPs": true
-    },
-    {
-      "type": "chrome",
-      "name": "http://localhost:3000/case-details/45CV2911222/2149310#d0",
-      "request": "launch",
-      "url": "http://localhost:3000/case-details/45CV2911222/2149310#d0"
     }
   ]
 }

@@ -1,9 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { useHistory, useLocation } from "react-router-dom";
 import { CommonTabsProps } from "./types";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
-
+import { ReactComponent as CloseIcon } from "../../svgs/closeIcon.svg";
 import classes from "./Tabs.module.scss";
 
 const ARROW_KEY_SHIFTS = {
@@ -13,12 +12,10 @@ const ARROW_KEY_SHIFTS = {
   ArrowDown: 1,
 };
 
-const getIdFromHash = (hash: string) => hash.replace("#", "");
-
-// try and stay as close to GDS...
 export type TabsProps = CommonTabsProps & {
-  // ...but we extend to allow the tabs to have a close icon
-  handleClosePdf: (caseDocument: { tabSafeId: string }) => void;
+  activeTabId: string | undefined;
+  handleTabSelection: (documentId: string) => void;
+  handleClosePdf: (caseDocument: { documentId: string }) => void;
 };
 
 export const Tabs: React.FC<TabsProps> = ({
@@ -27,24 +24,22 @@ export const Tabs: React.FC<TabsProps> = ({
   idPrefix,
   items,
   title,
+  activeTabId,
+  handleTabSelection,
   handleClosePdf,
   ...attributes
 }) => {
-  const history = useHistory();
-  const activeTabRef = useRef<HTMLAnchorElement>(null);
-  const { hash } = useLocation();
+  const activeTabRef = useRef<HTMLButtonElement>(null);
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 
   useEffect(() => {
     activeTabRef.current?.focus();
-  }, [hash]);
+  }, [activeTabId]);
 
-  const activeTabArrayPos = items.findIndex(
-    (item) => item.id === getIdFromHash(hash)
-  );
+  const activeTabArrayPos = items.findIndex((item) => item.id === activeTabId);
   const activeTabIndex = activeTabArrayPos === -1 ? 0 : activeTabArrayPos;
 
-  const handleKeyPressOnTab: React.KeyboardEventHandler<HTMLAnchorElement> = (
+  const handleKeyPressOnTab: React.KeyboardEventHandler<HTMLButtonElement> = (
     ev
   ) => {
     const typedKeyCode = ev.code as keyof typeof ARROW_KEY_SHIFTS;
@@ -63,7 +58,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabIndex = activeTabIndex + ARROW_KEY_SHIFTS[typedKeyCode];
     const nextTabId = items[nextTabIndex].id;
-    history.push(`#${nextTabId}`);
+    handleTabSelection(nextTabId);
 
     // prevent awkward vertical scroll on up/down key press
     ev.preventDefault();
@@ -88,8 +83,8 @@ export const Tabs: React.FC<TabsProps> = ({
         : thisItemIndex - 1; // otherwise, we need the item to the left
 
     const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
-    history.push(`#${nextTabId}`);
-    handleClosePdf({ tabSafeId: items[activeTabIndex].id });
+    handleTabSelection(nextTabId);
+    handleClosePdf({ documentId: items[activeTabIndex].id });
   };
 
   const handleNavigateAwayCancelAction = () => {
@@ -101,81 +96,57 @@ export const Tabs: React.FC<TabsProps> = ({
     localHandleClosePdf();
   };
 
-  const closeIcon = (
-    <svg>
-      <circle
-        cx="12"
-        cy="12"
-        r="13"
-        stroke="white"
-        strokeWidth="1"
-        fill="white"
-      ></circle>
-      <path
-        stroke="white"
-        strokeWidth="3"
-        fill="none"
-        d="M6.25,6.25,17.75,17.75"
-      ></path>
-      <path
-        stroke="white"
-        strokeWidth="3"
-        fill="none"
-        d="M6.25,17.75,17.75,6.25"
-      ></path>
-    </svg>
-  );
+  const renderTabs = () => {
+    if (!items.length) {
+      return null;
+    }
+    return (
+      <div className={`${classes.tabsWrapper}`}>
+        <ul className={`${classes.tabsList}   perma-scrollbar`} role="tablist">
+          {items.map((item, index) => {
+            const { id: itemId, label } = item;
 
-  const tabContent = items.map((item, index) => {
-    const { id: itemId, label, panel, isDirty, ...itemAttributes } = item;
-    const tabId = itemId;
+            return (
+              <li
+                className={`${
+                  activeTabIndex === index
+                    ? classes.activeTab
+                    : classes.inactiveTab
+                } ${classes.tabListItem}`}
+                key={itemId}
+                data-testid={`tab-${index}`}
+                role="presentation"
+              >
+                <button
+                  id={`tab_${index}`}
+                  aria-controls={`panel-${index}`}
+                  role="tab"
+                  className={classes.tabButton}
+                  data-testid={index === activeTabIndex ? "tab-active" : ""}
+                  onClick={() => handleTabSelection(itemId)}
+                  onKeyDown={handleKeyPressOnTab}
+                  ref={index === activeTabIndex ? activeTabRef : undefined}
+                  tabIndex={index === activeTabIndex ? 0 : -1}
+                >
+                  <span className={classes.tabLabel}> {label}</span>
+                </button>
 
-    const coreHyperlinkProps = {
-      className: "govuk-tabs__tab",
-      role: "tab",
-      href: `#${tabId}`,
-      "aria-controls": String(index),
-      id: `tab_${index}`,
-      ...itemAttributes,
-    };
-
-    return index === activeTabIndex ? (
-      <li
-        key={tabId}
-        className="govuk-tabs__list-item govuk-tabs__list-item--selected"
-        role="presentation"
-      >
-        <a
-          {...coreHyperlinkProps}
-          data-testid="tab-active"
-          tabIndex={0}
-          aria-selected="true"
-          onKeyDown={handleKeyPressOnTab}
-          ref={activeTabRef}
-        >
-          {label}
-        </a>
-        <span>
-          <button onClick={handleCloseTab} data-testid="tab-remove">
-            {closeIcon}
-          </button>
-        </span>
-      </li>
-    ) : (
-      <li key={tabId} className="govuk-tabs__list-item" role="presentation">
-        <a {...coreHyperlinkProps} tabIndex={-1} aria-selected="false">
-          <span>{label}</span>
-        </a>
-      </li>
+                {activeTabIndex === index && (
+                  <button
+                    className={classes.tabCloseButton}
+                    onClick={handleCloseTab}
+                    data-testid="tab-remove"
+                  >
+                    <CloseIcon />
+                  </button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     );
-  });
-
-  const tabs =
-    items.length > 0 ? (
-      <ul className="govuk-tabs__list perma-scrollbar" role="tablist">
-        {tabContent}
-      </ul>
-    ) : null;
+  };
 
   const panels = items.map((item, index) => {
     const { id: itemId, panel } = item;
@@ -184,21 +155,20 @@ export const Tabs: React.FC<TabsProps> = ({
     const coreProps = {
       key: panelId,
       role: "tabpanel",
+      tabIndex: 0,
       "aria-labelledby": `tab_${index}`,
       "data-testid": "tab-content-" + itemId,
       //disable hash navigation scrolling.  If we uncomment the below (as per standard GDS)
       // and give the panel an id, the screen will jump on every tab navigation
-      // id: panelId,
+      id: `panel-${index}`,
     };
 
-    return index === activeTabIndex ? (
-      <div {...coreProps} className="govuk-tabs__panel">
-        {panel.children}
-      </div>
-    ) : (
+    return (
       <div
         {...coreProps}
-        className="govuk-tabs__panel govuk-tabs__panel--hidden"
+        className={`govuk-tabs__panel ${
+          index !== activeTabIndex ? "govuk-tabs__panel--hidden" : ""
+        }`}
       >
         {panel.children}
       </div>
@@ -213,10 +183,7 @@ export const Tabs: React.FC<TabsProps> = ({
         className={`govuk-tabs ${classes.tabs} ${className || ""}`}
         {...attributes}
       >
-        <h2 className="govuk-tabs__title" data-testid="txt-tabs-title">
-          {title}
-        </h2>
-        {tabs}
+        {renderTabs()}
         {panels}
       </div>
 

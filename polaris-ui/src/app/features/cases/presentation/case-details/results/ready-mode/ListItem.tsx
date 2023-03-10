@@ -1,5 +1,6 @@
 import { Details } from "../../../../../../common/presentation/components";
 import { SectionBreak } from "../../../../../../common/presentation/components";
+import { LinkButton } from "../../../../../../common/presentation/components/LinkButton";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -16,10 +17,9 @@ type Props = {
 
 export const ListItem: React.FC<Props> = ({
   documentResult: {
-    fileName,
-    tabSafeId,
+    cmsOriginalFileName: fileName,
     documentId,
-    createdDate,
+    cmsFileCreatedDate: createdDate,
     cmsDocType,
     occurrences: [firstOcurrence, ...subsequentOccurrences],
     occurrencesInDocumentCount,
@@ -29,15 +29,15 @@ export const ListItem: React.FC<Props> = ({
   return (
     <div data-testid={`div-search-result-${documentId}`}>
       <h2 className="govuk-heading-s results-header">
-        <a
-          href={`#${tabSafeId}`}
-          onClick={(ev) => {
-            handleOpenPdf({ documentId, tabSafeId, mode: "search" });
+        <LinkButton
+          onClick={() => {
+            handleOpenPdf({ documentId, mode: "search" });
           }}
-          data-testid={`link-result-document-${documentId}`}
+          dataTestId={`link-result-document-${documentId}`}
+          className={classes.headingLinkButton}
         >
           {fileName}
-        </a>
+        </LinkButton>
       </h2>
 
       <div className="govuk-body-s">

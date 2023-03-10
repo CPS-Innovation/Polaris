@@ -12,7 +12,7 @@ using Moq.Protected;
 using Newtonsoft.Json;
 using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Wrappers;
 using Xunit;
 

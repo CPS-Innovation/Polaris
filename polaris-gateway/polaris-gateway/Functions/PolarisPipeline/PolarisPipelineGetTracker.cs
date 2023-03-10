@@ -13,6 +13,7 @@ using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
 using System.Net;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -21,8 +22,11 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineGetTracker> _logger;
 
-        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger, IPipelineClient pipelineClient, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger,
+                                         IPipelineClient pipelineClient,
+                                         IAuthorizationValidator tokenValidator,
+                                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;
@@ -38,7 +42,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
             try
             {
-                urn = WebUtility.UrlDecode(urn); // todo: inject or move to validator
                 var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
@@ -48,9 +51,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
                 if (string.IsNullOrWhiteSpace(urn))
                     return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, loggingName);
-
-                // if (!int.TryParse(caseId, out _))
-                //     return BadRequestErrorResponse("Invalid case id. A 32-bit integer is required.", currentCorrelationId, loggingName);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting tracker details for caseId {caseId}");
                 tracker = await _pipelineClient.GetTrackerAsync(urn, caseId, currentCorrelationId);
@@ -62,8 +62,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 return exception switch
                 {
                     MsalException => InternalServerErrorResponse(exception, "An onBehalfOfToken exception occurred.", currentCorrelationId, loggingName),
-                    HttpRequestException => InternalServerErrorResponse(exception, "A pipeline client http exception occurred when calling GetTracker.", currentCorrelationId,
-                        loggingName),
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetTrackerAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

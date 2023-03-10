@@ -4,7 +4,7 @@ describe("getFormattedCustodyTimeData util", () => {
     const custodyTimeLimit = {
       expiryDate: "2022-11-20",
       expiryDays: 20,
-      expiryIndicator: "Expired" as const,
+      expiryIndicator: "EXPIRED" as const,
     };
     const result = getFormattedCustodyTimeData(custodyTimeLimit);
     const expectedResult = {
@@ -19,7 +19,7 @@ describe("getFormattedCustodyTimeData util", () => {
     const custodyTimeLimit = {
       expiryDate: "2022-11-20",
       expiryDays: 20,
-      expiryIndicator: "Active" as const,
+      expiryIndicator: "ACTIVE" as const,
     };
     const result = getFormattedCustodyTimeData(custodyTimeLimit);
     const expectedResult = {
@@ -33,7 +33,7 @@ describe("getFormattedCustodyTimeData util", () => {
     const custodyTimeLimit = {
       expiryDate: "2022-11-20",
       expiryDays: 1,
-      expiryIndicator: "Active" as const,
+      expiryIndicator: "ACTIVE" as const,
     };
     const result = getFormattedCustodyTimeData(custodyTimeLimit);
     const expectedResult = {
@@ -57,11 +57,6 @@ describe("getFormattedCustodyTimeData util", () => {
   });
 
   it("Should handle if the custodyTimeLimit is not available at all", () => {
-    const custodyTimeLimit = {
-      expiryDate: "2022-11-20",
-      expiryDays: 1,
-      expiryIndicator: null,
-    };
     const result = getFormattedCustodyTimeData(undefined as any);
     const expectedResult = {
       custodyExpiryDays: "N/A",

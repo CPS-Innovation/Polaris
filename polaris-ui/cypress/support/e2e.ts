@@ -41,12 +41,9 @@ declare global {
   namespace Cypress {
     interface Chainable {
       /**
-       * Custom command to select span element matching the given string
+       * Custom command to select first span element matching the given string
        */
-      selectPDFTextElement(
-        matchString: string,
-        targetCount?: number
-      ): Chainable<JQuery<HTMLElement>>;
+      selectPDFTextElement(matchString: string): void;
       overrideRoute(
         apiRoute: string,
         response:

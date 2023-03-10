@@ -3,10 +3,7 @@ type PanelProps = React.DetailedHTMLProps<
   HTMLDivElement
 >;
 
-type ItemProps = React.DetailedHTMLProps<
-  React.AnchorHTMLAttributes<HTMLAnchorElement>,
-  HTMLAnchorElement
-> & {
+type ItemProps = {
   id: string;
   label: string;
   panel: PanelProps;

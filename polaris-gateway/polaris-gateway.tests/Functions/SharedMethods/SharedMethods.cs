@@ -17,8 +17,8 @@ namespace PolarisGateway.Tests.Functions.SharedMethods
             var context = new DefaultHttpContext();
             context.Request.Headers.Add(new KeyValuePair<string, StringValues>(AuthenticationKeys.Authorization, token));
             context.Request.Headers.Add("Correlation-Id", Guid.NewGuid().ToString());
-
             context.Request.Headers.Add("Cookie", new CookieHeaderValue("cms-auth-values", "some-string").ToString());
+            context.Request.QueryString = new QueryString("?query=defendant");
             return context.Request;
         }
 
@@ -32,7 +32,7 @@ namespace PolarisGateway.Tests.Functions.SharedMethods
             context.Request.Headers.Add("Cookie", new CookieHeaderValue("cms-auth-values", "some-string").ToString());
             context.Request.Body = stream;
             context.Request.ContentLength = stream.Length;
-
+            context.Request.QueryString = new QueryString("?query=defendant");
             return context.Request;
         }
 
@@ -41,6 +41,7 @@ namespace PolarisGateway.Tests.Functions.SharedMethods
             var context = new DefaultHttpContext();
             context.Request.Headers.Add("Correlation-Id", Guid.NewGuid().ToString());
             context.Request.Headers.Add("Cookie", new CookieHeaderValue("cms-auth-values", "some-string").ToString());
+            context.Request.QueryString = new QueryString("?query=defendant");
             return context.Request;
         }
 
@@ -50,6 +51,7 @@ namespace PolarisGateway.Tests.Functions.SharedMethods
             var context = new DefaultHttpContext();
             context.Request.Headers.Add(new KeyValuePair<string, StringValues>(AuthenticationKeys.Authorization, token));
             context.Request.Headers.Add("Cookie", new CookieHeaderValue("cms-auth-values", "some-string").ToString());
+            context.Request.QueryString = new QueryString("?query=defendant");
             return context.Request;
         }
 
@@ -59,6 +61,7 @@ namespace PolarisGateway.Tests.Functions.SharedMethods
             var context = new DefaultHttpContext();
             context.Request.Headers.Add(new KeyValuePair<string, StringValues>(AuthenticationKeys.Authorization, token));
             context.Request.Headers.Add("Correlation-Id", Guid.NewGuid().ToString());
+            context.Request.QueryString = new QueryString("?query=defendant");
             return context.Request;
         }
     }

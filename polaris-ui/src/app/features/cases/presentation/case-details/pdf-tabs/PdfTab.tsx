@@ -7,10 +7,12 @@ import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
+import { PresentationStatuses } from "../../../../../features/cases/domain/PipelineDocument";
 
 type PdfTabProps = {
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
+  redactStatus: PresentationStatuses["redactStatus"];
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -22,6 +24,7 @@ type PdfTabProps = {
 export const PdfTab: React.FC<PdfTabProps> = ({
   caseDocumentViewModel,
   headers,
+  redactStatus,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -78,6 +81,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           url={url}
           headers={headers}
           searchHighlights={searchHighlights}
+          redactStatus={redactStatus}
           redactionHighlights={redactionHighlights}
           focussedHighlightIndex={focussedHighlightIndex}
           handleAddRedaction={localHandleAddRedaction}

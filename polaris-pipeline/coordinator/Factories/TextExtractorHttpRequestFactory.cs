@@ -26,9 +26,9 @@ namespace coordinator.Factories
             _logger = logger;
         }
 
-        public DurableHttpRequest Create(long caseId, string documentId, long versionId, string blobName, Guid correlationId)
+        public DurableHttpRequest Create(Guid polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(Create), $"CaseId: {caseId}, DocumentId: {documentId}, BlobName: {blobName}");
+            _logger.LogMethodEntry(correlationId, nameof(Create), $"PolarisId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, DocumentId: {cmsDocumentId}, BlobName: {blobName}");
 
             try
             {
@@ -37,10 +37,10 @@ namespace coordinator.Factories
                     { HttpHeaderKeys.ContentType, HttpHeaderValues.ApplicationJson },
                     { HttpHeaderKeys.CorrelationId, correlationId.ToString() }
                 };
-                var content = _jsonConvertWrapper.SerializeObject(new ExtractTextRequest(caseId, documentId, versionId, blobName));
+                var request = new ExtractTextRequest(polarisDocumentId, cmsCaseId, cmsDocumentId, versionId, blobName);
+                var content = _jsonConvertWrapper.SerializeObject(request);
 
-                return new DurableHttpRequest(HttpMethod.Post, new Uri(_configuration[ConfigKeys.CoordinatorKeys.TextExtractorUrl]), headers,
-                    content);
+                return new DurableHttpRequest(HttpMethod.Post, new Uri(_configuration[ConfigKeys.CoordinatorKeys.TextExtractorUrl]), headers, content);
             }
             catch (Exception ex)
             {

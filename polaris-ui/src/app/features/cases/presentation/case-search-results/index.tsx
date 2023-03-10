@@ -32,15 +32,15 @@ type Props = BackLinkingPageProps & {};
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
   const {
-    urn: initialUrn,
+    urn: urnFromSearchParams,
     setParams,
     search,
   } = useQueryParamsState<CaseSearchQueryParams>();
 
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
-    useSearchInputLogic({ initialUrn, setParams });
+    useSearchInputLogic({ urnFromSearchParams, setParams });
 
-  const state = useApi(searchUrn, [initialUrn!])!;
+  const state = useApi(searchUrn, [urnFromSearchParams!])!;
 
   if (state.status === "loading" || state.status === "initial") {
     return <WaitPage />;
@@ -111,7 +111,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                 {data.length !== 1
                   ? " cases that match "
                   : " case that matches "}
-                <span data-testid="txt-result-urn">{initialUrn}</span>
+                <span data-testid="txt-result-urn">{urnFromSearchParams}</span>
               </p>
 
               <SectionBreak />

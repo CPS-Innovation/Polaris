@@ -14,8 +14,9 @@ using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
-using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Services;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.CaseData
 {
@@ -26,9 +27,13 @@ namespace PolarisGateway.Functions.CaseData
         private readonly ILogger<CaseDataApiCaseDetails> _logger;
         private readonly DdeiOptions _ddeiOptions;
 
-        public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger, ICaseDataService caseDataService,
-                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
-        : base(logger, tokenValidator)
+        public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger,
+                                      ICaseDataService caseDataService,
+                                      IAuthorizationValidator tokenValidator,
+                                      ICaseDataArgFactory caseDataArgFactory,
+                                      IOptions<DdeiOptions> options,
+                                      ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;
@@ -46,7 +51,6 @@ namespace PolarisGateway.Functions.CaseData
 
             try
             {
-                urn = WebUtility.UrlDecode(urn).GetUntilOrEmpty(); // todo: inject or move to validator
                 var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
