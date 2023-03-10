@@ -4,7 +4,7 @@ import classes from "./Modal.module.scss";
 type Props = {
   isVisible: boolean | undefined;
   type?: "data" | "alert";
-  handleClose?: () => void;
+  handleClose: () => void;
 };
 
 export const Modal: React.FC<Props> = ({
@@ -33,52 +33,69 @@ export const Modal: React.FC<Props> = ({
     return () => htmlElement.classList.remove(classes.stopHtmlScroll);
   }, [htmlElement.classList]);
 
-  return !isVisible ? null : (
-    <div
-      data-testid="div-modal"
-      className={classes.modal}
-      onClick={handleClose}
-    >
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <>
       <div
+        className={classes.backDrop}
+        role="presentation"
+        onClick={handleClose}
+      />
+      <div
+        data-testid="div-modal"
+        role="dialog"
+        aria-modal="true"
         className={
           type === "data"
             ? `${classes.modalContent} ${classes.modalContentData}`
             : classes.modalContent
         }
-        onClick={(e) => e.stopPropagation()}
       >
-        {type === "data" && (
-          <div className={classes.closeContainer}>
-            <button
-              data-testid="btn-modal-close"
-              type="button"
-              className={classes.dataModalClose}
-              aria-label="Close"
-              onClick={handleClose}
-            ></button>
-          </div>
-        )}
-        {type === "alert" && (
-          <header
-            className="govuk-header"
-            role="banner"
-            data-module="govuk-header"
-          >
-            <div
-              className={`govuk-header__container  ${classes.alertModalHeader}`}
-            >
+        <div
+          role="presentation"
+          onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+            if (e.code === "Escape") {
+              console.log("handle close");
+              handleClose();
+            }
+          }}
+        >
+          {type === "data" && (
+            <div className={classes.closeContainer}>
               <button
                 data-testid="btn-modal-close"
                 type="button"
-                className={classes.alertModalClose}
+                className={classes.dataModalClose}
                 aria-label="Close"
                 onClick={handleClose}
               ></button>
             </div>
-          </header>
-        )}
-        <div className={classes.contentContainer}>{children}</div>
+          )}
+          {type === "alert" && (
+            <header
+              className="govuk-header"
+              role="banner"
+              data-module="govuk-header"
+            >
+              <div
+                className={`govuk-header__container  ${classes.alertModalHeader}`}
+              >
+                <button
+                  data-testid="btn-modal-close"
+                  type="button"
+                  className={classes.alertModalClose}
+                  aria-label="Close"
+                  onClick={handleClose}
+                ></button>
+              </div>
+            </header>
+          )}
+          <div className={classes.contentContainer}>{children}</div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

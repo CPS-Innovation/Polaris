@@ -1,3 +1,7 @@
+/* eslint-disable jsx-a11y/no-autofocus */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* This component is been used so disabling the a11y lint issues*/
 import React, { Component } from "react";
 
 import "../style/Tip.css";
