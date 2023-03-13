@@ -1,4 +1,5 @@
 ﻿using Common.Domain.DocumentExtraction;
+using coordinator.Domain.Tracker.PresentationStatus;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -7,6 +8,13 @@ namespace coordinator.Domain.Tracker
 {
     public class TrackerDocument
     {
+        // todo: this is just here for testing
+        public TrackerDocument()
+        {
+            CmsDocType = new CmsDocType();
+            PresentationStatuses = new PresentationStatuses();
+        }
+
         public TrackerDocument(Guid polarisDocumentId, string cmsDocumentId, long cmsVersionId, CmsDocType cmsDocType, string cmsMimeType, string cmsFileCreatedDate, string cmsOriginalFileName)
         {
             PolarisDocumentId = polarisDocumentId;
@@ -17,6 +25,7 @@ namespace coordinator.Domain.Tracker
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
             Status = DocumentStatus.None;
+            PresentationStatuses = new PresentationStatuses();
         }
 
         [JsonProperty("polarisDocumentId")]
@@ -34,6 +43,9 @@ namespace coordinator.Domain.Tracker
         [JsonProperty("cmsMimeType")]
         public string CmsMimeType { get; set; }
 
+        [JsonProperty("cmsDocumentExtension")]
+        public string CmsDocumentExtension { get; set; }
+
         [JsonProperty("cmsOriginalFileName")]
         public string CmsOriginalFileName { get; set; }
 
@@ -49,5 +61,8 @@ namespace coordinator.Domain.Tracker
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
+
+        [JsonProperty("presentationStatuses")]
+        public PresentationStatuses PresentationStatuses { get; set; }
     }
 }

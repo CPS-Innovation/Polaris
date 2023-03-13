@@ -15,10 +15,11 @@ export type PipelineDocumentProperties = {
     | "OcrAndIndexFailure";
 };
 export type PresentationStatuses = {
-  viewStatus: "Ok" | "OnlyAvailableInCms" | "FailedConversion";
+  viewStatus: "Ok" | "OnlyAvailableInCms";
   redactStatus:
     | null
     | "Ok"
+    | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed";
 };
