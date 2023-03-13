@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 import classes from "./Modal.module.scss";
 
 type Props = {
@@ -26,6 +27,7 @@ export const Modal: React.FC<Props> = ({
     htmlElement.classList.remove(classes.stopHtmlScroll);
   }
 
+  useFocusTrap();
   useEffect(() => {
     // ... we also need to make sure the window scroll is reenabled if
     //  we are being unmounted before the the isVisible flag is seen to be
@@ -45,6 +47,7 @@ export const Modal: React.FC<Props> = ({
         onClick={handleClose}
       />
       <div
+        id={"modal"}
         data-testid="div-modal"
         role="dialog"
         aria-modal="true"
@@ -58,7 +61,6 @@ export const Modal: React.FC<Props> = ({
           role="presentation"
           onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
             if (e.code === "Escape") {
-              console.log("handle close");
               handleClose();
             }
           }}
