@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useLastFocus } from "../../hooks/useLastFocus";
 import classes from "./Modal.module.scss";
 
 type Props = {
@@ -26,7 +27,7 @@ export const Modal: React.FC<Props> = ({
     //  if we are hiding the modal. But see following comment....
     htmlElement.classList.remove(classes.stopHtmlScroll);
   }
-
+  useLastFocus();
   useFocusTrap();
   useEffect(() => {
     // ... we also need to make sure the window scroll is reenabled if
