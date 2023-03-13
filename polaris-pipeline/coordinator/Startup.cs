@@ -32,7 +32,6 @@ using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Common.Domain.Requests;
 using FluentValidation;
 using Common.Domain.Validators;
-using System.Reflection;
 using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]

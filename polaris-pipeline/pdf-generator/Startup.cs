@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using Common.Constants;
 using Common.Domain.Requests;
