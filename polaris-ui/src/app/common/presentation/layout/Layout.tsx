@@ -16,7 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
 
   return (
     <>
-      <SkipLink />
+      <SkipLink href="#main-content">Skip to main content</SkipLink>
 
       <header
         className="govuk-header "
@@ -41,7 +41,9 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
         </div>
       </header>
 
-      <div className={containerCssClass}>{children}</div>
+      <div id="main-content" className={containerCssClass}>
+        {children}
+      </div>
 
       <footer className="govuk-footer " role="contentinfo">
         <div className={containerCssClass}>
