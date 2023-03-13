@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using Azure.Identity;
@@ -43,6 +44,9 @@ namespace pdf_generator
         {
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
 

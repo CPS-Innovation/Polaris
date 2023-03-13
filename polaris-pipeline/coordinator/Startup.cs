@@ -32,6 +32,8 @@ using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Common.Domain.Requests;
 using FluentValidation;
 using Common.Domain.Validators;
+using System.Reflection;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -43,6 +45,9 @@ namespace coordinator
         {
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
 

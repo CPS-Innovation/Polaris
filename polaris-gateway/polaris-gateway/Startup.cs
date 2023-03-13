@@ -37,6 +37,7 @@ using PolarisGateway.Mappers;
 using PolarisGateway.Services;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net.Http.Headers;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
@@ -55,6 +56,9 @@ namespace PolarisGateway
 
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
 

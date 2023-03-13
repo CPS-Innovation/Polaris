@@ -19,6 +19,7 @@ using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
 using Common.Wrappers.Contracts;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -30,6 +31,9 @@ namespace text_extractor
         {
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
 

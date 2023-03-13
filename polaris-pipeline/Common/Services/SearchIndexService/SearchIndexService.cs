@@ -67,10 +67,18 @@ namespace Common.Services.SearchIndexService
                 await using var indexer = _searchIndexingBufferedSenderFactory.Create(_searchClient);
 
                 var indexTaskCompletionSource = new TaskCompletionSource<bool>();
+                HashSet<int?> statuses = new HashSet<int?>();
 
                 var failureCount = 0;
-                indexer.ActionFailed += _ =>
+                indexer.ActionFailed += error =>
                 {
+                    if( error.Exception is RequestFailedException )
+                    {
+                        var status = ((RequestFailedException)error.Exception)?.Status;
+                        if( status != null )
+                            statuses.Add(status);
+                    }
+
                     failureCount++;
                     if (!indexTaskCompletionSource.Task.IsCompleted)
                     {
@@ -99,7 +107,7 @@ namespace Common.Services.SearchIndexService
 
                 if (!await indexTaskCompletionSource.Task)
                 {
-                    throw new RequestFailedException("At least one indexing action failed.");
+                    throw new RequestFailedException($"At least one indexing action failed. Status(es) = {string.Join(", ", statuses)}");
                 }
             }
             else
