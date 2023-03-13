@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Common.Services.SasGeneratorService;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Responses;
@@ -20,7 +19,6 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Health;
-using Microsoft.AspNetCore.Http;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator

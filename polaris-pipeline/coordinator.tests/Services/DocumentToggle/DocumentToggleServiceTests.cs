@@ -72,6 +72,78 @@ namespace coordinator.tests.Services.DocumentToggle
             Assert.Throws<DocumentToggleException>(() => _documentToggleService.Init(""));
         }
 
+        [Fact]
+        public void CanReadDocument_ThrowsIfNotInitialised()
+        {
+            // Arrange
+            var document = new TrackerDocument();
+
+            // Assert
+            Assert.Throws<DocumentToggleException>(() => _documentToggleService.CanReadDocument(document));
+        }
+
+        [Fact]
+        public void CanReadDocument_ReturnsFalseIfDocumentNotReadable()
+        {
+            // Arrange
+            var document = new TrackerDocument();
+            document.PresentationStatuses.ReadStatus = ReadStatus.OnlyAvailableInCms;
+            _documentToggleService.Init("");
+
+            // Assert
+            var canRead = _documentToggleService.CanReadDocument(document);
+            canRead.Should().BeFalse();
+        }
+
+        [Fact]
+        public void CanReadDocument_ReturnsTrueIfDocumentReadable()
+        {
+            // Arrange
+            var document = new TrackerDocument();
+            document.PresentationStatuses.ReadStatus = ReadStatus.Ok;
+            _documentToggleService.Init("");
+
+            // Assert
+            var canRead = _documentToggleService.CanReadDocument(document);
+            canRead.Should().BeTrue();
+        }
+
+        [Fact]
+        public void CanWriteDocument_ThrowsIfNotInitialised()
+        {
+            // Arrange
+            var document = new TrackerDocument();
+
+            // Assert
+            Assert.Throws<DocumentToggleException>(() => _documentToggleService.CanWriteDocument(document));
+        }
+
+        [Fact]
+        public void CanWriteDocument_ReturnsFalseIfDocumentNotWriteable()
+        {
+            // Arrange
+            var document = new TrackerDocument();
+            document.PresentationStatuses.WriteStatus = WriteStatus.OnlyAvailableInCms;
+            _documentToggleService.Init("");
+
+            // Assert
+            var canWrite = _documentToggleService.CanWriteDocument(document);
+            canWrite.Should().BeFalse();
+        }
+
+        [Fact]
+        public void CanWriteDocument_ReturnsTrueIfDocumentWriteable()
+        {
+            // Arrange
+            var document = new TrackerDocument();
+            document.PresentationStatuses.WriteStatus = WriteStatus.Ok;
+            _documentToggleService.Init("");
+
+            // Assert
+            var canWrite = _documentToggleService.CanWriteDocument(document);
+            canWrite.Should().BeTrue();
+        }
+
         [Theory]
         [InlineData(
           @"",
@@ -94,10 +166,6 @@ namespace coordinator.tests.Services.DocumentToggle
           @"FileType  Read      *
             DocType   ReadWrite *",
           ".pdf", "MG1", ReadStatus.Ok, WriteStatus.OriginalFileTypeNotAllowed)]
-        [InlineData(
-          @"FileType  ReadWrite *
-            DocType   ReadWrite *",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.Ok)]
         [InlineData(
           @"FileType  ReadWrite *
             DocType   ReadWrite *",

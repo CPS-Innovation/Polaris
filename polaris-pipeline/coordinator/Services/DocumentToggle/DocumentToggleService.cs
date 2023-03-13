@@ -9,7 +9,7 @@ using coordinator.Domain.Tracker.PresentationStatus;
 
 namespace coordinator.Services.DocumentToggle
 {
-    public class DocumentToggleService
+    public class DocumentToggleService : IDocumentToggleService
     {
         private List<Definition> _defintions { get; set; }
 
@@ -35,12 +35,21 @@ namespace coordinator.Services.DocumentToggle
             _defintions = CreateDefinitions(lines);
         }
 
+        public bool CanReadDocument(TrackerDocument document)
+        {
+            AssertIsInitialised();
+            return document.PresentationStatuses.ReadStatus == ReadStatus.Ok;
+        }
+
+        public bool CanWriteDocument(TrackerDocument document)
+        {
+            AssertIsInitialised();
+            return document.PresentationStatuses.WriteStatus == WriteStatus.Ok;
+        }
+
         public void SetDocumentPresentationStatuses(TrackerDocument document)
         {
-            if (_defintions == null)
-            {
-                throw new DocumentToggleException("DocumentToggleService not initialised when processing document");
-            }
+            AssertIsInitialised();
 
             var levelForFileType = GetLevelForFileType(document);
             var levelForDocType = GetLevelForDocType(document);
@@ -72,6 +81,14 @@ namespace coordinator.Services.DocumentToggle
                 ReadStatus = readStatus,
                 WriteStatus = writeStatus
             };
+        }
+
+        private void AssertIsInitialised()
+        {
+            if (_defintions == null)
+            {
+                throw new DocumentToggleException("DocumentToggleService not initialised when processing document");
+            }
         }
 
         private string[] SplitConfigLines(string content)
