@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
+using Common.Configuration;
+using Common.Logging;
+using Common.Validators.Contracts;
+using Ddei.Exceptions;
+using Ddei.Factories.Contracts;
+using Ddei.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -10,13 +15,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
-using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using PolarisGateway.Domain.CaseData;
-using PolarisGateway.Domain.Exceptions;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
-using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Services;
 
 namespace PolarisGateway.Functions.CaseData
@@ -28,6 +28,8 @@ namespace PolarisGateway.Functions.CaseData
         private readonly ILogger<CaseDataApiCaseInformationByUrn> _logger;
         private readonly DdeiOptions _ddeiOptions;
 
+        const string loggingName = $"{nameof(CaseDataApiCaseInformationByUrn)} - {nameof(Run)}";
+
         public CaseDataApiCaseInformationByUrn(ILogger<CaseDataApiCaseInformationByUrn> logger, ICaseDataService caseDataService,
                                  IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
         : base(logger, tokenValidator)
@@ -38,14 +40,10 @@ namespace PolarisGateway.Functions.CaseData
             _ddeiOptions = options.Value;
         }
 
-        [FunctionName("CaseDataApiCaseInformationByUrn")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases")] HttpRequest req,
-            string urn)
+        [FunctionName(nameof(CaseDataApiCaseInformationByUrn))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             Guid currentCorrelationId = default;
-            string cmsAuthValues = null;
-            const string loggingName = "CaseDataApiCaseInformationByUrn - Run";
             IEnumerable<CaseDetails> caseInformation = null;
 
             try
@@ -55,15 +53,15 @@ namespace PolarisGateway.Functions.CaseData
                     return validationResult.InvalidResponseResult;
 
                 currentCorrelationId = validationResult.CurrentCorrelationId;
-                cmsAuthValues = validationResult.CmsAuthValues;
+                var cmsAuthValues = validationResult.CmsAuthValues;
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                if (string.IsNullOrEmpty(urn))
+                if (string.IsNullOrEmpty(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{urn}'");
-                var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, urn);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{caseUrn}'");
+                var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, caseUrn);
                 caseInformation = await _caseDataService.ListCases(urnArg);
 
                 if (caseInformation != null && caseInformation.Any())
@@ -71,7 +69,7 @@ namespace PolarisGateway.Functions.CaseData
                     return new OkObjectResult(caseInformation);
                 }
 
-                return NotFoundErrorResponse($"No data found for urn '{urn}'.", currentCorrelationId, loggingName);
+                return NotFoundErrorResponse($"No data found for urn '{caseUrn}'.", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {

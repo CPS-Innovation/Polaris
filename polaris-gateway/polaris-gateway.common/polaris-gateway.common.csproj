@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\polaris-pipeline\Common\Common.csproj" />
+    <ProjectReference Include="..\..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
 
 </Project>

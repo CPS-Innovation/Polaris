@@ -4,20 +4,20 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Azure;
 using Common.Domain.SearchIndex;
+using Common.Validators.Contracts;
 using FluentAssertions;
+using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Functions.PolarisPipeline;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
-	public class PolarisPipelineQuerySearchIndexTests : SharedMethods.SharedMethods
+    public class PolarisPipelineQuerySearchIndexTests : SharedMethods.SharedMethods
 	{
 		private readonly string _caseUrn;
 		private readonly int _caseId;

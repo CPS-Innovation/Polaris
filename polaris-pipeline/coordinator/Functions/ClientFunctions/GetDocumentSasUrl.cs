@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Common.Configuration;
 
 namespace coordinator.Functions.ClientFunctions
 {
@@ -25,7 +26,7 @@ namespace coordinator.Functions.ClientFunctions
 
         [FunctionName(nameof(GetDocumentSasUrl))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/sasUrl")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentSasUrl)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             Guid documentId, 

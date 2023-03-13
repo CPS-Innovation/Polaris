@@ -1,10 +1,6 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Ddei.Clients;
+using Ddei.Factories.Contracts;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PolarisGateway.CaseDataImplementations.Ddei.Clients;
-using PolarisGateway.Domain.CaseData.Args;
-using PolarisGateway.Factories.Contracts;
 
 namespace Common.Health
 {

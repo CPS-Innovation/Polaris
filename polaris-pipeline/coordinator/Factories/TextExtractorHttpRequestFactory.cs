@@ -4,7 +4,7 @@ using System.Net.Http;
 using Common.Constants;
 using Common.Domain.Requests;
 using Common.Logging;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using coordinator.Domain.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +13,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace coordinator.Factories
 {
-	public class TextExtractorHttpRequestFactory : ITextExtractorHttpRequestFactory
+    public class TextExtractorHttpRequestFactory : ITextExtractorHttpRequestFactory
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IConfiguration _configuration;

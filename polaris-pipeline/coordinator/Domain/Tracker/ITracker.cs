@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-// ReSharper disable InconsistentNaming
-
 namespace coordinator.Domain.Tracker
 {
     public interface ITracker

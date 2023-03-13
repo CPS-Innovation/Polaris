@@ -4,12 +4,13 @@ using System.Net;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
+using Common.Clients.Contracts;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Common.Clients
 {
-	public class BlobStorageClient : IBlobStorageClient
+    public class BlobStorageClient : IBlobStorageClient
 	{
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;

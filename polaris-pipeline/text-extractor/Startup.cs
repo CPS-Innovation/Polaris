@@ -18,6 +18,7 @@ using Common.Services.SearchIndexService.Contracts;
 using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
+using Common.Wrappers.Contracts;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -101,11 +102,11 @@ namespace text_extractor
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
             builder.Services.AddHealthChecks()
-                //.AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<OcrServiceHealthCheck>("OCR Service");
-                //.AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
-                //.AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
-                //.AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");*/
+                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
+                .AddCheck<OcrServiceHealthCheck>("OCR Service")
+                .AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
+                .AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
+                .AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");
         }
     }
 }

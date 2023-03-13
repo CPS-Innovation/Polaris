@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Common.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.Logging;
+using PolarisGateway.common.Mappers.Contracts;
 
 namespace PolarisGateway.Mappers
 {
-	public class TrackerUrlMapper : ITrackerUrlMapper
+    public class TrackerUrlMapper : ITrackerUrlMapper
 	{
 		private readonly ILogger<TrackerUrlMapper> _logger;
 

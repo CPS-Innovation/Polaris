@@ -5,10 +5,11 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway.Domain.Validators;
-using PolarisGateway.Clients.PolarisPipeline;
 using System.Net.Http;
+using Common.Configuration;
+using Common.Logging;
+using Common.Validators.Contracts;
+using Gateway.Clients.PolarisPipeline.Contracts;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -16,6 +17,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
     {
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineGetDocumentSasUrl> _logger;
+
+        const string loggingName = $"{nameof(PolarisPipelineGetDocumentSasUrl)} - {nameof(Run)}";
 
         public PolarisPipelineGetDocumentSasUrl(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetDocumentSasUrl> logger, IPipelineClient pipelineClient)
             : base(logger, tokenValidator)
@@ -25,31 +28,28 @@ namespace PolarisGateway.Functions.PolarisPipeline
         }
 
         [FunctionName(nameof(PolarisPipelineGetDocumentSasUrl))]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/documents/{id:guid}/sasUrl")]
-            HttpRequest req, string urn, int caseId, Guid id)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentSasUrl)] HttpRequest req, string caseUrn, int caseId, Guid documentId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = $"{nameof(PolarisPipelineGetDocumentSasUrl)} - Run";
 
             try
             {
-                var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                if (validationResult.InvalidResponseResult != null)
-                    return validationResult.InvalidResponseResult;
+                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                if (request.InvalidResponseResult != null)
+                    return request.InvalidResponseResult;
                 
-                currentCorrelationId = validationResult.CurrentCorrelationId;
+                currentCorrelationId = request.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                if (string.IsNullOrWhiteSpace(urn))
+                if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating document SAS Url for urn {urn}, caseId {caseId}, id {id}");
-                var sasUrl = await _pipelineClient.GenerateDocumentSasUrlAsync(urn, caseId, id, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating document SAS Url for urn {caseUrn}, caseId {caseId}, id {documentId}");
+                var sasUrl = await _pipelineClient.GenerateDocumentSasUrlAsync(caseUrn, caseId, documentId, currentCorrelationId);
 
                 return !string.IsNullOrWhiteSpace(sasUrl)
                     ? new OkObjectResult(sasUrl)
-                    : NotFoundErrorResponse($"No document SAS URL found for urn {urn}, caseId {caseId}, id {id}\".", currentCorrelationId, loggingName);
+                    : NotFoundErrorResponse($"No document SAS URL found for urn {caseUrn}, caseId {caseId}, id {documentId}\".", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {

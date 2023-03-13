@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace coordinator.Functions.ClientFunctions
 
         [FunctionName(nameof(TrackerStatus))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/{caseUrn}/{caseId}/tracker")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             [DurableClient] IDurableEntityClient client,

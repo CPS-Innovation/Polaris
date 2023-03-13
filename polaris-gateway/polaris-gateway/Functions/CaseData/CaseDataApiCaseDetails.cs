@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
+using Common.Configuration;
+using Common.Logging;
+using Common.Validators.Contracts;
+using Ddei.Exceptions;
+using Ddei.Factories.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
-using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using PolarisGateway.Domain.CaseData;
-using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
-using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Services;
 
 namespace PolarisGateway.Functions.CaseData
@@ -24,24 +24,22 @@ namespace PolarisGateway.Functions.CaseData
         private readonly ICaseDataService _caseDataService;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly ILogger<CaseDataApiCaseDetails> _logger;
-        private readonly DdeiOptions _ddeiOptions;
 
-        public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger, ICaseDataService caseDataService,
-                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
+        const string loggingName = $"{nameof(CaseDataApiCaseDetails)} - {nameof(Run)}";
+
+        public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger, ICaseDataService caseDataService, IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory)
         : base(logger, tokenValidator)
         {
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
-            _ddeiOptions = options.Value;
         }
 
-        [FunctionName("CaseDataApiCaseDetails")]
+        [FunctionName(nameof(CaseDataApiCaseDetails))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}")] HttpRequest req, string urn, int caseId)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "CaseDataApiCaseDetails - Run";
             CaseDetailsFull caseDetails = null;
 
             try
@@ -54,7 +52,7 @@ namespace PolarisGateway.Functions.CaseData
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
-                caseDetails = await _caseDataService.GetCase(_caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, urn, caseId));
+                caseDetails = await _caseDataService.GetCase(_caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId));
 
                 return caseDetails != null
                     ? new OkObjectResult(caseDetails)

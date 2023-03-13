@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients;
+using Common.Clients.Contracts;
 using Common.Constants;
 using Common.Logging;
 using coordinator.Domain.Tracker;

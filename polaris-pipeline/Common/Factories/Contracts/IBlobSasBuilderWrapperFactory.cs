@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Sas;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 
 namespace Common.Factories.Contracts;
 

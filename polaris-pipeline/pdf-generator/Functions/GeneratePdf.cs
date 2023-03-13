@@ -15,7 +15,7 @@ using Common.Exceptions.Contracts;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentExtractionService.Contracts;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;

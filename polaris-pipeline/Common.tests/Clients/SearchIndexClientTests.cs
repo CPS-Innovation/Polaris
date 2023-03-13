@@ -3,6 +3,7 @@ using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Common.Clients;
+using Common.Clients.Contracts;
 using Common.Domain.SearchIndex;
 using Common.Factories;
 using Common.Factories.Contracts;

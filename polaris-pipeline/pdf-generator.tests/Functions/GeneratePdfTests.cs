@@ -13,7 +13,7 @@ using Common.Domain.Responses;
 using Common.Exceptions.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentExtractionService.Contracts;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;

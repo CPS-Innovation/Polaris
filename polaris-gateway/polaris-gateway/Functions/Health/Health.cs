@@ -11,6 +11,8 @@ using System;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Domain.Logging;
 using Common.Domain.Extensions;
+using Common.Configuration;
+using Common.Logging;
 
 namespace PolarisGateway.Functions.Health;
 
@@ -27,9 +29,7 @@ public class Health
     }
 
     [FunctionName(nameof(Health))]
-    public async Task<IActionResult> Healthcheck(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")]
-        HttpRequest request)
+    public async Task<IActionResult> Healthcheck([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Health)] HttpRequest request)
     {
         request.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
         if (correlationIdValues.Count == 0)

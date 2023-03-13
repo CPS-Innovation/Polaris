@@ -12,7 +12,7 @@ using Common.Domain.Requests;
 using Common.Domain.Responses;
 using Common.Exceptions.Contracts;
 using Common.Logging;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using FluentValidation;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -74,7 +74,7 @@ namespace pdf_generator.Functions
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
                 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for documentId: '{redactions.DocumentId}'");
-                redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, "onBehalfOfAccessToken", currentCorrelationId);
+                redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfResponse), Encoding.UTF8,

@@ -12,7 +12,7 @@ using Common.Factories.Contracts;
 using Common.Logging;
 using Common.Mappers.Contracts;
 using Common.Services.DocumentExtractionService.Contracts;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -53,8 +53,7 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         var results = new List<CmsCaseDocument>();
 
         string listDocumentUrlFormat = _configuration[ConfigKeys.SharedKeys.ListDocumentsUrl];
-        var response = await GetHttpContentAsync(string.Format(listDocumentUrlFormat, caseUrn, caseId), 
-            cmsAuthValues, correlationId);
+        var response = await GetHttpContentAsync(string.Format(listDocumentUrlFormat, caseUrn, caseId), cmsAuthValues, correlationId);
         var stringContent = await response.ReadAsStringAsync();
         var ddeiResults = _jsonConvertWrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(stringContent);
 

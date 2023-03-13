@@ -5,15 +5,16 @@ using AutoFixture;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Common.Clients;
+using Common.Clients.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using PolarisGateway.Clients.PolarisPipeline;
 using Xunit;
 
 namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
-	public class BlobStorageClientTests
+    public class BlobStorageClientTests
 	{
         private readonly string _blobName;
         private readonly Guid _correlationId;

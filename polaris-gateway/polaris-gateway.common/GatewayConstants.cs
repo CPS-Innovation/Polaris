@@ -2,22 +2,9 @@
 
 public static class ConfigurationKeys
 {
-    public const string TenantId = "TenantId";
     public const string ClientId = "ClientId";
     public const string ClientSecret = "ClientSecret";
-    public const string ValidAudience = "CallingAppValidAudience";
-    public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
-    public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
-    public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
-    public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
     public const string BlobServiceUrl = "BlobServiceUrl";
-}
-
-public static class AuthenticationKeys
-{
-    public const string Authorization = "Authorization";
-    public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
-    public const string Bearer = "Bearer";
 }
 
 public static class ValidRoles

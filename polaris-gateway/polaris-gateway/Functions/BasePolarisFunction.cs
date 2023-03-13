@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using Common.Constants;
+using Common.Logging;
+using Common.Validators.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Exceptions;
-using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
 
 namespace PolarisGateway.Functions
 {
@@ -67,7 +68,7 @@ namespace PolarisGateway.Functions
 
         private async Task<StringValues> AuthenticateRequest(HttpRequest req, Guid currentCorrelationId, string validScopes, string validRoles = "")
         {
-            if (!req.Headers.TryGetValue(AuthenticationKeys.Authorization, out var accessTokenValue) ||
+            if (!req.Headers.TryGetValue(OAuthSettings.Authorization, out var accessTokenValue) ||
                 string.IsNullOrWhiteSpace(accessTokenValue))
                 throw new CpsAuthenticationException();
 

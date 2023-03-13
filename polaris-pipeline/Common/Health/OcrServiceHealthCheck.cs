@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Services.OcrService;
@@ -28,6 +29,7 @@ namespace Common.Health
 #endif
 
                 var response = await _ocrService.GetOcrResultsAsync("2143172/pdfs/TestDOCX.pdf", Guid.NewGuid());
+                string json = JsonSerializer.Serialize(response);
 
                 return HealthCheckResult.Healthy(mockService ? "(MOCKED SERVICE)" : $"Model Version={response.ModelVersion}");
             }

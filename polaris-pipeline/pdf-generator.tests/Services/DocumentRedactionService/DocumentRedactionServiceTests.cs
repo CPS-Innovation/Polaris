@@ -25,7 +25,6 @@ public class DocumentRedactionServiceTests
     private readonly IDocumentRedactionService _documentRedactionService;
 
     private readonly RedactPdfRequest _redactPdfRequest;
-    private readonly string _accessToken;
     private readonly Guid _correlationId;
 
     public DocumentRedactionServiceTests()
@@ -48,7 +47,6 @@ public class DocumentRedactionServiceTests
         _redactPdfRequest.RedactionDefinitions = fixture.CreateMany<RedactionDefinition>(1).ToList();
         _redactPdfRequest.RedactionDefinitions[0].PageIndex = 1;
 
-        _accessToken = fixture.Create<string>();
         _correlationId = Guid.NewGuid();
         
         using var pdfStream = new MemoryStream();
@@ -69,7 +67,7 @@ public class DocumentRedactionServiceTests
         _mockBlobStorageService.Setup(s => s.GetDocumentAsync(It.IsAny<string>(), It.IsAny<Guid>()))
             .ReturnsAsync((Stream)null);
 
-        var saveResult = await _documentRedactionService.RedactPdfAsync(_redactPdfRequest, _accessToken, _correlationId);
+        var saveResult = await _documentRedactionService.RedactPdfAsync(_redactPdfRequest, _correlationId);
         
         using (new AssertionScope())
         {

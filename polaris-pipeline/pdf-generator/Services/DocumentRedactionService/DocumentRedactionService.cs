@@ -27,7 +27,7 @@ namespace pdf_generator.Services.DocumentRedactionService
             _logger = logger;
         }
 
-        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, string accessToken, Guid correlationId)
+        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
             var saveResult = new RedactPdfResponse();

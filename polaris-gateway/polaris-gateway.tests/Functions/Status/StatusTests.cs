@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common.Validators.Contracts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
@@ -9,9 +10,9 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions.Status
 {
-	public class CoreDataApiCaseInformationByUrnFunctionTests : SharedMethods.SharedMethods
+    public class CoreDataApiCaseInformationByUrnFunctionTests : SharedMethods.SharedMethods
 	{
-		private readonly ILogger<PolarisGateway.Functions.Status.Status> _mockLogger = Substitute.For<ILogger<PolarisGateway.Functions.Status.Status>>();
+		private readonly ILogger<PolarisGateway.Functions.Health.Status> _mockLogger = Substitute.For<ILogger<PolarisGateway.Functions.Health.Status>>();
 		private readonly IAuthorizationValidator _mockTokenValidator = Substitute.For<IAuthorizationValidator>();
 
 		public CoreDataApiCaseInformationByUrnFunctionTests()
@@ -72,9 +73,9 @@ namespace PolarisGateway.Tests.Functions.Status
 			Assert.Equal(200, results?.StatusCode);
 		}
 
-		private PolarisGateway.Functions.Status.Status GetStatusFunction()
+		private PolarisGateway.Functions.Health.Status GetStatusFunction()
 		{
-			return new PolarisGateway.Functions.Status.Status(_mockLogger, _mockTokenValidator);
+			return new PolarisGateway.Functions.Health.Status(_mockLogger, _mockTokenValidator);
 		}
 
 	}

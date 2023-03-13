@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Common.Services.SasGeneratorService;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Responses;
@@ -20,7 +19,19 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Health;
-using Microsoft.AspNetCore.Http;
+using Common.Wrappers.Contracts;
+using Common.Clients.Contracts;
+using Common.Clients;
+using Ddei.Services;
+using PolarisGateway.CaseDataImplementations.Ddei.Services;
+using Ddei.Clients;
+using Ddei.Options;
+using Ddei.Factories.Contracts;
+using Ddei.Factories;
+using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
+using Common.Domain.Requests;
+using FluentValidation;
+using Common.Domain.Validators;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -42,16 +53,40 @@ namespace coordinator
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
-            builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
+            builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+
             builder.Services.AddHttpClient<IDdeiDocumentExtractionService, DdeiDocumentExtractionService>(client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValueFromConfig(ConfigKeys.SharedKeys.DocumentsRepositoryBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
+            // Redact PDF
+            builder.Services.AddHttpClient<IRedactionClient, RedactionClient>(client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+            builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
+
             builder.Services.AddBlobStorage(configuration);
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
+
+            // Ddei
+            builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
+            builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
+            {
+                var options = configuration.GetSection("ddei").Get<DdeiOptions>();
+                client.BaseAddress = new Uri(options.BaseUrl);
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+            builder.Services.AddTransient<IDocumentService, DdeiService>();
+            builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
+            builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
+            builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
+            builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
 
             BuildHealthChecks(builder);
         }

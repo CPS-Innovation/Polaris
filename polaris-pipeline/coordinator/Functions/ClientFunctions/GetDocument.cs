@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients;
+using Common.Clients.Contracts;
+using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
 using coordinator.Domain.Tracker;
@@ -25,7 +26,7 @@ namespace coordinator.Functions.ClientFunctions
 
         [FunctionName(nameof(GetDocument))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "cases/{caseUrn}/{caseId}/documents/{documentId}")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Document)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             Guid documentId, 

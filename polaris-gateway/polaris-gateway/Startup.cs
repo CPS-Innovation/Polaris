@@ -1,31 +1,43 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Headers;
-using Azure.Identity;
+﻿using Azure.Identity;
 using Azure.Storage.Blobs;
+using Common.Clients;
+using Common.Clients.Contracts;
+using Common.Constants;
+using Common.Domain.Extensions;
+using Common.Factories;
+using Common.Factories.Contracts;
+using Common.Health;
+using Common.Mappers;
+using Common.Mappers.Contracts;
+using Common.Services.SasGeneratorService;
+using Common.Validators;
+using Common.Validators.Contracts;
+using Common.Wrappers;
+using Common.Wrappers.Contracts;
+using Ddei.Clients;
+using Ddei.Factories;
+using Ddei.Factories.Contracts;
+using Ddei.Options;
+using Ddei.Services;
+using Ddei.Services.Contract;
+using Gateway.Clients.PolarisPipeline;
+using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
-using PolarisGateway.Clients.PolarisPipeline;
-using PolarisGateway.Domain.Validators;
-using PolarisGateway.Factories;
-using PolarisGateway.CaseDataImplementations.Ddei.Clients;
-using PolarisGateway.CaseDataImplementations.Ddei.Options;
+using Microsoft.IdentityModel.Logging;
+using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using PolarisGateway.CaseDataImplementations.Ddei.Services;
+using PolarisGateway.common.Mappers.Contracts;
+using PolarisGateway.Factories;
+using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Mappers;
 using PolarisGateway.Services;
-using PolarisGateway.Wrappers;
-using PolarisGateway.CaseDataImplementations.Ddei.Factories;
-using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
-using Microsoft.IdentityModel.Logging;
-using Common.Health;
-using PolarisGateway.Factories.Contracts;
-using Common.Services.SasGeneratorService;
-using Common.Domain.Extensions;
-using Common.Constants;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -56,33 +68,22 @@ namespace PolarisGateway
 
             builder.Services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
-                client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
+                client.BaseAddress = new Uri(GetValueFromConfig(configuration, PipelineSettings.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-
-            builder.Services.AddHttpClient<IRedactionClient, RedactionClient>(client =>
-            {
-                client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
-
-            // TODO - remove these services as moving to pipeline
-            BuildBlobServiceClient(builder, configuration);
-            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
 
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
+            // DDEI
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
-
-            builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("ddei").Bind(settings);
-            });
-
             builder.Services.AddTransient<ICaseDataService, DdeiService>();
             builder.Services.AddTransient<IDocumentService, DdeiService>();
             builder.Services.AddTransient<ICmsModernTokenService, DdeiService>();
             builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
+            builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
+            {
+                configuration.GetSection("ddei").Bind(settings);
+            });
             builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
             {
                 var options = configuration.GetSection("ddei").Get<DdeiOptions>();
@@ -123,27 +124,7 @@ namespace PolarisGateway
 
             builder.Services.AddHealthChecks()
                 .AddCheck<DdeiClientHealthCheck>(ddeiClient)
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator })
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Functions", args: new object[] { pdfFunctions }); 
-        }
-
-        private static void BuildBlobServiceClient(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
-        {
-            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
-            {
-                //string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
-                //azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(GetValueFromConfig(configuration, ConfigurationKeys.BlobServiceUrl)))
-                    .WithCredential(new DefaultAzureCredential());
-            });
-
-            builder.Services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
-            {
-                var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
-                BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                string blobServiceContainerName = GetValueFromConfig(configuration, ConfigKeys.SharedKeys.BlobServiceContainerName);
-                return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
-            }));
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator });
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

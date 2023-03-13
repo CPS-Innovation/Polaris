@@ -4,14 +4,14 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Clients.PolarisPipeline;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway.Domain.Validators;
-using System.Net;
 using PolarisGateway.Factories.Contracts;
+using Common.Configuration;
+using Common.Logging;
+using Common.Validators.Contracts;
+using Gateway.Clients.PolarisPipeline.Contracts;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -20,6 +20,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
         private readonly ILogger<PolarisPipelineTriggerCoordinator> _logger;
+
+        const string loggingName = $"{nameof(PolarisPipelineTriggerCoordinator)} - {nameof(Run)}";
 
         public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger, 
                                  IPipelineClient pipelineClient, ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory, IAuthorizationValidator tokenValidator)
@@ -30,31 +32,29 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
-        [FunctionName("PolarisPipelineTriggerCoordinator")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "urns/{urn}/cases/{caseId}")] HttpRequest req, string urn, int caseId)
+        [FunctionName(nameof(PolarisPipelineTriggerCoordinator))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "PolarisPipelineTriggerCoordinator - Run";
 
             try
             {
-                var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                if (validationResult.InvalidResponseResult != null)
-                    return validationResult.InvalidResponseResult;
+                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                if (request.InvalidResponseResult != null)
+                    return request.InvalidResponseResult;
 
-                currentCorrelationId = validationResult.CurrentCorrelationId;
+                currentCorrelationId = request.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                if (string.IsNullOrWhiteSpace(urn))
-                    return BadRequestErrorResponse("An empty case URN was received - please correct.", currentCorrelationId, loggingName);
+                if (string.IsNullOrWhiteSpace(caseUrn))
+                    return BadRequestErrorResponse("An empty case URN was received", currentCorrelationId, loggingName);
 
                 var force = false;
                 if (req.Query.ContainsKey("force") && !bool.TryParse(req.Query["force"], out force))
                     return BadRequestErrorResponse("Invalid query string. Force value must be a boolean.", currentCorrelationId, loggingName);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Triggering the pipeline for caseId: {caseId}, forceRefresh: {force}");
-                await _pipelineClient.TriggerCoordinatorAsync(urn, caseId, validationResult.CmsAuthValues, force, currentCorrelationId);
+                await _pipelineClient.TriggerCoordinatorAsync(caseUrn, caseId, request.CmsAuthValues, force, currentCorrelationId);
 
                 return new OkObjectResult(_triggerCoordinatorResponseFactory.Create(req, currentCorrelationId));
             }

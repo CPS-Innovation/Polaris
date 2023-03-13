@@ -2,6 +2,7 @@
 using Azure.Search.Documents;
 using Azure.Storage.Blobs;
 using Common.Clients;
+using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Factories;
@@ -10,6 +11,7 @@ using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Services.SasGeneratorService;
 using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +28,8 @@ namespace Common.Services.Extensions
             {
                 //string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
                 //azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl)))
+                var blobServiceUrl = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl);
+                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl))
                     .WithCredential(new DefaultAzureCredential());
             });
 

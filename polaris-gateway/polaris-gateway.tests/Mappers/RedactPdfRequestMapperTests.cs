@@ -2,12 +2,14 @@
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
-using PolarisGateway.Domain.DocumentRedaction;
-using PolarisGateway.Mappers;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Common.Mappers;
+using Common.Domain.Requests;
+using Common.Domain.Redaction;
+using Common.Mappers.Contracts;
 
 namespace PolarisGateway.Tests.Mappers
 {
@@ -30,17 +32,16 @@ namespace PolarisGateway.Tests.Mappers
             var testRequest = _fixture.Create<DocumentRedactionSaveRequest>();
             testRequest.Redactions = _fixture.CreateMany<RedactionDefinition>(5).ToList();
             var testCaseId = _fixture.Create<int>();
-            var testDocumentId = _fixture.Create<int>();
-            var testFileName = _fixture.Create<string>();
+            var testDocumentId = _fixture.Create<Guid>();
 
             IRedactPdfRequestMapper mapper = new RedactPdfRequestMapper(_loggerMock.Object);
-            var result = mapper.Map(testRequest, testCaseId, testDocumentId, testFileName, _correlationId);
+            var result = mapper.Map(testRequest, testCaseId, testDocumentId, _correlationId);
 
             using (new AssertionScope())
             {
                 result.CaseId.Should().Be(testCaseId);
-                result.DocumentId.Should().Be(testDocumentId);
-                result.FileName.Should().Be(testFileName);
+                result.DocumentId.Should().Be(testDocumentId.ToString());
+                result.FileName.Should().BeNullOrEmpty();
                 result.RedactionDefinitions.Should().NotBeNull();
                 result.RedactionDefinitions.Count.Should().Be(5);
                 result.RedactionDefinitions[0].PageIndex.Should().Be(testRequest.Redactions[0].PageIndex);

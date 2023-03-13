@@ -2,14 +2,14 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
+using Common.Validators.Contracts;
 using FluentAssertions;
+using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.PolarisPipeline;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Functions.PolarisPipeline;
 using Xunit;
 

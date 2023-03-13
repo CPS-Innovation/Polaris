@@ -12,6 +12,15 @@
         public const string ApplicationJson = "application/json";
     }
 
+    public static class OAuthSettings
+    {
+        public const string TenantId = "TenantId";
+        public const string ValidAudience = "CallingAppValidAudience";
+        public const string Bearer = "Bearer";
+        public const string Authorization = "Authorization";
+        //public const string AzureAuthenticationInstanceUrl = "https://login.microsoftonline.com/";
+    }
+
     public static class EventGridEvents
     {
         public const string BlobDeletedEvent = "Microsoft.Storage.BlobDeleted";
@@ -42,6 +51,14 @@
         public const string MockOcrServiceResults = nameof(MockOcrServiceResults);
     }
 #endif
+
+    public static class PipelineSettings
+    {
+        public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
+        public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
+        public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
+        public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
+    }
 
     public static class ConfigKeys
     {
