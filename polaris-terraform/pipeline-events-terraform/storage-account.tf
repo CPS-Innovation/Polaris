@@ -16,6 +16,12 @@ resource "azurerm_role_assignment" "ra_blob_delegator_text_extractor" {
   principal_id         = data.azurerm_linux_function_app.fa_text_extractor.identity[0].principal_id
 }
 
+resource "azurerm_role_assignment" "ra_blob_delegator_text_extractor" {
+  scope                = data.azurerm_storage_account.pipeline_storage_account.id
+  role_definition_name = "Storage Blob Delegator"
+  principal_id         = data.azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
+}
+
 resource "azurerm_role_assignment" "ra_blob_data_contributor_pdf_generator" {
   scope                = data.azurerm_storage_container.pipeline_storage_container.resource_manager_id
   role_definition_name = "Storage Blob Data Contributor"
