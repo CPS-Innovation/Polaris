@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using System;
 using System.Threading.Tasks;
+using PolarisGateway.Domain.Logging;
+using PolarisGateway.Domain.Validators;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -18,10 +21,11 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineQuerySearchIndex> _logger;
 
-        const string loggingName = $"{nameof(PolarisPipelineQuerySearchIndex)} - {nameof(Run)}";
-
-        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger, IPipelineClient pipelineClient, IAuthorizationValidator tokenValidator)
-            : base(logger, tokenValidator)
+        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger,
+                                               IPipelineClient pipelineClient,
+                                               IAuthorizationValidator tokenValidator,
+                                               ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;

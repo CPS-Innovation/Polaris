@@ -9,7 +9,6 @@ import { AccordionDocumentSection } from "./types";
 type Props = {
   accordionState: AccordionDocumentSection[];
   handleOpenPdf: (caseDocument: {
-    tabSafeId: string;
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
 };

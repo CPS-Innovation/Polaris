@@ -43,7 +43,7 @@ const caseDetails: CaseDetails[] = [
         custodyTimeLimit: {
           expiryDate: "2022-11-20",
           expiryDays: 20,
-          expiryIndicator: "Active",
+          expiryIndicator: "ACTIVE",
         },
         charges: [],
       },

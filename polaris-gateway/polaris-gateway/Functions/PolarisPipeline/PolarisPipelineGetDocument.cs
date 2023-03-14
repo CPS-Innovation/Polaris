@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Net.Http;
+using PolarisGateway.Wrappers;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
@@ -20,8 +21,12 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         const string loggingName = $"{nameof(PolarisPipelineGetDocument)} - ${nameof(Run)}";
 
-        public PolarisPipelineGetDocument(IPipelineClient pipelineClient, ILogger<PolarisPipelineGetDocument> logger, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+
+        public PolarisPipelineGetDocument(IPipelineClient pipelineClient,
+                                          ILogger<PolarisPipelineGetDocument> logger,
+                                          IAuthorizationValidator tokenValidator,
+                                          ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;

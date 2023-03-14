@@ -5,7 +5,7 @@
 		None,
 		PdfUploadedToBlob,
 		Indexed,
-		// ReSharper disable once InconsistentNaming
+		DocumentsRetrieved,
 		NotFoundInDDEI,
 		UnableToConvertToPdf,
 		UnexpectedFailure,

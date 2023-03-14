@@ -10,6 +10,7 @@ using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -20,8 +21,12 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         const string loggingName = $"{nameof(PolarisPipelineGetDocumentSasUrl)} - {nameof(Run)}";
 
-        public PolarisPipelineGetDocumentSasUrl(IAuthorizationValidator tokenValidator, ILogger<PolarisPipelineGetDocumentSasUrl> logger, IPipelineClient pipelineClient)
-            : base(logger, tokenValidator)
+
+        public PolarisPipelineGetDocumentSasUrl(IAuthorizationValidator tokenValidator,
+                                                ILogger<PolarisPipelineGetDocumentSasUrl> logger,
+                                                IPipelineClient pipelineClient,
+                                                ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient ?? throw new ArgumentNullException(nameof(pipelineClient));
             _logger = logger;

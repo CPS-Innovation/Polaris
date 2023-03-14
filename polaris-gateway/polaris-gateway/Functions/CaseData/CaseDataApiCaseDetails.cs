@@ -16,6 +16,7 @@ using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
 using PolarisGateway.Services;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.CaseData
 {
@@ -27,8 +28,13 @@ namespace PolarisGateway.Functions.CaseData
 
         const string loggingName = $"{nameof(CaseDataApiCaseDetails)} - {nameof(Run)}";
 
-        public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger, ICaseDataService caseDataService, IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory)
-        : base(logger, tokenValidator)
+        public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger,
+                                      ICaseDataService caseDataService,
+                                      IAuthorizationValidator tokenValidator,
+                                      ICaseDataArgFactory caseDataArgFactory,
+                                      IOptions<DdeiOptions> options,
+                                      ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;

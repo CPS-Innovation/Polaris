@@ -18,6 +18,7 @@ using Microsoft.Identity.Client;
 using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Extensions;
 using PolarisGateway.Services;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.CaseData
 {
@@ -30,9 +31,13 @@ namespace PolarisGateway.Functions.CaseData
 
         const string loggingName = $"{nameof(CaseDataApiCaseInformationByUrn)} - {nameof(Run)}";
 
-        public CaseDataApiCaseInformationByUrn(ILogger<CaseDataApiCaseInformationByUrn> logger, ICaseDataService caseDataService,
-                                 IAuthorizationValidator tokenValidator, ICaseDataArgFactory caseDataArgFactory, IOptions<DdeiOptions> options)
-        : base(logger, tokenValidator)
+        public CaseDataApiCaseInformationByUrn(ILogger<CaseDataApiCaseInformationByUrn> logger,
+                                               ICaseDataService caseDataService,
+                                               IAuthorizationValidator tokenValidator,
+                                               ICaseDataArgFactory caseDataArgFactory,
+                                               IOptions<DdeiOptions> options,
+                                               ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;

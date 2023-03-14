@@ -4,13 +4,13 @@ import {
 } from "../../../../../common/utils/dates";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
+import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 
 import classes from "./Accordion.module.scss";
 
 type Props = {
   caseDocument: MappedCaseDocument;
   handleOpenPdf: (caseDocument: {
-    tabSafeId: string;
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
 };
@@ -25,16 +25,15 @@ export const AccordionDocument: React.FC<Props> = ({
     <li className={`${classes["accordion-document-list-item"]}`}>
       <div className={`${classes["accordion-document-item-wrapper"]}`}>
         {canViewDocument ? (
-          <a
-            className={`${classes["accordion-document-link-button"]}`}
-            href={`#${caseDocument.tabSafeId}`}
-            onClick={(ev) => {
+          <LinkButton
+            onClick={() => {
               handleOpenPdf(caseDocument);
             }}
-            data-testid={`link-document-${caseDocument.documentId}`}
+            className={`${classes["accordion-document-link-button"]}`}
+            dataTestId={`link-document-${caseDocument.documentId}`}
           >
             {caseDocument.presentationFileName}
-          </a>
+          </LinkButton>
         ) : (
           <span
             className={`${classes["accordion-document-link-name"]}`}

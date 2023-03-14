@@ -21,8 +21,11 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineGetTracker> _logger;
 
-        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger, IPipelineClient pipelineClient, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger,
+                                         IPipelineClient pipelineClient,
+                                         IAuthorizationValidator tokenValidator,
+                                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;

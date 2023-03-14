@@ -8,6 +8,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using PolarisGateway.Factories.Contracts;
+using PolarisGateway.Wrappers;
 using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
@@ -23,9 +24,13 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         const string loggingName = $"{nameof(PolarisPipelineTriggerCoordinator)} - {nameof(Run)}";
 
-        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger, 
-                                 IPipelineClient pipelineClient, ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+
+        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger,
+                                                 IPipelineClient pipelineClient,
+                                                 ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
+                                                 IAuthorizationValidator tokenValidator,
+                                                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _triggerCoordinatorResponseFactory = triggerCoordinatorResponseFactory;

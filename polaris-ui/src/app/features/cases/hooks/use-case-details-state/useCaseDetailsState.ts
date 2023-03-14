@@ -16,7 +16,7 @@ export const initialState = {
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false },
   accordionState: { status: "loading" },
-  tabsState: { items: [], headers: {} },
+  tabsState: { items: [], headers: {}, activeTabId: undefined },
   searchTerm: "",
   searchState: {
     isResultsVisible: false,
@@ -91,7 +91,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
 
   const handleOpenPdf = useCallback(
     (caseDocument: {
-      tabSafeId: CaseDocumentViewModel["tabSafeId"];
       documentId: CaseDocumentViewModel["documentId"];
       mode: CaseDocumentViewModel["mode"];
     }) => {
@@ -99,7 +98,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         type: "REQUEST_OPEN_PDF",
         payload: {
           documentId: caseDocument.documentId,
-          tabSafeId: caseDocument.tabSafeId,
           mode: caseDocument.mode,
         },
       });
@@ -107,12 +105,24 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleTabSelection = useCallback(
+    (documentId: string) => {
+      dispatch({
+        type: "SET_ACTIVE_TAB",
+        payload: {
+          pdfId: documentId,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   const handleClosePdf = useCallback(
-    (caseDocument: { tabSafeId: CaseDocumentViewModel["tabSafeId"] }) => {
+    (caseDocument: { documentId: string }) => {
       dispatch({
         type: "CLOSE_PDF",
         payload: {
-          tabSafeId: caseDocument.tabSafeId,
+          pdfId: caseDocument.documentId,
         },
       });
     },
@@ -214,6 +224,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleOpenPdfInNewTab,
     handleOpenPdf,
     handleClosePdf,
+    handleTabSelection,
     handleSearchTermChange,
     handleLaunchSearchResults,
     handleCloseSearchResults,

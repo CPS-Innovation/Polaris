@@ -10,7 +10,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Domain.Validation;
+using PolarisGateway.Domain.Validators;
 using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Wrappers;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
@@ -23,6 +26,8 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
         private readonly Mock<IPipelineClient> _mockPipelineClient;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
+
+        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
         private readonly PolarisPipelineGetTracker _polarisPipelineGetTracker;
 
@@ -38,11 +43,14 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _mockPipelineClient = new Mock<IPipelineClient>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
-            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user-name" });
             _mockPipelineClient.Setup(client => client.GetTrackerAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>()))
                 .ReturnsAsync(_tracker);
 
-            _polarisPipelineGetTracker = new PolarisPipelineGetTracker(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object);
+            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
+
+            _polarisPipelineGetTracker = new PolarisPipelineGetTracker(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
@@ -64,7 +72,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_ReturnsUnauthorizedWhenAccessTokenIsInvalid()
         {
-            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
+            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = false });
             var response = await _polarisPipelineGetTracker.Run(CreateHttpRequest(), _caseUrn, _caseId);
 
             response.Should().BeOfType<UnauthorizedObjectResult>();

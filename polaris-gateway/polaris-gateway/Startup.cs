@@ -89,6 +89,7 @@ namespace PolarisGateway
             });
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
 
             BuildHealthChecks(builder);
         }
