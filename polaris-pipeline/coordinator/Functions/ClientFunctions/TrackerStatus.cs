@@ -26,34 +26,45 @@ namespace coordinator.Functions.ClientFunctions
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
-            req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-            if (correlationIdValues == null)
-            {
-                log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
-                return new BadRequestObjectResult(correlationErrorMessage);
-            }
+            Guid currentCorrelationId = default;
 
-            var correlationId = correlationIdValues.FirstOrDefault();
-            if (!Guid.TryParse(correlationId, out var currentCorrelationId))
-                if (currentCorrelationId == Guid.Empty)
+            try
+            {
+                req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
+                if (correlationIdValues == null)
                 {
                     log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                     return new BadRequestObjectResult(correlationErrorMessage);
                 }
 
-            log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
+                var correlationId = correlationIdValues.FirstOrDefault();
+                if (!Guid.TryParse(correlationId, out currentCorrelationId))
+                    if (currentCorrelationId == Guid.Empty)
+                    {
+                        log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
+                        return new BadRequestObjectResult(correlationErrorMessage);
+                    }
 
-            var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<Domain.Tracker.Tracker>(entityId);
-            if (!stateResponse.EntityExists)
+                log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
+
+                var entityId = new EntityId(nameof(Domain.Tracker), caseId);
+                var stateResponse = await client.ReadEntityStateAsync<Domain.Tracker.Tracker>(entityId);
+                if (!stateResponse.EntityExists)
+                {
+                    var baseMessage = $"No pipeline tracker found with id '{caseId}'";
+                    log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
+                    return new NotFoundObjectResult(baseMessage);
+                }
+
+                log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
+                return new OkObjectResult(stateResponse.EntityState);
+            }
+            catch (Exception ex)
             {
-                var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
-                return new NotFoundObjectResult(baseMessage);
+                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                return new StatusCodeResult(500);
             }
 
-            log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-            return new OkObjectResult(stateResponse.EntityState);
         }
     }
 }

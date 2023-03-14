@@ -74,7 +74,7 @@ namespace coordinator
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
 
-            builder.Services.AddBlobStorage(configuration);
+            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
 

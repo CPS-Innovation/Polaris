@@ -45,7 +45,7 @@ namespace Gateway.Clients.PolarisPipeline
             var forceQuery = force ? "&&force=true" : string.Empty;
             _logger.LogMethodExit(correlationId, nameof(TriggerCoordinatorAsync), string.Empty);
             var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}{forceQuery}";
-            await SendAuthenticatedGetRequestAsync(url, cmsAuthValues, correlationId);
+            await SendRequestAsync(HttpMethod.Get, url, cmsAuthValues, correlationId);
         }
 
         public async Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
@@ -56,7 +56,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}/tracker?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Get, url, correlationId);
+                response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -82,7 +82,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Get, url, correlationId);
+                response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -107,7 +107,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}/sasUrl?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Get, url, correlationId);
+                response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -132,7 +132,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Post, url, correlationId);
+                response = await SendRequestAsync(HttpMethod.Post, url, null, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -155,7 +155,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Delete, url, correlationId);
+                response = await SendRequestAsync(HttpMethod.Delete, url, null, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -172,27 +172,13 @@ namespace Gateway.Clients.PolarisPipeline
             return new OkResult();
         }
 
-        public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequest redactPdfRequest, Guid correlationId)
+        public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequest redactPdfRequest, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Saving Redactions for Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
-            HttpResponseMessage response;
-            try
-            {
-                var content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
-                var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Put, url, correlationId, content);
-            }
-            catch (HttpRequestException exception)
-            {
-                if (exception.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-
-                throw;
-            }
-
+            var content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
+            var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            var response = await SendRequestAsync(HttpMethod.Put, url, cmsAuthValues, correlationId, content);
             var stringContent = await response.Content.ReadAsStringAsync();
 
             _logger.LogMethodExit(correlationId, nameof(SaveRedactionsAsync), stringContent);
@@ -207,7 +193,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentsUrl(caseUrn, caseId)}/search/{searchTerm}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Get, url, correlationId);
+                response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -226,11 +212,11 @@ namespace Gateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(stringContent, correlationId);
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, HttpContent content=null)
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, string cmsAuthValues, Guid correlationId, HttpContent content=null)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendRequestAsync), requestUri);
 
-            var request = _pipelineClientRequestFactory.Create(httpMethod, requestUri, correlationId);
+            var request = _pipelineClientRequestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues);
             request.Content = content;
             var response = await _httpClient.SendAsync(request);
 
@@ -240,18 +226,18 @@ namespace Gateway.Clients.PolarisPipeline
             return response;
         }
 
-        private async Task<HttpResponseMessage> SendAuthenticatedGetRequestAsync(string requestUri, string cmsAuthValues, Guid correlationId)
+        /*private async Task<HttpResponseMessage> SendAuthenticatedGetRequestAsync(string requestUri, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendAuthenticatedGetRequestAsync), requestUri);
 
-            var request = _pipelineClientRequestFactory.CreateAuthenticatedGet(requestUri, cmsAuthValues, correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, requestUri, correlationId, cmsAuthValues);
             var response = await _httpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();
 
             _logger.LogMethodExit(correlationId, nameof(SendAuthenticatedGetRequestAsync), string.Empty);
             return response;
-        }
+        }*/
     }
 }
 

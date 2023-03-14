@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Constants;
 using Common.Logging;
-using coordinator.Domain.Tracker;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.ClientFunctions
 {
-    public class CheckoutDocument
+    public class CheckoutDocument : BaseClientFunction
     {
         private readonly IDocumentService _documentService;
 
@@ -26,7 +23,6 @@ namespace coordinator.Functions.ClientFunctions
         }
 
         const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
-        const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
         [FunctionName(nameof(CheckoutDocument))]
         public async Task<IActionResult> HttpStart(
@@ -37,50 +33,35 @@ namespace coordinator.Functions.ClientFunctions
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
-            req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-            if (correlationIdValues == null)
-            {
-                log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
-                return new BadRequestObjectResult(correlationErrorMessage);
-            }
+            Guid currentCorrelationId = default;
 
-            var correlationId = correlationIdValues.FirstOrDefault();
-            if (!Guid.TryParse(correlationId, out var currentCorrelationId))
-                if (currentCorrelationId == Guid.Empty)
+            try
+            {
+                var response = await GetTrackerDocument(req, client, loggingName, caseId, documentId, log);
+
+                if (!response.Success)
+                    return response.Error;
+
+                currentCorrelationId = response.CorrelationId;
+                var document = response.Document;
+
+                CmsDocumentArg arg = new CmsDocumentArg
                 {
-                    log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
-                    return new BadRequestObjectResult(correlationErrorMessage);
-                }
+                    Urn = caseUrn,
+                    CaseId = long.Parse(caseId),
+                    CmsDocCategory = document.CmsDocType.DocumentCategory,
+                    DocumentId = int.Parse(document.CmsDocumentId),
+                };
+                await _documentService.CheckoutDocument(arg);
 
-            log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
-
-            var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
-            if (!stateResponse.EntityExists)
+                return new OkResult();
+            }
+            catch (Exception ex)
             {
-                var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
-                return new NotFoundObjectResult(baseMessage);
+                log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
+                return new StatusCodeResult(500);
             }
 
-            var document = stateResponse.EntityState.Documents.GetDocument(documentId); 
-            if (document == null)
-            {
-                var baseMessage = $"No document found with id '{documentId}'";
-                log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
-                return new NotFoundObjectResult(baseMessage);
-            }
-
-            CmsDocumentArg arg = new CmsDocumentArg
-            {
-                Urn = caseUrn,
-                CaseId = long.Parse(caseId),
-                CmsDocCategory = document.CmsDocType.DocumentCategory,
-                DocumentId = int.Parse(document.CmsDocumentId),
-            };
-            await _documentService.CheckoutDocument(arg);
-
-            return new OkResult();
         }
     }
 }

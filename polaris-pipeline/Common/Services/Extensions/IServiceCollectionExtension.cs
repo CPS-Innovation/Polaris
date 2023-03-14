@@ -1,6 +1,8 @@
-﻿using Azure.Identity;
+﻿using Azure;
+using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Common.Clients;
 using Common.Clients.Contracts;
 using Common.Configuration;
@@ -17,28 +19,29 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 
 namespace Common.Services.Extensions
 {
     public static class IServiceCollectionExtension
     {
-        public static void AddBlobStorage(this IServiceCollection services, IConfigurationRoot configuration)
+        public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfigurationRoot configuration)
         {
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                //string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
-                //azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
                 var blobServiceUrl = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl);
                 azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl))
                     .WithCredential(new DefaultAzureCredential());
             });
 
-            services.AddTransient((Func<IServiceProvider, IBlobStorageClient>)(serviceProvider =>
+            services.AddTransient((Func<IServiceProvider, IPolarisStorageClient>)(serviceProvider =>
             {
-                var logger = serviceProvider.GetService<ILogger<BlobStorageClient>>();
+                var logger = serviceProvider.GetService<ILogger<PolarisStorageClient>>();
                 BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
-                return new BlobStorageClient(blobServiceClient, blobServiceContainerName, logger);
+                var blobStorageClient = new PolarisStorageClient(blobServiceClient, blobServiceContainerName, logger);
+
+                return blobStorageClient;
             }));
 
             /* services.AddTransient<IBlobStorageService>(serviceProvider =>
@@ -50,6 +53,33 @@ namespace Common.Services.Extensions
 
             }); */
         }
+
+        public static void AddBlobStorageWithConnectionString(this IServiceCollection services, IConfigurationRoot configuration)
+        {
+            services.AddAzureClients(azureClientFactoryBuilder =>
+            {
+                string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
+                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
+            });
+
+            services.AddTransient((Func<IServiceProvider, IPolarisStorageClient>)(serviceProvider =>
+            {
+                var logger = serviceProvider.GetService<ILogger<PolarisStorageClient>>();
+                BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
+                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
+                return new PolarisStorageClient(blobServiceClient, blobServiceContainerName, logger);
+            }));
+
+            /* services.AddTransient<IBlobStorageService>(serviceProvider =>
+            {
+                var loggingService = serviceProvider.GetService<ILogger<BlobStorageService.BlobStorageService>>();
+
+                return new BlobStorageService.BlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
+                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
+
+            }); */
+        }
+
 
         public static void AddBlobSasGenerator(this IServiceCollection services)
         {

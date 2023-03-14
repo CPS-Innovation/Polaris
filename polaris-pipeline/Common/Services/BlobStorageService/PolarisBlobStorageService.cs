@@ -17,13 +17,13 @@ using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 
 namespace Common.Services.BlobStorageService
 {
-    public class BlobStorageService : IBlobStorageService
+    public class PolarisBlobStorageService : IPolarisBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;
-        private readonly ILogger<BlobStorageService> _logger;
+        private readonly ILogger<PolarisBlobStorageService> _logger;
 
-        public BlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName, ILogger<BlobStorageService> logger)
+        public PolarisBlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName, ILogger<PolarisBlobStorageService> logger)
         {
             _blobServiceClient = blobServiceClient;
             _blobServiceContainerName = blobServiceContainerName;

@@ -16,22 +16,16 @@ namespace Common.Factories
             _logger = logger;
         }
 
-        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId)
+        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues=null)
         {
             _logger.LogMethodEntry(correlationId, nameof(Create), requestUri);
+
             var request = new HttpRequestMessage(httpMethod, requestUri);
             request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
-            _logger.LogMethodExit(correlationId, nameof(Create), string.Empty);
-            return request;
-        }
+            if(cmsAuthValues != null) 
+                request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
 
-        public HttpRequestMessage CreateAuthenticatedGet(string requestUri, string cmsAuthValues, Guid correlationId)
-        {
-            _logger.LogMethodEntry(correlationId, nameof(CreateAuthenticatedGet), requestUri);
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-            request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
-            request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
-            _logger.LogMethodExit(correlationId, nameof(CreateAuthenticatedGet), string.Empty);
+            _logger.LogMethodExit(correlationId, nameof(Create), string.Empty);
             return request;
         }
     }

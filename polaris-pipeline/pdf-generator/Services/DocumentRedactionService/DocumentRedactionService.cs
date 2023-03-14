@@ -16,13 +16,13 @@ namespace pdf_generator.Services.DocumentRedactionService
 {
     public class DocumentRedactionService : IDocumentRedactionService
     {
-        private readonly IBlobStorageService _blobStorageService;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ICoordinateCalculator _coordinateCalculator;
         private readonly ILogger<DocumentRedactionService> _logger;
 
-        public DocumentRedactionService(IBlobStorageService blobStorageService, ICoordinateCalculator coordinateCalculator, ILogger<DocumentRedactionService> logger)
+        public DocumentRedactionService(IPolarisBlobStorageService blobStorageService, ICoordinateCalculator coordinateCalculator, ILogger<DocumentRedactionService> logger)
         {
-            _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
+            _polarisBlobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _coordinateCalculator = coordinateCalculator ?? throw new ArgumentNullException(nameof(coordinateCalculator));
             _logger = logger;
         }
@@ -35,7 +35,7 @@ namespace pdf_generator.Services.DocumentRedactionService
             //1. Load PDF from BLOB storage
             _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), $"Load '{redactPdfRequest.FileName}' from Blob Storage");
             var fileName = redactPdfRequest.FileName;
-            var document = await _blobStorageService.GetDocumentAsync(fileName, correlationId);
+            var document = await _polarisBlobStorageService.GetDocumentAsync(fileName, correlationId);
             if (document == null)
             {
                 saveResult.Succeeded = false;
@@ -109,7 +109,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                 redactedDocument.Save(redactedDocumentStream);
             }
             
-            await _blobStorageService.UploadDocumentAsync(redactedDocumentStream, newFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.DocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
+            await _polarisBlobStorageService.UploadDocumentAsync(redactedDocumentStream, newFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.DocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
 
             saveResult.Succeeded = true;
             saveResult.RedactedDocumentName = newFileName;

@@ -14,7 +14,7 @@ namespace Gateway.Clients.PolarisPipeline.Contracts
         Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
         Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
         Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
-        Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequest redactPdfRequest, Guid correlationId);
+        Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequest redactPdfRequest, string cmsAuthValues, Guid correlationId);
         Task<IList<StreamlinedSearchLine>> SearchCase(string caseUrn, int caseId, string searchTerm, Guid correlationId);
     }
 }

@@ -61,7 +61,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value, caseId, documentId, currentCorrelationId);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Saving document redactions for urn {caseUrn}, caseId {caseId}, id {documentId}");
-                var redactionResult = await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, documentId, redactPdfRequest, currentCorrelationId);
+                var redactionResult = await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, documentId, redactPdfRequest, request.CmsAuthValues, currentCorrelationId);
 
                 if (!redactionResult.Succeeded)
                 {
@@ -75,8 +75,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
             {
                 return exception switch
                 {
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.SaveRedactionsAsync)}.", currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.SaveRedactionsAsync)}, '{exception.Message}'.", currentCorrelationId, loggingName),
+                    _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred, '{exception.Message}'.", currentCorrelationId, loggingName)
                 };
             }
             finally

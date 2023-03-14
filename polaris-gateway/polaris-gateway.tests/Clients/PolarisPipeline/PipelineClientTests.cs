@@ -72,8 +72,8 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
 
             mockConfiguration.Setup(config => config[PipelineSettings.PipelineCoordinatorFunctionAppKey]).Returns(_polarisPipelineFunctionAppKey);
 
-            _mockRequestFactory.Setup(factory => factory.CreateAuthenticatedGet($"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}", _cmsAuthValues, It.IsAny<Guid>())).Returns(_httpRequestMessage);
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Get, $"urns/{_caseUrn}/cases/{_caseId}/tracker?code={_polarisPipelineFunctionAppKey}", It.IsAny<Guid>())).Returns(_httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Get, $"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}", It.IsAny<Guid>(), _cmsAuthValues)).Returns(_httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Get, $"urns/{_caseUrn}/cases/{_caseId}/tracker?code={_polarisPipelineFunctionAppKey}", It.IsAny<Guid>(), null)).Returns(_httpRequestMessage);
 
             var stringContent = _getTrackerHttpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<Tracker>(stringContent, It.IsAny<Guid>())).Returns(_tracker);
@@ -87,18 +87,18 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         {
             await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, false, _correlationId);
 
-            _mockRequestFactory.Verify(factory => factory.CreateAuthenticatedGet($"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}", _cmsAuthValues, _correlationId));
+            _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Get, $"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}", _correlationId, _cmsAuthValues));
         }
 
         [Fact]
         public async Task TriggerCoordinator_UrlHasForceQueryWhenForceIsTrue()
         {
             var url = $"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}&&force=true";
-            _mockRequestFactory.Setup(factory => factory.CreateAuthenticatedGet(url, _cmsAuthValues, It.IsAny<Guid>())).Returns(_httpRequestMessage);
+            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Get, url, It.IsAny<Guid>(), _cmsAuthValues)).Returns(_httpRequestMessage);
 
             await _triggerCoordinatorPipelineClient.TriggerCoordinatorAsync(_caseUrn, _caseId, _cmsAuthValues, true, _correlationId);
 
-            _mockRequestFactory.Verify(factory => factory.CreateAuthenticatedGet(url, _cmsAuthValues, _correlationId));
+            _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Get, url, _correlationId, _cmsAuthValues));
         }
 
         [Fact]

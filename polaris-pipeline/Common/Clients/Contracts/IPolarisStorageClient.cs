@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Common.Clients.Contracts
 {
-    public interface IBlobStorageClient
+    public interface IPolarisStorageClient
     {
         Task<Stream> GetDocumentAsync(string blobName, Guid correlationId);
 

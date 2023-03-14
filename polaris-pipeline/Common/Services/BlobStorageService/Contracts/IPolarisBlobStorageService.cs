@@ -6,7 +6,7 @@ using Common.Domain.BlobStorage;
 
 namespace Common.Services.BlobStorageService.Contracts
 {
-    public interface IBlobStorageService
+    public interface IPolarisBlobStorageService
     {
         Task<bool> DocumentExistsAsync(string blobName, Guid correlationId);
 

@@ -10,13 +10,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.Clients
 {
-    public class BlobStorageClient : IBlobStorageClient
+    public class PolarisStorageClient : IPolarisStorageClient
 	{
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;
-        private readonly ILogger<BlobStorageClient> _logger;
+        private readonly ILogger<PolarisStorageClient> _logger;
 
-        public BlobStorageClient(BlobServiceClient blobServiceClient, string blobServiceContainerName, ILogger<BlobStorageClient> logger)
+        public PolarisStorageClient(BlobServiceClient blobServiceClient, string blobServiceContainerName, ILogger<PolarisStorageClient> logger)
         {
             _blobServiceClient = blobServiceClient;
             _blobServiceContainerName = blobServiceContainerName;
@@ -33,9 +33,16 @@ namespace Common.Clients
             
             var blobClient = blobContainerClient.GetBlobClient(blobName);
 
-            if (!await blobClient.ExistsAsync())
-                return null;
-            
+            try
+            {
+                if (!await blobClient.ExistsAsync())
+                    return null;
+            }
+            catch ( Exception )
+            {
+                throw;
+            }
+
             var blob = await blobClient.DownloadContentAsync();
 
             _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), string.Empty);

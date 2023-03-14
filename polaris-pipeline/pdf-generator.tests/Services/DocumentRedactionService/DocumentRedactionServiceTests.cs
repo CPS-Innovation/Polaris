@@ -20,7 +20,7 @@ namespace pdf_generator.tests.Services.DocumentRedactionService;
 
 public class DocumentRedactionServiceTests
 {
-    private readonly Mock<IBlobStorageService> _mockBlobStorageService;
+    private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
 
     private readonly IDocumentRedactionService _documentRedactionService;
 
@@ -30,7 +30,7 @@ public class DocumentRedactionServiceTests
     public DocumentRedactionServiceTests()
     {
         var fixture = new Fixture();
-        _mockBlobStorageService = new Mock<IBlobStorageService>();
+        _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
         var mockLogger = new Mock<ILogger<pdf_generator.Services.DocumentRedactionService.DocumentRedactionService>>();
         var mockCalculatorLogger = new Mock<ILogger<CoordinateCalculator>>();
         ICoordinateCalculator coordinateCalculator = new CoordinateCalculator(mockCalculatorLogger.Object);

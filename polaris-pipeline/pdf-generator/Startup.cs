@@ -87,11 +87,11 @@ namespace pdf_generator
             {
                 azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
             });
-            builder.Services.AddTransient<IBlobStorageService>(serviceProvider =>
+            builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
             {
-                var loggingService = serviceProvider.GetService<ILogger<BlobStorageService>>();
+                var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
                 
-                return new BlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
+                return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
 

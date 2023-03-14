@@ -22,7 +22,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         private readonly Mock<Response<bool>> _mockBlobContainerExistsResponse;
         private readonly Mock<Response<bool>> _mockBlobClientExistsResponse;
 
-        private readonly IBlobStorageClient _blobStorageClient;
+        private readonly IPolarisStorageClient _blobStorageClient;
 
 		public BlobStorageClientTests()
 		{
@@ -55,9 +55,9 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
 
 			mockBlobDownloadResponse.Setup(response => response.Value).Returns(blobDownloadResult);
 
-			var mockLogger = new Mock<ILogger<BlobStorageClient>>();
+			var mockLogger = new Mock<ILogger<PolarisStorageClient>>();
 
-			_blobStorageClient = new BlobStorageClient(mockBlobServiceClient.Object, blobContainerName, mockLogger.Object);
+			_blobStorageClient = new PolarisStorageClient(mockBlobServiceClient.Object, blobContainerName, mockLogger.Object);
 		}
 
 		[Fact]

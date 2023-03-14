@@ -38,7 +38,7 @@ namespace pdf_generator.tests.Functions
 
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<IDdeiDocumentExtractionService> _mockDocumentExtractionService;
-        private readonly Mock<IBlobStorageService> _mockBlobStorageService;
+        private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Mock<ILogger<GeneratePdf>> _mockLogger;
         private readonly Mock<IValidatorWrapper<GeneratePdfRequest>> _mockValidatorWrapper;
@@ -70,7 +70,7 @@ namespace pdf_generator.tests.Functions
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockValidatorWrapper = new Mock<IValidatorWrapper<GeneratePdfRequest>>();
             _mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
-            _mockBlobStorageService = new Mock<IBlobStorageService>();
+            _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
             _mockPdfOrchestratorService = new Mock<IPdfOrchestratorService>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockLogger = new Mock<ILogger<GeneratePdf>>();
