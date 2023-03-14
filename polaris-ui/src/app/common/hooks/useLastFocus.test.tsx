@@ -55,14 +55,14 @@ describe("useLastFocus hook", () => {
     const openModalButtonElement = screen.getByText("Open Modal");
     openModalButtonElement.focus();
     fireEvent.click(openModalButtonElement);
+    expect(openModalButtonElement).toHaveFocus();
 
-    expect(document.activeElement).toBe(openModalButtonElement);
     const closeModalButtonElement = screen.getByText("Close Modal");
     closeModalButtonElement.focus();
-    expect(document.activeElement).toBe(closeModalButtonElement);
+    expect(closeModalButtonElement).toHaveFocus();
 
     fireEvent.click(closeModalButtonElement);
-    expect(document.activeElement).toBe(openModalButtonElement);
+    expect(openModalButtonElement).toHaveFocus();
   });
 
   it("On unmounting the Modal component, should put the focus back to defaultFocus element if the last active element in not present in the  parent component", () => {
@@ -71,19 +71,19 @@ describe("useLastFocus hook", () => {
     const openModalButtonElement = screen.getByText("Open Modal");
     openModalButtonElement.focus();
     fireEvent.click(openModalButtonElement);
-    expect(document.activeElement).toBe(openModalButtonElement);
+    expect(openModalButtonElement).toHaveFocus();
 
     const hideModalButtonElement = screen.getByText("Hide Open Modal Button");
     hideModalButtonElement.focus();
-    expect(document.activeElement).toBe(hideModalButtonElement);
+    expect(hideModalButtonElement).toHaveFocus();
 
     fireEvent.click(hideModalButtonElement);
     const closeModalButtonElement = screen.getByText("Close Modal");
     closeModalButtonElement.focus();
-    expect(document.activeElement).toBe(closeModalButtonElement);
+    expect(closeModalButtonElement).toHaveFocus();
     fireEvent.click(closeModalButtonElement);
 
     const defaultFocus = screen.getByText("Default Focus");
-    expect(document.activeElement).toBe(defaultFocus);
+    expect(defaultFocus).toHaveFocus();
   });
 });

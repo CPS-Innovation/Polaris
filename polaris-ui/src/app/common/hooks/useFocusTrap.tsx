@@ -22,7 +22,7 @@ export const useFocusTrap = () => {
         (tabbableElements[0] as HTMLElement).focus();
       }
 
-      if (e.code === "Tab" && tabbableElements) {
+      if ((e.code === "Tab" || e.key === "Tab") && tabbableElements) {
         if (e.shiftKey) {
           if (document.activeElement === tabbableElements[0]) {
             (
