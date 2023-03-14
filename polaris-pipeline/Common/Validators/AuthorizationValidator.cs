@@ -10,6 +10,11 @@ using Common.Validators.Contracts;
 using Common.Logging;
 using Common.Constants;
 using Common.Extensions;
+using PolarisGateway.Domain.Validation;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Common.Validators
 {
@@ -129,8 +134,6 @@ namespace Common.Validators
             _log.LogMethodExit(_correlationId, nameof(IsValid), $"Outcome role and scope checks - hasAccessToRoles: {hasAccessToRoles}, hasAccessToScopes: {hasAccessToScopes}");
             return hasAccessToRoles && hasAccessToScopes;
         }
-
-
 
         private static List<string> LoadRequiredItems(string items)
         {

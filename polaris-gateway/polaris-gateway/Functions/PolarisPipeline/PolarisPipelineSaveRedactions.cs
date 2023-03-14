@@ -15,6 +15,7 @@ using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
 using Common.Mappers.Contracts;
 using Gateway.Common.Extensions;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -26,8 +27,16 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         const string loggingName = $"{nameof(PolarisPipelineSaveRedactions)} - {nameof(Run)}";
 
-        public PolarisPipelineSaveRedactions(IRedactPdfRequestMapper redactPdfRequestMapper, IPipelineClient pipelineClient, ILogger<PolarisPipelineSaveRedactions> logger, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+        public PolarisPipelineSaveRedactions
+            (
+                IRedactPdfRequestMapper redactPdfRequestMapper, 
+                IPipelineClient pipelineClient, 
+                ILogger<PolarisPipelineSaveRedactions> logger, 
+                IAuthorizationValidator tokenValidator,
+                ITelemetryAugmentationWrapper telemetryAugmentationWrapper
+            )
+
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
             _pipelineClient = pipelineClient ?? throw new ArgumentNullException(nameof(pipelineClient));

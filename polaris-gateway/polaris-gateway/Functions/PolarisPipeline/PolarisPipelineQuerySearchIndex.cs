@@ -21,6 +21,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineQuerySearchIndex> _logger;
 
+        const string loggingName = $"{nameof(PolarisPipelineQuerySearchIndex)} - {nameof(Run)}";
+
         public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger,
                                                IPipelineClient pipelineClient,
                                                IAuthorizationValidator tokenValidator,

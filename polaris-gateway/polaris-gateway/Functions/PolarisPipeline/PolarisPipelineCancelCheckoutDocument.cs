@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using PolarisGateway.Wrappers;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,8 +21,14 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         const string loggingName = $"{nameof(PolarisPipelineCancelCheckoutDocument)} - {nameof(Run)}";
 
-        public PolarisPipelineCancelCheckoutDocument(IPipelineClient pipelineClient, ILogger<PolarisPipelineCancelCheckoutDocument> logger, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+        public PolarisPipelineCancelCheckoutDocument
+            (
+                IPipelineClient pipelineClient, 
+                ILogger<PolarisPipelineCancelCheckoutDocument> logger, 
+                IAuthorizationValidator tokenValidator,
+                ITelemetryAugmentationWrapper telemetryAugmentationWrapper
+            )
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;

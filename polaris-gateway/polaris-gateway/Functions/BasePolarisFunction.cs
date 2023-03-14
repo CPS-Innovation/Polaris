@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net;
-using System.Threading.Tasks;
-using Common.Constants;
+﻿using Common.Constants;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -11,8 +7,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Wrappers;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions
 {

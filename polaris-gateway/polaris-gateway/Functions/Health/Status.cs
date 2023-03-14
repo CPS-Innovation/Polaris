@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using PolarisGateway.Extensions;
 using Common.Validators.Contracts;
 using Common.Logging;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.Health
 {
@@ -15,8 +16,8 @@ namespace PolarisGateway.Functions.Health
     {
         private readonly ILogger<Status> _logger;
 
-        public Status(ILogger<Status> logger, IAuthorizationValidator authorizationValidator)
-            : base(logger, authorizationValidator)
+        public Status(ILogger<Status> logger, IAuthorizationValidator authorizationValidator, ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, authorizationValidator, telemetryAugmentationWrapper)
         {
             _logger = logger;
         }

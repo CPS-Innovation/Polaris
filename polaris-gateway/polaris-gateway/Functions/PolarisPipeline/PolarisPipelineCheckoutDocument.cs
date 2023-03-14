@@ -10,6 +10,7 @@ using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
+using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -20,8 +21,14 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         const string loggingName = $"{nameof(PolarisPipelineCheckoutDocument)} - {nameof(Run)}";
 
-        public PolarisPipelineCheckoutDocument(IPipelineClient pipelineClient, ILogger<PolarisPipelineCheckoutDocument> logger, IAuthorizationValidator tokenValidator)
-        : base(logger, tokenValidator)
+        public PolarisPipelineCheckoutDocument
+            (
+                IPipelineClient pipelineClient, 
+                ILogger<PolarisPipelineCheckoutDocument> logger, 
+                IAuthorizationValidator tokenValidator,
+                ITelemetryAugmentationWrapper telemetryAugmentationWrapper
+            )
+        : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
             _logger = logger;

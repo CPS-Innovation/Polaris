@@ -28,6 +28,7 @@ using PolarisGateway.Factories;
 using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Mappers;
 using PolarisGateway.Services;
+using PolarisGateway.Wrappers;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
