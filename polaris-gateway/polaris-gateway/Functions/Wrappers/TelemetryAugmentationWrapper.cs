@@ -11,6 +11,11 @@ namespace PolarisGateway.Wrappers
             Activity activity = Activity.Current;
             if (activity == null)
             {
+#if DEBUG
+                // MS Issue Activity.Current = null - https://github.com/Azure/azure-functions-host/issues/7651
+                // TODO fix for local dev, but ok for now as local dev doesn't need to write to App Insights
+                return;
+#endif
                 throw new CriticalTelemetryException("System.Diagnostics.Activity.Current was expected but found to be null");
             }
 
