@@ -21,7 +21,7 @@ const searchResults: CaseSearchResult[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: false,
       type: "SOME_TYPE",
     },
     headlineCharge: {
@@ -42,7 +42,7 @@ const searchResults: CaseSearchResult[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: false,
       type: "SOME_TYPE",
     },
     headlineCharge: {
@@ -63,7 +63,7 @@ const searchResults: CaseSearchResult[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: false,
       type: "SOME_TYPE",
     },
     headlineCharge: {
