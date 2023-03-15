@@ -105,7 +105,11 @@ namespace Ddei.Clients
             var response = await _httpClient.SendAsync(request);
             try
             {
-                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+                if(!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException(content);
+                }
                 return response;
             }
             catch (HttpRequestException exception)

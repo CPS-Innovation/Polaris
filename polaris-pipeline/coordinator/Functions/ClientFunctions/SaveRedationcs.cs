@@ -68,8 +68,6 @@ namespace coordinator.Functions.ClientFunctions
 
                 currentCorrelationId = response.CorrelationId;
                 var document = response.Document;
-                currentCorrelationId = response.CorrelationId;
-
                 var content = await req.Content.ReadAsStringAsync();
                 if (string.IsNullOrWhiteSpace(content))
                 {
