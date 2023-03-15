@@ -73,7 +73,7 @@ export const KeyDetails: React.FC<{
             )}
             . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
           </span>
-          {caseDetails.leadDefendantDetails.isYouth && (
+          {caseDetails.leadDefendantDetails.youth && (
             <span>
               <b>Youth Offender</b>
             </span>

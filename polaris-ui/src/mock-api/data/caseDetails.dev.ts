@@ -20,7 +20,7 @@ const caseDetails: CaseDetails[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: true,
       type: "SOME_TYPE",
     },
     headlineCharge: {
@@ -37,7 +37,7 @@ const caseDetails: CaseDetails[] = [
           surname: "Walsh",
           organisationName: "",
           dob: "1977-11-28",
-          isYouth: false,
+          youth: false,
           type: "SOME_TYPE",
         },
         custodyTimeLimit: {
