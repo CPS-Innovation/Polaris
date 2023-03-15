@@ -45,8 +45,9 @@ export const useFocusTrap = () => {
   );
 
   useEffect(() => {
-    if (!start) {
-      (getTabbableElements()?.[0] as HTMLElement).focus();
+    const tabbableElements = getTabbableElements();
+    if (!start && tabbableElements) {
+      (tabbableElements[0] as HTMLElement).focus();
     }
   }, [start]);
 
