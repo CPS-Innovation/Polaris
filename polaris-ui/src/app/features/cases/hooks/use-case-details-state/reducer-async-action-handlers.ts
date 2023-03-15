@@ -274,9 +274,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const response = await saveRedactions(
         urn,
         caseId,
-        cmsDocCategory,
-        getOldWorldId(document), // documentId
-        pdfBlobName!, // todo: better typing, but we're guaranteed to have a pdfBlobName anyhow
+        documentId,
         redactionSaveRequest
       );
 

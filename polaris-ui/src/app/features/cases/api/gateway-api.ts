@@ -226,13 +226,11 @@ export const cancelCheckoutDocument = async (
 export const saveRedactions = async (
   urn: string,
   caseId: number,
-  cmsDocCategory: CmsDocCategory,
   documentId: string,
-  fileName: string,
   redactionSaveRequest: RedactionSaveRequest
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/${fileName}`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
 
   const response = await internalFetch(url, {
