@@ -12,12 +12,6 @@ public static class ValidRoles
     public const string UserImpersonation = "user_impersonation";
 }
 
-public static class HttpHeaderKeys
-{
-    public const string CorrelationId = "Correlation-Id";
-    public const string CmsAuthValues = "Cms-Auth-Values";
-}
-
 public static class CmsAuthConstants
 {
     public const string CookieQueryParamName = "cookie";

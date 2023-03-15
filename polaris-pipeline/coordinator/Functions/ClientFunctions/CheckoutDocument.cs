@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
+using Common.Constants;
 using Common.Logging;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Services;
@@ -45,12 +47,21 @@ namespace coordinator.Functions.ClientFunctions
                 currentCorrelationId = response.CorrelationId;
                 var document = response.Document;
 
+                var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
+                if (string.IsNullOrEmpty(cmsAuthValues))
+                {
+                    log.LogMethodFlow(currentCorrelationId, loggingName, $"No authentication header values specified");
+                    throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
+                }
+
                 CmsDocumentArg arg = new CmsDocumentArg
                 {
+                    CmsAuthValues = cmsAuthValues,
+                    CorrelationId = currentCorrelationId,
                     Urn = caseUrn,
                     CaseId = long.Parse(caseId),
                     CmsDocCategory = document.CmsDocType.DocumentCategory,
-                    DocumentId = int.Parse(document.CmsDocumentId),
+                    DocumentId = int.Parse(document.CmsDocumentId)
                 };
                 await _documentService.CheckoutDocument(arg);
 

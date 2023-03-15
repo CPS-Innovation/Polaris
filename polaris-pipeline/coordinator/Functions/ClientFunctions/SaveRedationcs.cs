@@ -99,12 +99,12 @@ namespace coordinator.Functions.ClientFunctions
 
                 CmsDocumentArg arg = new CmsDocumentArg
                 {
+                    CmsAuthValues = cmsAuthValues,
+                    CorrelationId = currentCorrelationId,
                     Urn = caseUrn,
                     CaseId = long.Parse(caseId),
                     CmsDocCategory = document.CmsDocType.DocumentCategory,
-                    DocumentId = int.Parse(document.CmsDocumentId),
-                    CmsAuthValues = cmsAuthValues,
-                    CorrelationId = currentCorrelationId,
+                    DocumentId = int.Parse(document.CmsDocumentId)
                 };
                 await _documentService.UploadPdf(arg, pdfStream, document.CmsOriginalFileName);
 

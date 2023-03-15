@@ -13,6 +13,7 @@ using PolarisGateway.Domain.Logging;
 using Common.Domain.Extensions;
 using Common.Configuration;
 using Common.Logging;
+using Common.Constants;
 
 namespace PolarisGateway.Functions.Health;
 
