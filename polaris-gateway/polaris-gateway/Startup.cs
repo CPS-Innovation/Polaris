@@ -41,6 +41,8 @@ namespace PolarisGateway
             IdentityModelEventSource.ShowPII = true;
 #endif
 
+            //Console.WriteLine(System.Environment.GetEnvironmentVariable("E2E"));
+
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
