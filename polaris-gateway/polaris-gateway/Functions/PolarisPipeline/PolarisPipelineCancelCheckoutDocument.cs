@@ -53,7 +53,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cancel checkout of document with urn {caseUrn}, caseId {caseId}, id {documentId}");
-                await _pipelineClient.CancelCheckoutDocumentAsync(caseUrn, caseId, documentId, currentCorrelationId);
+                await _pipelineClient.CancelCheckoutDocumentAsync(caseUrn, caseId, documentId, request.CmsAuthValues, currentCorrelationId);
 
                 return new OkResult();
             }

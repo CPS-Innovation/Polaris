@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Configuration;
+using Common.Extensions;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Ddei.Exceptions;
@@ -80,9 +81,9 @@ namespace PolarisGateway.Functions.CaseData
             {
                 return exception switch
                 {
-                    MsalException => InternalServerErrorResponse(exception, "An MSAL exception occurred.", currentCorrelationId, loggingName),
-                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.Message, currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
+                    MsalException => InternalServerErrorResponse(exception, $"An MSAL exception occurred. {exception.NestedMessage()}", currentCorrelationId, loggingName),
+                    CaseDataServiceException => CmsAuthValuesErrorResponse(exception.NestedMessage(), currentCorrelationId, loggingName),
+                    _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred. {exception.NestedMessage()}", currentCorrelationId, loggingName)
                 };
             }
             finally

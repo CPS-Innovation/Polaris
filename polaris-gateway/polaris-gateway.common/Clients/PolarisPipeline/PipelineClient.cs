@@ -124,7 +124,7 @@ namespace Gateway.Clients.PolarisPipeline
             return sasUrl;
         }
 
-        public async Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        public async Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(CheckoutDocumentAsync), $"Checking out the Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
@@ -132,7 +132,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Post, url, null, correlationId);
+                response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -147,7 +147,7 @@ namespace Gateway.Clients.PolarisPipeline
             return new OkResult();
         }
 
-        public async Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        public async Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Cancelling Checkout of the Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
@@ -155,7 +155,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Delete, url, null, correlationId);
+                response = await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
             }
             catch (HttpRequestException exception)
             {
