@@ -66,6 +66,7 @@
     "test": "react-scripts test  --watchAll",
     "test:ci": "./scripts/test-ci.sh",
     "eject": "react-scripts eject",
+    "lint": "eslint ./src --ext .ts,.tsx",
     "prettier": "prettier --check .",
     "cy": "./scripts/cy.sh",
     "cy:ci": "./scripts/cy-ci.sh",

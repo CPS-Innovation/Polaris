@@ -53,6 +53,7 @@ export const Content: React.FC<Props> = ({
           <SearchBox
             {...{ labelText, value, handleChange, handleSubmit }}
             data-testid="results-search-case"
+            id="case-details-result-search"
           />
         </div>
       </div>

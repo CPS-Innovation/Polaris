@@ -53,7 +53,6 @@ const Page: React.FC = () => {
               onChange={handleChange}
               onKeyPress={handleKeyPress}
               value={urn}
-              autoFocus
               data-testid="input-search-urn"
               errorMessage={
                 isError

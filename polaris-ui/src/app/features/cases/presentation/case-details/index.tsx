@@ -130,6 +130,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               )}
 
               <SearchBox
+                id="case-details-search"
                 data-testid="search-case"
                 labelText="Search"
                 value={searchTerm}
