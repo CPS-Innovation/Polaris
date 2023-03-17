@@ -3,12 +3,12 @@
         stroke="currentColor"
         strokeWidth="3"
         fill="none"
-        d="M6.25,6.25,17.75,17.75"
+        d="M7.25,7.25,17.75,17.75"
       ></path>
       <path
     stroke="currentColor"
         strokeWidth="3"
         fill="none"
-        d="M6.25,17.75,17.75,6.25"
+        d="M7.25,17.75,17.75,7.25"
       ></path>
     </svg>
