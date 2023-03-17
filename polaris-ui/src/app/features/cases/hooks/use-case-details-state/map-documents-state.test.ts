@@ -1,4 +1,3 @@
-import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { mapDocumentsState } from "./map-documents-state";
 import * as documentCategoryDefinitions from "./document-category-definitions";

@@ -43,6 +43,11 @@ export const AccordionSection: React.FC<Props> = ({
         role="button"
         tabIndex={0}
         onClick={() => handleToggleOpenSection(sectionId)}
+        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+          if (e.code === "Enter") {
+            handleToggleOpenSection(sectionId);
+          }
+        }}
       >
         <h2 className="govuk-heading-s">{sectionLabel}</h2>
         <span className={`${classes["icon"]}`}></span>

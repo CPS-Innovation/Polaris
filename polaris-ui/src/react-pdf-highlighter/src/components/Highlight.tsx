@@ -50,9 +50,18 @@ export class Highlight extends Component<Props> {
         <div className="Highlight__parts">
           {rects.map((rect, index) => (
             <div
+              role="button"
+              tabIndex={0}
               onMouseOver={onMouseOver}
               onMouseOut={onMouseOut}
+              onFocus={onMouseOver}
+              onBlur={onMouseOut}
               onClick={onClick}
+              onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                if (e.code === "Enter") {
+                  onClick && onClick();
+                }
+              }}
               key={index}
               style={rect}
               className={`Highlight__part`}

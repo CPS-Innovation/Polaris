@@ -79,7 +79,6 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 value={urn}
-                autoFocus
                 data-testid="input-search-urn"
                 errorMessage={
                   isError
