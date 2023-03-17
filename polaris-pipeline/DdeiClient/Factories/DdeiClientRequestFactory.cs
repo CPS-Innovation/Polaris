@@ -50,21 +50,21 @@ namespace Ddei.Factories
 
         public HttpRequestMessage CreateCheckoutDocumentRequest(CmsDocumentArg arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout?code={_options.AccessKey}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
         public HttpRequestMessage CreateCancelCheckoutDocumentRequest(CmsDocumentArg arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/checkout?code={_options.AccessKey}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
         public HttpRequestMessage CreateUploadPdfRequest(CmsDocumentArg arg, Stream stream, string filename)
         {
-            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{filename}");
+            var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{filename}?code={_options.AccessKey}");
             AddAuthHeaders(request, arg);
             request.Content = new StreamContent(stream);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
