@@ -51,7 +51,10 @@ namespace coordinator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-
+            builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
+            {
+                configuration.GetSection("ddei").Bind(settings);
+            });
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
