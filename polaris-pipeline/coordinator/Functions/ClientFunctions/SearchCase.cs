@@ -23,7 +23,7 @@ namespace coordinator.Functions.ClientFunctions
             _searchIndexClient = searchIndexClient;
         }
 
-        const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(SearchCase)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
         [FunctionName(nameof(SearchCase))]
