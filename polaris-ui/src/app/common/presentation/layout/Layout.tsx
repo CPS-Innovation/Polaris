@@ -16,7 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
 
   return (
     <>
-      <SkipLink />
+      <SkipLink href="#main-content">Skip to main content</SkipLink>
 
       <header
         className="govuk-header "
@@ -41,7 +41,9 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
         </div>
       </header>
 
-      <div className={containerCssClass}>{children}</div>
+      <div id="main-content" className={containerCssClass}>
+        {children}
+      </div>
 
       <footer className="govuk-footer " role="contentinfo">
         <div className={containerCssClass}>
@@ -50,19 +52,20 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
               <h2 className="govuk-visually-hidden">Support links</h2>
               <ul className="govuk-footer__inline-list">
                 <li className="govuk-footer__inline-list-item">
-                  <a className="govuk-footer__link" href="#">
+                  {/** Todo : replace footer links with correct href urls **/}
+                  <a className="govuk-footer__link" href="#/">
                     Privacy
                   </a>
                 </li>
 
                 <li className="govuk-footer__inline-list-item">
-                  <a className="govuk-footer__link" href="#">
+                  <a className="govuk-footer__link" href="#/">
                     Cookies
                   </a>
                 </li>
 
                 <li className="govuk-footer__inline-list-item">
-                  <a className="govuk-footer__link" href="#">
+                  <a className="govuk-footer__link" href="#/">
                     Accessibility
                   </a>
                 </li>

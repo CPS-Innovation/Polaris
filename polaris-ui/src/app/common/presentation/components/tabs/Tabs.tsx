@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { CommonTabsProps } from "./types";
+import { useLastFocus } from "../../../hooks/useLastFocus";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
 import { ReactComponent as CloseIcon } from "../../svgs/closeIcon.svg";
@@ -35,6 +36,7 @@ export const Tabs: React.FC<TabsProps> = ({
   useEffect(() => {
     activeTabRef.current?.focus();
   }, [activeTabId]);
+  useLastFocus(document.querySelector("#case-details-search") as HTMLElement);
 
   const activeTabArrayPos = items.findIndex((item) => item.id === activeTabId);
   const activeTabIndex = activeTabArrayPos === -1 ? 0 : activeTabArrayPos;

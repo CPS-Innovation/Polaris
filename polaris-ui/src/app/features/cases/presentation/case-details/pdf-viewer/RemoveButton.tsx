@@ -6,8 +6,8 @@ type Props = {
 
 export const RemoveButton: React.FC<Props> = ({ onClick }) => (
   <div className="Tip">
-    <div className={classes.button} onClick={onClick}>
+    <button className={classes.button} onClick={onClick}>
       Remove redaction
-    </div>
+    </button>
   </div>
 );

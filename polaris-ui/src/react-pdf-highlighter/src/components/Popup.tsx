@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/mouse-events-have-key-events */
+/** Cant do onFocus adn onBlur as the implementation depends on the mouse events **/
 import React, { Component } from "react";
 
 import MouseMonitor from "./MouseMonitor";

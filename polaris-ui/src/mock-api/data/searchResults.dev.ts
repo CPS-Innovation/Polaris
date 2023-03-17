@@ -27,7 +27,7 @@ const searchResults: Omit<CaseSearchResult, "uniqueReferenceNumber">[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: false,
       type: "SOME_TYPE",
     },
     headlineCharge: {

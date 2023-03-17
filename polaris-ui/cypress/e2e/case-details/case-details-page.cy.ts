@@ -42,13 +42,14 @@ describe("case details page", () => {
   });
 
   describe("case details", () => {
-    it("For Single defendant and single charge, should show defendant details, charge details and custody time limits", () => {
+    it("For Single defendant and single charge, should show defendant details, charge details and custody time limits and Youth Offender if applicable", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
       cy.findByTestId("defendant-details").then(($details) => {
         cy.wrap($details).contains("Walsh, Steve");
         cy.wrap($details).contains("DOB: 28 Nov 1977. Age: 45");
+        cy.wrap($details).contains("Youth Offender");
       });
 
       cy.findByTestId("div-charges").then(($charges) => {
