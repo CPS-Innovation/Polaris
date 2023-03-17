@@ -1,5 +1,6 @@
 import { KeyboardEvent } from "react";
 import { Input } from "../../../../../common/presentation/components";
+import { ReactComponent as SearchIcon } from "../../../../../common/presentation/svgs/searchIcon.svg";
 import classes from "./SearchBox.module.scss";
 
 type Props = {
@@ -41,11 +42,14 @@ export const SearchBox: React.FC<Props> = ({
         suffix={{
           children: (
             <button
+              aria-label="Search"
               data-testid={dataTestId && `btn-${dataTestId}`}
               className={classes.button}
               type="submit"
               onClick={handleSubmit}
-            ></button>
+            >
+              <SearchIcon width={"20px"} height={"20px"} />
+            </button>
           ),
           className: classes.suffix,
         }}

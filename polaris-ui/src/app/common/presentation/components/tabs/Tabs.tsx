@@ -3,7 +3,7 @@ import { CommonTabsProps } from "./types";
 import { useLastFocus } from "../../../hooks/useLastFocus";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
-import { ReactComponent as CloseIcon } from "../../svgs/closeIcon.svg";
+import { ReactComponent as CloseIcon } from "../../svgs/closeIconBold.svg";
 import classes from "./Tabs.module.scss";
 
 const ARROW_KEY_SHIFTS = {

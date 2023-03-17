@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useLastFocus } from "../../hooks/useLastFocus";
+import { ReactComponent as CloseIcon } from "../../presentation/svgs/closeIcon.svg";
 import classes from "./Modal.module.scss";
 
 type Props = {
@@ -74,7 +75,9 @@ export const Modal: React.FC<Props> = ({
                 className={classes.dataModalClose}
                 aria-label="Close"
                 onClick={handleClose}
-              ></button>
+              >
+                <CloseIcon height={"40px"} width={"40px"} />
+              </button>
             </div>
           )}
           {type === "alert" && (
