@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using PolarisGateway.Domain.DocumentRedaction;
 using PolarisGateway.Domain.Validators;
 using Xunit;
 using FluentValidation.TestHelper;
+using Common.Domain.Requests;
+using Common.Domain.Redaction;
 
 namespace PolarisGateway.Tests.Validators
 {

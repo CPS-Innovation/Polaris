@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.DocumentEvaluation;
 using Common.Domain.DocumentExtraction;
+using Common.Domain.Pipeline;
 using coordinator.Domain.Tracker;
 using FluentAssertions;
 using FluentAssertions.Execution;

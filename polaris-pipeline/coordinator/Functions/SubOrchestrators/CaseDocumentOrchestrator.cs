@@ -6,7 +6,7 @@ using Common.Constants;
 using Common.Domain.Extensions;
 using Common.Domain.Responses;
 using Common.Logging;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions;

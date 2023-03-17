@@ -6,6 +6,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
@@ -27,7 +28,7 @@ namespace coordinator.Functions
         }
 
         [FunctionName("CoordinatorStart")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "cases/{caseUrn}/{caseId}")] HttpRequestMessage req,
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequestMessage req,
                 string caseUrn, string caseId, [DurableClient] IDurableOrchestrationClient orchestrationClient)
         {
             Guid currentCorrelationId = default;

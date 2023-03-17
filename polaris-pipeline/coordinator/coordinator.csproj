@@ -40,7 +40,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="local.settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
@@ -51,8 +51,10 @@
     <Folder Include="Functions\ActivityFunctions\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\polaris-gateway\polaris-gateway.common\polaris-gateway.common.csproj" />
     <ProjectReference Include="..\Common\Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
+    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using Common.Wrappers;
 using Moq;
 using pdf_generator.Functions;
 using System.Net.Http;
@@ -20,6 +19,7 @@ using Common.Exceptions.Contracts;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
+using Common.Wrappers.Contracts;
 
 namespace pdf_generator.tests.Functions
 {
@@ -60,8 +60,7 @@ namespace pdf_generator.tests.Functions
                 .Returns(_serializedRedactPdfResponse);
 
             _serializedRedactPdfResponse = redactPdfResponse.ToJson();
-            mockDocumentRedactionService.Setup(x => x.RedactPdfAsync(It.IsAny<RedactPdfRequest>(), It.IsAny<string>(), 
-	            It.IsAny<Guid>())).ReturnsAsync(redactPdfResponse);
+            mockDocumentRedactionService.Setup(x => x.RedactPdfAsync(It.IsAny<RedactPdfRequest>(), It.IsAny<Guid>())).ReturnsAsync(redactPdfResponse);
 
             _loggerMock = new Mock<ILogger<RedactPdf>>();
             _correlationId = _fixture.Create<Guid>();

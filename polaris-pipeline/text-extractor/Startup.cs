@@ -18,6 +18,8 @@ using Common.Services.SearchIndexService.Contracts;
 using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
+using Common.Wrappers.Contracts;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -29,6 +31,9 @@ namespace text_extractor
         {
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
 
@@ -101,11 +106,11 @@ namespace text_extractor
         private static void BuildHealthChecks(IFunctionsHostBuilder builder)
         {
             builder.Services.AddHealthChecks()
-                //.AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<OcrServiceHealthCheck>("OCR Service");
-                //.AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
-                //.AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
-                //.AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");*/
+                .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
+                .AddCheck<OcrServiceHealthCheck>("OCR Service")
+                .AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")
+                .AddCheck<SearchIndexServiceHealthCheck>("Search Index Service")
+                .AddCheck<AzureSearchClientHealthCheck>("Search Index Service / Azure Search Client");
         }
     }
 }

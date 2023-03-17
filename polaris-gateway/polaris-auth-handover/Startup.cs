@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using Common.Wrappers;
+using Common.Wrappers.Contracts;
+using Ddei.Clients;
+using Ddei.Factories;
+using Ddei.Factories.Contracts;
+using Ddei.Options;
+using Ddei.Services;
+using Ddei.Services.Contract;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PolarisGateway.CaseDataImplementations.Ddei.Clients;
-using PolarisGateway.CaseDataImplementations.Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
-using PolarisGateway.CaseDataImplementations.Ddei.Options;
 using PolarisGateway.CaseDataImplementations.Ddei.Services;
-using PolarisGateway.Factories;
-using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Services;
-using PolarisGateway.Wrappers;
 
 [assembly: FunctionsStartup(typeof(PolarisAuthHandover.Startup))]
 

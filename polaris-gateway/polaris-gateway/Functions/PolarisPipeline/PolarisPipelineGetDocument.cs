@@ -1,16 +1,16 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Clients.PolarisPipeline;
 using System;
 using System.Threading.Tasks;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway.Domain.Validators;
 using System.Net.Http;
 using PolarisGateway.Wrappers;
+using Common.Logging;
+using Common.Validators.Contracts;
+using Gateway.Clients.PolarisPipeline.Contracts;
+using Common.Configuration;
 
 namespace PolarisGateway.Functions.PolarisPipeline
 {
@@ -18,6 +18,9 @@ namespace PolarisGateway.Functions.PolarisPipeline
     {
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineGetDocument> _logger;
+
+        const string loggingName = $"{nameof(PolarisPipelineGetDocument)} - ${nameof(Run)}";
+
 
         public PolarisPipelineGetDocument(IPipelineClient pipelineClient,
                                           ILogger<PolarisPipelineGetDocument> logger,
@@ -31,29 +34,28 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         [FunctionName(nameof(PolarisPipelineGetDocument))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/documents/{id:guid}")] HttpRequest req, string urn, int caseId, Guid id)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, Guid documentId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = $"{nameof(PolarisPipelineGetDocument)} - Run";
 
             try
             {
-                var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                if (validationResult.InvalidResponseResult != null)
-                    return validationResult.InvalidResponseResult;
+                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                if (request.InvalidResponseResult != null)
+                    return request.InvalidResponseResult;
 
-                currentCorrelationId = validationResult.CurrentCorrelationId;
+                currentCorrelationId = request.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                if (string.IsNullOrWhiteSpace(urn))
+                if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting document for urn {urn}, caseId {caseId}, id {id}");
-                var blobStream = await _pipelineClient.GetDocumentAsync(urn, caseId, id, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting document for urn {caseUrn}, caseId {caseId}, id {documentId}");
+                var blobStream = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, documentId, currentCorrelationId);
 
                 return blobStream != null
                                     ? new OkObjectResult(blobStream)
-                                    : NotFoundErrorResponse($"No document found for document id '{id}'.", currentCorrelationId, loggingName);
+                                    : NotFoundErrorResponse($"No document found for document id '{documentId}'.", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {

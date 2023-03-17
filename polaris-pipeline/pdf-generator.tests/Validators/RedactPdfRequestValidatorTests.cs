@@ -1,11 +1,11 @@
 ﻿using System.Linq;
-using pdf_generator.Domain.Validators;
 using Xunit;
 using FluentValidation.TestHelper;
 using AutoFixture;
 using Common.Domain.Redaction;
 using Common.Domain.Requests;
 using FluentAssertions.Execution;
+using Common.Domain.Validators;
 
 namespace pdf_generator.tests.Validators
 {

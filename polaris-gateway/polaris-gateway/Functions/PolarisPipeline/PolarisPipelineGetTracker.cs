@@ -4,15 +4,15 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Clients.PolarisPipeline;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using PolarisGateway.Domain.Logging;
 using PolarisGateway.Domain.PolarisPipeline;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
-using System.Net;
+using Common.Configuration;
+using Common.Logging;
+using Common.Validators.Contracts;
+using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline
@@ -32,30 +32,30 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
-        [FunctionName("PolarisPipelineGetTracker")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "urns/{urn}/cases/{caseId}/tracker")] HttpRequest req, string urn, int caseId)
+        const string loggingName = $"{nameof(PolarisPipelineGetTracker)} - {nameof(Run)}";
+
+        [FunctionName(nameof(PolarisPipelineGetTracker))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "PolarisPipelineGetTracker - Run";
             Tracker tracker = null;
 
             try
             {
-                var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                if (validationResult.InvalidResponseResult != null)
-                    return validationResult.InvalidResponseResult;
+                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                if (request.InvalidResponseResult != null)
+                    return request.InvalidResponseResult;
 
-                currentCorrelationId = validationResult.CurrentCorrelationId;
+                currentCorrelationId = request.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                if (string.IsNullOrWhiteSpace(urn))
+                if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, loggingName);
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting tracker details for caseId {caseId}");
-                tracker = await _pipelineClient.GetTrackerAsync(urn, caseId, currentCorrelationId);
+                tracker = await _pipelineClient.GetTrackerAsync(caseUrn, caseId, currentCorrelationId);
 
-                return tracker == null ? NotFoundErrorResponse($"No tracker found for case Urn '{urn}', case id '{caseId}'.", currentCorrelationId, loggingName) : new OkObjectResult(tracker);
+                return tracker == null ? NotFoundErrorResponse($"No tracker found for case Urn '{caseUrn}', case id '{caseId}'.", currentCorrelationId, loggingName) : new OkObjectResult(tracker);
             }
             catch (Exception exception)
             {

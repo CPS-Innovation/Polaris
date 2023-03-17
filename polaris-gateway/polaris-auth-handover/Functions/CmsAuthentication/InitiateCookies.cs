@@ -1,6 +1,11 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using Common.Constants;
+using Common.Logging;
+using Ddei.Domain.CaseData.Args;
+using Ddei.Factories.Contracts;
+using Ddei.Services.Contract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -8,10 +13,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using PolarisDomain.Functions;
 using PolarisGateway;
-using PolarisGateway.Domain.CaseData.Args;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway.Factories.Contracts;
-using PolarisGateway.Services;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
@@ -82,7 +83,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             }
 
             _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Obtaining Cms Modern token");
-            var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CaseDataArg
+            var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CmsCaseDataArg
             {
                 CorrelationId = currentCorrelationId,
                 CmsAuthValues = _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString),

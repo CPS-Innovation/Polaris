@@ -1,6 +1,7 @@
 ﻿using System;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
+using Common.Wrappers.Contracts;
 
 namespace Common.Wrappers
 {

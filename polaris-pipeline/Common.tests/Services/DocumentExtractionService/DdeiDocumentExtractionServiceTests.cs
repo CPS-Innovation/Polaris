@@ -9,7 +9,7 @@ using Common.Factories.Contracts;
 using Common.Mappers;
 using Common.Services.DocumentExtractionService;
 using Common.Services.DocumentExtractionService.Contracts;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;

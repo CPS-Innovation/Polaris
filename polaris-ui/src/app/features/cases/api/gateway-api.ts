@@ -182,11 +182,10 @@ export const searchCase = async (
 export const checkoutDocument = async (
   urn: string,
   caseId: number,
-  cmsDocCategory: CmsDocCategory,
   documentId: string
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -204,11 +203,10 @@ export const checkoutDocument = async (
 export const cancelCheckoutDocument = async (
   urn: string,
   caseId: number,
-  cmsDocCategory: CmsDocCategory,
   documentId: string
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/checkout`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/checkout`
   );
 
   const response = await internalFetch(url, {
@@ -226,13 +224,11 @@ export const cancelCheckoutDocument = async (
 export const saveRedactions = async (
   urn: string,
   caseId: number,
-  cmsDocCategory: CmsDocCategory,
   documentId: string,
-  fileName: string,
   redactionSaveRequest: RedactionSaveRequest
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${cmsDocCategory}/${documentId}/${fileName}`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
 
   const response = await internalFetch(url, {

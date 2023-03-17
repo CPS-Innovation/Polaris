@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using PolarisGateway.Domain.DocumentRedaction;
+﻿using Common.Domain.Redaction;
+using FluentValidation;
 
 namespace PolarisGateway.Domain.Validators
 {

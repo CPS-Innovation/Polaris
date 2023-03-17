@@ -10,7 +10,7 @@ using Common.Exceptions.Contracts;
 using Common.Logging;
 using Common.Services.OcrService;
 using Common.Services.SearchIndexService.Contracts;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -27,8 +27,11 @@ namespace text_extractor.Functions
         private readonly ILogger<ExtractText> _log;
 
         public ExtractText(IJsonConvertWrapper jsonConvertWrapper,
-             IValidatorWrapper<ExtractTextRequest> validatorWrapper, IOcrService ocrService,
-             ISearchIndexService searchIndexService, IExceptionHandler exceptionHandler, ILogger<ExtractText> logger)
+                           IValidatorWrapper<ExtractTextRequest> validatorWrapper, 
+                           IOcrService ocrService,
+                           ISearchIndexService searchIndexService, 
+                           IExceptionHandler exceptionHandler, 
+                           ILogger<ExtractText> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;

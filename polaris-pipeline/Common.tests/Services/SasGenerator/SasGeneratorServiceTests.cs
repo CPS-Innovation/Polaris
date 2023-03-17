@@ -6,7 +6,7 @@ using Azure.Storage.Sas;
 using Common.Constants;
 using Common.Factories.Contracts;
 using Common.Services.SasGeneratorService;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

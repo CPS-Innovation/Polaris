@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection.Metadata;
 using System.Text;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;

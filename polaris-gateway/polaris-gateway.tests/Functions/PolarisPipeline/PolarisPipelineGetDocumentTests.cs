@@ -2,15 +2,14 @@
 using System.IO;
 using System.Threading.Tasks;
 using AutoFixture;
-using Azure;
+using Common.Validators.Contracts;
 using FluentAssertions;
+using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using PolarisGateway.Clients.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Functions.PolarisPipeline;
 using PolarisGateway.Wrappers;
 using Xunit;
@@ -18,7 +17,7 @@ using Xunit;
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
     public class PolarisPipelineGetDocumentTests : SharedMethods.SharedMethods
-    {
+	{
         private readonly string _blobName;
         private readonly string _caseUrn;
         private readonly int _caseId;

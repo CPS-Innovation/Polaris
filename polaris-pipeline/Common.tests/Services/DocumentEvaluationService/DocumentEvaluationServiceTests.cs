@@ -15,7 +15,7 @@ namespace Common.tests.Services.DocumentEvaluationService;
 
 public class DocumentEvaluationServiceTests
 {
-    private readonly Mock<IBlobStorageService> _mockBlobStorageService;
+    private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
     private readonly Fixture _fixture;
     private readonly Guid _correlationId;
 
@@ -24,7 +24,7 @@ public class DocumentEvaluationServiceTests
     public DocumentEvaluationServiceTests()
     {
         _fixture = new Fixture();
-        _mockBlobStorageService = new Mock<IBlobStorageService>();
+        _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
         var mockLogger = new Mock<ILogger<Common.Services.DocumentEvaluation.DocumentEvaluationService>>();
 
         _correlationId = Guid.NewGuid();

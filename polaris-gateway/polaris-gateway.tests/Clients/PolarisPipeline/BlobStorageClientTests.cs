@@ -5,15 +5,16 @@ using AutoFixture;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Common.Clients;
+using Common.Clients.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using PolarisGateway.Clients.PolarisPipeline;
 using Xunit;
 
 namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
-	public class BlobStorageClientTests
+    public class BlobStorageClientTests
 	{
         private readonly string _blobName;
         private readonly Guid _correlationId;
@@ -21,7 +22,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         private readonly Mock<Response<bool>> _mockBlobContainerExistsResponse;
         private readonly Mock<Response<bool>> _mockBlobClientExistsResponse;
 
-        private readonly IBlobStorageClient _blobStorageClient;
+        private readonly IPolarisStorageClient _blobStorageClient;
 
 		public BlobStorageClientTests()
 		{
@@ -54,9 +55,9 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
 
 			mockBlobDownloadResponse.Setup(response => response.Value).Returns(blobDownloadResult);
 
-			var mockLogger = new Mock<ILogger<BlobStorageClient>>();
+			var mockLogger = new Mock<ILogger<PolarisStorageClient>>();
 
-			_blobStorageClient = new BlobStorageClient(mockBlobServiceClient.Object, blobContainerName, mockLogger.Object);
+			_blobStorageClient = new PolarisStorageClient(mockBlobServiceClient.Object, blobContainerName, mockLogger.Object);
 		}
 
 		[Fact]

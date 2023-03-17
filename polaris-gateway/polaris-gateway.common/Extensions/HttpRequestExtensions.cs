@@ -1,10 +1,10 @@
-﻿using FluentValidation;
+﻿using Common.Domain.Validation;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
-using PolarisGateway.Domain.Validation;
 
-namespace PolarisGateway.Extensions
+namespace Gateway.Common.Extensions
 {
     public static class HttpRequestExtensions
     {
