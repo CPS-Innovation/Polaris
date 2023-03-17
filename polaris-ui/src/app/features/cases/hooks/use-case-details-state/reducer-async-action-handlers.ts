@@ -21,12 +21,6 @@ const UNLOCKED_STATES_REQUIRING_LOCK: CaseDocumentViewModel["clientLockedState"]
 type State = Parameters<typeof reducer>[0];
 type Action = Parameters<typeof reducer>[1];
 
-const getOldWorldId = (document: CaseDocumentViewModel) => {
-  // temporary function to allow us to use old-world ids for the redaction endpoints
-  //  but new-world guid ids for reading and storing documents.
-  return document.cmsDocumentId!;
-};
-
 type AsyncActions =
   | {
       type: "ADD_REDACTION_AND_POTENTIALLY_LOCK";
@@ -116,7 +110,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         urn,
       } = getState();
 
-      const { clientLockedState, cmsDocCategory } = items.find(
+      const { clientLockedState } = items.find(
         (item) => item.documentId === documentId
       )!;
 
@@ -134,12 +128,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "locking" },
       });
 
-      const isLockSuccessful = await checkoutDocument(
-        urn,
-        caseId,
-        cmsDocCategory,
-        documentId
-      );
+      const isLockSuccessful = await checkoutDocument(urn, caseId, documentId);
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -164,11 +153,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const {
-        redactionHighlights,
-        clientLockedState: lockedState,
-        cmsDocCategory,
-      } = document;
+      const { redactionHighlights, clientLockedState: lockedState } = document;
 
       dispatch({ type: "REMOVE_REDACTION", payload });
 
@@ -186,12 +171,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(
-        urn,
-        caseId,
-        cmsDocCategory,
-        getOldWorldId(document) // documentId
-      );
+      await cancelCheckoutDocument(urn, caseId, documentId);
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -216,7 +196,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { clientLockedState: lockedState, cmsDocCategory } = document;
+      const { clientLockedState: lockedState } = document;
 
       const requiresCheckIn =
         LOCKED_STATES_REQUIRING_UNLOCK.includes(lockedState);
@@ -232,12 +212,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, lockedState: "unlocking" },
       });
 
-      await cancelCheckoutDocument(
-        urn,
-        caseId,
-        cmsDocCategory,
-        getOldWorldId(document) // documentId
-      );
+      await cancelCheckoutDocument(urn, caseId, documentId);
 
       dispatch({
         type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -262,7 +237,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { redactionHighlights, pdfBlobName, cmsDocCategory } = document;
+      const { redactionHighlights, pdfBlobName } = document;
 
       const redactionSaveRequest = mapRedactionSaveRequest(
         documentId,

@@ -182,7 +182,6 @@ export const searchCase = async (
 export const checkoutDocument = async (
   urn: string,
   caseId: number,
-  cmsDocCategory: CmsDocCategory,
   documentId: string
 ) => {
   const url = fullUrl(
@@ -204,7 +203,6 @@ export const checkoutDocument = async (
 export const cancelCheckoutDocument = async (
   urn: string,
   caseId: number,
-  cmsDocCategory: CmsDocCategory,
   documentId: string
 ) => {
   const url = fullUrl(
