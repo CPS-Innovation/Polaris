@@ -3,4 +3,9 @@
   max-height: 1500px; // to prevent zooming out overly elongating the pdf
   width: 100%;
   position: relative;
+  & *:focus {
+    outline: 4px solid #ffdd00;
+    outline-offset: 0;
+    box-shadow: inset 0 0 0 1px #0b0c0c;
+  }
 }
