@@ -35,7 +35,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
   useEffect(() => {
     activeTabRef.current?.focus();
-  }, [activeTabId]);
+  }, [activeTabId, items.length]);
   useLastFocus(document.querySelector("#case-details-search") as HTMLElement);
 
   const activeTabArrayPos = items.findIndex((item) => item.id === activeTabId);
@@ -137,6 +137,7 @@ export const Tabs: React.FC<TabsProps> = ({
                   <button
                     className={classes.tabCloseButton}
                     onClick={handleCloseTab}
+                    onKeyDown={handleKeyPressOnTab}
                     data-testid="tab-remove"
                   >
                     <CloseIcon />
