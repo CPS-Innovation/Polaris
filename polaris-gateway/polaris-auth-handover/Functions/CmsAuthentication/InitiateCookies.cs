@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Logging;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Factories.Contracts;
 using Ddei.Services.Contract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using PolarisDomain.Functions;
 using PolarisGateway;
 
@@ -20,17 +20,14 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
     {
         private readonly ILogger<InitiateCookies> _logger;
         private readonly ICmsModernTokenService _cmsModernTokenService;
-        private readonly ICmsAuthValuesFactory _cmsAuthValuesFactory;
 
         public InitiateCookies(
             ILogger<InitiateCookies> logger,
-            ICmsModernTokenService cmsModernTokenService,
-            ICmsAuthValuesFactory cmsAuthValuesFactory) :
+            ICmsModernTokenService cmsModernTokenService) :
          base(logger)
         {
             _logger = logger;
             _cmsModernTokenService = cmsModernTokenService;
-            _cmsAuthValuesFactory = cmsAuthValuesFactory;
         }
 
         [FunctionName("Init")]
@@ -73,9 +70,9 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             }
         }
 
-        private async Task<string> GetCmsModernToken(string cookiesString, Guid currentCorrelationId, string loggingName)
+        private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId, string loggingName)
         {
-            if (string.IsNullOrWhiteSpace(cookiesString))
+            if (string.IsNullOrWhiteSpace(cmsCookiesString))
             {
                 //  initial idea: if we do not have cookies, lets just return to the UI and let it deal with what it does next
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Not obtaining Cms Modern token as cookies not found");
@@ -86,26 +83,32 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CmsCaseDataArg
             {
                 CorrelationId = currentCorrelationId,
-                CmsAuthValues = _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString),
+                CmsAuthValues = Uri.EscapeDataString($"{{Cookies: \"{cmsCookiesString}\"}}")
             });
 
             _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cms Modern token found");
             return cmsToken;
         }
 
-        private void AppendAuthCookies(HttpRequest req, string cookiesString, string cmsToken)
+        private void AppendAuthCookies(HttpRequest req, string cmsCookiesString, string cmsToken)
         {
-            req.HttpContext.Response.Cookies.Append(
-              HttpHeaderKeys.CmsAuthValues,
-              _cmsAuthValuesFactory.SerializeCmsAuthValues(cookiesString, cmsToken),
-              new CookieOptions
-              {
-                  HttpOnly = true,
-                  Path = "/api/",
-                  SameSite = SameSiteMode.None,
-                  Secure = true
-              }
-            );
+            var cookiesString = $"{{Cookies: \"{cmsCookiesString}\", Token: \"{cmsToken}\"}}";
+
+            var cookieOptions = req.IsHttps
+            ? new CookieOptions
+            {
+                Path = "/api/",
+                HttpOnly = true,
+                Secure = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None
+            }
+            : new CookieOptions
+            {
+                Path = "/api/",
+                HttpOnly = true,
+            };
+
+            req.HttpContext.Response.Cookies.Append(HeaderNames.SetCookie, cookiesString, cookieOptions);
         }
     }
 }
