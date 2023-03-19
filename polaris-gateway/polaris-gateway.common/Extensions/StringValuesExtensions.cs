@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Common.Constants;
+using Microsoft.Extensions.Primitives;
 
 namespace PolarisGateway.Extensions
 {
@@ -6,7 +7,7 @@ namespace PolarisGateway.Extensions
     {
         public static string ToJwtString(this StringValues values)
         {
-            return values.ToString().Replace($"{AuthenticationKeys.Bearer} ", string.Empty).Trim();
+            return values.ToString().Replace($"{OAuthSettings.Bearer} ", string.Empty).Trim();
         }
     }
 }

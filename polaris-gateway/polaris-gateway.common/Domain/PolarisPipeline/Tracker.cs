@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using Common.Domain.Pipeline;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

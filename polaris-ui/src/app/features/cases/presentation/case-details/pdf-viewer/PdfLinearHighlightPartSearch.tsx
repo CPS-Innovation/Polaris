@@ -35,7 +35,7 @@ export const PdfLinearHighlightPartSearch: React.FC<Props> = ({ rect }) => {
   }, [isHidden, handleReinstateHighlight]);
 
   return isHidden ? null : (
-    <div
+    <button
       style={rect}
       className={classes[`Highlight__part__search`]}
       onClick={() => setIsHidden(true)}

@@ -8,6 +8,7 @@
 		<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.2" />
 	</ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
       <ProjectReference Include="..\polaris-gateway.common\polaris-gateway.common.csproj" />
     </ItemGroup>
     <ItemGroup>

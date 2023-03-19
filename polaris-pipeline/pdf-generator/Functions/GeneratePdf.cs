@@ -15,7 +15,7 @@ using Common.Exceptions.Contracts;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentExtractionService.Contracts;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -28,7 +28,7 @@ namespace pdf_generator.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<GeneratePdfRequest> _validatorWrapper;
         private readonly IDdeiDocumentExtractionService _documentExtractionService;
-        private readonly IBlobStorageService _blobStorageService;
+        private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<GeneratePdf> _log;
@@ -37,7 +37,7 @@ namespace pdf_generator.Functions
              IJsonConvertWrapper jsonConvertWrapper, 
              IValidatorWrapper<GeneratePdfRequest> validatorWrapper,
              IDdeiDocumentExtractionService documentExtractionService,
-             IBlobStorageService blobStorageService, 
+             IPolarisBlobStorageService blobStorageService, 
              IPdfOrchestratorService pdfOrchestratorService, 
              IExceptionHandler exceptionHandler, 
              ILogger<GeneratePdf> logger)

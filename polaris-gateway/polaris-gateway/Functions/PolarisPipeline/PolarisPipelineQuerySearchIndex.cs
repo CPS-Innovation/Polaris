@@ -1,10 +1,13 @@
 ﻿using Azure;
+using Common.Configuration;
+using Common.Logging;
+using Common.Validators.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Clients.PolarisPipeline;
+using Gateway.Clients.PolarisPipeline.Contracts;
 using System;
 using System.Threading.Tasks;
 using PolarisGateway.Domain.Logging;
@@ -18,6 +21,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineQuerySearchIndex> _logger;
 
+        const string loggingName = $"{nameof(PolarisPipelineQuerySearchIndex)} - {nameof(Run)}";
+
         public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger,
                                                IPipelineClient pipelineClient,
                                                IAuthorizationValidator tokenValidator,
@@ -28,23 +33,18 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
-        [FunctionName("PolarisPipelineQuerySearchIndex")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous,
-            "get",
-            Route = "urns/{urn}/cases/{caseId}/documents/search")] HttpRequest req,
-            string urn, int caseId)
+        [FunctionName(nameof(PolarisPipelineQuerySearchIndex))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentsSearch)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "PolarisPipelineQuerySearchIndex - Run";
 
             try
             {
-                var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                if (validationResult.InvalidResponseResult != null)
-                    return validationResult.InvalidResponseResult;
+                var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
+                if (request.InvalidResponseResult != null)
+                    return request.InvalidResponseResult;
 
-                currentCorrelationId = validationResult.CurrentCorrelationId;
+                currentCorrelationId = request.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (caseId <= 0)
@@ -58,7 +58,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (string.IsNullOrWhiteSpace(searchTerm))
                     return BadRequestErrorResponse("Search query term is not supplied.", currentCorrelationId, loggingName);
 
-                var searchResults = await _pipelineClient.SearchCase(urn, caseId, searchTerm, currentCorrelationId);
+                var searchResults = await _pipelineClient.SearchCase(caseUrn, caseId, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }

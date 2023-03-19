@@ -15,7 +15,21 @@
   z-index: 7;
 }
 
+.backDrop {
+  z-index: 7;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
 .modalContent {
+  z-index: 7;
   position: fixed;
   background: white;
   min-width: 600px;

@@ -1,6 +1,5 @@
-﻿using System.Linq;
+﻿using Common.Domain.Validation;
 using Microsoft.AspNetCore.Mvc;
-using PolarisGateway.Domain.Validation;
 
 namespace PolarisGateway.Extensions
 {

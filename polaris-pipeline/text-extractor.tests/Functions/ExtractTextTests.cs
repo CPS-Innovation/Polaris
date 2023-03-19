@@ -11,7 +11,6 @@ using Common.Domain.Exceptions;
 using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
 using Common.Services.SearchIndexService.Contracts;
-using Common.Wrappers;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
@@ -19,10 +18,11 @@ using Moq;
 using text_extractor.Functions;
 using Common.Services.OcrService;
 using Xunit;
+using Common.Wrappers.Contracts;
 
 namespace text_extractor.tests.Functions
 {
-	public class ExtractTextTests
+    public class ExtractTextTests
 	{
 		private readonly Fixture _fixture;
         private readonly string _serializedExtractTextRequest;

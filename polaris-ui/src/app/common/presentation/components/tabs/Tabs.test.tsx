@@ -15,7 +15,7 @@ describe("Tabs", () => {
     };
 
     render(<Tabs {...props} />);
-    screen.findByTestId("tabs");
+    await screen.findByTestId("tabs");
     expect(screen.queryAllByRole("tab")).toHaveLength(0);
   });
   it("can render tabs", async () => {
@@ -33,7 +33,7 @@ describe("Tabs", () => {
     };
 
     render(<Tabs {...props} />);
-    screen.findByTestId("tabs");
+    await screen.findByTestId("tabs");
     expect(screen.queryAllByRole("tab")).toHaveLength(3);
   });
   it("can highlight the active tab", async () => {
@@ -51,7 +51,7 @@ describe("Tabs", () => {
     };
 
     const { rerender } = render(<Tabs {...props} />);
-    screen.findByTestId("tabs");
+    await screen.findByTestId("tabs");
     // first tab is active if no hash passed
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
     expect(screen.getByTestId("tab-content-t1")).not.toHaveClass(
@@ -96,7 +96,7 @@ describe("Tabs", () => {
     };
 
     render(<TestComponent />);
-    screen.findByTestId("tabs");
+    await screen.findByTestId("tabs");
     // make sure we have landed on the expected first tab
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
     // right goes to next tab
@@ -145,7 +145,7 @@ describe("Tabs", () => {
     };
 
     const { rerender } = render(<Tabs {...props} />);
-    screen.findByTestId("tabs");
+    await screen.findByTestId("tabs");
     expect(screen.queryAllByRole("tab")).toHaveLength(0);
     rerender(
       <Tabs
@@ -185,9 +185,8 @@ describe("Tabs", () => {
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
       };
-
       render(<Tabs {...props} />);
-      screen.findByTestId("tabs");
+      await screen.findByTestId("tabs");
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(0);
       const secondTab = screen.getByTestId("tab-1");
       expect(within(secondTab).getByTestId("tab-active")).toHaveTextContent(
@@ -220,9 +219,8 @@ describe("Tabs", () => {
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
       };
-
       render(<Tabs {...props} />);
-      screen.findByTestId("tabs");
+      await screen.findByTestId("tabs");
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(0);
       const fistTab = screen.getByTestId("tab-0");
       expect(within(fistTab).getByTestId("tab-active")).toHaveTextContent(
@@ -251,9 +249,8 @@ describe("Tabs", () => {
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
       };
-
       render(<Tabs {...props} />);
-      screen.findByTestId("tabs");
+      await screen.findByTestId("tabs");
       expect(mockHandleClosePdf).toHaveBeenCalledTimes(0);
       const fistTab = screen.getByTestId("tab-0");
       expect(within(fistTab).getByTestId("tab-active")).toHaveTextContent(

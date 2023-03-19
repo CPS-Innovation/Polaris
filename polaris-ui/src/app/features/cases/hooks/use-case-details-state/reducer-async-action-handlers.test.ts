@@ -155,7 +155,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkoutSpy).toBeCalledWith("foo", 2, "MGForm", "1");
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -371,7 +371,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkInSpy).toBeCalledWith("foo", 2, "MGForm", "a");
+        expect(checkInSpy).toBeCalledWith("foo", 2, "1");
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -484,7 +484,7 @@ describe("reducerAsyncActionHandlers", () => {
         });
 
         //assert
-        expect(checkInSpy).toBeCalledWith("foo", 2, "MGForm", "a");
+        expect(checkInSpy).toBeCalledWith("foo", 2, "1");
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
@@ -562,14 +562,7 @@ describe("reducerAsyncActionHandlers", () => {
       });
 
       // assert
-      expect(saveSpy).toBeCalledWith(
-        "foo",
-        2,
-        "MGForm",
-        "a",
-        "baz",
-        mockRedactionSaveRequest
-      );
+      expect(saveSpy).toBeCalledWith("foo", 2, "1", mockRedactionSaveRequest);
       //expect(checkInSpy).toBeCalledWith("foo", 2, 1);
     });
   });

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure.Search.Documents;
+using Common.Clients.Contracts;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
 using Common.Logging;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.Clients
 {
-	public class SearchIndexClient : ISearchIndexClient
+    public class SearchIndexClient : ISearchIndexClient
 	{
 		private readonly SearchClient _searchClient;
 		private readonly IStreamlinedSearchResultFactory _streamlinedSearchResultFactory;

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.Http;
 using AutoFixture;
+using Common.Factories;
+using Common.Factories.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using PolarisGateway.Factories;
-using PolarisGateway.Factories.Contracts;
 using Xunit;
 
 namespace PolarisGateway.Tests.Factories
@@ -33,7 +33,7 @@ namespace PolarisGateway.Tests.Factories
         [Fact]
         public void Create_SetsHttpMethodToGetOnRequestMessage()
         {
-            var message = _pipelineClientRequestFactory.CreateGet(_requestUri, _accessToken, _correlationId);
+            var message = _pipelineClientRequestFactory.Create(HttpMethod.Get, _requestUri, _correlationId, _accessToken);
 
             message.Method.Should().Be(HttpMethod.Get);
         }
@@ -41,7 +41,7 @@ namespace PolarisGateway.Tests.Factories
         [Fact]
         public void Create_SetsRequestUriOnRequestMessage()
         {
-            var message = _pipelineClientRequestFactory.CreateGet(_requestUri, _accessToken, _correlationId);
+            var message = _pipelineClientRequestFactory.Create(HttpMethod.Get, _requestUri, _correlationId, _accessToken);
 
             message.RequestUri.Should().Be(_requestUri);
         }
@@ -49,7 +49,7 @@ namespace PolarisGateway.Tests.Factories
         [Fact]
         public void Create_SetsAccessTokenOnRequestMessageAuthorizationHeader()
         {
-            var message = _pipelineClientRequestFactory.CreateGet(_requestUri, _accessToken, _correlationId);
+            var message = _pipelineClientRequestFactory.Create(HttpMethod.Get, _requestUri, _correlationId, _accessToken);
 
             message.Headers.Authorization?.ToString().Should().Be($"Bearer {_accessToken}");
         }

@@ -3,7 +3,7 @@ using System.Net.Http;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Requests;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using coordinator.Factories;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;

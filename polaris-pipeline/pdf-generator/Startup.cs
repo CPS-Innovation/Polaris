@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using Common.Constants;
 using Common.Domain.Requests;
 using Common.Domain.Responses;
+using Common.Domain.Validators;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
@@ -20,13 +21,13 @@ using Common.Services.DocumentEvaluation.Contracts;
 using Common.Services.DocumentExtractionService;
 using Common.Services.DocumentExtractionService.Contracts;
 using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using pdf_generator.Domain.Validators;
 using pdf_generator.Factories;
 using pdf_generator.Handlers;
 using pdf_generator.Services.DocumentRedactionService;
@@ -42,6 +43,9 @@ namespace pdf_generator
         {
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
+#if DEBUG
+                .SetBasePath(Directory.GetCurrentDirectory())
+#endif
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
 
@@ -83,11 +87,11 @@ namespace pdf_generator
             {
                 azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
             });
-            builder.Services.AddTransient<IBlobStorageService>(serviceProvider =>
+            builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
             {
-                var loggingService = serviceProvider.GetService<ILogger<BlobStorageService>>();
+                var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
                 
-                return new BlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
+                return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
 

@@ -4,13 +4,13 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using PolarisGateway.common.Mappers.Contracts;
 using PolarisGateway.Factories;
-using PolarisGateway.Mappers;
 using Xunit;
 
 namespace PolarisGateway.Tests.Factories
 {
-	public class TriggerCoordinatorResponseFactoryTests
+    public class TriggerCoordinatorResponseFactoryTests
 	{
 		private readonly HttpRequest _httpRequest;
 		private readonly Uri _trackerUrl;

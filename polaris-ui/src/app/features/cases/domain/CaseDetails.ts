@@ -21,7 +21,7 @@ type DefendantDetails = {
   surname: string;
   organisationName: string;
   dob: string;
-  isYouth: boolean;
+  youth: boolean;
   type: string;
 };
 

@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Common.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.Logging;
+using PolarisGateway.common.Mappers.Contracts;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Factories.Contracts;
-using PolarisGateway.Mappers;
 
 namespace PolarisGateway.Factories
 {

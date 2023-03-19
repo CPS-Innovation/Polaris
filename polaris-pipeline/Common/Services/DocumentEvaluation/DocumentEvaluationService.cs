@@ -14,10 +14,10 @@ namespace Common.Services.DocumentEvaluation;
 
 public class DocumentEvaluationService : IDocumentEvaluationService
 {
-    private readonly IBlobStorageService _blobStorageService;
+    private readonly IPolarisBlobStorageService _blobStorageService;
     private readonly ILogger<DocumentEvaluationService> _logger;
     
-    public DocumentEvaluationService(IBlobStorageService blobStorageService, ILogger<DocumentEvaluationService> logger)
+    public DocumentEvaluationService(IPolarisBlobStorageService blobStorageService, ILogger<DocumentEvaluationService> logger)
     {
         _blobStorageService = blobStorageService;
         _logger = logger;

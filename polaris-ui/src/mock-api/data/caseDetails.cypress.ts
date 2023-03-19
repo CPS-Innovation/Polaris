@@ -20,7 +20,7 @@ const caseDetails: CaseDetails[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: true,
       type: "SOME_TYPE",
     },
     headlineCharge: {
@@ -37,7 +37,7 @@ const caseDetails: CaseDetails[] = [
           surname: "Walsh",
           organisationName: "",
           dob: "1977-11-28",
-          isYouth: false,
+          youth: false,
           type: "SOME_TYPE",
         },
         custodyTimeLimit: {
@@ -61,7 +61,7 @@ const caseDetails: CaseDetails[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: false,
       type: "SOME_TYPE",
     },
     headlineCharge: {
@@ -78,7 +78,7 @@ const caseDetails: CaseDetails[] = [
           surname: "Walsh",
           organisationName: "",
           dob: "1977-11-28",
-          isYouth: false,
+          youth: false,
           type: "SOME_TYPE",
         },
         custodyTimeLimit: {
@@ -96,7 +96,7 @@ const caseDetails: CaseDetails[] = [
           surname: "Victor",
           organisationName: "",
           dob: "1987-10-20",
-          isYouth: false,
+          youth: false,
           type: "SOME_TYPE",
         },
         custodyTimeLimit: {
@@ -114,7 +114,7 @@ const caseDetails: CaseDetails[] = [
           surname: "Taylor",
           organisationName: "",
           dob: "1980-08-22",
-          isYouth: false,
+          youth: false,
           type: "SOME_TYPE",
         },
         custodyTimeLimit: {
@@ -139,7 +139,7 @@ const caseDetails: CaseDetails[] = [
       surname: "Walsh",
       organisationName: "",
       dob: "1977-11-28",
-      isYouth: false,
+      youth: false,
       type: "SOME_TYPE",
     },
     headlineCharge: {
@@ -156,7 +156,7 @@ const caseDetails: CaseDetails[] = [
           surname: "Walsh",
           organisationName: "",
           dob: "1977-11-28",
-          isYouth: false,
+          youth: false,
           type: "SOME_TYPE",
         },
         custodyTimeLimit: {

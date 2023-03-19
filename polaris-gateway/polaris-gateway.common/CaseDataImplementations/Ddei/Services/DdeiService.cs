@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using PolarisGateway.Domain.CaseData;
-using PolarisGateway.Domain.CaseData.Args;
-using PolarisGateway.CaseDataImplementations.Ddei.Clients;
-using PolarisGateway.Services;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
-using PolarisGateway.Domain.Exceptions;
-using System.IO;
-using PolarisGateway.Factories.Contracts;
+using Ddei.Services;
+using Ddei.Clients;
+using Ddei.Factories.Contracts;
+using PolarisGateway.Services;
+using Ddei.Exceptions;
+using Domain.Exceptions;
+using Ddei.Services.Contract;
+using Ddei.Domain.CaseData.Args;
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Services
 {
@@ -32,7 +30,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             _caseDocumentsMapper = caseDocumentsMapper;
         }
 
-        public async Task<string> GetCmsModernToken(CaseDataArg arg)
+        public async Task<string> GetCmsModernToken(CmsCaseDataArg arg)
         {
             try
             {
@@ -44,7 +42,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<IEnumerable<CaseDetails>> ListCases(UrnArg arg)
+        public async Task<IEnumerable<CaseDetails>> ListCases(CmsUrnArg arg)
         {
             try
             {
@@ -63,7 +61,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<CaseDetailsFull> GetCase(CaseArg arg)
+        public async Task<CaseDetailsFull> GetCase(CmsCaseArg arg)
         {
             try
             {
@@ -76,7 +74,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<IEnumerable<DocumentDetails>> ListDocuments(CaseArg arg)
+        public async Task<IEnumerable<DocumentDetails>> ListDocuments(CmsCaseArg arg)
         {
             try
             {
@@ -94,7 +92,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task CheckoutDocument(DocumentArg arg)
+        public async Task CheckoutDocument(CmsDocumentArg arg)
         {
             try
             {
@@ -106,7 +104,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task CancelCheckoutDocument(DocumentArg arg)
+        public async Task CancelCheckoutDocument(CmsDocumentArg arg)
         {
             try
             {
@@ -118,7 +116,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task UploadPdf(DocumentArg arg, Stream stream, string fileName)
+        public async Task UploadPdf(CmsDocumentArg arg, Stream stream, string fileName)
         {
             try
             {
