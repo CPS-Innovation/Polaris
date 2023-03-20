@@ -76,6 +76,11 @@ export const Content: React.FC<Props> = ({
             }}
           />
         ) : null}
+        <div>
+          {!submittedSearchTerm && !requestedSearchTerm && (
+            <p> Please enter your search term.</p>
+          )}
+        </div>
       </div>
     </div>
   );
