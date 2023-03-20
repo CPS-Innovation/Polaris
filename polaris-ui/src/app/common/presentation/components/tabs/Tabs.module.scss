@@ -2,6 +2,9 @@
 
 :global(.govuk-tabs > .govuk-tabs__panel) {
   padding: 0 !important;
+  &:focus {
+    outline: #ffdd00 auto 1px;
+  }
 }
 .tabsWrapper {
   display: flex;
