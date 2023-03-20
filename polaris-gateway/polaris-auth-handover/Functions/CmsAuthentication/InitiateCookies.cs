@@ -58,15 +58,40 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
                 var cookiesString = req.Query[CmsAuthConstants.CookieQueryParamName];
                 var whitelistedCookies = WhitelistCookies(cookiesString);
-                // cookies as passed in the query could be legitimately empty, but only do more work if they have been passed                
-                if (!string.IsNullOrWhiteSpace(whitelistedCookies))
+                // cookies as passed in the query could be legitimately empty, but only do more work if they have been passed   
+                if (string.IsNullOrWhiteSpace(whitelistedCookies))
                 {
-                    var cmsToken = await GetCmsModernToken(whitelistedCookies, currentCorrelationId, loggingName);
-                    AppendPolarisAuthCookie(req, whitelistedCookies, cmsToken);
+                    return new RedirectResult(returnUrl);
                 }
+
+                string cmsModernToken = string.Empty;
+                try
+                {
+                    cmsModernToken = await GetCmsModernToken(whitelistedCookies, currentCorrelationId, loggingName);
+                    // Note 1 of 2:  two things may be happening if have got this far.
+                    //  a) we have new cookies that correspond to a live Modern session and we are on the happy path.
+                    //  b) we may have old cookies.  This means that the modern token that we have just been given looks
+                    //    good, but actually will be no use to the client as it has expired as far as Modern is concerned.
+                    //  We can't tell here which scenario unless ( todo: ) we make a represntative call to Modern to see if
+                    //  it doesn't fail. So we just continue to set the cookie and let the client figure things out.
+                }
+                catch (Exception)
+                {
+                    // Note 2 of 2:  there is an unhappy path that leads here.  If the cookies we have got represent a 
+                    //  failed CMS login or a no longer recognised CMS Classic session then the attempt to get the Modern
+                    //  token will throw.  In this case just redirect back to the client, no point even setting the cookie.
+
+                    // todo: be more granular and only catch an auth exception. Although if we are going to blow up
+                    //  here if other than an auth fail, we may need btter UX or messaging.
+                    return new RedirectResult(returnUrl);
+                }
+
+                AppendPolarisAuthCookie(req, whitelistedCookies, cmsModernToken);
 
                 return new RedirectResult(returnUrl);
             }
+
+
             catch (Exception exception)
             {
                 return exception switch
