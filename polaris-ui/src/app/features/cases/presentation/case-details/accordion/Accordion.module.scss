@@ -9,6 +9,18 @@
   font-size: 16px;
   color: #005ea5;
   cursor: pointer;
+  padding: 14px 10px 12px 10px;
+  margin-bottom: 4px;
+  &:focus {
+    outline: 3px solid rgba(0, 0, 0, 0);
+    color: #0b0c0c;
+    background-color: #fd0;
+    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    text-decoration: none;
+  }
+  &:hover:not(:active):not(:focus) {
+    background-color: #f8f8f8;
+  }
 }
 
 .accordion .accordion-section[aria-expanded="false"] .accordion-section-body {
@@ -39,27 +51,39 @@
 }
 
 .accordion .accordion-section-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background: transparent;
+  border-width: 0;
+  font-size: 16px;
+  width: 100%;
+  color: #005ea5;
   cursor: pointer;
   position: relative;
-  padding-top: 14px;
-  padding-bottom: 12px;
+  padding: 14px 5px 12px 0;
+
+  align-items: center;
+  &:focus {
+    outline: 3px solid rgba(0, 0, 0, 0);
+    color: #0b0c0c;
+    background-color: #fd0;
+    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    text-decoration: none;
+  }
+  &:hover:not(:active):not(:focus) {
+    background-color: #f8f8f8;
+  }
 }
 
 .accordion .accordion-section-header h2 {
-  color: #005ea5;
-}
-
-.accordion .accordion-section-header:hover {
-  background-color: #f8f8f8;
+  color: inherit;
 }
 
 .accordion .icon {
-  position: absolute;
-  top: 50%;
   right: 15px;
   height: 16px;
   width: 16px;
-  margin-top: -8px;
   /* Note: you may have to update these URL paths */
   /* PNG fallback for SVG */
   background-image: url("icon-plus-minus.png");
@@ -78,6 +102,9 @@
   background-position: 0 0;
 }
 
+.accordion .accordion-section-document {
+  padding-top: 10px;
+}
 .accordion .accordion-section-no-document {
   padding: 10px 0;
 }

@@ -1,14 +1,14 @@
   <svg viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
       <path
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="3"
         fill="none"
-        d="M4.25,4.25,20.75,20.75"
+        d="M7.25,7.25,17.75,17.75"
       ></path>
       <path
-        stroke="currentColor"
-        strokeWidth="2"
+    stroke="currentColor"
+        strokeWidth="3"
         fill="none"
-        d="M4.25,20.75,20.75,4.25"
+        d="M7.25,17.75,17.75,7.25"
       ></path>
     </svg>
