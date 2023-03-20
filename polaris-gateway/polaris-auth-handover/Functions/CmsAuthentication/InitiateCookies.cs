@@ -1,4 +1,6 @@
+using System.Net;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Logging;
@@ -16,6 +18,15 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
     public class InitiateCookies : BaseFunction
     {
+        private static string[] WhitelistedCookieNameRoots = new[] {
+          "ASP.NET_SessionId",
+          "UID",
+          "WindowID",
+          "CMSUSER", // the cookie name itself is not fixed e.g. CMSUSER246814=foo
+          ".CMSAUTH",
+          "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
+        };
+
         private readonly ILogger<InitiateCookies> _logger;
         private readonly ICmsModernTokenService _cmsModernTokenService;
 
@@ -48,8 +59,9 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 }
 
                 var cookiesString = Uri.UnescapeDataString(req.Query[CmsAuthConstants.CookieQueryParamName]);
-                // cookiesString could be legitimatly empty, but only do more work if it cookie have been passed
-                if (!string.IsNullOrWhiteSpace(cookiesString))
+                var santizedCookieString = santizeCookieString(cookiesString);
+                // cookies as passed in the query could be legitimately empty, but only do more work if they have been passed                
+                if (santizedCookieString != null)
                 {
                     var cmsToken = await GetCmsModernToken(cookiesString, currentCorrelationId, loggingName);
                     AppendPolarisAuthCookie(req, cookiesString, cmsToken);
@@ -74,13 +86,6 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId, string loggingName)
         {
-            if (string.IsNullOrWhiteSpace(cmsCookiesString))
-            {
-                //  initial idea: if we do not have cookies, lets just return to the UI and let it deal with what it does next
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Not obtaining Cms Modern token as cookies not found");
-                return string.Empty;
-            }
-
             _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Obtaining Cms Modern token");
             var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CmsCaseDataArg
             {
@@ -90,6 +95,19 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
             _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cms Modern token found");
             return cmsToken;
+        }
+
+        private string santizeCookieString(string cookieString)
+        {
+            if (string.IsNullOrWhiteSpace(cookieString))
+            {
+                return null;
+            }
+
+            return cookieString
+                    .Split(" ")
+                    .Where(cookie => WhitelistedCookieNameRoots.Any(whitelistedCookieNameRoot => cookie.StartsWith(whitelistedCookieNameRoot)))
+                    .Aggregate((curr, next) => $"{curr} {next}");
         }
 
         private void AppendPolarisAuthCookie(HttpRequest req, string cmsCookiesString, string cmsToken)
