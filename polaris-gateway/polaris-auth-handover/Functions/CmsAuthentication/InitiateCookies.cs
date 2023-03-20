@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Logging;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using PolarisDomain.Functions;
 using PolarisGateway;
 
@@ -42,16 +40,20 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             {
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
-                var returnUrl = WebUtility.UrlDecode(req.Query[CmsAuthConstants.PolarisUiQueryParamName]);
+                var returnUrl = Uri.UnescapeDataString(req.Query[CmsAuthConstants.PolarisUiQueryParamName]);
+                // returnUrl is mandatory to the flow, if not here then we are being misused
                 if (string.IsNullOrWhiteSpace(returnUrl))
                 {
                     throw new ArgumentNullException(CmsAuthConstants.PolarisUiQueryParamName);
                 }
 
-                var cookiesString = WebUtility.UrlDecode(req.Query[CmsAuthConstants.CookieQueryParamName]);
-                var cmsToken = await GetCmsModernToken(cookiesString, currentCorrelationId, loggingName);
-
-                AppendAuthCookies(req, cookiesString, cmsToken);
+                var cookiesString = Uri.UnescapeDataString(req.Query[CmsAuthConstants.CookieQueryParamName]);
+                // cookiesString could be legitimatly empty, but only do more work if it cookie have been passed
+                if (!string.IsNullOrWhiteSpace(cookiesString))
+                {
+                    var cmsToken = await GetCmsModernToken(cookiesString, currentCorrelationId, loggingName);
+                    AppendPolarisAuthCookie(req, cookiesString, cmsToken);
+                }
 
                 return new RedirectResult(returnUrl);
             }
@@ -83,14 +85,14 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CmsCaseDataArg
             {
                 CorrelationId = currentCorrelationId,
-                CmsAuthValues = Uri.EscapeDataString($"{{Cookies: \"{cmsCookiesString}\"}}")
+                CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}"
             });
 
             _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cms Modern token found");
             return cmsToken;
         }
 
-        private void AppendAuthCookies(HttpRequest req, string cmsCookiesString, string cmsToken)
+        private void AppendPolarisAuthCookie(HttpRequest req, string cmsCookiesString, string cmsToken)
         {
             var cookiesString = $"{{Cookies: \"{cmsCookiesString}\", Token: \"{cmsToken}\"}}";
 
@@ -108,7 +110,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 HttpOnly = true,
             };
 
-            req.HttpContext.Response.Cookies.Append(HeaderNames.SetCookie, cookiesString, cookieOptions);
+            req.HttpContext.Response.Cookies.Append(HttpHeaderKeys.CmsAuthValues, cookiesString, cookieOptions);
         }
     }
 }
