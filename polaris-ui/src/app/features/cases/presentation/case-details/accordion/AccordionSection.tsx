@@ -38,20 +38,13 @@ export const AccordionSection: React.FC<Props> = ({
       aria-expanded={isOpen}
       data-testid={`${formatTestIdText(sectionId)}`}
     >
-      <div
+      <button
         className={`${classes["accordion-section-header"]}`}
-        role="button"
-        tabIndex={0}
         onClick={() => handleToggleOpenSection(sectionId)}
-        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-          if (e.code === "Enter") {
-            handleToggleOpenSection(sectionId);
-          }
-        }}
       >
         <h2 className="govuk-heading-s">{sectionLabel}</h2>
         <span className={`${classes["icon"]}`}></span>
-      </div>
+      </button>
       <div className={`${classes["accordion-section-body"]}`}>
         {!!documentsWithLimitedView().length && (
           <span data-testid={`view-warning-${formatTestIdText(sectionId)}`}>
@@ -59,9 +52,11 @@ export const AccordionSection: React.FC<Props> = ({
           </span>
         )}
 
-        <div className={`${classes["accordion-section-no-document"]}`}>
+        <div className={`${classes["accordion-section-document"]}`}>
           {!docs.length ? (
-            <div> No Documents</div>
+            <div className={`${classes["accordion-section-no-document"]}`}>
+              No Documents
+            </div>
           ) : (
             <div>
               <span className={`${classes["accordion-document-date-title"]}`}>

@@ -1,4 +1,5 @@
 .linkButton {
+  margin: 2px;
   display: inline;
   background: transparent;
   border-width: 0;
@@ -7,4 +8,19 @@
   font-size: 1.187rem;
   width: fit-content;
   color: #1d70b8;
+
+  &:focus {
+    margin: 0;
+    border: 2px solid;
+    border-color: #ffdd00;
+    outline: 3px solid transparent;
+    box-shadow: inset 0 0 0 1px #ffdd00;
+  }
+
+  &:focus:not(:active):not(:hover) {
+    border-color: #ffdd00;
+    color: #0b0c0c;
+    background-color: #ffdd00;
+    box-shadow: 0 2px 0 #0b0c0c;
+  }
 }
