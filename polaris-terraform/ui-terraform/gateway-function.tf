@@ -45,7 +45,11 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     http2_enabled  = true
     ip_restriction = []
     cors {
-      allowed_origins     = ["https://as-web-${local.resource_name}.azurewebsites.net", var.env == "dev" ? "http://localhost:3000" : ""]
+      allowed_origins     = [
+        "https://as-web-${local.resource_name}.azurewebsites.net", 
+        "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net", 
+        var.env == "dev" ? "http://localhost:3000" : ""
+      ]
       support_credentials = true
     }
     vnet_route_all_enabled           = true
