@@ -72,7 +72,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 return exception switch
                 {
                     ArgumentNullException => BadRequestErrorResponse(exception.Message, currentCorrelationId, loggingName),
-                    _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
+                    _ => HandleUnhandledException(exception, currentCorrelationId, loggingName)
                 };
             }
         }
