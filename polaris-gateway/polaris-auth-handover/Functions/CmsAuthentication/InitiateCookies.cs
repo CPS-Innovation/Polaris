@@ -49,22 +49,20 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
             try
             {
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
-
-                var returnUrl = Uri.UnescapeDataString(req.Query[CmsAuthConstants.PolarisUiQueryParamName]);
+                var returnUrl = req.Query[CmsAuthConstants.PolarisUiQueryParamName];
                 // returnUrl is mandatory to the flow, if not here then we are being misused
                 if (string.IsNullOrWhiteSpace(returnUrl))
                 {
                     throw new ArgumentNullException(CmsAuthConstants.PolarisUiQueryParamName);
                 }
 
-                var cookiesString = Uri.UnescapeDataString(req.Query[CmsAuthConstants.CookieQueryParamName]);
-                var santizedCookieString = santizeCookieString(cookiesString);
+                var cookiesString = req.Query[CmsAuthConstants.CookieQueryParamName];
+                var whitelistedCookies = WhitelistCookies(cookiesString);
                 // cookies as passed in the query could be legitimately empty, but only do more work if they have been passed                
-                if (santizedCookieString != null)
+                if (!string.IsNullOrWhiteSpace(whitelistedCookies))
                 {
-                    var cmsToken = await GetCmsModernToken(cookiesString, currentCorrelationId, loggingName);
-                    AppendPolarisAuthCookie(req, cookiesString, cmsToken);
+                    var cmsToken = await GetCmsModernToken(whitelistedCookies, currentCorrelationId, loggingName);
+                    AppendPolarisAuthCookie(req, whitelistedCookies, cmsToken);
                 }
 
                 return new RedirectResult(returnUrl);
@@ -77,31 +75,24 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }
-            finally
-            {
-                // todo: should we be logging the incoming info (security?)
-                _logger.LogMethodExit(currentCorrelationId, loggingName, req.QueryString.Value);
-            }
         }
 
         private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId, string loggingName)
         {
-            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Obtaining Cms Modern token");
             var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CmsCaseDataArg
             {
                 CorrelationId = currentCorrelationId,
                 CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}"
             });
 
-            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Cms Modern token found");
             return cmsToken;
         }
 
-        private string santizeCookieString(string cookieString)
+        private string WhitelistCookies(string cookieString)
         {
             if (string.IsNullOrWhiteSpace(cookieString))
             {
-                return null;
+                return cookieString;
             }
 
             return cookieString
