@@ -52,9 +52,11 @@ export const AccordionSection: React.FC<Props> = ({
           </span>
         )}
 
-        <div className={`${classes["accordion-section-no-document"]}`}>
+        <div className={`${classes["accordion-section-document"]}`}>
           {!docs.length ? (
-            <div> No Documents</div>
+            <div className={`${classes["accordion-section-no-document"]}`}>
+              No Documents
+            </div>
           ) : (
             <div>
               <span className={`${classes["accordion-document-date-title"]}`}>
