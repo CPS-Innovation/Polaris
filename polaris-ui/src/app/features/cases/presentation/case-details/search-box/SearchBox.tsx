@@ -23,6 +23,7 @@ export const SearchBox: React.FC<Props> = ({
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       handleSubmit();
+      event.preventDefault();
     }
   };
 
