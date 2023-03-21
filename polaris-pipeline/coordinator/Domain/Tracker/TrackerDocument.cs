@@ -1,5 +1,5 @@
 ﻿using Common.Domain.DocumentExtraction;
-using coordinator.Domain.Tracker.PresentationStatus;
+using coordinator.Domain.Tracker.Presentation;
 using Common.Domain.Pipeline;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -13,20 +13,30 @@ namespace coordinator.Domain.Tracker
         public TrackerDocument()
         {
             CmsDocType = new CmsDocType();
-            PresentationStatuses = new PresentationStatuses();
+            PresentationFlags = new PresentationFlags();
         }
 
-        public TrackerDocument(Guid polarisDocumentId, string cmsDocumentId, long cmsVersionId, CmsDocType cmsDocType, string cmsMimeType, string cmsFileCreatedDate, string cmsOriginalFileName)
+        public TrackerDocument(
+            Guid polarisDocumentId,
+            string cmsDocumentId,
+            long cmsVersionId,
+            CmsDocType cmsDocType,
+            string cmsMimeType,
+            string cmsFileExtension,
+            string cmsFileCreatedDate,
+            string cmsOriginalFileName,
+            PresentationFlags presentationFlags)
         {
             PolarisDocumentId = polarisDocumentId;
             CmsDocumentId = cmsDocumentId;
             CmsVersionId = cmsVersionId;
             CmsDocType = cmsDocType;
             CmsMimeType = cmsMimeType;
+            CmsFileExtension = cmsFileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
             Status = DocumentStatus.None;
-            PresentationStatuses = new PresentationStatuses();
+            PresentationFlags = presentationFlags;
         }
 
         [JsonProperty("polarisDocumentId")]
@@ -43,6 +53,9 @@ namespace coordinator.Domain.Tracker
 
         [JsonProperty("cmsMimeType")]
         public string CmsMimeType { get; set; }
+
+        [JsonProperty("cmsDocumentExtension")]
+        public string CmsFileExtension { get; set; }
 
         [JsonProperty("cmsDocumentExtension")]
         public string CmsDocumentExtension { get; set; }
@@ -64,6 +77,6 @@ namespace coordinator.Domain.Tracker
         public DocumentStatus Status { get; set; }
 
         [JsonProperty("presentationStatuses")]
-        public PresentationStatuses PresentationStatuses { get; set; }
+        public PresentationFlags PresentationFlags { get; set; }
     }
 }

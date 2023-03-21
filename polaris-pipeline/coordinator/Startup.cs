@@ -97,6 +97,10 @@ namespace coordinator
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
             builder.Services.AddTransient<IDocumentToggleService, DocumentToggleService>();
 
+            builder.Services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
+
             BuildHealthChecks(builder);
         }
 
