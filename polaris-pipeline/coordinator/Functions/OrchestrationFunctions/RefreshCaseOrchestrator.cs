@@ -12,31 +12,30 @@ using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions;
-using coordinator.Functions.SubOrchestrators;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions
+namespace coordinator.Functions.OrchestrationFunctions
 {
-    public class CoordinatorOrchestrator
+    public class RefreshCaseOrchestrator
     {
-        private readonly ILogger<CoordinatorOrchestrator> _log;
+        private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
 
-        const string loggingName = $"{nameof(CoordinatorOrchestrator)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(RefreshCaseOrchestrator)} - {nameof(Run)}";
 
-        public CoordinatorOrchestrator(ILogger<CoordinatorOrchestrator> log, IConfiguration configuration)
+        public RefreshCaseOrchestrator(ILogger<RefreshCaseOrchestrator> log, IConfiguration configuration)
         {
             _log = log;
             _configuration = configuration;
         }
 
-        [FunctionName("CoordinatorOrchestrator")]
+        [FunctionName(nameof(RefreshCaseOrchestrator))]
         public async Task<List<TrackerDocument>> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var payload = context.GetInput<CoordinatorOrchestrationPayload>();
+            var payload = context.GetInput<CaseOrchestrationPayload>();
             if (payload == null)
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
@@ -53,7 +52,7 @@ namespace coordinator.Functions
 
                 using var cts = new CancellationTokenSource();
                 log.LogMethodFlow(payload.CorrelationId, loggingName, $"Run main orchestration for case {currentCaseId}");
-                var orchestratorTask = RunOrchestrator(context, tracker, payload);
+                var orchestratorTask = RunCaseOrchestrator(context, tracker, payload);
                 var timeoutTask = context.CreateTimer(deadline, cts.Token);
 
                 var result = await Task.WhenAny(orchestratorTask, timeoutTask);
@@ -71,7 +70,7 @@ namespace coordinator.Functions
             {
                 log.LogMethodFlow(payload.CorrelationId, loggingName, "Registering Failure in the tracker");
                 await tracker.RegisterFailed();
-                log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(CoordinatorOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
+                log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }
             finally
@@ -80,9 +79,9 @@ namespace coordinator.Functions
             }
         }
 
-        private async Task<List<TrackerDocument>> RunOrchestrator(IDurableOrchestrationContext context, ITracker tracker, CoordinatorOrchestrationPayload payload)
+        private async Task<List<TrackerDocument>> RunCaseOrchestrator(IDurableOrchestrationContext context, ITracker tracker, CaseOrchestrationPayload payload)
         {
-            const string loggingName = nameof(RunOrchestrator);
+            const string loggingName = nameof(RunCaseOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
@@ -106,32 +105,32 @@ namespace coordinator.Functions
             var trackerDocuments = await tracker.GetDocuments();
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Now process each document for case {payload.CmsCaseId}");
-            var caseDocumentTasks 
+            var caseDocumentTasks
                 = trackerDocuments.Select
                     (
                         t => context.CallSubOrchestratorAsync
                                 (
-                                    nameof(CaseDocumentOrchestrator),
+                                    nameof(RefreshDocumentOrchestrator),
                                     new CaseDocumentOrchestrationPayload
                                     (
                                         t.PolarisDocumentId,
-                                        payload.CmsCaseUrn, 
-                                        payload.CmsCaseId, 
-                                        t.CmsDocType.DocumentCategory, 
+                                        payload.CmsCaseUrn,
+                                        payload.CmsCaseId,
+                                        t.CmsDocType.DocumentCategory,
                                         t.CmsDocumentId,
                                         t.CmsVersionId,
-                                        t.CmsOriginalFileName, 
-                                        payload.CmsAuthValues, 
+                                        t.CmsOriginalFileName,
+                                        payload.CmsAuthValues,
                                         payload.CorrelationId
                                     )
                                 )
-                    ) 
+                    )
                 .ToList();
 
             await Task.WhenAll(caseDocumentTasks.Select(BufferCall));
 
             if (await tracker.AllDocumentsFailed())
-                throw new CoordinatorOrchestrationException("All documents failed to process during orchestration.");
+                throw new CaseOrchestrationException("All documents failed to process during orchestration.");
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"All documents processed successfully for case {payload.CmsCaseId}");
             await tracker.RegisterCompleted();
@@ -156,7 +155,7 @@ namespace coordinator.Functions
 
         private ITracker CreateTracker(IDurableOrchestrationContext context, string caseUrn, long caseId, Guid correlationId, ILogger safeLoggerInstance)
         {
-            safeLoggerInstance.LogMethodEntry(correlationId, nameof(CreateTracker), $"CaseUrn: {caseUrn}, CaseId: {caseId.ToString()}");
+            safeLoggerInstance.LogMethodEntry(correlationId, nameof(CreateTracker), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
 
             var entityId = new EntityId(nameof(Tracker), caseId.ToString());
             var result = context.CreateEntityProxy<ITracker>(entityId);
@@ -166,17 +165,13 @@ namespace coordinator.Functions
         }
 
         private async Task<CmsCaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
-            CoordinatorOrchestrationPayload payload)
+            CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CmsCaseId}");
             var documents = await context.CallActivityAsync<CmsCaseDocument[]>(
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId));
 
-            if (documents.Length != 0) return documents;
-
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"No documents found, register this in the tracker for case {payload.CmsCaseId}");
-            await tracker.RegisterNoDocumentsFoundInDDEI();
             return documents;
         }
 
@@ -191,8 +186,8 @@ namespace coordinator.Functions
                                                          versionId: item.VersionId,
                                                          originalFileName: item.FileName,
                                                          mimeType: item.MimeType,
-                                                         cmsDocType : item.CmsDocType,
-                                                         createdDate : item.DocumentDate
+                                                         cmsDocType: item.CmsDocType,
+                                                         createdDate: item.DocumentDate
                                                          )
                            )
                     .ToList();

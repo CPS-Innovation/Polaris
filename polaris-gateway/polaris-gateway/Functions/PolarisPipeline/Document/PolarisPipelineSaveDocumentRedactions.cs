@@ -17,21 +17,21 @@ using Common.Mappers.Contracts;
 using Gateway.Common.Extensions;
 using PolarisGateway.Wrappers;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
-    public class PolarisPipelineSaveRedactions : BasePolarisFunction
+    public class PolarisPipelineSaveDocumentRedactions : BasePolarisFunction
     {
         private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineSaveRedactions> _logger;
+        private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
 
-        const string loggingName = $"{nameof(PolarisPipelineSaveRedactions)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(PolarisPipelineSaveDocumentRedactions)} - {nameof(Run)}";
 
-        public PolarisPipelineSaveRedactions
+        public PolarisPipelineSaveDocumentRedactions
             (
-                IRedactPdfRequestMapper redactPdfRequestMapper, 
-                IPipelineClient pipelineClient, 
-                ILogger<PolarisPipelineSaveRedactions> logger, 
+                IRedactPdfRequestMapper redactPdfRequestMapper,
+                IPipelineClient pipelineClient,
+                ILogger<PolarisPipelineSaveDocumentRedactions> logger,
                 IAuthorizationValidator tokenValidator,
                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper
             )
@@ -43,7 +43,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [FunctionName(nameof(PolarisPipelineSaveRedactions))]
+        [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, Guid documentId)
         {
             Guid currentCorrelationId = default;

@@ -14,22 +14,22 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.SubOrchestrators
+namespace coordinator.Functions.OrchestrationFunctions
 {
-    public class CaseDocumentOrchestrator
+    public class RefreshDocumentOrchestrator : PolarisOrchestrator
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly ILogger<CaseDocumentOrchestrator> _log;
+        private readonly ILogger<RefreshDocumentOrchestrator> _log;
 
-        const string loggingName = $"{nameof(CaseDocumentOrchestrator)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(RefreshDocumentOrchestrator)} - {nameof(Run)}";
 
-        public CaseDocumentOrchestrator(IJsonConvertWrapper jsonConvertWrapper, ILogger<CaseDocumentOrchestrator> log)
+        public RefreshDocumentOrchestrator(IJsonConvertWrapper jsonConvertWrapper, ILogger<RefreshDocumentOrchestrator> log)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _log = log;
         }
 
-        [FunctionName(nameof(CaseDocumentOrchestrator))]
+        [FunctionName(nameof(RefreshDocumentOrchestrator))]
         public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
@@ -81,8 +81,8 @@ namespace coordinator.Functions.SubOrchestrators
             {
                 await tracker.RegisterUnexpectedPdfDocumentFailure(payload.CmsDocumentId);
 
-                log.LogMethodError(payload.CorrelationId, nameof(CaseDocumentOrchestrator),
-                    $"Error when running {nameof(CaseDocumentOrchestrator)} orchestration: {exception.Message}",
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator),
+                    $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}",
                     exception);
 
                 throw;
@@ -106,9 +106,8 @@ namespace coordinator.Functions.SubOrchestrators
             {
                 case HttpStatusCode.OK:
                     return _jsonConvertWrapper.DeserializeObject<GeneratePdfResponse>(response.Content);
+
                 case HttpStatusCode.NotFound:
-                    await tracker.RegisterDocumentNotFoundInDDEI(payload.CmsDocumentId);
-                    break;
                 case HttpStatusCode.NotImplemented:
                     await tracker.RegisterUnableToConvertDocumentToPdf(payload.CmsDocumentId);
                     break;
@@ -130,7 +129,7 @@ namespace coordinator.Functions.SubOrchestrators
             {
                 await tracker.RegisterOcrAndIndexFailure(payload.CmsDocumentId);
 
-                log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(CaseDocumentOrchestrator)} orchestration: {exception.Message}", exception);
+                log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;
             }
             finally
@@ -148,12 +147,12 @@ namespace coordinator.Functions.SubOrchestrators
                     nameof(CreateTextExtractorHttpRequest),
                     new TextExtractorHttpRequestActivityPayload
                     (
-                        payload.PolarisDocumentId, 
-                        payload.CmsCaseUrn, 
-                        payload.CmsCaseId, 
-                        payload.CmsDocumentId, 
-                        payload.CmsVersionId, 
-                        blobName, 
+                        payload.PolarisDocumentId,
+                        payload.CmsCaseUrn,
+                        payload.CmsCaseId,
+                        payload.CmsDocumentId,
+                        payload.CmsVersionId,
+                        blobName,
                         payload.CorrelationId
                     )
                 );
@@ -161,18 +160,8 @@ namespace coordinator.Functions.SubOrchestrators
 
             if (response.StatusCode != HttpStatusCode.OK)
                 throw new HttpRequestException($"Failed to ocr/index document with id '{payload.CmsDocumentId}'. Status code: {response.StatusCode}. CorrelationId: {payload.CorrelationId}");
-            
+
             log.LogMethodExit(payload.CorrelationId, nameof(CallTextExtractorHttpAsync), string.Empty);
-        }
-
-        private ITracker GetTracker(IDurableOrchestrationContext context, long caseId, Guid correlationId, ILogger log)
-        {
-            log.LogMethodEntry(correlationId, nameof(GetTracker), $"CaseId: {caseId.ToString()}");
-
-            var entityId = new EntityId(nameof(Tracker), caseId.ToString());
-
-            log.LogMethodExit(correlationId, nameof(GetTracker), string.Empty);
-            return context.CreateEntityProxy<ITracker>(entityId);
         }
     }
 }

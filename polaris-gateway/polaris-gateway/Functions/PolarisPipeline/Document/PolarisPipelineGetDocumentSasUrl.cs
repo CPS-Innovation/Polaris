@@ -12,7 +12,7 @@ using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
     public class PolarisPipelineGetDocumentSasUrl : BasePolarisFunction
     {
@@ -20,7 +20,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly ILogger<PolarisPipelineGetDocumentSasUrl> _logger;
 
         const string loggingName = $"{nameof(PolarisPipelineGetDocumentSasUrl)} - {nameof(Run)}";
-
 
         public PolarisPipelineGetDocumentSasUrl(IAuthorizationValidator tokenValidator,
                                                 ILogger<PolarisPipelineGetDocumentSasUrl> logger,
@@ -42,7 +41,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
-                
+
                 currentCorrelationId = request.CurrentCorrelationId;
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 

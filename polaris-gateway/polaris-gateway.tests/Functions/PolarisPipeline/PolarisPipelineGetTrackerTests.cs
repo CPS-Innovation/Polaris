@@ -12,7 +12,7 @@ using Moq;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Domain.Validators;
-using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Functions.PolarisPipeline.Case;
 using PolarisGateway.Wrappers;
 using Xunit;
 
@@ -29,7 +29,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
-        private readonly PolarisPipelineGetTracker _polarisPipelineGetTracker;
+        private readonly PolarisPipelineGetCaseTracker _polarisPipelineGetTracker;
 
         public PolarisPipelineGetTrackerTests()
         {
@@ -39,7 +39,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _tracker = fixture.Create<Tracker>();
             fixture.Create<Guid>();
 
-            var mockLogger = new Mock<ILogger<PolarisPipelineGetTracker>>();
+            var mockLogger = new Mock<ILogger<PolarisPipelineGetCaseTracker>>();
             _mockPipelineClient = new Mock<IPipelineClient>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
@@ -50,7 +50,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
 
-            _polarisPipelineGetTracker = new PolarisPipelineGetTracker(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
+            _polarisPipelineGetTracker = new PolarisPipelineGetCaseTracker(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]

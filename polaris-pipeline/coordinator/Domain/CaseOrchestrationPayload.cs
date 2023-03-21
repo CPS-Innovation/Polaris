@@ -2,9 +2,9 @@ using System;
 
 namespace coordinator.Domain
 {
-    public class CoordinatorOrchestrationPayload : BasePipelinePayload
+    public class CaseOrchestrationPayload : BasePipelinePayload
     {
-        public CoordinatorOrchestrationPayload(string cmsCaseUrn, long cmsCaseId, bool forceRefresh, string cmsAuthValues, Guid correlationId)
+        public CaseOrchestrationPayload(string cmsCaseUrn, long cmsCaseId, string cmsAuthValues, Guid correlationId, bool forceRefresh=true)
             : base(default, cmsCaseUrn, cmsCaseId, correlationId)
         {
             ForceRefresh = forceRefresh;

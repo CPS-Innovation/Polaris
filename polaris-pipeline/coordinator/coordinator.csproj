@@ -48,9 +48,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Functions\SubOrchestrators\" />
     <Folder Include="Factories\" />
-    <Folder Include="Domain\Exceptions\" />
     <Folder Include="Functions\ActivityFunctions\" />
   </ItemGroup>
   <ItemGroup>

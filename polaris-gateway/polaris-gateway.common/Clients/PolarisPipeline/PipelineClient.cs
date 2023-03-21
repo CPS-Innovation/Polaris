@@ -39,13 +39,29 @@ namespace Gateway.Clients.PolarisPipeline
             _logger = logger;
         }
 
-        public async Task TriggerCoordinatorAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId)
+        public async Task<IActionResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(TriggerCoordinatorAsync), $"CaseId: {caseId}, Force?: {force}");
+            _logger.LogMethodEntry(correlationId, nameof(RefreshCaseAsync), $"CaseId: {caseId}, Force?: {force}");
+
             var forceQuery = force ? "&&force=true" : string.Empty;
-            _logger.LogMethodExit(correlationId, nameof(TriggerCoordinatorAsync), string.Empty);
             var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}{forceQuery}";
-            await SendRequestAsync(HttpMethod.Get, url, cmsAuthValues, correlationId);
+            await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
+
+            _logger.LogMethodExit(correlationId, nameof(RefreshCaseAsync), string.Empty);
+
+            return new OkResult();
+        }
+
+        public async Task<IActionResult> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"CaseId: {caseId}");
+
+            var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
+
+            _logger.LogMethodExit(correlationId, nameof(DeleteCaseAsync), string.Empty);
+
+            return new OkResult();
         }
 
         public async Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
@@ -225,19 +241,6 @@ namespace Gateway.Clients.PolarisPipeline
             _logger.LogMethodExit(correlationId, nameof(SendRequestAsync), string.Empty);
             return response;
         }
-
-        /*private async Task<HttpResponseMessage> SendAuthenticatedGetRequestAsync(string requestUri, string cmsAuthValues, Guid correlationId)
-        {
-            _logger.LogMethodEntry(correlationId, nameof(SendAuthenticatedGetRequestAsync), requestUri);
-
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Get, requestUri, correlationId, cmsAuthValues);
-            var response = await _httpClient.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-
-            _logger.LogMethodExit(correlationId, nameof(SendAuthenticatedGetRequestAsync), string.Empty);
-            return response;
-        }*/
     }
 }
 

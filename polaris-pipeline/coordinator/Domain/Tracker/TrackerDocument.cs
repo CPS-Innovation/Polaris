@@ -1,5 +1,6 @@
 ﻿using Common.Domain.DocumentExtraction;
 using coordinator.Domain.Tracker.PresentationStatus;
+using Common.Domain.Pipeline;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;

@@ -12,7 +12,7 @@ using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Common.Configuration;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
     public class PolarisPipelineGetDocument : BasePolarisFunction
     {
@@ -20,7 +20,6 @@ namespace PolarisGateway.Functions.PolarisPipeline
         private readonly ILogger<PolarisPipelineGetDocument> _logger;
 
         const string loggingName = $"{nameof(PolarisPipelineGetDocument)} - ${nameof(Run)}";
-
 
         public PolarisPipelineGetDocument(IPipelineClient pipelineClient,
                                           ILogger<PolarisPipelineGetDocument> logger,

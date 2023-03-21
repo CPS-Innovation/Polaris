@@ -7,14 +7,13 @@
         RegisteredPdfBlobName,
         DocumentAlreadyProcessed,
         UnableToConvertDocumentToPdf,
-        DocumentNotFoundInDDEI,
         DocumentRetrieved,
         UnexpectedDocumentFailure,
-        NoDocumentsFoundInDDEI,
         Indexed,
         OcrAndIndexFailure,
         Completed,
         Failed, 
-        ProcessedEvaluatedDocuments
+        ProcessedEvaluatedDocuments,
+        Deleted
     }
 }

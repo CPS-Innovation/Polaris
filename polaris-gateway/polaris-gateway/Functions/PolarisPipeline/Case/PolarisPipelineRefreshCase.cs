@@ -14,18 +14,17 @@ using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Case
 {
-    public class PolarisPipelineTriggerCoordinator : BasePolarisFunction
+    public class PolarisPipelineRefreshCase : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
         private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
-        private readonly ILogger<PolarisPipelineTriggerCoordinator> _logger;
+        private readonly ILogger<PolarisPipelineRefreshCase> _logger;
 
-        const string loggingName = $"{nameof(PolarisPipelineTriggerCoordinator)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(PolarisPipelineRefreshCase)} - {nameof(Run)}";
 
-
-        public PolarisPipelineTriggerCoordinator(ILogger<PolarisPipelineTriggerCoordinator> logger,
+        public PolarisPipelineRefreshCase(ILogger<PolarisPipelineRefreshCase> logger,
                                                  IPipelineClient pipelineClient,
                                                  ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
                                                  IAuthorizationValidator tokenValidator,
@@ -37,7 +36,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
-        [FunctionName(nameof(PolarisPipelineTriggerCoordinator))]
+        [FunctionName(nameof(PolarisPipelineRefreshCase))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
@@ -58,8 +57,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (req.Query.ContainsKey("force") && !bool.TryParse(req.Query["force"], out force))
                     return BadRequestErrorResponse("Invalid query string. Force value must be a boolean.", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Triggering the pipeline for caseId: {caseId}, forceRefresh: {force}");
-                await _pipelineClient.TriggerCoordinatorAsync(caseUrn, caseId, request.CmsAuthValues, force, currentCorrelationId);
+                await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, request.CmsAuthValues, force, currentCorrelationId);
 
                 return new OkObjectResult(_triggerCoordinatorResponseFactory.Create(req, currentCorrelationId));
             }

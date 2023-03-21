@@ -9,12 +9,12 @@ namespace PolarisGateway.Domain.PolarisPipeline
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-        [JsonProperty("documents")]
-        public List<TrackerDocument> Documents { get; set; }
-
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public TrackerStatus Status { get; set; }
+
+        [JsonProperty("documents")]
+        public List<TrackerDocument> Documents { get; set; }
 
         [JsonProperty("logs")]
         public List<Log> Logs { get; set; }

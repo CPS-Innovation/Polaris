@@ -5,20 +5,21 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
+using coordinator.Domain.Tracker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Case
 {
-    public class TrackerStatus
+    public class GetTrackerStatus
     {
-        const string loggingName = $"{nameof(TrackerStatus)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(GetTrackerStatus)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        [FunctionName(nameof(TrackerStatus))]
+        [FunctionName(nameof(GetTrackerStatus))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,
@@ -48,7 +49,7 @@ namespace coordinator.Functions.ClientFunctions
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
 
                 var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-                var stateResponse = await client.ReadEntityStateAsync<Domain.Tracker.Tracker>(entityId);
+                var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
                 if (!stateResponse.EntityExists)
                 {
                     var baseMessage = $"No pipeline tracker found with id '{caseId}'";

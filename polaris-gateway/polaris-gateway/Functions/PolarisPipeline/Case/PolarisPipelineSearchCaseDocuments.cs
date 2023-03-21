@@ -10,20 +10,18 @@ using Microsoft.Extensions.Logging;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using System;
 using System.Threading.Tasks;
-using PolarisGateway.Domain.Logging;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Wrappers;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Case
 {
-    public class PolarisPipelineQuerySearchIndex : BasePolarisFunction
+    public class PolarisPipelineSearchCaseDocuments : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineQuerySearchIndex> _logger;
+        private readonly ILogger<PolarisPipelineSearchCaseDocuments> _logger;
 
-        const string loggingName = $"{nameof(PolarisPipelineQuerySearchIndex)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(PolarisPipelineSearchCaseDocuments)} - {nameof(Run)}";
 
-        public PolarisPipelineQuerySearchIndex(ILogger<PolarisPipelineQuerySearchIndex> logger,
+        public PolarisPipelineSearchCaseDocuments(ILogger<PolarisPipelineSearchCaseDocuments> logger,
                                                IPipelineClient pipelineClient,
                                                IAuthorizationValidator tokenValidator,
                                                ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
@@ -33,7 +31,7 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
-        [FunctionName(nameof(PolarisPipelineQuerySearchIndex))]
+        [FunctionName(nameof(PolarisPipelineSearchCaseDocuments))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentsSearch)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;

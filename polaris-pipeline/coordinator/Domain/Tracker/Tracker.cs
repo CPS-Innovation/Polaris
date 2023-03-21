@@ -18,28 +18,24 @@ namespace coordinator.Domain.Tracker
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-        [JsonProperty("documents")]
-        public List<TrackerDocument> Documents { get; set; }
-
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public TrackerStatus Status { get; set; }
 
-        [JsonProperty("logs")]
-        public List<Log> Logs { get; set; }
-
         [JsonProperty("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
+
+        [JsonProperty("documents")]
+        public List<TrackerDocument> Documents { get; set; }
+
+        [JsonProperty("logs")]
+        public List<Log> Logs { get; set; }
 
         public Task Initialise(string transactionId)
         {
             TransactionId = transactionId;
 
-            Documents = new List<TrackerDocument>();
-
-            Status = TrackerStatus.Running;
-            Logs = new List<Log>();
-            ProcessingCompleted = null; //reset the processing date
+            ClearState(TrackerStatus.Running);
 
             Log(LogType.Initialised);
 
@@ -100,13 +96,6 @@ namespace coordinator.Domain.Tracker
             return new TrackerDocument(document.PolarisDocumentId, document.DocumentId, document.VersionId, document.CmsDocType, document.MimeType, document.CreatedDate, document.OriginalFileName);
         }
 
-        public Task ProcessEvaluatedDocuments()
-        {
-            Log(LogType.ProcessedEvaluatedDocuments);
-
-            return Task.CompletedTask;
-        }
-
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(arg.DocumentId, StringComparison.OrdinalIgnoreCase));
@@ -136,17 +125,6 @@ namespace coordinator.Domain.Tracker
             return Task.CompletedTask;
         }
 
-        public Task RegisterDocumentNotFoundInDDEI(string documentId)
-        {
-            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
-            if (document != null)
-                document.Status = DocumentStatus.NotFoundInDDEI;
-
-            Log(LogType.DocumentNotFoundInDDEI, documentId);
-
-            return Task.CompletedTask;
-        }
-
         public Task RegisterUnableToConvertDocumentToPdf(string documentId)
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
@@ -165,15 +143,6 @@ namespace coordinator.Domain.Tracker
                 document.Status = DocumentStatus.UnexpectedFailure;
 
             Log(LogType.UnexpectedDocumentFailure, documentId);
-
-            return Task.CompletedTask;
-        }
-
-        public Task RegisterNoDocumentsFoundInDDEI()
-        {
-            Status = TrackerStatus.NoDocumentsFoundInDDEI;
-            Log(LogType.NoDocumentsFoundInDDEI);
-            ProcessingCompleted = DateTime.Now;
 
             return Task.CompletedTask;
         }
@@ -218,6 +187,15 @@ namespace coordinator.Domain.Tracker
             return Task.CompletedTask;
         }
 
+        public Task RegisterDeleted ()
+        {
+            ClearState(TrackerStatus.Deleted);
+            Log(LogType.Deleted);
+            ProcessingCompleted = DateTime.Now;
+
+            return Task.CompletedTask;
+        }
+
         public Task<List<TrackerDocument>> GetDocuments()
         {
             return Task.FromResult(Documents);
@@ -226,13 +204,12 @@ namespace coordinator.Domain.Tracker
         public Task<bool> AllDocumentsFailed()
         {
             return Task.FromResult(
-                Documents.All(d => d.Status is DocumentStatus.NotFoundInDDEI
-                    or DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
+                Documents.All(d => d.Status is DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
         }
 
         public Task<bool> IsAlreadyProcessed()
         {
-            return Task.FromResult(Status is TrackerStatus.Completed or TrackerStatus.NoDocumentsFoundInDDEI);
+            return Task.FromResult(Status is TrackerStatus.Completed);
         }
 
         public Task<bool> IsStale(bool forceRefresh)
@@ -246,6 +223,14 @@ namespace coordinator.Domain.Tracker
             return ProcessingCompleted.HasValue
                 ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date)
                 : Task.FromResult(false);
+        }
+
+        private void ClearState(TrackerStatus status)
+        {
+            Status = status;
+            Documents = new List<TrackerDocument>();
+            Logs = new List<Log>();
+            ProcessingCompleted = null; //reset the processing date
         }
 
         private void Log(LogType status, string cmsDocumentId = null)
