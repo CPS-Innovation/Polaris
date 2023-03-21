@@ -30,7 +30,7 @@ export const AccordionSection: React.FC<Props> = ({
   handleOpenPdf,
 }) => {
   const documentsWithLimitedView = () => {
-    return docs.filter((doc) => doc.presentationStatuses?.viewStatus !== "Ok");
+    return docs.filter((doc) => doc.presentationFlags?.read !== "Ok");
   };
   return (
     <div

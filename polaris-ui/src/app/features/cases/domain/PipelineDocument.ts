@@ -14,9 +14,9 @@ export type PipelineDocumentProperties = {
     | "UnexpectedFailure"
     | "OcrAndIndexFailure";
 };
-export type PresentationStatuses = {
-  viewStatus: "Ok" | "OnlyAvailableInCms";
-  redactStatus:
+export type PresentationFlags = {
+  read: "Ok" | "OnlyAvailableInCms";
+  write:
     | null
     | "Ok"
     | "OnlyAvailableInCms"
@@ -33,7 +33,7 @@ export type PresentationDocumentProperties = {
   cmsDocCategory: CmsDocCategory;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
-  presentationStatuses: PresentationStatuses;
+  presentationFlags: PresentationFlags;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

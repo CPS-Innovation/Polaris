@@ -19,8 +19,7 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   handleOpenPdf,
 }) => {
-  const canViewDocument =
-    caseDocument.presentationStatuses?.viewStatus === "Ok";
+  const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>
       <div className={`${classes["accordion-document-item-wrapper"]}`}>

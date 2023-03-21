@@ -11,7 +11,7 @@ import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
 import { RedactionWarning } from "./RedactionWarning";
-import { PresentationStatuses } from "../../../../../features/cases/domain/PipelineDocument";
+import { PresentationFlags } from "../../../../../features/cases/domain/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
@@ -22,7 +22,7 @@ const SCROLL_TO_OFFSET = 120;
 type Props = {
   url: string;
   headers: HeadersInit;
-  redactStatus: PresentationStatuses["redactStatus"];
+  redactStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;

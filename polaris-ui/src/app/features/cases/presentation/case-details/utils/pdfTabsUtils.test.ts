@@ -33,9 +33,9 @@ describe("getRedactStatus util", () => {
               code: "MG3",
               name: "MG3 File",
             },
-            presentationStatuses: {
-              viewStatus: "OnlyAvailableInCms",
-              redactStatus: "Ok",
+            presentationFlags: {
+              read: "OnlyAvailableInCms",
+              write: "Ok",
             },
           },
           {
@@ -52,9 +52,9 @@ describe("getRedactStatus util", () => {
               code: "MG11",
               name: "MG11 File",
             },
-            presentationStatuses: {
-              viewStatus: "Ok",
-              redactStatus: "DocTypeNotAllowed",
+            presentationFlags: {
+              read: "Ok",
+              write: "DocTypeNotAllowed",
             },
           },
           {
@@ -71,9 +71,9 @@ describe("getRedactStatus util", () => {
               code: "MG11",
               name: "MG11 File",
             },
-            presentationStatuses: {
-              viewStatus: "Ok",
-              redactStatus: null,
+            presentationFlags: {
+              read: "Ok",
+              write: null,
             },
           },
         ],
@@ -106,9 +106,9 @@ describe("getRedactStatus util", () => {
               code: "MG3",
               name: "MG3 File",
             },
-            presentationStatuses: {
-              viewStatus: "OnlyAvailableInCms",
-              redactStatus: "Ok",
+            presentationFlags: {
+              read: "OnlyAvailableInCms",
+              write: "Ok",
             },
           },
         ],

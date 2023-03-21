@@ -7,7 +7,6 @@ import { RedactionSaveRequest } from "../domain/RedactionSaveRequest";
 import { RedactionSaveResponse } from "../domain/RedactionSaveResponse";
 import * as HEADERS from "./header-factory";
 import { CaseDetails } from "../domain/CaseDetails";
-import { CmsDocCategory } from "../domain/CmsDocCategory";
 import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL } from "../../../config";
 
@@ -144,13 +143,6 @@ export const getPipelinePdfResults = async (
     }
     if (document.cmsDocType.documentCategory) {
       document.cmsDocCategory = document.cmsDocType.documentCategory;
-    }
-    //TODO:Remove the below temporary solution when server is ready.
-    if (!document.presentationStatuses) {
-      document.presentationStatuses = {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
-      };
     }
   });
 
