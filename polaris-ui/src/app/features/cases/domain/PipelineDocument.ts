@@ -17,7 +17,6 @@ export type PipelineDocumentProperties = {
 export type PresentationFlags = {
   read: "Ok" | "OnlyAvailableInCms";
   write:
-    | null
     | "Ok"
     | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"

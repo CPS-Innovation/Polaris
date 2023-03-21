@@ -6,6 +6,10 @@ namespace coordinator.Domain.Tracker;
 
 public class TransitionDocument
 {
+    public TransitionDocument()
+    {
+        CmsDocType = new CmsDocType();
+    }
     public TransitionDocument(
         Guid polarisDocumentId,
         string documentId,
@@ -36,7 +40,7 @@ public class TransitionDocument
 
     public string MimeType { get; init; }
 
-    public string FileExtension { get; init; }
+    public string FileExtension { get; set; }
 
     public CmsDocType CmsDocType { get; set; }
 

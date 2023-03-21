@@ -27,11 +27,6 @@ namespace coordinator.Services.DocumentToggle
                 throw new ArgumentNullException(nameof(configFileContent));
             }
 
-            if (_defintions != null)
-            {
-                throw new DocumentToggleException("Service being initialised an Nth time");
-            }
-
             var lines = SplitConfigLines(configFileContent);
 
             _defintions = CreateDefinitions(lines);
@@ -39,20 +34,16 @@ namespace coordinator.Services.DocumentToggle
 
         public bool CanReadDocument(TrackerDocument document)
         {
-            AssertIsInitialised();
             return document.PresentationFlags.Read == ReadFlag.Ok;
         }
 
         public bool CanWriteDocument(TrackerDocument document)
         {
-            AssertIsInitialised();
             return document.PresentationFlags.Write == WriteFlag.Ok;
         }
 
         public PresentationFlags GetDocumentPresentationFlags(TransitionDocument document)
         {
-            AssertIsInitialised();
-
             var levelForFileType = GetLevelForFileType(document);
             var levelForDocType = GetLevelForDocType(document);
 

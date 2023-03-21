@@ -4,7 +4,10 @@ using AutoFixture;
 using Common.Domain.DocumentExtraction;
 using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
+using coordinator.Domain.Tracker;
+using coordinator.Domain.Tracker.Presentation;
 using coordinator.Functions.ActivityFunctions;
+using coordinator.Services.DocumentToggle;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -39,7 +42,16 @@ namespace coordinator.tests.Functions.ActivityFunctions
                 .ReturnsAsync(_case.CaseDocuments);
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
-            _getCaseDocuments = new GetCaseDocuments(mockDocumentExtractionService.Object, mockLogger.Object);
+
+            var mockDocumentToggleService = new Mock<DocumentToggleService>();
+            mockDocumentToggleService
+              .Setup(service => service.GetDocumentPresentationFlags(It.IsAny<TransitionDocument>()))
+              .Returns(fixture.Create<PresentationFlags>());
+
+            _getCaseDocuments = new GetCaseDocuments(
+                mockDocumentExtractionService.Object,
+                mockDocumentToggleService.Object,
+                mockLogger.Object);
         }
 
         [Fact]

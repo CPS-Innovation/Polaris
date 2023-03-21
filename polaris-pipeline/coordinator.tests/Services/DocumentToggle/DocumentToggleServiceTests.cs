@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using coordinator.Domain.Tracker;
-using coordinator.Domain.Tracker.PresentationStatus;
+using coordinator.Domain.Tracker.Presentation;
 using coordinator.Services.DocumentToggle;
 using coordinator.Services.DocumentToggle.Exceptions;
 using FluentAssertions;
@@ -11,26 +11,32 @@ namespace coordinator.tests.Services.DocumentToggle
 {
     public class DocumentToggleServiceTests
     {
-        private readonly DocumentToggleService _documentToggleService;
-        public DocumentToggleServiceTests()
-        {
-            _documentToggleService = new DocumentToggleService();
-        }
-
         [Fact]
         public void Static_LoadConfig_ReturnsDocumentToggleConfigFileContents()
         {
             // Act
-            var content = DocumentToggleService.LoadConfig();
+            var content = DocumentToggleService.ReadConfig();
 
             // Assert
             content.Should().Be(File.ReadAllText("document-toggle.config"));
         }
 
         [Fact]
-        public void Init_ShouldThrowForNullContent()
+        public void CurrentPackagedConfigFile_DoesNotCauseException()
         {
-            Assert.Throws<ArgumentNullException>(() => _documentToggleService.Init(null));
+            // Act
+            var exception = Record.Exception(() => new DocumentToggleService(
+              DocumentToggleService.ReadConfig())
+            );
+
+            // Assert
+            Assert.Null(exception);
+        }
+
+        [Fact]
+        public void Constructor_ShouldThrowForNullContent()
+        {
+            Assert.Throws<ArgumentNullException>(() => new DocumentToggleService(null));
         }
 
         [Theory]
@@ -43,7 +49,7 @@ namespace coordinator.tests.Services.DocumentToggle
         public void Init_ShouldAcceptEmptyContent(string content)
         {
             // Act
-            var exception = Record.Exception(() => _documentToggleService.Init(content));
+            var exception = Record.Exception(() => new DocumentToggleService(content));
 
             // Assert
             Assert.Null(exception);
@@ -52,46 +58,25 @@ namespace coordinator.tests.Services.DocumentToggle
         [Theory]
         [InlineData("#foo")]
         [InlineData("#foo\n#bar")]
-        public void Init_ShouldAcceptEmptyContentWithComments(string content)
+        public void Constructor_ShouldAcceptEmptyContentWithComments(string content)
         {
             // Act
-            var exception = Record.Exception(() => _documentToggleService.Init(content));
+            var exception = Record.Exception(() => new DocumentToggleService(content));
 
             // Assert
             Assert.Null(exception);
-        }
-
-        [Fact]
-        public void Init_ShouldThrowForRepeatedCallToInit()
-        {
-            // Arrange
-            var exception = Record.Exception(() => _documentToggleService.Init(""));
-            Assert.Null(exception);
-
-            // Assert
-            Assert.Throws<DocumentToggleException>(() => _documentToggleService.Init(""));
-        }
-
-        [Fact]
-        public void CanReadDocument_ThrowsIfNotInitialised()
-        {
-            // Arrange
-            var document = new TrackerDocument();
-
-            // Assert
-            Assert.Throws<DocumentToggleException>(() => _documentToggleService.CanReadDocument(document));
         }
 
         [Fact]
         public void CanReadDocument_ReturnsFalseIfDocumentNotReadable()
         {
             // Arrange
+            var documentToggleService = new DocumentToggleService("");
             var document = new TrackerDocument();
-            document.PresentationStatuses.ReadStatus = ReadStatus.OnlyAvailableInCms;
-            _documentToggleService.Init("");
+            document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
             // Assert
-            var canRead = _documentToggleService.CanReadDocument(document);
+            var canRead = documentToggleService.CanReadDocument(document);
             canRead.Should().BeFalse();
         }
 
@@ -99,35 +84,26 @@ namespace coordinator.tests.Services.DocumentToggle
         public void CanReadDocument_ReturnsTrueIfDocumentReadable()
         {
             // Arrange
+            var documentToggleService = new DocumentToggleService("");
             var document = new TrackerDocument();
-            document.PresentationStatuses.ReadStatus = ReadStatus.Ok;
-            _documentToggleService.Init("");
+            document.PresentationFlags.Read = ReadFlag.Ok;
 
             // Assert
-            var canRead = _documentToggleService.CanReadDocument(document);
+            var canRead = documentToggleService.CanReadDocument(document);
             canRead.Should().BeTrue();
-        }
-
-        [Fact]
-        public void CanWriteDocument_ThrowsIfNotInitialised()
-        {
-            // Arrange
-            var document = new TrackerDocument();
-
-            // Assert
-            Assert.Throws<DocumentToggleException>(() => _documentToggleService.CanWriteDocument(document));
         }
 
         [Fact]
         public void CanWriteDocument_ReturnsFalseIfDocumentNotWriteable()
         {
             // Arrange
+            var documentToggleService = new DocumentToggleService("");
             var document = new TrackerDocument();
-            document.PresentationStatuses.WriteStatus = WriteStatus.OnlyAvailableInCms;
-            _documentToggleService.Init("");
+            document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
+
 
             // Assert
-            var canWrite = _documentToggleService.CanWriteDocument(document);
+            var canWrite = documentToggleService.CanWriteDocument(document);
             canWrite.Should().BeFalse();
         }
 
@@ -135,83 +111,83 @@ namespace coordinator.tests.Services.DocumentToggle
         public void CanWriteDocument_ReturnsTrueIfDocumentWriteable()
         {
             // Arrange
+            var documentToggleService = new DocumentToggleService("");
             var document = new TrackerDocument();
-            document.PresentationStatuses.WriteStatus = WriteStatus.Ok;
-            _documentToggleService.Init("");
+            document.PresentationFlags.Write = WriteFlag.Ok;
 
             // Assert
-            var canWrite = _documentToggleService.CanWriteDocument(document);
+            var canWrite = documentToggleService.CanWriteDocument(document);
             canWrite.Should().BeTrue();
         }
 
         [Theory]
         [InlineData(
           @"",
-          ".pdf", "MG1", ReadStatus.OnlyAvailableInCms, WriteStatus.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType Read *",
-          ".pdf", "MG1", ReadStatus.OnlyAvailableInCms, WriteStatus.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"DocType Read *",
-          ".pdf", "MG1", ReadStatus.OnlyAvailableInCms, WriteStatus.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType  Read *
             DocType   Read *",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.DocTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
         [InlineData(
           @"FileType  ReadWrite *
             DocType   Read      *",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.DocTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
         [InlineData(
           @"FileType  Read      *
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.OriginalFileTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
         [InlineData(
           @"FileType  ReadWrite *
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
         [InlineData(
           @"FileType  ReadWrite .pdf
             DocType   ReadWrite MG1",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
         [InlineData(
           @"FileType  ReadWrite .doc
             DocType   ReadWrite MG2",
-          ".pdf", "MG1", ReadStatus.OnlyAvailableInCms, WriteStatus.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType  ReadWrite *
             FileType  Deny      .pdf
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadStatus.OnlyAvailableInCms, WriteStatus.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType  ReadWrite *
             FileType  Read      .pdf
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.OriginalFileTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
         [InlineData(
           @"FileType  ReadWrite *
             #FileType  Read      .pdf
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadStatus.Ok, WriteStatus.Ok)]
-        public void SetDocumentPresentationStatuses_ShouldObeyTheRules(string configContent,
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
+        public void SetDocumentPresentationFlags_ShouldObeyTheRules(string configContent,
                                                                        string inputDocumentExtension,
                                                                        string inputDocumentCmsType,
-                                                                       ReadStatus expectedReadStatus,
-                                                                       WriteStatus expectWriteStatus)
+                                                                       ReadFlag expectedReadFlag,
+                                                                       WriteFlag expectWriteFlag)
         {
             // Arrage
-            _documentToggleService.Init(configContent);
+            var documentToggleService = new DocumentToggleService(configContent);
 
-            var document = new TrackerDocument();
-            document.CmsDocumentExtension = inputDocumentExtension;
+            var document = new TransitionDocument();
+            document.FileExtension = inputDocumentExtension;
             document.CmsDocType.DocumentType = inputDocumentCmsType;
 
             // Act
-            _documentToggleService.SetDocumentPresentationStatuses(document);
+            var presentationFlags = documentToggleService.GetDocumentPresentationFlags(document);
 
             // Assert
-            document.PresentationStatuses.ReadStatus.Should().Be(expectedReadStatus);
-            document.PresentationStatuses.WriteStatus.Should().Be(expectWriteStatus);
+            presentationFlags.Read.Should().Be(expectedReadFlag);
+            presentationFlags.Write.Should().Be(expectWriteFlag);
         }
     }
 }
