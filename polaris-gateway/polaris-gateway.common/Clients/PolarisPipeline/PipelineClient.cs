@@ -39,7 +39,7 @@ namespace Gateway.Clients.PolarisPipeline
             _logger = logger;
         }
 
-        public async Task RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId)
+        public async Task<IActionResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(RefreshCaseAsync), $"CaseId: {caseId}, Force?: {force}");
 
@@ -48,6 +48,8 @@ namespace Gateway.Clients.PolarisPipeline
             await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
 
             _logger.LogMethodExit(correlationId, nameof(RefreshCaseAsync), string.Empty);
+
+            return new OkResult();
         }
 
         public async Task<IActionResult> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
