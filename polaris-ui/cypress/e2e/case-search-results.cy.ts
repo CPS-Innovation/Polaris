@@ -64,6 +64,29 @@ describe("search results", () => {
     // we have remianed on the results page
     cy.url().should("include", "/case-search-results");
   });
+
+  it("Shouldn't show the firstname and date of birth if defendant is an organization", () => {
+    cy.visit("/case-search-results?urn=12AB2222233");
+
+    cy.findByTestId("link-12AB2222233", { timeout: 20000 });
+    cy.findByTestId("txt-result-count").contains("1");
+    cy.findByTestId("defendant-name-text").should(
+      "have.text",
+      "Walsh and others"
+    );
+    cy.findByTestId("defendant-DOB").should("not.exist");
+  });
+  it("Should show the first name and surname and date of birth if defendant is not an organization", () => {
+    cy.visit("/case-search-results?urn=12AB1111111");
+
+    cy.findByTestId("link-12AB1111111", { timeout: 20000 });
+    cy.findByTestId("txt-result-count").contains("1");
+    cy.findByTestId("defendant-name-text").should("have.text", "Walsh,Steve");
+    cy.findByTestId("defendant-DOB").should(
+      "have.text",
+      "Date of birth: 28 November 1977"
+    );
+  });
 });
 
 export {};

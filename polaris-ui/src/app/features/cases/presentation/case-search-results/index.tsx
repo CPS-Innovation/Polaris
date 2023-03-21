@@ -20,6 +20,7 @@ import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
 import { useApi } from "../../../../common/hooks/useApi";
 import { searchUrn } from "../../api/gateway-api";
+import { CaseSearchResult } from "../../domain/CaseSearchResult";
 
 import classes from "./index.module.scss";
 import { SectionBreak } from "../../../../common/presentation/components";
@@ -31,6 +32,16 @@ const validationFailMessage = "Enter a URN in the right format";
 type Props = BackLinkingPageProps & {};
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
+  const getDefendantNameText = (item: CaseSearchResult) => {
+    let titleString = `${item.leadDefendantDetails.surname}`;
+    if (item.leadDefendantDetails.type !== "Organisation") {
+      titleString = `${titleString},${item.leadDefendantDetails.firstNames}`;
+    }
+    if (item.numberOfDefendants > 1) {
+      titleString = `${titleString} and others`;
+    }
+    return titleString;
+  };
   const {
     urn: urnFromSearchParams,
     setParams,
@@ -131,18 +142,23 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                     >
                       {item.uniqueReferenceNumber}
                     </Link>
-                    <Hint className={classes.defendantName}>
-                      {`${item.leadDefendantDetails.surname}, 
-                        ${item.leadDefendantDetails.firstNames}
-                        ${item.numberOfDefendants > 1 ? "and others" : ""}`}
-                      <br />
-                      Date of birth:{" "}
-                      {formatDate(
-                        item.leadDefendantDetails.dob,
-                        CommonDateTimeFormats.ShortDateFullTextMonth
-                      )}
-                    </Hint>
                   </h2>
+                  <Hint className={classes.defendantName}>
+                    <span data-testid={`defendant-name-text`}>
+                      {getDefendantNameText(item)}
+                    </span>
+                    <br />
+                    {!item.leadDefendantDetails.organisationName && (
+                      <span data-testid={`defendant-DOB`}>
+                        Date of birth:{" "}
+                        {formatDate(
+                          item.leadDefendantDetails.dob,
+                          CommonDateTimeFormats.ShortDateFullTextMonth
+                        )}
+                      </span>
+                    )}
+                  </Hint>
+
                   <div>
                     <div className={classes["result-offence"]}>
                       <div className={classes["result-offence-line"]}>

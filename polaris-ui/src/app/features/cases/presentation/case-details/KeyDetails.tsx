@@ -3,7 +3,7 @@ import {
   formatDate,
   getAgeFromIsoDate,
 } from "../../../../common/utils/dates";
-import { CaseDetails } from "../../domain/CaseDetails";
+import { CaseDetails, DefendantDetails } from "../../domain/CaseDetails";
 import { LinkButton } from "../../../../../app/common/presentation/components/LinkButton";
 import classes from "./index.module.scss";
 
@@ -17,6 +17,13 @@ export const KeyDetails: React.FC<{
       (a, b) => a.defendantDetails.listOrder - b.defendantDetails.listOrder
     );
     return defendants;
+  };
+
+  const getDefendantName = (defendantDetail: DefendantDetails) => {
+    if (defendantDetail.type === "Organisation") {
+      return defendantDetail.surname;
+    }
+    return `${defendantDetail.surname}, ${defendantDetail.firstNames}`;
   };
 
   const defendantsList = getOrderedDefendantsList(caseDetails);
@@ -38,7 +45,7 @@ export const KeyDetails: React.FC<{
           >
             {defendantsList.map(({ defendantDetails }) => (
               <li key={defendantDetails.id}>
-                {defendantDetails.surname}, {defendantDetails.firstNames}
+                {getDefendantName(defendantDetails)}
               </li>
             ))}
           </ul>
@@ -62,17 +69,21 @@ export const KeyDetails: React.FC<{
             className={`govuk-heading-s ${classes.defendantName}`}
             data-testid="txt-defendant-name"
           >
-            {caseDetails.leadDefendantDetails.surname},{" "}
-            {caseDetails.leadDefendantDetails.firstNames}
+            {getDefendantName(caseDetails.leadDefendantDetails)}
           </span>
-          <span className={`${classes.defendantDOB}`}>
-            DOB:{" "}
-            {formatDate(
-              caseDetails.leadDefendantDetails.dob,
-              CommonDateTimeFormats.ShortDateTextMonth
-            )}
-            . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
-          </span>
+          {caseDetails.leadDefendantDetails.type !== "Organisation" && (
+            <span
+              className={`${classes.defendantDOB}`}
+              data-testid="txt-defendant-DOB"
+            >
+              DOB:{" "}
+              {formatDate(
+                caseDetails.leadDefendantDetails.dob,
+                CommonDateTimeFormats.ShortDateTextMonth
+              )}
+              . Age: {getAgeFromIsoDate(caseDetails.leadDefendantDetails.dob)}
+            </span>
+          )}
           {caseDetails.leadDefendantDetails.youth && (
             <span>
               <b>Youth Offender</b>
