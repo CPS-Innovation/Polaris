@@ -37,7 +37,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Mock<ILogger> _mockLogger;
 
         private readonly coordinator.Domain.Tracker.Tracker _tracker;
-        private readonly coordinator.Functions.ClientFunctions.Case.GetTrackerStatus _trackerStatus;
+        private readonly GetTrackerStatus _trackerStatus;
 
         public TrackerTests()
         {
@@ -102,19 +102,6 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         [Fact]
-        public async Task RegisterDocumentNotFoundInDDEI_Registers()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterDocumentNotFoundInDDEI(_pdfBlobNameArg.DocumentId);
-
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.NotFoundInDDEI);
-
-            _tracker.Logs.Count.Should().Be(3);
-        }
-        
-        [Fact]
         public async Task RegisterDocumentAsAlreadyProcessed_Registers()
         {
             await _tracker.Initialise(_transactionId);
@@ -163,17 +150,6 @@ namespace coordinator.tests.Domain.Tracker
             document?.Status.Should().Be(DocumentStatus.UnexpectedFailure);
 
             _tracker.Logs.Count.Should().Be(3);
-        }
-
-        [Fact]
-        public async Task RegisterNoDocumentsFoundInDDEI_RegistersNoDocumentsFoundInDDEI()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterNoDocumentsFoundInDDEI();
-
-            _tracker.Status.Should().Be(TrackerStatus.NoDocumentsFoundInDDEI);
-
-            _tracker.Logs.Count.Should().Be(2);
         }
 
         [Fact]
@@ -237,7 +213,6 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
             _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
                 new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
                 new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure}
             };
@@ -251,7 +226,6 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
             _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
                 new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
                 new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure},
                 new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
@@ -266,16 +240,6 @@ namespace coordinator.tests.Domain.Tracker
         public async Task IsAlreadyProcessed_ReturnsTrueIfStatusIsCompleted()
         {
             _tracker.Status = TrackerStatus.Completed;
-
-            var isAlreadyProcessed = await _tracker.IsAlreadyProcessed();
-
-            isAlreadyProcessed.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task IsAlreadyProcessed_ReturnsTrueIfStatusIsNoDocumentsFoundInDDEI()
-        {
-            _tracker.Status = TrackerStatus.NoDocumentsFoundInDDEI;
 
             var isAlreadyProcessed = await _tracker.IsAlreadyProcessed();
 

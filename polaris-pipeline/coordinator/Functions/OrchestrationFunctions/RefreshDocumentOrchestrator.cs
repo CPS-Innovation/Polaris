@@ -106,9 +106,8 @@ namespace coordinator.Functions.OrchestrationFunctions
             {
                 case HttpStatusCode.OK:
                     return _jsonConvertWrapper.DeserializeObject<GeneratePdfResponse>(response.Content);
+
                 case HttpStatusCode.NotFound:
-                    await tracker.RegisterDocumentNotFoundInDDEI(payload.CmsDocumentId);
-                    break;
                 case HttpStatusCode.NotImplemented:
                     await tracker.RegisterUnableToConvertDocumentToPdf(payload.CmsDocumentId);
                     break;

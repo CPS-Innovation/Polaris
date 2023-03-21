@@ -172,10 +172,6 @@ namespace coordinator.Functions.OrchestrationFunctions
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId));
 
-            if (documents.Length != 0) return documents;
-
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"No documents found, register this in the tracker for case {payload.CmsCaseId}");
-            await tracker.RegisterNoDocumentsFoundInDDEI();
             return documents;
         }
 
