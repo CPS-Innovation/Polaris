@@ -7,6 +7,7 @@ using Common.Logging;
 using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
+using coordinator.Mappers;
 using coordinator.Services.DocumentToggle;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -18,6 +19,7 @@ namespace coordinator.Functions.ActivityFunctions
     {
         private readonly IDdeiDocumentExtractionService _documentExtractionService;
         private readonly IDocumentToggleService _documentToggleService;
+        private readonly ITransitionDocumentMapper _transitionDocumentMapper;
         private readonly ILogger<GetCaseDocuments> _log;
 
         const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
@@ -25,10 +27,12 @@ namespace coordinator.Functions.ActivityFunctions
         public GetCaseDocuments(
                  IDdeiDocumentExtractionService documentExtractionService,
                  IDocumentToggleService documentToggleService,
+                 ITransitionDocumentMapper transitionDocumentMapper,
                  ILogger<GetCaseDocuments> logger)
         {
             _documentExtractionService = documentExtractionService;
             _documentToggleService = documentToggleService;
+            _transitionDocumentMapper = transitionDocumentMapper;
             _log = logger;
         }
 
@@ -63,18 +67,10 @@ namespace coordinator.Functions.ActivityFunctions
 
         private TransitionDocument MapToTransitionDocument(CmsCaseDocument document)
         {
-            var transitionDocument = new TransitionDocument(
-                      polarisDocumentId: Guid.NewGuid(),
-                      documentId: document.DocumentId,
-                      versionId: document.VersionId,
-                      originalFileName: document.FileName,
-                      mimeType: document.MimeType,
-                      fileExtension: document.FileExtension,
-                      cmsDocType: document.CmsDocType,
-                      createdDate: document.DocumentDate
-                      );
+            var transitionDocument = _transitionDocumentMapper.MapToTransitionDocument(document);
 
-            transitionDocument.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(transitionDocument);
+            transitionDocument.PresentationFlags = _documentToggleService
+              .GetDocumentPresentationFlags(transitionDocument);
 
             return transitionDocument;
         }

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Constants;
-using Common.Domain.DocumentEvaluation;
-using Common.Domain.DocumentExtraction;
 using Common.Domain.Extensions;
 using Common.Logging;
 using coordinator.Domain;
