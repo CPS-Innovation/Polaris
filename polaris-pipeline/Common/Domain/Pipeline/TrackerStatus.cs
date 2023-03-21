@@ -3,7 +3,6 @@
     public enum TrackerStatus
     {
         Running,
-        NoDocumentsFoundInDDEI,
         DocumentsRetrieved,
         Completed,
         Failed,

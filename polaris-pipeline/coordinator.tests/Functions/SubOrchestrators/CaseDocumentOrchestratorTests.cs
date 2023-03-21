@@ -115,23 +115,6 @@ namespace coordinator.tests.Functions.SubOrchestrators
         }
 
         [Fact]
-        public async Task Run_Tracker_RegistersDocumentNotFoundInDDEIWhenNotFoundStatusCodeReturned()
-        {
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))
-                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.NotFound, content: _content));
-
-            try
-            {
-                await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
-                Assert.False(true);
-            }
-            catch
-            {
-                _mockTracker.Verify(tracker => tracker.RegisterDocumentNotFoundInDDEI(_payload.CmsDocumentId));
-            }
-        }
-
-        [Fact]
         public async Task Run_Tracker_RegistersFailedToConvertToPdfWhenNotFoundStatusCodeReturned()
         {
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))

@@ -125,17 +125,6 @@ namespace coordinator.Domain.Tracker
             return Task.CompletedTask;
         }
 
-        public Task RegisterDocumentNotFoundInDDEI(string documentId)
-        {
-            var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
-            if (document != null)
-                document.Status = DocumentStatus.NotFoundInDDEI;
-
-            Log(LogType.DocumentNotFoundInDDEI, documentId);
-
-            return Task.CompletedTask;
-        }
-
         public Task RegisterUnableToConvertDocumentToPdf(string documentId)
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
@@ -154,15 +143,6 @@ namespace coordinator.Domain.Tracker
                 document.Status = DocumentStatus.UnexpectedFailure;
 
             Log(LogType.UnexpectedDocumentFailure, documentId);
-
-            return Task.CompletedTask;
-        }
-
-        public Task RegisterNoDocumentsFoundInDDEI()
-        {
-            Status = TrackerStatus.NoDocumentsFoundInDDEI;
-            Log(LogType.NoDocumentsFoundInDDEI);
-            ProcessingCompleted = DateTime.Now;
 
             return Task.CompletedTask;
         }
@@ -224,13 +204,12 @@ namespace coordinator.Domain.Tracker
         public Task<bool> AllDocumentsFailed()
         {
             return Task.FromResult(
-                Documents.All(d => d.Status is DocumentStatus.NotFoundInDDEI
-                    or DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
+                Documents.All(d => d.Status is DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
         }
 
         public Task<bool> IsAlreadyProcessed()
         {
-            return Task.FromResult(Status is TrackerStatus.Completed or TrackerStatus.NoDocumentsFoundInDDEI);
+            return Task.FromResult(Status is TrackerStatus.Completed);
         }
 
         public Task<bool> IsStale(bool forceRefresh)
