@@ -15,14 +15,14 @@ using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Case
 {
-    public class PolarisPipelineGetTracker : BasePolarisFunction
+    public class PolarisPipelineDeleteTracker : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineGetTracker> _logger;
+        private readonly ILogger<PolarisPipelineDeleteTracker> _logger;
 
-        public PolarisPipelineGetTracker(ILogger<PolarisPipelineGetTracker> logger,
+        public PolarisPipelineDeleteTracker(ILogger<PolarisPipelineDeleteTracker> logger,
                                          IPipelineClient pipelineClient,
                                          IAuthorizationValidator tokenValidator,
                                          ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
@@ -32,10 +32,10 @@ namespace PolarisGateway.Functions.PolarisPipeline
             _logger = logger;
         }
 
-        const string loggingName = $"{nameof(PolarisPipelineGetTracker)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(PolarisPipelineDeleteTracker)} - {nameof(Run)}";
 
-        [FunctionName(nameof(PolarisPipelineGetTracker))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
+        [FunctionName(nameof(PolarisPipelineDeleteTracker))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
             Tracker tracker = null;
@@ -52,17 +52,16 @@ namespace PolarisGateway.Functions.PolarisPipeline
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, loggingName);
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting tracker details for caseId {caseId}");
-                tracker = await _pipelineClient.GetTrackerAsync(caseUrn, caseId, currentCorrelationId);
+                await _pipelineClient.DeleteCaseAsync(caseUrn, caseId, request.CmsAuthValues, currentCorrelationId);
 
-                return tracker == null ? NotFoundErrorResponse($"No tracker found for case Urn '{caseUrn}', case id '{caseId}'.", currentCorrelationId, loggingName) : new OkObjectResult(tracker);
+                return new OkResult();
             }
             catch (Exception exception)
             {
                 return exception switch
                 {
                     MsalException => InternalServerErrorResponse(exception, "An onBehalfOfToken exception occurred.", currentCorrelationId, loggingName),
-                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetTrackerAsync)}.", currentCorrelationId, loggingName),
+                    HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.DeleteCaseAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
             }

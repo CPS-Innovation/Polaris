@@ -8,6 +8,7 @@ using Common.Domain.DocumentEvaluation;
 using Common.Domain.DocumentExtraction;
 using Common.Domain.Pipeline;
 using coordinator.Domain.Tracker;
+using coordinator.Functions.ClientFunctions.Case;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Mock<ILogger> _mockLogger;
 
         private readonly coordinator.Domain.Tracker.Tracker _tracker;
-        private readonly coordinator.Functions.ClientFunctions.TrackerStatus _trackerStatus;
+        private readonly coordinator.Functions.ClientFunctions.Case.GetTrackerStatus _trackerStatus;
 
         public TrackerTests()
         {
@@ -70,7 +71,7 @@ namespace coordinator.tests.Domain.Tracker
                 .ReturnsAsync(_entityStateResponse);
 
             _tracker = new coordinator.Domain.Tracker.Tracker();
-            _trackerStatus = new coordinator.Functions.ClientFunctions.TrackerStatus();
+            _trackerStatus = new GetTrackerStatus();
         }
 
         [Fact]
@@ -109,16 +110,6 @@ namespace coordinator.tests.Domain.Tracker
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.NotFoundInDDEI);
-
-            _tracker.Logs.Count.Should().Be(3);
-        }
-        
-        [Fact]
-        public async Task RegisterIfRequired_EvaluatedDocuments_RequireProcessing()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.ProcessEvaluatedDocuments();
 
             _tracker.Logs.Count.Should().Be(3);
         }
@@ -294,7 +285,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task IsAlreadyProcessed_ReturnsFalseIfStatusIsNotCompletedAndNotNoDocumentsFoundInDDEI()
         {
-            _tracker.Status = TrackerStatus.NotStarted;
+            _tracker.Status = TrackerStatus.Running;
 
             var isAlreadyProcessed = await _tracker.IsAlreadyProcessed();
 

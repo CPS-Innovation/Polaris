@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Document
 {
     public class GetDocument : BaseClientFunction
     {
@@ -29,7 +29,7 @@ namespace coordinator.Functions.ClientFunctions
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Document)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            Guid documentId, 
+            Guid documentId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {

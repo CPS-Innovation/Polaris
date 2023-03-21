@@ -11,16 +11,16 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Case
 {
-    public class TrackerStatus
+    public class DeleteCase
     {
-        const string loggingName = $"{nameof(TrackerStatus)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(GetTrackerStatus)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        [FunctionName(nameof(TrackerStatus))]
+        [FunctionName(nameof(DeleteCase))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             [DurableClient] IDurableEntityClient client,
@@ -64,7 +64,6 @@ namespace coordinator.Functions.ClientFunctions
                 log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
                 return new StatusCodeResult(500);
             }
-
         }
     }
 }

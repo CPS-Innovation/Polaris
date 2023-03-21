@@ -8,8 +8,9 @@ namespace Gateway.Clients.PolarisPipeline.Contracts
 {
     public interface IPipelineClient
     {
-        Task TriggerCoordinatorAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId);
+        Task RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId);
         Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId);
+        Task<IActionResult> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId);
         Task<Stream> GetDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
         Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
         Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, string cmsAuthValues, Guid correlationId);

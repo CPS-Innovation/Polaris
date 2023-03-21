@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
 using coordinator.Domain.Tracker;
@@ -12,26 +12,18 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Case
 {
-    public class SearchCase
+    public class GetTrackerStatus
     {
-        private readonly ISearchIndexClient _searchIndexClient;
-
-        public SearchCase(ISearchIndexClient searchIndexClient)
-        {
-            _searchIndexClient = searchIndexClient;
-        }
-
-        const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(GetTrackerStatus)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        [FunctionName(nameof(SearchCase))]
+        [FunctionName(nameof(GetTrackerStatus))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "urns/{caseUrn}/cases/{caseId}/documents/search/{*searchTerm}")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,
-            int caseId,
-            string searchTerm, 
+            string caseId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -39,9 +31,6 @@ namespace coordinator.Functions.ClientFunctions
 
             try
             {
-                if (string.IsNullOrWhiteSpace(searchTerm))
-                    return new BadRequestObjectResult("Search term not supplied.");
-
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
@@ -57,9 +46,9 @@ namespace coordinator.Functions.ClientFunctions
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
-                log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
+                log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
 
-                var entityId = new EntityId(nameof(Domain.Tracker), caseId.ToString());
+                var entityId = new EntityId(nameof(Domain.Tracker), caseId);
                 var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
                 if (!stateResponse.EntityExists)
                 {
@@ -68,9 +57,8 @@ namespace coordinator.Functions.ClientFunctions
                     return new NotFoundObjectResult(baseMessage);
                 }
 
-                var searchResults = await _searchIndexClient.Query(caseId, searchTerm, currentCorrelationId);
-
-                return new OkObjectResult(searchResults);
+                log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
+                return new OkObjectResult(stateResponse.EntityState);
             }
             catch (Exception ex)
             {

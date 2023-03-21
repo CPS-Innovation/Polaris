@@ -8,7 +8,6 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Requests;
 using Common.Logging;
-using coordinator.Domain.Tracker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -20,9 +19,8 @@ using Common.Domain.Exceptions;
 using FluentValidation;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Services;
-using Castle.Components.DictionaryAdapter.Xml;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Document
 {
     public class SaveRedactions : BaseClientFunction
     {
@@ -34,9 +32,9 @@ namespace coordinator.Functions.ClientFunctions
         private readonly IPolarisStorageClient _blobStorageClient;
         private readonly IDocumentService _documentService;
 
-        public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper, 
-                              IValidator<RedactPdfRequest> requestValidator, 
-                              IRedactionClient redactionClient, 
+        public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper,
+                              IValidator<RedactPdfRequest> requestValidator,
+                              IRedactionClient redactionClient,
                               IPolarisStorageClient blobStorageClient,
                               IDocumentService documentService)
         {
@@ -49,7 +47,7 @@ namespace coordinator.Functions.ClientFunctions
 
         [FunctionName(nameof(SaveRedactions))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.Document)] 
+            [HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.Document)]
             HttpRequestMessage req,
             string caseUrn,
             string caseId,
@@ -91,7 +89,7 @@ namespace coordinator.Functions.ClientFunctions
                 var pdfStream = await _blobStorageClient.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
-                if( string.IsNullOrEmpty(cmsAuthValues) )
+                if (string.IsNullOrEmpty(cmsAuthValues))
                 {
                     log.LogMethodFlow(currentCorrelationId, loggingName, $"No authentication header values specified");
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
