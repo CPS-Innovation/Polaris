@@ -148,7 +148,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       {getDefendantNameText(item)}
                     </span>
                     <br />
-                    {!item.leadDefendantDetails.organisationName && (
+                    {item.leadDefendantDetails.type !== "Organisation" && (
                       <span data-testid={`defendant-DOB`}>
                         Date of birth:{" "}
                         {formatDate(

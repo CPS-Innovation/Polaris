@@ -86,7 +86,7 @@ const searchResults: CaseSearchResult[] = [
       organisationName: "GUZZLERS BREWERY",
       dob: "1977-11-28",
       youth: false,
-      type: "Organisaton",
+      type: "Organisation",
     },
     headlineCharge: {
       charge: faker.lorem.sentence(),

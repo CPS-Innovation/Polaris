@@ -72,7 +72,7 @@ describe("search results", () => {
     cy.findByTestId("txt-result-count").contains("1");
     cy.findByTestId("defendant-name-text").should(
       "have.text",
-      "Walsh and others"
+      "GUZZLERS BREWERY and others"
     );
     cy.findByTestId("defendant-DOB").should("not.exist");
   });
