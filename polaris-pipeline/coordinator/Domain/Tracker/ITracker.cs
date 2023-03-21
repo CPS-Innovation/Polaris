@@ -11,6 +11,7 @@ namespace coordinator.Domain.Tracker
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
         Task RegisterUnableToConvertDocumentToPdf(string documentId);
         Task RegisterUnexpectedPdfDocumentFailure(string documentId);
+        Task ProcessEvaluatedDocuments();
         Task RegisterIndexed(string documentId);
         Task RegisterOcrAndIndexFailure(string documentId);
         Task RegisterCompleted();
