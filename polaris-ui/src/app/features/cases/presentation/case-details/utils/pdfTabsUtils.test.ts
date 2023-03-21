@@ -3,14 +3,6 @@ import { PipelineResults } from "../../../domain/PipelineResults";
 import { getRedactStatus } from "./pdfTabsUtils";
 
 describe("getRedactStatus util", () => {
-  it("getRedactStatus should return null if pipelineState.haveData is false", () => {
-    const pipelineState: AsyncPipelineResult<PipelineResults> = {
-      status: "initiating",
-      haveData: false,
-    };
-    const result = getRedactStatus("1", pipelineState);
-    expect(result).toEqual(null);
-  });
   it("getRedactStatus should return redact status of the document with matching documentId from pipelineSate documents", () => {
     const pipelineState: AsyncPipelineResult<PipelineResults> = {
       status: "complete",
@@ -73,7 +65,7 @@ describe("getRedactStatus util", () => {
             },
             presentationFlags: {
               read: "Ok",
-              write: null,
+              write: "OnlyAvailableInCms",
             },
           },
         ],
@@ -82,9 +74,9 @@ describe("getRedactStatus util", () => {
 
     expect(getRedactStatus("1", pipelineState)).toEqual("Ok");
     expect(getRedactStatus("2", pipelineState)).toEqual("DocTypeNotAllowed");
-    expect(getRedactStatus("3", pipelineState)).toEqual(null);
+    expect(getRedactStatus("3", pipelineState)).toEqual("OnlyAvailableInCms");
   });
-  it("getRedactStatus should return null, if it couldn't find a matching documentId from pipelineSate documents", () => {
+  it("getRedactStatus should throw if it couldn't find a matching documentId from pipelineSate documents", () => {
     const pipelineState: AsyncPipelineResult<PipelineResults> = {
       status: "complete",
       haveData: true,
@@ -114,7 +106,7 @@ describe("getRedactStatus util", () => {
         ],
       },
     };
-
-    expect(getRedactStatus("12", pipelineState)).toEqual(null);
+    const act = () => getRedactStatus("12", pipelineState);
+    expect(act).toThrowError();
   });
 });
