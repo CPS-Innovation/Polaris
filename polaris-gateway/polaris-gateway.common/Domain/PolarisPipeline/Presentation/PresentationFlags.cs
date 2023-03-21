@@ -6,9 +6,9 @@ namespace PolarisGateway.Domain.PolarisPipeline.Presentation
     public class PresentationFlags
     {
         [JsonConverter(typeof(StringEnumConverter))]
-        public ReadFlag ReadStatus { get; set; }
+        public ReadFlag Read { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public WriteFlag WriteStatus { get; set; }
+        public WriteFlag Write { get; set; }
     }
 }
