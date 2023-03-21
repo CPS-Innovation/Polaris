@@ -51,7 +51,7 @@ namespace coordinator.Domain.Tracker
             var evaluationResults = new DocumentEvaluationActivityPayload(arg.CaseUrn, arg.CaseId, arg.CorrelationId);
             if (Documents.Count == 0) //no documents yet loaded in the tracker for this case, grab them all
             {
-                Documents = arg.IncomingDocuments
+                Documents = arg.Documents
                     .Select(item => CreateTrackerDocument(item))
                     .ToList();
                 Log(LogType.RegisteredDocumentIds);
@@ -61,7 +61,7 @@ namespace coordinator.Domain.Tracker
                 //remove any documents that are no longer present in the list retrieved from CMS from the tracker so they are no reprocessed
                 foreach (var trackedDocument in
                          Documents.Where(trackedDocument =>
-                             !arg.IncomingDocuments.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
+                             !arg.Documents.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
                 {
                     evaluationResults.DocumentsToRemove.Add(new DocumentToRemove(trackedDocument.CmsDocumentId, trackedDocument.CmsVersionId));
                 }
@@ -77,7 +77,7 @@ namespace coordinator.Domain.Tracker
                 //now evaluate all incoming documents against the existing tracker record that are not already identified for removal and make sure
                 //that anything new is added to the tracker
                 foreach (var cmsDocument in from cmsDocument in
-                             arg.IncomingDocuments
+                             arg.Documents
                                             where !evaluationResults.DocumentsToRemove
                              .Exists(x => x.DocumentId == cmsDocument.DocumentId && x.VersionId == cmsDocument.VersionId)
                                             let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId)
@@ -95,9 +95,19 @@ namespace coordinator.Domain.Tracker
             return Task.CompletedTask;
         }
 
-        private TrackerDocument CreateTrackerDocument(IncomingDocument document)
+        private TrackerDocument CreateTrackerDocument(TransitionDocument document)
         {
-            return new TrackerDocument(document.PolarisDocumentId, document.DocumentId, document.VersionId, document.CmsDocType, document.MimeType, document.CreatedDate, document.OriginalFileName);
+            return new TrackerDocument(
+                document.PolarisDocumentId,
+                document.DocumentId,
+                document.VersionId,
+                document.CmsDocType,
+                document.MimeType,
+                document.FileExtension,
+                document.CreatedDate,
+                document.OriginalFileName,
+                document.PresentationFlags
+                );
         }
 
         public Task ProcessEvaluatedDocuments()

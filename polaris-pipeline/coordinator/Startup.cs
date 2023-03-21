@@ -82,7 +82,6 @@ namespace coordinator
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
 
-            // Ddei
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
             builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
             {
@@ -95,7 +94,10 @@ namespace coordinator
             builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
-            builder.Services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+
+            builder.Services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
 
             BuildHealthChecks(builder);
         }

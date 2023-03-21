@@ -1,11 +1,11 @@
 using coordinator.Domain.Tracker;
+using coordinator.Domain.Tracker.Presentation;
 
 namespace coordinator.Services.DocumentToggle
 {
     public interface IDocumentToggleService
     {
-        void Init(string configFileContent);
-        void SetDocumentPresentationStatuses(TrackerDocument document);
+        PresentationFlags GetDocumentPresentationFlags(TransitionDocument document);
         bool CanReadDocument(TrackerDocument document);
         bool CanWriteDocument(TrackerDocument document);
     }

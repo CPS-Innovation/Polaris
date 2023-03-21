@@ -1,6 +1,6 @@
-namespace coordinator.Domain.Tracker.PresentationStatus
+namespace PolarisGateway.Domain.PolarisPipeline.Presentation
 {
-    public enum WriteStatus
+    public enum WriteFlag
     {
         Ok,
         OnlyAvailableInCms,

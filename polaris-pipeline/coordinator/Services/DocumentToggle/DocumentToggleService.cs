@@ -5,20 +5,22 @@ using coordinator.Services.DocumentToggle.Domain;
 using System.Linq;
 using System;
 using coordinator.Services.DocumentToggle.Exceptions;
-using coordinator.Domain.Tracker.PresentationStatus;
+using coordinator.Domain.Tracker.Presentation;
 
 namespace coordinator.Services.DocumentToggle
 {
     public class DocumentToggleService : IDocumentToggleService
     {
+        private const string ConfigFileName = "document-toggle.config";
+
         private List<Definition> _defintions { get; set; }
 
-        public static string LoadConfig()
+        public static string ReadConfig()
         {
-            return File.ReadAllText("document-toggle.config");
+            return File.ReadAllText(ConfigFileName);
         }
 
-        public void Init(string configFileContent)
+        public DocumentToggleService(string configFileContent)
         {
             if (configFileContent == null)
             {
@@ -38,16 +40,16 @@ namespace coordinator.Services.DocumentToggle
         public bool CanReadDocument(TrackerDocument document)
         {
             AssertIsInitialised();
-            return document.PresentationStatuses.ReadStatus == ReadStatus.Ok;
+            return document.PresentationFlags.ReadStatus == ReadFlag.Ok;
         }
 
         public bool CanWriteDocument(TrackerDocument document)
         {
             AssertIsInitialised();
-            return document.PresentationStatuses.WriteStatus == WriteStatus.Ok;
+            return document.PresentationFlags.WriteStatus == WriteFlag.Ok;
         }
 
-        public void SetDocumentPresentationStatuses(TrackerDocument document)
+        public PresentationFlags GetDocumentPresentationFlags(TransitionDocument document)
         {
             AssertIsInitialised();
 
@@ -55,28 +57,28 @@ namespace coordinator.Services.DocumentToggle
             var levelForDocType = GetLevelForDocType(document);
 
             var readStatus = (levelForDocType == DefinitionLevel.Deny || levelForFileType == DefinitionLevel.Deny)
-                              ? ReadStatus.OnlyAvailableInCms
-                              : ReadStatus.Ok;
+                              ? ReadFlag.OnlyAvailableInCms
+                              : ReadFlag.Ok;
 
-            WriteStatus writeStatus;
-            if (readStatus == ReadStatus.OnlyAvailableInCms)
+            WriteFlag writeStatus;
+            if (readStatus == ReadFlag.OnlyAvailableInCms)
             {
-                writeStatus = WriteStatus.OnlyAvailableInCms;
+                writeStatus = WriteFlag.OnlyAvailableInCms;
             }
             else if (levelForDocType != DefinitionLevel.ReadWrite)
             {
-                writeStatus = WriteStatus.DocTypeNotAllowed;
+                writeStatus = WriteFlag.DocTypeNotAllowed;
             }
             else if (levelForFileType != DefinitionLevel.ReadWrite)
             {
-                writeStatus = WriteStatus.OriginalFileTypeNotAllowed;
+                writeStatus = WriteFlag.OriginalFileTypeNotAllowed;
             }
             else
             {
-                writeStatus = WriteStatus.Ok;
+                writeStatus = WriteFlag.Ok;
             }
 
-            document.PresentationStatuses = new PresentationStatuses
+            return new PresentationFlags
             {
                 ReadStatus = readStatus,
                 WriteStatus = writeStatus
@@ -159,18 +161,18 @@ namespace coordinator.Services.DocumentToggle
             return definitions;
         }
 
-        private DefinitionLevel GetLevelForFileType(TrackerDocument document)
+        private DefinitionLevel GetLevelForFileType(TransitionDocument document)
         {
             var winningConfigLine = _defintions
                       .LastOrDefault(def => def.Type == DefinitionType.FileType
                         && (
                           (def.Identifier == Domain.Constants.Wildcard ||
-                            def.Identifier.Equals(document.CmsDocumentExtension, StringComparison.InvariantCultureIgnoreCase))));
+                            def.Identifier.Equals(document.FileExtension, StringComparison.InvariantCultureIgnoreCase))));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
         }
 
-        private DefinitionLevel GetLevelForDocType(TrackerDocument document)
+        private DefinitionLevel GetLevelForDocType(TransitionDocument document)
         {
             var winningConfigLine = _defintions
                       .LastOrDefault(def => def.Type == DefinitionType.DocType

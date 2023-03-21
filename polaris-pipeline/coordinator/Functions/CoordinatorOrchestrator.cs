@@ -106,7 +106,7 @@ namespace coordinator.Functions
             var trackerDocuments = await tracker.GetDocuments();
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Now process each document for case {payload.CmsCaseId}");
-            var caseDocumentTasks 
+            var caseDocumentTasks
                 = trackerDocuments.Select
                     (
                         t => context.CallSubOrchestratorAsync
@@ -115,17 +115,17 @@ namespace coordinator.Functions
                                     new CaseDocumentOrchestrationPayload
                                     (
                                         t.PolarisDocumentId,
-                                        payload.CmsCaseUrn, 
-                                        payload.CmsCaseId, 
-                                        t.CmsDocType.DocumentCategory, 
+                                        payload.CmsCaseUrn,
+                                        payload.CmsCaseId,
+                                        t.CmsDocType.DocumentCategory,
                                         t.CmsDocumentId,
                                         t.CmsVersionId,
-                                        t.CmsOriginalFileName, 
-                                        payload.CmsAuthValues, 
+                                        t.CmsOriginalFileName,
+                                        payload.CmsAuthValues,
                                         payload.CorrelationId
                                     )
                                 )
-                    ) 
+                    )
                 .ToList();
 
             await Task.WhenAll(caseDocumentTasks.Select(BufferCall));
@@ -165,11 +165,11 @@ namespace coordinator.Functions
             return result;
         }
 
-        private async Task<CmsCaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
+        private async Task<TransitionDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
             CoordinatorOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CmsCaseId}");
-            var documents = await context.CallActivityAsync<CmsCaseDocument[]>(
+            var documents = await context.CallActivityAsync<TransitionDocument[]>(
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId));
 
@@ -177,26 +177,15 @@ namespace coordinator.Functions
 
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"No documents found, register this in the tracker for case {payload.CmsCaseId}");
             await tracker.RegisterNoDocumentsFoundInDDEI();
-            return documents;
+            return Array.Empty<TransitionDocument>();
         }
 
         private static async Task RegisterDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
-            IEnumerable<CmsCaseDocument> documents)
+            TransitionDocument[] documentscuments)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
-            List<IncomingDocument> incomingDocuments
-                = documents
-                    .Select(item => new IncomingDocument(polarisDocumentId: context.NewGuid(),
-                                                         documentId: item.DocumentId,
-                                                         versionId: item.VersionId,
-                                                         originalFileName: item.FileName,
-                                                         mimeType: item.MimeType,
-                                                         cmsDocType : item.CmsDocType,
-                                                         createdDate : item.DocumentDate
-                                                         )
-                           )
-                    .ToList();
-            var arg = new RegisterDocumentIdsArg(payload.CmsCaseUrn, payload.CmsCaseId, incomingDocuments, payload.CorrelationId);
+
+            var arg = new RegisterDocumentIdsArg(payload.CmsCaseUrn, payload.CmsCaseId, documentscuments, payload.CorrelationId);
             await tracker.RegisterDocumentIds(arg);
         }
     }
