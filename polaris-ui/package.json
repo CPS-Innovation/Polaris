@@ -60,9 +60,8 @@
     "xunit-viewer": "^7.1.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "start:coredata": "sudo HTTPS=true PORT=443 env-cmd -f .env.coredata react-scripts start",
-    "build": "react-scripts build",
+    "start": "PUBLIC_URL=/polaris-ui react-scripts start",
+    "build": "PUBLIC_URL=/polaris-ui react-scripts build",
     "test": "react-scripts test  --watchAll",
     "test:ci": "./scripts/test-ci.sh",
     "eject": "react-scripts eject",
