@@ -10,7 +10,7 @@ using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions;
-using coordinator.Functions.SubOrchestrators;
+using coordinator.Functions.OrchestrationFunctions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -30,7 +30,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ITracker> _mockTracker;
 
-        private readonly CaseDocumentOrchestrator _caseDocumentOrchestrator;
+        private readonly RefreshDocumentOrchestrator _caseDocumentOrchestrator;
 
         public CaseDocumentOrchestratorTests()
         {
@@ -44,7 +44,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: _content);
             _pdfResponse = fixture.Create<GeneratePdfResponse>();
             
-            var mockLogger = new Mock<ILogger<CaseDocumentOrchestrator>>();
+            var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockTracker = new Mock<ITracker>();
             
@@ -72,7 +72,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ITracker>(It.Is<EntityId>(e => e.EntityName == nameof(Tracker).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
                 .Returns(_mockTracker.Object);
             
-            _caseDocumentOrchestrator = new CaseDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);
+            _caseDocumentOrchestrator = new RefreshDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);
         }
 
         [Fact]

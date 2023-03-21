@@ -18,28 +18,24 @@ namespace coordinator.Domain.Tracker
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-        [JsonProperty("documents")]
-        public List<TrackerDocument> Documents { get; set; }
-
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public TrackerStatus Status { get; set; }
 
-        [JsonProperty("logs")]
-        public List<Log> Logs { get; set; }
-
         [JsonProperty("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
+
+        [JsonProperty("documents")]
+        public List<TrackerDocument> Documents { get; set; }
+
+        [JsonProperty("logs")]
+        public List<Log> Logs { get; set; }
 
         public Task Initialise(string transactionId)
         {
             TransactionId = transactionId;
 
-            Documents = new List<TrackerDocument>();
-
-            Status = TrackerStatus.Running;
-            Logs = new List<Log>();
-            ProcessingCompleted = null; //reset the processing date
+            ClearState(TrackerStatus.Running);
 
             Log(LogType.Initialised);
 
@@ -98,13 +94,6 @@ namespace coordinator.Domain.Tracker
         private TrackerDocument CreateTrackerDocument(IncomingDocument document)
         {
             return new TrackerDocument(document.PolarisDocumentId, document.DocumentId, document.VersionId, document.CmsDocType, document.MimeType, document.CreatedDate, document.OriginalFileName);
-        }
-
-        public Task ProcessEvaluatedDocuments()
-        {
-            Log(LogType.ProcessedEvaluatedDocuments);
-
-            return Task.CompletedTask;
         }
 
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
@@ -218,6 +207,15 @@ namespace coordinator.Domain.Tracker
             return Task.CompletedTask;
         }
 
+        public Task RegisterDeleted ()
+        {
+            ClearState(TrackerStatus.Deleted);
+            Log(LogType.Deleted);
+            ProcessingCompleted = DateTime.Now;
+
+            return Task.CompletedTask;
+        }
+
         public Task<List<TrackerDocument>> GetDocuments()
         {
             return Task.FromResult(Documents);
@@ -246,6 +244,14 @@ namespace coordinator.Domain.Tracker
             return ProcessingCompleted.HasValue
                 ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date)
                 : Task.FromResult(false);
+        }
+
+        private void ClearState(TrackerStatus status)
+        {
+            Status = status;
+            Documents = new List<TrackerDocument>();
+            Logs = new List<Log>();
+            ProcessingCompleted = null; //reset the processing date
         }
 
         private void Log(LogType status, string cmsDocumentId = null)

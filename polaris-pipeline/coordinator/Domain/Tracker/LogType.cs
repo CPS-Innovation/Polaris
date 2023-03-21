@@ -15,6 +15,7 @@
         OcrAndIndexFailure,
         Completed,
         Failed, 
-        ProcessedEvaluatedDocuments
+        ProcessedEvaluatedDocuments,
+        Deleted
     }
 }

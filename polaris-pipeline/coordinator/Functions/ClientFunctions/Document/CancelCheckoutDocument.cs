@@ -13,7 +13,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Document
 {
     public class CancelCheckoutDocument : BaseClientFunction
     {

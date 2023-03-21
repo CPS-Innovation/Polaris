@@ -6,13 +6,14 @@ using Common.Clients.Contracts;
 using Common.Constants;
 using Common.Logging;
 using coordinator.Domain.Tracker;
+using coordinator.Functions.ClientFunctions.Document;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Case
 {
     public class SearchCase
     {
@@ -31,7 +32,7 @@ namespace coordinator.Functions.ClientFunctions
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "urns/{caseUrn}/cases/{caseId}/documents/search/{*searchTerm}")] HttpRequestMessage req,
             string caseUrn,
             int caseId,
-            string searchTerm, 
+            string searchTerm,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
