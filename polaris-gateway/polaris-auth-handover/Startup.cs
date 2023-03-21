@@ -32,10 +32,9 @@ namespace PolarisAuthHandover
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<ICmsAuthValuesFactory, CmsAuthValuesFactory>();
 
             builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
-            
+
             builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
             {
                 configuration.GetSection("ddei").Bind(settings);

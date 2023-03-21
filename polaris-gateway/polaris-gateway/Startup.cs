@@ -62,7 +62,6 @@ namespace PolarisGateway
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
             builder.Services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            builder.Services.AddTransient<ICmsAuthValuesFactory, CmsAuthValuesFactory>();
 
             builder.Services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {

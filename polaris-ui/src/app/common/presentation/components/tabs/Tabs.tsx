@@ -3,7 +3,7 @@ import { CommonTabsProps } from "./types";
 import { useLastFocus } from "../../../hooks/useLastFocus";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
-import { ReactComponent as CloseIcon } from "../../svgs/closeIcon.svg";
+import { ReactComponent as CloseIcon } from "../../svgs/closeIconBold.svg";
 import classes from "./Tabs.module.scss";
 
 const ARROW_KEY_SHIFTS = {
@@ -35,7 +35,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
   useEffect(() => {
     activeTabRef.current?.focus();
-  }, [activeTabId]);
+  }, [activeTabId, items.length]);
   useLastFocus(document.querySelector("#case-details-search") as HTMLElement);
 
   const activeTabArrayPos = items.findIndex((item) => item.id === activeTabId);
@@ -137,6 +137,7 @@ export const Tabs: React.FC<TabsProps> = ({
                   <button
                     className={classes.tabCloseButton}
                     onClick={handleCloseTab}
+                    onKeyDown={handleKeyPressOnTab}
                     data-testid="tab-remove"
                   >
                     <CloseIcon />

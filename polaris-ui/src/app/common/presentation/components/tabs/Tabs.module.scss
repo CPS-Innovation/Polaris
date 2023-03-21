@@ -2,6 +2,9 @@
 
 :global(.govuk-tabs > .govuk-tabs__panel) {
   padding: 0 !important;
+  &:focus {
+    outline: #ffdd00 auto 1px;
+  }
 }
 .tabsWrapper {
   display: flex;
@@ -51,6 +54,14 @@
   border: none;
   background-color: transparent;
   cursor: pointer;
+  margin-bottom: 3px;
+
+  &:focus {
+    outline: 3px solid rgba(0, 0, 0, 0);
+    color: #0b0c0c;
+    background-color: #fd0;
+    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+  }
 }
 .tabLabel {
   max-width: 180px;
@@ -72,5 +83,13 @@
   right: 15px;
   top: 25px;
   padding: 0;
+  color: white;
   cursor: pointer;
+  border-radius: 50%;
+  background-color: #b1b4b6;
+  &:focus {
+    outline: 0;
+    background-color: #ffdd00;
+    color: #0b0c0c;
+  }
 }
