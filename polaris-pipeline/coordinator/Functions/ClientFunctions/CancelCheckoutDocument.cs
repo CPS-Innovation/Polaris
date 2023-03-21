@@ -24,7 +24,7 @@ namespace coordinator.Functions.ClientFunctions
             _documentService = documentService;
         }
 
-        const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(CancelCheckoutDocument)} - {nameof(HttpStart)}";
 
         [FunctionName(nameof(CancelCheckoutDocument))]
         public async Task<IActionResult> HttpStart(
