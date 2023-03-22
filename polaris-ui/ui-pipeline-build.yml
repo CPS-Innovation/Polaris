@@ -1,4 +1,4 @@
-# Build and Publish Artifact Azure DevOps pipeline for Text-Extractor Codebase, following commit
+# Build and Publish Artifact Azure DevOps pipeline for SPA Codebase, following commit
 
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
 
