@@ -3,7 +3,7 @@
     public enum LogType
     {
         Initialised,
-        RegisteredDocumentIds,
+        DocumentsSynchronised,
         RegisteredPdfBlobName,
         DocumentAlreadyProcessed,
         UnableToConvertDocumentToPdf,

@@ -5,9 +5,9 @@ namespace coordinator.Domain.Tracker
 {
     public interface ITracker
     {
-        Task Initialise(string transactionId);
+        Task Reset(string transactionId);
         Task SetValue(Functions.DurableEntityFunctions.Tracker tracker);
-        Task RegisterDocumentIds(RegisterDocumentIdsArg arg);
+        Task SynchroniseDocuments(SynchroniseDocumentsArg arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
         Task RegisterUnableToConvertDocumentToPdf(string documentId);
@@ -18,8 +18,7 @@ namespace coordinator.Domain.Tracker
         Task RegisterFailed();
         Task RegisterDeleted();
         Task<List<TrackerDocument>> GetDocuments();
+        Task ClearDocuments();
         Task<bool> AllDocumentsFailed();
-        Task<bool> IsAlreadyProcessed();
-        Task<bool> IsStale();
     }
 }
