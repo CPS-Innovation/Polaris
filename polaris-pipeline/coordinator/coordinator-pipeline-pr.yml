@@ -1,4 +1,4 @@
-﻿# Pull Request Azure DevOps pipeline for Coordinator Codebase - actual trigger defined in Azure DevOps via build policy
+# Pull Request Azure DevOps pipeline for Coordinator Codebase - actual trigger defined in Azure DevOps via build policy
 
 trigger: none
 
