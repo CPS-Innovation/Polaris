@@ -4,6 +4,6 @@
     {
         public CaseOrchestrationPayload CaseOrchestrationPayload { get; set; }
 
-        public coordinator.Functions.DurableEntityFunctions.Tracker Tracker { get; set; }
+        public Functions.DurableEntityFunctions.Tracker Tracker { get; set; }
     }
 }

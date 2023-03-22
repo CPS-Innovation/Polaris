@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace coordinator.Domain.Tracker;
 
-public class RegisterDocumentIdsArg
+public class SynchroniseDocumentsArg
 {
-    public RegisterDocumentIdsArg(string caseUrn, long caseId, TransitionDocument[] documents, Guid correlationId)
+    public SynchroniseDocumentsArg(string caseUrn, long caseId, TransitionDocument[] documents, Guid correlationId)
     {
         CaseUrn = caseUrn ?? throw new ArgumentNullException(nameof(caseUrn));
         CaseId = caseId;

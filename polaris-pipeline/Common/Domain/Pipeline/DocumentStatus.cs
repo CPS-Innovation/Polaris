@@ -2,7 +2,7 @@
 {
     public enum DocumentStatus
 	{
-		None,
+		New,
         Indexed,
         PdfUploadedToBlob,
 		UnableToConvertToPdf,
