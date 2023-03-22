@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using PolarisGateway.Domain.DocumentExtraction;
-using System.Reflection.Metadata;
 using System;
 using System.Net.Http;
 using Common.Constants;
@@ -10,6 +8,7 @@ using Common.Logging;
 using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Domain.Tracker;
+using coordinator.Functions.DurableEntityFunctions;
 
 namespace coordinator.Functions.ClientFunctions
 {

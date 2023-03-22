@@ -87,28 +87,17 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         }
 
         [Fact]
-        public async Task TriggerCoordinator_UrlHasNoForceQueryWhenForceIsFalse()
+        public async Task TriggerCoordinator_UrlIsGenerated()
         {
-            await _triggerCoordinatorPipelineClient.RefreshCaseAsync(_caseUrn, _caseId, _cmsAuthValues, false, _correlationId);
+            await _triggerCoordinatorPipelineClient.RefreshCaseAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
 
             _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Post, $"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}", _correlationId, _cmsAuthValues));
         }
 
         [Fact]
-        public async Task TriggerCoordinator_UrlHasForceQueryWhenForceIsTrue()
-        {
-            var url = $"urns/{_caseUrn}/cases/{_caseId}?code={_polarisPipelineFunctionAppKey}&&force=true";
-            _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Post, url, It.IsAny<Guid>(), _cmsAuthValues)).Returns(_httpRequestMessage);
-
-            await _triggerCoordinatorPipelineClient.RefreshCaseAsync(_caseUrn, _caseId, _cmsAuthValues, true, _correlationId);
-
-            _mockRequestFactory.Verify(factory => factory.Create(HttpMethod.Post, url, _correlationId, _cmsAuthValues));
-        }
-
-        [Fact]
         public async Task TriggerCoordinator_TriggersCoordinatorSuccessfully()
         {
-            await _triggerCoordinatorPipelineClient.RefreshCaseAsync(_caseUrn, _caseId, _cmsAuthValues, false, _correlationId);
+            await _triggerCoordinatorPipelineClient.RefreshCaseAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
 
         [Fact]

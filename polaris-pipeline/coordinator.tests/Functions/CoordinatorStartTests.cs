@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
+using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.OrchestrationFunctions;
 using FluentAssertions;
@@ -28,6 +30,7 @@ namespace coordinator.tests.Functions
 
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<ILogger<UpdateCaseStart>> _mockLogger;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         private readonly UpdateCaseStart _coordinatorStart;
 
@@ -41,6 +44,7 @@ namespace coordinator.tests.Functions
             var correlationId = _fixture.Create<Guid>();
             _instanceId = _caseId;
             _httpRequestMessage = new HttpRequestMessage();
+            _jsonConvertWrapper = new JsonConvertWrapper();
 
             _httpRequestMessage.Method = HttpMethod.Post;
             _httpRequestMessage.RequestUri = new Uri("https://www.test.co.uk");
@@ -59,7 +63,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequestMessage, _instanceId, false))
                 .Returns(_httpResponseMessage);
 
-            _coordinatorStart = new UpdateCaseStart(_mockLogger.Object);
+            _coordinatorStart = new UpdateCaseStart(_jsonConvertWrapper, _mockLogger.Object);
         }
 
         [Fact]
@@ -89,16 +93,6 @@ namespace coordinator.tests.Functions
         }
 
         [Fact]
-        public async Task Run_ReturnsBadRequestWhenForceRefreshIsInvalid()
-        {
-            _httpRequestMessage.RequestUri = new Uri("https://www.test.co.uk?force=invalid");
-
-            var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
-
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledErrorOccurs()
         {
             _mockDurableOrchestrationClient.Setup(client => client.StartNewAsync(nameof(RefreshCaseOrchestrator), _instanceId, It.IsAny<CaseOrchestrationPayload>()))
@@ -120,7 +114,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
                     _instanceId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum && p.ForceRefresh == false)));
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum)));
         }
 
         [Theory]
@@ -138,21 +132,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
                     _instanceId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum && p.ForceRefresh == false)));
-        }
-
-        [Fact]
-        public async Task Run_SetsForceRefreshWhenValid()
-        {
-            var forceRefresh = _fixture.Create<bool>();
-            _httpRequestMessage.RequestUri = new Uri($"https://www.test.co.uk?force={forceRefresh}");
-            await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
-
-            _mockDurableOrchestrationClient.Verify(
-                client => client.StartNewAsync(
-                    nameof(RefreshCaseOrchestrator),
-                    _instanceId,
-                    It.Is<CaseOrchestrationPayload>(p => p.ForceRefresh == forceRefresh)));
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum)));
         }
 
         [Fact]
@@ -187,7 +167,7 @@ namespace coordinator.tests.Functions
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
                     _caseId,
-                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum && p.ForceRefresh == false)),
+                    It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum)),
                 Times.Never);
         }
 

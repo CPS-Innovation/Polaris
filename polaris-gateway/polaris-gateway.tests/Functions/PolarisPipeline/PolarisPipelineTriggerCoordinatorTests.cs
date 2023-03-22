@@ -105,20 +105,11 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         }
 
         [Fact]
-        public async Task Run_ReturnsBadRequestWhenForceIsNotABool()
-        {
-            _request.Query = new QueryCollection(new Dictionary<string, StringValues> { { "force", new StringValues("not a bool") } });
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
-
-            response.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Fact]
         public async Task Run_TriggersCoordinator()
         {
             await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
 
-            _mockPipelineClient.Verify(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()));
+            _mockPipelineClient.Verify(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -141,7 +132,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenHttpExceptionOccurs()
         {
-            _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new HttpRequestException());
 
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
@@ -152,7 +143,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledExceptionOccurs()
         {
-            _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception());
 
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;

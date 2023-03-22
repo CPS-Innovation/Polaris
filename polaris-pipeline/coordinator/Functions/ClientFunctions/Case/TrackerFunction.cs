@@ -4,8 +4,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
+using Common.Domain.Exceptions;
 using Common.Logging;
-using coordinator.Domain.Tracker;
+using Common.Wrappers.Contracts;
+using coordinator.Functions.DurableEntityFunctions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -14,14 +16,21 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.ClientFunctions.Case
 {
-    public class GetTrackerStatus
+    public class TrackerFunction
     {
-        const string loggingName = $"{nameof(GetTrackerStatus)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(TrackerFunction)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        [FunctionName(nameof(GetTrackerStatus))]
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
+
+        public TrackerFunction(IJsonConvertWrapper jsonConvertWrapper)
+        {
+            _jsonConvertWrapper = jsonConvertWrapper;
+        }
+
+        [FunctionName(nameof(TrackerFunction))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "put", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             [DurableClient] IDurableEntityClient client,
@@ -49,23 +58,30 @@ namespace coordinator.Functions.ClientFunctions.Case
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
 
                 var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-                var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
-                if (!stateResponse.EntityExists)
+                var trackerState = await client.ReadEntityStateAsync<Tracker>(entityId);
+
+                if (!trackerState.EntityExists)
                 {
                     var baseMessage = $"No pipeline tracker found with id '{caseId}'";
                     log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
                     return new NotFoundObjectResult(baseMessage);
                 }
 
-                log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                return new OkObjectResult(stateResponse.EntityState);
+                switch (req.Method.Method)
+                {
+                    case "GET":
+                        log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
+                        return new OkObjectResult(trackerState.EntityState);
+
+                    default:
+                        throw new BadRequestException("Unexpected HTTP Verb", req.Method.Method);
+                }
             }
             catch (Exception ex)
             {
                 log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
                 return new StatusCodeResult(500);
             }
-
         }
     }
 }

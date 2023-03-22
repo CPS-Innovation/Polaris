@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Constants;
 using Common.Logging;
-using coordinator.Domain.Tracker;
-using coordinator.Functions.ClientFunctions.Document;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -61,7 +59,7 @@ namespace coordinator.Functions.ClientFunctions.Case
                 log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
                 var entityId = new EntityId(nameof(Domain.Tracker), caseId.ToString());
-                var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
+                var stateResponse = await client.ReadEntityStateAsync<TrackerFunction>(entityId);
                 if (!stateResponse.EntityExists)
                 {
                     var baseMessage = $"No pipeline tracker found with id '{caseId}'";

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Extensions;
 using Common.Logging;
+using Common.Domain.Pipeline;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Domain.Tracker;
@@ -17,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.OrchestrationFunctions
 {
-    public class RefreshCaseOrchestrator
+    public class RefreshCaseOrchestrator : PolarisOrchestrator
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
@@ -41,7 +42,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             var currentCaseId = payload.CmsCaseId;
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
-            var tracker = CreateTracker(context, payload.CmsCaseUrn, payload.CmsCaseId, payload.CorrelationId, log);
+            var tracker = CreateOrGetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
 
             try
             {
@@ -84,27 +85,26 @@ namespace coordinator.Functions.OrchestrationFunctions
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            if (await tracker.IsAlreadyProcessed() && !await tracker.IsStale(payload.ForceRefresh))
-            {
-                log.LogMethodFlow(payload.CorrelationId, loggingName,
-                    $"Tracker has already finished processing, a 'force refresh' has not been issued and it is not stale - returning documents - {context.InstanceId}");
-                return await tracker.GetDocuments();
-            }
-
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Initialising tracker for {context.InstanceId}");
-            await tracker.Initialise(context.InstanceId);
+            await tracker.Reset(context.InstanceId);
 
             var documents = await RetrieveDocuments(context, tracker, loggingName, log, payload);
             if (documents.Length == 0)
+            {
+                await tracker.ClearDocuments();
+                await tracker.RegisterCompleted();
                 return new List<TrackerDocument>();
+            }
 
             //bring the tracker document list up-to-date, or populate it for the first time
-            await RegisterDocuments(context, tracker, loggingName, log, payload, documents);
+            await RegisterDocuments(tracker, loggingName, log, payload, documents);
             var trackerDocuments = await tracker.GetDocuments();
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Now process each document for case {payload.CmsCaseId}");
             var caseDocumentTasks
-                = trackerDocuments.Select
+                = trackerDocuments
+                    .Where(t => t.Status == DocumentStatus.New)
+                    .Select
                     (
                         t => context.CallSubOrchestratorAsync
                                 (
@@ -123,14 +123,17 @@ namespace coordinator.Functions.OrchestrationFunctions
                                     )
                                 )
                     )
-                .ToList();
+                    .ToList();
 
-            await Task.WhenAll(caseDocumentTasks.Select(BufferCall));
+            if( caseDocumentTasks.Any() ) 
+            {
+                await Task.WhenAll(caseDocumentTasks.Select(BufferCall));
 
-            if (await tracker.AllDocumentsFailed())
-                throw new CaseOrchestrationException("All documents failed to process during orchestration.");
+                if (await tracker.AllDocumentsFailed())
+                    throw new CaseOrchestrationException("All documents failed to process during orchestration.");
+            }
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"All documents processed successfully for case {payload.CmsCaseId}");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{caseDocumentTasks.Count} of {trackerDocuments.Count} documents processed successfully for case {payload.CmsCaseId}");
             await tracker.RegisterCompleted();
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning documents");
@@ -151,17 +154,6 @@ namespace coordinator.Functions.OrchestrationFunctions
             }
         }
 
-        private ITracker CreateTracker(IDurableOrchestrationContext context, string caseUrn, long caseId, Guid correlationId, ILogger safeLoggerInstance)
-        {
-            safeLoggerInstance.LogMethodEntry(correlationId, nameof(CreateTracker), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
-
-            var entityId = new EntityId(nameof(Tracker), caseId.ToString());
-            var result = context.CreateEntityProxy<ITracker>(entityId);
-
-            safeLoggerInstance.LogMethodExit(correlationId, nameof(CreateTracker), "n/a");
-            return result;
-        }
-
         private async Task<TransitionDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
             CaseOrchestrationPayload payload)
         {
@@ -173,13 +165,13 @@ namespace coordinator.Functions.OrchestrationFunctions
             return documents;
         }
 
-        private static async Task RegisterDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
+        private static async Task RegisterDocuments(ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
             TransitionDocument[] documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 
-            var arg = new RegisterDocumentIdsArg(payload.CmsCaseUrn, payload.CmsCaseId, documents, payload.CorrelationId);
-            await tracker.RegisterDocumentIds(arg);
+            var arg = new SynchroniseDocumentsArg(payload.CmsCaseUrn, payload.CmsCaseId, documents, payload.CorrelationId);
+            await tracker.SynchroniseDocuments(arg);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get the pipeline tracker for DocumentId: '{payload.CmsDocumentId}'");
-            var tracker = GetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
+            var tracker = CreateOrGetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for DocumentId: '{payload.CmsDocumentId}', FileName: '{payload.CmsFileName}'");
             var pdfGeneratorResponse = await CallPdfGeneratorAsync(context, payload, tracker, log);

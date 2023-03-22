@@ -11,7 +11,9 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
+using Common.Wrappers.Contracts;
 using coordinator.Domain;
+using coordinator.Functions.DurableEntityFunctions;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -21,17 +23,19 @@ namespace coordinator.Functions.OrchestrationFunctions
 {
     public class UpdateCaseStart
     {
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<UpdateCaseStart> _logger;
 
-        public UpdateCaseStart(ILogger<UpdateCaseStart> logger)
+        public UpdateCaseStart(IJsonConvertWrapper jsonConvertWrapper, ILogger<UpdateCaseStart> logger)
         {
+            _jsonConvertWrapper = jsonConvertWrapper;
             _logger = logger;
         }
 
         [FunctionName(nameof(UpdateCaseStart))]
         public async Task<HttpResponseMessage> Run
             (
-                [HttpTrigger(AuthorizationLevel.Anonymous, "post", "delete", Route = RestApi.Case)] HttpRequestMessage req,
+                [HttpTrigger(AuthorizationLevel.Anonymous, "put", "post", "delete", Route = RestApi.Case)] HttpRequestMessage req,
                 string caseUrn,
                 string caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
@@ -69,54 +73,42 @@ namespace coordinator.Functions.OrchestrationFunctions
                 if (req.RequestUri == null)
                     throw new BadRequestException("Expected querystring value", nameof(req));
 
+                CaseOrchestrationPayload casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId);
+
                 switch (req.Method.Method)
                 {
                     case "POST":
-                        var query = HttpUtility.ParseQueryString(req.RequestUri.Query);
-                        var force = query.Get("force");
-
-                        var forceRefresh = false;
-                        if (force != null && !bool.TryParse(force, out forceRefresh))
-                        {
-                            throw new BadRequestException("Invalid query string. Force value must be a boolean.", force);
-                        }
-
-                        // Check if an instance with the specified ID already exists or an existing one stopped running(completed/failed/terminated/cancelled).
-                        _logger.LogMethodFlow(currentCorrelationId, loggingName, "Check if an instance with the specified ID already exists or an existing one stopped running(completed/failed/terminated/cancelled");
                         var existingInstance = await orchestrationClient.GetStatusAsync(caseId);
-                        if (existingInstance == null || existingInstance.RuntimeStatus is OrchestrationRuntimeStatus.Completed
-                                or OrchestrationRuntimeStatus.Failed or OrchestrationRuntimeStatus.Terminated or OrchestrationRuntimeStatus.Canceled)
-                        {
-                            await orchestrationClient.StartNewAsync
-                                (
-                                    nameof(RefreshCaseOrchestrator),
-                                    caseId,
-                                    new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId, forceRefresh)
-                                );
+                        bool isRunning = IsRunning(existingInstance);
+                        if (!isRunning)
+                            await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), caseId, casePayload);
 
-                            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(UpdateCaseStart)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
-                        }
-                        else
-                        {
-                            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(UpdateCaseStart)} Succeeded - {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}' is already running");
-                        }
+                        _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(UpdateCaseStart)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
 
                         return orchestrationClient.CreateCheckStatusResponse(req, caseId);
 
                     case "DELETE":
                         var status = await orchestrationClient.GetStatusAsync(caseId);
-                        /* if (status.RuntimeStatus
-                                is not OrchestrationRuntimeStatus.Completed
-                                and not OrchestrationRuntimeStatus.Failed
-                                and not OrchestrationRuntimeStatus.Terminated
-                                and not OrchestrationRuntimeStatus.Canceled)*/
-                            await orchestrationClient.StartNewAsync
-                                (
-                                    nameof(DeleteCaseOrchestrator),
-                                    caseId,
-                                    new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId)
-                                ); 
+                        await orchestrationClient.StartNewAsync(nameof(DeleteCaseOrchestrator), caseId, casePayload); 
                         await orchestrationClient.TerminateAsync(status.InstanceId, $"{loggingName} - terminated via DELETE");
+
+                        return new HttpResponseMessage(HttpStatusCode.Accepted);
+
+                    case "PUT":
+                        var content = await req.Content.ReadAsStringAsync();
+                        if (string.IsNullOrWhiteSpace(content))
+                        {
+                            throw new BadRequestException("Request body cannot be null.", nameof(req));
+                        }
+                        var tracker = _jsonConvertWrapper.DeserializeObject<Tracker>(content);
+
+                        UpdateTrackerPayload updateTrackerPayload = new UpdateTrackerPayload
+                        {
+                            CaseOrchestrationPayload = casePayload,
+                            Tracker = tracker
+                        };
+
+                        await orchestrationClient.StartNewAsync(nameof(UpdateTrackerOrchestrator), caseId, updateTrackerPayload);
 
                         return new HttpResponseMessage(HttpStatusCode.Accepted);
 
@@ -153,6 +145,18 @@ namespace coordinator.Functions.OrchestrationFunctions
             {
                 _logger.LogMethodExit(currentCorrelationId, loggingName, "n/a");
             }
+        }
+
+        private static bool IsRunning(DurableOrchestrationStatus existingInstance)
+        {
+            bool notRunning = existingInstance == null ||
+                    existingInstance.RuntimeStatus
+                        is OrchestrationRuntimeStatus.Completed
+                        or OrchestrationRuntimeStatus.Failed
+                        or OrchestrationRuntimeStatus.Terminated
+                        or OrchestrationRuntimeStatus.Canceled;
+
+            return !notRunning;
         }
     }
 }
