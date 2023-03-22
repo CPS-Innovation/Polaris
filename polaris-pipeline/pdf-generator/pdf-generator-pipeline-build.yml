@@ -49,37 +49,6 @@ stages:
             displayName: "Build"
         
           - task: DotNetCoreCLI@2
-            displayName: 'Install ReportGenerator'
-            inputs:
-              command: custom
-              custom: tool
-              arguments: 'install --global dotnet-reportgenerator-globaltool'
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run PDF-Generator tests"
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
-              projects: "polaris-pipeline/Common.tests/Common.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run Common Library tests"
-
-          - script: |
-              reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
-            displayName: 'Create code coverage report'
-
-          - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage report'
-            inputs:
-              codeCoverageTool: 'cobertura'
-              summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
-        
-          - task: DotNetCoreCLI@2
             inputs:
               command: publish
               publishWebProjects: false
