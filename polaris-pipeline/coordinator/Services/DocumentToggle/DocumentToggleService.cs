@@ -11,7 +11,7 @@ namespace coordinator.Services.DocumentToggle
 {
     public class DocumentToggleService : IDocumentToggleService
     {
-        private const string ConfigFileName = "document-toggle.config";
+        private const string ConfigFileName = "document-toggle.txt";
 
         private List<Definition> _defintions { get; set; }
 
