@@ -1,0 +1,35 @@
+﻿# Pull Request Azure DevOps pipeline for UI Terraform - actual trigger defined in Azure DevOps via build policy
+
+trigger: none
+
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: ui-terraform
+
+stages:
+  - template: templates/terraform-adv-validation.yml # Validate
+    parameters:
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(ui-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform/"
+      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+
+  - template: templates/terraform-plan-nopub.yml # Plan DEV
+    parameters:
+      name: 'DEV'
+      buildAgent: $(dev-build-agent)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(ui-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform/"
+      planName: 'dev'
+      spnClientId: $(innovation-development-spn-client-id)
+      spnClientSecret: $(innovation-development-spn-secret)
+      spnTenantId: $(innovation-development-spn-tenant-id)
+      subscriptionId: $(innovation-development-subscription-id)

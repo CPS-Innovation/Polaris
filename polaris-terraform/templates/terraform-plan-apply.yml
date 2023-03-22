@@ -1,0 +1,109 @@
+﻿parameters:
+  name: ''
+  buildAgent: ''
+  terraformArtifactName: ''
+  terraformVersion: ''
+  terraformStorageAccount: ''
+  terraformContainerName: ''
+  terraformStateKey: ''
+  terraformAccessKey: ''
+  planName: ''
+  spnClientId: ''
+  spnClientSecret: ''
+  spnTenantId: ''
+  subscriptionId: ''
+  functionAppType: ''
+  functionAppName: ''
+  azureSubscription: ''
+  codebaseArtifactName: ''
+  dependentStageName: ''
+  triggeringAlias: ''
+    
+stages:
+  - stage: Apply_${{ parameters.name }}
+    displayName: CD > ${{ parameters.name }} Plan and Apply
+    dependsOn: ${{ parameters.dependentStageName }}
+    condition: and(succeeded(), eq(${{ parameters.triggeringAlias }}, 'PolarisTerraform'))
+    pool:
+      name: ${{ parameters.buildAgent }}
+    jobs:
+      - deployment: Deploy_Terraform
+        environment: ${{ parameters.planName }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download terraform build artifact
+                - download: polaris-terraform
+                  displayName: Terraform > Download ${{ parameters.planName }} Terraform Build
+                  artifact: ${{ parameters.terraformArtifactName }}
+
+                # Install Terraform based on version variable
+                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+                  displayName: Terraform > Install
+                  inputs:
+                    terraformVersion: ${{ parameters.terraformVersion }}
+
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/polaris-terraform/${{ parameters.terraformArtifactName }}
+                  env:
+                    TF_STATE_ACCOUNT_NAME: ${{ parameters.terraformStorageAccount }}
+                    TF_STATE_CONTAINER_NAME: ${{ parameters.terraformContainerName }}
+                    TF_STATE_KEY: ${{ parameters.terraformStateKey }}
+                    TF_STATE_ACCESS_KEY: ${{ parameters.terraformAccessKey }}
+                      
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=${{ parameters.planName }}.tfplan -var-file="${{ parameters.planName }}.tfvars"
+                  displayName: 'Terraform > Write ${{ parameters.name }} Plan'
+                  workingDirectory: $(Pipeline.Workspace)/polaris-terraform/${{ parameters.terraformArtifactName }}
+                  env:
+                    ARM_CLIENT_ID: ${{ parameters.spnClientId }}
+                    ARM_CLIENT_SECRET: ${{ parameters.spnClientSecret }}
+                    ARM_TENANT_ID: ${{ parameters.spnTenantId }}
+                    ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
+
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve ${{ parameters.planName }}.tfplan
+                  displayName: Terraform > Apply to ${{ parameters.name }}
+                  workingDirectory: $(Pipeline.Workspace)/polaris-terraform/${{ parameters.terraformArtifactName }}
+                  env:
+                    ARM_CLIENT_ID: ${{ parameters.spnClientId }}
+                    ARM_CLIENT_SECRET: ${{ parameters.spnClientSecret }}
+                    ARM_TENANT_ID: ${{ parameters.spnTenantId }}
+                    ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
+                    
+  - stage: Deploy_Codebase_to_${{ parameters.name }}
+    displayName: CD > Deploy Code Base to ${{ parameters.name }}
+    dependsOn: Apply_${{ parameters.name }}
+    condition: or(succeeded(), eq(${{ parameters.triggeringAlias }}, 'PolarisCodeBase'))
+    pool:
+      name: ${{ parameters.buildAgent }}
+    jobs:
+      - deployment: DDEI_CodeBase
+        environment: ${{ parameters.planName }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download terraform build artifact
+                - download: PolarisCodeBase
+                  displayName: Terraform > Download Codebase Build
+                  artifact: ${{ parameters.codebaseArtifactName }}
+
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy DDEI Azure Function App to ${{ parameters.name }}'
+                  inputs:
+                    azureSubscription: ${{ parameters.azureSubscription }}
+                    appType: ${{ parameters.functionAppType }}
+                    appName: ${{ parameters.functionAppName }}
+                    package: $(Pipeline.Workspace)/PolarisCodeBase/${{ parameters.codebaseArtifactName }}/a/polaris-ddei

@@ -1,0 +1,80 @@
+# Build and Publish Artifact Azure DevOps pipeline for Gateway Codebase, following commit
+
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+
+  paths:
+    include:
+      - "polaris-gateway/polaris-gateway/*"
+      - "polaris-gateway/polaris-gateway.tests/*"
+      - "polaris-gateway/polaris-gateway.common/*"
+
+variables:
+  buildConfiguration: "Release"
+  majorMinorVersion: 1.0
+  semanticVersion: $[counter(variables['majorMinorVersion'], 1)]
+
+stages:
+  - stage: Publish_Codebase
+    displayName: Create a Build
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:AssemblyVersion=$(Build.BuildNumber)"
+            displayName: "Build"
+        
+          - task: DotNetCoreCLI@2
+            displayName: 'Install ReportGenerator'
+            inputs:
+              command: custom
+              custom: tool
+              arguments: 'install --global dotnet-reportgenerator-globaltool'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Gateway tests"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/Common.tests/Common.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Common Library tests"
+
+          - script: |
+              reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
+            displayName: 'Create code coverage report'
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage report'
+            inputs:
+              codeCoverageTool: 'cobertura'
+              summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+        
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              zipAfterPublish: false
+            displayName: "Publish Polaris Gateway - $(buildConfiguration)"
+        
+          - task: PublishPipelineArtifact@1
+            inputs:
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              artifactName: "polaris-gateway-drop"

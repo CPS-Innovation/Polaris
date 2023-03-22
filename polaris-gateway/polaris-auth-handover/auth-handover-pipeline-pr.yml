@@ -1,0 +1,43 @@
+﻿# Pull Request Azure DevOps pipeline for Auth Handover Codebase - actual trigger defined in Azure DevOps via build policy
+
+trigger: none
+
+stages:
+  - stage: Validate_Build
+    displayName: PR > Build - No tests
+    jobs:
+      - job:
+        displayName: Build
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
+              arguments: "--configuration Release"
+            displayName: "Build"
+            
+          - task: DotNetCoreCLI@2
+            displayName: 'Install ReportGenerator'
+            inputs:
+              command: custom
+              custom: tool
+              arguments: 'install --global dotnet-reportgenerator-globaltool'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/Common.tests/Common.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run tests"
+
+          - script: |
+              reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
+            displayName: 'Create code coverage report'
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage report'
+            inputs:
+              codeCoverageTool: 'cobertura'
+              summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'

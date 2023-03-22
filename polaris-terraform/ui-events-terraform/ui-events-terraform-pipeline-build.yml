@@ -1,0 +1,32 @@
+﻿# Build and Publish Artifact Azure DevOps pipeline for UI Events Terraform, following commit
+
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+  
+  paths:
+    include:
+      - "polaris-terraform/ui-events-terraform/*"
+
+variables:
+  majorMinorVersion: 1.0
+  semanticVersion: $[counter(variables['majorMinorVersion'], 1)]
+
+stages:
+  - stage: Publish_Terraform
+    displayName: Create a Build
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Terraform Artifacts'
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/'
+              artifact: 'ui-events-terraform-files'
+              publishLocation: 'pipeline'

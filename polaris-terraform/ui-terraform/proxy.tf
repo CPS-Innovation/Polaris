@@ -25,6 +25,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DOCKER_REGISTRY_SERVER_PASSWORD"          = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                     = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
+    "WEBSITES_PORT"                            = "80"
+    "PORT"                                     = "80"
   }
   site_config {
     ftps_state     = "FtpsOnly"
