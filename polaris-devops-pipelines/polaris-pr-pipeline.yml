@@ -11,7 +11,7 @@ variables:
 
 stages:
   - stage: Validate_Build
-    displayName: PR > Build each project and run tests
+    displayName: PR > build/test each project
     jobs:
       - job:
         displayName: Build, Test and Report
@@ -76,7 +76,7 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-gateway/polaris-gateway/polaris-gateway.tests.csproj"
+              projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Gateway tests"
 
@@ -90,30 +90,24 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-pipeline/coordinator/coordinator.tests.csproj"
+              projects: "polaris-pipeline/coordinator.tests/coordinator.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Coordinator tests"
 
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.tests.csproj"
+              projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Pdf-Generator tests"
 
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-pipeline/text-extractor/text-extractor.tests.csproj"
+              projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Text-Extractor tests"
 
-          #- task: PublishCodeCoverageResults@1
-          #  displayName: 'Publish code coverage report'
-          #  inputs:
-          #    codeCoverageTool: 'cobertura'
-          #    summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
-          
           # Begin UI testing      
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
@@ -231,7 +225,7 @@ stages:
             displayName: 'Create code coverage report'
 
           - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage report'
             inputs:
-              codeCoverageTool: "Cobertura"
-              summaryFileLocation: "$(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml"
-            displayName: "Publish Code Coverage Report"
+              codeCoverageTool: 'cobertura'
+              summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
