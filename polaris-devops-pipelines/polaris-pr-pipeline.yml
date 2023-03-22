@@ -1,0 +1,237 @@
+# Pull Request Azure DevOps pipeline for the entire Polaris Codebase
+
+pr:
+  branches:
+    include:
+      #  - main
+      - feature/move_to_yaml_pipelines
+
+variables:
+  buildConfiguration: "Release"
+
+stages:
+  - stage: Validate_Build
+    displayName: PR > Build each project and run tests
+    jobs:
+      - job:
+        displayName: Build, Test and Report
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
+              arguments: "--configuration Release"
+            displayName: "Build Auth Handover"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Gateway"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/coordinator/coordinator.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Coordinator"
+
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-generator'
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build PDF Generator"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Text Extractor"
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Install ReportGenerator'
+            inputs:
+              command: custom
+              custom: tool
+              arguments: 'install --global dotnet-reportgenerator-globaltool'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Gateway tests"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/Common.tests/Common.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Common Library tests"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/coordinator/coordinator.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Coordinator tests"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Pdf-Generator tests"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/text-extractor/text-extractor.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Text-Extractor tests"
+
+          #- task: PublishCodeCoverageResults@1
+          #  displayName: 'Publish code coverage report'
+          #  inputs:
+          #    codeCoverageTool: 'cobertura'
+          #    summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+          
+          # Begin UI testing      
+          # We want to rely only on the .env.production file, anything in .env is still included
+          #  if not overwritten by .env.production.  For safety, just delete .env
+          - task: DeleteFiles@1
+            displayName: "Remove .env file"
+            inputs:
+              contents: |
+                polaris-ui/.env
+
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-ui"
+            displayName: "npm install"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run prettier"
+            displayName: "npm prettier"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run test:ci"
+            displayName: "npm test"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run cy:ci"
+            displayName: "cypress run tests"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run build"
+            displayName: "npm build"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run coverage"
+            displayName: "combine unit and cypress coverage"
+
+          - task: PublishBuildArtifacts@1
+            condition: always() # this step will always run, helpful to diagnose failing cypress testts
+            inputs:
+              PathtoPublish: "polaris-ui/cypress/videos"
+              ArtifactName: "Cypress failure vidoes"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Failure Videos"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/report"
+              ArtifactName: "Unit test report"
+              publishLocation: "Container"
+            displayName: "Publish UI Unit Test Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/report-cypress"
+              ArtifactName: "Cypress test report"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Test Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage"
+              ArtifactName: "Unit test coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Unit Test Coverage Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage-cypress"
+              ArtifactName: "Cypress coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Coverage Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage-merged"
+              ArtifactName: "Merged coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Merged Coverage Report"
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "polaris-ui/report/*.xml"
+              testRunTitle: "Unit tests"
+            displayName: "Publish UI Unit Test XML"
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "polaris-ui/report-cypress/test-*.xml"
+              testRunTitle: "Cypress tests"
+              mergeTestResults: true
+            displayName: "Publish UI Unit Test Cypress Tests XML"
+            
+          - script: |
+              cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(Build.SourcesDirectory)/uiresults.cobertura.xml
+            displayName: 'Moving ui coverage results'
+            
+          - script: |
+              reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
+            displayName: 'Create code coverage report'
+
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: "Cobertura"
+              summaryFileLocation: "$(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml"
+            displayName: "Publish Code Coverage Report"
