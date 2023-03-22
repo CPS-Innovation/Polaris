@@ -33,7 +33,13 @@ type Props = BackLinkingPageProps & {};
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
   const getDefendantNameText = (item: CaseSearchResult) => {
-    let titleString = `${item.leadDefendantDetails.surname}`;
+    let titleString = item.leadDefendantDetails.surname;
+    if (
+      item.leadDefendantDetails.organisationName &&
+      item.leadDefendantDetails.type === "Organisation"
+    ) {
+      titleString = item.leadDefendantDetails.organisationName;
+    }
     if (item.leadDefendantDetails.type !== "Organisation") {
       titleString = `${titleString},${item.leadDefendantDetails.firstNames}`;
     }
@@ -144,12 +150,12 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                     </Link>
                   </h2>
                   <Hint className={classes.defendantName}>
-                    <span data-testid={`defendant-name-text`}>
+                    <span data-testid={`defendant-name-text-${index}`}>
                       {getDefendantNameText(item)}
                     </span>
                     <br />
                     {item.leadDefendantDetails.type !== "Organisation" && (
-                      <span data-testid={`defendant-DOB`}>
+                      <span data-testid={`defendant-DOB-${index}`}>
                         Date of birth:{" "}
                         {formatDate(
                           item.leadDefendantDetails.dob,

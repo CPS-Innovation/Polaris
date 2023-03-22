@@ -65,24 +65,29 @@ describe("search results", () => {
     cy.url().should("include", "/case-search-results");
   });
 
-  it("Shouldn't show the firstname and date of birth if defendant is an organization", () => {
+  it("Shouldn't show the firstname and date of birth and read name from organisatioName if it is available or default name to surname, if defendant is an organization", () => {
     cy.visit("/case-search-results?urn=12AB2222233");
 
-    cy.findByTestId("link-12AB2222233", { timeout: 20000 });
-    cy.findByTestId("txt-result-count").contains("1");
-    cy.findByTestId("defendant-name-text").should(
+    cy.findAllByTestId("link-12AB2222233", { timeout: 20000 });
+    cy.findByTestId("txt-result-count").contains("2");
+    //reading from surname property since organisationName is empty
+    cy.findByTestId("defendant-name-text-0").should(
       "have.text",
       "GUZZLERS BREWERY and others"
     );
-    cy.findByTestId("defendant-DOB").should("not.exist");
+    //reading from organisationName property
+    cy.findByTestId("defendant-name-text-1").should("have.text", "ABC");
+    cy.findByTestId("defendant-DOB-0").should("not.exist");
+    cy.findByTestId("defendant-DOB-1").should("not.exist");
   });
+
   it("Should show the first name and surname and date of birth if defendant is not an organization", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
 
     cy.findByTestId("link-12AB1111111", { timeout: 20000 });
     cy.findByTestId("txt-result-count").contains("1");
-    cy.findByTestId("defendant-name-text").should("have.text", "Walsh,Steve");
-    cy.findByTestId("defendant-DOB").should(
+    cy.findByTestId("defendant-name-text-0").should("have.text", "Walsh,Steve");
+    cy.findByTestId("defendant-DOB-0").should(
       "have.text",
       "Date of birth: 28 November 1977"
     );
