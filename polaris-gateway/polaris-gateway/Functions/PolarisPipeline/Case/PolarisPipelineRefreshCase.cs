@@ -53,11 +53,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("An empty case URN was received", currentCorrelationId, loggingName);
 
-                var force = false;
-                if (req.Query.ContainsKey("force") && !bool.TryParse(req.Query["force"], out force))
-                    return BadRequestErrorResponse("Invalid query string. Force value must be a boolean.", currentCorrelationId, loggingName);
-
-                await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, request.CmsAuthValues, force, currentCorrelationId);
+                await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, request.CmsAuthValues, currentCorrelationId);
 
                 return new OkObjectResult(_triggerCoordinatorResponseFactory.Create(req, currentCorrelationId));
             }

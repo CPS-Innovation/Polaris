@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
-using coordinator.Domain.Tracker;
+using coordinator.Functions.DurableEntityFunctions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -14,12 +14,12 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.ClientFunctions.Case
 {
-    public class GetTrackerStatus
+    public class GetTracker
     {
-        const string loggingName = $"{nameof(GetTrackerStatus)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(GetTracker)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        [FunctionName(nameof(GetTrackerStatus))]
+        [FunctionName(nameof(GetTracker))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,

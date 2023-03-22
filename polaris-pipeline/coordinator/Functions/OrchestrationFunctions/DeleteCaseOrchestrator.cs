@@ -34,7 +34,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             var currentCaseId = payload.CmsCaseId;
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
-            var tracker = GetTracker(context, currentCaseId, payload.CorrelationId, log);
+            var tracker = CreateOrGetTracker(context, currentCaseId, payload.CorrelationId, log);
 
             try
             {
