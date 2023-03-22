@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using System.IO;
 using System.Collections.Generic;
 using coordinator.Domain.Tracker;
@@ -6,22 +7,28 @@ using System.Linq;
 using System;
 using coordinator.Services.DocumentToggle.Exceptions;
 using coordinator.Domain.Tracker.Presentation;
+using System.Reflection;
+using System.Text;
 
 namespace coordinator.Services.DocumentToggle
 {
     public class DocumentToggleService : IDocumentToggleService
     {
-        private const string ConfigFileName = "document-toggle.txt";
+        private const string ConfigResourceName = "coordinator.document-toggle.config";
 
         private List<Definition> _defintions { get; set; }
 
         public static string ReadConfig()
         {
-            return File.ReadAllText(ConfigFileName);
+            var assembly = Assembly.GetAssembly(typeof(DocumentToggleService));
+            var resourceStream = assembly.GetManifestResourceStream(ConfigResourceName);
+            using var reader = new StreamReader(resourceStream, Encoding.UTF8);
+            return reader.ReadToEnd();
         }
 
         public DocumentToggleService(string configFileContent)
         {
+
             if (configFileContent == null)
             {
                 throw new ArgumentNullException(nameof(configFileContent));
