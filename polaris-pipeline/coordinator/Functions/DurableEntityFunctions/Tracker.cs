@@ -44,6 +44,16 @@ namespace coordinator.Functions.DurableEntityFunctions
             return Task.CompletedTask;
         }
 
+        public Task SetValue(Tracker tracker)
+        {
+            this.Status = tracker.Status;
+            this.ProcessingCompleted = tracker.ProcessingCompleted;
+            this.Documents = tracker.Documents;
+            this.Logs = new List<Log>();
+
+            return Task.CompletedTask;
+        }
+
         public Task RegisterDocumentIds(RegisterDocumentIdsArg arg)
         {
             var evaluationResults = new DocumentEvaluationActivityPayload(arg.CaseUrn, arg.CaseId, arg.CorrelationId);
