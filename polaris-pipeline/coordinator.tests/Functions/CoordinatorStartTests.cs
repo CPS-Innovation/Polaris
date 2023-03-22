@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
+using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.OrchestrationFunctions;
 using FluentAssertions;
@@ -28,6 +30,7 @@ namespace coordinator.tests.Functions
 
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<ILogger<UpdateCaseStart>> _mockLogger;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         private readonly UpdateCaseStart _coordinatorStart;
 
@@ -41,6 +44,7 @@ namespace coordinator.tests.Functions
             var correlationId = _fixture.Create<Guid>();
             _instanceId = _caseId;
             _httpRequestMessage = new HttpRequestMessage();
+            _jsonConvertWrapper = new JsonConvertWrapper();
 
             _httpRequestMessage.Method = HttpMethod.Post;
             _httpRequestMessage.RequestUri = new Uri("https://www.test.co.uk");
@@ -59,7 +63,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequestMessage, _instanceId, false))
                 .Returns(_httpResponseMessage);
 
-            _coordinatorStart = new UpdateCaseStart(_mockLogger.Object);
+            _coordinatorStart = new UpdateCaseStart(_jsonConvertWrapper, _mockLogger.Object);
         }
 
         [Fact]

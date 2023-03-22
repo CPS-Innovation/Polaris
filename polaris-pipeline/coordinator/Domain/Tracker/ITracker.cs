@@ -6,6 +6,7 @@ namespace coordinator.Domain.Tracker
     public interface ITracker
     {
         Task Initialise(string transactionId);
+        Task SetValue(Functions.DurableEntityFunctions.Tracker tracker);
         Task RegisterDocumentIds(RegisterDocumentIdsArg arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);

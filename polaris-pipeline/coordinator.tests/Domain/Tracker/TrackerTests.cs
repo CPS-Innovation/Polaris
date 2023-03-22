@@ -17,6 +17,8 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Common.Wrappers.Contracts;
+using Common.Wrappers;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -32,13 +34,14 @@ namespace coordinator.tests.Domain.Tracker
         private readonly long _caseId;
         private readonly Guid _correlationId;
         private readonly EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker> _entityStateResponse;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
         private readonly Mock<ILogger> _mockLogger;
 
         private readonly coordinator.Functions.DurableEntityFunctions.Tracker _tracker;
-        private readonly GetTracker _trackerStatus;
+        private readonly TrackerFunction _trackerStatus;
 
         public TrackerTests()
         {
@@ -60,6 +63,7 @@ namespace coordinator.tests.Domain.Tracker
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
             _entityStateResponse = new EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker>() { EntityExists = true };
+            _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
@@ -72,7 +76,7 @@ namespace coordinator.tests.Domain.Tracker
                 .ReturnsAsync(_entityStateResponse);
 
             _tracker = new coordinator.Functions.DurableEntityFunctions.Tracker();
-            _trackerStatus = new GetTracker();
+            _trackerStatus = new TrackerFunction(_jsonConvertWrapper);
         }
 
         [Fact]
