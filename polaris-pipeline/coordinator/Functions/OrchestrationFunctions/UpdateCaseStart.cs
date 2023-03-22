@@ -72,50 +72,27 @@ namespace coordinator.Functions.OrchestrationFunctions
                 switch (req.Method.Method)
                 {
                     case "POST":
-                        var query = HttpUtility.ParseQueryString(req.RequestUri.Query);
-                        var force = query.Get("force");
-
-                        var forceRefresh = false;
-                        if (force != null && !bool.TryParse(force, out forceRefresh))
-                        {
-                            throw new BadRequestException("Invalid query string. Force value must be a boolean.", force);
-                        }
-
-                        // Check if an instance with the specified ID already exists or an existing one stopped running(completed/failed/terminated/cancelled).
-                        _logger.LogMethodFlow(currentCorrelationId, loggingName, "Check if an instance with the specified ID already exists or an existing one stopped running(completed/failed/terminated/cancelled");
                         var existingInstance = await orchestrationClient.GetStatusAsync(caseId);
-                        if (existingInstance == null || existingInstance.RuntimeStatus is OrchestrationRuntimeStatus.Completed
-                                or OrchestrationRuntimeStatus.Failed or OrchestrationRuntimeStatus.Terminated or OrchestrationRuntimeStatus.Canceled)
-                        {
+                        bool isRunning = IsRunning(existingInstance);
+                        if (!isRunning)
                             await orchestrationClient.StartNewAsync
-                                (
-                                    nameof(RefreshCaseOrchestrator),
-                                    caseId,
-                                    new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId, forceRefresh)
-                                );
-
-                            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(UpdateCaseStart)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
-                        }
-                        else
-                        {
-                            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(UpdateCaseStart)} Succeeded - {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}' is already running");
-                        }
+                            (
+                                nameof(RefreshCaseOrchestrator),
+                                caseId,
+                                new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId)
+                            );
+                        _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(UpdateCaseStart)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
 
                         return orchestrationClient.CreateCheckStatusResponse(req, caseId);
 
                     case "DELETE":
                         var status = await orchestrationClient.GetStatusAsync(caseId);
-                        /* if (status.RuntimeStatus
-                                is not OrchestrationRuntimeStatus.Completed
-                                and not OrchestrationRuntimeStatus.Failed
-                                and not OrchestrationRuntimeStatus.Terminated
-                                and not OrchestrationRuntimeStatus.Canceled)*/
-                            await orchestrationClient.StartNewAsync
-                                (
-                                    nameof(DeleteCaseOrchestrator),
-                                    caseId,
-                                    new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId)
-                                ); 
+                        await orchestrationClient.StartNewAsync
+                            (
+                                nameof(DeleteCaseOrchestrator),
+                                caseId,
+                                new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId)
+                            ); 
                         await orchestrationClient.TerminateAsync(status.InstanceId, $"{loggingName} - terminated via DELETE");
 
                         return new HttpResponseMessage(HttpStatusCode.Accepted);
@@ -153,6 +130,18 @@ namespace coordinator.Functions.OrchestrationFunctions
             {
                 _logger.LogMethodExit(currentCorrelationId, loggingName, "n/a");
             }
+        }
+
+        private static bool IsRunning(DurableOrchestrationStatus existingInstance)
+        {
+            bool notRunning = existingInstance == null ||
+                    existingInstance.RuntimeStatus
+                        is OrchestrationRuntimeStatus.Completed
+                        or OrchestrationRuntimeStatus.Failed
+                        or OrchestrationRuntimeStatus.Terminated
+                        or OrchestrationRuntimeStatus.Canceled;
+
+            return !notRunning;
         }
     }
 }

@@ -39,12 +39,11 @@ namespace Gateway.Clients.PolarisPipeline
             _logger = logger;
         }
 
-        public async Task<IActionResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, bool force, Guid correlationId)
+        public async Task<IActionResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(RefreshCaseAsync), $"CaseId: {caseId}, Force?: {force}");
+            _logger.LogMethodEntry(correlationId, nameof(RefreshCaseAsync), $"CaseId: {caseId}");
 
-            var forceQuery = force ? "&&force=true" : string.Empty;
-            var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}{forceQuery}";
+            var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
             await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
 
             _logger.LogMethodExit(correlationId, nameof(RefreshCaseAsync), string.Empty);

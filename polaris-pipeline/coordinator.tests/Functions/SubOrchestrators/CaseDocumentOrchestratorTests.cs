@@ -10,6 +10,7 @@ using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions;
+using coordinator.Functions.DurableEntityFunctions;
 using coordinator.Functions.OrchestrationFunctions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
