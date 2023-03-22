@@ -59,7 +59,7 @@ describe("case details page", () => {
       });
     });
 
-    it("For Single defendant and single charge, shouldn't show firstname, surname and date of birth as defendant details, if the defendant is an organisation ", () => {
+    it("For Single defendant and single charge,should read name from organisationName and shouldn't show date of birth in defendant details, if the defendant is an organisation ", () => {
       cy.visit("/case-search-results?urn=12AB1111122");
       cy.visit("/case-details/12AB1111122/13501");
       cy.findByTestId("txt-case-urn").contains("12AB1111122");
@@ -89,7 +89,7 @@ describe("case details page", () => {
       );
     });
 
-    it("For multiple defendant, shouldn't show firstname and surname if the defendant is an organisation ", () => {
+    it("For multiple defendant, should read name from organisationName, if the defendant is an organisation", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13601");
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
