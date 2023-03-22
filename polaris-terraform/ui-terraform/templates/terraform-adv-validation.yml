@@ -1,0 +1,85 @@
+﻿parameters:
+  terraformVersion: ''
+  terraformStorageAccount: ''
+  terraformContainerName: ''
+  terraformStateKey: ''
+  terraformAccessKey: ''
+  workingDirectory: ''
+  rulesToSkip: ''
+
+stages:
+  - stage: Validate
+    displayName: PR > Validate
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: ${{ parameters.terraformVersion }}
+          
+          # Install Checkov
+          - bash: pip3 install checkov
+            displayName: Checkov > Install
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: ${{ parameters.workingDirectory }}
+            env:
+              TF_STATE_ACCOUNT_NAME: ${{ parameters.terraformStorageAccount }}
+              TF_STATE_CONTAINER_NAME: ${{ parameters.terraformContainerName }}
+              TF_STATE_KEY: ${{ parameters.terraformStateKey }}
+              TF_STATE_ACCESS_KEY: ${{ parameters.terraformAccessKey }}
+          
+          # Format check
+          - bash: terraform fmt -check
+            workingDirectory: ${{ parameters.workingDirectory }}
+            displayName: Terraform > Check Formatting
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: ${{ parameters.workingDirectory }}
+          
+          # Verify module files with Checkov
+          - bash: checkov --directory ${{ parameters.workingDirectory }}/modules --skip-check CKV_DOCKER_* -o junitxml > ${{ parameters.workingDirectory }}/Checkov-Module-Report.xml
+            displayName: Checkov > Check Supporting Modules
+          
+          # Publish test results for modules
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish Module Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*Checkov-Module-Report.xml'
+              searchFolder: ${{ parameters.workingDirectory }}
+              mergeTestResults: true
+              testRunTitle: Checkov Module Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+          
+          # Verify main files with Checkov
+          - bash: checkov --directory ${{ parameters.workingDirectory }} --skip-check ${{ parameters.rulesToSkip }} -o junitxml > ${{ parameters.workingDirectory }}/Checkov-Root-Report.xml
+            displayName: Checkov > Verify Polaris Terraform
+          
+          # Publish test results for root module
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish Polaris Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*Checkov-Root-Report.xml'
+              searchFolder: ${{ parameters.workingDirectory }}
+              mergeTestResults: true
+              testRunTitle: Checkov Root Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true

@@ -1,0 +1,113 @@
+﻿# Unified Build and Release Azure DevOps pipeline for DDEI Terraform and Codebase
+
+resources:
+  pipelines:
+    - pipeline: PolarisUITerraform
+      source: Polaris UI Terraform - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Terraform
+    - pipeline: PolarisUICodebase
+      source: Polaris UI Codebase - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Codebase
+    - pipeline: PolarisAuthHandoverCodebase
+      source: Polaris Auth Handover Codebase - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Codebase
+    - pipeline: PolarisGatewayCodebase
+      source: Polaris Gateway Codebase - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Codebase
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: ui-terraform
+  - name: build-artifact-name
+    value: "polaris-ddei-drop"
+  - name: function-app-name
+    value: "fa-polaris-ddei"
+  - name: terraform-artifact-name
+    value: 'ui-terraform-files'
+    
+stages:
+  - template: templates/terraform-plan-apply.yml #Plan and Apply - DEV
+    parameters:
+      name: 'DEV'
+      buildAgent: $(dev-build-agent)
+      terraformArtifactName: $(terraform-artifact-name)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(ddei-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      planName: 'dev'
+      spnClientId: $(innovation-development-spn-client-id)
+      spnClientSecret: $(innovation-development-spn-secret)
+      spnTenantId: $(innovation-development-spn-tenant-id)
+      subscriptionId: $(innovation-development-subscription-id)
+      functionAppName: $(function-app-name)-dev
+      azureSubscription: $(dev-azure-subscription)
+      codebaseArtifactName: $(build-artifact-name)
+      dependentStage: ''
+      triggeringAlias: variables['Resources.TriggeringAlias']
+
+  - template: templates/terraform-plan-apply.yml #Plan and Apply - QA
+    parameters:
+      name: 'QA'
+      buildAgent: $(qa-build-agent)
+      terraformArtifactName: $(terraform-artifact-name)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(qa-terraform-storage-account)
+      terraformContainerName: $(ddei-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsqastorageterraform-key1)
+      planName: 'qa'
+      spnClientId: $(innovation-qa-spn-client-id)
+      spnClientSecret: $(innovation-qa-spn-secret)
+      spnTenantId: $(innovation-qa-spn-tenant-id)
+      subscriptionId: $(innovation-qa-subscription-id)
+      functionAppName: $(function-app-name)-qa
+      azureSubscription: $(qa-azure-subscription)
+      codebaseArtifactName: $(build-artifact-name)
+      dependentStage: 'Deploy_Codebase_to_DEV'
+      triggeringAlias: variables['Resources.TriggeringAlias']
+
+  - template: templates/terraform-plan-apply.yml #Plan and Apply - PROD
+    parameters:
+      name: 'PROD'
+      buildAgent: $(prod-build-agent)
+      terraformArtifactName: $(terraform-artifact-name)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(prod-terraform-storage-account)
+      terraformContainerName: $(ddei-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsprodstorageterraform-key1)
+      planName: 'prod'
+      spnClientId: $(innovation-prod-spn-client-id)
+      spnClientSecret: $(innovation-prod-spn-secret)
+      spnTenantId: $(innovation-prod-spn-tenant-id)
+      subscriptionId: $(innovation-prod-subscription-id)
+      functionAppName: $(function-app-name)
+      azureSubscription: $(prod-azure-subscription)
+      codebaseArtifactName: $(build-artifact-name)
+      dependentStage: 'Deploy_Codebase_to_QA'
+      triggeringAlias: variables['Resources.TriggeringAlias']
