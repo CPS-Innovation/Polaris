@@ -173,42 +173,49 @@ stages:
               PathtoPublish: "polaris-ui/cypress/videos"
               ArtifactName: "Cypress failure vidoes"
               publishLocation: "Container"
+            displayName: "Publish UI Cypress Failure Videos"
 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/report"
               ArtifactName: "Unit test report"
               publishLocation: "Container"
+            displayName: "Publish UI Unit Test Report"
 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/report-cypress"
               ArtifactName: "Cypress test report"
               publishLocation: "Container"
+            displayName: "Publish UI Cypress Test Report"
 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/coverage"
               ArtifactName: "Unit test coverage report"
               publishLocation: "Container"
+            displayName: "Publish UI Unit Test Coverage Report"
 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/coverage-cypress"
               ArtifactName: "Cypress coverage report"
               publishLocation: "Container"
+            displayName: "Publish UI Cypress Coverage Report"
 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/coverage-merged"
               ArtifactName: "Merged coverage report"
               publishLocation: "Container"
+            displayName: "Publish UI Merged Coverage Report"
 
           - task: PublishTestResults@2
             inputs:
               testResultsFormat: "JUnit"
               testResultsFiles: "polaris-ui/report/*.xml"
               testRunTitle: "Unit tests"
+            displayName: "Publish UI Unit Test XML"
 
           - task: PublishTestResults@2
             inputs:
@@ -216,8 +223,10 @@ stages:
               testResultsFiles: "polaris-ui/report-cypress/test-*.xml"
               testRunTitle: "Cypress tests"
               mergeTestResults: true
+            displayName: "Publish UI Unit Test Cypress Tests XML"
 
           - task: PublishCodeCoverageResults@1
             inputs:
               codeCoverageTool: "Cobertura"
               summaryFileLocation: "$(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml"
+            displayName: "Publish UI Code Coverage Report"
