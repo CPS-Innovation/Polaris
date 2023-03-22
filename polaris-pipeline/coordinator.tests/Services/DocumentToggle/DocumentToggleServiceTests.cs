@@ -18,7 +18,7 @@ namespace coordinator.tests.Services.DocumentToggle
             var content = DocumentToggleService.ReadConfig();
 
             // Assert
-            content.Should().Be(File.ReadAllText("document-toggle.txt"));
+            content.Should().Be(File.ReadAllText("document-toggle.config"));
         }
 
         [Fact]
