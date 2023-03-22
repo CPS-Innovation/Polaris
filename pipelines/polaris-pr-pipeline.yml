@@ -3,7 +3,8 @@
 pr:
   branches:
     include:
-      - main
+    #  - main
+      - feature/move_to_yaml_pipelines
 
 variables:
   buildConfiguration: "Release"
