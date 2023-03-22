@@ -16,16 +16,17 @@ namespace coordinator.Functions.ActivityFunctions
         private readonly IDdeiDocumentExtractionService _documentExtractionService;
         private readonly ILogger<GetCaseDocuments> _log;
 
+        const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
+
         public GetCaseDocuments(IDdeiDocumentExtractionService documentExtractionService, ILogger<GetCaseDocuments> logger)
         {
             _documentExtractionService = documentExtractionService;
             _log = logger;
         }
 
-        [FunctionName("GetCaseDocuments")]
+        [FunctionName(nameof(GetCaseDocuments))]
         public async Task<CmsCaseDocument[]> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
             if (payload == null)

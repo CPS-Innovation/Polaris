@@ -12,7 +12,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
     public class PolarisPipelineCancelCheckoutDocument : BasePolarisFunction
     {
@@ -23,8 +23,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         public PolarisPipelineCancelCheckoutDocument
             (
-                IPipelineClient pipelineClient, 
-                ILogger<PolarisPipelineCancelCheckoutDocument> logger, 
+                IPipelineClient pipelineClient,
+                ILogger<PolarisPipelineCancelCheckoutDocument> logger,
                 IAuthorizationValidator tokenValidator,
                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper
             )

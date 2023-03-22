@@ -12,7 +12,7 @@ using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
 
-namespace PolarisGateway.Functions.PolarisPipeline
+namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
     public class PolarisPipelineCheckoutDocument : BasePolarisFunction
     {
@@ -23,8 +23,8 @@ namespace PolarisGateway.Functions.PolarisPipeline
 
         public PolarisPipelineCheckoutDocument
             (
-                IPipelineClient pipelineClient, 
-                ILogger<PolarisPipelineCheckoutDocument> logger, 
+                IPipelineClient pipelineClient,
+                ILogger<PolarisPipelineCheckoutDocument> logger,
                 IAuthorizationValidator tokenValidator,
                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper
             )

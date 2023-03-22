@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Functions.PolarisPipeline.Document;
 using PolarisGateway.Wrappers;
 using Xunit;
 

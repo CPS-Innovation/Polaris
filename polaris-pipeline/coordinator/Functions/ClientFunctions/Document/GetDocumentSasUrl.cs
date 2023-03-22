@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Document
 {
     public class GetDocumentSasUrl : BaseClientFunction
     {
@@ -28,7 +28,7 @@ namespace coordinator.Functions.ClientFunctions
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentSasUrl)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            Guid documentId, 
+            Guid documentId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {

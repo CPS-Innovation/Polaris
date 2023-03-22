@@ -13,7 +13,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.ClientFunctions.Document
 {
     public class CancelCheckoutDocument : BaseClientFunction
     {
@@ -24,7 +24,7 @@ namespace coordinator.Functions.ClientFunctions
             _documentService = documentService;
         }
 
-        const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(CancelCheckoutDocument)} - {nameof(HttpStart)}";
 
         [FunctionName(nameof(CancelCheckoutDocument))]
         public async Task<IActionResult> HttpStart(
