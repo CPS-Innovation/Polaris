@@ -33,6 +33,8 @@ using Common.Domain.Requests;
 using FluentValidation;
 using Common.Domain.Validators;
 using System.IO;
+using coordinator.Services.DocumentToggle;
+using coordinator.Mappers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -94,6 +96,12 @@ namespace coordinator
             builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
             builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+            builder.Services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+
+            builder.Services.AddSingleton<ITransitionDocumentMapper, TransitionDocumentMapper>();
+            builder.Services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
 
             BuildHealthChecks(builder);
         }

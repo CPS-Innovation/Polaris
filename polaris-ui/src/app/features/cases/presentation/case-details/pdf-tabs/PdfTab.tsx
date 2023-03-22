@@ -7,12 +7,12 @@ import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
-import { PresentationStatuses } from "../../../../../features/cases/domain/PipelineDocument";
+import { PresentationFlags } from "../../../../../features/cases/domain/PipelineDocument";
 
 type PdfTabProps = {
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
-  redactStatus: PresentationStatuses["redactStatus"];
+  redactStatus: PresentationFlags["write"];
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];

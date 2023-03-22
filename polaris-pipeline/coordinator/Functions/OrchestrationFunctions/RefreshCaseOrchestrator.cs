@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Constants;
-using Common.Domain.DocumentEvaluation;
-using Common.Domain.DocumentExtraction;
 using Common.Domain.Extensions;
 using Common.Logging;
 using coordinator.Domain;
@@ -164,11 +162,11 @@ namespace coordinator.Functions.OrchestrationFunctions
             return result;
         }
 
-        private async Task<CmsCaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
+        private async Task<TransitionDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
             CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CmsCaseId}");
-            var documents = await context.CallActivityAsync<CmsCaseDocument[]>(
+            var documents = await context.CallActivityAsync<TransitionDocument[]>(
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId));
 
@@ -176,22 +174,11 @@ namespace coordinator.Functions.OrchestrationFunctions
         }
 
         private static async Task RegisterDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
-            IEnumerable<CmsCaseDocument> documents)
+            TransitionDocument[] documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
-            List<IncomingDocument> incomingDocuments
-                = documents
-                    .Select(item => new IncomingDocument(polarisDocumentId: context.NewGuid(),
-                                                         documentId: item.DocumentId,
-                                                         versionId: item.VersionId,
-                                                         originalFileName: item.FileName,
-                                                         mimeType: item.MimeType,
-                                                         cmsDocType: item.CmsDocType,
-                                                         createdDate: item.DocumentDate
-                                                         )
-                           )
-                    .ToList();
-            var arg = new RegisterDocumentIdsArg(payload.CmsCaseUrn, payload.CmsCaseId, incomingDocuments, payload.CorrelationId);
+
+            var arg = new RegisterDocumentIdsArg(payload.CmsCaseUrn, payload.CmsCaseId, documents, payload.CorrelationId);
             await tracker.RegisterDocumentIds(arg);
         }
     }
