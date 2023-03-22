@@ -76,7 +76,7 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-gateway/polaris-gateway/polaris-gateway.tests.csproj"
+              projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Gateway tests"
 
@@ -90,21 +90,21 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-pipeline/coordinator/coordinator.tests.csproj"
+              projects: "polaris-pipeline/coordinator.tests/coordinator.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Coordinator tests"
             
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.tests.csproj"
+              projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Pdf-Generator tests"
 
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-pipeline/text-extractor/text-extractor.tests.csproj"
+              projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Text-Extractor tests"
 
@@ -230,5 +230,5 @@ stages:
             inputs:
               codeCoverageTool: "Cobertura"
               summaryFileLocation: "$(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml"
-              additionalCodeCoverageFiles: "$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml"
+              additionalCodeCoverageFiles: "$(Build.SourcesDirectory)/**/*.cobertura.xml"
             displayName: "Publish Code Coverage Report"
