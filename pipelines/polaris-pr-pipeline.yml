@@ -8,7 +8,6 @@ pr:
 
 variables:
   buildConfiguration: "Release"
-  disable.coverage.autogenerate: "true"
 
 stages:
   - stage: Validate_Build
@@ -113,11 +112,11 @@ stages:
               reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
             displayName: 'Create code coverage report'
 
-          - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage report'
-            inputs:
-              codeCoverageTool: 'cobertura'
-              summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+          #- task: PublishCodeCoverageResults@1
+          #  displayName: 'Publish code coverage report'
+          #  inputs:
+          #    codeCoverageTool: 'cobertura'
+          #    summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
           
           # Begin UI testing      
           # We want to rely only on the .env.production file, anything in .env is still included
@@ -231,4 +230,5 @@ stages:
             inputs:
               codeCoverageTool: "Cobertura"
               summaryFileLocation: "$(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml"
-            displayName: "Publish UI Code Coverage Report"
+              additionalCodeCoverageFiles: "$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml"
+            displayName: "Publish Code Coverage Report"
