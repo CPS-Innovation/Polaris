@@ -8,6 +8,7 @@ using Common.Domain.DocumentExtraction;
 using Common.Domain.Pipeline;
 using coordinator.Domain.Tracker;
 using coordinator.Domain.Tracker.Presentation;
+using coordinator.Functions.DurableEntityFunctions;
 using coordinator.Functions.ClientFunctions.Case;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -70,7 +71,7 @@ namespace coordinator.tests.Domain.Tracker
                     null, null))
                 .ReturnsAsync(_entityStateResponse);
 
-            _tracker = new coordinator.Domain.Tracker.Tracker();
+            _tracker = new coordinator.Functions.DurableEntityFunctions.Tracker();
             _trackerStatus = new GetTracker();
         }
 
