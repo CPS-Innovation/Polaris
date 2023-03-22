@@ -59,6 +59,18 @@ describe("case details page", () => {
       });
     });
 
+    it("For Single defendant and single charge,should read name from organisationName and shouldn't show date of birth in defendant details, if the defendant is an organisation ", () => {
+      cy.visit("/case-search-results?urn=12AB1111122");
+      cy.visit("/case-details/12AB1111122/13501");
+      cy.findByTestId("txt-case-urn").contains("12AB1111122");
+      cy.findByTestId("defendant-details").then(($details) => {
+        cy.wrap($details)
+          .findByTestId("txt-defendant-name")
+          .should("have.text", "GUZZLERS BREWERY");
+        cy.wrap($details).findByTestId("txt-defendant-DOB").should("not.exist");
+      });
+    });
+
     it("For multiple defendants, should show list of defendant names in the ascending order of listOrder and shouldn't show charge details", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13301");
@@ -74,6 +86,21 @@ describe("case details page", () => {
         .should("have.text", "Victor, Peter");
       cy.findByTestId("link-defendant-details").contains(
         "View 3 defendants and charges"
+      );
+    });
+
+    it("For multiple defendant, should read name from organisationName, if the defendant is an organisation", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13601");
+      cy.findByTestId("txt-case-urn").contains("12AB1111111");
+      cy.findByTestId("list-defendant-names")
+        .get("li")
+        .first()
+        .should("have.text", "GUZZLERS BREWERY")
+        .next()
+        .should("have.text", "Victor, Peter");
+      cy.findByTestId("link-defendant-details").contains(
+        "View 2 defendants and charges"
       );
     });
 
