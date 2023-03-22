@@ -33,16 +33,11 @@ type Props = BackLinkingPageProps & {};
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
   const getDefendantNameText = (item: CaseSearchResult) => {
-    let titleString = item.leadDefendantDetails.surname;
-    if (
-      item.leadDefendantDetails.organisationName &&
+    let titleString =
       item.leadDefendantDetails.type === "Organisation"
-    ) {
-      titleString = item.leadDefendantDetails.organisationName;
-    }
-    if (item.leadDefendantDetails.type !== "Organisation") {
-      titleString = `${titleString},${item.leadDefendantDetails.firstNames}`;
-    }
+        ? item.leadDefendantDetails.organisationName
+        : `${item.leadDefendantDetails.surname},${item.leadDefendantDetails.firstNames}`;
+
     if (item.numberOfDefendants > 1) {
       titleString = `${titleString} and others`;
     }

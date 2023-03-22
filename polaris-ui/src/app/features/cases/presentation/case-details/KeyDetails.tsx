@@ -21,10 +21,7 @@ export const KeyDetails: React.FC<{
 
   const getDefendantName = (defendantDetail: DefendantDetails) => {
     if (defendantDetail.type === "Organisation") {
-      if (defendantDetail.organisationName) {
-        return defendantDetail.organisationName;
-      }
-      return defendantDetail.surname;
+      return defendantDetail.organisationName;
     }
     return `${defendantDetail.surname}, ${defendantDetail.firstNames}`;
   };

@@ -94,25 +94,4 @@ const searchResults: CaseSearchResult[] = [
       nextHearingDate: "2023-01-02",
     },
   },
-  {
-    id: 13601,
-    uniqueReferenceNumber: "12AB2222233",
-    isCaseCharged: true,
-    numberOfDefendants: 1,
-    leadDefendantDetails: {
-      id: 901,
-      listOrder: 0,
-      firstNames: "Steve",
-      surname: "ABC",
-      organisationName: "",
-      dob: "1977-11-28",
-      youth: false,
-      type: "Organisation",
-    },
-    headlineCharge: {
-      charge: faker.lorem.sentence(),
-      date: "2022-02-01",
-      nextHearingDate: "2023-01-02",
-    },
-  },
 ];

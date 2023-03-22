@@ -270,7 +270,7 @@ const caseDetails: CaseDetails[] = [
           id: 901,
           listOrder: 0,
           firstNames: "",
-          surname: "GUZZLERS BREWERY",
+          surname: "",
           organisationName: "GUZZLERS BREWERY",
           dob: "1977-11-28",
           youth: false,
