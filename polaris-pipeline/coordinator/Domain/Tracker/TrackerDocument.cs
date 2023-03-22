@@ -9,7 +9,6 @@ namespace coordinator.Domain.Tracker
 {
     public class TrackerDocument
     {
-        // todo: this is just here for testing
         public TrackerDocument()
         {
             CmsDocType = new CmsDocType();
@@ -35,8 +34,8 @@ namespace coordinator.Domain.Tracker
             CmsFileExtension = cmsFileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
-            Status = DocumentStatus.None;
             PresentationFlags = presentationFlags;
+            Status = DocumentStatus.New;
         }
 
         [JsonProperty("polarisDocumentId")]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Common.Domain.DocumentEvaluation;
 using Common.Domain.Pipeline;
@@ -33,11 +34,15 @@ namespace coordinator.Functions.DurableEntityFunctions
         [JsonProperty("logs")]
         public List<Log> Logs { get; set; }
 
-        public Task Initialise(string transactionId)
+        public Task Reset(string transactionId)
         {
             TransactionId = transactionId;
 
-            ClearState(TrackerStatus.Running);
+            Status = TrackerStatus.Running;
+            if(Documents == null)
+                Documents = new List<TrackerDocument>();
+            Logs = new List<Log>();
+            ProcessingCompleted = null; //reset the processing date
 
             Log(LogType.Initialised);
 
@@ -54,43 +59,24 @@ namespace coordinator.Functions.DurableEntityFunctions
             return Task.CompletedTask;
         }
 
-        public Task RegisterDocumentIds(RegisterDocumentIdsArg arg)
+        public Task SynchroniseDocuments(SynchroniseDocumentsArg arg)
         {
-            var evaluationResults = new DocumentEvaluationActivityPayload(arg.CaseUrn, arg.CaseId, arg.CorrelationId);
             if (Documents.Count == 0) //no documents yet loaded in the tracker for this case, grab them all
             {
                 Documents = arg.Documents
-                    .Select(item => CreateTrackerDocument(item))
-                    .ToList();
-                Log(LogType.RegisteredDocumentIds);
+                                .Select(item => CreateTrackerDocument(item))
+                                .ToList();
+                Log(LogType.DocumentsSynchronised);
             }
             else
             {
-                //remove any documents that are no longer present in the list retrieved from CMS from the tracker so they are no reprocessed
-                foreach (var trackedDocument in
-                         Documents.Where(trackedDocument =>
-                             !arg.Documents.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
-                {
-                    evaluationResults.DocumentsToRemove.Add(new DocumentToRemove(trackedDocument.CmsDocumentId, trackedDocument.CmsVersionId));
-                }
+                List<DocumentToRemove> documentsToRemove = GetDocumentsToRemove(arg);
 
-                //now remove any invalid documents from the tracker so they are not reprocessed
-                foreach (var item in
-                         evaluationResults.DocumentsToRemove.Select(invalidDocument =>
-                             Documents.Find(x => x.CmsDocumentId == invalidDocument.DocumentId && x.CmsVersionId == invalidDocument.VersionId)))
-                {
-                    Documents.Remove(item);
-                }
+                RemoveDocuments(documentsToRemove);
 
-                //now evaluate all incoming documents against the existing tracker record that are not already identified for removal and make sure
-                //that anything new is added to the tracker
-                foreach (var cmsDocument in from cmsDocument in
-                             arg.Documents
-                                            where !evaluationResults.DocumentsToRemove
-                             .Exists(x => x.DocumentId == cmsDocument.DocumentId && x.VersionId == cmsDocument.VersionId)
-                                            let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId)
-                                            where item == null
-                                            select cmsDocument)
+                var newDocuments = GetNewDocuments(arg.Documents, documentsToRemove);
+
+                foreach (var cmsDocument in newDocuments)
                 {
                     TrackerDocument trackerDocument = CreateTrackerDocument(cmsDocument);
                     Documents.Add(trackerDocument);
@@ -101,6 +87,43 @@ namespace coordinator.Functions.DurableEntityFunctions
             Status = TrackerStatus.DocumentsRetrieved;
 
             return Task.CompletedTask;
+        }
+
+        private List<DocumentToRemove> GetDocumentsToRemove(SynchroniseDocumentsArg arg)
+        {
+            List<DocumentToRemove> documentsToRemove = new List<DocumentToRemove>();
+            foreach (var trackedDocument in
+                     Documents.Where(trackedDocument =>
+                         !arg.Documents.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
+            {
+                documentsToRemove.Add(new DocumentToRemove(trackedDocument.CmsDocumentId, trackedDocument.CmsVersionId));
+            }
+
+            return documentsToRemove;
+        }
+
+        private IEnumerable<TransitionDocument> GetNewDocuments(List<TransitionDocument> transitionDocuments, List<DocumentToRemove> documentsToRemove)
+        {
+            var newDocuments = from cmsDocument in transitionDocuments
+                               where !documentsToRemove.Exists
+                               (
+                                   x => x.DocumentId == cmsDocument.DocumentId &&
+                                        x.VersionId == cmsDocument.VersionId
+                               )
+                               let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId)
+                               where item == null
+                               select cmsDocument;
+            return newDocuments;
+        }
+
+        private void RemoveDocuments(List<DocumentToRemove> documentsToRemove)
+        {
+            foreach (var item in
+                     documentsToRemove.Select(invalidDocument =>
+                         Documents.Find(x => x.CmsDocumentId == invalidDocument.DocumentId && x.CmsVersionId == invalidDocument.VersionId)))
+            {
+                Documents.Remove(item);
+            }
         }
 
         private TrackerDocument CreateTrackerDocument(TransitionDocument document)
@@ -222,13 +245,20 @@ namespace coordinator.Functions.DurableEntityFunctions
             return Task.FromResult(Documents);
         }
 
+        public Task ClearDocuments()
+        {
+            Documents.Clear();
+
+            return Task.CompletedTask;
+        }
+
         public Task<bool> AllDocumentsFailed()
         {
             return Task.FromResult(
                 Documents.All(d => d.Status is DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
         }
 
-        public Task<bool> IsAlreadyProcessed()
+        /*public Task<bool> IsAlreadyProcessed()
         {
             return Task.FromResult(Status is TrackerStatus.Completed);
         }
@@ -244,7 +274,7 @@ namespace coordinator.Functions.DurableEntityFunctions
             return ProcessingCompleted.HasValue
                 ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date)
                 : Task.FromResult(false);
-        }
+        }*/
 
         private void ClearState(TrackerStatus status)
         {
