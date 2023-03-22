@@ -2,6 +2,7 @@
 using Common.Domain.Pipeline;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using PolarisGateway.Domain.PolarisPipeline.Presentation;
 
 namespace PolarisGateway.Domain.PolarisPipeline
 {
@@ -22,6 +23,9 @@ namespace PolarisGateway.Domain.PolarisPipeline
         [JsonProperty("cmsMimeType")]
         public string CmsMimeType { get; set; }
 
+        [JsonProperty("cmsFileExtension")]
+        public string CmsFileExtension { get; set; }
+
         [JsonProperty("cmsOriginalFileName")]
         public string CmsOriginalFileName { get; set; }
 
@@ -37,5 +41,8 @@ namespace PolarisGateway.Domain.PolarisPipeline
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
+
+        [JsonProperty("presentationFlags")]
+        public PresentationFlags PresentationFlags { get; set; }
     }
 }

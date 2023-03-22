@@ -14,11 +14,11 @@ export type PipelineDocumentProperties = {
     | "UnexpectedFailure"
     | "OcrAndIndexFailure";
 };
-export type PresentationStatuses = {
-  viewStatus: "Ok" | "OnlyAvailableInCms" | "FailedConversion";
-  redactStatus:
-    | null
+export type PresentationFlags = {
+  read: "Ok" | "OnlyAvailableInCms";
+  write:
     | "Ok"
+    | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed";
 };
@@ -32,7 +32,7 @@ export type PresentationDocumentProperties = {
   cmsDocCategory: CmsDocCategory;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
-  presentationStatuses: PresentationStatuses;
+  presentationFlags: PresentationFlags;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

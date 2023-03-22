@@ -15,14 +15,17 @@ public class DdeiCaseDocumentResponse
 
     [JsonProperty("mimeType")]
     public string MimeType { get; set; }
-    
-    [JsonProperty("cmsDocCategory")] 
+
+    [JsonProperty("fileExtension")]
+    public string FileExtension { get; set; }
+
+    [JsonProperty("cmsDocCategory")]
     public string CmsDocCategory { get; set; }
-    
-    [JsonProperty("typeId")] 
+
+    [JsonProperty("typeId")]
     public string DocumentTypeId { get; set; }
-    
-    [JsonProperty("type")] 
+
+    [JsonProperty("type")]
     public string DocumentType { get; set; }
 
     [JsonProperty("date")]

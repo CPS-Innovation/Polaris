@@ -14,6 +14,7 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
             VersionId = ddeiResponse.VersionId,
             FileName = ddeiResponse.OriginalFileName,
             MimeType = ddeiResponse.MimeType,
+            FileExtension = ddeiResponse.FileExtension,
             CmsDocType = new CmsDocType(ddeiResponse.DocumentType, ddeiResponse.DocumentTypeId, ddeiResponse.CmsDocCategory),
             DocumentDate = ddeiResponse.DocumentDate
         };

@@ -27,7 +27,7 @@ namespace coordinator.tests.Functions
     {
         private readonly CaseOrchestrationPayload _payload;
         private readonly string _cmsAuthValues;
-        private readonly CmsCaseDocument[] _caseDocuments;
+        private readonly TransitionDocument[] _caseDocuments;
         private readonly string _transactionId;
         private readonly List<TrackerDocument> _trackerDocuments;
 
@@ -46,7 +46,7 @@ namespace coordinator.tests.Functions
                         .With(p => p.ForceRefresh, false)
                         .With(p => p.CmsAuthValues, _cmsAuthValues)
                         .Create();
-            _caseDocuments = fixture.Create<CmsCaseDocument[]>();
+            _caseDocuments = fixture.Create<TransitionDocument[]>();
 
             _transactionId = fixture.Create<string>();
             _trackerDocuments = fixture.Create<List<TrackerDocument>>();
@@ -69,7 +69,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ITracker>(
                     It.Is<EntityId>(e => e.EntityName == nameof(Tracker).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
                 .Returns(_mockTracker.Object);
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CmsCaseDocument[]>(nameof(GetCaseDocuments),
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<TransitionDocument[]>(nameof(GetCaseDocuments),
                     It.Is<GetCaseDocumentsActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId
                     && p.CmsAuthValues == _payload.CmsAuthValues && p.CorrelationId == _payload.CorrelationId)))
                 .ReturnsAsync(_caseDocuments);
@@ -154,8 +154,8 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ReturnsEmptyListOfDocumentsWhenCaseDocumentsIsEmpty()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CmsCaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.CmsAuthValues == _cmsAuthValues)))
-                .ReturnsAsync(new CmsCaseDocument[] { });
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<TransitionDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.CmsAuthValues == _cmsAuthValues)))
+                .ReturnsAsync(new TransitionDocument[] { });
 
             var documents = await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
@@ -223,7 +223,7 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ThrowsExceptionWhenExceptionOccurs()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CmsCaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.CmsAuthValues == _cmsAuthValues)))
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<TransitionDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.CmsAuthValues == _cmsAuthValues)))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             await Assert.ThrowsAsync<Exception>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
@@ -232,7 +232,7 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_Tracker_RegistersFailedWhenExceptionOccurs()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<CmsCaseDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.CmsAuthValues == _cmsAuthValues)))
+            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<TransitionDocument[]>(nameof(GetCaseDocuments), It.Is<GetCaseDocumentsActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.CmsAuthValues == _cmsAuthValues)))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             try
