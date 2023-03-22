@@ -9,6 +9,6 @@ namespace Ddei.Services
 
         Task CancelCheckoutDocument(CmsDocumentArg arg);
 
-        Task UploadPdf(CmsDocumentArg arg, Stream stream, string fileName);
+        Task UploadPdf(CmsDocumentArg arg, Stream stream);
     }
 }
