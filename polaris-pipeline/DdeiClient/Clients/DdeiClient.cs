@@ -78,17 +78,17 @@ namespace Ddei.Clients
            );
         }
 
-        public async Task UploadPdf(CmsDocumentArg arg, Stream stream, string filename)
+        public async Task UploadPdf(CmsDocumentArg arg, Stream stream)
         {
             await CallDdei(
-               () => _ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream, filename),
+               () => _ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream),
                 arg.CorrelationId
             );
         }
 
         private async Task<T> CallDdei<T>(Func<HttpRequestMessage> requestFactory, Guid correlationId)
         {
-            using var response = await CallDdeiInternal(requestFactory, correlationId);
+            using var response = await CallDdei(requestFactory, correlationId);
 
             var content = await response.Content.ReadAsStringAsync();
             return _jsonConvertWrapper.DeserializeObject<T>(content);
@@ -96,17 +96,12 @@ namespace Ddei.Clients
 
         private async Task<HttpResponseMessage> CallDdei(Func<HttpRequestMessage> requestFactory, Guid correlationId)
         {
-            return await CallDdeiInternal(requestFactory, correlationId);
-        }
-
-        private async Task<HttpResponseMessage> CallDdeiInternal(Func<HttpRequestMessage> requestFactory, Guid correlationId)
-        {
             var request = requestFactory();
             var response = await _httpClient.SendAsync(request);
             try
             {
                 var content = await response.Content.ReadAsStringAsync();
-                if(!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException(content);
                 }
