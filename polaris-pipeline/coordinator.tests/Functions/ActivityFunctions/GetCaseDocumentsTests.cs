@@ -1,21 +1,31 @@
-﻿using System;
+﻿using System.Security.AccessControl;
+using System;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.DocumentExtraction;
 using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
+using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions;
+using coordinator.Mappers;
+using coordinator.Services.DocumentToggle;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using coordinator.Domain.Tracker.Presentation;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
     public class GetCaseDocumentsTests
     {
-        private readonly CmsCase _case;
+        private readonly CmsCaseDocument[] _caseDocuments;
+
+        private readonly TransitionDocument[] _transitionDocuments;
+
+        private readonly PresentationFlags[] _presentationFlags;
+
         private readonly GetCaseDocumentsActivityPayload _payload;
 
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
@@ -26,7 +36,20 @@ namespace coordinator.tests.Functions.ActivityFunctions
         {
             var fixture = new Fixture();
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
-            _case = fixture.Create<CmsCase>();
+            _caseDocuments = new[] {
+              fixture.Create<CmsCaseDocument>(),
+              fixture.Create<CmsCaseDocument>()
+            };
+
+            _transitionDocuments = new[] {
+              fixture.Create<TransitionDocument>(),
+              fixture.Create<TransitionDocument>()
+            };
+
+            _presentationFlags = new[] {
+              fixture.Create<PresentationFlags>(),
+              fixture.Create<PresentationFlags>()
+            };
 
             var mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();
@@ -36,10 +59,32 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(),
                     _payload.CmsAuthValues, _payload.CorrelationId))
-                .ReturnsAsync(_case.CaseDocuments);
+                .ReturnsAsync(_caseDocuments);
+
+            var mockTransitionDocumentMapper = new Mock<ITransitionDocumentMapper>();
+            mockTransitionDocumentMapper
+              .Setup(mapper => mapper.MapToTransitionDocument(_caseDocuments[0]))
+              .Returns(_transitionDocuments[0]);
+            mockTransitionDocumentMapper
+              .Setup(mapper => mapper.MapToTransitionDocument(_caseDocuments[1]))
+              .Returns(_transitionDocuments[1]);
+
+
+            var mockDocumentToggleService = new Mock<IDocumentToggleService>();
+            mockDocumentToggleService
+              .Setup(service => service.GetDocumentPresentationFlags(_transitionDocuments[0]))
+              .Returns(_presentationFlags[0]);
+            mockDocumentToggleService
+              .Setup(service => service.GetDocumentPresentationFlags(_transitionDocuments[1]))
+              .Returns(_presentationFlags[1]);
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
-            _getCaseDocuments = new GetCaseDocuments(mockDocumentExtractionService.Object, mockLogger.Object);
+
+            _getCaseDocuments = new GetCaseDocuments(
+                mockDocumentExtractionService.Object,
+                mockDocumentToggleService.Object,
+                mockTransitionDocumentMapper.Object,
+                mockLogger.Object);
         }
 
         [Fact]
@@ -100,9 +145,9 @@ namespace coordinator.tests.Functions.ActivityFunctions
         [Fact]
         public async Task Run_ReturnsCaseDocuments()
         {
-            var caseDocuments = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
+            var transitionDocuments = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
 
-            caseDocuments.Should().BeEquivalentTo(_case.CaseDocuments);
+            transitionDocuments.Should().BeEquivalentTo(_transitionDocuments);
         }
     }
 }

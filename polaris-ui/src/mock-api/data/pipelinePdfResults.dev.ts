@@ -23,9 +23,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -42,9 +42,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG11",
         name: "MG11 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -61,9 +61,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG5",
         name: "MG5 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -80,9 +80,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -99,9 +99,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -118,9 +118,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG3",
         name: "MG3 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -137,9 +137,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "Other Comm (In)",
         name: "Other Comm (In) File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -156,9 +156,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG5",
         name: "MG5 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -175,9 +175,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -194,9 +194,9 @@ const pipelinePdfResults: PipelineResults = {
         code: "MG6",
         name: "MG6 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
   ],
