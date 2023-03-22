@@ -30,14 +30,14 @@ namespace coordinator.tests.Domain.Tracker
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
-        private readonly EntityStateResponse<coordinator.Domain.Tracker.Tracker> _entityStateResponse;
+        private readonly EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker> _entityStateResponse;
 
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
         private readonly Mock<ILogger> _mockLogger;
 
-        private readonly coordinator.Domain.Tracker.Tracker _tracker;
-        private readonly GetTrackerStatus _trackerStatus;
+        private readonly coordinator.Functions.DurableEntityFunctions.Tracker _tracker;
+        private readonly GetTracker _trackerStatus;
 
         public TrackerTests()
         {
@@ -58,20 +58,20 @@ namespace coordinator.tests.Domain.Tracker
                 .With(a => a.IncomingDocuments, _incomingDocuments)
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
-            _entityStateResponse = new EntityStateResponse<coordinator.Domain.Tracker.Tracker>() { EntityExists = true };
+            _entityStateResponse = new EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker>() { EntityExists = true };
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
             _mockLogger = new Mock<ILogger>();
 
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<coordinator.Domain.Tracker.Tracker>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Domain.Tracker.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<coordinator.Functions.DurableEntityFunctions.Tracker>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Functions.DurableEntityFunctions.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(_entityStateResponse);
 
             _tracker = new coordinator.Domain.Tracker.Tracker();
-            _trackerStatus = new GetTrackerStatus();
+            _trackerStatus = new GetTracker();
         }
 
         [Fact]
@@ -259,9 +259,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task Run_Tracker_Dispatches()
         {
-            await coordinator.Domain.Tracker.Tracker.Run(_mockDurableEntityContext.Object);
+            await coordinator.Functions.DurableEntityFunctions.Tracker.Run(_mockDurableEntityContext.Object);
 
-            _mockDurableEntityContext.Verify(context => context.DispatchAsync<coordinator.Domain.Tracker.Tracker>());
+            _mockDurableEntityContext.Verify(context => context.DispatchAsync<coordinator.Functions.DurableEntityFunctions.Tracker>());
         }
 
         [Fact]
@@ -289,10 +289,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsNotFoundIfEntityNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<coordinator.Domain.Tracker.Tracker>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<coordinator.Domain.Tracker.Tracker>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Domain.Tracker.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<coordinator.Functions.DurableEntityFunctions.Tracker>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Functions.DurableEntityFunctions.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -306,10 +306,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsBadRequestIfCorrelationIdNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<coordinator.Domain.Tracker.Tracker>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                    client => client.ReadEntityStateAsync<coordinator.Domain.Tracker.Tracker>(
-                        It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Domain.Tracker.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                    client => client.ReadEntityStateAsync<coordinator.Functions.DurableEntityFunctions.Tracker>(
+                        It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Functions.DurableEntityFunctions.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
                         null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -322,36 +322,13 @@ namespace coordinator.tests.Domain.Tracker
         #region IsStale Tests
         
         [Fact]
-        public async Task IsStaleCheck_ReturnsTrue_WhenForceRefreshIsPassedAsTrue()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterCompleted();
-
-            var result = await _tracker.IsStale(true);
-
-            result.Should().BeTrue();
-        }
-        
-        [Fact]
-        public async Task IsStaleCheck_ReturnsFalse_WhenForceRefreshIsPassedAsFalse()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-
-            var result = await _tracker.IsStale(false);
-
-            result.Should().BeFalse();
-        }
-        
-        [Fact]
         public async Task IsStaleCheck_ReturnsTrue_WhenForceRefreshIsPassedAsFalse_ButTheTrackerStatusIsFailed()
         {
             await _tracker.Initialise(_transactionId);
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterFailed();
 
-            var result = await _tracker.IsStale(false);
+            var result = await _tracker.IsStale();
 
             result.Should().BeTrue();
             _tracker.Logs.Count.Should().Be(3);
@@ -364,7 +341,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             _tracker.Status = TrackerStatus.Running;
 
-            var result = await _tracker.IsStale(false);
+            var result = await _tracker.IsStale();
 
             result.Should().BeFalse();
         }
@@ -376,7 +353,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             _tracker.Status = TrackerStatus.Running;
 
-            var result = await _tracker.IsStale(true);
+            var result = await _tracker.IsStale();
 
             result.Should().BeFalse();
         }
@@ -388,7 +365,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             _tracker.ProcessingCompleted = null;
 
-            var result = await _tracker.IsStale(false);
+            var result = await _tracker.IsStale();
 
             result.Should().BeFalse();
         }
@@ -400,7 +377,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
             await _tracker.RegisterCompleted();
 
-            var result = await _tracker.IsStale(false);
+            var result = await _tracker.IsStale();
 
             result.Should().BeFalse();
         }
@@ -414,7 +391,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _tracker.ProcessingCompleted = _tracker.ProcessingCompleted.GetValueOrDefault(DateTime.Now).AddDays(-1);
 
-            var result = await _tracker.IsStale(false);
+            var result = await _tracker.IsStale();
 
             result.Should().BeTrue();
         }

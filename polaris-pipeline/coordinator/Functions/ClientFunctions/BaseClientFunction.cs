@@ -10,6 +10,7 @@ using Common.Logging;
 using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Domain.Tracker;
+using coordinator.Functions.DurableEntityFunctions;
 
 namespace coordinator.Functions.ClientFunctions
 {

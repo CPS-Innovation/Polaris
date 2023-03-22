@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.OrchestrationFunctions
 {
-    public class RefreshCaseOrchestrator
+    public class RefreshCaseOrchestrator : PolarisOrchestrator
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
@@ -43,7 +43,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             var currentCaseId = payload.CmsCaseId;
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
-            var tracker = CreateTracker(context, payload.CmsCaseUrn, payload.CmsCaseId, payload.CorrelationId, log);
+            var tracker = CreateOrGetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
 
             try
             {
@@ -86,7 +86,7 @@ namespace coordinator.Functions.OrchestrationFunctions
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            if (await tracker.IsAlreadyProcessed() && !await tracker.IsStale(payload.ForceRefresh))
+            if (await tracker.IsAlreadyProcessed() && !await tracker.IsStale())
             {
                 log.LogMethodFlow(payload.CorrelationId, loggingName,
                     $"Tracker has already finished processing, a 'force refresh' has not been issued and it is not stale - returning documents - {context.InstanceId}");
@@ -98,7 +98,10 @@ namespace coordinator.Functions.OrchestrationFunctions
 
             var documents = await RetrieveDocuments(context, tracker, loggingName, log, payload);
             if (documents.Length == 0)
+            {
+                await tracker.RegisterCompleted();
                 return new List<TrackerDocument>();
+            }
 
             //bring the tracker document list up-to-date, or populate it for the first time
             await RegisterDocuments(context, tracker, loggingName, log, payload, documents);
@@ -151,17 +154,6 @@ namespace coordinator.Functions.OrchestrationFunctions
                 // ReSharper disable once RedundantJumpStatement
                 return;
             }
-        }
-
-        private ITracker CreateTracker(IDurableOrchestrationContext context, string caseUrn, long caseId, Guid correlationId, ILogger safeLoggerInstance)
-        {
-            safeLoggerInstance.LogMethodEntry(correlationId, nameof(CreateTracker), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
-
-            var entityId = new EntityId(nameof(Tracker), caseId.ToString());
-            var result = context.CreateEntityProxy<ITracker>(entityId);
-
-            safeLoggerInstance.LogMethodExit(correlationId, nameof(CreateTracker), "n/a");
-            return result;
         }
 
         private async Task<CmsCaseDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,

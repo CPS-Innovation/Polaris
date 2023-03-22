@@ -4,12 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Domain.DocumentEvaluation;
 using Common.Domain.Pipeline;
+using coordinator.Domain;
+using coordinator.Domain.Tracker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace coordinator.Domain.Tracker
+namespace coordinator.Functions.DurableEntityFunctions
 {
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -187,7 +189,7 @@ namespace coordinator.Domain.Tracker
             return Task.CompletedTask;
         }
 
-        public Task RegisterDeleted ()
+        public Task RegisterDeleted()
         {
             ClearState(TrackerStatus.Deleted);
             Log(LogType.Deleted);
@@ -212,12 +214,12 @@ namespace coordinator.Domain.Tracker
             return Task.FromResult(Status is TrackerStatus.Completed);
         }
 
-        public Task<bool> IsStale(bool forceRefresh)
+        public Task<bool> IsStale()
         {
             if (Status is TrackerStatus.Running)
                 return Task.FromResult(false);
 
-            if (forceRefresh || Status is TrackerStatus.Failed)
+            if (Status is TrackerStatus.Failed)
                 return Task.FromResult(true);
 
             return ProcessingCompleted.HasValue

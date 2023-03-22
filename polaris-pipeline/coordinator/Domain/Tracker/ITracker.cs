@@ -19,6 +19,6 @@ namespace coordinator.Domain.Tracker
         Task<List<TrackerDocument>> GetDocuments();
         Task<bool> AllDocumentsFailed();
         Task<bool> IsAlreadyProcessed();
-        Task<bool> IsStale(bool forceRefresh);
+        Task<bool> IsStale();
     }
 }
