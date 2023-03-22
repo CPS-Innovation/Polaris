@@ -131,7 +131,7 @@ export const reducer = (
 
       // todo: proper logic to build documents
       const shouldBuildDocumentsState =
-        action.payload.data.documents.length &&
+        action.payload.data.status !== "Running" && // anything after "Running" has document present
         state.documentsState.status === "loading";
 
       if (shouldBuildDocumentsState) {
