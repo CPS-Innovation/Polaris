@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using PolarisGateway.Domain.DocumentExtraction;
-using System.Reflection.Metadata;
 using System;
 using System.Net.Http;
 using Common.Constants;
