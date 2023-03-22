@@ -70,12 +70,12 @@ describe("search results", () => {
 
     cy.findAllByTestId("link-12AB2222233", { timeout: 20000 });
     cy.findByTestId("txt-result-count").contains("2");
-    //reading from surname property since organisationName is empty
+    //reading from organisationName property
     cy.findByTestId("defendant-name-text-0").should(
       "have.text",
       "GUZZLERS BREWERY and others"
     );
-    //reading from organisationName property
+    //reading from surname property since organisationName is empty
     cy.findByTestId("defendant-name-text-1").should("have.text", "ABC");
     cy.findByTestId("defendant-DOB-0").should("not.exist");
     cy.findByTestId("defendant-DOB-1").should("not.exist");
