@@ -8,6 +8,7 @@ pr:
 
 variables:
   buildConfiguration: "Release"
+  disable.coverage.autogenerate: "true"
 
 stages:
   - stage: Validate_Build
