@@ -14,7 +14,7 @@ type Defendant = {
   charges: Charge[];
 };
 
-type DefendantDetails = {
+export type DefendantDetails = {
   id: number;
   listOrder: number;
   firstNames: string;
