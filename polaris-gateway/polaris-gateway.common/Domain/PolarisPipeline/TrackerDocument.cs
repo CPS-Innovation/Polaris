@@ -23,6 +23,9 @@ namespace PolarisGateway.Domain.PolarisPipeline
         [JsonProperty("cmsMimeType")]
         public string CmsMimeType { get; set; }
 
+        [JsonProperty("cmsFileExtension")]
+        public string CmsFileExtension { get; set; }
+
         [JsonProperty("cmsOriginalFileName")]
         public string CmsOriginalFileName { get; set; }
 

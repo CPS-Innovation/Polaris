@@ -25,7 +25,7 @@ public class TransitionDocument
         VersionId = versionId;
         OriginalFileName = originalFileName;
         MimeType = mimeType;
-        FileExtension = FileExtension;
+        FileExtension = fileExtension;
         CmsDocType = cmsDocType;
         CreatedDate = createdDate;
     }

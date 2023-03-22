@@ -54,11 +54,8 @@ namespace coordinator.Domain.Tracker
         [JsonProperty("cmsMimeType")]
         public string CmsMimeType { get; set; }
 
-        [JsonProperty("cmsDocumentExtension")]
+        [JsonProperty("cmsFileExtension")]
         public string CmsFileExtension { get; set; }
-
-        [JsonProperty("cmsDocumentExtension")]
-        public string CmsDocumentExtension { get; set; }
 
         [JsonProperty("cmsOriginalFileName")]
         public string CmsOriginalFileName { get; set; }
@@ -76,7 +73,7 @@ namespace coordinator.Domain.Tracker
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
 
-        [JsonProperty("presentationStatuses")]
+        [JsonProperty("presentationFlags")]
         public PresentationFlags PresentationFlags { get; set; }
     }
 }
