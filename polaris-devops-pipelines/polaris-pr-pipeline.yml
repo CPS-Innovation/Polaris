@@ -131,7 +131,7 @@ stages:
   - template: templates/terraform-plan-nopub.yml # Plan DEV pipeline events terraform
     parameters:
       name: 'DEV'
-      category: 'Pipeline Events'
+      category: 'Pipeline_Events'
       buildAgent: $(dev-build-agent)
       terraformVersion: $(terraform-version)
       terraformStorageAccount: $(dev-terraform-storage-account)
@@ -439,8 +439,8 @@ stages:
           - publish: $(Build.SourcesDirectory)/**/*.cobertura.xml
             artifact: UITestResults
               
-  - stage: Generate Reports
-    displayName: PR > collate and publish reports
+  - stage: Generate_Reports
+    displayName: Collate and publish test results
     condition: or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true')) 
     jobs:
       - job:
