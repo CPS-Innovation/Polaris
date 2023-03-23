@@ -1,10 +1,11 @@
 # Pull Request Azure DevOps pipeline for the entire Polaris Codebase
 
-pr:
-  branches:
-    include:
-      #  - main
-      - feature/move_to_yaml_pipelines
+trigger: none
+
+#pr:
+#  branches:
+#    include:
+#      - main
 
 variables:
   - group: kv-dev-terraform
