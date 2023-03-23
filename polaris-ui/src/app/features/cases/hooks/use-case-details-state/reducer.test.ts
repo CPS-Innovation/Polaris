@@ -134,7 +134,7 @@ describe("useCaseDetailsState reducer", () => {
               haveData: true,
               data: {
                 transactionId: "123",
-                status: "Running",
+                status: "DocumentsRetrieved",
                 documents: mockNewPdfDocuments,
               },
             } as AsyncPipelineResult<PipelineResults>,
