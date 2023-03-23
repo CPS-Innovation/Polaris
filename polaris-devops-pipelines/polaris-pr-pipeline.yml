@@ -13,39 +13,207 @@ variables:
   - group: ui-terraform
   - name: buildConfiguration
     value: "Release"
+  - name: pipelineTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-terraform"
+  - name: pipelineEventsTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-events-terraform"
+  - name: uiTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform"
+  - name: uiEventsTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-events-terraform"
 
 stages:
-  - template: templates/terraform-adv-validation.yml # Validate
+  - stage: Determine_Changes
+    displayName: Determine Changes
+    jobs:
+      - job: Generate_Diff
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = $(git diff --name-only origin/main)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                  }
+                }
+            name: Change_Results
+            displayName: Processing changes to repo  
+    
+  - template: templates/terraform-adv-validation.yml # Validate pipeline terraform
     parameters:
+      name: 'Pipeline'
       terraformVersion: $(terraform-version)
       terraformStorageAccount: $(dev-terraform-storage-account)
       terraformContainerName: $(pipeline-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-terraform"
+      workingDirectory: $(pipelineTerraformWorkingDir)
       rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      dependsOn: 'Determine_Changes'
+      conditionValue: 'RUN_PIPELINE_TERRAFORM'
 
-  - template: templates/terraform-plan-nopub.yml # Plan DEV
+  - template: templates/terraform-plan-nopub.yml # Plan DEV pipeline terraform
     parameters:
       name: 'DEV'
+      category: 'Pipeline'
       buildAgent: $(dev-build-agent)
       terraformVersion: $(terraform-version)
       terraformStorageAccount: $(dev-terraform-storage-account)
       terraformContainerName: $(pipeline-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-terraform"
+      workingDirectory: $(pipelineTerraformWorkingDir)
       planName: 'dev'
       spnClientId: $(innovation-development-spn-client-id)
       spnClientSecret: $(innovation-development-spn-secret)
       spnTenantId: $(innovation-development-spn-tenant-id)
       subscriptionId: $(innovation-development-subscription-id)
+      dependsOn: 'Validate_Terraform_Pipeline'
+      
+  - template: templates/terraform-adv-validation.yml # Validate DEV pipeline events terraform
+    parameters:
+      name: 'Pipeline_Events'
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(pipeline-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: $(pipelineEventsTerraformWorkingDir)
+      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      dependsOn: 'Plan_DEV_Pipeline'
+      conditionValue: 'RUN_PIPELINE_TERRAFORM'
+
+  - template: templates/terraform-plan-nopub.yml # Plan DEV pipeline events terraform
+    parameters:
+      name: 'DEV'
+      category: 'Pipeline Events'
+      buildAgent: $(dev-build-agent)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(pipeline-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: $(pipelineEventsTerraformWorkingDir)
+      planName: 'dev'
+      spnClientId: $(innovation-development-spn-client-id)
+      spnClientSecret: $(innovation-development-spn-secret)
+      spnTenantId: $(innovation-development-spn-tenant-id)
+      subscriptionId: $(innovation-development-subscription-id)
+      dependsOn: 'Validate_Terraform_Pipeline_Events'
+      
+  - template: templates/terraform-adv-validation.yml # Validate UI terraform
+    parameters:
+      name: 'UI'
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(ui-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: $(uiTerraformWorkingDir)
+      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      dependsOn: 'Plan_DEV_Pipeline_Events'
+      conditionValue: 'RUN_UI_TERRAFORM'
+
+  - template: templates/terraform-plan-nopub.yml # Plan DEV UI terraform
+    parameters:
+      name: 'DEV'
+      category: 'UI'
+      buildAgent: $(dev-build-agent)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(ui-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: $(uiTerraformWorkingDir)
+      planName: 'dev'
+      spnClientId: $(innovation-development-spn-client-id)
+      spnClientSecret: $(innovation-development-spn-secret)
+      spnTenantId: $(innovation-development-spn-tenant-id)
+      subscriptionId: $(innovation-development-subscription-id)
+      dependsOn: 'Validate_Terraform_UI'
+
+  - template: templates/terraform-adv-validation.yml # Validate DEV UI events terraform
+    parameters:
+      name: 'UI_Events'
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(ui-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: $(uiEventsTerraformWorkingDir)
+      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      dependsOn: 'Plan_DEV_UI'
+      conditionValue: 'RUN_UI_EVENTS_TERRAFORM'
+
+  - template: templates/terraform-plan-nopub.yml # Plan DEV UI events terraform
+    parameters:
+      name: 'DEV'
+      category: 'UI_Events'
+      buildAgent: $(dev-build-agent)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformContainerName: $(ui-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      workingDirectory: $(uiEventsTerraformWorkingDir)
+      planName: 'dev'
+      spnClientId: $(innovation-development-spn-client-id)
+      spnClientSecret: $(innovation-development-spn-secret)
+      spnTenantId: $(innovation-development-spn-tenant-id)
+      subscriptionId: $(innovation-development-subscription-id)
+      dependsOn: 'Validate_Terraform_UI_Events'
             
-  - stage: Validate_Build
-    displayName: PR > build/test each project
+  - stage: Validate_Gateway_Codebase
+    displayName: Validate Gateway Codebase
+    condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true')
     jobs:
       - job:
-        displayName: Build, Test and Report
+        displayName: Build, Test, Report - Gateway
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -62,7 +230,26 @@ stages:
               projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Gateway"
-
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Gateway tests"
+            
+          - publish: $(Build.SourcesDirectory)/**/*.cobertura.xml
+            artifact: GatewayTestResults
+            
+  - stage: Validate_Pipeline_Codebase
+    displayName: Validate Pipeline Codebase
+    condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true')
+    jobs:
+      - job:
+        displayName: Build, Test, Report - Pipeline
+        pool:
+          vmImage: ubuntu-latest
+        steps:
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -96,21 +283,7 @@ stages:
               projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Text Extractor"
-
-          - task: DotNetCoreCLI@2
-            displayName: 'Install ReportGenerator'
-            inputs:
-              command: custom
-              custom: tool
-              arguments: 'install --global dotnet-reportgenerator-globaltool'
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
-              projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run Gateway tests"
-
+            
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
@@ -138,7 +311,19 @@ stages:
               projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Text-Extractor tests"
-
+            
+          - publish: $(Build.SourcesDirectory)/**/*.cobertura.xml
+            artifact: PipelineTestResults
+                      
+  - stage: Validate_UI_Codebase
+    displayName: Validate UI Codebase
+    condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true')
+    jobs:
+      - job:
+        displayName: Build, Test, Report - UI
+        pool:
+          vmImage: ubuntu-latest
+        steps:
           # Begin UI testing      
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
@@ -251,12 +436,35 @@ stages:
               cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(Build.SourcesDirectory)/uiresults.cobertura.xml
             displayName: 'Moving ui coverage results'
             
-          - script: |
-              reportgenerator -reports:$(Build.SourcesDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:Cobertura
-            displayName: 'Create code coverage report'
+          - publish: $(Build.SourcesDirectory)/**/*.cobertura.xml
+            artifact: UITestResults
+              
+  - stage: Generate Reports
+    displayName: PR > collate and publish reports
+    condition: or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true')) 
+    jobs:
+      - job:
+        displayName: Build, Test, Report - UI
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Install ReportGenerator'
+            inputs:
+              command: custom
+              custom: tool
+              arguments: 'install --global dotnet-reportgenerator-globaltool'
 
+          - download: current
+            patterns: '**/*.cobertura.xml'
+            displayName: Retrieve published test reports
+              
+          - script: |
+              reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
+            displayName: 'Create code coverage report'
+            
           - task: PublishCodeCoverageResults@1
             displayName: 'Publish code coverage report'
             inputs:
               codeCoverageTool: 'cobertura'
-              summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+              summaryFileLocation: '$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml'

@@ -20,13 +20,12 @@
   authHandoverCodebaseArtifactName: ''
   uiCodebaseArtifactName: ''
   dependentStageName: ''
-  triggeringAlias: ''
-    
+
 stages:
   - stage: Apply_${{ parameters.name }}
     displayName: CD > ${{ parameters.name }} Plan and Apply
     dependsOn: ${{ parameters.dependentStageName }}
-    condition: and(succeeded(), eq(${{ parameters.triggeringAlias }}, 'PolarisUITerraform'))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_TERRAFORM'], 'true'))
     pool:
       name: ${{ parameters.buildAgent }}
     jobs:

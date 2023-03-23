@@ -1,4 +1,5 @@
 ﻿parameters:
+  name: ''
   terraformVersion: ''
   terraformStorageAccount: ''
   terraformContainerName: ''
@@ -6,10 +7,14 @@
   terraformAccessKey: ''
   workingDirectory: ''
   rulesToSkip: ''
+  dependsOn: ''
+  conditionValue: ''
 
 stages:
-  - stage: Validate
-    displayName: PR > Validate
+  - stage: Validate_Terraform_${{ parameters.name }}
+    displayName: PR > Validate ${{ parameters.name }} Terraform
+    dependsOn: ${{ parameters.dependsOn }}
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.${{parameters.conditionValue}}'], 'true'))
     jobs:
       - job:
         pool:
@@ -54,22 +59,9 @@ stages:
           - bash: checkov --directory ${{ parameters.workingDirectory }}/modules --skip-check CKV_DOCKER_* -o junitxml > ${{ parameters.workingDirectory }}/Checkov-Module-Report.xml
             displayName: Checkov > Check Supporting Modules
           
-          # Publish test results for modules
-          - task: PublishTestResults@2
-            displayName: Checkov > Publish Module Test Results
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '**/*Checkov-Module-Report.xml'
-              searchFolder: ${{ parameters.workingDirectory }}
-              mergeTestResults: true
-              testRunTitle: Checkov Module Scan
-              failTaskOnFailedTests: false
-              publishRunAttachments: true
-          
           # Verify main files with Checkov
           - bash: checkov --directory ${{ parameters.workingDirectory }} --skip-check ${{ parameters.rulesToSkip }} -o junitxml > ${{ parameters.workingDirectory }}/Checkov-Root-Report.xml
-            displayName: Checkov > Verify Polaris Terraform
+            displayName: Checkov > Verify ${{ parameters.name }} Terraform
           
           # Publish test results for root module
           - task: PublishTestResults@2
@@ -77,9 +69,9 @@ stages:
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'JUnit'
-              testResultsFiles: '**/*Checkov-Root-Report.xml'
+              testResultsFiles: '**/Checkov-*.xml'
               searchFolder: ${{ parameters.workingDirectory }}
               mergeTestResults: true
-              testRunTitle: Checkov Root Scan
+              testRunTitle: Checkov Scan
               failTaskOnFailedTests: false
               publishRunAttachments: true
