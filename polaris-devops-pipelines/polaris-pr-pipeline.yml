@@ -239,7 +239,7 @@ stages:
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Gateway tests"
             
-          - publish: $(System.DefaultWorkingDirectory)/**/*.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/**/*.cobertura.xml
             artifact: GatewayTestResults
             
   - stage: Validate_Pipeline_Codebase
@@ -313,7 +313,7 @@ stages:
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Text-Extractor tests"
             
-          - publish: $(System.DefaultWorkingDirectory)/**/*.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/**/*.cobertura.xml
             artifact: PipelineTestResults
                       
   - stage: Validate_UI_Codebase
@@ -437,7 +437,7 @@ stages:
               cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
             displayName: 'Moving ui coverage results'
             
-          - publish: $(System.DefaultWorkingDirectory)/**/*.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
             artifact: UITestResults
               
   - stage: Generate_Reports
