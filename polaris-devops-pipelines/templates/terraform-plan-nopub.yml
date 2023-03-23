@@ -14,32 +14,6 @@
   subscriptionId: ''
 
 stages:
-  - template: templates/terraform-adv-validation.yml # Validate
-    parameters:
-      terraformVersion: $(terraform-version)
-      terraformStorageAccount: $(dev-terraform-storage-account)
-      terraformContainerName: $(ddei-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: "$(System.DefaultWorkingDirectory)/terraform"
-      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
-
-  - template: templates/terraform-plan-nopub.yml # Plan DEV
-    parameters:
-      name: 'DEV'
-      buildAgent: $(dev-build-agent)
-      terraformVersion: $(terraform-version)
-      terraformStorageAccount: $(dev-terraform-storage-account)
-      terraformContainerName: $(ddei-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: "$(System.DefaultWorkingDirectory)/terraform"
-      planName: 'dev'
-      spnClientId: $(innovation-development-spn-client-id)
-      spnClientSecret: $(innovation-development-spn-secret)
-      spnTenantId: $(innovation-development-spn-tenant-id)
-      subscriptionId: $(innovation-development-subscription-id)
-  
   - stage: Plan_${{ parameters.name }}
     displayName: PR > Check ${{ parameters.name }} Plan
     dependsOn: Validate
