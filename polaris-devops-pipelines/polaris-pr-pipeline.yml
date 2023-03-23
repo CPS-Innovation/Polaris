@@ -88,6 +88,7 @@ stages:
   - template: templates/terraform-adv-validation.yml # Validate pipeline terraform
     parameters:
       name: 'Pipeline'
+      buildAgent: $(dev-build-agent)
       terraformVersion: $(terraform-version)
       terraformStorageAccount: $(dev-terraform-storage-account)
       terraformContainerName: $(pipeline-terraform-container-name)
@@ -106,6 +107,7 @@ stages:
   - template: templates/terraform-adv-validation.yml # Validate pipeline events terraform
     parameters:
       name: 'Pipeline_Events'
+      buildAgent: $(dev-build-agent)
       terraformVersion: $(terraform-version)
       terraformStorageAccount: $(dev-terraform-storage-account)
       terraformContainerName: $(pipeline-events-terraform-container-name)
@@ -124,6 +126,7 @@ stages:
   - template: templates/terraform-adv-validation.yml # Validate UI terraform
     parameters:
       name: 'UI'
+      buildAgent: $(dev-build-agent)
       terraformVersion: $(terraform-version)
       terraformStorageAccount: $(dev-terraform-storage-account)
       terraformContainerName: $(ui-terraform-container-name)
@@ -142,6 +145,7 @@ stages:
   - template: templates/terraform-adv-validation.yml # Validate UI events terraform
     parameters:
       name: 'UI_Events'
+      buildAgent: $(dev-build-agent)
       terraformVersion: $(terraform-version)
       terraformStorageAccount: $(dev-terraform-storage-account)
       terraformContainerName: $(ui-events-terraform-container-name)
