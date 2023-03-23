@@ -7,7 +7,6 @@ using Common.Constants;
 using Common.Domain.Case;
 using Common.Domain.Extensions;
 using Common.Logging;
-using Common.Domain.Pipeline;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Domain.Tracker;
