@@ -1,9 +1,9 @@
 const InProgressPipelineStatusesArray = [
-  "NotStarted",
   "Running",
-  "NoDocumentsFoundInCDE",
+  "DocumentsRetrieved",
   "Completed",
   "Failed",
+  "Deleted",
 ] as const;
 
 const SummaryPipelineStatusesArray = [
@@ -12,12 +12,12 @@ const SummaryPipelineStatusesArray = [
   "Failed",
 ] as const;
 
-const pipelineSucceededStatuses: InProgressPipelineStatus[] = [
-  "NoDocumentsFoundInCDE",
-  "Completed",
-];
+const pipelineSucceededStatuses: InProgressPipelineStatus[] = ["Completed"];
 
-const pipelineFailedStatuses: InProgressPipelineStatus[] = ["Failed"];
+const pipelineFailedStatuses: InProgressPipelineStatus[] = [
+  "Failed",
+  "Deleted",
+];
 
 export const getPipelinpipelineCompletionStatus = (
   status: InProgressPipelineStatus
