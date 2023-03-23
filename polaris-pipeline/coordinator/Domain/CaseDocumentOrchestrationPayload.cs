@@ -16,7 +16,7 @@ namespace coordinator.Domain
                 string cmsAuthValues, 
                 Guid correlationId
             )
-            : base(polarisDocumentId, cmsCaseUrn, cmsCaseId, correlationId)
+            : base(cmsCaseUrn, cmsCaseId, correlationId, polarisDocumentId)
         {
             CmsDocumentCategory = cmsDocumentCategory;
             CmsDocumentId = cmsDocumentId;

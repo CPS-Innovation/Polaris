@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace PolarisGateway.Domain.PolarisPipeline.Presentation
+namespace Common.Domain.Case.Presentation
 {
     public class PresentationFlags
     {

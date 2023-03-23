@@ -5,10 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.DocumentExtraction;
-using Common.Domain.Pipeline;
 using coordinator.Domain.Tracker;
-using coordinator.Domain.Tracker.Presentation;
-using coordinator.Functions.DurableEntityFunctions;
 using coordinator.Functions.ClientFunctions.Case;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -19,6 +16,8 @@ using Moq;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Wrappers;
+using Common.Domain.Case;
+using Common.Domain.Case.Presentation;
 
 namespace coordinator.tests.Domain.Tracker
 {

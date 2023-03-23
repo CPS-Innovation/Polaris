@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Domain.Case;
 using Common.Domain.Extensions;
 using Common.Logging;
 using coordinator.Domain;

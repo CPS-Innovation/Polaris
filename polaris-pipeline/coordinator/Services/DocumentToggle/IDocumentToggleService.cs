@@ -1,5 +1,6 @@
+using Common.Domain.Case;
+using Common.Domain.Case.Presentation;
 using coordinator.Domain.Tracker;
-using coordinator.Domain.Tracker.Presentation;
 
 namespace coordinator.Services.DocumentToggle
 {

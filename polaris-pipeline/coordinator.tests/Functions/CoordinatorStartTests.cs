@@ -8,6 +8,7 @@ using AutoFixture;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
+using coordinator.Functions.ClientFunctions.Case;
 using coordinator.Functions.OrchestrationFunctions;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -29,10 +30,10 @@ namespace coordinator.tests.Functions
         private readonly HttpResponseMessage _httpResponseMessage;
 
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
-        private readonly Mock<ILogger<UpdateCaseStart>> _mockLogger;
+        private readonly Mock<ILogger<CaseClient>> _mockLogger;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        private readonly UpdateCaseStart _coordinatorStart;
+        private readonly CaseClient _coordinatorStart;
 
         public CoordinatorStartTests()
         {
@@ -52,7 +53,7 @@ namespace coordinator.tests.Functions
             _httpResponseMessage = new HttpResponseMessage();
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
-            _mockLogger = new Mock<ILogger<UpdateCaseStart>>();
+            _mockLogger = new Mock<ILogger<CaseClient>>();
             
             _httpRequestHeaders.Add("Correlation-Id", correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
@@ -63,7 +64,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequestMessage, _instanceId, false))
                 .Returns(_httpResponseMessage);
 
-            _coordinatorStart = new UpdateCaseStart(_jsonConvertWrapper, _mockLogger.Object);
+            _coordinatorStart = new CaseClient(_jsonConvertWrapper, _mockLogger.Object);
         }
 
         [Fact]

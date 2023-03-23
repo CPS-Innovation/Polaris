@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 using Common.Logging;
 using System.Threading.Tasks;
 using System.Linq;
-using coordinator.Domain.Tracker;
 using coordinator.Functions.DurableEntityFunctions;
+using Common.Domain.Case;
 
 namespace coordinator.Functions.ClientFunctions
 {

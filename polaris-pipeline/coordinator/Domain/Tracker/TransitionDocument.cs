@@ -1,5 +1,5 @@
+using Common.Domain.Case.Presentation;
 using Common.Domain.DocumentExtraction;
-using coordinator.Domain.Tracker.Presentation;
 using System;
 
 namespace coordinator.Domain.Tracker;

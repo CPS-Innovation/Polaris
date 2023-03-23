@@ -14,25 +14,26 @@ using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntityFunctions;
+using coordinator.Functions.OrchestrationFunctions;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.OrchestrationFunctions
+namespace coordinator.Functions.ClientFunctions.Case
 {
-    public class UpdateCaseStart
+    public class CaseClient
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly ILogger<UpdateCaseStart> _logger;
+        private readonly ILogger<CaseClient> _logger;
 
-        public UpdateCaseStart(IJsonConvertWrapper jsonConvertWrapper, ILogger<UpdateCaseStart> logger)
+        public CaseClient(IJsonConvertWrapper jsonConvertWrapper, ILogger<CaseClient> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _logger = logger;
         }
 
-        [FunctionName(nameof(UpdateCaseStart))]
+        [FunctionName(nameof(CaseClient))]
         public async Task<HttpResponseMessage> Run
             (
                 [HttpTrigger(AuthorizationLevel.Anonymous, "put", "post", "delete", Route = RestApi.Case)] HttpRequestMessage req,
@@ -42,7 +43,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             )
         {
             Guid currentCorrelationId = default;
-            const string loggingName = $"{nameof(UpdateCaseStart)} - {nameof(Run)}";
+            const string loggingName = $"{nameof(CaseClient)} - {nameof(Run)}";
 
             try
             {
@@ -83,13 +84,13 @@ namespace coordinator.Functions.OrchestrationFunctions
                         if (!isRunning)
                             await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), caseId, casePayload);
 
-                        _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(UpdateCaseStart)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
+                        _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(CaseClient)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
 
                         return orchestrationClient.CreateCheckStatusResponse(req, caseId);
 
                     case "DELETE":
                         var status = await orchestrationClient.GetStatusAsync(caseId);
-                        await orchestrationClient.StartNewAsync(nameof(DeleteCaseOrchestrator), caseId, casePayload); 
+                        await orchestrationClient.StartNewAsync(nameof(DeleteCaseOrchestrator), caseId, casePayload);
                         await orchestrationClient.TerminateAsync(status.InstanceId, $"{loggingName} - terminated via DELETE");
 
                         return new HttpResponseMessage(HttpStatusCode.Accepted);
