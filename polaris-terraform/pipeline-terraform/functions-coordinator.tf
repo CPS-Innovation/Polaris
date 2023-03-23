@@ -31,7 +31,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                        = "documents"
+    "BlobServiceContainerName"                 = "documents"
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
     "Ddei__BaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
