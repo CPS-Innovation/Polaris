@@ -47,11 +47,11 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
     vnet_route_all_enabled           = true
+    elastic_instance_minimum         = 3
 
     cors {
       allowed_origins = []
     }
-    elastic_instance_minimum = 1
   }
 
   identity {

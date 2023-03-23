@@ -39,6 +39,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
     vnet_route_all_enabled           = true
+    elastic_instance_minimum         = 3
   }
 
   identity {

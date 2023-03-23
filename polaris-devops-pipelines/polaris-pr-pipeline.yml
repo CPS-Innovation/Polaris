@@ -94,7 +94,7 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(pipelineTerraformWorkingDir)
-      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      rulesToSkip: $(checkov-rules-to-skip)
       dependsOn: 'Determine_Changes'
       conditionValue: 'RUN_PIPELINE_TERRAFORM'
 
@@ -125,7 +125,7 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(pipelineEventsTerraformWorkingDir)
-      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      rulesToSkip: $(checkov-rules-to-skip)
       dependsOn: 'Plan_DEV_Pipeline'
       conditionValue: 'RUN_PIPELINE_TERRAFORM'
 
@@ -156,7 +156,7 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(uiTerraformWorkingDir)
-      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      rulesToSkip: $(checkov-rules-to-skip)
       dependsOn: 'Plan_DEV_Pipeline_Events'
       conditionValue: 'RUN_UI_TERRAFORM'
 
@@ -187,7 +187,7 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(uiEventsTerraformWorkingDir)
-      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      rulesToSkip: $(checkov-rules-to-skip)
       dependsOn: 'Plan_DEV_UI'
       conditionValue: 'RUN_UI_EVENTS_TERRAFORM'
 

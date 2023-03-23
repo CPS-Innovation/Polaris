@@ -3,11 +3,13 @@ resource "azurerm_storage_account" "sacpspolaris" {
   resource_group_name = azurerm_resource_group.rg_polaris.name
   location            = azurerm_resource_group.rg_polaris.location
 
-  account_kind              = "StorageV2"
-  account_replication_type  = "RAGRS"
-  account_tier              = "Standard"
-  enable_https_traffic_only = true
-  min_tls_version           = "TLS1_2"
+  account_kind                    = "StorageV2"
+  account_replication_type        = "RAGRS"
+  account_tier                    = "Standard"
+  enable_https_traffic_only       = true
+  min_tls_version                 = "TLS1_2"
+  public_network_access_enabled   = false
+  allow_nested_items_to_be_public = false
 
   tags = local.common_tags
 }

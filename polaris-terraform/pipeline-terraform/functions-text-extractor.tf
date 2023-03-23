@@ -40,6 +40,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     http2_enabled                    = true
     runtime_scale_monitoring_enabled = true
     vnet_route_all_enabled           = true
+    elastic_instance_minimum         = 3
   }
 
   identity {

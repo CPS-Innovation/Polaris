@@ -16,7 +16,7 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-events-terraform/"
-      rulesToSkip: 'CKV2_AZURE_1,CKV2_AZURE_18'
+      rulesToSkip: $(checkov-rules-to-skip)
 
   - template: templates/terraform-plan-nopub.yml # Plan DEV
     parameters:

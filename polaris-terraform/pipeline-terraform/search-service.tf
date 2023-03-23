@@ -6,6 +6,10 @@ resource "azurerm_search_service" "ss" {
   replica_count                 = 3
   public_network_access_enabled = false
   tags                          = local.common_tags
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 # Create Private Endpoint
