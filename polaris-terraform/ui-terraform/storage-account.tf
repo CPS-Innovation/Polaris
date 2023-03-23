@@ -11,6 +11,30 @@ resource "azurerm_storage_account" "sacpspolaris" {
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
 
+  queue_properties {
+    logging {
+      delete                = true
+      read                  = true
+      write                 = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+
+    hour_metrics {
+      enabled               = true
+      include_apis          = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+
+    minute_metrics {
+      enabled               = true
+      include_apis          = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+  }
+  
   tags = local.common_tags
 }
 
