@@ -32,7 +32,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     }
     always_on              = true
     vnet_route_all_enabled = true
-    worker_count           = 3
   }
 
   logs {

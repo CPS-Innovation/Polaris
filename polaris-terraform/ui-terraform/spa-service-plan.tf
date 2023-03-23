@@ -7,6 +7,7 @@ resource "azurerm_service_plan" "asp_polaris_spa" {
   os_type             = "Linux"
   sku_name            = var.app_service_plan_web_sku
   tags                = local.common_tags
+  worker_count        = 3 
 }
 
 resource "azurerm_monitor_autoscale_setting" "amas_polaris_spa" {

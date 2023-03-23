@@ -1,12 +1,13 @@
 #################### App Service Plan ####################
 
 resource "azurerm_service_plan" "asp_polaris" {
-  name                = "asp-${local.resource_name}"
-  location            = azurerm_resource_group.rg_polaris.location
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  os_type             = "Linux"
-  sku_name            = var.app_service_plan_web_sku
-  tags                = local.common_tags
+  name                         = "asp-${local.resource_name}"
+  location                     = azurerm_resource_group.rg_polaris.location
+  resource_group_name          = azurerm_resource_group.rg_polaris.name
+  os_type                      = "Linux"
+  sku_name                     = var.app_service_plan_web_sku
+  tags                         = local.common_tags
+  worker_count                 = 3
 }
 
 resource "azurerm_monitor_autoscale_setting" "amas_polaris" {
