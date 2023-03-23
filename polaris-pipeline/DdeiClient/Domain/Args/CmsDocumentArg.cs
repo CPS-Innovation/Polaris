@@ -5,5 +5,7 @@ namespace Ddei.Domain.CaseData.Args
         public string CmsDocCategory { get; set; }
 
         public int DocumentId { get; set; }
+
+        public long VersionId { get; set; }
     }
 }

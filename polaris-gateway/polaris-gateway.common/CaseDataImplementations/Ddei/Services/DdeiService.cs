@@ -116,11 +116,11 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task UploadPdf(CmsDocumentArg arg, Stream stream, string fileName)
+        public async Task UploadPdf(CmsDocumentArg arg, Stream stream)
         {
             try
             {
-                await _ddeiClient.UploadPdf(arg, stream, fileName);
+                await _ddeiClient.UploadPdf(arg, stream);
             }
             catch (Exception exception)
             {

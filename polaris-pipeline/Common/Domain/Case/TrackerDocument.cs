@@ -8,7 +8,6 @@ namespace Common.Domain.Case
 {
     public class TrackerDocument
     {
-        // todo: this is just here for testing
         public TrackerDocument()
         {
             CmsDocType = new CmsDocType();
@@ -34,8 +33,8 @@ namespace Common.Domain.Case
             CmsFileExtension = cmsFileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
-            Status = DocumentStatus.None;
             PresentationFlags = presentationFlags;
+            Status = DocumentStatus.New;
         }
 
         [JsonProperty("polarisDocumentId")]
