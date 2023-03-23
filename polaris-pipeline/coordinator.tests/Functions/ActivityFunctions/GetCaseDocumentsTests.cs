@@ -14,7 +14,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using coordinator.Domain.Tracker.Presentation;
+using Common.Domain.Case.Presentation;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {

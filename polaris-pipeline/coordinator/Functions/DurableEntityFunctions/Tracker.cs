@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
+using Common.Domain.Case;
 using Common.Domain.DocumentEvaluation;
-using Common.Domain.Pipeline;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
 using Microsoft.Azure.WebJobs;
@@ -128,7 +128,7 @@ namespace coordinator.Functions.DurableEntityFunctions
 
         private TrackerDocument CreateTrackerDocument(TransitionDocument document)
         {
-            return new TrackerDocument(
+            return new Common.Domain.Case.TrackerDocument(
                 document.PolarisDocumentId,
                 document.DocumentId,
                 document.VersionId,

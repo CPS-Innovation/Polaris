@@ -1,4 +1,4 @@
-namespace PolarisGateway.Domain.PolarisPipeline.Presentation
+namespace Common.Domain.Case.Presentation
 {
     public enum WriteFlag
     {

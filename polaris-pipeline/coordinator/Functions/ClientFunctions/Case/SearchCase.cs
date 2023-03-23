@@ -3,8 +3,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Clients.Contracts;
+using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
+using coordinator.Functions.DurableEntityFunctions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -27,10 +29,9 @@ namespace coordinator.Functions.ClientFunctions.Case
 
         [FunctionName(nameof(SearchCase))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "urns/{caseUrn}/cases/{caseId}/documents/search/{*searchTerm}")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentsSearch)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
-            string searchTerm,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -38,6 +39,7 @@ namespace coordinator.Functions.ClientFunctions.Case
 
             try
             {
+                var searchTerm = req.RequestUri.ParseQueryString()["query"];
                 if (string.IsNullOrWhiteSpace(searchTerm))
                     return new BadRequestObjectResult("Search term not supplied.");
 
@@ -56,18 +58,19 @@ namespace coordinator.Functions.ClientFunctions.Case
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
-                log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
-
                 var entityId = new EntityId(nameof(Domain.Tracker), caseId.ToString());
-                var stateResponse = await client.ReadEntityStateAsync<TrackerFunction>(entityId);
-                if (!stateResponse.EntityExists)
+                var trackerState = await client.ReadEntityStateAsync<Tracker>(entityId);
+
+                if (!trackerState.EntityExists)
                 {
                     var baseMessage = $"No pipeline tracker found with id '{caseId}'";
                     log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
                     return new NotFoundObjectResult(baseMessage);
                 }
 
-                var searchResults = await _searchIndexClient.Query(caseId, searchTerm, currentCorrelationId);
+                log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
+
+                var searchResults = await _searchIndexClient.Query(caseId, trackerState.EntityState.Documents, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }
