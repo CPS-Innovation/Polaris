@@ -16,6 +16,6 @@ namespace Ddei.Factories.Contracts
 
         HttpRequestMessage CreateCancelCheckoutDocumentRequest(CmsDocumentArg arg);
 
-        HttpRequestMessage CreateUploadPdfRequest(CmsDocumentArg arg, Stream stream, string filename);
+        HttpRequestMessage CreateUploadPdfRequest(CmsDocumentArg arg, Stream stream);
     }
 }
