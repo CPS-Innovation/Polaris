@@ -53,12 +53,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     }*/
   }
   logs {
-    detailed_error_messages        = true
-    failed_request_tracing_enabled = true
-    http_logs {
-      retention_in_days = 4
-      retention_in_mb   = 10
-    }
+    detailed_error_messages = true
   }
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key

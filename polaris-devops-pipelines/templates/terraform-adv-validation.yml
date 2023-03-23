@@ -55,12 +55,8 @@ stages:
             displayName: Terraform > Validate Config
             workingDirectory: ${{ parameters.workingDirectory }}
           
-          # Verify module files with Checkov
-          - bash: checkov --directory ${{ parameters.workingDirectory }}/modules --skip-check CKV_DOCKER_* -o junitxml > ${{ parameters.workingDirectory }}/Checkov-Module-Report.xml
-            displayName: Checkov > Check Supporting Modules
-          
           # Verify main files with Checkov
-          - bash: checkov --directory ${{ parameters.workingDirectory }} --skip-check ${{ parameters.rulesToSkip }} -o junitxml > ${{ parameters.workingDirectory }}/Checkov-Root-Report.xml
+          - bash: checkov --directory ${{ parameters.workingDirectory }} --skip-check ${{ parameters.rulesToSkip }} -o junitxml > ${{ parameters.workingDirectory }}/${{ parameters.name }}-Checkov-Report.xml
             displayName: Checkov > Verify ${{ parameters.name }} Terraform
           
           # Publish test results for root module
@@ -69,7 +65,7 @@ stages:
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'JUnit'
-              testResultsFiles: '**/Checkov-*.xml'
+              testResultsFiles: '**/*-Checkov-Report.xml'
               searchFolder: ${{ parameters.workingDirectory }}
               mergeTestResults: true
               testRunTitle: Checkov Scan
