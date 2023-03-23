@@ -1,4 +1,3 @@
-using System.Xml.Linq;
 using System.IO;
 using System.Collections.Generic;
 using coordinator.Domain.Tracker;
@@ -6,9 +5,10 @@ using coordinator.Services.DocumentToggle.Domain;
 using System.Linq;
 using System;
 using coordinator.Services.DocumentToggle.Exceptions;
-using coordinator.Domain.Tracker.Presentation;
 using System.Reflection;
 using System.Text;
+using Common.Domain.Case;
+using Common.Domain.Case.Presentation;
 
 namespace coordinator.Services.DocumentToggle
 {

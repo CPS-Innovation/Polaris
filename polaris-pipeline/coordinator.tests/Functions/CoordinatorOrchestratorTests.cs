@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
-using Common.Domain.Pipeline;
+using Common.Domain.Case;
 using Common.Domain.Extensions;
 using Common.Domain.Responses;
 using coordinator.Domain;

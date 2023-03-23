@@ -1,4 +1,4 @@
-﻿using Common.Domain.Pipeline;
+﻿using Common.Domain.Case;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

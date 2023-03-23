@@ -207,7 +207,7 @@ namespace Gateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                var url = $"{RestApi.GetDocumentsUrl(caseUrn, caseId)}/search/{searchTerm}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+                var url = $"{RestApi.GetDocumentsUrl(caseUrn, caseId)}/search?code ={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}&query={searchTerm}";
                 response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)

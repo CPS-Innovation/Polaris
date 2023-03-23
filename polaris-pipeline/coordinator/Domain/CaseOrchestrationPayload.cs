@@ -5,7 +5,7 @@ namespace coordinator.Domain
     public class CaseOrchestrationPayload : BasePipelinePayload
     {
         public CaseOrchestrationPayload(string cmsCaseUrn, long cmsCaseId, string cmsAuthValues, Guid correlationId)
-            : base(default, cmsCaseUrn, cmsCaseId, correlationId)
+            : base(cmsCaseUrn, cmsCaseId, correlationId)
         {
             CmsAuthValues = cmsAuthValues;
         }

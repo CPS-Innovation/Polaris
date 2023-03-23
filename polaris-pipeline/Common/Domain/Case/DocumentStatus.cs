@@ -1,4 +1,4 @@
-﻿namespace Common.Domain.Pipeline
+﻿namespace Common.Domain.Case
 {
     public enum DocumentStatus
 	{
