@@ -94,29 +94,16 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(pipelineTerraformWorkingDir)
-      rulesToSkip: $(checkov-rules-to-skip)
-      dependsOn: 'Determine_Changes'
-      conditionValue: 'RUN_PIPELINE_TERRAFORM'
-
-  - template: templates/terraform-plan-nopub.yml # Plan DEV pipeline terraform
-    parameters:
-      name: 'DEV'
-      category: 'Pipeline'
-      buildAgent: $(dev-build-agent)
-      terraformVersion: $(terraform-version)
-      terraformStorageAccount: $(dev-terraform-storage-account)
-      terraformContainerName: $(pipeline-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: $(pipelineTerraformWorkingDir)
-      planName: 'dev'
+      planName: 'pipeline'
       spnClientId: $(innovation-development-spn-client-id)
       spnClientSecret: $(innovation-development-spn-secret)
       spnTenantId: $(innovation-development-spn-tenant-id)
       subscriptionId: $(innovation-development-subscription-id)
-      dependsOn: 'Validate_Terraform_Pipeline'
-      
-  - template: templates/terraform-adv-validation.yml # Validate DEV pipeline events terraform
+      rulesToSkip: $(checkov-rules-to-skip)
+      dependsOn: 'Determine_Changes'
+      conditionValue: 'RUN_PIPELINE_TERRAFORM'
+
+  - template: templates/terraform-adv-validation.yml # Validate pipeline events terraform
     parameters:
       name: 'Pipeline_Events'
       terraformVersion: $(terraform-version)
@@ -125,28 +112,15 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(pipelineEventsTerraformWorkingDir)
-      rulesToSkip: $(checkov-rules-to-skip)
-      dependsOn: 'Plan_DEV_Pipeline'
-      conditionValue: 'RUN_PIPELINE_TERRAFORM'
-
-  - template: templates/terraform-plan-nopub.yml # Plan DEV pipeline events terraform
-    parameters:
-      name: 'DEV'
-      category: 'Pipeline_Events'
-      buildAgent: $(dev-build-agent)
-      terraformVersion: $(terraform-version)
-      terraformStorageAccount: $(dev-terraform-storage-account)
-      terraformContainerName: $(pipeline-events-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: $(pipelineEventsTerraformWorkingDir)
-      planName: 'dev'
+      planName: 'pipeline-events'
       spnClientId: $(innovation-development-spn-client-id)
       spnClientSecret: $(innovation-development-spn-secret)
       spnTenantId: $(innovation-development-spn-tenant-id)
       subscriptionId: $(innovation-development-subscription-id)
-      dependsOn: 'Validate_Terraform_Pipeline_Events'
-      
+      rulesToSkip: $(checkov-rules-to-skip)
+      dependsOn: 'Validate_Terraform_Pipeline'
+      conditionValue: 'RUN_PIPELINE_TERRAFORM'
+
   - template: templates/terraform-adv-validation.yml # Validate UI terraform
     parameters:
       name: 'UI'
@@ -156,29 +130,16 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(uiTerraformWorkingDir)
-      rulesToSkip: $(checkov-rules-to-skip)
-      dependsOn: 'Plan_DEV_Pipeline_Events'
-      conditionValue: 'RUN_UI_TERRAFORM'
-
-  - template: templates/terraform-plan-nopub.yml # Plan DEV UI terraform
-    parameters:
-      name: 'DEV'
-      category: 'UI'
-      buildAgent: $(dev-build-agent)
-      terraformVersion: $(terraform-version)
-      terraformStorageAccount: $(dev-terraform-storage-account)
-      terraformContainerName: $(ui-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: $(uiTerraformWorkingDir)
-      planName: 'dev'
+      planName: 'ui'
       spnClientId: $(innovation-development-spn-client-id)
       spnClientSecret: $(innovation-development-spn-secret)
       spnTenantId: $(innovation-development-spn-tenant-id)
       subscriptionId: $(innovation-development-subscription-id)
-      dependsOn: 'Validate_Terraform_UI'
+      rulesToSkip: $(checkov-rules-to-skip)
+      dependsOn: 'Validate_Terraform_Pipeline_Events'
+      conditionValue: 'RUN_UI_TERRAFORM'
 
-  - template: templates/terraform-adv-validation.yml # Validate DEV UI events terraform
+  - template: templates/terraform-adv-validation.yml # Validate UI events terraform
     parameters:
       name: 'UI_Events'
       terraformVersion: $(terraform-version)
@@ -187,28 +148,15 @@ stages:
       terraformStateKey: $(terraform-key)
       terraformAccessKey: $(cpsdevstorageterraform-key1)
       workingDirectory: $(uiEventsTerraformWorkingDir)
-      rulesToSkip: $(checkov-rules-to-skip)
-      dependsOn: 'Plan_DEV_UI'
-      conditionValue: 'RUN_UI_EVENTS_TERRAFORM'
-
-  - template: templates/terraform-plan-nopub.yml # Plan DEV UI events terraform
-    parameters:
-      name: 'DEV'
-      category: 'UI_Events'
-      buildAgent: $(dev-build-agent)
-      terraformVersion: $(terraform-version)
-      terraformStorageAccount: $(dev-terraform-storage-account)
-      terraformContainerName: $(ui-events-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformAccessKey: $(cpsdevstorageterraform-key1)
-      workingDirectory: $(uiEventsTerraformWorkingDir)
-      planName: 'dev'
+      planName: 'ui-events'
       spnClientId: $(innovation-development-spn-client-id)
       spnClientSecret: $(innovation-development-spn-secret)
       spnTenantId: $(innovation-development-spn-tenant-id)
       subscriptionId: $(innovation-development-subscription-id)
-      dependsOn: 'Validate_Terraform_UI_Events'
-            
+      rulesToSkip: $(checkov-rules-to-skip)
+      dependsOn: 'Validate_Terraform_UI'
+      conditionValue: 'RUN_UI_EVENTS_TERRAFORM'
+
   - stage: Validate_Gateway_Codebase
     displayName: Validate Gateway Codebase
     condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true')

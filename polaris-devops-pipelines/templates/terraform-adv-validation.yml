@@ -16,7 +16,7 @@ stages:
     dependsOn: ${{ parameters.dependsOn }}
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.${{parameters.conditionValue}}'], 'true'))
     jobs:
-      - job:
+      - job: Validate
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -71,3 +71,39 @@ stages:
               testRunTitle: Checkov Scan
               failTaskOnFailedTests: false
               publishRunAttachments: true
+              
+      - job: CheckPlan
+        pool:
+          name: ${{ parameters.buildAgent }}
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: ${{ parameters.terraformVersion }}
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: ${{ parameters.workingDirectory }}
+            env:
+              TF_STATE_ACCOUNT_NAME: ${{ parameters.terraformStorageAccount }}
+              TF_STATE_CONTAINER_NAME: ${{ parameters.terraformContainerName }}
+              TF_STATE_KEY: ${{ parameters.terraformStateKey }}
+              TF_STATE_ACCESS_KEY: ${{ parameters.terraformAccessKey }}
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=${{ parameters.planName }}.tfplan -var-file="${{ parameters.planName }}.tfvars"
+            displayName: 'Terraform > Write ${{ parameters.name }} ${{ parameters.category }} Plan'
+            workingDirectory: ${{ parameters.workingDirectory }}
+            env:
+              ARM_CLIENT_ID: ${{ parameters.spnClientId }}
+              ARM_CLIENT_SECRET: ${{ parameters.spnClientSecret }}
+              ARM_TENANT_ID: ${{ parameters.spnTenantId }}
+              ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
