@@ -7,13 +7,18 @@
   terraformStateKey: ''
   terraformAccessKey: ''
   workingDirectory: ''
+  planName: ''
+  spnClientId: ''
+  spnClientSecret: ''
+  spnTenantId: ''
+  subscriptionId: ''
   rulesToSkip: ''
   dependsOn: ''
   conditionValue: ''
 
 stages:
   - stage: Validate_Terraform_${{ parameters.name }}
-    displayName: PR > Validate ${{ parameters.name }} Terraform
+    displayName: Validate ${{ parameters.name }} Terraform
     dependsOn: ${{ parameters.dependsOn }}
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.${{parameters.conditionValue}}'], 'true'))
     jobs:
@@ -100,7 +105,7 @@ stages:
           
           # Terraform Plan
           - bash: |
-              terraform plan -input=false -out=${{ parameters.planName }}.tfplan -var-file="${{ parameters.planName }}.tfvars"
+              terraform plan -input=false -out=${{ parameters.planName }}.tfplan -var-file="dev.tfvars"
             displayName: 'Terraform > Write ${{ parameters.name }} ${{ parameters.category }} Plan'
             workingDirectory: ${{ parameters.workingDirectory }}
             env:
