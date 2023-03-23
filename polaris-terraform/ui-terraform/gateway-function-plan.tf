@@ -18,8 +18,8 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_gateway" {
   profile {
     name = "Polaris Gateway Performance Scaling Profile"
     capacity {
-      default = 1
-      minimum = 1
+      default = 3
+      minimum = 3
       maximum = 10
     }
     rule {

@@ -50,6 +50,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     }
     vnet_route_all_enabled           = true
     runtime_scale_monitoring_enabled = true
+    worker_count                     = 3
   }
 
   tags = local.common_tags

@@ -39,6 +39,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     always_on                               = true
     vnet_route_all_enabled                  = true
     container_registry_use_managed_identity = false
+    worker_count                            = 3
   }
   auth_settings {
     enabled                       = false
@@ -50,6 +51,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       client_secret     = azuread_application_password.asap_polaris_cms_proxy.value
       allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/${local.resource_name}-cmsproxy"]
     }*/
+  }
+  logs {
+    detailed_error_messages        = true
+    failed_request_tracing_enabled = true
+    http_logs {
+      retention_in_days = 4
+      retention_in_mb   = 10
+    }
   }
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key

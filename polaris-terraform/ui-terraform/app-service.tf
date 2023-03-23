@@ -32,6 +32,16 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     }
     always_on              = true
     vnet_route_all_enabled = true
+    worker_count           = 3
+  }
+
+  logs {
+    detailed_error_messages        = true
+    failed_request_tracing_enabled = true
+    http_logs {
+      retention_in_days = 4
+      retention_in_mb   = 10
+    }
   }
 
   auth_settings {
