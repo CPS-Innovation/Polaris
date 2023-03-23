@@ -238,9 +238,10 @@ stages:
               projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Gateway tests"
-            
-          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/**/*.cobertura.xml
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/coverage.cobertura.xml
             artifact: GatewayTestResults
+            displayName: Publish Gateway Test Results
             
   - stage: Validate_Pipeline_Codebase
     displayName: Validate Pipeline Codebase
@@ -299,12 +300,20 @@ stages:
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Coordinator tests"
 
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
+            artifact: CoordinatorTestResults
+            displayName: Publish Coordinator Test Results
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
               projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Pdf-Generator tests"
+            
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
+            artifact: PdfGeneratorTestResults
+            displayName: Publish Pdf-Generator Test Results
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -313,8 +322,9 @@ stages:
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Text-Extractor tests"
             
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/**/*.cobertura.xml
-            artifact: PipelineTestResults
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
+            artifact: TextExtractorTestResults
+            displayName: Publish Text-Extractor Test Results
                       
   - stage: Validate_UI_Codebase
     displayName: Validate UI Codebase
