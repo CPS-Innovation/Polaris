@@ -1,9 +1,9 @@
 using System;
 using System.IO;
+using Common.Domain.Case;
+using Common.Domain.Case.Presentation;
 using coordinator.Domain.Tracker;
-using coordinator.Domain.Tracker.Presentation;
 using coordinator.Services.DocumentToggle;
-using coordinator.Services.DocumentToggle.Exceptions;
 using FluentAssertions;
 using Xunit;
 

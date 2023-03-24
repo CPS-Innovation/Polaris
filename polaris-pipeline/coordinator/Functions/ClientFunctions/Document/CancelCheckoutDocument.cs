@@ -64,7 +64,8 @@ namespace coordinator.Functions.ClientFunctions.Document
                     Urn = caseUrn,
                     CaseId = long.Parse(caseId),
                     CmsDocCategory = document.CmsDocType.DocumentCategory,
-                    DocumentId = int.Parse(document.CmsDocumentId)
+                    DocumentId = int.Parse(document.CmsDocumentId),
+                    VersionId = document.CmsVersionId
                 };
                 await _documentService.CancelCheckoutDocument(arg);
 

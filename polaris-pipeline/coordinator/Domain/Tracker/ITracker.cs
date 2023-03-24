@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Common.Domain.Case;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace coordinator.Domain.Tracker

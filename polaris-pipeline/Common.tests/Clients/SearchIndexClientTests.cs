@@ -4,6 +4,7 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Common.Clients;
 using Common.Clients.Contracts;
+using Common.Domain.Case;
 using Common.Domain.SearchIndex;
 using Common.Factories;
 using Common.Factories.Contracts;
@@ -23,9 +24,9 @@ namespace Common.Tests.Clients
         private readonly int _caseId;
         private readonly string _searchTerm;
         private readonly Guid _correlationId;
+        private readonly List<TrackerDocument> _documents;
 
         private readonly Mock<SearchClient> _mockSearchClient;
-
         private readonly ISearchIndexClient _searchIndexClient;
 
         public SearchIndexClientTests()
@@ -34,6 +35,7 @@ namespace Common.Tests.Clients
             _caseId = _fixture.Create<int>();
             _searchTerm = _fixture.Create<string>();
             _correlationId = _fixture.Create<Guid>();
+            _documents = new List<TrackerDocument>();
 
             var mockSearchClientFactory = new Mock<ISearchClientFactory>();
             _mockSearchClient = new Mock<SearchClient>();
@@ -57,7 +59,7 @@ namespace Common.Tests.Clients
         [Fact]
         public async Task Query_ReturnsSearchLines()
         {
-            var results = await _searchIndexClient.Query(_caseId, _searchTerm, _correlationId);
+            var results = await _searchIndexClient.Query(_caseId, _documents, _searchTerm, _correlationId);
 
             results.Should().NotBeNull();
         }
@@ -110,7 +112,7 @@ namespace Common.Tests.Clients
                             SearchModelFactory.SearchResult(fakeSearchLines[0], 0.9, null)
                         }, 100, null, null, responseMock.Object), responseMock.Object)));
 
-            var streamlinedResults = await _searchIndexClient.Query(_caseId, _searchTerm, _correlationId);
+            var streamlinedResults = await _searchIndexClient.Query(_caseId, _documents, _searchTerm, _correlationId);
 
             using (new AssertionScope())
             {
@@ -143,7 +145,7 @@ namespace Common.Tests.Clients
                             SearchModelFactory.SearchResult(fakeSearchLines[0], 0.9, null)
                         }, 100, null, null, responseMock.Object), responseMock.Object)));
 
-            var streamlinedResults = await _searchIndexClient.Query(_caseId, _searchTerm, _correlationId);
+            var streamlinedResults = await _searchIndexClient.Query(_caseId, _documents, _searchTerm, _correlationId);
 
             using (new AssertionScope())
             {

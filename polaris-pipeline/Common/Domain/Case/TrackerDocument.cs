@@ -1,13 +1,42 @@
-﻿using System;
-using Common.Domain.Pipeline;
+﻿using Common.Domain.DocumentExtraction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using PolarisGateway.Domain.PolarisPipeline.Presentation;
+using System;
+using Common.Domain.Case.Presentation;
 
-namespace PolarisGateway.Domain.PolarisPipeline
+namespace Common.Domain.Case
 {
     public class TrackerDocument
     {
+        public TrackerDocument()
+        {
+            CmsDocType = new CmsDocType();
+            PresentationFlags = new PresentationFlags();
+        }
+
+        public TrackerDocument(
+            Guid polarisDocumentId,
+            string cmsDocumentId,
+            long cmsVersionId,
+            CmsDocType cmsDocType,
+            string cmsMimeType,
+            string cmsFileExtension,
+            string cmsFileCreatedDate,
+            string cmsOriginalFileName,
+            PresentationFlags presentationFlags)
+        {
+            PolarisDocumentId = polarisDocumentId;
+            CmsDocumentId = cmsDocumentId;
+            CmsVersionId = cmsVersionId;
+            CmsDocType = cmsDocType;
+            CmsMimeType = cmsMimeType;
+            CmsFileExtension = cmsFileExtension;
+            CmsFileCreatedDate = cmsFileCreatedDate;
+            CmsOriginalFileName = cmsOriginalFileName;
+            PresentationFlags = presentationFlags;
+            Status = DocumentStatus.New;
+        }
+
         [JsonProperty("polarisDocumentId")]
         public Guid PolarisDocumentId { get; set; }
 
@@ -35,7 +64,7 @@ namespace PolarisGateway.Domain.PolarisPipeline
         [JsonProperty("pdfBlobName")]
         public string PdfBlobName { get; set; }
 
-        [JsonProperty("isPdfReady")]
+        [JsonProperty("isPdfAvailable")]
         public bool IsPdfAvailable { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]

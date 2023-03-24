@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace coordinator.Domain.Tracker
+namespace Common.Domain.Case
 {
     public static class TrackerDocumentList
     {
