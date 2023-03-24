@@ -17,7 +17,6 @@ using Common.Wrappers.Contracts;
 using Common.Wrappers;
 using Common.Domain.Case;
 using Common.Domain.Case.Presentation;
-using coordinator.Functions.DurableEntity.Client;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Client.Tracker;
 
