@@ -50,7 +50,10 @@ export const AccordionDocument: React.FC<Props> = ({
         </span>
       </div>
       {!canViewDocument && (
-        <span data-testid={`view-warning-document-${caseDocument.documentId}`}>
+        <span
+          className={`${classes["accordion-document-read-warning"]}`}
+          data-testid={`view-warning-document-${caseDocument.documentId}`}
+        >
           Document only available on CMS
         </span>
       )}
