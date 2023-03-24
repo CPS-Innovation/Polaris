@@ -34,7 +34,7 @@ resource "azurerm_storage_account" "sacpspolaris" {
       retention_policy_days = 10
     }
   }
-  
+
   tags = local.common_tags
 }
 
