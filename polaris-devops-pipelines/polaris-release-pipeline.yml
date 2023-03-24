@@ -1,0 +1,149 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+  
+resources:
+  pipelines:
+    - pipeline: PolarisBuild
+      source: Polaris - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Codebase
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: ui-terraform
+  
+stages
+- stage: Determine_Changes
+  displayName: Determine Changes
+  jobs:
+    - job: Generate_Diff
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+        - task: PowerShell@2
+          inputs:
+            targetType: 'inline'
+            script: |
+              $files = $(git diff --name-only --relative --diff-filter AMR HEAD^ HEAD)
+              $temp=$files -split ' '
+              $count=$temp.Length
+              echo "Total changed $count files"
+              
+              For ($i=0; $i -lt $temp.Length; $i++)
+              {
+                $name=$temp[$i]
+                echo "this is $name file"
+                if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                {
+                  echo "run pipeline terraform..."
+                  Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
+                  Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                }
+                if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                {
+                  echo "run pipeline events terraform..."
+                  Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                }
+                if ($name -like 'polaris-terraform/ui-terraform/*')
+                {
+                  echo "run ui terraform..."
+                  Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+                  Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                }
+                if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                {
+                  echo "run ui events terraform..."
+                  Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                }
+                if ($name -like 'polaris-pipeline/*')
+                {
+                  echo "run pipeline codebase..."
+                  Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                }
+                if ($name -like 'polaris-gateway/*')
+                {
+                  echo "run gateway codebase..."
+                  Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                }
+                if ($name -like 'polaris-ui/*')
+                {
+                  echo "run ui codebase..."
+                  Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                }
+              }
+          name: Change_Results
+          displayName: Processing changes to repo
+
+  - template: templates/terraform-plan-apply.yml #Plan and Apply - DEV
+    parameters:
+      name: 'DEV'
+      env: 'dev'
+      envSuffix: '-dev'
+      buildAgent: $(dev-build-agent)
+      terraformArtifactName: $(terraform-artifact-name)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      pipelineTerraformContainerName: $(pipeline-terraform-container-name)
+      pipelineEventsTerraformContainerName: $(pipeline-events-terraform-container-name)
+      uiTerraformContainerName: $(ui-terraform-container-name)
+      uiEventsTerraformContainerName: $(ui-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsdevstorageterraform-key1)
+      spnClientId: $(innovation-development-spn-client-id)
+      spnClientSecret: $(innovation-development-spn-secret)
+      spnTenantId: $(innovation-development-spn-tenant-id)
+      subscriptionId: $(innovation-development-subscription-id)
+      azureSubscription: $(dev-azure-subscription)
+      dependentStage: ''
+
+  - template: templates/terraform-plan-apply.yml #Plan and Apply - QA
+    parameters:
+      name: 'QA'
+      env: 'qa'
+      env-suffix: '-qa'
+      buildAgent: $(qa-build-agent)
+      terraformArtifactName: $(terraform-artifact-name)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(qa-terraform-storage-account)
+      pipelineTerraformContainerName: $(pipeline-terraform-container-name)
+      pipelineEventsTerraformContainerName: $(pipeline-events-terraform-container-name)
+      uiTerraformContainerName: $(ui-terraform-container-name)
+      uiEventsTerraformContainerName: $(ui-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsqastorageterraform-key1)
+      spnClientId: $(innovation-qa-spn-client-id)
+      spnClientSecret: $(innovation-qa-spn-secret)
+      spnTenantId: $(innovation-qa-spn-tenant-id)
+      subscriptionId: $(innovation-qa-subscription-id)
+      azureSubscription: $(qa-azure-subscription)
+      dependentStage: 'Apply_DEV'
+
+  - template: templates/terraform-plan-apply.yml #Plan and Apply - PROD
+    parameters:
+      name: 'PROD'
+      env: 'prod'
+      envSuffix: ''
+      buildAgent: $(prod-build-agent)
+      terraformArtifactName: $(terraform-artifact-name)
+      terraformVersion: $(terraform-version)
+      terraformStorageAccount: $(prod-terraform-storage-account)
+      pipelineTerraformContainerName: $(pipeline-terraform-container-name)
+      pipelineEventsTerraformContainerName: $(pipeline-events-terraform-container-name)
+      uiTerraformContainerName: $(ui-terraform-container-name)
+      uiEventsTerraformContainerName: $(ui-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformAccessKey: $(cpsprodstorageterraform-key1)
+      spnClientId: $(innovation-prod-spn-client-id)
+      spnClientSecret: $(innovation-prod-spn-secret)
+      spnTenantId: $(innovation-prod-spn-tenant-id)
+      subscriptionId: $(innovation-prod-subscription-id)
+      azureSubscription: $(prod-azure-subscription)
+      dependentStage: 'Apply_QA'
