@@ -47,7 +47,10 @@ export const AccordionSection: React.FC<Props> = ({
       </button>
       <div className={`${classes["accordion-section-body"]}`}>
         {!!documentsWithLimitedView().length && (
-          <span data-testid={`view-warning-${formatTestIdText(sectionId)}`}>
+          <span
+            className={`${classes["accordion-section-read-warning"]}`}
+            data-testid={`view-warning-${formatTestIdText(sectionId)}`}
+          >
             Some documents for this case are only available in CMS
           </span>
         )}

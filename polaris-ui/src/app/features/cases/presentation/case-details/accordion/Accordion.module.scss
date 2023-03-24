@@ -96,7 +96,10 @@
 
 .accordion .accordion-section-body {
   font-size: 16px;
-  margin-top: 10px;
+}
+.accordion .accordion-section-read-warning {
+  display: block;
+  margin-top: 15px;
 }
 
 .accordion .accordion-section[aria-expanded="true"] .icon {
