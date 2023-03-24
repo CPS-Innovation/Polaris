@@ -7,28 +7,28 @@ using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Wrappers.Contracts;
-using coordinator.Functions.DurableEntityFunctions;
+using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions.Case
+namespace coordinator.Functions.DurableEntity.Client.Tracker
 {
-    public class TrackerFunction
+    public class TrackerClient
     {
-        const string loggingName = $"{nameof(TrackerFunction)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(TrackerClient)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public TrackerFunction(IJsonConvertWrapper jsonConvertWrapper)
+        public TrackerClient(IJsonConvertWrapper jsonConvertWrapper)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        [FunctionName(nameof(TrackerFunction))]
+        [FunctionName(nameof(TrackerClient))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "put", Route = RestApi.CaseTracker)] HttpRequestMessage req,
             string caseUrn,
@@ -57,8 +57,8 @@ namespace coordinator.Functions.ClientFunctions.Case
 
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
 
-                var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-                var trackerState = await client.ReadEntityStateAsync<Tracker>(entityId);
+                var entityId = new EntityId(nameof(TrackerEntity), caseId);
+                var trackerState = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
 
                 if (!trackerState.EntityExists)
                 {

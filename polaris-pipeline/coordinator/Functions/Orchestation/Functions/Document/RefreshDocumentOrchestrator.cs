@@ -9,12 +9,12 @@ using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
-using coordinator.Functions.ActivityFunctions;
+using coordinator.Functions.ActivityFunctions.Document;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.OrchestrationFunctions
+namespace coordinator.Functions.Orchestation.Functions.Document
 {
     public class RefreshDocumentOrchestrator : PolarisOrchestrator
     {
@@ -55,7 +55,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
         }
 
-        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITracker tracker, ILogger log)
+        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITrackerEntity tracker, ILogger log)
         {
             GeneratePdfResponse response = null;
 
@@ -93,7 +93,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             }
         }
 
-        private async Task<GeneratePdfResponse> CallPdfGeneratorHttpAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITracker tracker, ILogger log)
+        private async Task<GeneratePdfResponse> CallPdfGeneratorHttpAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITrackerEntity tracker, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallPdfGeneratorHttpAsync), payload.ToJson());
 
@@ -116,7 +116,7 @@ namespace coordinator.Functions.OrchestrationFunctions
             throw new HttpRequestException($"Failed to generate pdf for document id '{payload.CmsDocumentId}'. Status code: {response.StatusCode}.");
         }
 
-        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ITracker tracker, ILogger log)
+        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ITrackerEntity tracker, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorAsync), payload.ToJson());
 

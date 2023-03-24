@@ -4,10 +4,13 @@ using Newtonsoft.Json.Converters;
 
 namespace PolarisGateway.Domain.PolarisPipeline
 {
-	public class Tracker
+	public class TrackerDto
 	{
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
+
+        [JsonProperty("versionId")]
+        public string VersionId { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]

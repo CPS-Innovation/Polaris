@@ -1,32 +1,31 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
-using Common.Configuration;
+using Common.Services.SasGeneratorService;
 using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Common.Configuration;
 
-namespace coordinator.Functions.ClientFunctions.Document
+namespace coordinator.Functions.DurableEntity.Client.Document
 {
-    public class GetDocument : BaseClientFunction
+    public class GetDocumentSasUrlClient : BaseClient
     {
-        private readonly IPolarisStorageClient _blobStorageClient;
+        private readonly ISasGeneratorService _sasGeneratorService;
 
-        const string loggingName = $"{nameof(GetDocument)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(GetDocumentSasUrlClient)} - {nameof(HttpStart)}";
 
-        public GetDocument(IPolarisStorageClient blobStorageClient)
+        public GetDocumentSasUrlClient(ISasGeneratorService sasGeneratorService)
         {
-            _blobStorageClient = blobStorageClient;
+            _sasGeneratorService = sasGeneratorService;
         }
 
-        [FunctionName(nameof(GetDocument))]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Consistent API parameters")]
+        [FunctionName(nameof(GetDocumentSasUrlClient))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Document)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentSasUrl)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
             Guid documentId,
@@ -45,19 +44,15 @@ namespace coordinator.Functions.ClientFunctions.Document
                 currentCorrelationId = response.CorrelationId;
                 var document = response.Document;
                 var blobName = document.PdfBlobName;
-                log.LogMethodFlow(currentCorrelationId, loggingName, $"Getting PDF document from Polaris blob storage for blob named '{blobName}'");
-                var blobStream = await _blobStorageClient.GetDocumentAsync(blobName, currentCorrelationId);
+                var sasUrl = await _sasGeneratorService.GenerateSasUrlAsync(blobName, currentCorrelationId);
 
-                return blobStream != null
-                    ? new OkObjectResult(blobStream)
-                    : null;
+                return !string.IsNullOrEmpty(sasUrl) ? new OkObjectResult(sasUrl) : null;
             }
             catch (Exception ex)
             {
                 log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
                 return new StatusCodeResult(500);
             }
-
         }
     }
 }

@@ -22,7 +22,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
     {
         private readonly string _caseUrn;
         private readonly int _caseId;
-        private readonly Tracker _tracker;
+        private readonly TrackerDto _tracker;
 
         private readonly Mock<IPipelineClient> _mockPipelineClient;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
@@ -36,7 +36,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             var fixture = new Fixture();
             _caseUrn = fixture.Create<string>();
             _caseId = fixture.Create<int>();
-            _tracker = fixture.Create<Tracker>();
+            _tracker = fixture.Create<TrackerDto>();
             fixture.Create<Guid>();
 
             var mockLogger = new Mock<ILogger<PolarisPipelineGetCaseTracker>>();
@@ -101,7 +101,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         public async Task Run_ReturnsNotFoundWhenPipelineClientReturnsNull()
         {
             _mockPipelineClient.Setup(client => client.GetTrackerAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>()))
-                .ReturnsAsync(default(Tracker));
+                .ReturnsAsync(default(TrackerDto));
 
             var response = await _polarisPipelineGetTracker.Run(CreateHttpRequest(), _caseUrn, _caseId);
 

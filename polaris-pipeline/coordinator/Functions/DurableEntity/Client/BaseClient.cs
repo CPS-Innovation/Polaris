@@ -7,10 +7,10 @@ using Microsoft.Extensions.Logging;
 using Common.Logging;
 using System.Threading.Tasks;
 using System.Linq;
-using coordinator.Functions.DurableEntityFunctions;
 using Common.Domain.Case;
+using coordinator.Functions.DurableEntity.Entity;
 
-namespace coordinator.Functions.ClientFunctions
+namespace coordinator.Functions.DurableEntity.Client
 {
     public record GetTrackerDocumentResponse
     {
@@ -20,7 +20,7 @@ namespace coordinator.Functions.ClientFunctions
         internal TrackerDocument Document;
     }
 
-    public class BaseClientFunction
+    public class BaseClient
     {
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
@@ -28,7 +28,7 @@ namespace coordinator.Functions.ClientFunctions
             (
                 HttpRequestMessage req,
                 IDurableEntityClient client,
-                string loggingName, 
+                string loggingName,
                 string caseId,
                 Guid documentId,
                 ILogger log
@@ -56,7 +56,7 @@ namespace coordinator.Functions.ClientFunctions
             log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
 
             var entityId = new EntityId(nameof(Domain.Tracker), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<Tracker>(entityId);
+            var stateResponse = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
             if (!stateResponse.EntityExists)
             {
                 var baseMessage = $"No pipeline tracker found with id '{caseId}'";

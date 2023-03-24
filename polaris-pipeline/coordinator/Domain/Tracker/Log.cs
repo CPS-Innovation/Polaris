@@ -10,6 +10,9 @@ namespace coordinator.Domain.Tracker
         [JsonProperty("timestamp")]
         public string TimeStamp { get; set; }
 
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
         [JsonProperty("cmsDocumentId", NullValueHandling = NullValueHandling.Ignore)]
         public string CmsDocumentId { get; set; }
     }

@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ActivityFunctions
+namespace coordinator.Functions.ActivityFunctions.Document
 {
     public class CreateGeneratePdfHttpRequest
     {

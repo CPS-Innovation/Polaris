@@ -2,20 +2,20 @@ using System.ComponentModel.DataAnnotations;
 using Common.Validators;
 using Newtonsoft.Json;
 
-namespace Common.Domain.DocumentEvaluation;
+namespace Common.Domain.Case;
 
-public class DocumentToRemove
+public class DocumentVersion
 {
-    public DocumentToRemove(string documentId, long versionId)
+    public DocumentVersion(string documentId, long versionId)
     {
         DocumentId = documentId;
         VersionId = versionId;
     }
-    
+
     [JsonProperty("documentId")]
     [Required]
     public string DocumentId { get; set; }
-        
+
     [JsonProperty("versionId")]
     [RequiredLongGreaterThanZero]
     public long VersionId { get; set; }

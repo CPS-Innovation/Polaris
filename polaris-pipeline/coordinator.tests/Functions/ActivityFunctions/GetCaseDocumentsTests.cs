@@ -6,7 +6,6 @@ using Common.Domain.DocumentExtraction;
 using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
-using coordinator.Functions.ActivityFunctions;
 using coordinator.Mappers;
 using coordinator.Services.DocumentToggle;
 using FluentAssertions;
@@ -15,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Common.Domain.Case.Presentation;
+using coordinator.Functions.ActivityFunctions.Case;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.DocumentExtraction;
 using coordinator.Domain.Tracker;
-using coordinator.Functions.ClientFunctions.Case;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +17,9 @@ using Common.Wrappers.Contracts;
 using Common.Wrappers;
 using Common.Domain.Case;
 using Common.Domain.Case.Presentation;
+using coordinator.Functions.DurableEntity.Client;
+using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Functions.DurableEntity.Client.Tracker;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -32,15 +34,15 @@ namespace coordinator.tests.Domain.Tracker
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
-        private readonly EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker> _entityStateResponse;
+        private readonly EntityStateResponse<TrackerEntity> _entityStateResponse;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
         private readonly Mock<ILogger> _mockLogger;
 
-        private readonly coordinator.Functions.DurableEntityFunctions.Tracker _tracker;
-        private readonly TrackerFunction _trackerStatus;
+        private readonly TrackerEntity _tracker;
+        private readonly TrackerClient _trackerStatus;
 
         public TrackerTests()
         {
@@ -61,7 +63,7 @@ namespace coordinator.tests.Domain.Tracker
                 .With(a => a.Documents, _transitionDocuments)
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
-            _entityStateResponse = new EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker>() { EntityExists = true };
+            _entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = true };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
@@ -69,13 +71,13 @@ namespace coordinator.tests.Domain.Tracker
             _mockLogger = new Mock<ILogger>();
 
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<coordinator.Functions.DurableEntityFunctions.Tracker>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Functions.DurableEntityFunctions.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<TrackerEntity>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(_entityStateResponse);
 
-            _tracker = new coordinator.Functions.DurableEntityFunctions.Tracker();
-            _trackerStatus = new TrackerFunction(_jsonConvertWrapper);
+            _tracker = new TrackerEntity();
+            _trackerStatus = new TrackerClient(_jsonConvertWrapper);
         }
 
         [Fact]
@@ -102,7 +104,7 @@ namespace coordinator.tests.Domain.Tracker
             document?.PdfBlobName.Should().Be(_pdfBlobNameArg.BlobName);
             document?.Status.Should().Be(DocumentStatus.PdfUploadedToBlob);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(6);
         }
 
         [Fact]
@@ -115,7 +117,7 @@ namespace coordinator.tests.Domain.Tracker
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(DocumentStatus.DocumentAlreadyProcessed);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(6);
         }
 
         [Fact]
@@ -128,7 +130,7 @@ namespace coordinator.tests.Domain.Tracker
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(6);
         }
 
         [Fact]
@@ -140,7 +142,7 @@ namespace coordinator.tests.Domain.Tracker
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.New);
 
-            _tracker.Logs.Count.Should().Be(2);
+            _tracker.Logs.Count.Should().Be(5);
         }
 
         [Fact]
@@ -153,7 +155,7 @@ namespace coordinator.tests.Domain.Tracker
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.UnexpectedFailure);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(6);
         }
 
         [Fact]
@@ -166,7 +168,7 @@ namespace coordinator.tests.Domain.Tracker
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.Indexed);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(6);
         }
 
         [Fact]
@@ -179,14 +181,14 @@ namespace coordinator.tests.Domain.Tracker
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.OcrAndIndexFailure);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(6);
         }
 
         [Fact]
         public async Task RegisterCompleted_RegistersCompleted()
         {
             await _tracker.Reset(_transactionId);
-            await _tracker.RegisterCompleted();
+            await _tracker.RegisterCompleted(true);
 
             _tracker.Status.Should().Be(TrackerStatus.Completed);
 
@@ -263,9 +265,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task Run_Tracker_Dispatches()
         {
-            await coordinator.Functions.DurableEntityFunctions.Tracker.Run(_mockDurableEntityContext.Object);
+            await TrackerEntity.Run(_mockDurableEntityContext.Object);
 
-            _mockDurableEntityContext.Verify(context => context.DispatchAsync<coordinator.Functions.DurableEntityFunctions.Tracker>());
+            _mockDurableEntityContext.Verify(context => context.DispatchAsync<TrackerEntity>());
         }
 
         [Fact]
@@ -293,10 +295,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsNotFoundIfEntityNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<coordinator.Functions.DurableEntityFunctions.Tracker>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Functions.DurableEntityFunctions.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<TrackerEntity>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -310,10 +312,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsBadRequestIfCorrelationIdNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<coordinator.Functions.DurableEntityFunctions.Tracker>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                    client => client.ReadEntityStateAsync<coordinator.Functions.DurableEntityFunctions.Tracker>(
-                        It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Functions.DurableEntityFunctions.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                    client => client.ReadEntityStateAsync<TrackerEntity>(
+                        It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                         null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -412,7 +414,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _tracker.Documents.Count.Should().Be(_transitionDocuments.Count);
 
-            _tracker.Logs.Count.Should().Be(2);
+            _tracker.Logs.Count.Should().Be(5);
         }
 
         [Fact]

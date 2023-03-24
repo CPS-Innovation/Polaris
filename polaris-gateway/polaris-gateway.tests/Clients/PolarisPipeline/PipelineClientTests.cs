@@ -28,7 +28,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly HttpResponseMessage _getTrackerHttpResponseMessage;
         private readonly string _polarisPipelineFunctionAppKey;
-        private readonly Tracker _tracker;
+        private readonly TrackerDto _tracker;
         private readonly Guid _correlationId;
 
         private readonly Mock<IPipelineClientRequestFactory> _mockRequestFactory;
@@ -43,7 +43,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
             _caseId = fixture.Create<int>();
             _cmsAuthValues = "sample-token";
             _httpRequestMessage = new HttpRequestMessage();
-            _tracker = fixture.Create<Tracker>();
+            _tracker = fixture.Create<TrackerDto>();
             _correlationId = fixture.Create<Guid>();
             var triggerCoordinatorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             _getTrackerHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -80,7 +80,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
                 .Returns(_httpRequestMessage);
 
             var stringContent = _getTrackerHttpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<Tracker>(stringContent, It.IsAny<Guid>())).Returns(_tracker);
+            mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<TrackerDto>(stringContent, It.IsAny<Guid>())).Returns(_tracker);
 
             _triggerCoordinatorPipelineClient = new PipelineClient(_mockRequestFactory.Object, triggerCoordinatorHttpClient, mockConfiguration.Object, mockJsonConvertWrapper.Object, mockPipelineClientLogger.Object);
             _getTrackerPipelineClient = new PipelineClient(_mockRequestFactory.Object, getTrackerHttpClient, mockConfiguration.Object, mockJsonConvertWrapper.Object, mockPipelineClientLogger.Object);
