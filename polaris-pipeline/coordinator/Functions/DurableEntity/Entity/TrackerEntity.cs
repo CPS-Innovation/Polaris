@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Common.Domain.Case;
-using Common.Domain.DocumentEvaluation;
-using coordinator.Domain;
 using coordinator.Domain.Tracker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace coordinator.Functions.DurableEntityFunctions
+namespace coordinator.Functions.DurableEntity.Entity
 {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class Tracker : ITracker
+    public class TrackerEntity : ITrackerEntity
     {
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
+
+        [JsonProperty("versionId")]
+        public int VersionId { get; set; } = 1;
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
@@ -34,75 +34,88 @@ namespace coordinator.Functions.DurableEntityFunctions
         [JsonProperty("logs")]
         public List<Log> Logs { get; set; }
 
-        public Task Reset(string transactionId)
+        public Task Reset(string transactionid)
         {
-            TransactionId = transactionId;
-
+            TransactionId = transactionid;
             Status = TrackerStatus.Running;
-            if(Documents == null)
-                Documents = new List<TrackerDocument>();
-            Logs = new List<Log>();
-            ProcessingCompleted = null; //reset the processing date
+            Documents = Documents ?? new List<TrackerDocument>();
+            Logs = Logs ?? new List<Log>();
 
             Log(LogType.Initialised);
 
             return Task.CompletedTask;
         }
 
-        public Task SetValue(Tracker tracker)
+        public Task SetValue(TrackerEntity tracker)
         {
-            this.Status = tracker.Status;
-            this.ProcessingCompleted = tracker.ProcessingCompleted;
-            this.Documents = tracker.Documents;
-            this.Logs = new List<Log>();
+            Status = tracker.Status;
+            ProcessingCompleted = tracker.ProcessingCompleted;
+            Logs = new List<Log>();
+
+            Documents = tracker.Documents;
 
             return Task.CompletedTask;
         }
 
-        public Task SynchroniseDocuments(SynchroniseDocumentsArg arg)
+        public Task<TrackerDocumentListDeltas> SynchroniseDocuments(SynchroniseDocumentsArg arg)
         {
-            if (Documents.Count == 0) //no documents yet loaded in the tracker for this case, grab them all
+            var deltas = new TrackerDocumentListDeltas
             {
-                Documents = arg.Documents
-                                .Select(item => CreateTrackerDocument(item))
-                                .ToList();
-                Log(LogType.DocumentsSynchronised);
-            }
-            else
-            {
-                List<DocumentToRemove> documentsToRemove = GetDocumentsToRemove(arg);
+                CreatedOrUpdated = new List<TrackerDocument>(),
+                Deleted = GetDocumentsToRemove(arg)
+            };
 
-                RemoveDocuments(documentsToRemove);
+            if (Documents == null)
+                Documents = new List<TrackerDocument>();
 
-                var newDocuments = GetNewDocuments(arg.Documents, documentsToRemove);
-
-                foreach (var cmsDocument in newDocuments)
-                {
-                    TrackerDocument trackerDocument = CreateTrackerDocument(cmsDocument);
-                    Documents.Add(trackerDocument);
-                    Log(LogType.DocumentRetrieved, trackerDocument.CmsDocumentId);
-                }
-            }
+            RemoveDocuments(deltas.Deleted);
+            CreateOrUpdateDocuments(arg.Documents, deltas);
 
             Status = TrackerStatus.DocumentsRetrieved;
+            if (deltas.Any())
+                VersionId++;
 
-            return Task.CompletedTask;
+            if (deltas.Deleted.Any())
+                Log(LogType.Deleted, null, $"{deltas.Deleted.Count} documents deleted");
+
+            if (deltas.CreatedOrUpdated.Any())
+                Log(LogType.DocumentsSynchronised, null, $"{deltas.CreatedOrUpdated.Count} documents created or updated");
+
+            return Task.FromResult(deltas);
         }
 
-        private List<DocumentToRemove> GetDocumentsToRemove(SynchroniseDocumentsArg arg)
+        private void CreateOrUpdateDocuments(List<TransitionDocument> documents, TrackerDocumentListDeltas deltas)
         {
-            List<DocumentToRemove> documentsToRemove = new List<DocumentToRemove>();
-            foreach (var trackedDocument in
-                     Documents.Where(trackedDocument =>
-                         !arg.Documents.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId && x.VersionId == trackedDocument.CmsVersionId)))
+            var updatedDocuments = GetNewOrChangedDocuments(documents, deltas.Deleted);
+            foreach (var updatedDocument in updatedDocuments)
             {
-                documentsToRemove.Add(new DocumentToRemove(trackedDocument.CmsDocumentId, trackedDocument.CmsVersionId));
+                TrackerDocument trackerDocument = CreateTrackerDocument(updatedDocument);
+                Documents.Add(trackerDocument);
+                deltas.CreatedOrUpdated.Add(trackerDocument);
+                Log(LogType.DocumentRetrieved, trackerDocument.CmsDocumentId);
             }
+        }
+
+        private List<DocumentVersion> GetDocumentsToRemove(SynchroniseDocumentsArg arg)
+        {
+            var removeDocuments = Documents.Where
+                (
+                    trackedDocument =>
+                         !arg.Documents.Exists
+                         (
+                            x => x.DocumentId == trackedDocument.CmsDocumentId &&
+                                 x.VersionId == trackedDocument.CmsVersionId
+                         )
+                );
+            List<DocumentVersion> documentsToRemove 
+                = removeDocuments
+                    .Select(d => new DocumentVersion(d.CmsDocumentId, d.CmsVersionId))
+                    .ToList();
 
             return documentsToRemove;
         }
 
-        private IEnumerable<TransitionDocument> GetNewDocuments(List<TransitionDocument> transitionDocuments, List<DocumentToRemove> documentsToRemove)
+        private IEnumerable<TransitionDocument> GetNewOrChangedDocuments(List<TransitionDocument> transitionDocuments, List<DocumentVersion> documentsToRemove)
         {
             var newDocuments = from cmsDocument in transitionDocuments
                                where !documentsToRemove.Exists
@@ -116,19 +129,20 @@ namespace coordinator.Functions.DurableEntityFunctions
             return newDocuments;
         }
 
-        private void RemoveDocuments(List<DocumentToRemove> documentsToRemove)
+        private void RemoveDocuments(List<DocumentVersion> documentsToRemove)
         {
             foreach (var item in
                      documentsToRemove.Select(invalidDocument =>
                          Documents.Find(x => x.CmsDocumentId == invalidDocument.DocumentId && x.CmsVersionId == invalidDocument.VersionId)))
             {
+                Log(LogType.Deleted, item.CmsDocumentId);
                 Documents.Remove(item);
             }
         }
 
         private TrackerDocument CreateTrackerDocument(TransitionDocument document)
         {
-            return new Common.Domain.Case.TrackerDocument(
+            return new TrackerDocument(
                 document.PolarisDocumentId,
                 document.DocumentId,
                 document.VersionId,
@@ -213,11 +227,13 @@ namespace coordinator.Functions.DurableEntityFunctions
             return Task.CompletedTask;
         }
 
-        public Task RegisterCompleted()
+        public Task RegisterCompleted(bool changed)
         {
             Status = TrackerStatus.Completed;
             Log(LogType.Completed);
-            ProcessingCompleted = DateTime.Now;
+
+            if(changed)
+                ProcessingCompleted = DateTime.Now;
 
             return Task.CompletedTask;
         }
@@ -258,24 +274,6 @@ namespace coordinator.Functions.DurableEntityFunctions
                 Documents.All(d => d.Status is DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
         }
 
-        /*public Task<bool> IsAlreadyProcessed()
-        {
-            return Task.FromResult(Status is TrackerStatus.Completed);
-        }
-
-        public Task<bool> IsStale()
-        {
-            if (Status is TrackerStatus.Running)
-                return Task.FromResult(false);
-
-            if (Status is TrackerStatus.Failed)
-                return Task.FromResult(true);
-
-            return ProcessingCompleted.HasValue
-                ? Task.FromResult(ProcessingCompleted.Value.Date != DateTime.Now.Date)
-                : Task.FromResult(false);
-        }*/
-
         private void ClearState(TrackerStatus status)
         {
             Status = status;
@@ -284,20 +282,22 @@ namespace coordinator.Functions.DurableEntityFunctions
             ProcessingCompleted = null; //reset the processing date
         }
 
-        private void Log(LogType status, string cmsDocumentId = null)
+        private void Log(LogType status, string cmsDocumentId = null, string description = null)
         {
-            Logs.Add(new Log
+            Log item = new Log
             {
                 LogType = status.ToString(),
                 TimeStamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),
+                Description = description,
                 CmsDocumentId = cmsDocumentId
-            });
+            };
+            Logs.Insert(0, item);
         }
 
-        [FunctionName("Tracker")]
+        [FunctionName(nameof(TrackerEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
-            return context.DispatchAsync<Tracker>();
+            return context.DispatchAsync<TrackerEntity>();
         }
     }
 }

@@ -38,7 +38,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            Tracker tracker = null;
+            TrackerDto tracker = null;
 
             try
             {

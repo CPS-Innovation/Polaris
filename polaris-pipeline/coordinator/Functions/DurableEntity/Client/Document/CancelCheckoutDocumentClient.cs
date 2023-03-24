@@ -13,20 +13,20 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions.Document
+namespace coordinator.Functions.DurableEntity.Client.Document
 {
-    public class CancelCheckoutDocument : BaseClientFunction
+    public class CancelCheckoutDocumentClient : BaseClient
     {
         private readonly IDocumentService _documentService;
 
-        public CancelCheckoutDocument(IDocumentService documentService)
+        public CancelCheckoutDocumentClient(IDocumentService documentService)
         {
             _documentService = documentService;
         }
 
-        const string loggingName = $"{nameof(CancelCheckoutDocument)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(CancelCheckoutDocumentClient)} - {nameof(HttpStart)}";
 
-        [FunctionName(nameof(CancelCheckoutDocument))]
+        [FunctionName(nameof(CancelCheckoutDocumentClient))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
             string caseUrn,

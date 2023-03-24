@@ -10,13 +10,14 @@ using Common.Logging;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Domain.Tracker;
-using coordinator.Functions.ActivityFunctions;
+using coordinator.Functions.ActivityFunctions.Case;
+using coordinator.Functions.Orchestation.Functions.Document;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.OrchestrationFunctions
+namespace coordinator.Functions.Orchestation.Functions.Case
 {
     public class RefreshCaseOrchestrator : PolarisOrchestrator
     {
@@ -62,12 +63,10 @@ namespace coordinator.Functions.OrchestrationFunctions
                     return await orchestratorTask;
                 }
 
-                // timeout case
                 throw new TimeoutException($"Orchestration with id '{context.InstanceId}' timed out.");
             }
             catch (Exception exception)
             {
-                log.LogMethodFlow(payload.CorrelationId, loggingName, "Registering Failure in the tracker");
                 await tracker.RegisterFailed();
                 log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
@@ -78,54 +77,46 @@ namespace coordinator.Functions.OrchestrationFunctions
             }
         }
 
-        private async Task<List<TrackerDocument>> RunCaseOrchestrator(IDurableOrchestrationContext context, ITracker tracker, CaseOrchestrationPayload payload)
+        private async Task<List<TrackerDocument>> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Initialising tracker for {context.InstanceId}");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting tracker for {context.InstanceId}");
             await tracker.Reset(context.InstanceId);
 
-            var documents = await RetrieveDocuments(context, tracker, loggingName, log, payload);
-            if (documents.Length == 0)
-            {
-                await tracker.ClearDocuments();
-                await tracker.RegisterCompleted();
-                return new List<TrackerDocument>();
-            }
+            var transitionDocuments = await RetrieveTransitionDocuments(context, tracker, loggingName, log, payload);
+            var deltas = await SynchroniseTrackerDocuments(tracker, loggingName, log, payload, transitionDocuments);
 
-            //bring the tracker document list up-to-date, or populate it for the first time
-            await RegisterDocuments(tracker, loggingName, log, payload, documents);
-            var trackerDocuments = await tracker.GetDocuments();
-
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Now process each document for case {payload.CmsCaseId}");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{deltas.Deleted.Count} document deleted and {deltas.CreatedOrUpdated.Count} new or updated documents for case {payload.CmsCaseId}");
             var caseDocumentTasks
-                = trackerDocuments
-                    .Where(t => t.Status == DocumentStatus.New)
-                    .Select
-                    (
-                        t => context.CallSubOrchestratorAsync
-                                (
-                                    nameof(RefreshDocumentOrchestrator),
-                                    new CaseDocumentOrchestrationPayload
+                = deltas.CreatedOrUpdated
+                        .Select
+                        (
+                            t => context.CallSubOrchestratorAsync
                                     (
-                                        t.PolarisDocumentId,
-                                        payload.CmsCaseUrn,
-                                        payload.CmsCaseId,
-                                        t.CmsDocType.DocumentCategory,
-                                        t.CmsDocumentId,
-                                        t.CmsVersionId,
-                                        t.CmsOriginalFileName,
-                                        payload.CmsAuthValues,
-                                        payload.CorrelationId
+                                        nameof(RefreshDocumentOrchestrator),
+                                        new CaseDocumentOrchestrationPayload
+                                        (
+                                            t.PolarisDocumentId,
+                                            payload.CmsCaseUrn,
+                                            payload.CmsCaseId,
+                                            t.CmsDocType.DocumentCategory,
+                                            t.CmsDocumentId,
+                                            t.CmsVersionId,
+                                            t.CmsOriginalFileName,
+                                            payload.CmsAuthValues,
+                                            payload.CorrelationId
+                                        )
                                     )
-                                )
-                    )
-                    .ToList();
+                        )
+                        .ToList();
 
-            if( caseDocumentTasks.Any() ) 
+            var changed = deltas.Any();
+
+            if (changed)
             {
                 await Task.WhenAll(caseDocumentTasks.Select(BufferCall));
 
@@ -133,12 +124,11 @@ namespace coordinator.Functions.OrchestrationFunctions
                     throw new CaseOrchestrationException("All documents failed to process during orchestration.");
             }
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{caseDocumentTasks.Count} of {trackerDocuments.Count} documents processed successfully for case {payload.CmsCaseId}");
-            await tracker.RegisterCompleted();
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{caseDocumentTasks.Count} of {deltas.CreatedOrUpdated.Count} documents processed successfully for case {payload.CmsCaseId}");
+            await tracker.RegisterCompleted(changed);
 
-            log.LogMethodExit(payload.CorrelationId, loggingName, "Returning documents");
-            trackerDocuments = await tracker.GetDocuments();
-            return trackerDocuments;
+            log.LogMethodExit(payload.CorrelationId, loggingName, "Returning changed documents");
+            return deltas.CreatedOrUpdated;
         }
 
         private static async Task BufferCall(Task task)
@@ -149,15 +139,13 @@ namespace coordinator.Functions.OrchestrationFunctions
             }
             catch (Exception)
             {
-                // ReSharper disable once RedundantJumpStatement
                 return;
             }
         }
 
-        private async Task<TransitionDocument[]> RetrieveDocuments(IDurableOrchestrationContext context, ITracker tracker, string nameToLog, ILogger safeLogger,
-            CaseOrchestrationPayload payload)
+        private async Task<TransitionDocument[]> RetrieveTransitionDocuments(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of documents for case {payload.CmsCaseId}");
+            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of transition documents for case {payload.CmsCaseId}");
             var documents = await context.CallActivityAsync<TransitionDocument[]>(
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId));
@@ -165,13 +153,14 @@ namespace coordinator.Functions.OrchestrationFunctions
             return documents;
         }
 
-        private static async Task RegisterDocuments(ITracker tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload,
-            TransitionDocument[] documents)
+        private static async Task<TrackerDocumentListDeltas> SynchroniseTrackerDocuments(ITrackerEntity tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, TransitionDocument[] documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 
             var arg = new SynchroniseDocumentsArg(payload.CmsCaseUrn, payload.CmsCaseId, documents, payload.CorrelationId);
-            await tracker.SynchroniseDocuments(arg);
+            var deltas = await tracker.SynchroniseDocuments(arg);
+
+            return deltas;
         }
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ActivityFunctions
+namespace coordinator.Functions.ActivityFunctions.Document
 {
     public class CreateTextExtractorHttpRequest
     {
@@ -16,8 +16,8 @@ namespace coordinator.Functions.ActivityFunctions
 
         public CreateTextExtractorHttpRequest(ITextExtractorHttpRequestFactory textExtractorHttpRequestFactory, ILogger<CreateTextExtractorHttpRequest> logger)
         {
-           _textExtractorHttpRequestFactory = textExtractorHttpRequestFactory;
-           _log = logger;
+            _textExtractorHttpRequestFactory = textExtractorHttpRequestFactory;
+            _log = logger;
         }
 
         [FunctionName(nameof(CreateTextExtractorHttpRequest))]
@@ -25,7 +25,7 @@ namespace coordinator.Functions.ActivityFunctions
         {
             const string loggingName = $"{nameof(CreateTextExtractorHttpRequest)} - {nameof(Run)}";
             var payload = context.GetInput<TextExtractorHttpRequestActivityPayload>();
-            
+
             if (payload == null)
                 throw new ArgumentException($"{nameof(payload)} cannot be null.");
             if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
@@ -38,10 +38,10 @@ namespace coordinator.Functions.ActivityFunctions
                 throw new ArgumentException($"The supplied {nameof(payload.BlobName)} is empty");
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException($"{nameof(payload.CorrelationId)} must be valid GUID");
-            
+
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             var result = _textExtractorHttpRequestFactory.Create(payload.PolarisDocumentId, payload.CmsCaseId, payload.DocumentId, payload.VersionId, payload.BlobName, payload.CorrelationId);
-            
+
             _log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
             return result;
         }

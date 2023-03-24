@@ -3,7 +3,7 @@ using System.Net.Http;
 using AutoFixture;
 using coordinator.Domain;
 using coordinator.Factories;
-using coordinator.Functions.ActivityFunctions;
+using coordinator.Functions.ActivityFunctions.Document;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;

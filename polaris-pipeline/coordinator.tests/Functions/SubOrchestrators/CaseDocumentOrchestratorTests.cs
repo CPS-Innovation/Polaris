@@ -9,9 +9,9 @@ using Common.Domain.Responses;
 using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
-using coordinator.Functions.ActivityFunctions;
-using coordinator.Functions.DurableEntityFunctions;
-using coordinator.Functions.OrchestrationFunctions;
+using coordinator.Functions.ActivityFunctions.Document;
+using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Functions.Orchestation.Functions.Document;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -29,7 +29,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
         private readonly EvaluateDocumentResponse _evaluateDocumentResponse;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
-        private readonly Mock<ITracker> _mockTracker;
+        private readonly Mock<ITrackerEntity> _mockTracker;
 
         private readonly RefreshDocumentOrchestrator _caseDocumentOrchestrator;
 
@@ -47,7 +47,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             
             var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
-            _mockTracker = new Mock<ITracker>();
+            _mockTracker = new Mock<ITrackerEntity>();
             
             _evaluateDocumentResponse = fixture.Create<EvaluateDocumentResponse>();
 
@@ -70,7 +70,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _pdfResponse.ToJson()));
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(textExtractorDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
 
-            _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ITracker>(It.Is<EntityId>(e => e.EntityName == nameof(Tracker).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
+            _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ITrackerEntity>(It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
                 .Returns(_mockTracker.Object);
             
             _caseDocumentOrchestrator = new RefreshDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);

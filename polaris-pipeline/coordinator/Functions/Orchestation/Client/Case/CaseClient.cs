@@ -1,26 +1,25 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Mail;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
-using coordinator.Functions.DurableEntityFunctions;
-using coordinator.Functions.OrchestrationFunctions;
+using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Functions.Orchestation.Functions.Case;
+using coordinator.Functions.Orchestation.Functions.Tracker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace coordinator.Functions.ClientFunctions.Case
+namespace coordinator.Functions.Orchestation.Client.Case
 {
     public class CaseClient
     {
@@ -101,7 +100,7 @@ namespace coordinator.Functions.ClientFunctions.Case
                         {
                             throw new BadRequestException("Request body cannot be null.", nameof(req));
                         }
-                        var tracker = _jsonConvertWrapper.DeserializeObject<Tracker>(content);
+                        var tracker = _jsonConvertWrapper.DeserializeObject<TrackerEntity>(content);
 
                         UpdateTrackerPayload updateTrackerPayload = new UpdateTrackerPayload
                         {

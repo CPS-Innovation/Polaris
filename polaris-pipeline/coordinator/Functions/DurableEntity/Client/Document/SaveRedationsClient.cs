@@ -20,11 +20,11 @@ using FluentValidation;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Services;
 
-namespace coordinator.Functions.ClientFunctions.Document
+namespace coordinator.Functions.DurableEntity.Client.Document
 {
-    public class SaveRedactions : BaseClientFunction
+    public class SaveRedactionsClient : BaseClient
     {
-        const string loggingName = $"{nameof(SaveRedactions)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(SaveRedactionsClient)} - {nameof(HttpStart)}";
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequest> _requestValidator;
@@ -32,7 +32,7 @@ namespace coordinator.Functions.ClientFunctions.Document
         private readonly IPolarisStorageClient _blobStorageClient;
         private readonly IDocumentService _documentService;
 
-        public SaveRedactions(IJsonConvertWrapper jsonConvertWrapper,
+        public SaveRedactionsClient(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequest> requestValidator,
                               IRedactionClient redactionClient,
                               IPolarisStorageClient blobStorageClient,
@@ -45,7 +45,7 @@ namespace coordinator.Functions.ClientFunctions.Document
             _documentService = documentService;
         }
 
-        [FunctionName(nameof(SaveRedactions))]
+        [FunctionName(nameof(SaveRedactionsClient))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.Document)]
             HttpRequestMessage req,

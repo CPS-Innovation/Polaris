@@ -63,7 +63,7 @@ namespace Gateway.Clients.PolarisPipeline
             return new OkResult();
         }
 
-        public async Task<Tracker> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
+        public async Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Acquiring the tracker for caseId {caseId}");
 
@@ -86,7 +86,7 @@ namespace Gateway.Clients.PolarisPipeline
             var stringContent = await response.Content.ReadAsStringAsync();
 
             _logger.LogMethodExit(correlationId, nameof(GetTrackerAsync), $"Tracker details: {stringContent}");
-            return _jsonConvertWrapper.DeserializeObject<Tracker>(stringContent, correlationId);
+            return _jsonConvertWrapper.DeserializeObject<TrackerDto>(stringContent, correlationId);
         }
 
         public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)

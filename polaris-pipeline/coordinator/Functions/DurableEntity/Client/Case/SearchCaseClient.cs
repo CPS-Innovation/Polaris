@@ -6,28 +6,28 @@ using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
-using coordinator.Functions.DurableEntityFunctions;
+using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions.Case
+namespace coordinator.Functions.DurableEntity.Client.Case
 {
-    public class SearchCase
+    public class SearchCaseClient
     {
         private readonly ISearchIndexClient _searchIndexClient;
 
-        public SearchCase(ISearchIndexClient searchIndexClient)
+        public SearchCaseClient(ISearchIndexClient searchIndexClient)
         {
             _searchIndexClient = searchIndexClient;
         }
 
-        const string loggingName = $"{nameof(SearchCase)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(SearchCaseClient)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        [FunctionName(nameof(SearchCase))]
+        [FunctionName(nameof(SearchCaseClient))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentsSearch)] HttpRequestMessage req,
             string caseUrn,
@@ -59,7 +59,7 @@ namespace coordinator.Functions.ClientFunctions.Case
                     }
 
                 var entityId = new EntityId(nameof(Domain.Tracker), caseId.ToString());
-                var trackerState = await client.ReadEntityStateAsync<Tracker>(entityId);
+                var trackerState = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
 
                 if (!trackerState.EntityExists)
                 {

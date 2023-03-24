@@ -1,9 +1,11 @@
-﻿namespace coordinator.Domain
+﻿using coordinator.Functions.DurableEntity.Entity;
+
+namespace coordinator.Domain
 {
     internal class UpdateTrackerPayload
     {
         public CaseOrchestrationPayload CaseOrchestrationPayload { get; set; }
 
-        public Functions.DurableEntityFunctions.Tracker Tracker { get; set; }
+        public TrackerEntity Tracker { get; set; }
     }
 }

@@ -13,20 +13,20 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.ClientFunctions.Document
+namespace coordinator.Functions.DurableEntity.Client.Document
 {
-    public class CheckoutDocument : BaseClientFunction
+    public class CheckoutDocumentClient : BaseClient
     {
         private readonly IDocumentService _documentService;
 
-        public CheckoutDocument(IDocumentService documentService)
+        public CheckoutDocumentClient(IDocumentService documentService)
         {
             _documentService = documentService;
         }
 
-        const string loggingName = $"{nameof(CheckoutDocument)} - {nameof(HttpStart)}";
+        const string loggingName = $"{nameof(CheckoutDocumentClient)} - {nameof(HttpStart)}";
 
-        [FunctionName(nameof(CheckoutDocument))]
+        [FunctionName(nameof(CheckoutDocumentClient))]
         public async Task<IActionResult> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
             string caseUrn,
