@@ -84,7 +84,7 @@ stages:
             displayName: Processing changes to repo
 
   - stage: Apply_DEV
-    displayName: CD > DEV Deployment
+    displayName: DEV Deployment
     dependsOn: Determine_Changes
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
@@ -399,7 +399,7 @@ stages:
                     WebAppName: "as-web-polaris-dev"
 
   - stage: Apply_QA
-    displayName: CD > QA Deployment
+    displayName: QA Deployment
     dependsOn: Determine_Changes
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
@@ -714,7 +714,7 @@ stages:
                     WebAppName: "as-web-polaris-qa"
                     
   - stage: Apply_PROD
-    displayName: CD > PROD Deployment
+    displayName: PROD Deployment
     dependsOn: Determine_Changes
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
