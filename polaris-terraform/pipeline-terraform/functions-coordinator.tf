@@ -144,7 +144,7 @@ resource "azurerm_private_dns_a_record" "pipeline_coordinator_dns_a" {
   tags                = local.common_tags
 }
 
-# Create DNS A to match for SCM record for SCM deployments
+# Create DNS A to match for SCM record
 resource "azurerm_private_dns_a_record" "pipeline_coordinator_scm_dns_a" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}.scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name

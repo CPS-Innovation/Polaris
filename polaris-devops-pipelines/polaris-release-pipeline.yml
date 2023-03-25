@@ -19,6 +19,7 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-global
+  - group: pipeline-terraform
   - group: ui-terraform
   
 stages:
