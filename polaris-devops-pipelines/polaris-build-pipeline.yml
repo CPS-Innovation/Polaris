@@ -2,30 +2,30 @@
 
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
 
-trigger: none
-#  batch: true
-#  branches:
-#    include:
-#      - main
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
 
-#  paths:
-#    include:
-#      - "polaris-gateway/polaris-auth-handover/*"
-#      - "polaris-pipeline/Common/*"
-#      - "polaris-pipeline/Common.tests/*"
-#      - "polaris-gateway/polaris-gateway/*"
-#      - "polaris-gateway/polaris-gateway.tests/*"
-#      - "polaris-gateway/polaris-gateway.common/*"
-#      - "polaris-pipeline/coordinator/*"
-#      - "polaris-pipeline/coordinator.tests/*"
-#      - "polaris-pipeline/pdf-generator/*"
-#      - "polaris-pipeline/pdf-generator.tests/*"
-#      - "polaris-pipeline/text-extractor/*"
-#      - "polaris-pipeline/text-extractor.tests/*"
-#      - "polaris-terraform/pipeline-terraform/*"
-#      - "polaris-terraform/pipeline-events-terraform/*"
-#      - "polaris-terraform/ui-terraform/*"
-#      - "polaris-terraform/ui-events-terraform/*"
+  paths:
+    include:
+      - "polaris-gateway/polaris-auth-handover/*"
+      - "polaris-pipeline/Common/*"
+      - "polaris-pipeline/Common.tests/*"
+      - "polaris-gateway/polaris-gateway/*"
+      - "polaris-gateway/polaris-gateway.tests/*"
+      - "polaris-gateway/polaris-gateway.common/*"
+      - "polaris-pipeline/coordinator/*"
+      - "polaris-pipeline/coordinator.tests/*"
+      - "polaris-pipeline/pdf-generator/*"
+      - "polaris-pipeline/pdf-generator.tests/*"
+      - "polaris-pipeline/text-extractor/*"
+      - "polaris-pipeline/text-extractor.tests/*"
+      - "polaris-terraform/pipeline-terraform/*"
+      - "polaris-terraform/pipeline-events-terraform/*"
+      - "polaris-terraform/ui-terraform/*"
+      - "polaris-terraform/ui-events-terraform/*"
   
 variables:
   buildConfiguration: "Release"
@@ -96,7 +96,13 @@ stages:
         
   - stage: Publish_Terraform
     displayName: Build > publish terraform artifacts
+    dependsOn: Determine_Changes
     condition: succeeded()
+    variables:
+      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
+      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
     jobs:
       - job:
         pool:
@@ -104,7 +110,7 @@ stages:
         steps:
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline terraform artifact'
-            condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true')
+            condition: eq(variables.runPipelineTerraform, 'true')
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
               artifact: "pipeline-terraform-files"
@@ -112,7 +118,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline events terraform artifact'
-            condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true')
+            condition: eq(variables.runPipelineEventsTerraform, 'true')
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
               artifact: "pipeline-events-terraform-files"
@@ -120,7 +126,7 @@ stages:
               
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI terraform artifact'
-            condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true')
+            condition: eq(variables.runUITerraform, 'true')
             inputs:
               targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
               artifact: 'ui-terraform-files'
@@ -128,7 +134,7 @@ stages:
               
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI events terraform artifact'
-            condition: eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true')
+            condition: eq(variables.runUIEventsTerraform, 'true')
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
               artifact: "ui-events-terraform-files"
@@ -136,10 +142,11 @@ stages:
               
   - stage: Publish_Codebase
     displayName: Build > publish codebase
+    dependsOn: Publish_Terraform
     jobs:
       - job: Publish_Pipeline_Artifacts
         displayName: Publish pipeline artifacts
-        condition: and(in(dependencies.Publish_Terraform.result, 'Succeeded', 'Skipped'), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'))
+        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'))
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -203,7 +210,7 @@ stages:
 
       - job: Publish_Gateway_Artifacts
         displayName: Publish gateway artifacts
-        condition: and(in(dependencies.Publish_Terraform.result, 'Succeeded', 'Skipped'), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
+        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -237,9 +244,9 @@ stages:
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
             
-      - job: Publish_Gateway_Artifacts
-        displayName: Publish gateway artifacts
-        condition: and(in(dependencies.Publish_Terraform.result, 'Succeeded', 'Skipped'), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
+      - job: Publish_UI_Artifacts
+        displayName: Publish UI artifacts
+        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
         pool:
           vmImage: ubuntu-latest
         steps:
