@@ -1,3 +1,5 @@
+using Ddei.Domain.PreCharge;
+
 namespace Ddei.Domain
 {
     public class CaseDetails
@@ -8,6 +10,6 @@ namespace Ddei.Domain
 
         public IEnumerable<ActionPlan> ActionPlans { get; set; }
 
-        public IEnumerable<PreChargeDecisionRequest> PreChargeDecisionRequests { get; set; }
+        public IEnumerable<PcdRequest> PreChargeDecisionRequests { get; set; }
     }
 }
