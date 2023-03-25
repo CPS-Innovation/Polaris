@@ -8,7 +8,7 @@ namespace Ddei.Clients
 {
     public class DdeiClient : IDdeiClient
     {
-        //meaningless comment to provoke a code release to test the new pipelines
+        //meaningless comment to initiate a code release to test the new pipelines
         private readonly HttpClient _httpClient;
         private readonly IDdeiClientRequestFactory _ddeiClientRequestFactory;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
