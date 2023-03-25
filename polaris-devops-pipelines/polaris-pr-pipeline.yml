@@ -88,7 +88,7 @@ stages:
   - stage: Validate_Pipeline_Terraform
     displayName: Validate Pipeline Terraform
     dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM, 'true'))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
     jobs:
       - job: Validate
         pool:
@@ -185,7 +185,7 @@ stages:
   - stage: Validate_Pipeline_Events_Terraform
     displayName: Validate Pipeline Events Terraform
     dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM, 'true'))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'))
     jobs:
       - job: Validate
         pool:
