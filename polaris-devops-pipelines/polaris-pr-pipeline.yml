@@ -1,0 +1,752 @@
+# Pull Request Azure DevOps pipeline for the entire Polaris Codebase
+
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: pipeline-terraform
+  - group: ui-terraform
+  - name: buildConfiguration
+    value: "Release"
+  - name: pipelineTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-terraform"
+  - name: pipelineEventsTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/pipeline-events-terraform"
+  - name: uiTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform"
+  - name: uiEventsTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-events-terraform"
+
+stages:
+  - stage: Determine_Changes
+    displayName: Determine Changes
+    jobs:
+      - job: Generate_Diff
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = $(git diff --name-only origin/main)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_ANY_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_ANY_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                  }
+                }
+            name: Change_Results
+            displayName: Processing changes to repo  
+
+  - stage: Validate_Pipeline_Terraform
+    displayName: Validate Pipeline Terraform
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
+    jobs:
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Install Checkov
+          - bash: pip3 install checkov
+            displayName: Checkov > Install
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(pipelineTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Format check
+          - bash: terraform fmt -check
+            workingDirectory: $(pipelineTerraformWorkingDir)
+            displayName: Terraform > Check Formatting
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(pipelineTerraformWorkingDir)
+          
+          # Verify main files with Checkov
+          - bash: checkov --directory $(pipelineTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(pipelineTerraformWorkingDir)/Pipeline-Checkov-Report.xml
+            displayName: Checkov > Verify Pipeline Terraform
+          
+          # Publish test results for root module
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish Pipeline Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*-Checkov-Report.xml'
+              searchFolder: $(pipelineTerraformWorkingDir)
+              mergeTestResults: true
+              testRunTitle: Checkov Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+
+      - job: CheckPlan
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(pipelineTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write Pipeline Plan'
+            workingDirectory: $(pipelineTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+
+  - stage: Validate_Pipeline_Events_Terraform
+    displayName: Validate Pipeline Events Terraform
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'))
+    jobs:
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Install Checkov
+          - bash: pip3 install checkov
+            displayName: Checkov > Install
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(pipelineEventsTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Format check
+          - bash: terraform fmt -check
+            workingDirectory: $(pipelineEventsTerraformWorkingDir)
+            displayName: Terraform > Check Formatting
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(pipelineEventsTerraformWorkingDir)
+          
+          # Verify main files with Checkov
+          - bash: checkov --directory $(pipelineEventsTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(pipelineEventsTerraformWorkingDir)/Pipeline-Events-Checkov-Report.xml
+            displayName: Checkov > Verify Pipeline Events Terraform
+          
+          # Publish test results for root module
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish Pipeline Events Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*-Checkov-Report.xml'
+              searchFolder: $(pipelineEventsTerraformWorkingDir)
+              mergeTestResults: true
+              testRunTitle: Checkov Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+
+      - job: CheckPlan
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(pipelineEventsTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write Pipeline Events Plan'
+            workingDirectory: $(pipelineEventsTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+
+  - stage: Validate_UI_Terraform
+    displayName: Validate UI Terraform
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM, 'true'))
+    jobs:
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Install Checkov
+          - bash: pip3 install checkov
+            displayName: Checkov > Install
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(uiTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Format check
+          - bash: terraform fmt -check
+            workingDirectory: $(uiTerraformWorkingDir)
+            displayName: Terraform > Check Formatting
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(uiTerraformWorkingDir)
+          
+          # Verify main files with Checkov
+          - bash: checkov --directory $(uiTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(uiTerraformWorkingDir)/UI-Checkov-Report.xml
+            displayName: Checkov > Verify UI Terraform
+          
+          # Publish test results for root module
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish UI Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*-Checkov-Report.xml'
+              searchFolder: $(uiTerraformWorkingDir)
+              mergeTestResults: true
+              testRunTitle: Checkov Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+
+      - job: CheckPlan
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(uiTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write UI Plan'
+            workingDirectory: $(uiTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: 
+                  
+  - stage: Validate_UI_Events_Terraform
+    displayName: Validate UI Events Terraform
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM, 'true'))
+    jobs:
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Install Checkov
+          - bash: pip3 install checkov
+            displayName: Checkov > Install
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(uiEventsTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Format check
+          - bash: terraform fmt -check
+            workingDirectory: $(uiEventsTerraformWorkingDir)
+            displayName: Terraform > Check Formatting
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(uiEventsTerraformWorkingDir)
+          
+          # Verify main files with Checkov
+          - bash: checkov --directory $(uiEventsTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(uiEventsTerraformWorkingDir)/UI-Events-Checkov-Report.xml
+            displayName: Checkov > Verify UI Events Terraform
+          
+          # Publish test results for root module
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish UI Events Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*-Checkov-Report.xml'
+              searchFolder: $(uiEventsTerraformWorkingDir)
+              mergeTestResults: true
+              testRunTitle: Checkov Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+
+      - job: CheckPlan
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(uiEventsTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write UI Events Plan'
+            workingDirectory: $(uiEventsTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+
+  - stage: Validate_Gateway_Codebase
+    displayName: Validate Gateway Codebase
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
+    jobs:
+      - job:
+        displayName: Build, Test, Report - Gateway
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
+              arguments: "--configuration Release"
+            displayName: "Build Auth Handover"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Gateway"
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Gateway tests"
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/coverage.cobertura.xml
+            artifact: GatewayTestResults
+            displayName: Publish Gateway Test Results
+            
+  - stage: Validate_Pipeline_Codebase
+    displayName: Validate Pipeline Codebase
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'))
+    jobs:
+      - job:
+        displayName: Build, Test, Report - Pipeline
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/coordinator/coordinator.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Coordinator"
+
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-generator'
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build PDF Generator"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build Text Extractor"
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/Common.tests/Common.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Common Library tests"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/coordinator.tests/coordinator.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Coordinator tests"
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
+            artifact: CoordinatorTestResults
+            displayName: Publish Coordinator Test Results
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Pdf-Generator tests"
+            
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
+            artifact: PdfGeneratorTestResults
+            displayName: Publish Pdf-Generator Test Results
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Text-Extractor tests"
+            
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
+            artifact: TextExtractorTestResults
+            displayName: Publish Text-Extractor Test Results
+                      
+  - stage: Validate_UI_Codebase
+    displayName: Validate UI Codebase
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
+    jobs:
+      - job:
+        displayName: Build, Test, Report - UI
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Begin UI testing      
+          # We want to rely only on the .env.production file, anything in .env is still included
+          #  if not overwritten by .env.production.  For safety, just delete .env
+          - task: DeleteFiles@1
+            displayName: "Remove .env file"
+            inputs:
+              contents: |
+                polaris-ui/.env
+
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-ui"
+            displayName: "npm install"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run prettier"
+            displayName: "npm prettier"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run test:ci"
+            displayName: "npm test"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run cy:ci"
+            displayName: "cypress run tests"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run build"
+            displayName: "npm build"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run coverage"
+            displayName: "combine unit and cypress coverage"
+
+          - task: PublishBuildArtifacts@1
+            condition: always() # this step will always run, helpful to diagnose failing cypress testts
+            inputs:
+              PathtoPublish: "polaris-ui/cypress/videos"
+              ArtifactName: "Cypress failure vidoes"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Failure Videos"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/report"
+              ArtifactName: "Unit test report"
+              publishLocation: "Container"
+            displayName: "Publish UI Unit Test Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/report-cypress"
+              ArtifactName: "Cypress test report"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Test Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage"
+              ArtifactName: "Unit test coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Unit Test Coverage Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage-cypress"
+              ArtifactName: "Cypress coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Cypress Coverage Report"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/coverage-merged"
+              ArtifactName: "Merged coverage report"
+              publishLocation: "Container"
+            displayName: "Publish UI Merged Coverage Report"
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "polaris-ui/report/*.xml"
+              testRunTitle: "Unit tests"
+            displayName: "Publish UI Unit Test XML"
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "polaris-ui/report-cypress/test-*.xml"
+              testRunTitle: "Cypress tests"
+              mergeTestResults: true
+            displayName: "Publish UI Unit Test Cypress Tests XML"
+            
+          - script: |
+              cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
+            displayName: 'Moving ui coverage results'
+            
+          - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
+            artifact: UITestResults
+              
+  - stage: Generate_Reports
+    displayName: Collate and publish test results
+    dependsOn:
+      - Validate_Gateway_Codebase
+      - Validate_Pipeline_Codebase
+      - Validate_UI_Codebase
+    condition: or(eq(dependencies.Validate_Gateway_Codebase.result, 'Succeeded'),eq(dependencies.Validate_Pipeline_Codebase.result, 'Succeeded'),eq(dependencies.Validate_UI_Codebase.result, 'Succeeded')) 
+    jobs:
+      - job:
+        displayName: Build, Test, Report - UI
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Install ReportGenerator'
+            inputs:
+              command: custom
+              custom: tool
+              arguments: 'install --global dotnet-reportgenerator-globaltool'
+
+          - download: current
+            patterns: '**/*.cobertura.xml'
+            displayName: Retrieve published test reports
+              
+          - script: |
+              reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
+            displayName: 'Create code coverage report'
+            
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage report'
+            inputs:
+              codeCoverageTool: 'cobertura'
+              summaryFileLocation: '$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml'

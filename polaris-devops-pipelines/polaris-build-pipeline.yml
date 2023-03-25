@@ -1,0 +1,285 @@
+# Build and Publish Artifact Azure DevOps pipeline for Polaris Terraform and Codebase
+
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+
+  paths:
+    include:
+      - "polaris-gateway/polaris-auth-handover/*"
+      - "polaris-pipeline/Common/*"
+      - "polaris-pipeline/Common.tests/*"
+      - "polaris-gateway/polaris-gateway/*"
+      - "polaris-gateway/polaris-gateway.tests/*"
+      - "polaris-gateway/polaris-gateway.common/*"
+      - "polaris-pipeline/coordinator/*"
+      - "polaris-pipeline/coordinator.tests/*"
+      - "polaris-pipeline/pdf-generator/*"
+      - "polaris-pipeline/pdf-generator.tests/*"
+      - "polaris-pipeline/text-extractor/*"
+      - "polaris-pipeline/text-extractor.tests/*"
+      - "polaris-terraform/pipeline-terraform/*"
+      - "polaris-terraform/pipeline-events-terraform/*"
+      - "polaris-terraform/ui-terraform/*"
+      - "polaris-terraform/ui-events-terraform/*"
+  
+variables:
+  buildConfiguration: "Release"
+  majorMinorVersion: 1.0
+  semanticVersion: $[counter(variables['majorMinorVersion'], 1)]
+    
+stages:
+  - stage: Determine_Changes
+    displayName: Determine Changes
+    jobs:
+      - job: Generate_Diff
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = $(git diff --name-only --relative --diff-filter AMR HEAD^ HEAD)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                  }
+                }
+            name: Change_Results
+            displayName: Processing changes to repo
+        
+  - stage: Publish_Terraform
+    displayName: Build > publish terraform artifacts
+    dependsOn: Determine_Changes
+    condition: succeeded()
+    variables:
+      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
+      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline terraform artifact'
+            condition: eq(variables.runPipelineTerraform, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+              artifact: "pipeline-terraform-files"
+              publishLocation: "pipeline"
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline events terraform artifact'
+            condition: eq(variables.runPipelineEventsTerraform, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
+              artifact: "pipeline-events-terraform-files"
+              publishLocation: "pipeline"
+              
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI terraform artifact'
+            condition: eq(variables.runUITerraform, 'true')
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
+              artifact: 'ui-terraform-files'
+              publishLocation: 'pipeline'
+              
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI events terraform artifact'
+            condition: eq(variables.runUIEventsTerraform, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
+              artifact: "ui-events-terraform-files"
+              publishLocation: "pipeline"
+              
+  - stage: Publish_Codebase
+    displayName: Build > publish codebase
+    dependsOn: Publish_Terraform
+    jobs:
+      - job: Publish_Pipeline_Artifacts
+        displayName: Publish pipeline artifacts
+        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'))
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/coordinator/coordinator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              zipAfterPublish: false
+            displayName: "Create Coordinator package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              artifact: "polaris-coordinator-drop"
+            displayName: "Publish Coordinator codebase artifact"
+            
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-generator'
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              zipAfterPublish: false
+            displayName: "Create PDF-Generator package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              artifact: "polaris-pdf-generator-drop"
+            displayName: "Publish PDF-Generator codebase artifact"
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              zipAfterPublish: false
+            displayName: "Create Text-Extractor package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              artifact: "polaris-text-extractor-drop"
+            displayName: "Publish Text-Extractor codebase artifact"
+
+      - job: Publish_Gateway_Artifacts
+        displayName: Publish gateway artifacts
+        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              zipAfterPublish: false
+            displayName: "Create Auth Handover package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              artifact: "polaris-auth-handover-drop"
+            displayName: "Publish Auth Handover codebase artifact"
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              zipAfterPublish: false
+            displayName: "Create Gateway package to publish"
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              artifact: "polaris-gateway-drop"
+            displayName: "Publish Gateway codebase artifact"
+            
+      - job: Publish_UI_Artifacts
+        displayName: Publish UI artifacts
+        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # We want to rely only on the .env.production file, anything in .env is still included
+          #  if not overwritten by .env.production.  For safety, just delete .env
+          - task: DeleteFiles@1
+            displayName: "Remove .env file"
+            inputs:
+              contents: |
+                polaris-ui/.env
+
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-ui"
+            displayName: "npm install"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run prettier"
+            displayName: "npm prettier"
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run build"
+            displayName: "npm build"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/build"
+              ArtifactName: "polaris-ui-drop"
+              publishLocation: "Container"
