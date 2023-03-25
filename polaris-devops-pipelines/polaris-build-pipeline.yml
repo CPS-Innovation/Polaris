@@ -26,6 +26,8 @@ trigger:
       - "polaris-terraform/pipeline-events-terraform/*"
       - "polaris-terraform/ui-terraform/*"
       - "polaris-terraform/ui-events-terraform/*"
+        
+pr: none
   
 variables:
   buildConfiguration: "Release"

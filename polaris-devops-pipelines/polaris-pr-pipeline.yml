@@ -476,7 +476,7 @@ stages:
   - stage: Validate_Gateway_Codebase
     displayName: Validate Gateway Codebase
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true')))
     jobs:
       - job:
         displayName: Build, Test, Report - Gateway
@@ -511,7 +511,7 @@ stages:
   - stage: Validate_Pipeline_Codebase
     displayName: Validate Pipeline Codebase
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'))
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true')))
     jobs:
       - job:
         displayName: Build, Test, Report - Pipeline
@@ -595,7 +595,7 @@ stages:
   - stage: Validate_UI_Codebase
     displayName: Validate UI Codebase
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
+    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true')))
     jobs:
       - job:
         displayName: Build, Test, Report - UI
