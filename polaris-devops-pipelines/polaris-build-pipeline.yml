@@ -150,7 +150,7 @@ stages:
     jobs:
       - job: Publish_Pipeline_Artifacts
         displayName: Publish pipeline artifacts
-        condition: or(and(succeeded(),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true')), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true')))
+        condition: or(and(succeeded(),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true')), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true')))
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -214,7 +214,7 @@ stages:
 
       - job: Publish_Gateway_Artifacts
         displayName: Publish gateway artifacts
-        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
+        condition: or(and(succeeded(),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true')), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true')))
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -250,7 +250,7 @@ stages:
             
       - job: Publish_UI_Artifacts
         displayName: Publish UI artifacts
-        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
+        condition: or(and(succeeded(),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true')), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true')))
         pool:
           vmImage: ubuntu-latest
         steps:
