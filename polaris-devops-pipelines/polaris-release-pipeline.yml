@@ -12,7 +12,7 @@ resources:
           include:
             - refs/heads/main
         stages:
-          - Publish_Codebase
+          - Publish_Artifacts
 
 variables:
   - group: kv-dev-terraform

@@ -78,7 +78,7 @@ stages:
             displayName: Processing changes to repo
         
   - stage: Publish_Artifacts
-    displayName: Publish terraform and codebase artifacts
+    displayName: Publish artifacts
     dependsOn: Determine_Changes
     condition: succeeded()
     variables:
