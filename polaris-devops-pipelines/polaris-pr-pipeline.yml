@@ -1,6 +1,7 @@
 # Pull Request Azure DevOps pipeline for the entire Polaris Codebase
 
-trigger:
+trigger: none
+
 pr:
   branches:
     include:
