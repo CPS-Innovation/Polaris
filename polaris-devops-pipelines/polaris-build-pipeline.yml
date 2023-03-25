@@ -60,6 +60,7 @@ stages:
                     echo "run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_ANY_TERRAFORM;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -71,6 +72,7 @@ stages:
                     echo "run ui terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_ANY_TERRAFORM;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
@@ -148,7 +150,7 @@ stages:
     jobs:
       - job: Publish_Pipeline_Artifacts
         displayName: Publish pipeline artifacts
-        condition: or(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'))
+        condition: or(and(succeeded(),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true')), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true')))
         pool:
           vmImage: ubuntu-latest
         steps:
