@@ -282,7 +282,7 @@ stages:
   - stage: Validate_UI_Terraform
     displayName: Validate UI Terraform
     dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM, 'true'))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true'))
     jobs:
       - job: Validate
         pool:
@@ -379,7 +379,7 @@ stages:
   - stage: Validate_UI_Events_Terraform
     displayName: Validate UI Events Terraform
     dependsOn: Determine_Changes
-    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM, 'true'))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true'))
     jobs:
       - job: Validate
         pool:
