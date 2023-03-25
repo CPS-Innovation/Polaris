@@ -77,7 +77,7 @@ module "azurerm_app_reg_fa_coordinator" {
   identifier_uris         = ["api://fa-${local.resource_name}-coordinator"]
   prevent_duplicate_names = true
 
-  #use this code for adding api permissions
+  # use this code for adding api permissions
   required_resource_access = [{
     # Microsoft Graph
     resource_app_id = "00000003-0000-0000-c000-000000000000"
