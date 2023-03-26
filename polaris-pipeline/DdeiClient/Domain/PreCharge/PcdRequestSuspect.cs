@@ -1,12 +1,11 @@
-namespace Ddei.Domain
+namespace Ddei.Domain.PreCharge
 {
-    public class PreChargeDecisionRequest
+    public class PcdRequestSuspect
     {
-        public int Id { get; set; }
-
-        public string DecisionRequiredBy { get; set; }
-
-        public string DecisionRequested { get; set; }
+        public PcdRequestSuspect()
+        {
+            ProposedCharges = new List<PcdProposedCharge>();
+        }
 
         public string Surname { get; set; }
 
@@ -20,7 +19,6 @@ namespace Ddei.Domain
 
         public string RemandStatus { get; set; }
 
-        public IEnumerable<ProposedCharge> PropsedCharges { get; set; }
-
+        public List<PcdProposedCharge> ProposedCharges { get; set; }
     }
 }
