@@ -93,7 +93,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
                                 && suspect.FirstNames == defendant.FirstNames
                                 && suspect.Surname == defendant.Surname)
                       .SelectMany(suspect => suspect.ProposedCharges)
-                      .Select(proposedCharge => MapPropsoedCharge(proposedCharge));
+                      .Select(proposedCharge => MapProposedCharge(proposedCharge));
         }
 
         private BusinessDomain.Charge MapCharge(DDeiDomain.Offence offence, string nextHearingDate)
@@ -113,7 +113,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private BusinessDomain.ProposedCharge MapPropsoedCharge(DDeiDomain.PreCharge.PcdProposedCharge proposedCharge)
+        private BusinessDomain.ProposedCharge MapProposedCharge(DDeiDomain.PreCharge.PcdProposedCharge proposedCharge)
         {
             return new BusinessDomain.ProposedCharge
             {
