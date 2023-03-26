@@ -46,7 +46,7 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   lifecycle {
     ignore_changes = [
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"]
     ]
   }
 

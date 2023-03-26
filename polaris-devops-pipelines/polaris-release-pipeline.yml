@@ -253,7 +253,7 @@ stages:
                 #download ui events terraform build artifact
                 - download: PolarisBuild
                   condition: eq(variables.runUIEventsTerraform, 'true')
-                  displayName: Terraform > Download UI terraform build
+                  displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
                 # Terraform Init
@@ -275,7 +275,7 @@ stages:
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-                  displayName: 'Terraform > Write UI Plan'
+                  displayName: 'Terraform > Write UI Events Plan'
                   condition: eq(variables.runUIEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
@@ -385,17 +385,17 @@ stages:
                 # Deploy Related Codebase to Env
                 - task: AzureRmWebAppDeployment@4
                   condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
-                  displayName: 'Deploy UI App Service to DEV'
+                  displayName: 'Deploy SPA App Service to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
                     appType: webAppLinux
                     WebAppName: "as-web-polaris-dev"
-                    packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop/a/polaris-ui
+                    packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
                   condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
-                  displayName: 'Restart Azure App Service'
+                  displayName: 'Restart SPA Azure App Service'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
                     Action: 'Restart Azure App Service'
@@ -570,7 +570,7 @@ stages:
                 #download ui events terraform build artifact
                 - download: PolarisBuild
                   condition: eq(variables.runUIEventsTerraform, 'true')
-                  displayName: Terraform > Download UI terraform build
+                  displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
                 # Terraform Init
@@ -592,7 +592,7 @@ stages:
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
-                  displayName: 'Terraform > Write UI Plan'
+                  displayName: 'Terraform > Write UI Events Plan'
                   condition: eq(variables.runUIEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
@@ -707,7 +707,7 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
                     appType: webAppLinux
                     WebAppName: "as-web-polaris-qa"
-                    packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop/a/polaris-ui
+                    packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -887,7 +887,7 @@ stages:
                 #download ui events terraform build artifact
                 - download: PolarisBuild
                   condition: eq(variables.runUIEventsTerraform, 'true')
-                  displayName: Terraform > Download UI terraform build
+                  displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
                 # Terraform Init
@@ -909,7 +909,7 @@ stages:
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
-                  displayName: 'Terraform > Write UI Plan'
+                  displayName: 'Terraform > Write UI Events Plan'
                   condition: eq(variables.runUIEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
@@ -1024,7 +1024,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
                     appType: webAppLinux
                     WebAppName: "as-web-polaris"
-                    packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop/a/polaris-ui
+                    packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
