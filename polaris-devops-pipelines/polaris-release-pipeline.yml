@@ -298,13 +298,13 @@ stages:
                 
                 #download coordinator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy Coordinator Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -314,13 +314,13 @@ stages:
                     
                 #download pdf-generator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy PDF Generator Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -330,13 +330,13 @@ stages:
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy Text Extractor Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -346,13 +346,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: 'Deploy Gateway Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -362,13 +362,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: 'Deploy Auth Handover Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -378,13 +378,13 @@ stages:
                 
                 #download UI build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureRmWebAppDeployment@4
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: 'Deploy UI App Service to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -394,7 +394,7 @@ stages:
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: 'Restart Azure App Service'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -615,13 +615,13 @@ stages:
                 
                 #download coordinator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy Coordinator Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -631,13 +631,13 @@ stages:
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy PDF Generator Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -647,13 +647,13 @@ stages:
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy Text Extractor Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -663,13 +663,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: 'Deploy Gateway Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -679,13 +679,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: 'Deploy Auth Handover Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -695,13 +695,13 @@ stages:
                 
                 #download UI build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureRmWebAppDeployment@4
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: 'Deploy UI App Service to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -711,7 +711,7 @@ stages:
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: 'Restart Azure App Service'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -932,13 +932,13 @@ stages:
                 
                 #download coordinator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy Coordinator Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -948,13 +948,13 @@ stages:
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy PDF Generator Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -964,13 +964,13 @@ stages:
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPipelineCodebase, 'true')
+                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineCodebase, 'true'))
                   displayName: 'Deploy Text Extractor Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -980,7 +980,7 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
@@ -996,13 +996,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGatewayCodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
                   displayName: 'Deploy Auth Handover Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1012,13 +1012,13 @@ stages:
                 
                 #download UI build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureRmWebAppDeployment@4
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: 'Deploy UI App Service to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1028,7 +1028,7 @@ stages:
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runUICodebase, 'true'))
                   displayName: 'Restart Azure App Service'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)

@@ -200,14 +200,14 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
               zipAfterPublish: false
             displayName: "Create Auth Handover package to publish"
-            condition: or(eq(variables.runGatewayTerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
+            condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
 
           - task: PublishPipelineArtifact@1
             inputs:
               pathtoPublish: "$(Build.ArtifactStagingDirectory)"
               artifact: "polaris-auth-handover-drop"
             displayName: "Publish Auth Handover codebase artifact"
-            condition: or(eq(variables.runGatewayTerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
+            condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
             
           - task: DotNetCoreCLI@2
             inputs:
@@ -217,14 +217,14 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
               zipAfterPublish: false
             displayName: "Create Gateway package to publish"
-            condition: or(eq(variables.runGatewayTerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
+            condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
 
           - task: PublishPipelineArtifact@1
             inputs:
               pathtoPublish: "$(Build.ArtifactStagingDirectory)"
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
-            condition: or(eq(variables.runGatewayTerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
+            condition: or(eq(variables.runUITerraform, 'true'),eq(variables.runGatewayCodebase, 'true'))
             
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
