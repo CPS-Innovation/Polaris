@@ -132,12 +132,12 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private BusinessDomain.HeadlineCharge MapHeadlineCharge(BusinessDomain.ProposedCharge propsedCharge)
+        private BusinessDomain.HeadlineCharge MapHeadlineCharge(BusinessDomain.ProposedCharge proposedCharge)
         {
             return new BusinessDomain.HeadlineCharge
             {
-                Charge = propsedCharge.Charge,
-                Date = propsedCharge.Date
+                Charge = proposedCharge.Charge,
+                Date = proposedCharge.Date
             };
         }
         private BusinessDomain.Defendant FindLeadDefendant(IEnumerable<BusinessDomain.Defendant> defendants, DDeiDomain.CaseSummary caseSummary)
@@ -175,11 +175,11 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
                 return MapHeadlineCharge(firstCharge);
             }
 
-            var firstPropsedCharge = leadDefendant.ProposedCharges.FirstOrDefault();
+            var firstProposedCharge = leadDefendant.ProposedCharges.FirstOrDefault();
 
-            if (firstPropsedCharge != null)
+            if (firstProposedCharge != null)
             {
-                return MapHeadlineCharge(firstPropsedCharge);
+                return MapHeadlineCharge(firstProposedCharge);
             }
 
             // todo: what to do if we have no charges?
