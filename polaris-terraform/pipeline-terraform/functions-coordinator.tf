@@ -77,7 +77,7 @@ module "azurerm_app_reg_fa_coordinator" {
   identifier_uris         = ["api://fa-${local.resource_name}-coordinator"]
   prevent_duplicate_names = true
 
-  #use this code for adding api permissions
+  # use this code for adding api permissions
   required_resource_access = [{
     # Microsoft Graph
     resource_app_id = "00000003-0000-0000-c000-000000000000"
@@ -144,7 +144,7 @@ resource "azurerm_private_dns_a_record" "pipeline_coordinator_dns_a" {
   tags                = local.common_tags
 }
 
-# Create DNS A to match for SCM record for SCM deployments
+# Create DNS A to match for SCM endpoint
 resource "azurerm_private_dns_a_record" "pipeline_coordinator_scm_dns_a" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}.scm"
   zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name

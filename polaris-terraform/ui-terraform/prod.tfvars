@@ -10,3 +10,5 @@ polaris_webapp_details = {
   valid_scopes   = "user_impersonation"
   valid_roles    = ""
 }
+
+terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"

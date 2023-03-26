@@ -13,3 +13,7 @@ variable "pipeline_resource_name_prefix" {
 variable "env" {
   type = string 
 }
+
+variable "terraform_service_principal_display_name" {
+  type = string
+}
