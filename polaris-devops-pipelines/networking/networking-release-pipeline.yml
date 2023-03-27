@@ -4,8 +4,8 @@ trigger: none
 pr: none
 
 resources:
-  networkings:
-    - networking: NetworkingBuild
+  pipelines:
+    - pipeline: NetworkingBuild
       source: Polaris Networking - Build
       trigger:
         branches:
