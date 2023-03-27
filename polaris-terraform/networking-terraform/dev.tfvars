@@ -19,4 +19,6 @@ polarisAppsSubnet                  = "10.7.196.224/27"
 polarisCiSubnet                    = "10.7.196.48/28"
 polarisDnsResolveSubnet            = "10.7.197.16/28"
 gatewaySubnet                      = "10.7.197.64/27"
-polarisAuthHandoverSubnet          = "10.7.197.32/28" 
+polarisAuthHandoverSubnet          = "10.7.197.32/28"
+
+terraform_service_principal_display_name = "Azure Pipeline: Innovation-Development"

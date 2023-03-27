@@ -25,3 +25,7 @@ variable "vnet_address_space" {
 variable "vpn_client_sp_id" {
   type = string
 }
+
+variable "terraform_service_principal_display_name" {
+  type = string
+}

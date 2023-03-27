@@ -63,3 +63,7 @@ variable "gatewaySubnet" {
 
 variable "polarisAuthHandoverSubnet" {
 }
+
+variable "terraform_service_principal_display_name" {
+  type = string
+}
