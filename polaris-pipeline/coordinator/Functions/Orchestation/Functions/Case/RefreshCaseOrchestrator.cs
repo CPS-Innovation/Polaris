@@ -125,7 +125,7 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             }
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"{caseDocumentTasks.Count} of {deltas.CreatedOrUpdated.Count} documents processed successfully for case {payload.CmsCaseId}");
-            await tracker.RegisterCompleted(changed);
+            await tracker.RegisterCompleted();
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning changed documents");
             return deltas.CreatedOrUpdated;

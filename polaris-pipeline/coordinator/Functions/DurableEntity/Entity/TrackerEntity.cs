@@ -37,6 +37,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         public Task Reset(string transactionid)
         {
             TransactionId = transactionid;
+            ProcessingCompleted = null;
             Status = TrackerStatus.Running;
             Documents = Documents ?? new List<TrackerDocument>();
             Logs = Logs ?? new List<Log>();
@@ -227,13 +228,11 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.CompletedTask;
         }
 
-        public Task RegisterCompleted(bool changed)
+        public Task RegisterCompleted()
         {
             Status = TrackerStatus.Completed;
             Log(LogType.Completed);
-
-            if(changed)
-                ProcessingCompleted = DateTime.Now;
+            ProcessingCompleted = DateTime.Now;
 
             return Task.CompletedTask;
         }
