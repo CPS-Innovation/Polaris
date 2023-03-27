@@ -16,7 +16,7 @@ namespace coordinator.Domain.Tracker
         Task RegisterUnexpectedPdfDocumentFailure(string documentId);
         Task RegisterIndexed(string documentId);
         Task RegisterOcrAndIndexFailure(string documentId);
-        Task RegisterCompleted(bool changed);
+        Task RegisterCompleted();
         Task RegisterFailed();
         Task RegisterDeleted();
         Task<List<TrackerDocument>> GetDocuments();

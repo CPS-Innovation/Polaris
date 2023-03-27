@@ -187,9 +187,10 @@ namespace coordinator.tests.Domain.Tracker
         public async Task RegisterCompleted_RegistersCompleted()
         {
             await _tracker.Reset(_transactionId);
-            await _tracker.RegisterCompleted(true);
+            await _tracker.RegisterCompleted();
 
             _tracker.Status.Should().Be(TrackerStatus.Completed);
+            _tracker.ProcessingCompleted.Should().NotBeNull();
 
             _tracker.Logs.Count.Should().Be(2);
         }
