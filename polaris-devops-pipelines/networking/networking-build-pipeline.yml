@@ -7,6 +7,10 @@ trigger:
   branches:
     include:
       - main
+  paths:
+    include:
+      - polaris-terraform/networking-terraform/*
+      - polaris-terraform/networking-events-terraform/*
        
 pr: none
   

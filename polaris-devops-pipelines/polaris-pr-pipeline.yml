@@ -6,6 +6,15 @@ pr:
   branches:
     include:
       - main
+  paths:
+    include:
+      - polaris-terraform/pipeline-terraform/*
+      - polaris-terraform/pipeline-events-terraform/*
+      - polaris-terraform/ui-terraform/*
+      - polaris-terraform/ui-events-terraform/*
+      - polaris-gateway/*
+      - polaris-pipeline/*
+      - polaris-ui/*
 
 variables:
   - group: kv-dev-terraform
