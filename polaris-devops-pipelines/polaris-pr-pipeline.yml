@@ -57,8 +57,6 @@ stages:
                   {
                     echo "run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_ANY_TERRAFORM;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -69,8 +67,6 @@ stages:
                   {
                     echo "run ui terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_ANY_TERRAFORM;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
@@ -82,10 +78,35 @@ stages:
                     echo "run pipeline codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
                   }
+                  if ($name -like 'polaris-pipeline/coordinator/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/pdf-generator/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/text-extractor/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                  }
                   if ($name -like 'polaris-gateway/*')
                   {
                     echo "run gateway codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-gateway/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-auth-handover/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
                   }
                   if ($name -like 'polaris-ui/*')
                   {
@@ -487,7 +508,10 @@ stages:
   - stage: Validate_Gateway_Codebase
     displayName: Validate Gateway Codebase
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true')))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'))
+    variables:
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
+      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
     jobs:
       - job:
         displayName: Build, Test, Report - Gateway
@@ -500,6 +524,7 @@ stages:
               projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
               arguments: "--configuration Release"
             displayName: "Build Auth Handover"
+            condition: eq(variables.runAuthHandover, 'true')
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -507,6 +532,7 @@ stages:
               projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Gateway"
+            condition: eq(variables.runGateway, 'true')
             
           - task: DotNetCoreCLI@2
             inputs:
@@ -514,15 +540,21 @@ stages:
               projects: "polaris-gateway/polaris-gateway.tests/polaris-gateway.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Gateway tests"
+            condition: eq(variables.runGateway, 'true')
 
           - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/coverage.cobertura.xml
             artifact: GatewayTestResults
             displayName: Publish Gateway Test Results
+            condition: eq(variables.runGateway, 'true')
             
   - stage: Validate_Pipeline_Codebase
     displayName: Validate Pipeline Codebase
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true')))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'))
+    variables:
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR']]
     jobs:
       - job:
         displayName: Build, Test, Report - Pipeline
@@ -535,12 +567,14 @@ stages:
               projects: "polaris-pipeline/coordinator/coordinator.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Coordinator"
+            condition: eq(variables.runCoordinator, 'true')
 
           - task: DownloadSecureFile@1
             name: licence
             inputs:
               secureFile: 'Aspose.Total.NET.lic'
             displayName: 'Download Aspose Licence'
+            condition: eq(variables.runPdfGenerator, 'true')
 
           - task: CopyFiles@2
             inputs:
@@ -548,6 +582,7 @@ stages:
               contents: Aspose.Total.NET.lic
               targetFolder: 'polaris-pipeline/pdf-generator'
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+            condition: eq(variables.runPdfGenerator, 'true')
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -555,6 +590,7 @@ stages:
               projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build PDF Generator"
+            condition: eq(variables.runPdfGenerator, 'true')
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -562,6 +598,7 @@ stages:
               projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Text Extractor"
+            condition: eq(variables.runTextExtractor, 'true')
             
           - task: DotNetCoreCLI@2
             inputs:
@@ -576,10 +613,12 @@ stages:
               projects: "polaris-pipeline/coordinator.tests/coordinator.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Coordinator tests"
+            condition: eq(variables.runCoordinator, 'true')
 
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
             artifact: CoordinatorTestResults
             displayName: Publish Coordinator Test Results
+            condition: eq(variables.runCoordinator, 'true')
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -587,10 +626,12 @@ stages:
               projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Pdf-Generator tests"
+            condition: eq(variables.runPdfGenerator, 'true')
             
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
             artifact: PdfGeneratorTestResults
             displayName: Publish Pdf-Generator Test Results
+            condition: eq(variables.runPdfGenerator, 'true')
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -598,15 +639,17 @@ stages:
               projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Text-Extractor tests"
+            condition: eq(variables.runTextExtractor, 'true')
             
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
             artifact: TextExtractorTestResults
             displayName: Publish Text-Extractor Test Results
+            condition: eq(variables.runTextExtractor, 'true')
                       
   - stage: Validate_UI_Codebase
     displayName: Validate UI Codebase
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_ANY_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true')))
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true'))
     jobs:
       - job:
         displayName: Build, Test, Report - UI
