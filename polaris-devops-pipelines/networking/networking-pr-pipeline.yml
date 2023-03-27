@@ -1,0 +1,247 @@
+# Pull Request Azure DevOps pipeline for the Networking and Networking-Events Terraform files
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: networking-terraform
+  - name: networkingTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
+  - name: networkingEventsTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-events-terraform"
+  
+stages:
+  - stage: Determine_Changes
+    displayName: Determine Changes
+    jobs:
+      - job: Generate_Diff
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = $(git diff --name-only origin/main)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/networking-terraform/*')
+                  {
+                    echo "run networking terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/networking-events-terraform/*')
+                  {
+                    echo "run networking events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                }
+            name: Change_Results
+            displayName: Processing changes to repo  
+
+  - stage: Validate_Networking_Terraform
+    displayName: Validate Net Terraform
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
+    jobs:
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Install Checkov
+          - bash: pip3 install checkov
+            displayName: Checkov > Install
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(pipelineTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Format check
+          - bash: terraform fmt -check
+            workingDirectory: $(networkingTerraformWorkingDir)
+            displayName: Terraform > Check Formatting
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(networkingTerraformWorkingDir)
+          
+          # Verify main files with Checkov
+          - bash: checkov --directory $(networkingTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(networkingTerraformWorkingDir)/Networking-Checkov-Report.xml
+            displayName: Checkov > Verify Networking Terraform
+          
+          # Publish test results for root module
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish Networking Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*-Checkov-Report.xml'
+              searchFolder: $(networkingTerraformWorkingDir)
+              mergeTestResults: true
+              testRunTitle: Checkov Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+
+      - job: CheckPlan
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(networkingTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write Networking Plan'
+            workingDirectory: $(networkingTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+
+  - stage: Validate_Networking_Events_Terraform
+    displayName: Validate Net Events Terraform
+    dependsOn: Determine_Changes
+    condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_EVENTS_TERRAFORM'], 'true'))
+    jobs:
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Install Checkov
+          - bash: pip3 install checkov
+            displayName: Checkov > Install
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(networkingEventsTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-events-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Format check
+          - bash: terraform fmt -check
+            workingDirectory: $(networkingEventsTerraformWorkingDir)
+            displayName: Terraform > Check Formatting
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(networkingEventsTerraformWorkingDir)
+          
+          # Verify main files with Checkov
+          - bash: checkov --directory $(networkingEventsTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(networkingEventsTerraformWorkingDir)/Networking-Events-Checkov-Report.xml
+            displayName: Checkov > Verify Networking Events Terraform
+          
+          # Publish test results for root module
+          - task: PublishTestResults@2
+            displayName: Checkov > Publish Networking Events Test Results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/*-Checkov-Report.xml'
+              searchFolder: $(networkingEventsTerraformWorkingDir)
+              mergeTestResults: true
+              testRunTitle: Checkov Scan
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+
+      - job: CheckPlan
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(networkingEventsTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(networking-events-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write Pipeline Events Plan'
+            workingDirectory: $(networkingEventsTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)

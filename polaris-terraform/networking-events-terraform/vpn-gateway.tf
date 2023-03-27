@@ -1,17 +1,14 @@
 resource "azurerm_public_ip" "polaris_vpn_gateway_pip" {
   allocation_method   = "Static"
-  resource_group_name = azurerm_resource_group.rg_networking.name
-  location            = azurerm_resource_group.rg_networking.location
+  resource_group_name = data.azurerm_resource_group.networking_rg.name
+  location            = data.azurerm_resource_group.networking_rg.location
   name                = "polaris-vpn-gateway-pip"
   sku                 = "Standard"
-  depends_on = [
-    azurerm_resource_group.rg_networking
-  ]
 }
 
 resource "azurerm_virtual_network_gateway" "polaris_vpn_gateway" {
-  resource_group_name = azurerm_resource_group.rg_networking.name
-  location            = azurerm_resource_group.rg_networking.location
+  resource_group_name = data.azurerm_resource_group.networking_rg.name
+  location            = data.azurerm_resource_group.networking_rg.location
   name                = "polaris-vpn-gateway"
   sku                 = "VpnGw1"
   type                = "Vpn"
