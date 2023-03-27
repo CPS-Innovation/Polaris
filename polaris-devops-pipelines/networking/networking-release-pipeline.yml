@@ -6,7 +6,7 @@ pr: none
 resources:
   networkings:
     - networking: NetworkingBuild
-      source: Networking - Build
+      source: Polaris Networking - Build
       trigger:
         branches:
           include:
