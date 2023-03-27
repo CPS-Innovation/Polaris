@@ -53,7 +53,7 @@ stages:
             displayName: Processing changes to repo  
 
   - stage: Validate_Networking_Terraform
-    displayName: Validate Networking Terraform
+    displayName: Validate Net Terraform
     dependsOn: Determine_Changes
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'))
     jobs:
@@ -150,7 +150,7 @@ stages:
               ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
 
   - stage: Validate_Networking_Events_Terraform
-    displayName: Validate Networking Events Terraform
+    displayName: Validate Net Events Terraform
     dependsOn: Determine_Changes
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_EVENTS_TERRAFORM'], 'true'))
     jobs:
