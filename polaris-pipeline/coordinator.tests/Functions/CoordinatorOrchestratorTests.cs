@@ -163,7 +163,7 @@ namespace coordinator.tests.Functions
         {
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            _mockTracker.Verify(tracker => tracker.RegisterCompleted(true));
+            _mockTracker.Verify(tracker => tracker.RegisterCompleted());
         }
 
         [Fact]

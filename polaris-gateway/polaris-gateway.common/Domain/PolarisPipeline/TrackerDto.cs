@@ -16,6 +16,9 @@ namespace PolarisGateway.Domain.PolarisPipeline
         [JsonProperty("status")]
         public TrackerStatus Status { get; set; }
 
+        [JsonProperty("processingCompleted")]
+        public DateTime? ProcessingCompleted { get; set; }
+
         [JsonProperty("documents")]
         public List<TrackerDocument> Documents { get; set; }
 
