@@ -1,10 +1,10 @@
 ﻿using Cmmon.Domain.Validators;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using FluentValidation;
 
 namespace Common.Domain.Validators
 {
-    public class RedactPdfRequestValidator : AbstractValidator<RedactPdfRequest>
+    public class RedactPdfRequestValidator : AbstractValidator<RedactPdfRequestDto>
     {
         public RedactPdfRequestValidator()
         {

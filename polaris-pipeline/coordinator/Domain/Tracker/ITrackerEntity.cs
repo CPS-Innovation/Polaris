@@ -1,5 +1,4 @@
-﻿using Common.Domain.Case.Polaris;
-using Common.Domain.Case.Tracker;
+﻿using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
 using System.Collections.Generic;
 using System.Threading.Tasks;

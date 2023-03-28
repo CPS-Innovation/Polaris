@@ -10,12 +10,12 @@ using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
-using Common.Domain.Requests;
 using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
 using Common.Mappers.Contracts;
 using Gateway.Common.Extensions;
 using PolarisGateway.Wrappers;
+using Common.Dto.Request;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -60,7 +60,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
 
-                var redactions = await req.GetJsonBody<DocumentRedactionSaveRequest, DocumentRedactionSaveRequestValidator>();
+                var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
                 if (!redactions.IsValid)
                 {
                     LogInformation("Invalid redaction request", currentCorrelationId, loggingName);

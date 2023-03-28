@@ -1,9 +1,9 @@
-﻿using Common.Domain.Redaction;
+﻿using Common.Dto.Request.Redaction;
 using FluentValidation;
 
 namespace PolarisGateway.Domain.Validators
 {
-    public class RedactionCoordinatesValidator : AbstractValidator<RedactionCoordinates>
+    public class RedactionCoordinatesValidator : AbstractValidator<RedactionCoordinatesDto>
     {
         public RedactionCoordinatesValidator()
         {

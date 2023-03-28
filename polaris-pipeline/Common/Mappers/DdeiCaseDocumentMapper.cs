@@ -1,5 +1,5 @@
-using Common.Domain.Case.Document;
-using Common.Domain.Responses;
+using Common.Dto.Document;
+using Common.Dto.Response;
 using Common.Mappers.Contracts;
 
 namespace Common.Mappers;

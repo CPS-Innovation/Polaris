@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Aspose.Cells;
 using AutoFixture;
-using Common.Domain.Redaction;
-using Common.Domain.Requests;
+using Common.Dto.Request;
+using Common.Dto.Request.Redaction;
 using Common.Services.BlobStorageService.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -24,7 +24,7 @@ public class DocumentRedactionServiceTests
 
     private readonly IDocumentRedactionService _documentRedactionService;
 
-    private readonly RedactPdfRequest _redactPdfRequest;
+    private readonly RedactPdfRequestDto _redactPdfRequest;
     private readonly Guid _correlationId;
 
     public DocumentRedactionServiceTests()
@@ -43,8 +43,8 @@ public class DocumentRedactionServiceTests
         _documentRedactionService = new pdf_generator.Services.DocumentRedactionService.DocumentRedactionService(_mockBlobStorageService.Object,
             coordinateCalculator, mockLogger.Object);
 
-        _redactPdfRequest = fixture.Create<RedactPdfRequest>();
-        _redactPdfRequest.RedactionDefinitions = fixture.CreateMany<RedactionDefinition>(1).ToList();
+        _redactPdfRequest = fixture.Create<RedactPdfRequestDto>();
+        _redactPdfRequest.RedactionDefinitions = fixture.CreateMany<RedactionDefinitionDto>(1).ToList();
         _redactPdfRequest.RedactionDefinitions[0].PageIndex = 1;
 
         _correlationId = Guid.NewGuid();

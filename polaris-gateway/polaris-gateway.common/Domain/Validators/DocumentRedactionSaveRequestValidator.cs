@@ -1,9 +1,9 @@
-﻿using Common.Domain.Requests;
+﻿using Common.Dto.Request;
 using FluentValidation;
 
 namespace PolarisGateway.Domain.Validators
 {
-    public class DocumentRedactionSaveRequestValidator : AbstractValidator<DocumentRedactionSaveRequest>
+    public class DocumentRedactionSaveRequestValidator : AbstractValidator<DocumentRedactionSaveRequestDto>
     {
         public DocumentRedactionSaveRequestValidator()
         {

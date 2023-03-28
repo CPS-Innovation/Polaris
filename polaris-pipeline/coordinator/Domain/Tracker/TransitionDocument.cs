@@ -1,5 +1,5 @@
-using Common.Domain.Case.Document;
-using Common.Domain.Case.Presentation;
+using Common.Dto.Document;
+using Common.Dto.FeatureFlags;
 using System;
 
 namespace coordinator.Domain.Tracker;
@@ -46,5 +46,5 @@ public class TransitionDocument
 
     public string CreatedDate { get; set; }
 
-    public PresentationFlags PresentationFlags { get; set; }
+    public PresentationFlagsDto PresentationFlags { get; set; }
 }

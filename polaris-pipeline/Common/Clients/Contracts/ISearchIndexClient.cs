@@ -1,5 +1,5 @@
-﻿using Common.Domain.Case.Tracker;
-using Common.Domain.SearchIndex;
+﻿using Common.Domain.SearchIndex;
+using Common.Dto.Tracker;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

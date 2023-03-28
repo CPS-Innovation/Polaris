@@ -1,9 +1,7 @@
 using System;
 using System.IO;
-using Common.Domain.Case;
-using Common.Domain.Case.Polaris;
-using Common.Domain.Case.Presentation;
-using Common.Domain.Case.Tracker;
+using Common.Dto.FeatureFlags;
+using Common.Dto.Tracker;
 using coordinator.Domain.Tracker;
 using coordinator.Services.DocumentToggle;
 using FluentAssertions;

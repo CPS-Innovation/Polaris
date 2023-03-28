@@ -1,10 +1,10 @@
-using BusinessDomain = PolarisGateway.Domain.CaseData;
+using Common.Dto.Case;
 using Ddei.Domain;
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
     public interface ICaseDetailsMapper
     {
-        BusinessDomain.CaseDetailsFull MapCaseDetails(DdeiCaseDetailsDto caseDetails);
+        CaseDto MapCaseDetails(DdeiCaseDetailsDto caseDetails);
     }
 }

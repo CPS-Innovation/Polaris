@@ -1,12 +1,11 @@
 ﻿using System.Net;
-using System.Net.Http;
 using System.Text;
 using Common.Configuration;
 using Common.Constants;
-using Common.Domain.Case.Tracker;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
 using Common.Domain.SearchIndex;
+using Common.Dto.Request;
+using Common.Dto.Response;
+using Common.Dto.Tracker;
 using Common.Factories.Contracts;
 using Common.Logging;
 using Common.Wrappers.Contracts;
@@ -14,7 +13,6 @@ using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.PolarisPipeline;
 
 namespace Gateway.Clients.PolarisPipeline
 {
@@ -188,7 +186,7 @@ namespace Gateway.Clients.PolarisPipeline
             return new OkResult();
         }
 
-        public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequest redactPdfRequest, string cmsAuthValues, Guid correlationId)
+        public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Saving Redactions for Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 

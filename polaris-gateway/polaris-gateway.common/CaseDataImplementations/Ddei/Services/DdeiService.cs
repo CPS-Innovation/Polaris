@@ -1,4 +1,3 @@
-using PolarisGateway.Domain.CaseData;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using Ddei.Services;
 using Ddei.Clients;
@@ -8,6 +7,7 @@ using Ddei.Exceptions;
 using Domain.Exceptions;
 using Ddei.Services.Contract;
 using Ddei.Domain.CaseData.Args;
+using Common.Dto.Case;
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Services
 {
@@ -42,7 +42,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<IEnumerable<CaseDetails>> ListCases(DdeiCmsUrnArgDto arg)
+        public async Task<IEnumerable<CaseDto>> ListCases(DdeiCmsUrnArgDto arg)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<CaseDetailsFull> GetCase(DdeiCmsCaseArgDto arg)
+        public async Task<CaseDto> GetCase(DdeiCmsCaseArgDto arg)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<IEnumerable<DocumentDetails>> ListDocuments(DdeiCmsCaseArgDto arg)
+        public async Task<IEnumerable<DocumentDetailsDto>> ListDocuments(DdeiCmsCaseArgDto arg)
         {
             try
             {

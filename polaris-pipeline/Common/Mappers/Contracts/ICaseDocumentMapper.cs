@@ -1,4 +1,4 @@
-using Common.Domain.Case.Document;
+using Common.Dto.Document;
 
 namespace Common.Mappers.Contracts;
 

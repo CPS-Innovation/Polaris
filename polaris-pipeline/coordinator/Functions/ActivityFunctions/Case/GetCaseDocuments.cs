@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Domain.Case.Document;
 using Common.Domain.Extensions;
+using Common.Dto.Document;
 using Common.Logging;
 using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;

@@ -13,18 +13,18 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Factories.Contracts;
 using Common.Clients.Contracts;
-using Common.Domain.Requests;
 using Common.Wrappers.Contracts;
 using Common.Constants;
-using Common.Domain.Responses;
 using Common.Clients;
 using Common.Factories.Contracts;
+using Common.Dto.Request;
+using Common.Dto.Response;
 
 namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
     public class RedactionClientTests
     {
-        private readonly RedactPdfRequest _request;
+        private readonly RedactPdfRequestDto _request;
         private readonly Mock<IPipelineClientRequestFactory> _mockRequestFactory;
         private readonly string _polarisPipelineRedactPdfFunctionAppKey;
         private readonly Fixture _fixture;
@@ -36,7 +36,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         {
             _fixture = new Fixture();
 
-            _request = _fixture.Create<RedactPdfRequest>();
+            _request = _fixture.Create<RedactPdfRequestDto>();
             _mockRequestFactory = new Mock<IPipelineClientRequestFactory>();
             _correlationId = _fixture.Create<Guid>();
 
@@ -61,7 +61,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
 
             var stringContent = redactPdfResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfResponse>(stringContent, It.IsAny<Guid>())).Returns(redactPdfResponse);
-            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequest>(), It.IsAny<Guid>())).Returns(JsonConvert.SerializeObject(_request));
+            mockJsonConvertWrapper.Setup(x => x.SerializeObject(It.IsAny<RedactPdfRequestDto>(), It.IsAny<Guid>())).Returns(JsonConvert.SerializeObject(_request));
 
             var mockRedactionClientLogger = new Mock<ILogger<RedactionClient>>();
             

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
-using Common.Domain.Requests;
 using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -19,6 +18,7 @@ using Common.Domain.Exceptions;
 using FluentValidation;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Services;
+using Common.Dto.Request;
 
 namespace coordinator.Functions.DurableEntity.Client.Document
 {
@@ -27,13 +27,13 @@ namespace coordinator.Functions.DurableEntity.Client.Document
         const string loggingName = $"{nameof(SaveRedactionsClient)} - {nameof(HttpStart)}";
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IValidator<RedactPdfRequest> _requestValidator;
+        private readonly IValidator<RedactPdfRequestDto> _requestValidator;
         private readonly IRedactionClient _redactionClient;
         private readonly IPolarisStorageClient _blobStorageClient;
         private readonly IDocumentService _documentService;
 
         public SaveRedactionsClient(IJsonConvertWrapper jsonConvertWrapper,
-                              IValidator<RedactPdfRequest> requestValidator,
+                              IValidator<RedactPdfRequestDto> requestValidator,
                               IRedactionClient redactionClient,
                               IPolarisStorageClient blobStorageClient,
                               IDocumentService documentService)
@@ -71,7 +71,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 {
                     throw new BadRequestException("Request body cannot be null.", nameof(req));
                 }
-                var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequest>(content);
+                var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
                 redactPdfRequest.FileName = Path.ChangeExtension($"{caseId}/pdfs/{document.CmsOriginalFileName}", ".pdf");
                 var validationResult = await _requestValidator.ValidateAsync(redactPdfRequest);

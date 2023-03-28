@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.Case.Tracker;
+using Common.Dto.Tracker;
 using Common.Validators.Contracts;
 using FluentAssertions;
 using Gateway.Clients.PolarisPipeline.Contracts;

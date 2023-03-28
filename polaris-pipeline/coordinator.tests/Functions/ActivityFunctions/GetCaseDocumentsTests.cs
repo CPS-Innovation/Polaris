@@ -12,9 +12,9 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.Domain.Case.Presentation;
 using coordinator.Functions.ActivityFunctions.Case;
-using Common.Domain.Case.Document;
+using Common.Dto.Document;
+using Common.Dto.FeatureFlags;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
@@ -24,7 +24,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
         private readonly TransitionDocument[] _transitionDocuments;
 
-        private readonly PresentationFlags[] _presentationFlags;
+        private readonly PresentationFlagsDto[] _presentationFlags;
 
         private readonly GetCaseDocumentsActivityPayload _payload;
 
@@ -47,8 +47,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             };
 
             _presentationFlags = new[] {
-              fixture.Create<PresentationFlags>(),
-              fixture.Create<PresentationFlags>()
+              fixture.Create<PresentationFlagsDto>(),
+              fixture.Create<PresentationFlagsDto>()
             };
 
             var mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();

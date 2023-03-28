@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Common.Domain.Case.Document;
+using Common.Dto.Document;
 
 namespace Common.Services.DocumentExtractionService.Contracts;
 

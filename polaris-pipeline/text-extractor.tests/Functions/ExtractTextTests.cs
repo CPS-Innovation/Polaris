@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Common.Domain.Exceptions;
-using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
 using Common.Services.SearchIndexService.Contracts;
 using FluentAssertions;
@@ -19,6 +18,7 @@ using text_extractor.Functions;
 using Common.Services.OcrService;
 using Xunit;
 using Common.Wrappers.Contracts;
+using Common.Dto.Request;
 
 namespace text_extractor.tests.Functions
 {
@@ -27,14 +27,14 @@ namespace text_extractor.tests.Functions
 		private readonly Fixture _fixture;
         private readonly string _serializedExtractTextRequest;
 		private readonly HttpRequestMessage _httpRequestMessage;
-		private readonly ExtractTextRequest _extractTextRequest;
+		private readonly ExtractTextRequestDto _extractTextRequest;
 		private HttpResponseMessage _errorHttpResponseMessage;
 		
 		private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
 		private readonly Mock<IExceptionHandler> _mockExceptionHandler;
 		private readonly Mock<AnalyzeResults> _mockAnalyzeResults;
-		private readonly Mock<IValidatorWrapper<ExtractTextRequest>> _mockValidatorWrapper;
+		private readonly Mock<IValidatorWrapper<ExtractTextRequestDto>> _mockValidatorWrapper;
 
 		private readonly Mock<ILogger<ExtractText>> _mockLogger;
 		private readonly Guid _correlationId;
@@ -51,10 +51,10 @@ namespace text_extractor.tests.Functions
 			{
 				Content = new StringContent(_serializedExtractTextRequest)
 			};
-			_extractTextRequest = _fixture.Create<ExtractTextRequest>();
+			_extractTextRequest = _fixture.Create<ExtractTextRequestDto>();
 			
 			_mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
-			_mockValidatorWrapper = new Mock<IValidatorWrapper<ExtractTextRequest>>();
+			_mockValidatorWrapper = new Mock<IValidatorWrapper<ExtractTextRequestDto>>();
 			var mockOcrService = new Mock<IOcrService>();
 			_mockSearchIndexService = new Mock<ISearchIndexService>();
 			_mockExceptionHandler = new Mock<IExceptionHandler>();
@@ -62,7 +62,7 @@ namespace text_extractor.tests.Functions
 
 			_correlationId = _fixture.Create<Guid>();
 
-			_mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequest>(_serializedExtractTextRequest))
+			_mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequestDto>(_serializedExtractTextRequest))
 				.Returns(_extractTextRequest);
 			_mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_extractTextRequest)).Returns(new List<ValidationResult>());
 			mockOcrService.Setup(service => service.GetOcrResultsAsync(_extractTextRequest.BlobName, It.IsAny<Guid>()))
@@ -185,7 +185,7 @@ namespace text_extractor.tests.Functions
 		{
 			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
 			var exception = new Exception();
-			_mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequest>(_serializedExtractTextRequest))
+			_mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequestDto>(_serializedExtractTextRequest))
 				.Throws(exception);
 			_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
 				.Returns(_errorHttpResponseMessage);

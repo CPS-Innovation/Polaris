@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Common.Configuration;
 using Common.Constants;
-using Common.Domain.Responses;
 using Common.Domain.Extensions;
 using Common.Factories;
 using Common.Factories.Contracts;
@@ -29,12 +28,13 @@ using Ddei.Options;
 using Ddei.Factories.Contracts;
 using Ddei.Factories;
 using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
-using Common.Domain.Requests;
 using FluentValidation;
 using Common.Domain.Validators;
 using System.IO;
 using coordinator.Services.DocumentToggle;
 using coordinator.Mappers;
+using Common.Dto.Request;
+using Common.Dto.Response;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -77,7 +77,7 @@ namespace coordinator
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
-            builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
+            builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
 
             builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
             builder.Services.AddBlobSasGenerator();

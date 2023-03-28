@@ -16,7 +16,7 @@ using Moq.Protected;
 using Newtonsoft.Json;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Xunit;
-using Common.Domain.Case.Tracker;
+using Common.Dto.Tracker;
 
 namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {

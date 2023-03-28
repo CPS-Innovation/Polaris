@@ -1,5 +1,5 @@
 using System;
-using Common.Domain.Case.Document;
+using Common.Dto.Document;
 using coordinator.Domain.Tracker;
 
 namespace coordinator.Mappers
