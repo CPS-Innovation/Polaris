@@ -34,11 +34,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     vnet_route_all_enabled = true
   }
 
-  logs {
-    detailed_error_messages_enabled = true
-  }
-
-
   auth_settings {
     enabled = true
     issuer  = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
