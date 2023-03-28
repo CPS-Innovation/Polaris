@@ -57,6 +57,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     type         = "AzureBlob"
     mount_path   = "/etc/nginx/templates"
   }
+  logs {
+    detailed_error_messages_enabled = true
+  }
   identity {
     type = "SystemAssigned"
   }
