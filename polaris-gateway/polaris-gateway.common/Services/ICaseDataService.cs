@@ -5,10 +5,10 @@ namespace PolarisGateway.Services
 {
     public interface ICaseDataService
     {
-        Task<IEnumerable<CaseDetails>> ListCases(CmsUrnArg arg);
+        Task<IEnumerable<CaseDetails>> ListCases(DdeiCmsUrnArgDto arg);
 
-        Task<CaseDetailsFull> GetCase(CmsCaseArg arg);
+        Task<CaseDetailsFull> GetCase(DdeiCmsCaseArgDto arg);
 
-        Task<IEnumerable<DocumentDetails>> ListDocuments(CmsCaseArg arg);
+        Task<IEnumerable<DocumentDetails>> ListDocuments(DdeiCmsCaseArgDto arg);
     }
 }

@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Search.Documents;
 using Common.Clients.Contracts;
-using Common.Domain.Case;
+using Common.Domain.Case.Polaris;
+using Common.Domain.Case.Tracker;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
 using Common.Logging;
@@ -26,7 +27,7 @@ namespace Common.Clients
 			_logger = logger;
 		}
 
-		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<TrackerDocument> documents, string searchTerm, Guid correlationId)
+		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<TrackerDocumentDto> documents, string searchTerm, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(Query), $"CaseId '{caseId}', searchTerm '{searchTerm}'");
 
@@ -49,7 +50,7 @@ namespace Common.Clients
             return results;
 		}
 
-        private string GetSearchQuery(int caseId, List<TrackerDocument> documents)
+        private string GetSearchQuery(int caseId, List<TrackerDocumentDto> documents)
         {
             var stringBuilder = new StringBuilder($"caseId eq {caseId}");
 

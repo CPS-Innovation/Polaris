@@ -2,7 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.DocumentExtraction;
 using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
@@ -15,12 +14,13 @@ using Moq;
 using Xunit;
 using Common.Domain.Case.Presentation;
 using coordinator.Functions.ActivityFunctions.Case;
+using Common.Domain.Case.Document;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
     public class GetCaseDocumentsTests
     {
-        private readonly CmsCaseDocument[] _caseDocuments;
+        private readonly DocumentDto[] _caseDocuments;
 
         private readonly TransitionDocument[] _transitionDocuments;
 
@@ -37,8 +37,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             var fixture = new Fixture();
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
             _caseDocuments = new[] {
-              fixture.Create<CmsCaseDocument>(),
-              fixture.Create<CmsCaseDocument>()
+              fixture.Create<DocumentDto>(),
+              fixture.Create<DocumentDto>()
             };
 
             _transitionDocuments = new[] {

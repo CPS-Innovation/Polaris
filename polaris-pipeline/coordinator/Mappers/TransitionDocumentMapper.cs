@@ -1,12 +1,12 @@
 using System;
-using Common.Domain.DocumentExtraction;
+using Common.Domain.Case.Document;
 using coordinator.Domain.Tracker;
 
 namespace coordinator.Mappers
 {
     public class TransitionDocumentMapper : ITransitionDocumentMapper
     {
-        public TransitionDocument MapToTransitionDocument(CmsCaseDocument document)
+        public TransitionDocument MapToTransitionDocument(DocumentDto document)
         {
             return new TransitionDocument(
                         polarisDocumentId: Guid.NewGuid(),

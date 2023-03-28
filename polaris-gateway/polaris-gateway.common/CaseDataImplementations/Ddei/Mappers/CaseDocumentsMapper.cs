@@ -6,7 +6,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
     public class CaseDocumentsMapper : ICaseDocumentsMapper
     {
-        public BusinessDomain.DocumentDetails MapDocumentDetails(DocumentDetails documentDetails)
+        public BusinessDomain.DocumentDetails MapDocumentDetails(DdeiDocumentDetailsDto documentDetails)
         {
             var documentCmsType = DocumentCmsTypes
                 .GetDocumentCmsTypes
@@ -24,7 +24,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private BusinessDomain.CmsDocCategory MapCmsDocCategory(CmsDocCategory cmsDocCategory) =>
+        private BusinessDomain.CmsDocCategory MapCmsDocCategory(DdeiCmsDocCategory cmsDocCategory) =>
              (BusinessDomain.CmsDocCategory)Enum.Parse(typeof(BusinessDomain.CmsDocCategory), cmsDocCategory.ToString());
 
     }

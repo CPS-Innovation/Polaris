@@ -5,9 +5,9 @@ namespace Ddei.Factories
 {
     public class CaseDataArgFactory : ICaseDataArgFactory
     {
-        public CmsUrnArg CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
+        public DdeiCmsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
         {
-            return new CmsUrnArg
+            return new DdeiCmsUrnArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -15,9 +15,9 @@ namespace Ddei.Factories
             };
         }
 
-        public CmsCaseArg CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
+        public DdeiCmsCaseArgDto CreateCaseArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
         {
-            return new CmsCaseArg
+            return new DdeiCmsCaseArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -26,9 +26,9 @@ namespace Ddei.Factories
             };
         }
 
-        public CmsCaseArg CreateCaseArgFromUrnArg(CmsUrnArg arg, int caseId)
+        public DdeiCmsCaseArgDto CreateCaseArgFromUrnArg(DdeiCmsUrnArgDto arg, int caseId)
         {
-            return new CmsCaseArg
+            return new DdeiCmsCaseArgDto
             {
                 CmsAuthValues = arg.CmsAuthValues,
                 CorrelationId = arg.CorrelationId,

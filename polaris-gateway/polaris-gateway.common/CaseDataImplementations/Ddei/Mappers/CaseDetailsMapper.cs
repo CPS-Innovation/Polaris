@@ -1,6 +1,6 @@
+using Ddei.Domain;
+using Ddei.Domain.PreCharge;
 using BusinessDomain = PolarisGateway.Domain.CaseData;
-using DDeiDomain = Ddei.Domain;
-
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
@@ -8,7 +8,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
     {
         private const string NotYetChargedCode = "NYC";
 
-        public BusinessDomain.CaseDetailsFull MapCaseDetails(DDeiDomain.CaseDetails caseDetails)
+        public BusinessDomain.CaseDetailsFull MapCaseDetails(DdeiCaseDetailsDto caseDetails)
         {
             var summary = caseDetails.Summary;
 
@@ -29,12 +29,12 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private IEnumerable<BusinessDomain.Defendant> MapDefendants(DDeiDomain.CaseDetails caseDetails)
+        private IEnumerable<BusinessDomain.Defendant> MapDefendants(DdeiCaseDetailsDto caseDetails)
         {
             return caseDetails.Defendants.Select(defendant => MapDefendant(defendant, caseDetails.PreChargeDecisionRequests));
         }
 
-        private BusinessDomain.Defendant MapDefendant(DDeiDomain.CaseDefendant defendant, IEnumerable<DDeiDomain.PreCharge.PcdRequest> pcdRequests)
+        private BusinessDomain.Defendant MapDefendant(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
         {
             return new BusinessDomain.Defendant
             {
@@ -47,7 +47,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private BusinessDomain.DefendantDetails MapDefendantDetails(DDeiDomain.CaseDefendant defendant)
+        private BusinessDomain.DefendantDetails MapDefendantDetails(DdeiCaseDefendantDto defendant)
         {
             return new BusinessDomain.DefendantDetails
             {
@@ -63,7 +63,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private BusinessDomain.CustodyTimeLimit MapCustodyTimeLimit(DDeiDomain.CustodyTimeLimit custodyTimeLimit)
+        private BusinessDomain.CustodyTimeLimit MapCustodyTimeLimit(DdeiCustodyTimeLimitDto custodyTimeLimit)
         {
             return new BusinessDomain.CustodyTimeLimit
             {
@@ -73,7 +73,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private IEnumerable<BusinessDomain.Charge> MapCharges(DDeiDomain.CaseDefendant defendant)
+        private IEnumerable<BusinessDomain.Charge> MapCharges(DdeiCaseDefendantDto defendant)
         {
             var charges = new List<BusinessDomain.Charge>();
             var nextHearingDate = defendant.NextHearing.Date;
@@ -82,7 +82,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
                 .Select(offence => MapCharge(offence, nextHearingDate));
         }
 
-        private IEnumerable<BusinessDomain.ProposedCharge> MapProposedCharges(DDeiDomain.CaseDefendant defendant, IEnumerable<DDeiDomain.PreCharge.PcdRequest> pcdRequests)
+        private IEnumerable<BusinessDomain.ProposedCharge> MapProposedCharges(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
         {
             return pcdRequests
                       .SelectMany(pcdRequest => pcdRequest.Suspects)
@@ -96,7 +96,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
                       .Select(proposedCharge => MapProposedCharge(proposedCharge));
         }
 
-        private BusinessDomain.Charge MapCharge(DDeiDomain.Offence offence, string nextHearingDate)
+        private BusinessDomain.Charge MapCharge(DdeiOffenceDto offence, string nextHearingDate)
         {
             return new BusinessDomain.Charge
             {
@@ -113,7 +113,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
             };
         }
 
-        private BusinessDomain.ProposedCharge MapProposedCharge(DDeiDomain.PreCharge.PcdProposedCharge proposedCharge)
+        private BusinessDomain.ProposedCharge MapProposedCharge(DdeiPcdProposedChargeDto proposedCharge)
         {
             return new BusinessDomain.ProposedCharge
             {
@@ -140,7 +140,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
                 Date = proposedCharge.Date
             };
         }
-        private BusinessDomain.Defendant FindLeadDefendant(IEnumerable<BusinessDomain.Defendant> defendants, DDeiDomain.CaseSummary caseSummary)
+        private BusinessDomain.Defendant FindLeadDefendant(IEnumerable<BusinessDomain.Defendant> defendants, DdeiCaseSummaryDto caseSummary)
         {
 
             // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%

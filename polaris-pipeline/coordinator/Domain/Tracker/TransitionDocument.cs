@@ -1,5 +1,5 @@
+using Common.Domain.Case.Document;
 using Common.Domain.Case.Presentation;
-using Common.Domain.DocumentExtraction;
 using System;
 
 namespace coordinator.Domain.Tracker;
@@ -8,7 +8,7 @@ public class TransitionDocument
 {
     public TransitionDocument()
     {
-        CmsDocType = new CmsDocType();
+        CmsDocType = new DocumentTypeDto();
     }
     public TransitionDocument(
         Guid polarisDocumentId,
@@ -17,7 +17,7 @@ public class TransitionDocument
         string originalFileName,
         string mimeType,
         string fileExtension,
-        CmsDocType cmsDocType,
+        DocumentTypeDto cmsDocType,
         string createdDate)
     {
         PolarisDocumentId = polarisDocumentId;
@@ -42,7 +42,7 @@ public class TransitionDocument
 
     public string FileExtension { get; set; }
 
-    public CmsDocType CmsDocType { get; set; }
+    public DocumentTypeDto CmsDocType { get; set; }
 
     public string CreatedDate { get; set; }
 

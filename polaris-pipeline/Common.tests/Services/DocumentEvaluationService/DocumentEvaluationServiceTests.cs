@@ -1,7 +1,7 @@
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.BlobStorage;
-using Common.Domain.DocumentExtraction;
+using Common.Domain.Case.Document;
 using Common.Domain.Requests;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation.Contracts;
@@ -29,7 +29,7 @@ public class DocumentEvaluationServiceTests
 
         _correlationId = Guid.NewGuid();
 
-        var incomingDocument = _fixture.Create<CmsCaseDocument>();
+        var incomingDocument = _fixture.Create<DocumentDto>();
 
         _documentEvaluationService = new Common.Services.DocumentEvaluation.DocumentEvaluationService(_mockBlobStorageService.Object, mockLogger.Object);
 

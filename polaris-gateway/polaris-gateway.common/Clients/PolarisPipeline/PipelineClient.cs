@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text;
 using Common.Configuration;
 using Common.Constants;
+using Common.Domain.Case.Tracker;
 using Common.Domain.Requests;
 using Common.Domain.Responses;
 using Common.Domain.SearchIndex;

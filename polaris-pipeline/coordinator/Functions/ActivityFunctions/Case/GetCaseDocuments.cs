@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Domain.DocumentExtraction;
+using Common.Domain.Case.Document;
 using Common.Domain.Extensions;
 using Common.Logging;
 using Common.Services.DocumentExtractionService.Contracts;
@@ -65,7 +65,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
                     .ToArray();
         }
 
-        private TransitionDocument MapToTransitionDocument(CmsCaseDocument document)
+        private TransitionDocument MapToTransitionDocument(DocumentDto document)
         {
             var transitionDocument = _transitionDocumentMapper.MapToTransitionDocument(document);
 

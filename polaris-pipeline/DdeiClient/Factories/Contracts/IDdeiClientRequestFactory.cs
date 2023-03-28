@@ -4,18 +4,18 @@ namespace Ddei.Factories.Contracts
 {
     public interface IDdeiClientRequestFactory
     {
-        HttpRequestMessage CreateCmsModernTokenRequest(CmsCaseDataArg arg);
+        HttpRequestMessage CreateCmsModernTokenRequest(DdeiCmsCaseDataArgDto arg);
 
-        HttpRequestMessage CreateListCasesRequest(CmsUrnArg arg);
+        HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg);
 
-        HttpRequestMessage CreateGetCaseRequest(CmsCaseArg arg);
+        HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg);
 
-        HttpRequestMessage CreateListCaseDocumentsRequest(CmsCaseArg arg);
+        HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCmsCaseArgDto arg);
 
-        HttpRequestMessage CreateCheckoutDocumentRequest(CmsDocumentArg arg);
+        HttpRequestMessage CreateCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg);
 
-        HttpRequestMessage CreateCancelCheckoutDocumentRequest(CmsDocumentArg arg);
+        HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg);
 
-        HttpRequestMessage CreateUploadPdfRequest(CmsDocumentArg arg, Stream stream);
+        HttpRequestMessage CreateUploadPdfRequest(DdeiCmsDocumentArgDto arg, Stream stream);
     }
 }

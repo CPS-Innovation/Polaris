@@ -30,7 +30,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             _caseDocumentsMapper = caseDocumentsMapper;
         }
 
-        public async Task<string> GetCmsModernToken(CmsCaseDataArg arg)
+        public async Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<IEnumerable<CaseDetails>> ListCases(CmsUrnArg arg)
+        public async Task<IEnumerable<CaseDetails>> ListCases(DdeiCmsUrnArgDto arg)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<CaseDetailsFull> GetCase(CmsCaseArg arg)
+        public async Task<CaseDetailsFull> GetCase(DdeiCmsCaseArgDto arg)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task<IEnumerable<DocumentDetails>> ListDocuments(CmsCaseArg arg)
+        public async Task<IEnumerable<DocumentDetails>> ListDocuments(DdeiCmsCaseArgDto arg)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task CheckoutDocument(CmsDocumentArg arg)
+        public async Task CheckoutDocument(DdeiCmsDocumentArgDto arg)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task CancelCheckoutDocument(CmsDocumentArg arg)
+        public async Task CancelCheckoutDocument(DdeiCmsDocumentArgDto arg)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Services
             }
         }
 
-        public async Task UploadPdf(CmsDocumentArg arg, Stream stream)
+        public async Task UploadPdf(DdeiCmsDocumentArgDto arg, Stream stream)
         {
             try
             {

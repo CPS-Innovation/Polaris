@@ -1,10 +1,10 @@
-using Common.Domain.DocumentExtraction;
+using Common.Domain.Case.Document;
 using coordinator.Domain.Tracker;
 
 namespace coordinator.Mappers
 {
     public interface ITransitionDocumentMapper
     {
-        TransitionDocument MapToTransitionDocument(CmsCaseDocument cmsCaseDocument);
+        TransitionDocument MapToTransitionDocument(DocumentDto cmsCaseDocument);
     }
 }

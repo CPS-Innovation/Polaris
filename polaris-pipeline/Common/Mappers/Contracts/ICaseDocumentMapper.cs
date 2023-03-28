@@ -1,8 +1,8 @@
-using Common.Domain.DocumentExtraction;
+using Common.Domain.Case.Document;
 
 namespace Common.Mappers.Contracts;
 
 public interface ICaseDocumentMapper<T>
 {
-    CmsCaseDocument Map(T item);
+    DocumentDto Map(T item);
 }

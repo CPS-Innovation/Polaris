@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.DocumentExtraction;
 using coordinator.Domain.Tracker;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -15,10 +14,12 @@ using Moq;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Wrappers;
-using Common.Domain.Case;
 using Common.Domain.Case.Presentation;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Client.Tracker;
+using Common.Domain.Case.Polaris;
+using Common.Domain.Case.Tracker;
+using Common.Domain.Case.Document;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -29,7 +30,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly List<TransitionDocument> _transitionDocuments;
         private readonly RegisterPdfBlobNameArg _pdfBlobNameArg;
         private readonly SynchroniseDocumentsArg _registerDocumentIdsArg;
-        private readonly List<TrackerDocument> _trackerDocuments;
+        private readonly List<TrackerDocumentDto> _trackerDocuments;
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
@@ -53,7 +54,7 @@ namespace coordinator.tests.Domain.Tracker
                                 .With(a => a.DocumentId, _transitionDocuments.First().DocumentId)
                                 .With(a => a.VersionId, _transitionDocuments.First().VersionId)
                                 .Create();
-            _trackerDocuments = _fixture.Create<List<TrackerDocument>>();
+            _trackerDocuments = _fixture.Create<List<TrackerDocumentDto>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
             _registerDocumentIdsArg = _fixture.Build<SynchroniseDocumentsArg>()
@@ -101,7 +102,7 @@ namespace coordinator.tests.Domain.Tracker
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
             document?.PdfBlobName.Should().Be(_pdfBlobNameArg.BlobName);
-            document?.Status.Should().Be(DocumentStatus.PdfUploadedToBlob);
+            document?.Status.Should().Be(TrackerDocumentStatus.PdfUploadedToBlob);
 
             _tracker.Logs.Count.Should().Be(6);
         }
@@ -114,7 +115,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(_pdfBlobNameArg.DocumentId, _pdfBlobNameArg.VersionId, _pdfBlobNameArg.BlobName));
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
-            document?.Status.Should().Be(DocumentStatus.DocumentAlreadyProcessed);
+            document?.Status.Should().Be(TrackerDocumentStatus.DocumentAlreadyProcessed);
 
             _tracker.Logs.Count.Should().Be(6);
         }
@@ -127,7 +128,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterUnableToConvertDocumentToPdf(_pdfBlobNameArg.DocumentId);
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
-            document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
+            document?.Status.Should().Be(TrackerDocumentStatus.UnableToConvertToPdf);
 
             _tracker.Logs.Count.Should().Be(6);
         }
@@ -139,7 +140,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.SynchroniseDocuments(_registerDocumentIdsArg);
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.New);
+            document?.Status.Should().Be(TrackerDocumentStatus.New);
 
             _tracker.Logs.Count.Should().Be(5);
         }
@@ -152,7 +153,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterUnexpectedPdfDocumentFailure(_pdfBlobNameArg.DocumentId);
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.UnexpectedFailure);
+            document?.Status.Should().Be(TrackerDocumentStatus.UnexpectedFailure);
 
             _tracker.Logs.Count.Should().Be(6);
         }
@@ -165,7 +166,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterIndexed(_transitionDocuments.First().DocumentId);
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.Indexed);
+            document?.Status.Should().Be(TrackerDocumentStatus.Indexed);
 
             _tracker.Logs.Count.Should().Be(6);
         }
@@ -178,7 +179,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.RegisterOcrAndIndexFailure(_transitionDocuments.First().DocumentId);
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _transitionDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.OcrAndIndexFailure);
+            document?.Status.Should().Be(TrackerDocumentStatus.OcrAndIndexFailure);
 
             _tracker.Logs.Count.Should().Be(6);
         }
@@ -218,9 +219,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
-            _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = DocumentStatus.UnexpectedFailure}
+            _tracker.Documents = new List<TrackerDocumentDto> {
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = TrackerDocumentStatus.UnexpectedFailure}
             };
 
             var output = await _tracker.AllDocumentsFailed();
@@ -231,10 +232,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
-            _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = DocumentStatus.UnexpectedFailure},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = DocumentStatus.PdfUploadedToBlob},
+            _tracker.Documents = new List<TrackerDocumentDto> {
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = TrackerDocumentStatus.UnexpectedFailure},
+                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlags>()) { Status = TrackerDocumentStatus.PdfUploadedToBlob},
             };
 
             var output = await _tracker.AllDocumentsFailed();

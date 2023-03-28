@@ -1,8 +1,8 @@
-﻿using Common.Domain.Requests;
+﻿using Common.Domain.Case.Tracker;
+using Common.Domain.Requests;
 using Common.Domain.Responses;
 using Common.Domain.SearchIndex;
 using Microsoft.AspNetCore.Mvc;
-using PolarisGateway.Domain.PolarisPipeline;
 
 namespace Gateway.Clients.PolarisPipeline.Contracts
 {

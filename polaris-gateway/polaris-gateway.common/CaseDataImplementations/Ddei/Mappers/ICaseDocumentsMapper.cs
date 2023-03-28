@@ -5,6 +5,6 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
     public interface ICaseDocumentsMapper
     {
-        BusinessDomain.DocumentDetails MapDocumentDetails(DocumentDetails documentDetails);
+        BusinessDomain.DocumentDetails MapDocumentDetails(DdeiDocumentDetailsDto documentDetails);
     }
 }

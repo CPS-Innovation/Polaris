@@ -14,6 +14,7 @@ using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
+using Common.Domain.Case.Tracker;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
 {

@@ -7,7 +7,7 @@ namespace Common.Domain.Requests;
 
 public class ProcessDocumentsToRemoveRequest
 {
-    public ProcessDocumentsToRemoveRequest(string caseUrn, long caseId, List<DocumentVersion> documentsToRemove)
+    public ProcessDocumentsToRemoveRequest(string caseUrn, long caseId, List<DocumentVersionDto> documentsToRemove)
     {
         CaseUrn = caseUrn;
         CaseId = caseId;
@@ -21,5 +21,5 @@ public class ProcessDocumentsToRemoveRequest
     public long CaseId { get; set; }
     
     [Required]
-    public List<DocumentVersion> DocumentsToRemove { get; set; }
+    public List<DocumentVersionDto> DocumentsToRemove { get; set; }
 }

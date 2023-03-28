@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Constants;
-using Common.Domain.Case;
+using Common.Domain.Case.Polaris;
+using Common.Domain.Case.Tracker;
 using Common.Domain.Extensions;
 using Common.Logging;
 using coordinator.Domain;
@@ -33,7 +34,7 @@ namespace coordinator.Functions.Orchestation.Functions.Case
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
-        public async Task<List<TrackerDocument>> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task<List<TrackerDocumentDto>> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var payload = context.GetInput<CaseOrchestrationPayload>();
             if (payload == null)
@@ -77,7 +78,7 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             }
         }
 
-        private async Task<List<TrackerDocument>> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
+        private async Task<List<TrackerDocumentDto>> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
@@ -153,7 +154,7 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             return documents;
         }
 
-        private static async Task<TrackerDocumentListDeltas> SynchroniseTrackerDocuments(ITrackerEntity tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, TransitionDocument[] documents)
+        private static async Task<TrackerDocumentListDeltasDto> SynchroniseTrackerDocuments(ITrackerEntity tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, TransitionDocument[] documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 
