@@ -564,7 +564,7 @@ stages:
             displayName: "Run Gateway tests"
             condition: eq(variables.runGateway, 'true')
 
-          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/gateway.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/coverage.cobertura.xml
             artifact: GatewayTestResults
             displayName: Publish Gateway Test Results
             condition: eq(variables.runGateway, 'true')
@@ -637,7 +637,7 @@ stages:
             displayName: "Run Coordinator tests"
             condition: eq(variables.runCoordinator, 'true')
 
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coordinator.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
             artifact: CoordinatorTestResults
             displayName: Publish Coordinator Test Results
             condition: eq(variables.runCoordinator, 'true')
@@ -650,7 +650,7 @@ stages:
             displayName: "Run Pdf-Generator tests"
             condition: eq(variables.runPdfGenerator, 'true')
             
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/pdf-generator.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
             artifact: PdfGeneratorTestResults
             displayName: Publish Pdf-Generator Test Results
             condition: eq(variables.runPdfGenerator, 'true')
@@ -663,7 +663,7 @@ stages:
             displayName: "Run Text-Extractor tests"
             condition: eq(variables.runTextExtractor, 'true')
             
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/text-extractor.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
             artifact: TextExtractorTestResults
             displayName: Publish Text-Extractor Test Results
             condition: eq(variables.runTextExtractor, 'true')
