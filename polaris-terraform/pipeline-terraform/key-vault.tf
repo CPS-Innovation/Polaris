@@ -1,4 +1,4 @@
-#################### Key Vault ####################
+#################### Key Vault #####################
 
 resource "azurerm_key_vault" "kv" {
   name                = "kv-${local.resource_name}"
