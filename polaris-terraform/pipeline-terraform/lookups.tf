@@ -4,7 +4,7 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
 }
 
 data "azuread_application" "fa_ddei" {
-  display_name        = "fa-${local.ddei_resource_name}-appreg"
+  display_name = "fa-${local.ddei_resource_name}-appreg"
 }
 
 data "azuread_service_principal" "fa_ddei_service_principal" {
