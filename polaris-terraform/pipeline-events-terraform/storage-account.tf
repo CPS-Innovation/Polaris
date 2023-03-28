@@ -1,3 +1,4 @@
+# ensure events and role assignments are created after the target has had time to be built
 resource "azurerm_eventgrid_system_topic_event_subscription" "pipeline_document_deleted_event_subscription" {
   name                = "pipeline-storage-document-deleted-${var.env != "prod" ? var.env : ""}-event-sub"
   system_topic        = data.azurerm_eventgrid_system_topic.pipeline_document_deleted_topic.name
