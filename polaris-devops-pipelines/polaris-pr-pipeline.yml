@@ -113,6 +113,28 @@ stages:
                     echo "run ui codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
                   }
+                  if ($name -like 'polaris-pipeline/DdeiClient/*')
+                  {
+                    echo "changes to DdeiClient detected run dependent codebases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/Common/*')
+                  {
+                    echo "changes to the Pipeline's Common library detected run dependent codebases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/Common/*')
+                  {
+                    echo "changes to the Gateway's Common library detected run dependent codebases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                  }
                 }
             name: Change_Results
             displayName: Processing changes to repo  
@@ -542,7 +564,7 @@ stages:
             displayName: "Run Gateway tests"
             condition: eq(variables.runGateway, 'true')
 
-          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/coverage.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-gateway.tests/gateway.cobertura.xml
             artifact: GatewayTestResults
             displayName: Publish Gateway Test Results
             condition: eq(variables.runGateway, 'true')
@@ -615,7 +637,7 @@ stages:
             displayName: "Run Coordinator tests"
             condition: eq(variables.runCoordinator, 'true')
 
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coverage.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/coordinator.tests/coordinator.cobertura.xml
             artifact: CoordinatorTestResults
             displayName: Publish Coordinator Test Results
             condition: eq(variables.runCoordinator, 'true')
@@ -628,7 +650,7 @@ stages:
             displayName: "Run Pdf-Generator tests"
             condition: eq(variables.runPdfGenerator, 'true')
             
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/pdf-generator.cobertura.xml
             artifact: PdfGeneratorTestResults
             displayName: Publish Pdf-Generator Test Results
             condition: eq(variables.runPdfGenerator, 'true')
@@ -641,7 +663,7 @@ stages:
             displayName: "Run Text-Extractor tests"
             condition: eq(variables.runTextExtractor, 'true')
             
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/coverage.cobertura.xml
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/text-extractor.tests/text-extractor.cobertura.xml
             artifact: TextExtractorTestResults
             displayName: Publish Text-Extractor Test Results
             condition: eq(variables.runTextExtractor, 'true')
