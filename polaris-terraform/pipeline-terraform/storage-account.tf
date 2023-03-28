@@ -3,15 +3,41 @@ resource "azurerm_storage_account" "sa" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
-  account_kind              = "StorageV2"
-  account_replication_type  = "LRS"
-  account_tier              = "Standard"
-  enable_https_traffic_only = true
+  account_kind                    = "StorageV2"
+  account_replication_type        = "LRS"
+  account_tier                    = "Standard"
+  enable_https_traffic_only       = true
+  public_network_access_enabled   = false
+  allow_nested_items_to_be_public = false
 
   min_tls_version = "TLS1_2"
 
   network_rules {
-    default_action = "Allow"
+    default_action = "Deny"
+  }
+
+  queue_properties {
+    logging {
+      delete                = true
+      read                  = true
+      write                 = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+
+    hour_metrics {
+      enabled               = true
+      include_apis          = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+
+    minute_metrics {
+      enabled               = true
+      include_apis          = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
   }
 
   tags = local.common_tags
