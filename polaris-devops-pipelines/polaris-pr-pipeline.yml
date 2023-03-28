@@ -406,7 +406,7 @@ stages:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: 
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                   
   - stage: Validate_UI_Events_Terraform
     displayName: Validate UI Events Terraform
