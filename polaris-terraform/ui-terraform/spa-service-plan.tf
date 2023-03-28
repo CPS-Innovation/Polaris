@@ -1,4 +1,4 @@
-#################### App Service Plan ####################
+#################### App Service Plan ###################
 
 resource "azurerm_service_plan" "asp_polaris_spa" {
   name                = "asp-spa-${local.resource_name}"
