@@ -22,48 +22,8 @@ variables:
   - group: networking-terraform
 
 stages:
-  - stage: Determine_Changes
-    displayName: Determine Changes
-    jobs:
-      - job: Generate_Diff
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              script: |
-                $files = $(git diff --name-only --relative --diff-filter AMR HEAD^ HEAD)
-                $temp=$files -split ' '
-                $count=$temp.Length
-                echo "Total changed $count files"
-                
-                For ($i=0; $i -lt $temp.Length; $i++)
-                {
-                  $name=$temp[$i]
-                  echo "this is $name file"
-                  if ($name -like 'polaris-terraform/networking-terraform/*')
-                  {
-                    echo "run networking terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                  if ($name -like 'polaris-terraform/networking-events-terraform/*')
-                  {
-                    echo "run networking events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                }
-            name: Change_Results
-            displayName: Processing changes to repo
-
   - stage: Apply_DEV
     displayName: DEV Deployment
-    condition: succeeded()
-    dependsOn: Determine_Changes
-    variables:
-      runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
-      runNetworkingEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_EVENTS_TERRAFORM']]
     pool:
       name: $(dev-build-agent)
     jobs:
@@ -76,13 +36,11 @@ stages:
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
-                  condition: or(eq(variables.runNetworkingTerraform, 'true'),eq(variables.runNetworkingEventsTerraform, 'true'))
                   inputs:
                     terraformVersion: $(terraform-version)
                 
                 #download networking terraform build artifact
                 - download: NetworkingBuild
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
                 
@@ -94,7 +52,6 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
@@ -106,7 +63,6 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: 'Terraform > Write Networking Plan'
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -118,67 +74,15 @@ stages:
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply to DEV
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-                
-                #download networking events terraform build artifact
-                - download: NetworkingBuild
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  displayName: Terraform > Download Networking Events terraform build
-                  artifact: "networking-events-terraform-files"
-                
-                # Terraform Init
-                - bash: |
-                    terraform init \
-                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                      -backend-config="key=$TF_STATE_KEY" \
-                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-                  displayName: Terraform > Init
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
-                  env:
-                    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-                    TF_STATE_CONTAINER_NAME: $(networking-events-terraform-container-name)
-                    TF_STATE_KEY: $(terraform-key)
-                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-                
-                # Terraform Plan
-                - bash: |
-                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-                  displayName: 'Terraform > Write Networking Events Plan'
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-                
-                # Terraform Apply
-                - bash: |
-                    terraform apply -auto-approve dev.tfplan
-                  displayName: Terraform > Apply to DEV
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-
+                    
   - stage: Apply_QA
     displayName: QA Deployment
-    dependsOn: Determine_Changes
-    condition: succeeded()
-    variables:
-      runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
-      runNetworkingEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_EVENTS_TERRAFORM']]
     pool:
       name: $(qa-build-agent)
     jobs:
@@ -191,13 +95,11 @@ stages:
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
-                  condition: or(eq(variables.runNetworkingTerraform, 'true'),eq(variables.runNetworkingEventsTerraform, 'true'))
                   inputs:
                     terraformVersion: $(terraform-version)
                 
                 #download networking terraform build artifact
                 - download: NetworkingBuild
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
                 
@@ -209,7 +111,6 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
@@ -221,7 +122,6 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
                   displayName: 'Terraform > Write Networking Plan'
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -233,54 +133,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve qa.tfplan
                   displayName: Terraform > Apply to QA
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
-                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
-                
-                #download networking events terraform build artifact
-                - download: NetworkingBuild
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  displayName: Terraform > Download Networking Events terraform build
-                  artifact: "networking-events-terraform-files"
-                
-                # Terraform Init
-                - bash: |
-                    terraform init \
-                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                      -backend-config="key=$TF_STATE_KEY" \
-                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-                  displayName: Terraform > Init
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
-                  env:
-                    TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
-                    TF_STATE_CONTAINER_NAME: $(networking-events-terraform-container-name)
-                    TF_STATE_KEY: $(terraform-key)
-                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
-                
-                # Terraform Plan
-                - bash: |
-                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
-                  displayName: 'Terraform > Write Networking Events Plan'
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
-                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
-                
-                # Terraform Apply
-                - bash: |
-                    terraform apply -auto-approve qa.tfplan
-                  displayName: Terraform > Apply to QA
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
@@ -289,11 +142,6 @@ stages:
 
   - stage: Apply_PROD
     displayName: PROD Deployment
-    dependsOn: Determine_Changes
-    condition: succeeded()
-    variables:
-      runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
-      runNetworkingEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_EVENTS_TERRAFORM']]
     pool:
       name: $(prod-build-agent)
     jobs:
@@ -306,13 +154,11 @@ stages:
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
-                  condition: or(eq(variables.runNetworkingTerraform, 'true'),eq(variables.runNetworkingEventsTerraform, 'true'))
                   inputs:
                     terraformVersion: $(terraform-version)
                 
                 #download networking terraform build artifact
                 - download: NetworkingBuild
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
                 
@@ -324,7 +170,6 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
@@ -336,7 +181,6 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
                   displayName: 'Terraform > Write Networking Plan'
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -348,54 +192,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve prod.tfplan
                   displayName: Terraform > Apply to PROD
-                  condition: eq(variables.runNetworkingTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
-                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
-                
-                #download networking events terraform build artifact
-                - download: NetworkingBuild
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  displayName: Terraform > Download Networking Events terraform build
-                  artifact: "networking-events-terraform-files"
-                
-                # Terraform Init
-                - bash: |
-                    terraform init \
-                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                      -backend-config="key=$TF_STATE_KEY" \
-                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-                  displayName: Terraform > Init
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
-                  env:
-                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
-                    TF_STATE_CONTAINER_NAME: $(networking-events-terraform-container-name)
-                    TF_STATE_KEY: $(terraform-key)
-                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
-                
-                # Terraform Plan
-                - bash: |
-                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
-                  displayName: 'Terraform > Write Networking Events Plan'
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
-                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
-                
-                # Terraform Apply
-                - bash: |
-                    terraform apply -auto-approve prod.tfplan
-                  displayName: Terraform > Apply to PROD
-                  condition: eq(variables.runNetworkingEventsTerraform, 'true')
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
