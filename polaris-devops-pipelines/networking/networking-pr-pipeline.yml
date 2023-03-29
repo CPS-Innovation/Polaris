@@ -83,7 +83,7 @@ stages:
                 -backend-config="key=$TF_STATE_KEY" \
                 -backend-config="access_key=$TF_STATE_ACCESS_KEY"
             displayName: Terraform > Init
-            workingDirectory: $(pipelineTerraformWorkingDir)
+            workingDirectory: $(networkingTerraformWorkingDir)
             env:
               TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
               TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
@@ -118,6 +118,7 @@ stages:
               publishRunAttachments: true
 
       - job: CheckPlan
+        dependsOn: Validate_Networking_Terraform
         pool:
           name: $(dev-build-agent)
         steps:
@@ -215,6 +216,7 @@ stages:
               publishRunAttachments: true
 
       - job: CheckPlan
+        dependsOn: Validate_Networking_Events_Terraform
         pool:
           name: $(dev-build-agent)
         steps:
