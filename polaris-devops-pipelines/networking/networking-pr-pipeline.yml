@@ -118,7 +118,7 @@ stages:
               publishRunAttachments: true
 
       - job: CheckPlan
-        dependsOn: Validate_Networking_Terraform
+        dependsOn: Validate
         pool:
           name: $(dev-build-agent)
         steps:
@@ -216,7 +216,7 @@ stages:
               publishRunAttachments: true
 
       - job: CheckPlan
-        dependsOn: Validate_Networking_Events_Terraform
+        dependsOn: Validate
         pool:
           name: $(dev-build-agent)
         steps:
