@@ -270,25 +270,6 @@ resource "azurerm_subnet" "sn_polaris_ci_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
-resource "azurerm_subnet" "sn_polaris_ci_subnet" {
-  name                 = "polaris-ci-subnet"
-  resource_group_name  = azurerm_resource_group.rg_networking.name
-  virtual_network_name = azurerm_virtual_network.vnet_networking.name
-  address_prefixes     = [var.polarisCiSubnet]
-  service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Web"]
-
-  delegation {
-    name = "Microsoft.ContainerInstance/containerGroups Delegation"
-
-    service_delegation {
-      name    = "Microsoft.ContainerInstance/containerGroups"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
-
-  depends_on = [azurerm_virtual_network.vnet_networking]
-}
-
 resource "azurerm_subnet_route_table_association" "sn_polaris_ci_subnet_rt_association" {
   route_table_id = data.azurerm_route_table.env_route_table.id
   subnet_id      = azurerm_subnet.sn_polaris_ci_subnet.id

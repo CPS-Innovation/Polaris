@@ -64,7 +64,7 @@ variable "gatewaySubnet" {
 variable "polarisAuthHandoverSubnet" {
 }
 
-variable "mockCmsServiceSubnet"{
+variable "mockCmsServiceSubnet" {
 }
 
 variable "terraform_service_principal_display_name" {
