@@ -21,7 +21,6 @@ variables:
 stages:
   - stage: Publish_Artifacts
     displayName: Publish artifacts
-    dependsOn: Determine_Changes
     jobs:
       - job:
         pool:
