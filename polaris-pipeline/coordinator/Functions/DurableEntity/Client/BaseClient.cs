@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 using Common.Logging;
 using System.Threading.Tasks;
 using System.Linq;
-using Common.Domain.Case;
 using coordinator.Functions.DurableEntity.Entity;
+using Common.Dto.Tracker;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -17,7 +17,7 @@ namespace coordinator.Functions.DurableEntity.Client
         internal bool Success;
         internal IActionResult Error;
         internal Guid CorrelationId;
-        internal TrackerDocument Document;
+        internal TrackerDocumentDto Document;
     }
 
     public class BaseClient

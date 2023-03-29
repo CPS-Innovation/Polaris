@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Common.Mappers;
-using Common.Domain.Requests;
-using Common.Domain.Redaction;
 using Common.Mappers.Contracts;
+using Common.Dto.Request;
+using Common.Dto.Request.Redaction;
 
 namespace PolarisGateway.Tests.Mappers
 {
@@ -29,8 +29,8 @@ namespace PolarisGateway.Tests.Mappers
         [Fact]
         public void GivenADocumentRedactionSaveRequest_ThenAValidPdfRequestObjectIsReturned()
         {
-            var testRequest = _fixture.Create<DocumentRedactionSaveRequest>();
-            testRequest.Redactions = _fixture.CreateMany<RedactionDefinition>(5).ToList();
+            var testRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
+            testRequest.Redactions = _fixture.CreateMany<RedactionDefinitionDto>(5).ToList();
             var testCaseId = _fixture.Create<int>();
             var testDocumentId = _fixture.Create<Guid>();
 

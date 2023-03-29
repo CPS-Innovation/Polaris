@@ -2,7 +2,7 @@
 using System.Net.Http;
 using AutoFixture;
 using Common.Constants;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using Common.Wrappers.Contracts;
 using coordinator.Factories;
 using FluentAssertions;
@@ -41,7 +41,7 @@ namespace coordinator.tests.Factories
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
 			var mockConfiguration = new Mock<IConfiguration>();
 			
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<ExtractTextRequest>(r => r.CmsCaseId == _caseId && r.CmsDocumentId == _documentId && r.BlobName == _blobName)))
+            mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<ExtractTextRequestDto>(r => r.CmsCaseId == _caseId && r.CmsDocumentId == _documentId && r.BlobName == _blobName)))
 				.Returns(_content);
 
 			mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.TextExtractorUrl]).Returns(_textExtractorUrl);

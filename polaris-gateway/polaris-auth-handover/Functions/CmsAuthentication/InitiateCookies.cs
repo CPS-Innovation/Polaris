@@ -104,7 +104,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId, string loggingName)
         {
-            var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new CmsCaseDataArg
+            var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new DdeiCmsCaseDataArgDto
             {
                 CorrelationId = currentCorrelationId,
                 CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}"

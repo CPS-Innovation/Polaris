@@ -1,7 +1,7 @@
 using System;
 using System.IO;
-using Common.Domain.Case;
-using Common.Domain.Case.Presentation;
+using Common.Dto.FeatureFlags;
+using Common.Dto.Tracker;
 using coordinator.Domain.Tracker;
 using coordinator.Services.DocumentToggle;
 using FluentAssertions;
@@ -72,7 +72,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocument();
+            var document = new TrackerDocumentDto();
             document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
             // Assert
@@ -85,7 +85,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocument();
+            var document = new TrackerDocumentDto();
             document.PresentationFlags.Read = ReadFlag.Ok;
 
             // Assert
@@ -98,7 +98,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocument();
+            var document = new TrackerDocumentDto();
             document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
 
@@ -112,7 +112,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocument();
+            var document = new TrackerDocumentDto();
             document.PresentationFlags.Write = WriteFlag.Ok;
 
             // Assert

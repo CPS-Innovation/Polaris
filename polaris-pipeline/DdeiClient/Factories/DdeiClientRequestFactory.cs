@@ -20,49 +20,49 @@ namespace Ddei.Factories
             _options = ddeiOptions.Value;
         }
 
-        public HttpRequestMessage CreateCmsModernTokenRequest(CmsCaseDataArg arg)
+        public HttpRequestMessage CreateCmsModernTokenRequest(DdeiCmsCaseDataArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/cms-modern-token");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateListCasesRequest(CmsUrnArg arg)
+        public HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateGetCaseRequest(CmsCaseArg arg)
+        public HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateListCaseDocumentsRequest(CmsCaseArg arg)
+        public HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCmsCaseArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateCheckoutDocumentRequest(CmsDocumentArg arg)
+        public HttpRequestMessage CreateCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{arg.VersionId}/checkout?code={_options.AccessKey}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateCancelCheckoutDocumentRequest(CmsDocumentArg arg)
+        public HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiCmsDocumentArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{arg.VersionId}/checkout?code={_options.AccessKey}");
             AddAuthHeaders(request, arg);
             return request;
         }
 
-        public HttpRequestMessage CreateUploadPdfRequest(CmsDocumentArg arg, Stream stream)
+        public HttpRequestMessage CreateUploadPdfRequest(DdeiCmsDocumentArgDto arg, Stream stream)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{arg.VersionId}?code={_options.AccessKey}");
             AddAuthHeaders(request, arg);
@@ -71,7 +71,7 @@ namespace Ddei.Factories
             return request;
         }
 
-        private void AddAuthHeaders(HttpRequestMessage request, CmsCaseDataArg arg)
+        private void AddAuthHeaders(HttpRequestMessage request, DdeiCmsCaseDataArgDto arg)
         {
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);
             if (!string.IsNullOrEmpty(_options.AccessKey))

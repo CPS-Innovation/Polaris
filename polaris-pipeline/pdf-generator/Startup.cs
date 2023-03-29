@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net.Http.Headers;
 using Azure.Storage.Blobs;
 using Common.Constants;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
 using Common.Domain.Validators;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
@@ -78,7 +78,7 @@ namespace pdf_generator
             });
 
             builder.Services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
-            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequest>, ValidatorWrapper<GeneratePdfRequest>>();
+            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequestDto>, ValidatorWrapper<GeneratePdfRequestDto>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
@@ -106,14 +106,14 @@ namespace pdf_generator
 
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
+            builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
 
             BuildHealthChecks(builder);
         }
 
         /// <summary>
-        /// see https://www.davidguida.net/azure-api-management-healthcheck for pattern
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
         /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
         /// </summary>
         /// <param name="builder"></param>

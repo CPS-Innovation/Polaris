@@ -2,7 +2,7 @@
 using System.Net.Http;
 using AutoFixture;
 using Common.Constants;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using Common.Wrappers.Contracts;
 using coordinator.Factories;
 using FluentAssertions;
@@ -45,7 +45,7 @@ namespace coordinator.tests.Factories
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             var mockConfiguration = new Mock<IConfiguration>();
             
-            mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<GeneratePdfRequest>(r => r.CaseId == _caseId && r.DocumentId == _documentId && r.FileName == _fileName)))
+            mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<GeneratePdfRequestDto>(r => r.CaseId == _caseId && r.DocumentId == _documentId && r.FileName == _fileName)))
                 .Returns(_content);
 
             var mockLogger = new Mock<ILogger<GeneratePdfHttpRequestFactory>>();

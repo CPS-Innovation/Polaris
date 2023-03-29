@@ -7,8 +7,8 @@ using System;
 using coordinator.Services.DocumentToggle.Exceptions;
 using System.Reflection;
 using System.Text;
-using Common.Domain.Case;
-using Common.Domain.Case.Presentation;
+using Common.Dto.Tracker;
+using Common.Dto.FeatureFlags;
 
 namespace coordinator.Services.DocumentToggle
 {
@@ -39,17 +39,17 @@ namespace coordinator.Services.DocumentToggle
             _defintions = CreateDefinitions(lines);
         }
 
-        public bool CanReadDocument(TrackerDocument document)
+        public bool CanReadDocument(TrackerDocumentDto document)
         {
             return document.PresentationFlags.Read == ReadFlag.Ok;
         }
 
-        public bool CanWriteDocument(TrackerDocument document)
+        public bool CanWriteDocument(TrackerDocumentDto document)
         {
             return document.PresentationFlags.Write == WriteFlag.Ok;
         }
 
-        public PresentationFlags GetDocumentPresentationFlags(TransitionDocument document)
+        public PresentationFlagsDto GetDocumentPresentationFlags(TransitionDocument document)
         {
             var levelForFileType = GetLevelForFileType(document);
             var levelForDocType = GetLevelForDocType(document);
@@ -76,7 +76,7 @@ namespace coordinator.Services.DocumentToggle
                 write = WriteFlag.Ok;
             }
 
-            return new PresentationFlags
+            return new PresentationFlagsDto
             {
                 Read = read,
                 Write = write

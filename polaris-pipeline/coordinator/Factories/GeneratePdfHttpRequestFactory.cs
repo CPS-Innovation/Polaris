@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using Common.Constants;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain.Exceptions;
@@ -41,7 +41,7 @@ namespace coordinator.Factories
                     { HttpHeaderKeys.CorrelationId, correlationId.ToString() },
                     { HttpHeaderKeys.CmsAuthValues, cmsAuthValues }
                 };
-                var content = _jsonConvertWrapper.SerializeObject(new GeneratePdfRequest(caseUrn, caseId, documentCategory, documentId, fileName, versionId));
+                var content = _jsonConvertWrapper.SerializeObject(new GeneratePdfRequestDto(caseUrn, caseId, documentCategory, documentId, fileName, versionId));
 
                 return new DurableHttpRequest(HttpMethod.Post, new Uri(_configuration[ConfigKeys.CoordinatorKeys.PdfGeneratorUrl]), headers, content);
             }

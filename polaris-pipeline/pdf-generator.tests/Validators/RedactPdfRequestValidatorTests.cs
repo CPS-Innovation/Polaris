@@ -2,10 +2,10 @@
 using Xunit;
 using FluentValidation.TestHelper;
 using AutoFixture;
-using Common.Domain.Redaction;
-using Common.Domain.Requests;
 using FluentAssertions.Execution;
 using Common.Domain.Validators;
+using Common.Dto.Request;
+using Common.Dto.Request.Redaction;
 
 namespace pdf_generator.tests.Validators
 {
@@ -24,7 +24,7 @@ namespace pdf_generator.tests.Validators
         [InlineData(12345, true)]
         public void Validate_CaseId(long caseId, bool isValid)
         {
-            var testRequest = _fixture.Build<RedactPdfRequest>()
+            var testRequest = _fixture.Build<RedactPdfRequestDto>()
                 .With(x => x.CaseId, caseId)
                 .Create();
 
@@ -46,7 +46,7 @@ namespace pdf_generator.tests.Validators
         [InlineData("12345", true)]
         public void Validate_DocumentId(string documentId, bool isValid)
         {
-            var testRequest = _fixture.Build<RedactPdfRequest>()
+            var testRequest = _fixture.Build<RedactPdfRequestDto>()
                 .With(x => x.DocumentId, documentId)
                 .Create();
 
@@ -68,7 +68,7 @@ namespace pdf_generator.tests.Validators
         [InlineData("12345", true)]
         public void Validate_FileName(string fileName, bool isValid)
         {
-            var testRequest = _fixture.Build<RedactPdfRequest>()
+            var testRequest = _fixture.Build<RedactPdfRequestDto>()
                 .With(x => x.FileName, fileName)
                 .Create();
 
@@ -86,7 +86,7 @@ namespace pdf_generator.tests.Validators
         [Fact]
         public void Validate_RedactionDefinitions_EmptyList()
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
             testRequest.RedactionDefinitions = null;
 
             var result = RedactPdfRequestValidator.TestValidate(testRequest);
@@ -99,8 +99,8 @@ namespace pdf_generator.tests.Validators
         [InlineData(15, true)]
         public void Validate_RedactionDefinitions_PageIndex(int pageIndex, bool isValid)
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(2).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(2).ToList();
             testRequest.RedactionDefinitions[0].PageIndex = pageIndex;
             testRequest.RedactionDefinitions[1].PageIndex = pageIndex;
 
@@ -129,8 +129,8 @@ namespace pdf_generator.tests.Validators
         [InlineData(15, true)]
         public void Validate_RedactionDefinitions_Width(int width, bool isValid)
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(2).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(2).ToList();
             testRequest.RedactionDefinitions[0].Width = width;
             testRequest.RedactionDefinitions[1].Width = width;
 
@@ -159,8 +159,8 @@ namespace pdf_generator.tests.Validators
         [InlineData(15, true)]
         public void Validate_RedactionDefinitions_Height(int height, bool isValid)
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(2).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(2).ToList();
             testRequest.RedactionDefinitions[0].Height = height;
             testRequest.RedactionDefinitions[1].Height = height;
 
@@ -186,10 +186,10 @@ namespace pdf_generator.tests.Validators
         [Fact]
         public void Validate_RedactionDefinitions_RedactionCoordinates_EmptyList()
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(2).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(2).ToList();
             testRequest.RedactionDefinitions[0].RedactionCoordinates = null;
-            testRequest.RedactionDefinitions[1].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinates>(2).ToList();
+            testRequest.RedactionDefinitions[1].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinatesDto>(2).ToList();
 
             var result = RedactPdfRequestValidator.TestValidate(testRequest);
 
@@ -207,9 +207,9 @@ namespace pdf_generator.tests.Validators
         [InlineData(3.44, true)]
         public void Validate_RedactionDefinitions_RedactionCoordinates_X1(double x1, bool isValid)
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(1).ToList();
-            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinates>(1).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(1).ToList();
+            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinatesDto>(1).ToList();
             testRequest.RedactionDefinitions[0].RedactionCoordinates[0].X1 = x1;
 
             var result = RedactPdfRequestValidator.TestValidate(testRequest);
@@ -230,9 +230,9 @@ namespace pdf_generator.tests.Validators
         [InlineData(3.44, true)]
         public void Validate_RedactionDefinitions_RedactionCoordinates_X2(double x2, bool isValid)
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(1).ToList();
-            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinates>(1).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(1).ToList();
+            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinatesDto>(1).ToList();
             testRequest.RedactionDefinitions[0].RedactionCoordinates[0].X2 = x2;
 
             var result = RedactPdfRequestValidator.TestValidate(testRequest);
@@ -253,9 +253,9 @@ namespace pdf_generator.tests.Validators
         [InlineData(3.44, true)]
         public void Validate_RedactionDefinitions_RedactionCoordinates_Y1(double y1, bool isValid)
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(1).ToList();
-            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinates>(1).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(1).ToList();
+            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinatesDto>(1).ToList();
             testRequest.RedactionDefinitions[0].RedactionCoordinates[0].Y1 = y1;
 
             var result = RedactPdfRequestValidator.TestValidate(testRequest);
@@ -276,9 +276,9 @@ namespace pdf_generator.tests.Validators
         [InlineData(3.44, true)]
         public void Validate_RedactionDefinitions_RedactionCoordinates_Y2(double y2, bool isValid)
         {
-            var testRequest = _fixture.Create<RedactPdfRequest>();
-            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinition>(1).ToList();
-            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinates>(1).ToList();
+            var testRequest = _fixture.Create<RedactPdfRequestDto>();
+            testRequest.RedactionDefinitions = _fixture.CreateMany<RedactionDefinitionDto>(1).ToList();
+            testRequest.RedactionDefinitions[0].RedactionCoordinates = _fixture.CreateMany<RedactionCoordinatesDto>(1).ToList();
             testRequest.RedactionDefinitions[0].RedactionCoordinates[0].Y2 = y2;
 
             var result = RedactPdfRequestValidator.TestValidate(testRequest);

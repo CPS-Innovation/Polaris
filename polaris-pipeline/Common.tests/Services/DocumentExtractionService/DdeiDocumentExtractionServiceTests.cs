@@ -3,7 +3,7 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
 using Common.Constants;
-using Common.Domain.Responses;
+using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Factories.Contracts;
 using Common.Mappers;

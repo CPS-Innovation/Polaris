@@ -1,4 +1,4 @@
-﻿using Common.Domain.Case;
+﻿using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ namespace coordinator.Domain.Tracker
     {
         Task Reset(string transactionId);
         Task SetValue(TrackerEntity tracker);
-        Task<TrackerDocumentListDeltas> SynchroniseDocuments(SynchroniseDocumentsArg arg);
+        Task<TrackerDocumentListDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
         Task RegisterUnableToConvertDocumentToPdf(string documentId);
@@ -19,7 +19,7 @@ namespace coordinator.Domain.Tracker
         Task RegisterCompleted();
         Task RegisterFailed();
         Task RegisterDeleted();
-        Task<List<TrackerDocument>> GetDocuments();
+        Task<List<TrackerDocumentDto>> GetDocuments();
         Task ClearDocuments();
         Task<bool> AllDocumentsFailed();
     }

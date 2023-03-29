@@ -19,7 +19,7 @@ namespace Ddei.Clients
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        public async Task<string> GetCmsModernToken(CmsCaseDataArg arg)
+        public async Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg)
         {
             return await CallDdei<string>(
                         () => _ddeiClientRequestFactory.CreateCmsModernTokenRequest(arg),
@@ -27,27 +27,27 @@ namespace Ddei.Clients
             );
         }
 
-        public async Task<IEnumerable<CaseIdentifiers>> ListCaseIdsAsync(CmsUrnArg arg)
+        public async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiCmsUrnArgDto arg)
         {
-            return await CallDdei<IEnumerable<CaseIdentifiers>>(
+            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(
                 () => _ddeiClientRequestFactory.CreateListCasesRequest(arg),
                  arg.CorrelationId
             );
         }
 
-        public async Task<CaseDetails> GetCaseAsync(CmsCaseArg arg)
+        public async Task<DdeiCaseDetailsDto> GetCaseAsync(DdeiCmsCaseArgDto arg)
         {
-            return await CallDdei<CaseDetails>(
+            return await CallDdei<DdeiCaseDetailsDto>(
                 () => _ddeiClientRequestFactory.CreateGetCaseRequest(arg),
                 arg.CorrelationId
             );
         }
 
-        public async Task<IEnumerable<DocumentDetails>> ListCaseDocumentsAsync(CmsCaseArg arg)
+        public async Task<IEnumerable<DdeiDocumentDetailsDto>> ListCaseDocumentsAsync(DdeiCmsCaseArgDto arg)
         {
             try
             {
-                return await CallDdei<IEnumerable<DocumentDetails>>(
+                return await CallDdei<IEnumerable<DdeiDocumentDetailsDto>>(
                     () => _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(arg),
                      arg.CorrelationId
                 );
@@ -56,13 +56,13 @@ namespace Ddei.Clients
             {
                 if (httpException.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    return Enumerable.Empty<DocumentDetails>();
+                    return Enumerable.Empty<DdeiDocumentDetailsDto>();
                 }
                 throw;
             }
         }
 
-        public async Task CheckoutDocument(CmsDocumentArg arg)
+        public async Task CheckoutDocument(DdeiCmsDocumentArgDto arg)
         {
             await CallDdei(
                () => _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg),
@@ -70,7 +70,7 @@ namespace Ddei.Clients
            );
         }
 
-        public async Task CancelCheckoutDocument(CmsDocumentArg arg)
+        public async Task CancelCheckoutDocument(DdeiCmsDocumentArgDto arg)
         {
             await CallDdei(
                () => _ddeiClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg),
@@ -78,7 +78,7 @@ namespace Ddei.Clients
            );
         }
 
-        public async Task UploadPdf(CmsDocumentArg arg, Stream stream)
+        public async Task UploadPdf(DdeiCmsDocumentArgDto arg, Stream stream)
         {
             await CallDdei(
                () => _ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream),

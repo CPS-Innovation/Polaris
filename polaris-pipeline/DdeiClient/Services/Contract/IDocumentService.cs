@@ -5,10 +5,10 @@ namespace Ddei.Services
     // TODO - merge with IDdeiDocumentExtractionService
     public interface IDocumentService
     {
-        Task CheckoutDocument(CmsDocumentArg arg);
+        Task CheckoutDocument(DdeiCmsDocumentArgDto arg);
 
-        Task CancelCheckoutDocument(CmsDocumentArg arg);
+        Task CancelCheckoutDocument(DdeiCmsDocumentArgDto arg);
 
-        Task UploadPdf(CmsDocumentArg arg, Stream stream);
+        Task UploadPdf(DdeiCmsDocumentArgDto arg, Stream stream);
     }
 }

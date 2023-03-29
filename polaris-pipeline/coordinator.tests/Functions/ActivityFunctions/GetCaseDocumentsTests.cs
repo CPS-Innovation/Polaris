@@ -2,7 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.DocumentExtraction;
 using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
@@ -13,18 +12,19 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.Domain.Case.Presentation;
 using coordinator.Functions.ActivityFunctions.Case;
+using Common.Dto.Document;
+using Common.Dto.FeatureFlags;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
     public class GetCaseDocumentsTests
     {
-        private readonly CmsCaseDocument[] _caseDocuments;
+        private readonly DocumentDto[] _caseDocuments;
 
         private readonly TransitionDocument[] _transitionDocuments;
 
-        private readonly PresentationFlags[] _presentationFlags;
+        private readonly PresentationFlagsDto[] _presentationFlags;
 
         private readonly GetCaseDocumentsActivityPayload _payload;
 
@@ -37,8 +37,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             var fixture = new Fixture();
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
             _caseDocuments = new[] {
-              fixture.Create<CmsCaseDocument>(),
-              fixture.Create<CmsCaseDocument>()
+              fixture.Create<DocumentDto>(),
+              fixture.Create<DocumentDto>()
             };
 
             _transitionDocuments = new[] {
@@ -47,8 +47,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             };
 
             _presentationFlags = new[] {
-              fixture.Create<PresentationFlags>(),
-              fixture.Create<PresentationFlags>()
+              fixture.Create<PresentationFlagsDto>(),
+              fixture.Create<PresentationFlagsDto>()
             };
 
             var mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
