@@ -1,18 +1,16 @@
-using BusinessDomain = PolarisGateway.Domain.CaseData;
 using PolarisGateway.Domain.StaticData;
 using Ddei.Domain;
+using Common.Dto.Case;
 
 namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
 {
     public class CaseDocumentsMapper : ICaseDocumentsMapper
     {
-        public BusinessDomain.DocumentDetails MapDocumentDetails(DocumentDetails documentDetails)
+        public DocumentDetailsDto MapDocumentDetails(DdeiDocumentDetailsDto documentDetails)
         {
-            var documentCmsType = DocumentCmsTypes
-                .GetDocumentCmsTypes
-                .FirstOrDefault(item => item.Id == documentDetails.TypeId);
+            var documentCmsType = DocumentCmsTypes.Lookup(documentDetails.TypeId);
 
-            return new BusinessDomain.DocumentDetails
+            return new DocumentDetailsDto
             {
                 DocumentId = documentDetails.Id,
                 VersionId = documentDetails.VersionId,
@@ -20,12 +18,11 @@ namespace PolarisGateway.CaseDataImplementations.Ddei.Mappers
                 MimeType = documentDetails.MimeType,
                 CreatedDate = documentDetails.Date,
                 CmsDocCategory = MapCmsDocCategory(documentDetails.CmsDocCategory),
-                CmsDocType = documentCmsType ?? BusinessDomain.DocumentCmsType.EmptyDocumentCmsType
+                CmsDocType = documentCmsType ?? DocumentCmsTypeDto.EmptyDocumentCmsType
             };
         }
 
-        private BusinessDomain.CmsDocCategory MapCmsDocCategory(CmsDocCategory cmsDocCategory) =>
-             (BusinessDomain.CmsDocCategory)Enum.Parse(typeof(BusinessDomain.CmsDocCategory), cmsDocCategory.ToString());
-
+        private CmsDocCategory MapCmsDocCategory(DdeiCmsDocCategory cmsDocCategory) =>
+             (CmsDocCategory)Enum.Parse(typeof(CmsDocCategory), cmsDocCategory.ToString());
     }
 }

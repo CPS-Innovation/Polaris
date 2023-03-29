@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Extensions;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation.Contracts;
@@ -29,7 +29,7 @@ public class DocumentEvaluationService : IDocumentEvaluationService
     /// <param name="request"></param>
     /// <param name="correlationId"></param>
     /// <returns></returns>
-    public async Task<EvaluateDocumentResponse> EvaluateDocumentAsync(EvaluateDocumentRequest request, Guid correlationId)
+    public async Task<EvaluateDocumentResponse> EvaluateDocumentAsync(EvaluateDocumentRequestDto request, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(EvaluateDocumentAsync), request.ToJson());
         var response = new EvaluateDocumentResponse(request.CaseId, request.DocumentId, request.VersionId);

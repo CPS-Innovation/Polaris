@@ -10,7 +10,6 @@ using Azure.Identity;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
-using Common.Domain.Requests;
 using Common.Exceptions.Contracts;
 using Common.Factories.Contracts;
 using Common.Services.SearchIndexService;
@@ -20,6 +19,7 @@ using Common.Health;
 using Common.Services.Extensions;
 using Common.Wrappers.Contracts;
 using System.IO;
+using Common.Dto.Request;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -43,7 +43,7 @@ namespace text_extractor
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
             BuildAzureClients(builder, configuration);
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequest>, ValidatorWrapper<ExtractTextRequest>>();
+            builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
             builder.Services.AddBlobSasGenerator();

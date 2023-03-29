@@ -1,14 +1,14 @@
+using Common.Dto.Case;
 using Ddei.Domain.CaseData.Args;
-using PolarisGateway.Domain.CaseData;
 
 namespace PolarisGateway.Services
 {
     public interface ICaseDataService
     {
-        Task<IEnumerable<CaseDetails>> ListCases(CmsUrnArg arg);
+        Task<IEnumerable<CaseDto>> ListCases(DdeiCmsUrnArgDto arg);
 
-        Task<CaseDetailsFull> GetCase(CmsCaseArg arg);
+        Task<CaseDto> GetCase(DdeiCmsCaseArgDto arg);
 
-        Task<IEnumerable<DocumentDetails>> ListDocuments(CmsCaseArg arg);
+        Task<IEnumerable<DocumentDetailsDto>> ListDocuments(DdeiCmsCaseArgDto arg);
     }
 }

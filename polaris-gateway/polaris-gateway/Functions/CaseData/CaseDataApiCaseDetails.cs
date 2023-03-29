@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Configuration;
+using Common.Dto.Case;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Ddei.Exceptions;
@@ -13,7 +14,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
-using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Extensions;
 using PolarisGateway.Services;
 using PolarisGateway.Wrappers;
@@ -46,7 +46,7 @@ namespace PolarisGateway.Functions.CaseData
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            CaseDetailsFull caseDetails = null;
+            CaseDto caseDetails = null;
 
             try
             {

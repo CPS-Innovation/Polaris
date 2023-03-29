@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Extensions;
-using Common.Domain.Responses;
+using Common.Dto.Response;
 using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;

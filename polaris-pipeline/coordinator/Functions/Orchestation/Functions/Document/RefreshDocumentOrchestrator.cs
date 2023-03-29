@@ -2,9 +2,8 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Domain.Extensions;
-using Common.Domain.Responses;
+using Common.Dto.Response;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;

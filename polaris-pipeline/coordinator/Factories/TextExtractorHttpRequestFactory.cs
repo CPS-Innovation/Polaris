@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using Common.Constants;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain.Exceptions;
@@ -37,7 +37,7 @@ namespace coordinator.Factories
                     { HttpHeaderKeys.ContentType, HttpHeaderValues.ApplicationJson },
                     { HttpHeaderKeys.CorrelationId, correlationId.ToString() }
                 };
-                var request = new ExtractTextRequest(polarisDocumentId, cmsCaseId, cmsDocumentId, versionId, blobName);
+                var request = new ExtractTextRequestDto(polarisDocumentId, cmsCaseId, cmsDocumentId, versionId, blobName);
                 var content = _jsonConvertWrapper.SerializeObject(request);
 
                 return new DurableHttpRequest(HttpMethod.Post, new Uri(_configuration[ConfigKeys.CoordinatorKeys.TextExtractorUrl]), headers, content);

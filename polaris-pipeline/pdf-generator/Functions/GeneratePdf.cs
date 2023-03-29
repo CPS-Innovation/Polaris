@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Exceptions.Contracts;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
@@ -26,7 +26,7 @@ namespace pdf_generator.Functions
     public class GeneratePdf
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IValidatorWrapper<GeneratePdfRequest> _validatorWrapper;
+        private readonly IValidatorWrapper<GeneratePdfRequestDto> _validatorWrapper;
         private readonly IDdeiDocumentExtractionService _documentExtractionService;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
@@ -35,7 +35,7 @@ namespace pdf_generator.Functions
 
         public GeneratePdf(
              IJsonConvertWrapper jsonConvertWrapper, 
-             IValidatorWrapper<GeneratePdfRequest> validatorWrapper,
+             IValidatorWrapper<GeneratePdfRequestDto> validatorWrapper,
              IDdeiDocumentExtractionService documentExtractionService,
              IPolarisBlobStorageService blobStorageService, 
              IPdfOrchestratorService pdfOrchestratorService, 
@@ -84,7 +84,7 @@ namespace pdf_generator.Functions
                 if (string.IsNullOrWhiteSpace(content))
                     throw new BadRequestException("Request body cannot be null.", nameof(request));
 
-                var pdfRequest = _jsonConvertWrapper.DeserializeObject<GeneratePdfRequest>(content);
+                var pdfRequest = _jsonConvertWrapper.DeserializeObject<GeneratePdfRequestDto>(content);
                 if (pdfRequest == null)
                     throw new BadRequestException($"An invalid message was received '{content}'", nameof(request));
 

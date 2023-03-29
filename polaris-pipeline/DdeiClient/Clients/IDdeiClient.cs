@@ -5,18 +5,18 @@ namespace Ddei.Clients
 {
     public interface IDdeiClient
     {
-        Task<string> GetCmsModernToken(CmsCaseDataArg arg);
+        Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg);
 
-        Task<IEnumerable<CaseIdentifiers>> ListCaseIdsAsync(CmsUrnArg arg);
+        Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiCmsUrnArgDto arg);
 
-        Task<CaseDetails> GetCaseAsync(CmsCaseArg arg);
+        Task<DdeiCaseDetailsDto> GetCaseAsync(DdeiCmsCaseArgDto arg);
 
-        Task<IEnumerable<DocumentDetails>> ListCaseDocumentsAsync(CmsCaseArg arg);
+        Task<IEnumerable<DdeiDocumentDetailsDto>> ListCaseDocumentsAsync(DdeiCmsCaseArgDto arg);
 
-        Task CheckoutDocument(CmsDocumentArg arg);
+        Task CheckoutDocument(DdeiCmsDocumentArgDto arg);
 
-        Task CancelCheckoutDocument(CmsDocumentArg arg);
+        Task CancelCheckoutDocument(DdeiCmsDocumentArgDto arg);
 
-        Task UploadPdf(CmsDocumentArg arg, Stream stream);
+        Task UploadPdf(DdeiCmsDocumentArgDto arg, Stream stream);
     }
 }

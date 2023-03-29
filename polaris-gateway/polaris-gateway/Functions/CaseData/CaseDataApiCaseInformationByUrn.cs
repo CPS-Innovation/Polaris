@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Configuration;
+using Common.Dto.Case;
 using Common.Extensions;
 using Common.Logging;
 using Common.Validators.Contracts;
@@ -16,7 +17,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
-using PolarisGateway.Domain.CaseData;
 using PolarisGateway.Extensions;
 using PolarisGateway.Services;
 using PolarisGateway.Wrappers;
@@ -50,7 +50,7 @@ namespace PolarisGateway.Functions.CaseData
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             Guid currentCorrelationId = default;
-            IEnumerable<CaseDetails> caseInformation = null;
+            IEnumerable<CaseDto> caseInformation = null;
 
             try
             {

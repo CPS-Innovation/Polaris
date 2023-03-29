@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 
 namespace Common.Services.DocumentEvaluation.Contracts;
 
 public interface IDocumentEvaluationService
 {
-    Task<EvaluateDocumentResponse> EvaluateDocumentAsync(EvaluateDocumentRequest request, Guid correlationId);
+    Task<EvaluateDocumentResponse> EvaluateDocumentAsync(EvaluateDocumentRequestDto request, Guid correlationId);
 }

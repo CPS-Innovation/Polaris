@@ -1,8 +1,8 @@
-﻿using Common.Domain.Requests;
-using Common.Domain.Responses;
-using Common.Domain.SearchIndex;
+﻿using Common.Domain.SearchIndex;
+using Common.Dto.Request;
+using Common.Dto.Response;
+using Common.Dto.Tracker;
 using Microsoft.AspNetCore.Mvc;
-using PolarisGateway.Domain.PolarisPipeline;
 
 namespace Gateway.Clients.PolarisPipeline.Contracts
 {
@@ -15,7 +15,7 @@ namespace Gateway.Clients.PolarisPipeline.Contracts
         Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId);
         Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, string cmsAuthValues, Guid correlationId);
         Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, string cmsAuthValues, Guid correlationId);
-        Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequest redactPdfRequest, string cmsAuthValues, Guid correlationId);
+        Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId);
         Task<IList<StreamlinedSearchLine>> SearchCase(string caseUrn, int caseId, string searchTerm, Guid correlationId);
     }
 }

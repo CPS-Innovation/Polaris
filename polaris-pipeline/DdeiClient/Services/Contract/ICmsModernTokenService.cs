@@ -4,7 +4,7 @@ namespace Ddei.Services.Contract
 {
     public interface ICmsModernTokenService
     {
-        Task<string> GetCmsModernToken(CmsCaseDataArg arg);
+        Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg);
 
     }
 }

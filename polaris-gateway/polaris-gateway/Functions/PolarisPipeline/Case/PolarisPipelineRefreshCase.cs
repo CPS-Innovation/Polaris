@@ -24,11 +24,14 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
 
         const string loggingName = $"{nameof(PolarisPipelineRefreshCase)} - {nameof(Run)}";
 
-        public PolarisPipelineRefreshCase(ILogger<PolarisPipelineRefreshCase> logger,
-                                                 IPipelineClient pipelineClient,
-                                                 ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
-                                                 IAuthorizationValidator tokenValidator,
-                                                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        public PolarisPipelineRefreshCase
+            (
+                ILogger<PolarisPipelineRefreshCase> logger,
+                IPipelineClient pipelineClient,
+                ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
+                IAuthorizationValidator tokenValidator,
+                ITelemetryAugmentationWrapper telemetryAugmentationWrapper
+            )
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;

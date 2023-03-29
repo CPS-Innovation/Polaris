@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Constants;
-using Common.Domain.DocumentExtraction;
 using Common.Domain.Extensions;
-using Common.Domain.Responses;
+using Common.Dto.Document;
+using Common.Dto.Response;
 using Common.Factories.Contracts;
 using Common.Logging;
 using Common.Mappers.Contracts;
@@ -47,10 +47,10 @@ public class DdeiDocumentExtractionService : BaseDocumentExtractionService, IDde
         return result;
     }
 
-    public async Task<CmsCaseDocument[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
+    public async Task<DocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(GetDocumentAsync), $"CaseUrn: {caseUrn}, CaseId: {caseId}");
-        var results = new List<CmsCaseDocument>();
+        var results = new List<DocumentDto>();
 
         string listDocumentUrlFormat = _configuration[ConfigKeys.SharedKeys.ListDocumentsUrl];
         var response = await GetHttpContentAsync(string.Format(listDocumentUrlFormat, caseUrn, caseId), cmsAuthValues, correlationId);

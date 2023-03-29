@@ -321,3 +321,30 @@ resource "azurerm_subnet" "sn_polaris_auth_handover_subnet" {
 
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
+
+resource "azurerm_subnet" "sn_polaris_mock_service_subnet" {
+  name                 = "polaris-service-mock-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.mockCmsServiceSubnet]
+  service_endpoints    = ["Microsoft.Storage"]
+
+  delegation {
+    name = "Microsoft.Web/serverFarms AuthHandover Delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+
+  enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_mock_service_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_mock_service_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_mock_service_subnet]
+}

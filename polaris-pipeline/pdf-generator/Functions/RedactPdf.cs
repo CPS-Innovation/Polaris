@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Exceptions.Contracts;
 using Common.Logging;
 using Common.Wrappers.Contracts;
@@ -27,10 +27,10 @@ namespace pdf_generator.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDocumentRedactionService _documentRedactionService;
         private readonly ILogger<RedactPdf> _logger;
-        private readonly IValidator<RedactPdfRequest> _requestValidator;
+        private readonly IValidator<RedactPdfRequestDto> _requestValidator;
 
         public RedactPdf(IExceptionHandler exceptionHandler, IJsonConvertWrapper jsonConvertWrapper, IDocumentRedactionService documentRedactionService, 
-            ILogger<RedactPdf> logger, IValidator<RedactPdfRequest> requestValidator)
+            ILogger<RedactPdf> logger, IValidator<RedactPdfRequestDto> requestValidator)
         {
             _exceptionHandler = exceptionHandler;
             _jsonConvertWrapper = jsonConvertWrapper;
@@ -68,7 +68,7 @@ namespace pdf_generator.Functions
                     throw new BadRequestException("Request body cannot be null.", nameof(request));
                 }
 
-                var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequest>(content);
+                var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
