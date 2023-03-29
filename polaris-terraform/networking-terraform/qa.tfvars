@@ -23,5 +23,3 @@ polarisAuthHandoverSubnet          = "10.7.199.16/28"
 mockCmsServiceSubnet               = "10.7.199.48/28"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
-
-nsg_name = "basicNsgvnet-innovation-qa"
