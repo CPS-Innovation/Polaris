@@ -120,10 +120,18 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 return cookieString;
             }
 
-            return cookieString
-                    .Split(" ")
-                    .Where(cookie => WhitelistedCookieNameRoots.Any(whitelistedCookieNameRoot => cookie.StartsWith(whitelistedCookieNameRoot)))
-                    .Aggregate((curr, next) => $"{curr} {next}");
+            try
+            {
+                return cookieString
+                          .Split(" ")
+                          .Where(cookie => WhitelistedCookieNameRoots.Any(whitelistedCookieNameRoot => cookie.StartsWith(whitelistedCookieNameRoot)))
+                          .Aggregate((curr, next) => $"{curr} {next}");
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+
         }
 
         private void AppendPolarisAuthCookie(HttpRequest req, string cmsCookiesString, string cmsToken)

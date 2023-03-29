@@ -1,4 +1,11 @@
-export const PdfTabsEmpty: React.FC = () => (
+import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+import { TrackerVisualisation } from "./TrackerVisualisation";
+
+type Props = {
+  pipelineState: CaseDetailsState["pipelineState"];
+};
+
+export const PdfTabsEmpty: React.FC<Props> = ({ pipelineState }) => (
   <div>
     <h2
       className="govuk-heading-m"
@@ -9,5 +16,7 @@ export const PdfTabsEmpty: React.FC = () => (
     <p style={{ margin: "margin:10px 0 0 0", textAlign: "center" }}>
       Search or choose a file to start reviewing documents
     </p>
+
+    <TrackerVisualisation pipelineState={pipelineState} />
   </div>
 );

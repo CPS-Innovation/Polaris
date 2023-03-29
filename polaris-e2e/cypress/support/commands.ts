@@ -7,6 +7,8 @@ declare global {
       safeLogEnvVars(): Chainable<any>
       loginToAD(): Chainable<any>
       loginToCms(): Chainable<any>
+      preemptivelyAttachCookies(): Chainable<any>
+      clearCaseTracker(urn: string, caseId: string): Chainable<any>
       requestToken(): Chainable<Response<unknown>>
     }
   }
@@ -19,6 +21,7 @@ const {
   APISCOPE,
   AD_USERNAME,
   AD_PASSWORD,
+  API_ROOT_DOMAIN,
   CMS_USERNAME,
   CMS_PASSWORD,
   CMS_LOGIN_PAGE_URL,
@@ -26,6 +29,7 @@ const {
   CMS_PASSWORD_FIELD_LOCATOR,
   CMS_SUBMIT_BUTTON_LOCATOR,
   CMS_LOGGED_IN_CONFIRMATION_LOCATOR,
+  REAUTH_REDIRECT_URL,
 } = Cypress.env()
 
 const AUTOMATION_LANDING_PAGE_URL = "/?automation-test-first-visit=true"
@@ -110,6 +114,32 @@ Cypress.Commands.add("loginToCms", () => {
       cy.get(submitButtonLocator).click()
       cy.get(loggedInConfirmationLocator).should("exist")
     }
+  )
+})
+
+Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
+  cy.request({
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
+    method: "DELETE",
+    followRedirect: false,
+    headers: {
+      authorization: `Bearer ${cachedTokenResponse.access_token}`,
+      "correlation-id": "D583FD1D-158A-4949-A5E9-2F16AAA7F472",
+      credentials: "include",
+    },
+  }).then((response) => {
+    if (response.status !== 200) {
+      throw new Error(
+        `Failed to clear case tracker: ${response.status} ${response.body}`
+      )
+    }
+  })
+})
+
+Cypress.Commands.add("preemptivelyAttachCookies", () => {
+  cy.visit(
+    REAUTH_REDIRECT_URL +
+      encodeURIComponent(Cypress.config().baseUrl + "?auth-refresh")
   )
 })
 
