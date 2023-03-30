@@ -10,11 +10,14 @@ declare global {
       preemptivelyAttachCookies(): Chainable<any>
       fullLogin(): Chainable<any>
       clearCaseTracker(urn: string, caseId: string): Chainable<any>
-      requestToken(): Chainable<Response<unknown>>
+      requestToken(): Chainable<Response<{ access_token: string }>>
+      getApiHeaders(): Chainable<{
+        Authorization: string
+        "Correlation-Id": string
+      }>
     }
   }
 }
-
 const {
   AUTHORITY,
   CLIENTID,
@@ -26,10 +29,12 @@ const {
   CMS_USERNAME,
   CMS_PASSWORD,
   CMS_LOGIN_PAGE_URL,
+  CMS_FULL_COOKIE_LOGIN_PAGE_URL,
   CMS_USERNAME_FIELD_LOCATOR,
   CMS_PASSWORD_FIELD_LOCATOR,
   CMS_SUBMIT_BUTTON_LOCATOR,
   CMS_LOGGED_IN_CONFIRMATION_LOCATOR,
+  CORRELATION_ID,
 } = Cypress.env()
 
 const AUTOMATION_LANDING_PAGE_URL = "/?automation-test-first-visit=true"
@@ -79,6 +84,30 @@ Cypress.Commands.add(
       },
       form: true,
     })
+)
+
+Cypress.Commands.add(
+  "getApiHeaders",
+  {
+    prevSubject: ["optional"],
+  },
+  () => {
+    cy.request({
+      followRedirect: false,
+      method: "POST",
+      url: CMS_FULL_COOKIE_LOGIN_PAGE_URL,
+      form: true,
+      body: {
+        username: CMS_USERNAME,
+        password: CMS_PASSWORD,
+      },
+    }).then((response) => {
+      cy.requestToken().then((response) => ({
+        Authorization: `Bearer ${response.body.access_token}`,
+        "Correlation-Id": CORRELATION_ID,
+      }))
+    })
+  }
 )
 
 Cypress.Commands.add("loginToAD", () => {
@@ -162,7 +191,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
     followRedirect: false,
     headers: {
       authorization: `Bearer ${cachedTokenResponse.access_token}`,
-      "correlation-id": "E2E00000-0000-0000-0000-000000000000",
+      "correlation-id": CORRELATION_ID,
       credentials: "include",
     },
   })
