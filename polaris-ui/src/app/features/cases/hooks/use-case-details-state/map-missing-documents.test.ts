@@ -1,5 +1,5 @@
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PipelineResults } from "../../domain/PipelineResults";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { mapMissingDocuments } from "./map-missing-documents";
 
 const CASE_DOCUMENTS = [

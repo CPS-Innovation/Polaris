@@ -2,7 +2,7 @@ import { mapAccordionState } from "./map-accordion-state";
 
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 jest.mock("./document-category-definitions", () => ({
   categoryNamesInPresentationOrder: ["category-a", "category-b"],

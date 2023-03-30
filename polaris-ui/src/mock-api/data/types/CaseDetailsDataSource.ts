@@ -1,4 +1,4 @@
-import { CaseDetails } from "../../../app/features/cases/domain/CaseDetails";
+import { CaseDetails } from "../../../app/features/cases/domain/gateway/CaseDetails";
 
 export const lastRequestedUrnCache = {
   urn: "",

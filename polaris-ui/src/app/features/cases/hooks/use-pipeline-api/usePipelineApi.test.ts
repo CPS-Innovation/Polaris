@@ -1,6 +1,6 @@
 import { usePipelineApi } from "./usePipelineApi";
 import * as polling from "./initiate-and-poll";
-import { PipelineResults } from "../../domain/PipelineResults";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { renderHook } from "@testing-library/react-hooks";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 
