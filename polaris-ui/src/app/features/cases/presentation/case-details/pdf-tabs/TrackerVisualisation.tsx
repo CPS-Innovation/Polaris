@@ -8,9 +8,16 @@ type Props = {
 const zeroDocs = () => <>?</>;
 
 const renderDocResults = (docs: PipelineDocument[]) => {
-  return docs.map((doc) => {
-    return <span key={doc.documentId}>{renderDocResult(doc)}</span>;
-  });
+  const everyDocIndexed = docs.every((doc) => doc.status === "Indexed");
+
+  return (
+    // WARNING: this is used by the e2e tests to check the status of the documents
+    <span data-testId={everyDocIndexed ? "span-flag-all-indexed" : ""}>
+      {docs.map((doc) => {
+        return <span key={doc.documentId}>{renderDocResult(doc)}</span>;
+      })}
+    </span>
+  );
 };
 
 const renderDocResult = (doc: PipelineDocument) => {

@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
 const {
-  AD_USERNAME,
   TARGET_URN,
   TARGET_DEFENDANT_NAME,
   TARGET_DOCUMENT_NAME,
@@ -15,11 +14,12 @@ describe("Happy Path", () => {
     cy.on("uncaught:exception", () => false)
 
     cy.fullLogin()
+
     cy.clearCaseTracker(TARGET_URN, TARGET_CASE_ID)
     cy.visit("/")
     cy.findByTestId("input-search-urn").type(`${TARGET_URN}{enter}`)
 
-    // // open case details page
+    // open case details page
     cy.findByTestId(`link-${TARGET_URN}`).click()
 
     // is our defendant correct
@@ -29,15 +29,25 @@ describe("Happy Path", () => {
     cy.findByTestId("btn-accordion-open-close-all").click()
     cy.findByText(TARGET_DOCUMENT_NAME).click()
 
+    // is our target document correct - has expected fragment
     cy.findByTestId("btn-open-pdf").contains(TARGET_DOCUMENT_NAME)
     cy.get("span").contains(TARGET_DOCUMENT_TEXT_FRAGMENT)
 
+    // search for our target text
     cy.findByTestId("input-search-case").type(`${TARGET_SEARCH_TEXT}{enter}`)
-    // cy.findByTestId(`link-result-document-${TARGET_DOCUMENT_ID}`).click()
+    cy.get("#modal").findByText(TARGET_DOCUMENT_NAME).click()
 
-    // cy.findByTestId("tabs").contains(
-    //   `for "${TARGET_SEARCH_TEXT}" in ${TARGET_DOCUMENT_NAME}`
-    // )
+    // is our target document correct - has expected fragment in search header
+    cy.findByTestId("tabs").contains(
+      `for "${TARGET_SEARCH_TEXT}" in ${TARGET_DOCUMENT_NAME}`
+    )
+
+    // close the document tab
+    cy.findByTestId("tab-remove").click()
+
+    // have all docs processed ok?
+    // (do this last to give the indexing time to work while we assert the above)
+    cy.findByTestId("span-flag-all-indexed")
   })
 })
 
