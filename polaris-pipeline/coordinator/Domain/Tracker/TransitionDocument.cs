@@ -12,8 +12,8 @@ public class TransitionDocument
     }
     public TransitionDocument(
         Guid polarisDocumentId,
-        string documentId,
-        long versionId,
+        string cmsDocumentId,
+        long cmsVersionId,
         string originalFileName,
         string mimeType,
         string fileExtension,
@@ -21,8 +21,8 @@ public class TransitionDocument
         string createdDate)
     {
         PolarisDocumentId = polarisDocumentId;
-        DocumentId = documentId;
-        VersionId = versionId;
+        CmsDocumentId = cmsDocumentId;
+        CmsVersionId = cmsVersionId;
         OriginalFileName = originalFileName;
         MimeType = mimeType;
         FileExtension = fileExtension;
@@ -32,9 +32,9 @@ public class TransitionDocument
 
     public Guid PolarisDocumentId { get; init; }
 
-    public string DocumentId { get; init; }
+    public string CmsDocumentId { get; init; }
 
-    public long VersionId { get; set; }
+    public long CmsVersionId { get; set; }
 
     public string OriginalFileName { get; init; }
 

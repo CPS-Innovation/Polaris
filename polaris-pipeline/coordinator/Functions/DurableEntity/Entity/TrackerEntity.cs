@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Common.Dto.Document;
-using Common.Dto.Tracker;
+﻿using Common.Dto.Tracker;
 using coordinator.Domain.Tracker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 namespace coordinator.Functions.DurableEntity.Entity
 {
@@ -20,7 +20,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         public string TransactionId { get; set; }
 
         [JsonProperty("versionId")]
-        public int VersionId { get; set; } = 1;
+        public int VersionId { get; set; } = 0;
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
@@ -61,99 +61,119 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         public Task<TrackerDocumentListDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg)
         {
-            var deltas = new TrackerDocumentListDeltasDto
-            {
-                CreatedOrUpdated = new List<TrackerDocumentDto>(),
-                Deleted = GetDocumentsToRemove(arg)
-            };
+            var incomingDocuments = arg.Documents;
 
             if (Documents == null)
                 Documents = new List<TrackerDocumentDto>();
 
-            RemoveDocuments(deltas.Deleted);
-            CreateOrUpdateDocuments(arg.Documents, deltas);
+            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaDocuments(incomingDocuments);
+
+            TrackerDocumentListDeltasDto deltas = new TrackerDocumentListDeltasDto
+            {
+                Created = CreateDocuments(createdDocuments),
+                Updated = UpdateDocuments(updatedDocuments),
+                Deleted = DeleteDocuments(deletedDocuments)
+            };
 
             Status = TrackerStatus.DocumentsRetrieved;
-            if (deltas.Any())
-                VersionId++;
+            VersionId = deltas.Any() ? VersionId+1 : Math.Max(VersionId, 1);
 
-            if (deltas.Deleted.Any())
-                Log(TrackerLogType.Deleted, null, $"{deltas.Deleted.Count} documents deleted");
-
-            if (deltas.CreatedOrUpdated.Any())
-                Log(TrackerLogType.DocumentsSynchronised, null, $"{deltas.CreatedOrUpdated.Count} documents created or updated");
+            Log(TrackerLogType.DocumentsSynchronised, null, $"Documents Synchronised, {deltas.Created.Count} created, {deltas.Updated.Count} updated, {deltas.Deleted.Count} deleted");
 
             return Task.FromResult(deltas);
         }
 
-        private void CreateOrUpdateDocuments(List<TransitionDocument> documents, TrackerDocumentListDeltasDto deltas)
+        private (List<TransitionDocument>, List<TransitionDocument>, List<string>) GetDeltaDocuments(List<TransitionDocument> transitionDocuments)
         {
-            var updatedDocuments = GetNewOrChangedDocuments(documents, deltas.Deleted);
-            foreach (var updatedDocument in updatedDocuments)
-            {
-                TrackerDocumentDto trackerDocument = CreateTrackerDocument(updatedDocument);
-                Documents.Add(trackerDocument);
-                deltas.CreatedOrUpdated.Add(trackerDocument);
-                Log(TrackerLogType.DocumentRetrieved, trackerDocument.CmsDocumentId);
-            }
-        }
-
-        private List<DocumentVersionDto> GetDocumentsToRemove(SynchroniseDocumentsArg arg)
-        {
-            var removeDocuments = Documents.Where
-                (
-                    trackedDocument =>
-                         !arg.Documents.Exists
-                         (
-                            x => x.DocumentId == trackedDocument.CmsDocumentId &&
-                                 x.VersionId == trackedDocument.CmsVersionId
-                         )
-                );
-            List<DocumentVersionDto> documentsToRemove 
-                = removeDocuments
-                    .Select(d => new DocumentVersionDto(d.CmsDocumentId, d.CmsVersionId))
+            var existingCmsDocumentIds = Documents.Select(d => d.CmsDocumentId).ToList();
+            var newDocuments =
+                transitionDocuments
+                    .Where(d => !existingCmsDocumentIds.Contains(d.CmsDocumentId))
                     .ToList();
 
-            return documentsToRemove;
+            var existingCmsDocumentIdVersions = Documents.Select(d => (d.CmsDocumentId, d.CmsVersionId)).ToList();
+            var updatedDocuments =
+                transitionDocuments
+                    .Where(d => existingCmsDocumentIds.Contains(d.CmsDocumentId))
+                    .Where(d => !existingCmsDocumentIdVersions.Contains((d.CmsDocumentId, d.CmsVersionId)))
+                    .ToList();
+
+            var deletedCmsDocumentIdsToRemove
+                = Documents.Where(trackedDocument => !transitionDocuments.Exists(x => x.CmsDocumentId == trackedDocument.CmsDocumentId))
+                    .Select(d => d.CmsDocumentId)
+                    .ToList();
+
+            return (newDocuments, updatedDocuments, deletedCmsDocumentIdsToRemove);
         }
 
-        private IEnumerable<TransitionDocument> GetNewOrChangedDocuments(List<TransitionDocument> transitionDocuments, List<DocumentVersionDto> documentsToRemove)
+        private List<TrackerDocumentDto> CreateDocuments(List<TransitionDocument> createdDocuments)
         {
-            var newDocuments = from cmsDocument in transitionDocuments
-                               where !documentsToRemove.Exists
-                               (
-                                   x => x.DocumentId == cmsDocument.DocumentId &&
-                                        x.VersionId == cmsDocument.VersionId
-                               )
-                               let item = Documents.Find(x => x.CmsDocumentId == cmsDocument.DocumentId)
-                               where item == null
-                               select cmsDocument;
+            List<TrackerDocumentDto> newDocuments = new List<TrackerDocumentDto>();
+
+            foreach (var newDocument in createdDocuments)
+            {
+                TrackerDocumentDto trackerDocument 
+                    = new TrackerDocumentDto
+                    (
+                        newDocument.PolarisDocumentId,
+                        1,
+                        newDocument.CmsDocumentId,
+                        newDocument.CmsVersionId,
+                        newDocument.CmsDocType,
+                        newDocument.MimeType,
+                        newDocument.FileExtension,
+                        newDocument.CreatedDate,
+                        newDocument.OriginalFileName,
+                        newDocument.PresentationFlags
+                    );
+
+                Documents.Add(trackerDocument);
+                newDocuments.Add(trackerDocument);
+                Log(TrackerLogType.DocumentRetrieved, trackerDocument.CmsDocumentId);
+            }
+
             return newDocuments;
         }
 
-        private void RemoveDocuments(List<DocumentVersionDto> documentsToRemove)
+        private List<TrackerDocumentDto> UpdateDocuments(List<TransitionDocument> updatedDocuments)
         {
-            foreach (var item in
-                     documentsToRemove.Select(invalidDocument =>
-                         Documents.Find(x => x.CmsDocumentId == invalidDocument.DocumentId && x.CmsVersionId == invalidDocument.VersionId)))
+            List<TrackerDocumentDto> changedDocuments = new List<TrackerDocumentDto>();
+
+            foreach (var updatedDocument in updatedDocuments)
             {
-                Log(TrackerLogType.Deleted, item.CmsDocumentId);
-                Documents.Remove(item);
+                TrackerDocumentDto trackerDocument = Documents.Find(d => d.CmsDocumentId == updatedDocument.CmsDocumentId);
+
+                trackerDocument.PolarisDocumentVersionId++;
+                trackerDocument.CmsVersionId = updatedDocument.CmsVersionId;
+                trackerDocument.CmsDocType = updatedDocument.CmsDocType;
+                trackerDocument.CmsMimeType = updatedDocument.MimeType;
+                trackerDocument.CmsFileExtension = updatedDocument.FileExtension;
+                trackerDocument.CmsFileCreatedDate = updatedDocument.CreatedDate;
+                trackerDocument.CmsOriginalFileName = updatedDocument.OriginalFileName;
+                trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
+
+                changedDocuments.Add(trackerDocument);
+
+                Log(TrackerLogType.DocumentRetrieved, trackerDocument.CmsDocumentId);
             }
+
+            return changedDocuments;
         }
 
-        private TrackerDocumentDto CreateTrackerDocument(TransitionDocument document)
+        private List<TrackerDocumentDto> DeleteDocuments(List<string> documentIdsToDelete)
         {
-            return new TrackerDocumentDto(
-                document.PolarisDocumentId,
-                document.DocumentId,
-                document.VersionId,
-                document.CmsDocType,
-                document.MimeType,
-                document.FileExtension,
-                document.CreatedDate,
-                document.OriginalFileName,
-                document.PresentationFlags);
+            var deleteDocuments 
+                = Documents
+                    .Where(d => documentIdsToDelete.Contains(d.CmsDocumentId))
+                    .ToList();
+
+            foreach (var document in deleteDocuments)
+            {
+                Log(TrackerLogType.Deleted, document.CmsDocumentId);
+                Documents.Remove(document);
+            }
+
+            return deleteDocuments;
         }
 
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)

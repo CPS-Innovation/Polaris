@@ -33,7 +33,7 @@ namespace coordinator.tests.Functions
         private readonly TransitionDocument[] _caseDocuments;
         private readonly string _transactionId;
         private readonly List<TrackerDocumentDto> _trackerDocuments;
-        private readonly TrackerDocumentListDeltasDto _newOrChangedDocuments;
+        private readonly TrackerDocumentListDeltasDto _deltaDocuments;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ITrackerEntity> _mockTracker;
@@ -53,7 +53,12 @@ namespace coordinator.tests.Functions
 
             _transactionId = fixture.Create<string>();
             _trackerDocuments = fixture.CreateMany<TrackerDocumentDto>(11).ToList();
-            _newOrChangedDocuments = new TrackerDocumentListDeltasDto { CreatedOrUpdated = _trackerDocuments.Where(d => d.Status == TrackerDocumentStatus.New).ToList(), Deleted = fixture.Create<DocumentVersionDto[]>().ToList() };
+            _deltaDocuments = new TrackerDocumentListDeltasDto 
+            { 
+                Created = _trackerDocuments.Where(d => d.Status == TrackerDocumentStatus.New).ToList(),
+                Updated = fixture.Create<TrackerDocumentDto[]>().ToList(),
+                Deleted = fixture.Create<TrackerDocumentDto[]>().ToList() 
+            };
             var evaluateDocumentsResponse = fixture.CreateMany<EvaluateDocumentResponse>().ToList();
 
             var mockConfiguration = new Mock<IConfiguration>();
@@ -64,7 +69,7 @@ namespace coordinator.tests.Functions
             mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]).Returns("300");
 
             _mockTracker.Setup(tracker => tracker.GetDocuments()).ReturnsAsync(_trackerDocuments);
-            _mockTracker.Setup(tracker => tracker.SynchroniseDocuments(It.IsAny<SynchroniseDocumentsArg>())).ReturnsAsync(_newOrChangedDocuments);
+            _mockTracker.Setup(tracker => tracker.SynchroniseDocuments(It.IsAny<SynchroniseDocumentsArg>())).ReturnsAsync(_deltaDocuments);
 
             _mockDurableOrchestrationContext.Setup(context => context.GetInput<CaseOrchestrationPayload>())
                 .Returns(_payload);
@@ -110,11 +115,16 @@ namespace coordinator.tests.Functions
 
             _mockTracker
                 .Setup(tracker => tracker.SynchroniseDocuments(It.IsAny<SynchroniseDocumentsArg>()))
-                .ReturnsAsync(new TrackerDocumentListDeltasDto { CreatedOrUpdated = new List<TrackerDocumentDto>(), Deleted = new List<DocumentVersionDto>() });
+                .ReturnsAsync(new TrackerDocumentListDeltasDto 
+                                { 
+                                    Created  = new List<TrackerDocumentDto>(),
+                                    Updated = new List<TrackerDocumentDto>(),
+                                    Deleted = new List<TrackerDocumentDto>() 
+                                });
 
             var documents = await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            documents.Should().BeEmpty();
+            documents.Any().Should().BeFalse();
         }
 
         [Fact]
@@ -172,7 +182,7 @@ namespace coordinator.tests.Functions
         {
             var documents = await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            documents.Should().BeEquivalentTo(_newOrChangedDocuments.CreatedOrUpdated);
+            documents.Should().BeEquivalentTo(_deltaDocuments);
         }
 
         [Fact]
