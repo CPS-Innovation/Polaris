@@ -68,7 +68,6 @@ namespace coordinator.Functions.Orchestation.Functions.Document
                 {
                     await tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(payload.CmsDocumentId, payload.CmsVersionId, response.BlobName));
                 }
-
                 else
                 {
                     await tracker.RegisterPdfBlobName(new RegisterPdfBlobNameArg(payload.CmsDocumentId, payload.CmsVersionId, response.BlobName));
