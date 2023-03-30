@@ -12,7 +12,10 @@ const renderDocResults = (docs: PipelineDocument[]) => {
 
   return (
     // WARNING: this is used by the e2e tests to check the status of the documents
-    <span data-testId={everyDocIndexed ? "span-flag-all-indexed" : ""}>
+    <span
+      data-testId={everyDocIndexed ? "span-flag-all-indexed" : ""}
+      style={{ color: "#dddddd" }}
+    >
       {docs.map((doc) => {
         return <span key={doc.documentId}>{renderDocResult(doc)}</span>;
       })}
@@ -23,13 +26,13 @@ const renderDocResults = (docs: PipelineDocument[]) => {
 const renderDocResult = (doc: PipelineDocument) => {
   switch (doc.status) {
     case "New":
-      return <span style={{ color: "#dddddd" }}>.</span>;
+      return <span>.</span>;
     case "PdfUploadedToBlob":
-      return <span style={{ color: "#dddddd" }}>-</span>;
+      return <span>-</span>;
     case "Indexed":
-      return <span style={{ color: "#dddddd" }}>+</span>;
+      return <span>+</span>;
     default:
-      return <span style={{ color: "#dddddd" }}>x</span>;
+      return <span style={{ color: "red" }}>x</span>;
   }
 };
 

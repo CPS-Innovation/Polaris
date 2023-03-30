@@ -162,7 +162,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
     followRedirect: false,
     headers: {
       authorization: `Bearer ${cachedTokenResponse.access_token}`,
-      "correlation-id": "D583FD1D-158A-4949-A5E9-2F16AAA7F472",
+      "correlation-id": "E2E00000-0000-0000-0000-000000000000",
       credentials: "include",
     },
   })
