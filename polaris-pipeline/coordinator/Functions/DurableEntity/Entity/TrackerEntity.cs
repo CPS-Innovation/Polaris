@@ -81,7 +81,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             DocumentsRetrieved = DateTime.Now;
             VersionId = deltas.Any() ? VersionId+1 : Math.Max(VersionId, 1);
 
-            Log(TrackerLogType.DocumentsSynchronised, null, $"Documents Synchronised, {deltas.Created.Count} created, {deltas.Updated.Count} updated, {deltas.Deleted.Count} deleted");
+            Log(TrackerLogType.DocumentsSynchronised, null, $"{deltas.Created.Count} created, {deltas.Updated.Count} updated, {deltas.Deleted.Count} deleted");
 
             return Task.FromResult(deltas);
         }

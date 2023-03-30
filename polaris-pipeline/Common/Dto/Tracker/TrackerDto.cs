@@ -17,6 +17,9 @@ namespace Common.Dto.Tracker
         [JsonProperty("status")]
         public TrackerStatus Status { get; set; }
 
+        [JsonProperty("documentsRetrieved")]
+        public DateTime? DocumentsRetrieved { get; set; }
+
         [JsonProperty("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
 
