@@ -7,7 +7,6 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace coordinator.Functions.DurableEntity.Entity
@@ -25,6 +24,9 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public TrackerStatus Status { get; set; }
+
+        [JsonProperty("documentsRetrieved")]
+        public DateTime? DocumentsRetrieved { get; set; }
 
         [JsonProperty("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
@@ -76,6 +78,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             };
 
             Status = TrackerStatus.DocumentsRetrieved;
+            DocumentsRetrieved = DateTime.Now;
             VersionId = deltas.Any() ? VersionId+1 : Math.Max(VersionId, 1);
 
             Log(TrackerLogType.DocumentsSynchronised, null, $"Documents Synchronised, {deltas.Created.Count} created, {deltas.Updated.Count} updated, {deltas.Deleted.Count} deleted");
@@ -252,8 +255,8 @@ namespace coordinator.Functions.DurableEntity.Entity
         public Task RegisterCompleted()
         {
             Status = TrackerStatus.Completed;
-            Log(TrackerLogType.Completed);
             ProcessingCompleted = DateTime.Now;
+            Log(TrackerLogType.Completed);
 
             return Task.CompletedTask;
         }
@@ -261,8 +264,8 @@ namespace coordinator.Functions.DurableEntity.Entity
         public Task RegisterFailed()
         {
             Status = TrackerStatus.Failed;
-            Log(TrackerLogType.Failed);
             ProcessingCompleted = DateTime.Now;
+            Log(TrackerLogType.Failed);
 
             return Task.CompletedTask;
         }
@@ -270,8 +273,8 @@ namespace coordinator.Functions.DurableEntity.Entity
         public Task RegisterDeleted()
         {
             ClearState(TrackerStatus.Deleted);
-            Log(TrackerLogType.Deleted);
             ProcessingCompleted = DateTime.Now;
+            Log(TrackerLogType.Deleted);
 
             return Task.CompletedTask;
         }
@@ -298,8 +301,9 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             Status = status;
             Documents = new List<TrackerDocumentDto>();
+            DocumentsRetrieved = null;
+            ProcessingCompleted = null;
             Logs = new List<TrackerLogDto>();
-            ProcessingCompleted = null; //reset the processing date
         }
 
         private void Log(TrackerLogType status, string cmsDocumentId = null, string description = null)
