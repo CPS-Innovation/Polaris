@@ -1,0 +1,124 @@
+﻿stages:
+  - stage: Determine_Changes
+    displayName: Determine Changes
+    jobs:
+      - job: Generate_Diff
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $files = $(git diff --name-only --relative --diff-filter AMR HEAD^ HEAD)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"                    
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/coordinator/*')
+                  {
+                    echo "run coordinator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/pdf-generator/*')
+                  {
+                    echo "run pdf generator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/text-extractor/*')
+                  {
+                    echo "run text extractor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-gateway/*')
+                  {
+                    echo "run gateway..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-auth-handover/*')
+                  {
+                    echo "run auth handover..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/DdeiClient/*')
+                  {
+                    echo "changes to DdeiClient detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/Common/*')
+                  {
+                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-gateway.common/*')
+                  {
+                    echo "changes to the Gateway's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                  }
+                }
+            name: Change_Results
+            displayName: Processing changes to repo
