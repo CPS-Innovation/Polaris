@@ -155,7 +155,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             className={`govuk-grid-column-three-quarters ${classes.rightColumn}`}
           >
             {!tabsState.items.length ? (
-              <PdfTabsEmpty />
+              <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
                 pipelineState={pipelineState}

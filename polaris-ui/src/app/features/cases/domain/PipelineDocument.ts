@@ -6,10 +6,9 @@ export type PipelineDocumentProperties = {
   pdfBlobName: string;
   isPdfAvailable?: boolean;
   status:
-    | "None"
+    | "New"
     | "PdfUploadedToBlob"
     | "Indexed"
-    | "NotFoundInCDE"
     | "UnableToConvertToPdf"
     | "UnexpectedFailure"
     | "OcrAndIndexFailure";

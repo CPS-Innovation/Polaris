@@ -7,6 +7,9 @@ declare global {
       safeLogEnvVars(): Chainable<any>
       loginToAD(): Chainable<any>
       loginToCms(): Chainable<any>
+      preemptivelyAttachCookies(): Chainable<any>
+      fullLogin(): Chainable<any>
+      clearCaseTracker(urn: string, caseId: string): Chainable<any>
       requestToken(): Chainable<Response<unknown>>
     }
   }
@@ -19,6 +22,7 @@ const {
   APISCOPE,
   AD_USERNAME,
   AD_PASSWORD,
+  API_ROOT_DOMAIN,
   CMS_USERNAME,
   CMS_PASSWORD,
   CMS_LOGIN_PAGE_URL,
@@ -55,6 +59,27 @@ Cypress.Commands.add("safeLogEnvVars", () => {
 
   cy.log(JSON.stringify(processedEnvVars))
 })
+
+Cypress.Commands.add(
+  "requestToken",
+  {
+    prevSubject: ["optional"],
+  },
+  () =>
+    cy.request({
+      url: AUTHORITY + "/oauth2/v2.0/token",
+      method: "POST",
+      body: {
+        grant_type: "password",
+        client_id: CLIENTID,
+        client_secret: CLIENTSECRET,
+        scope: ["openid profile"].concat([APISCOPE]).join(" "),
+        username: AD_USERNAME,
+        password: AD_PASSWORD,
+      },
+      form: true,
+    })
+)
 
 Cypress.Commands.add("loginToAD", () => {
   let getToken =
@@ -113,23 +138,33 @@ Cypress.Commands.add("loginToCms", () => {
   )
 })
 
-Cypress.Commands.add(
-  "requestToken",
-  {
-    prevSubject: ["optional"],
-  },
-  () =>
-    cy.request({
-      url: AUTHORITY + "/oauth2/v2.0/token",
-      method: "POST",
-      body: {
-        grant_type: "password",
-        client_id: CLIENTID,
-        client_secret: CLIENTSECRET,
-        scope: ["openid profile"].concat([APISCOPE]).join(" "),
-        username: AD_USERNAME,
-        password: AD_PASSWORD,
-      },
-      form: true,
-    })
-)
+Cypress.Commands.add("preemptivelyAttachCookies", () => {
+  var args = {
+    redirectUrl:
+      API_ROOT_DOMAIN +
+      "/polaris?polaris-ui-url=" +
+      encodeURIComponent(Cypress.config().baseUrl + "?auth-refresh"),
+  } as { redirectUrl: string }
+
+  cy.origin(API_ROOT_DOMAIN, { args }, ({ redirectUrl }) => {
+    cy.visit(redirectUrl)
+  })
+})
+
+Cypress.Commands.add("fullLogin", () => {
+  cy.loginToAD().loginToCms().preemptivelyAttachCookies()
+})
+
+Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
+  cy.request({
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
+    method: "DELETE",
+    followRedirect: false,
+    headers: {
+      authorization: `Bearer ${cachedTokenResponse.access_token}`,
+      "correlation-id": "E2E00000-0000-0000-0000-000000000000",
+      credentials: "include",
+    },
+  })
+  cy.wait(2000)
+})
