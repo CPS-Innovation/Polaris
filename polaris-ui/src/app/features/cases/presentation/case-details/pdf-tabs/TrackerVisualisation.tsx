@@ -5,16 +5,24 @@ type Props = {
   pipelineState: CaseDetailsState["pipelineState"];
 };
 
-const renderDoc = (doc: PipelineDocument) => {
+const zeroDocs = () => <>?</>;
+
+const renderDocResults = (docs: PipelineDocument[]) => {
+  return docs.map((doc) => {
+    return <span key={doc.documentId}>{renderDocResult(doc)}</span>;
+  });
+};
+
+const renderDocResult = (doc: PipelineDocument) => {
   switch (doc.status) {
     case "New":
-      return <span style={{ color: "lightgrey" }}>.</span>;
+      return <span style={{ color: "#dddddd" }}>.</span>;
     case "PdfUploadedToBlob":
-      return <span style={{ color: "goldenrod" }}>-</span>;
+      return <span style={{ color: "#dddddd" }}>-</span>;
     case "Indexed":
-      return <span style={{ color: "green" }}>+</span>;
+      return <span style={{ color: "#dddddd" }}>+</span>;
     default:
-      return <span style={{ color: "red" }}>x</span>;
+      return <span style={{ color: "#dddddd" }}>x</span>;
   }
 };
 
@@ -23,19 +31,11 @@ export const TrackerVisualisation: React.FC<Props> = ({ pipelineState }) => {
     return null;
   }
 
-  if (!pipelineState.data.documents.length) {
-    return (
-      <div style={{ textAlign: "center", fontFamily: "monospace" }}>
-        This case has no documents
-      </div>
-    );
-  }
-
   return (
     <div style={{ textAlign: "center", fontFamily: "monospace" }}>
-      {pipelineState.data.documents.map((doc) => {
-        return <span key={doc.documentId}>{renderDoc(doc)}</span>;
-      })}
+      {!pipelineState.data.documents.length
+        ? zeroDocs()
+        : renderDocResults(pipelineState.data.documents)}
     </div>
   );
 };
