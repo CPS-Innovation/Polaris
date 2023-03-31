@@ -1,5 +1,3 @@
-using coordinator.Domain.Tracker;
-
 namespace coordinator.Services.DocumentToggle.Domain
 {
     public class Definition
