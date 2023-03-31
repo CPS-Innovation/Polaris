@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Text;
 using Common.Configuration;
 using Common.Constants;
@@ -24,7 +25,9 @@ namespace Gateway.Clients.PolarisPipeline
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<PipelineClient> _logger;
 
-        public PipelineClient(
+        private static readonly HttpStatusCode[] ExpectedRefreshErrorStatusCodes = { HttpStatusCode.Locked };
+
+    public PipelineClient(
             IPipelineClientRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
             IConfiguration configuration,
@@ -38,16 +41,17 @@ namespace Gateway.Clients.PolarisPipeline
             _logger = logger;
         }
 
-        public async Task<IActionResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<StatusCodeResult> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(RefreshCaseAsync), $"CaseId: {caseId}");
 
             var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-            await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
+            var response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId, null, ExpectedRefreshErrorStatusCodes);
+            HttpStatusCode statusCode = response.StatusCode;
 
-            _logger.LogMethodExit(correlationId, nameof(RefreshCaseAsync), string.Empty);
+            _logger.LogMethodExit(correlationId, nameof(RefreshCaseAsync), statusCode.ToString());
 
-            return new OkResult();
+            return new StatusCodeResult((int)statusCode);
         }
 
         public async Task<IActionResult> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
@@ -226,7 +230,7 @@ namespace Gateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(stringContent, correlationId);
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, string cmsAuthValues, Guid correlationId, HttpContent content = null)
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, string cmsAuthValues, Guid correlationId, HttpContent content = null, HttpStatusCode[] expectedResponseCodes=null)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendRequestAsync), requestUri);
 
@@ -234,7 +238,8 @@ namespace Gateway.Clients.PolarisPipeline
             request.Content = content;
             var response = await _httpClient.SendAsync(request);
 
-            response.EnsureSuccessStatusCode();
+            if (expectedResponseCodes?.Contains(response.StatusCode) != true)
+                response.EnsureSuccessStatusCode();
 
             _logger.LogMethodExit(correlationId, nameof(SendRequestAsync), string.Empty);
             return response;
