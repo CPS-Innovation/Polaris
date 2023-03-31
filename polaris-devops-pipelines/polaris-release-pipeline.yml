@@ -166,6 +166,7 @@ stages:
       name: $(dev-build-agent)
     jobs:
       - deployment: Deploy_DEV
+        condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -466,10 +467,21 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     Action: 'Restart Azure App Service'
                     WebAppName: "as-web-polaris-dev"
+                    
+                # For DEV only, run the e2e test
+                - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
+                  displayName: 'Run the e2e tests'
+                  inputs:
+                    serviceConnection: 'DevOps API Build and Release Connector'
+                    project: 'b22de6aa-9da5-4bf2-afb5-c15f5f9cb3bf'
+                    Pipeline: Build
+                    buildDefinition: 129
 
   - stage: Apply_QA
     displayName: QA Deployment
-    dependsOn: Determine_Changes
+    dependsOn:
+      - Determine_Changes
+      - Apply_DEV
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
@@ -789,7 +801,9 @@ stages:
 
   - stage: Apply_PROD
     displayName: PROD Deployment
-    dependsOn: Determine_Changes
+    dependsOn:
+      - Determine_Changes
+      - Apply_DEV
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
