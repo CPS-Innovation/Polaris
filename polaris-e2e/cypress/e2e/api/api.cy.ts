@@ -37,7 +37,7 @@ const GET_TRACKER = () => ({
   headers,
 })
 
-describe("Api tests", () => {
+describe("API tests", () => {
   beforeEach(() => {
     cy.getApiHeaders().then((apiHeaders) => {
       headers = apiHeaders
@@ -52,7 +52,7 @@ describe("Api tests", () => {
       })
   })
 
-  it("can process a case", () => {
+  it("the pipeline can clear then process a case to completion", () => {
     cy.api(TRACKER_CLEAR())
       .waitUntil(
         () =>
