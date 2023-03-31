@@ -1,4 +1,4 @@
-import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
+import { ApiTextSearchResult } from "../../domain/gateway/ApiTextSearchResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { mapTextSearch } from "./map-text-search";
 

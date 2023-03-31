@@ -1,4 +1,4 @@
-import { PipelineDocument } from "../../../domain/PipelineDocument";
+import { PipelineDocument } from "../../../domain/gateway/PipelineDocument";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 
 type Props = {

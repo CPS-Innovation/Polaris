@@ -1,5 +1,5 @@
 import { isMultipleChargeCase } from "./isMultipleChargeCase";
-import { CaseDetails } from "../../../domain/CaseDetails";
+import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 describe("isMultipleChargeCase util", () => {
   it("Should return true if there are more than one defendants in caseDetails", () => {
     const caseDetails: CaseDetails = {

@@ -1,4 +1,4 @@
-import { PresentationDocumentProperties } from "./PipelineDocument";
+import { PresentationDocumentProperties } from "./gateway/PipelineDocument";
 
 export type MappedCaseDocument = PresentationDocumentProperties & {
   presentationCategory: string;

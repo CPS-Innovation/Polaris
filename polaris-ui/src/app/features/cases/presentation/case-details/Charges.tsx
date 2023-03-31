@@ -1,4 +1,4 @@
-import { CaseDetails } from "../../domain/CaseDetails";
+import { CaseDetails } from "../../domain/gateway/CaseDetails";
 import { getFormattedCustodyTimeData } from "../case-details/utils/chargesUtil";
 import classes from "./index.module.scss";
 
