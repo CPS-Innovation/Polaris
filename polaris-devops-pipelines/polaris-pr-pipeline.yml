@@ -44,7 +44,7 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                $files = $(git diff --name-only --relative --diff-filter AMR HEAD^ HEAD)
+                $files = $(git diff --name-only origin/main)
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "Total changed $count files"
