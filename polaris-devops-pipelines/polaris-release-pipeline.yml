@@ -497,6 +497,7 @@ stages:
               buildDefinition: 129
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
 
   - stage: Apply_QA
     displayName: QA Deployment
