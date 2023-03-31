@@ -1,4 +1,4 @@
-import { CustodyTimeLimit } from "../../../domain/CaseDetails";
+import { CustodyTimeLimit } from "../../../domain/gateway/CaseDetails";
 import {
   CommonDateTimeFormats,
   formatDate,

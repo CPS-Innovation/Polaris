@@ -4,9 +4,9 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import * as api from "../../api/gateway-api";
 import * as headerFactory from "../../api/header-factory";
-import { RedactionSaveResponse } from "../../domain/RedactionSaveResponse";
+import { RedactionSaveResponse } from "../../domain/gateway/RedactionSaveResponse";
 import * as mapRedactionSaveRequest from "./map-redaction-save-request";
-import { RedactionSaveRequest } from "../../domain/RedactionSaveRequest";
+import { RedactionSaveRequest } from "../../domain/gateway/RedactionSaveRequest";
 
 describe("reducerAsyncActionHandlers", () => {
   const dispatchMock = jest.fn();

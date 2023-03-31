@@ -20,7 +20,7 @@ import { PageContentWrapper } from "../../../../common/presentation/components";
 import { WaitPage } from "../../../../common/presentation/components";
 import { useApi } from "../../../../common/hooks/useApi";
 import { searchUrn } from "../../api/gateway-api";
-import { CaseSearchResult } from "../../domain/CaseSearchResult";
+import { CaseSearchResult } from "../../domain/gateway/CaseSearchResult";
 
 import classes from "./index.module.scss";
 import { SectionBreak } from "../../../../common/presentation/components";

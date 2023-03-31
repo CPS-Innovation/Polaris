@@ -2,7 +2,7 @@ import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseD
 import { SearchBox } from "../search-box/SearchBox";
 import classes from "./Content.module.scss";
 import { SucceededApiResult } from "../../../../../common/types/SucceededApiResult";
-import { CaseDetails } from "../../../domain/CaseDetails";
+import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 import { Results } from "./ready-mode/Results";
 import React from "react";
 

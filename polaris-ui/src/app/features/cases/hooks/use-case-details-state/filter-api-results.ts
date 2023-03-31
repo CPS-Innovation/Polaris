@@ -1,4 +1,4 @@
-import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
+import { ApiTextSearchResult } from "../../domain/gateway/ApiTextSearchResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 
 // Due to a limitation of the search service, we may have search results coming through from previous

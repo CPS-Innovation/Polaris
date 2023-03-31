@@ -1,6 +1,6 @@
 import { Modal } from "../../../../../common/presentation/components";
 import { SucceededApiResult } from "../../../../../common/types/SucceededApiResult";
-import { CaseDetails } from "../../../domain/CaseDetails";
+import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { Content } from "./Content";
 import { useMandatoryWaitPeriod } from "../../../hooks/useMandatoryWaitPeriod";
