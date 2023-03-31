@@ -488,7 +488,7 @@ stages:
     jobs:
       - job: Run_e2e_Tests
         pool:
-          vmImage: ubuntu-latest
+          vmImage: windows-latest
         steps:
           - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
             displayName: 'Run the e2e tests'

@@ -9,7 +9,6 @@ using Common.Domain.Exceptions;
 using Common.Health;
 using System;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Domain.Logging;
 using Common.Domain.Extensions;
 using Common.Configuration;
 using Common.Logging;
