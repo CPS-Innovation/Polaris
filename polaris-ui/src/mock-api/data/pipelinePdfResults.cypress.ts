@@ -1,13 +1,18 @@
 import { PipelineResults } from "../../app/features/cases/domain/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 
-const dataSource: PipelinePdfResultsDataSource = () => pipelinePdfResults;
+const dataSource: PipelinePdfResultsDataSource = () => [
+  pipelinePdfResults,
+  pipelinePdfResults,
+];
 
 export default dataSource;
 
 const pipelinePdfResults: PipelineResults = {
   transactionId: "121",
   status: "Completed",
+  processingCompleted: new Date().toISOString(),
+  documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",
@@ -18,6 +23,8 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-01",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 1,
         code: "MG11",
@@ -30,13 +37,15 @@ const pipelinePdfResults: PipelineResults = {
     },
     {
       documentId: "2",
-      cmsDocumentId: "1",
+      cmsDocumentId: "2",
       pdfBlobName: "CM01",
       status: "Indexed",
       cmsOriginalFileName: "CM01",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 2,
         code: "MG12",
@@ -56,6 +65,8 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG13",
@@ -75,6 +86,8 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-04",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 4,
         code: "MG14",
@@ -94,6 +107,8 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
         code: "MG15",
@@ -110,6 +125,8 @@ const pipelinePdfResults: PipelineResults = {
 export const missingDocsPipelinePdfResults: PipelineResults = {
   transactionId: "121",
   status: "Completed",
+  processingCompleted: new Date().toISOString(),
+  documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",
@@ -120,6 +137,8 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG3",
@@ -139,6 +158,8 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 11,
         code: "MG11",
@@ -158,6 +179,8 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
         code: "MG5",
@@ -177,6 +200,8 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 6,
         code: "MG6",
@@ -196,6 +221,8 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG3",
@@ -212,6 +239,8 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
 export const allMissingDocsPipelinePdfResults: PipelineResults = {
   transactionId: "121",
   status: "Completed",
+  processingCompleted: new Date().toISOString(),
+  documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",
@@ -222,6 +251,8 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG3",
@@ -241,6 +272,8 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 11,
         code: "MG11",
@@ -260,6 +293,8 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
         code: "MG5",
@@ -279,6 +314,8 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 6,
         code: "MG6",
@@ -298,6 +335,8 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
+      cmsVersionId: 1,
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG3",

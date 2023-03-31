@@ -52,6 +52,7 @@ export const setupHandlers = ({
   // make sure we are reading a number not string from config
   //  also msw will not accept a delay of 0, so if 0 is passed then just set to 1ms
   const sanitisedMaxDelay = Number(maxDelayMs) || 1;
+  const callStack = { TRACKER_ROUTE: 0 };
 
   const makeApiPath = (path: string) => new URL(path, baseUrl).toString();
 
@@ -89,12 +90,25 @@ export const setupHandlers = ({
       );
     }),
 
-    rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
-      const result = pipelinePdfResultsDataSources[sourceName]();
+    rest.put(makeApiPath(routes.SAVE_REDACTION_ROUTE), (req, res, ctx) => {
+      return res(ctx.json({}));
+    }),
 
+    rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
+      callStack["TRACKER_ROUTE"]++;
+
+      const result = pipelinePdfResultsDataSources[sourceName]();
       // always maxDelay as we want this to be slow to illustrate async nature of tracker/polling
       //  (when in dev mode)
-      return res(ctx.delay(sanitisedMaxDelay), ctx.json(result));
+      // return res(ctx.delay(sanitisedMaxDelay), ctx.json(result));
+
+      if (callStack["TRACKER_ROUTE"] === 1) {
+        console.log("retruning first result>>");
+        return res(ctx.delay(sanitisedMaxDelay), ctx.json(result[0]));
+      } else if (callStack["TRACKER_ROUTE"] === 2) {
+        console.log("retruning second result>>");
+        return res(ctx.delay(sanitisedMaxDelay), ctx.json(result[1]));
+      }
     }),
 
     rest.get(makeApiPath(routes.TEXT_SEARCH_ROUTE), (req, res, ctx) => {
@@ -109,7 +123,7 @@ export const setupHandlers = ({
 
       const blobName = pipelinePdfResultsDataSources[
         sourceName
-      ]().documents.find(
+      ]()[0].documents.find(
         (document) => document.documentId === documentId
       )?.pdfBlobName;
 
@@ -123,7 +137,7 @@ export const setupHandlers = ({
 
       const blobName = pipelinePdfResultsDataSources[
         sourceName
-      ]().documents.find(
+      ]()[0].documents.find(
         (document) => document.documentId === documentId
       )?.pdfBlobName;
 

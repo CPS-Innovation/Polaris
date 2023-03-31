@@ -20,6 +20,16 @@ import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
 
+const isNewTime = (currentTime: string, lastTime: string) => {
+  if (currentTime && !lastTime) {
+    return true;
+  }
+  if (new Date(currentTime) > new Date(lastTime)) {
+    return true;
+  }
+  return false;
+};
+
 export const reducer = (
   state: CombinedState,
   action:
@@ -30,6 +40,10 @@ export const reducer = (
     | {
         type: "UPDATE_PIPELINE";
         payload: AsyncPipelineResult<PipelineResults>;
+      }
+    | {
+        type: "UPDATE_REFRESH_PIPELINE";
+        payload: { startRefresh: boolean; savingDocumentId: string };
       }
     | {
         type: "OPEN_PDF_IN_NEW_TAB";
@@ -124,17 +138,53 @@ export const reducer = (
       }
 
       if (action.payload.status === "initiating") {
+        console.log("pipeline initiating..>>>>");
         return state;
       }
 
       let nextState = { ...state };
 
+      if (action.payload.data.status === "Completed") {
+        nextState = {
+          ...nextState,
+          generalPipelineState: {
+            refreshData: {
+              ...nextState.generalPipelineState.refreshData,
+              savingDocumentId: "",
+            },
+            lastProcessingCompleted: action.payload.data.processingCompleted,
+          },
+        };
+      }
+
+      console.log("state.documentsState.status>>", state.documentsState.status);
+      console.log(" action.payload.data.status>>", action.payload.data.status);
       // todo: proper logic to build documents
-      const shouldBuildDocumentsState =
-        action.payload.data.status !== "Running" && // anything after "Running" has documents present
-        state.documentsState.status === "loading";
+      // const shouldBuildDocumentsState =
+      //   action.payload.data.status !== "Running" && // anything after "Running" has documents present
+      //   state.documentsState.status === "loading";
+      let shouldBuildDocumentsState = false;
+      if (action.payload.data.status !== "Running") {
+        if (
+          action.payload.data.documentsRetrieved &&
+          !state.pipelineState.haveData
+        ) {
+          console.log("helloooooo 1111");
+          shouldBuildDocumentsState = true;
+        } else if (
+          state.pipelineState.haveData &&
+          action.payload.data.documentsRetrieved
+        ) {
+          console.log("helloooooo 2222");
+          shouldBuildDocumentsState = isNewTime(
+            action.payload.data.documentsRetrieved,
+            state.pipelineState.data.documentsRetrieved
+          );
+        }
+      }
 
       if (shouldBuildDocumentsState) {
+        console.log("updating the accordionState");
         const documentsState = mapDocumentsState(action.payload.data.documents);
         const accordionState = mapAccordionState(documentsState);
         nextState = {
@@ -142,6 +192,7 @@ export const reducer = (
           documentsState,
           accordionState,
         };
+        console.log("updating the accordionState1>>>", accordionState);
       }
 
       const newPipelineResults = action.payload;
@@ -158,12 +209,15 @@ export const reducer = (
           (item) =>
             item.pdfBlobName &&
             state.tabsState.items.some(
-              (tabItem) =>
-                tabItem.documentId === item.documentId && !tabItem.url
+              (tabItem) => tabItem.documentId === item.documentId
             )
         )
-        .map(({ documentId, pdfBlobName }) => ({ documentId, pdfBlobName }));
-
+        .map(({ documentId, pdfBlobName, polarisDocumentVersionId }) => ({
+          documentId,
+          pdfBlobName,
+          polarisDocumentVersionId,
+        }));
+      // && !tabItem.url
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }
@@ -181,12 +235,13 @@ export const reducer = (
         const matchingFreshPdfRecord = openPdfsWeNeedToUpdate.find(
           (item) => item.documentId === curr.documentId
         );
-
+        debugger;
         if (matchingFreshPdfRecord) {
           const url = resolvePdfUrl(
             state.urn,
             state.caseId,
-            matchingFreshPdfRecord.documentId
+            matchingFreshPdfRecord.documentId,
+            matchingFreshPdfRecord.polarisDocumentVersionId
           );
           return [
             ...prev,
@@ -196,9 +251,24 @@ export const reducer = (
         return [...prev, curr];
       }, [] as CaseDocumentViewModel[]);
 
+      console.log("documents are updated 111111111111111111");
       return {
         ...coreNextPipelineState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
+      };
+    }
+
+    case "UPDATE_REFRESH_PIPELINE": {
+      console.log("UPDATE_REFRESH_PIPELINE>>>>", action.payload);
+      return {
+        ...state,
+        generalPipelineState: {
+          ...state.generalPipelineState,
+          refreshData: {
+            startRefresh: action.payload.startRefresh,
+            savingDocumentId: action.payload.savingDocumentId,
+          },
+        },
       };
     }
     case "OPEN_PDF_IN_NEW_TAB": {
@@ -217,6 +287,8 @@ export const reducer = (
     }
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
+
+      console.log("documentId>>>>", documentId);
 
       const coreNewState = {
         ...state,
@@ -278,7 +350,12 @@ export const reducer = (
 
       const url =
         blobName &&
-        resolvePdfUrl(state.urn, state.caseId, pipelineDocument.documentId);
+        resolvePdfUrl(
+          state.urn,
+          state.caseId,
+          pipelineDocument.documentId,
+          pipelineDocument.polarisDocumentVersionId
+        );
 
       let item: CaseDocumentViewModel;
 

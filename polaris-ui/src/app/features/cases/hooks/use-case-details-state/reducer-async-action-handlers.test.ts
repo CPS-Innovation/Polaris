@@ -4,7 +4,6 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import * as api from "../../api/gateway-api";
 import * as headerFactory from "../../api/header-factory";
-import { RedactionSaveResponse } from "../../domain/RedactionSaveResponse";
 import * as mapRedactionSaveRequest from "./map-redaction-save-request";
 import { RedactionSaveRequest } from "../../domain/RedactionSaveRequest";
 
@@ -526,7 +525,7 @@ describe("reducerAsyncActionHandlers", () => {
 
       const saveSpy = jest
         .spyOn(api, "saveRedactions")
-        .mockImplementation(() => Promise.resolve({} as RedactionSaveResponse));
+        .mockImplementation(() => Promise.resolve(true));
 
       // const checkInSpy = jest
       //   .spyOn(api, "cancelCheckoutDocument")

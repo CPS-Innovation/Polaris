@@ -30,6 +30,7 @@ describe("initiateAndPoll", () => {
       "0",
       1,
       POLLING_INTERVAL_MS,
+      "",
       (res) => (results = res)
     );
 
@@ -63,6 +64,7 @@ describe("initiateAndPoll", () => {
       "0",
       1,
       POLLING_INTERVAL_MS,
+      "",
       (res) => (results = res)
     );
 
@@ -101,6 +103,7 @@ describe("initiateAndPoll", () => {
       "0",
       1,
       POLLING_INTERVAL_MS,
+      "",
       (res) => (results = res)
     );
 
@@ -126,6 +129,7 @@ describe("initiateAndPoll", () => {
     const expectedResults = {
       transactionId: "",
       status: "Completed",
+      processingCompleted: new Date().toISOString(),
       documents: [{ pdfBlobName: "foo" }],
     } as PipelineResults;
 
@@ -138,6 +142,7 @@ describe("initiateAndPoll", () => {
       "0",
       1,
       POLLING_INTERVAL_MS,
+      "",
       (res) => (results = res)
     );
 
@@ -171,6 +176,7 @@ describe("initiateAndPoll", () => {
     const expectedFinalResults = {
       transactionId: "",
       status: "Completed",
+      processingCompleted: new Date().toISOString(),
       documents: [
         { pdfBlobName: "foo", status: "PdfUploadedToBlob" },
         { pdfBlobName: "bar", status: "PdfUploadedToBlob" },
@@ -190,7 +196,7 @@ describe("initiateAndPoll", () => {
       });
 
     let results: AsyncPipelineResult<PipelineResults>;
-    const quitFn = initiateAndPoll("0", 1, POLLING_INTERVAL_MS, (res) => {
+    const quitFn = initiateAndPoll("0", 1, POLLING_INTERVAL_MS, "", (res) => {
       results = res;
     });
 

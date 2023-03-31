@@ -26,7 +26,7 @@ export const AccordionDocument: React.FC<Props> = ({
         {canViewDocument ? (
           <LinkButton
             onClick={() => {
-              handleOpenPdf(caseDocument);
+              handleOpenPdf({ documentId: caseDocument.documentId });
             }}
             className={`${classes["accordion-document-link-button"]}`}
             dataTestId={`link-document-${caseDocument.documentId}`}

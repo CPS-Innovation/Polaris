@@ -4,7 +4,6 @@ import { CaseSearchResult } from "../domain/CaseSearchResult";
 import { PipelineResults } from "../domain/PipelineResults";
 import { ApiTextSearchResult } from "../domain/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/RedactionSaveRequest";
-import { RedactionSaveResponse } from "../domain/RedactionSaveResponse";
 import * as HEADERS from "./header-factory";
 import { CaseDetails } from "../domain/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
@@ -41,8 +40,12 @@ const temporaryApiModelMapping = (arr: any[]) =>
 export const resolvePdfUrl = (
   urn: string,
   caseId: number,
-  documentId: string
-) => fullUrl(`api/urns/${urn}/cases/${caseId}/documents/${documentId}`);
+  documentId: string,
+  polarisDocumentVersionId: number
+) =>
+  fullUrl(
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
+  );
 
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
@@ -218,7 +221,7 @@ export const saveRedactions = async (
   caseId: number,
   documentId: string,
   redactionSaveRequest: RedactionSaveRequest
-) => {
+): Promise<boolean> => {
   const url = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
@@ -233,7 +236,7 @@ export const saveRedactions = async (
     throw new ApiError("Save redactions failed", url, response);
   }
 
-  return (await response.json()) as RedactionSaveResponse;
+  return true;
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

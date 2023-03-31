@@ -7,11 +7,21 @@ import { getPipelinpipelineCompletionStatus } from "../../domain/PipelineStatus"
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
 
+const isNewTime = (currentTime: string, lastTime: string) => {
+  if (currentTime && !lastTime) {
+    return true;
+  }
+  if (new Date(currentTime) > new Date(lastTime)) {
+    return true;
+  }
+  return false;
+};
 export const initiateAndPoll = (
   // todo: _ wrap up in to an object arg
   urn: string,
   caseId: number,
   delayMs: number,
+  lastProcessingCompleted: string,
   del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void
 ) => {
   let keepPolling = true;
@@ -24,7 +34,15 @@ export const initiateAndPoll = (
       pipelineResult.status
     );
 
-    if (completionStatus === "Completed") {
+    console.log(
+      "newTime >>>>>",
+      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted)
+    );
+    debugger;
+    if (
+      completionStatus === "Completed" &&
+      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted)
+    ) {
       del({
         status: "complete",
         data: pipelineResult,
@@ -67,13 +85,16 @@ export const initiateAndPoll = (
     while (keepPolling) {
       try {
         await delay(delayMs);
-
+        console.log("pipelineResult>>>11");
         const pipelineResult = await getPipelinePdfResults(
           trackerArgs.trackerUrl,
           trackerArgs.correlationId
         );
+
+        console.log("pipelineResult>>>", pipelineResult);
         handleApiCallSuccess(pipelineResult);
       } catch (error) {
+        console.log("pipelineResult>>>22");
         handleApiCallError(error);
       }
     }

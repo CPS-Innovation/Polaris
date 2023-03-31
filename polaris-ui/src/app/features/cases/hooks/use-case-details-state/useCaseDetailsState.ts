@@ -15,6 +15,10 @@ export const initialState = {
   caseState: { status: "loading" },
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false },
+  generalPipelineState: {
+    refreshData: { startRefresh: true, savingDocumentId: "" },
+    lastProcessingCompleted: "",
+  },
   accordionState: { status: "loading" },
   tabsState: { items: [], headers: {}, activeTabId: undefined },
   searchTerm: "",
@@ -35,12 +39,16 @@ export const initialState = {
 export const useCaseDetailsState = (urn: string, caseId: number) => {
   const caseState = useApi(getCaseDetails, [urn, caseId]);
 
-  const pipelineState = usePipelineApi(urn, caseId);
-
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
     { ...initialState, caseId, urn },
     reducerAsyncActionHandlers
+  );
+
+  const pipelineState = usePipelineApi(
+    urn,
+    caseId,
+    combinedState.generalPipelineState
   );
 
   useEffect(() => {
@@ -48,10 +56,22 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
   }, [caseState, dispatch]);
 
-  useEffect(
-    () => dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState }),
-    [pipelineState, dispatch]
-  );
+  useEffect(() => {
+    if (combinedState.generalPipelineState.refreshData) {
+      dispatch({
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: false,
+          savingDocumentId:
+            combinedState.generalPipelineState.refreshData.savingDocumentId,
+        },
+      });
+    }
+  }, [combinedState.generalPipelineState.refreshData.startRefresh, dispatch]);
+
+  useEffect(() => {
+    dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState });
+  }, [pipelineState, dispatch]);
 
   const searchResults = useApi(
     searchCase,
@@ -94,6 +114,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       documentId: CaseDocumentViewModel["documentId"];
       mode: CaseDocumentViewModel["mode"];
     }) => {
+      console.log("documentId>>>000", caseDocument.documentId);
       dispatch({
         type: "REQUEST_OPEN_PDF",
         payload: {

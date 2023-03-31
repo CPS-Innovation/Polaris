@@ -71,6 +71,8 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               transactionId: "123",
               status: "Running",
+              processingCompleted: "",
+              documentsRetrieved: "",
               documents: [],
             },
           } as AsyncPipelineResult<PipelineResults>,
@@ -136,6 +138,7 @@ describe("useCaseDetailsState reducer", () => {
                 transactionId: "123",
                 status: "DocumentsRetrieved",
                 documents: mockNewPdfDocuments,
+                documentsRetrieved: new Date().toISOString(),
               },
             } as AsyncPipelineResult<PipelineResults>,
           }
@@ -228,6 +231,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           pipelineState: {},
+          generalPipelineState: { refreshData: {} },
           tabsState: { items: [] },
           documentsState: {
             status: "succeeded",
@@ -264,6 +268,19 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as AsyncPipelineResult<PipelineResults>;
 
+      const existingPipelineState = {
+        status: "complete",
+        haveData: true,
+        data: {
+          documents: [
+            {
+              documentId: "1",
+              pdfBlobName: "foo",
+            },
+          ],
+        },
+      };
+
       const existingTabsState = {
         activeTabId: "",
         items: [],
@@ -273,6 +290,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           tabsState: existingTabsState,
+          pipelineState: existingPipelineState,
           documentsState: { status: "succeeded" },
         } as CombinedState,
         {
@@ -287,6 +305,7 @@ describe("useCaseDetailsState reducer", () => {
     it("can update from pipeline tabs already open with pdf url", () => {
       const newPipelineState = {
         status: "complete",
+        haveData: true,
         data: {
           documents: [
             {
@@ -296,6 +315,18 @@ describe("useCaseDetailsState reducer", () => {
           ],
         },
       } as CombinedState["pipelineState"];
+      const existingPipelineState = {
+        status: "complete",
+        haveData: true,
+        data: {
+          documents: [
+            {
+              documentId: "2",
+              pdfBlobName: "foo",
+            },
+          ],
+        },
+      };
 
       const existingTabsState = {
         items: [
@@ -316,6 +347,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           tabsState: existingTabsState,
+          pipelineState: existingPipelineState,
           documentsState: { status: "succeeded" },
           urn: "bar",
           caseId: 99,

@@ -224,7 +224,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     },
 
   SAVE_REDACTIONS:
-    ({ getState }) =>
+    ({ dispatch, getState }) =>
     async (action) => {
       const { payload } = action;
       const { documentId } = payload;
@@ -253,7 +253,19 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         redactionSaveRequest
       );
 
-      window.open(response.redactedDocumentUrl);
+      if (response) {
+        dispatch({
+          type: "REMOVE_ALL_REDACTIONS",
+          payload: { documentId },
+        });
+
+        dispatch({
+          type: "UPDATE_REFRESH_PIPELINE",
+          payload: { startRefresh: true, savingDocumentId: documentId },
+        });
+      }
+
+      // window.open(response.redactedDocumentUrl);
 
       // todo: does a save IN THE CGI API check a document in automatically?
       //await cancelCheckoutDocument(urn, caseId, documentId);

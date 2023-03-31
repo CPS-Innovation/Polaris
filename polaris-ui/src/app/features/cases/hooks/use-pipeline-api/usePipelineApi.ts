@@ -3,11 +3,14 @@ import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { PipelineResults } from "../../domain/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
 import { PIPELINE_POLLING_DELAY } from "../../../../config";
+import { CombinedState } from "../../domain/CombinedState";
 
 export const usePipelineApi = (
   urn: string,
-  caseId: number
+  caseId: number,
+  generalPipelineState: CombinedState["generalPipelineState"]
 ): AsyncPipelineResult<PipelineResults> => {
+  const { refreshData, lastProcessingCompleted } = generalPipelineState;
   const [pipelineResults, setPipelineResults] = useState<
     AsyncPipelineResult<PipelineResults>
   >({
@@ -16,10 +19,17 @@ export const usePipelineApi = (
   });
 
   useEffect(() => {
-    return initiateAndPoll(urn, caseId, PIPELINE_POLLING_DELAY, (results) =>
-      setPipelineResults(results)
-    );
-  }, [caseId, urn]);
+    if (refreshData.startRefresh) {
+      console.log("initiateAndPoll >>>>>");
+      initiateAndPoll(
+        urn,
+        caseId,
+        PIPELINE_POLLING_DELAY,
+        lastProcessingCompleted,
+        (results) => setPipelineResults(results)
+      );
+    }
+  }, [caseId, urn, refreshData.startRefresh, lastProcessingCompleted]);
 
   return pipelineResults;
 };

@@ -43,6 +43,8 @@ describe("mapAccordionState", () => {
           cmsMimeType: "application/pdf",
           presentationFileName: "foo!",
           cmsDocCategory: "MGForm",
+          cmsVersionId: 1,
+          polarisDocumentVersionId: 1,
           cmsDocType: {
             id: 1,
             code: "MG11",
@@ -62,6 +64,8 @@ describe("mapAccordionState", () => {
           cmsMimeType: "application/pdf",
           presentationFileName: "bar!",
           cmsDocCategory: "MGForm",
+          cmsVersionId: 1,
+          polarisDocumentVersionId: 1,
           cmsDocType: {
             id: 2,
             code: "MG12",
@@ -93,6 +97,8 @@ describe("mapAccordionState", () => {
               cmsMimeType: "application/pdf",
               presentationFileName: "foo!",
               cmsDocCategory: "MGForm",
+              cmsVersionId: 1,
+              polarisDocumentVersionId: 1,
               cmsDocType: {
                 id: 1,
                 code: "MG11",
@@ -118,6 +124,8 @@ describe("mapAccordionState", () => {
               cmsMimeType: "application/pdf",
               presentationFileName: "bar!",
               cmsDocCategory: "MGForm",
+              cmsVersionId: 1,
+              polarisDocumentVersionId: 1,
               cmsDocType: {
                 id: 2,
                 code: "MG12",

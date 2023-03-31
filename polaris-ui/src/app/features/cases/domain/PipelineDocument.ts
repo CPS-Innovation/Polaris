@@ -27,12 +27,14 @@ export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
   cmsOriginalFileName: string;
+  polarisDocumentVersionId: number;
   cmsMimeType: string;
   cmsFileCreatedDate: string;
   cmsDocCategory: CmsDocCategory;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
+  cmsVersionId: number;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

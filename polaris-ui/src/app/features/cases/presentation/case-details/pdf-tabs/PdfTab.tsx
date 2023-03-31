@@ -13,6 +13,7 @@ type PdfTabProps = {
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   redactStatus: PresentationFlags["write"];
+  savingDocumentId: string;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -25,6 +26,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   caseDocumentViewModel,
   headers,
   redactStatus,
+  savingDocumentId,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -59,6 +61,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     () => handleSavedRedactions(documentId),
     [documentId, handleSavedRedactions]
   );
+
+  if (savingDocumentId === caseDocumentViewModel.documentId) {
+    return <Wait />;
+  }
 
   return (
     <>

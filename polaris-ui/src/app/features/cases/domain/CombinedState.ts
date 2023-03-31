@@ -15,6 +15,10 @@ export type CombinedState = {
   caseState: AsyncResult<CaseDetails>;
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
+  generalPipelineState: {
+    refreshData: { startRefresh: boolean; savingDocumentId: string };
+    lastProcessingCompleted: string;
+  };
   accordionState: AsyncResult<AccordionDocumentSection[]>;
   tabsState: {
     items: CaseDocumentViewModel[];
