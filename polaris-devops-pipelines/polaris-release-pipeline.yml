@@ -488,16 +488,15 @@ stages:
     jobs:
       - job: Run_e2e_Tests
         pool:
-          vmImage: ubuntu-latest
+          vmImage: windows-latest
         steps:
-          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests'
             condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
             inputs:
-              serviceConnection: 'DevOps API Build and Release Connector'
-              project: 'b22de6aa-9da5-4bf2-afb5-c15f5f9cb3bf'
-              Pipeline: Build
               buildDefinition: 129
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
 
   - stage: Apply_QA
     displayName: QA Deployment
