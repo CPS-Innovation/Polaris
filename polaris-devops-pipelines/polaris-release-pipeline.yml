@@ -166,6 +166,7 @@ stages:
       name: $(dev-build-agent)
     jobs:
       - deployment: Deploy_DEV
+        condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
         environment: "Dev"
         strategy:
           runOnce:
@@ -466,10 +467,43 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     Action: 'Restart Azure App Service'
                     WebAppName: "as-web-polaris-dev"
+                    
+  - stage: Run_e2e_Tests
+    displayName: Run e2e Tests
+    dependsOn:
+      - Determine_Changes
+      - Apply_DEV
+    condition: succeeded()
+    variables:
+      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
+      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR']]
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
+      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
+      runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE']]
+    jobs:
+      - job: Run_e2e_Tests
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests'
+            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
+            inputs:
+              buildDefinition: 129
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
 
   - stage: Apply_QA
     displayName: QA Deployment
-    dependsOn: Determine_Changes
+    dependsOn:
+      - Determine_Changes
+      - Run_e2e_Tests
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
@@ -789,7 +823,9 @@ stages:
 
   - stage: Apply_PROD
     displayName: PROD Deployment
-    dependsOn: Determine_Changes
+    dependsOn:
+      - Determine_Changes
+      - Run_e2e_Tests
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
