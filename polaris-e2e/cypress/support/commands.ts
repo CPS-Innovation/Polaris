@@ -116,10 +116,12 @@ Cypress.Commands.add(
         username: CMS_USERNAME,
         password: CMS_PASSWORD,
       },
-    }).then((response) => {
+    }).then(() => {
       cy.requestToken().then((response) => ({
         Authorization: `Bearer ${response.body.access_token}`,
         "Correlation-Id": CORRELATION_ID,
+        credentials: "include",
+        //Cookie: response.headers["set-cookie"][0].split(";")[0],
       }))
     })
   }
@@ -207,8 +209,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
     headers: {
       authorization: `Bearer ${cachedTokenResponse.access_token}`,
       "correlation-id": CORRELATION_ID,
-      credentials: "include",
     },
   })
-  cy.wait(2000)
+  cy.wait(1000)
 })
