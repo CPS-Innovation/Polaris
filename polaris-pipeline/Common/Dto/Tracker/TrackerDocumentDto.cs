@@ -16,6 +16,7 @@ namespace Common.Dto.Tracker
 
         public TrackerDocumentDto(
             Guid polarisDocumentId,
+            int polarisDocumentVersionId,
             string cmsDocumentId,
             long cmsVersionId,
             DocumentTypeDto cmsDocType,
@@ -26,6 +27,7 @@ namespace Common.Dto.Tracker
             PresentationFlagsDto presentationFlags)
         {
             PolarisDocumentId = polarisDocumentId;
+            PolarisDocumentVersionId = polarisDocumentVersionId;
             CmsDocumentId = cmsDocumentId;
             CmsVersionId = cmsVersionId;
             CmsDocType = cmsDocType;
@@ -39,6 +41,9 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("polarisDocumentId")]
         public Guid PolarisDocumentId { get; set; }
+
+        [JsonProperty("polarisDocumentVersionId")]
+        public int PolarisDocumentVersionId { get; set; }
 
         [JsonProperty("cmsDocumentId")]
         public string CmsDocumentId { get; set; }

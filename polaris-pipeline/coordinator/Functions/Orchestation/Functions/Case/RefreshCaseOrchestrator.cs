@@ -33,7 +33,7 @@ namespace coordinator.Functions.Orchestation.Functions.Case
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
-        public async Task<List<TrackerDocumentDto>> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task<TrackerDocumentListDeltasDto> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var payload = context.GetInput<CaseOrchestrationPayload>();
             if (payload == null)
@@ -77,7 +77,7 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             }
         }
 
-        private async Task<List<TrackerDocumentDto>> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
+        private async Task<TrackerDocumentListDeltasDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
@@ -90,29 +90,31 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             var transitionDocuments = await RetrieveTransitionDocuments(context, tracker, loggingName, log, payload);
             var deltas = await SynchroniseTrackerDocuments(tracker, loggingName, log, payload, transitionDocuments);
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{deltas.Deleted.Count} document deleted and {deltas.CreatedOrUpdated.Count} new or updated documents for case {payload.CmsCaseId}");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{deltas.Created.Count} document created, {deltas.Updated.Count} updated and {deltas.Deleted.Count} document deleted for case {payload.CmsCaseId}");
+            var refreshDocuments = deltas.Created.Concat(deltas.Updated).ToList();
+
             var caseDocumentTasks
-                = deltas.CreatedOrUpdated
-                        .Select
-                        (
-                            t => context.CallSubOrchestratorAsync
+                = refreshDocuments
+                    .Select
+                    (
+                        t => context.CallSubOrchestratorAsync
+                                (
+                                    nameof(RefreshDocumentOrchestrator),
+                                    new CaseDocumentOrchestrationPayload
                                     (
-                                        nameof(RefreshDocumentOrchestrator),
-                                        new CaseDocumentOrchestrationPayload
-                                        (
-                                            t.PolarisDocumentId,
-                                            payload.CmsCaseUrn,
-                                            payload.CmsCaseId,
-                                            t.CmsDocType.DocumentCategory,
-                                            t.CmsDocumentId,
-                                            t.CmsVersionId,
-                                            t.CmsOriginalFileName,
-                                            payload.CmsAuthValues,
-                                            payload.CorrelationId
-                                        )
+                                        t.PolarisDocumentId,
+                                        payload.CmsCaseUrn,
+                                        payload.CmsCaseId,
+                                        t.CmsDocType.DocumentCategory,
+                                        t.CmsDocumentId,
+                                        t.CmsVersionId,
+                                        t.CmsOriginalFileName,
+                                        payload.CmsAuthValues,
+                                        payload.CorrelationId
                                     )
-                        )
-                        .ToList();
+                                )
+                    )
+                    .ToList();
 
             var changed = deltas.Any();
 
@@ -124,11 +126,12 @@ namespace coordinator.Functions.Orchestation.Functions.Case
                     throw new CaseOrchestrationException("All documents failed to process during orchestration.");
             }
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{caseDocumentTasks.Count} of {deltas.CreatedOrUpdated.Count} documents processed successfully for case {payload.CmsCaseId}");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Documents Refreshed, {deltas.Created.Count} created, {deltas.Updated.Count} updated, {deltas.Deleted.Count} deleted");
+
             await tracker.RegisterCompleted();
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning changed documents");
-            return deltas.CreatedOrUpdated;
+            return deltas;
         }
 
         private static async Task BufferCall(Task task)

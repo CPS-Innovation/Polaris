@@ -17,7 +17,7 @@ type Props = {
 
 export const ListItem: React.FC<Props> = ({
   documentResult: {
-    cmsOriginalFileName: fileName,
+    presentationFileName,
     documentId,
     cmsFileCreatedDate: createdDate,
     cmsDocType,
@@ -36,7 +36,7 @@ export const ListItem: React.FC<Props> = ({
           dataTestId={`link-result-document-${documentId}`}
           className={classes.headingLinkButton}
         >
-          {fileName}
+          {presentationFileName}
         </LinkButton>
       </h2>
 
