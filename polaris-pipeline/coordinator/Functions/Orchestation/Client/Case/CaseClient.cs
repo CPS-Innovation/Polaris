@@ -163,7 +163,9 @@ namespace coordinator.Functions.Orchestation.Client.Case
                     existingInstance.RuntimeStatus
                         is OrchestrationRuntimeStatus.Completed
                         or OrchestrationRuntimeStatus.Failed
-                        or OrchestrationRuntimeStatus.Terminated;
+                        or OrchestrationRuntimeStatus.Terminated
+                        // Is this correct? unit tests assert Canceled state, but MS docs don't include this state
+                        or OrchestrationRuntimeStatus.Canceled; 
 
             return !notRunning;
         }
