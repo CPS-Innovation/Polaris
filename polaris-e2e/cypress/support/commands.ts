@@ -15,7 +15,22 @@ declare global {
         Authorization: string
         "Correlation-Id": string
       }>
+
+      // roll our own typing to help cast the body returned from the api call
+      api<T>(url: string, body?: RequestBody): Chainable<ApiResponseBody<T>>
+
+      api<T>(
+        method: HttpMethod,
+        url: string,
+        body?: RequestBody
+      ): Chainable<ApiResponseBody<T>>
+
+      api<T>(options: Partial<RequestOptions>): Chainable<ApiResponseBody<T>>
     }
+  }
+
+  export interface ApiResponseBody<T> extends Cypress.Response<T> {
+    size?: number
   }
 }
 const {
