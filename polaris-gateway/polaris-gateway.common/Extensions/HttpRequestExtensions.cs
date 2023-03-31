@@ -8,11 +8,11 @@ namespace Gateway.Common.Extensions
 {
     public static class HttpRequestExtensions
     {
-        public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(this HttpRequest request)
-            where V : AbstractValidator<T>, new()
+        public static async Task<ValidatableRequest<T>> GetJsonBody<T, TV>(this HttpRequest request)
+            where TV : AbstractValidator<T>, new()
         {
             var requestObject = await request.GetJsonBody<T>();
-            var validator = new V();
+            var validator = new TV();
             var validationResult = await validator.ValidateAsync(requestObject);
 
             if (!validationResult.IsValid)
