@@ -7,6 +7,7 @@ using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestation.Functions.Case;
 using coordinator.Functions.Orchestation.Functions.Tracker;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -33,6 +34,9 @@ namespace coordinator.Functions.Orchestation.Client.Case
         }
 
         [FunctionName(nameof(CaseClient))]
+        [ProducesResponseType((int)HttpStatusCode.Accepted)] 
+        [ProducesResponseType((int)HttpStatusCode.Locked)] // Refresh already running
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)] 
         public async Task<HttpResponseMessage> Run
             (
                 [HttpTrigger(AuthorizationLevel.Anonymous, "put", "post", "delete", Route = RestApi.Case)] HttpRequestMessage req,
@@ -79,13 +83,18 @@ namespace coordinator.Functions.Orchestation.Client.Case
                 {
                     case "POST":
                         var existingInstance = await orchestrationClient.GetStatusAsync(caseId);
-                        bool isRunning = IsRunning(existingInstance);
-                        if (!isRunning)
-                            await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), caseId, casePayload);
+                        bool isSingletonRefreshRunning = IsSingletonRefreshRunning(existingInstance);
+
+                        if (isSingletonRefreshRunning)
+                        {
+                            _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(CaseClient)} Locked as already running - {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
+                            return new HttpResponseMessage(HttpStatusCode.Locked);
+                        }
+
+                        await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), caseId, casePayload);
 
                         _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(CaseClient)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
-
-                        return orchestrationClient.CreateCheckStatusResponse(req, caseId);
+                        return orchestrationClient.CreateCheckStatusResponse(req, caseId); 
 
                     case "DELETE":
                         var status = await orchestrationClient.GetStatusAsync(caseId);
@@ -147,14 +156,14 @@ namespace coordinator.Functions.Orchestation.Client.Case
             }
         }
 
-        private static bool IsRunning(DurableOrchestrationStatus existingInstance)
+        private static bool IsSingletonRefreshRunning(DurableOrchestrationStatus existingInstance)
         {
+            // https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-singletons?tabs=csharp
             bool notRunning = existingInstance == null ||
                     existingInstance.RuntimeStatus
                         is OrchestrationRuntimeStatus.Completed
                         or OrchestrationRuntimeStatus.Failed
-                        or OrchestrationRuntimeStatus.Terminated
-                        or OrchestrationRuntimeStatus.Canceled;
+                        or OrchestrationRuntimeStatus.Terminated;
 
             return !notRunning;
         }
