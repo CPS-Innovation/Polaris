@@ -10,7 +10,7 @@ export const usePipelineApi = (
   caseId: number,
   generalPipelineState: CombinedState["generalPipelineState"]
 ): AsyncPipelineResult<PipelineResults> => {
-  const { refreshData, lastProcessingCompleted } = generalPipelineState;
+  const { refreshData } = generalPipelineState;
   const [pipelineResults, setPipelineResults] = useState<
     AsyncPipelineResult<PipelineResults>
   >({
@@ -25,11 +25,11 @@ export const usePipelineApi = (
         urn,
         caseId,
         PIPELINE_POLLING_DELAY,
-        lastProcessingCompleted,
+        generalPipelineState,
         (results) => setPipelineResults(results)
       );
     }
-  }, [caseId, urn, refreshData.startRefresh, lastProcessingCompleted]);
+  }, [caseId, urn, refreshData.startRefresh, generalPipelineState]);
 
   return pipelineResults;
 };

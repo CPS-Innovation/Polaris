@@ -237,7 +237,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { redactionHighlights, pdfBlobName } = document;
+      const { redactionHighlights, pdfBlobName, polarisDocumentVersionId } =
+        document;
 
       const redactionSaveRequest = mapRedactionSaveRequest(
         documentId,
@@ -261,7 +262,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
         dispatch({
           type: "UPDATE_REFRESH_PIPELINE",
-          payload: { startRefresh: true, savingDocumentId: documentId },
+          payload: {
+            startRefresh: true,
+            savedDocumentDetails: {
+              documentId: documentId,
+              polarisDocumentVersionId: polarisDocumentVersionId,
+            },
+          },
         });
       }
 

@@ -3,6 +3,7 @@ import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/PipelineResults";
 import { getPipelinpipelineCompletionStatus } from "../../domain/PipelineStatus";
+import { CombinedState } from "../../domain/CombinedState";
 
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -16,16 +17,56 @@ const isNewTime = (currentTime: string, lastTime: string) => {
   }
   return false;
 };
+const hasAnyDocumentUpdated = (
+  savedDocumentDetails: {
+    documentId: string;
+    polarisDocumentVersionId: number;
+  }[],
+  pipelineResult: PipelineResults
+) => {
+  if (!savedDocumentDetails.length) {
+    return true;
+  }
+  return savedDocumentDetails.some((document) =>
+    hasDocumentUpdated(document, pipelineResult)
+  );
+};
+
+const hasDocumentUpdated = (
+  document: { documentId: string; polarisDocumentVersionId: number },
+  newData: PipelineResults
+) => {
+  const savedDocument = newData.documents.find(
+    (newDocument) => newDocument.documentId === document.documentId
+  );
+  if (!savedDocument) {
+    return false;
+  }
+  if (
+    savedDocument.polarisDocumentVersionId ===
+    document.polarisDocumentVersionId + 1
+  ) {
+    return true;
+  }
+  return false;
+};
+
 export const initiateAndPoll = (
   // todo: _ wrap up in to an object arg
   urn: string,
   caseId: number,
   delayMs: number,
-  lastProcessingCompleted: string,
+  generalPipelineState: CombinedState["generalPipelineState"],
+
   del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void
 ) => {
   let keepPolling = true;
   let trackingCallCount = 0;
+
+  const {
+    lastProcessingCompleted,
+    refreshData: { savedDocumentDetails },
+  } = generalPipelineState;
 
   const handleApiCallSuccess = (pipelineResult: PipelineResults) => {
     trackingCallCount += 1;
@@ -33,15 +74,10 @@ export const initiateAndPoll = (
     const completionStatus = getPipelinpipelineCompletionStatus(
       pipelineResult.status
     );
-
-    console.log(
-      "newTime >>>>>",
-      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted)
-    );
-    debugger;
     if (
       completionStatus === "Completed" &&
-      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted)
+      isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted) &&
+      hasAnyDocumentUpdated(savedDocumentDetails, pipelineResult)
     ) {
       del({
         status: "complete",
@@ -72,34 +108,43 @@ export const initiateAndPoll = (
     });
   };
 
-  const doWork = async () => {
-    let trackerArgs: Awaited<ReturnType<typeof initiatePipeline>>;
-
-    try {
-      trackerArgs = await initiatePipeline(urn, caseId);
-    } catch (error) {
-      handleApiCallError(error);
-      return;
-    }
-
+  const startInitiatePipelinePolling = async () => {
     while (keepPolling) {
       try {
         await delay(delayMs);
-        console.log("pipelineResult>>>11");
-        const pipelineResult = await getPipelinePdfResults(
-          trackerArgs.trackerUrl,
-          trackerArgs.correlationId
-        );
-
-        console.log("pipelineResult>>>", pipelineResult);
-        handleApiCallSuccess(pipelineResult);
+        const trackerArgs = await initiatePipeline(urn, caseId);
+        if (trackerArgs.status !== 423) {
+          startTrackerPolling(trackerArgs);
+          break;
+        }
       } catch (error) {
-        console.log("pipelineResult>>>22");
         handleApiCallError(error);
       }
     }
   };
 
+  const startTrackerPolling = async (
+    trackerArgs: Awaited<ReturnType<typeof initiatePipeline>>
+  ) => {
+    while (keepPolling) {
+      try {
+        await delay(delayMs);
+
+        const pipelineResult = await getPipelinePdfResults(
+          trackerArgs.trackerUrl,
+          trackerArgs.correlationId
+        );
+
+        handleApiCallSuccess(pipelineResult);
+      } catch (error) {
+        handleApiCallError(error);
+      }
+    }
+  };
+
+  const doWork = () => {
+    startInitiatePipelinePolling();
+  };
   doWork();
 
   return () => {

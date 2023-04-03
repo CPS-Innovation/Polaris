@@ -23,7 +23,7 @@ describe("usePipelineApi", () => {
       usePipelineApi("0", 1, {
         refreshData: {
           startRefresh: true,
-          savingDocumentId: "",
+          savedDocumentDetails: [],
         },
         lastProcessingCompleted: "",
       })

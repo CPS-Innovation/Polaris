@@ -16,7 +16,7 @@ export const initialState = {
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false },
   generalPipelineState: {
-    refreshData: { startRefresh: true, savingDocumentId: "" },
+    refreshData: { startRefresh: true, savedDocumentDetails: [] },
     lastProcessingCompleted: "",
   },
   accordionState: { status: "loading" },
@@ -57,17 +57,16 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   }, [caseState, dispatch]);
 
   useEffect(() => {
-    if (combinedState.generalPipelineState.refreshData) {
+    const { startRefresh } = combinedState.generalPipelineState.refreshData;
+    if (startRefresh) {
       dispatch({
         type: "UPDATE_REFRESH_PIPELINE",
         payload: {
           startRefresh: false,
-          savingDocumentId:
-            combinedState.generalPipelineState.refreshData.savingDocumentId,
         },
       });
     }
-  }, [combinedState.generalPipelineState.refreshData.startRefresh, dispatch]);
+  }, [combinedState.generalPipelineState.refreshData, dispatch]);
 
   useEffect(() => {
     dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState });

@@ -16,7 +16,13 @@ export type CombinedState = {
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
   generalPipelineState: {
-    refreshData: { startRefresh: boolean; savingDocumentId: string };
+    refreshData: {
+      startRefresh: boolean;
+      savedDocumentDetails: {
+        documentId: string;
+        polarisDocumentVersionId: number;
+      }[];
+    };
     lastProcessingCompleted: string;
   };
   accordionState: AsyncResult<AccordionDocumentSection[]>;

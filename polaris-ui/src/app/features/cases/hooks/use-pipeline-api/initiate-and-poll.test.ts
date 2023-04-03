@@ -5,37 +5,39 @@ import * as api from "../../api/gateway-api";
 import { waitFor } from "@testing-library/react";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
+import sinon from "sinon";
 
 const POLLING_INTERVAL_MS = 175;
 
-const ensureHasStoppedPollingHelper = async (
-  quitFn: () => void,
-  spy: jest.SpyInstance
-) => {
-  quitFn();
-  const callsMadeSoFar = spy.mock.calls.length;
-  await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL_MS * 5));
-  expect(spy.mock.calls.length).toEqual(callsMadeSoFar);
-};
-
+const clock = sinon.useFakeTimers();
 describe("initiateAndPoll", () => {
+  beforeAll(() => {});
   it("can return failed and stop polling if initiate errors", async () => {
     const expectedError = new ApiError("", "", { status: 100, statusText: "" });
-    const spy = jest
+    const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) => Promise.reject(expectedError));
 
-    let results: AsyncPipelineResult<PipelineResults>;
+    const mockCallback = jest.fn();
     const quitFn = initiateAndPoll(
       "0",
       1,
       POLLING_INTERVAL_MS,
-      "",
-      (res) => (results = res)
+      {
+        refreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [],
+        },
+        lastProcessingCompleted: "",
+      },
+      mockCallback
     );
-
+    clock.tick(1000);
+    await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
+    await waitFor(() => expect(initiatePipelineSpy).toHaveBeenCalledTimes(1));
+    await waitFor(() => mockCallback.mock.calls.length > 0);
     await waitFor(() =>
-      expect(results).toEqual({
+      expect(mockCallback).toHaveBeenCalledWith({
         status: "failed",
         error: expectedError,
         httpStatusCode: 100,
@@ -43,33 +45,50 @@ describe("initiateAndPoll", () => {
       } as AsyncPipelineResult<PipelineResults>)
     );
 
-    ensureHasStoppedPollingHelper(quitFn, spy);
+    quitFn();
   });
 
   it("can return failed and stop polling if getPipelinePdfResults errors", async () => {
-    jest
+    const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) =>
-        Promise.resolve({ trackerUrl: "foo", correlationId: "bar" })
+        Promise.resolve({
+          trackerUrl: "foo",
+          correlationId: "bar",
+          status: 200,
+        })
       );
 
     const expectedError = new ApiError("", "", { status: 100, statusText: "" });
-    const spy = jest
+    const getPipelinePdfResultsSpy = jest
       .spyOn(api, "getPipelinePdfResults")
       .mockImplementation(() => Promise.reject(expectedError));
 
-    let results: AsyncPipelineResult<PipelineResults>;
+    const mockCallback = jest.fn();
 
     const quitFn = initiateAndPoll(
       "0",
       1,
       POLLING_INTERVAL_MS,
-      "",
-      (res) => (results = res)
+      {
+        refreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [],
+        },
+        lastProcessingCompleted: "",
+      },
+      mockCallback
     );
-
+    clock.tick(1000);
+    await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
+    await waitFor(() => expect(initiatePipelineSpy).toHaveBeenCalledTimes(1));
+    clock.tick(1000);
+    await waitFor(() => getPipelinePdfResultsSpy.mock.calls.length > 0);
     await waitFor(() =>
-      expect(results).toEqual({
+      expect(getPipelinePdfResultsSpy).toHaveBeenCalledTimes(1)
+    );
+    await waitFor(() =>
+      expect(mockCallback).toHaveBeenCalledWith({
         status: "failed",
         error: expectedError,
         httpStatusCode: 100,
@@ -77,17 +96,21 @@ describe("initiateAndPoll", () => {
       } as ApiResult<PipelineResults>)
     );
 
-    ensureHasStoppedPollingHelper(quitFn, spy);
+    quitFn();
   });
 
   it("can return failed and stop polling if getPipelinePdfResults returns failed", async () => {
-    jest
+    const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) =>
-        Promise.resolve({ trackerUrl: "foo", correlationId: "bar" })
+        Promise.resolve({
+          trackerUrl: "foo",
+          correlationId: "bar",
+          status: 200,
+        })
       );
 
-    const spy = jest
+    const getPipelinePdfResultsSpy = jest
       .spyOn(api, "getPipelinePdfResults")
       .mockImplementation((caseId) =>
         Promise.resolve({
@@ -97,18 +120,32 @@ describe("initiateAndPoll", () => {
         } as PipelineResults)
       );
 
-    let results: AsyncPipelineResult<PipelineResults>;
-
+    const mockCallback = jest.fn();
     const quitFn = initiateAndPoll(
       "0",
       1,
       POLLING_INTERVAL_MS,
-      "",
-      (res) => (results = res)
+      {
+        refreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [],
+        },
+        lastProcessingCompleted: "",
+      },
+      mockCallback
     );
-
+    clock.tick(1000);
+    await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
+    await waitFor(() => expect(initiatePipelineSpy).toHaveBeenCalledTimes(1));
+    clock.tick(1000);
+    await waitFor(() => mockCallback.mock.calls.length > 0);
+    await waitFor(() => expect(mockCallback).toHaveBeenCalledTimes(1));
+    await waitFor(() => getPipelinePdfResultsSpy.mock.calls.length > 0);
     await waitFor(() =>
-      expect(results).toEqual({
+      expect(getPipelinePdfResultsSpy).toHaveBeenCalledTimes(1)
+    );
+    await waitFor(() =>
+      expect(mockCallback).toHaveBeenCalledWith({
         status: "failed",
         error: expect.any(Error),
         httpStatusCode: undefined,
@@ -116,16 +153,20 @@ describe("initiateAndPoll", () => {
       } as ApiResult<PipelineResults>)
     );
 
-    ensureHasStoppedPollingHelper(quitFn, spy);
+    quitFn();
   });
 
   it("can return an immediately available result", async () => {
-    jest
+    const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
-      .mockImplementation((caseId) =>
-        Promise.resolve({ trackerUrl: "foo", correlationId: "bar" })
-      );
-
+      .mockImplementation((caseId) => {
+        return Promise.resolve({
+          trackerUrl: "foo",
+          correlationId: "bar",
+          status: 200,
+        });
+      });
+    const mockCallback = jest.fn();
     const expectedResults = {
       transactionId: "",
       status: "Completed",
@@ -133,40 +174,62 @@ describe("initiateAndPoll", () => {
       documents: [{ pdfBlobName: "foo" }],
     } as PipelineResults;
 
-    const spy = jest
+    const getPipelinePdfResultsSpy = jest
       .spyOn(api, "getPipelinePdfResults")
       .mockImplementation(() => Promise.resolve(expectedResults));
 
-    let results: AsyncPipelineResult<PipelineResults>;
     const quitFn = initiateAndPoll(
       "0",
       1,
       POLLING_INTERVAL_MS,
-      "",
-      (res) => (results = res)
+      {
+        refreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [],
+        },
+        lastProcessingCompleted: "",
+      },
+      mockCallback
     );
 
+    clock.tick(1000);
+    await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
+    await waitFor(() => expect(initiatePipelineSpy).toHaveBeenCalledTimes(1));
+
+    clock.tick(1000);
+    await waitFor(() => getPipelinePdfResultsSpy.mock.calls.length > 0);
     await waitFor(() =>
-      expect(results).toEqual({
+      expect(getPipelinePdfResultsSpy).toHaveBeenCalledTimes(1)
+    );
+
+    await waitFor(() => mockCallback.mock.calls.length > 0);
+    await waitFor(() => expect(mockCallback).toHaveBeenCalledTimes(1));
+
+    await waitFor(() =>
+      expect(mockCallback).toHaveBeenCalledWith({
         status: "complete",
         haveData: true,
         data: expectedResults,
       })
     );
-
-    ensureHasStoppedPollingHelper(quitFn, spy);
+    quitFn();
   });
 
   it("can poll to retrieve a result", async () => {
-    jest
+    const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) =>
-        Promise.resolve({ trackerUrl: "foo", correlationId: "bar" })
+        Promise.resolve({
+          trackerUrl: "foo",
+          correlationId: "bar",
+          status: 200,
+        })
       );
 
     const expectedInterimResults = {
       transactionId: "",
       status: "Running",
+      processingCompleted: "",
       documents: [
         { pdfBlobName: "foo", status: "PdfUploadedToBlob" },
         { status: "None" },
@@ -184,7 +247,7 @@ describe("initiateAndPoll", () => {
     } as PipelineResults;
 
     let runIndex = 0;
-    const spy = jest
+    const getPipelinePdfResultsSpy = jest
       .spyOn(api, "getPipelinePdfResults")
       .mockImplementation(() => {
         if (runIndex === 0) {
@@ -194,27 +257,48 @@ describe("initiateAndPoll", () => {
           return Promise.resolve(expectedFinalResults);
         }
       });
-
-    let results: AsyncPipelineResult<PipelineResults>;
-    const quitFn = initiateAndPoll("0", 1, POLLING_INTERVAL_MS, "", (res) => {
-      results = res;
-    });
+    const mockCallback = jest.fn();
+    const quitFn = initiateAndPoll(
+      "0",
+      1,
+      POLLING_INTERVAL_MS,
+      {
+        refreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [],
+        },
+        lastProcessingCompleted: "",
+      },
+      mockCallback
+    );
+    clock.tick(1000);
+    await waitFor(() => initiatePipelineSpy.mock.calls.length > 0);
+    await waitFor(() => expect(initiatePipelineSpy).toHaveBeenCalledTimes(1));
+    clock.tick(1000);
+    await waitFor(() => getPipelinePdfResultsSpy.mock.calls.length > 0);
+    await waitFor(() =>
+      expect(getPipelinePdfResultsSpy).toHaveBeenCalledTimes(1)
+    );
+    await waitFor(() => mockCallback.mock.calls.length > 0);
+    await waitFor(() => expect(mockCallback).toHaveBeenCalledTimes(1));
 
     await waitFor(() =>
-      expect(results).toEqual({
+      expect(mockCallback).toHaveBeenNthCalledWith(1, {
         status: "incomplete",
         haveData: true,
         data: expectedInterimResults,
       })
     );
+    clock.tick(1000);
+    await waitFor(() => mockCallback.mock.calls.length > 1);
+    await waitFor(() => expect(mockCallback).toHaveBeenCalledTimes(2));
     await waitFor(() =>
-      expect(results).toEqual({
+      expect(mockCallback).toHaveBeenNthCalledWith(2, {
         status: "complete",
         haveData: true,
         data: expectedFinalResults,
       })
     );
-
-    ensureHasStoppedPollingHelper(quitFn, spy);
+    quitFn();
   });
 });

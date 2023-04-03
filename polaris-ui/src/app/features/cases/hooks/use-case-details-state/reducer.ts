@@ -30,6 +30,26 @@ const isNewTime = (currentTime: string, lastTime: string) => {
   return false;
 };
 
+const hasDocumentUpdated = (
+  document: { documentId: string; polarisDocumentVersionId: number },
+  newData: PipelineResults
+) => {
+  const savedDocument = newData.documents.find(
+    (newDocument) => newDocument.documentId === document.documentId
+  );
+  if (!savedDocument) {
+    return false;
+  }
+
+  if (
+    savedDocument.polarisDocumentVersionId ===
+    document.polarisDocumentVersionId + 1
+  ) {
+    return true;
+  }
+  return false;
+};
+
 export const reducer = (
   state: CombinedState,
   action:
@@ -43,7 +63,13 @@ export const reducer = (
       }
     | {
         type: "UPDATE_REFRESH_PIPELINE";
-        payload: { startRefresh: boolean; savingDocumentId: string };
+        payload: {
+          startRefresh: boolean;
+          savedDocumentDetails?: {
+            documentId: string;
+            polarisDocumentVersionId: number;
+          };
+        };
       }
     | {
         type: "OPEN_PDF_IN_NEW_TAB";
@@ -145,16 +171,33 @@ export const reducer = (
       let nextState = { ...state };
 
       if (action.payload.data.status === "Completed") {
-        nextState = {
-          ...nextState,
-          generalPipelineState: {
-            refreshData: {
-              ...nextState.generalPipelineState.refreshData,
-              savingDocumentId: "",
+        // this is for the very first time and trackerData comes back straight as status "Completed"
+        if (!nextState.pipelineState.haveData) {
+          nextState = {
+            ...nextState,
+            generalPipelineState: {
+              ...nextState.generalPipelineState,
+              lastProcessingCompleted: action.payload.data.processingCompleted,
             },
-            lastProcessingCompleted: action.payload.data.processingCompleted,
-          },
-        };
+          };
+        } else {
+          const newPipelineData = action.payload.data;
+          const newSavedDocumentDetails =
+            nextState.generalPipelineState.refreshData.savedDocumentDetails.filter(
+              (document) => !hasDocumentUpdated(document, newPipelineData)
+            );
+
+          nextState = {
+            ...nextState,
+            generalPipelineState: {
+              refreshData: {
+                ...nextState.generalPipelineState.refreshData,
+                savedDocumentDetails: newSavedDocumentDetails,
+              },
+              lastProcessingCompleted: action.payload.data.processingCompleted,
+            },
+          };
+        }
       }
 
       console.log("state.documentsState.status>>", state.documentsState.status);
@@ -245,7 +288,13 @@ export const reducer = (
           );
           return [
             ...prev,
-            { ...curr, url, pdfBlobName: matchingFreshPdfRecord.pdfBlobName },
+            {
+              ...curr,
+              url,
+              pdfBlobName: matchingFreshPdfRecord.pdfBlobName,
+              polarisDocumentVersionId:
+                matchingFreshPdfRecord.polarisDocumentVersionId,
+            },
           ];
         }
         return [...prev, curr];
@@ -260,13 +309,21 @@ export const reducer = (
 
     case "UPDATE_REFRESH_PIPELINE": {
       console.log("UPDATE_REFRESH_PIPELINE>>>>", action.payload);
+      let newSavedDocumentDetails =
+        state.generalPipelineState.refreshData.savedDocumentDetails;
+      if (action.payload.savedDocumentDetails) {
+        newSavedDocumentDetails = [
+          ...newSavedDocumentDetails,
+          action.payload.savedDocumentDetails,
+        ];
+      }
       return {
         ...state,
         generalPipelineState: {
           ...state.generalPipelineState,
           refreshData: {
             startRefresh: action.payload.startRefresh,
-            savingDocumentId: action.payload.savingDocumentId,
+            savedDocumentDetails: newSavedDocumentDetails,
           },
         },
       };

@@ -110,5 +110,9 @@
   },
   "jest-junit": {
     "outputDirectory": "report"
+  },
+  "devDependencies": {
+    "@types/sinon": "^10.0.13",
+    "sinon": "^15.0.3"
   }
 }

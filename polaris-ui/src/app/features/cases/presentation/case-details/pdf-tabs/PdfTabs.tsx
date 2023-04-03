@@ -11,7 +11,10 @@ type PdfTabsProps = {
     activeTabId: string | undefined;
   };
   pipelineState: CaseDetailsState["pipelineState"];
-  savingDocumentId: string;
+  savedDocumentDetails: {
+    documentId: string;
+    polarisDocumentVersionId: number;
+  }[];
   handleTabSelection: (documentId: string) => void;
   handleClosePdf: (caseDocument: { documentId: string }) => void;
   handleLaunchSearchResults: () => void;
@@ -24,7 +27,7 @@ type PdfTabsProps = {
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
   tabsState: { items, headers, activeTabId },
-  savingDocumentId,
+  savedDocumentDetails,
   handleTabSelection,
   pipelineState,
   handleClosePdf,
@@ -48,7 +51,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               caseDocumentViewModel={item}
-              savingDocumentId={savingDocumentId}
+              savedDocumentDetails={savedDocumentDetails}
               redactStatus={getRedactStatus(item.cmsDocumentId, pipelineState)}
               headers={headers}
               handleLaunchSearchResults={handleLaunchSearchResults}

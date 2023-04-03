@@ -108,13 +108,17 @@ export const initiatePipeline = async (urn: string, caseId: number) => {
     method: "POST",
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 423) {
     throw new ApiError("Initiate pipeline failed", path, response);
   }
 
   const { trackerUrl }: { trackerUrl: string } = await response.json();
 
-  return { trackerUrl, correlationId: Object.values(correlationIdHeader)[0] };
+  return {
+    trackerUrl,
+    correlationId: Object.values(correlationIdHeader)[0],
+    status: response.status,
+  };
 };
 
 export const getPipelinePdfResults = async (
