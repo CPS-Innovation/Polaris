@@ -8,8 +8,6 @@ using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
 using Common.Mappers.Contracts;
-using Common.Services.DocumentExtractionService;
-using Common.Services.DocumentExtractionService.Contracts;
 using Common.Services.Extensions;
 using Common.Wrappers;
 using coordinator;
@@ -21,20 +19,12 @@ using Common.Health;
 using Common.Wrappers.Contracts;
 using Common.Clients.Contracts;
 using Common.Clients;
-using Ddei.Services;
-using PolarisGateway.CaseDataImplementations.Ddei.Services;
-using Ddei.Clients;
-using Ddei.Options;
-using Ddei.Factories.Contracts;
-using Ddei.Factories;
-using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
 using FluentValidation;
 using Common.Domain.Validators;
 using System.IO;
-using coordinator.Services.DocumentToggle;
-using coordinator.Mappers;
 using Common.Dto.Request;
-using Common.Dto.Response;
+using DDei.Health;
+using Ddei.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -53,22 +43,12 @@ namespace coordinator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("ddei").Bind(settings);
-            });
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-
-            builder.Services.AddHttpClient<IDdeiDocumentExtractionService, DdeiDocumentExtractionService>(client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValueFromConfig(ConfigKeys.SharedKeys.DocumentsRepositoryBaseUrl));
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
 
             // Redact PDF
             builder.Services.AddHttpClient<IRedactionClient, RedactionClient>(client =>
@@ -82,26 +62,7 @@ namespace coordinator
             builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
-
-            // Ddei
-            builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
-            builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
-            {
-                var options = configuration.GetSection("ddei").Get<DdeiOptions>();
-                client.BaseAddress = new Uri(options.BaseUrl);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
-            builder.Services.AddTransient<IDocumentService, DdeiService>();
-            builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
-            builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
-            builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
-            builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
-            builder.Services.AddTransient<IDocumentToggleService, DocumentToggleService>();
-
-            builder.Services.AddSingleton<ITransitionDocumentMapper, TransitionDocumentMapper>();
-            builder.Services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
-              DocumentToggleService.ReadConfig()
-            ));
+            builder.Services.AddDdeiClient(configuration);
 
             BuildHealthChecks(builder);
         }
@@ -138,7 +99,7 @@ namespace coordinator
                 .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction })
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction })
-                .AddCheck<DdeiDocumentExtractionServiceHealthCheck>("DDEI Document Extraction Service");
+                .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI Document Extraction Service");
         }
     }
 }

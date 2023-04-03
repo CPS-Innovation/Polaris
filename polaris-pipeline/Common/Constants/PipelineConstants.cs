@@ -86,9 +86,6 @@
             public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
             public const string BlobServiceUrl = nameof(BlobServiceUrl);
             public const string BlobServiceConnectionString = nameof(BlobServiceConnectionString);
-            public const string DocumentsRepositoryBaseUrl = "DocumentsRepositoryBaseUrl";
-            public const string GetDocumentUrl = "GetDocumentUrl";
-            public const string ListDocumentsUrl = "ListDocumentsUrl";
         }
     }
 }

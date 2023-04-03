@@ -26,7 +26,7 @@ namespace coordinator.tests.Domain.Tracker
     {
         private readonly Fixture _fixture;
         private readonly string _transactionId;
-        private readonly List<TransitionDocument> _transitionDocuments;
+        private readonly List<TransitionDocumentDto> _transitionDocuments;
         private readonly RegisterPdfBlobNameArg _pdfBlobNameArg;
         private readonly SynchroniseDocumentsArg _synchroniseDocumentsArg;
         private readonly List<TrackerDocumentDto> _trackerDocuments;
@@ -47,7 +47,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _fixture = new Fixture();
             _transactionId = _fixture.Create<string>();
-            _transitionDocuments = _fixture.CreateMany<TransitionDocument>(3).ToList();
+            _transitionDocuments = _fixture.CreateMany<TransitionDocumentDto>(3).ToList();
             _correlationId = _fixture.Create<Guid>();
             _pdfBlobNameArg = _fixture.Build<RegisterPdfBlobNameArg>()
                                 .With(a => a.DocumentId, _transitionDocuments.First().CmsDocumentId)
@@ -412,7 +412,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             _tracker.Documents.Count.Should().Be(_transitionDocuments.Count);
 
-            var newDaysTransitionDocuments = new TransitionDocument[3];
+            var newDaysTransitionDocuments = new TransitionDocumentDto[3];
             _transitionDocuments.CopyTo(newDaysTransitionDocuments);
             var newDaysDocumentIdsArg = _fixture.Build<SynchroniseDocumentsArg>()
                 .With(a => a.CaseUrn, _caseUrn)
@@ -437,7 +437,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             _tracker.Documents.Count.Should().Be(_transitionDocuments.Count);
 
-            var newDaysTransitionDocuments = new List<TransitionDocument> { _transitionDocuments.First() };
+            var newDaysTransitionDocuments = new List<TransitionDocumentDto> { _transitionDocuments.First() };
             ////only one document in today's run, the next two should be removed from the tracker and in the evaluation results
 
             var newDaysDocumentIdsArg = _fixture.Build<SynchroniseDocumentsArg>()
@@ -463,7 +463,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             _tracker.Documents.Count.Should().Be(_transitionDocuments.Count);
 
-            var newDaysTransitionDocuments = new TransitionDocument[3];
+            var newDaysTransitionDocuments = new TransitionDocumentDto[3];
             _transitionDocuments.CopyTo(newDaysTransitionDocuments);
             var originalVersionId = newDaysTransitionDocuments[1].CmsVersionId;
             var newVersionId = originalVersionId + 1;
@@ -496,7 +496,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             _tracker.Documents.Count.Should().Be(_transitionDocuments.Count);
 
-            var newDaysTransitionDocuments = new List<TransitionDocument>
+            var newDaysTransitionDocuments = new List<TransitionDocumentDto>
             {
                 _transitionDocuments[1],
                 _transitionDocuments[2]

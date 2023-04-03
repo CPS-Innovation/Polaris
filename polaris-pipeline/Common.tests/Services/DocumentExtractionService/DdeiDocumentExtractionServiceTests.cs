@@ -7,13 +7,18 @@ using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Factories.Contracts;
 using Common.Mappers;
-using Common.Services.DocumentExtractionService;
-using Common.Services.DocumentExtractionService.Contracts;
+using Common.Mappers.Contracts;
 using Common.Wrappers.Contracts;
+using Ddei.Services;
+using Ddei.Factories;
+using Ddei.Factories.Contracts;
+using Ddei.Options;
+using DdeiClient.Mappers.Contract;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -32,8 +37,7 @@ public class DdeiDocumentExtractionServiceTests
     private readonly HttpResponseMessage _httpResponseMessage;
     private readonly List<DdeiCaseDocumentResponse> _content;
     private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapperMock;
-
-    private readonly IDdeiDocumentExtractionService _documentExtractionService;
+    private readonly Ddei.Services.DdeiClient _documentExtractionService;
 
     public DdeiDocumentExtractionServiceTests()
     {
@@ -57,7 +61,7 @@ public class DdeiDocumentExtractionServiceTests
             Content = new StreamContent(documentStream)
         };
 
-        var loggerMock = new Mock<ILogger<DdeiDocumentExtractionService>>();
+        var loggerMock = new Mock<ILogger<Ddei.Services.DdeiClient>>();
 
         _jsonConvertWrapperMock = new Mock<IJsonConvertWrapper>();
         _jsonConvertWrapperMock.Setup(wrapper => wrapper.DeserializeObject<List<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
@@ -75,11 +79,25 @@ public class DdeiDocumentExtractionServiceTests
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
-        mockConfiguration.Setup(config => config[ConfigKeys.SharedKeys.GetDocumentUrl]).Returns($"urns/{0}/cases/{1}/documents/{2}/{3}");
-        mockConfiguration.Setup(config => config[ConfigKeys.SharedKeys.ListDocumentsUrl]).Returns($"urns/{0}/cases/{1}/documents");
+        var ddeiOptions = new Mock<IOptions<DdeiOptions>>();
+        ddeiOptions.Setup(options => options.Value).Returns(new DdeiOptions { AccessKey="ABC", BaseUrl="" });
 
-        _documentExtractionService = new DdeiDocumentExtractionService(httpClient, mockHttpRequestFactory.Object, loggerMock.Object, mockConfiguration.Object,
-            _jsonConvertWrapperMock.Object, new DdeiCaseDocumentMapper());
+        var caseDataArgFactory = new Mock<ICaseDataArgFactory>();
+        var ddeiClientRequestFactory = new Mock<IDdeiClientRequestFactory>();
+        var caseDetailsMapper = new Mock<ICaseDetailsMapper>();
+
+        _documentExtractionService = new Ddei.Services.DdeiClient
+            (
+                httpClient, 
+                mockHttpRequestFactory.Object,
+                ddeiOptions.Object,
+                caseDataArgFactory.Object,
+                caseDetailsMapper.Object,
+                new DdeiCaseDocumentMapper(),
+                _jsonConvertWrapperMock.Object,
+                ddeiClientRequestFactory.Object,
+                loggerMock.Object
+            );
     }
 
     [Fact]

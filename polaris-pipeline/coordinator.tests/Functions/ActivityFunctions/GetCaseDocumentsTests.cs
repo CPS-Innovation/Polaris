@@ -1,12 +1,7 @@
-﻿using System.Security.AccessControl;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
-using coordinator.Domain.Tracker;
-using coordinator.Mappers;
-using coordinator.Services.DocumentToggle;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -15,6 +10,9 @@ using Xunit;
 using coordinator.Functions.ActivityFunctions.Case;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
+using DdeiClient.Services.Contracts;
+using Common.Mappers.Contracts;
+using Common.Services.DocumentToggle;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
@@ -22,7 +20,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
     {
         private readonly DocumentDto[] _caseDocuments;
 
-        private readonly TransitionDocument[] _transitionDocuments;
+        private readonly TransitionDocumentDto[] _transitionDocuments;
 
         private readonly PresentationFlagsDto[] _presentationFlags;
 
@@ -42,8 +40,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             };
 
             _transitionDocuments = new[] {
-              fixture.Create<TransitionDocument>(),
-              fixture.Create<TransitionDocument>()
+              fixture.Create<TransitionDocumentDto>(),
+              fixture.Create<TransitionDocumentDto>()
             };
 
             _presentationFlags = new[] {
@@ -51,7 +49,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
               fixture.Create<PresentationFlagsDto>()
             };
 
-            var mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
+            var mockDocumentExtractionService = new Mock<IDdeiClient>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();
 
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())

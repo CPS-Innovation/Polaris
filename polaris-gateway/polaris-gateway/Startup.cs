@@ -9,30 +9,29 @@ using Common.Validators;
 using Common.Validators.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Ddei.Clients;
+using Ddei.Services;
 using Ddei.Factories;
 using Ddei.Factories.Contracts;
+using Ddei.Mappers;
 using Ddei.Options;
-using Ddei.Services;
-using Ddei.Services.Contract;
+using DdeiClient.Services.Contracts;
+using DdeiClient.Mappers.Contract;
 using Gateway.Clients.PolarisPipeline;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
-using PolarisGateway.CaseDataImplementations.Ddei.Services;
 using PolarisGateway.common.Mappers.Contracts;
 using PolarisGateway.Factories;
 using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Mappers;
-using PolarisGateway.Services;
 using PolarisGateway.Wrappers;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http.Headers;
+using Ddei.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -71,24 +70,7 @@ namespace PolarisGateway
 
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
-            // DDEI
-            builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
-            builder.Services.AddTransient<ICaseDataService, DdeiService>();
-            builder.Services.AddTransient<IDocumentService, DdeiService>();
-            builder.Services.AddTransient<ICmsModernTokenService, DdeiService>();
-            builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
-            builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("ddei").Bind(settings);
-            });
-            builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
-            {
-                var options = configuration.GetSection("ddei").Get<DdeiOptions>();
-                client.BaseAddress = new Uri(options.BaseUrl);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
-            builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
-            builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+            builder.Services.AddDdeiClient(configuration);
             builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
 
             BuildHealthChecks(builder);

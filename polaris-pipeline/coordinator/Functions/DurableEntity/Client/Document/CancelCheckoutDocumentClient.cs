@@ -6,7 +6,7 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Services;
+using DdeiClient.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -17,11 +17,11 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 {
     public class CancelCheckoutDocumentClient : BaseClient
     {
-        private readonly IDocumentService _documentService;
+        private readonly IDdeiClient _gatewayDdeiService;
 
-        public CancelCheckoutDocumentClient(IDocumentService documentService)
+        public CancelCheckoutDocumentClient(IDdeiClient gatewayDdeiService)
         {
-            _documentService = documentService;
+            _gatewayDdeiService = gatewayDdeiService;
         }
 
         const string loggingName = $"{nameof(CancelCheckoutDocumentClient)} - {nameof(HttpStart)}";
@@ -67,7 +67,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                await _documentService.CancelCheckoutDocument(arg);
+                await _gatewayDdeiService.CancelCheckoutDocument(arg);
 
                 return new OkResult();
             }

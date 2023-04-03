@@ -1,4 +1,5 @@
-﻿using Common.Dto.Tracker;
+﻿using Common.Dto.Document;
+using Common.Dto.Tracker;
 using coordinator.Domain.Tracker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -86,7 +87,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.FromResult(deltas);
         }
 
-        private (List<TransitionDocument>, List<TransitionDocument>, List<string>) GetDeltaDocuments(List<TransitionDocument> transitionDocuments)
+        private (List<TransitionDocumentDto>, List<TransitionDocumentDto>, List<string>) GetDeltaDocuments(List<TransitionDocumentDto> transitionDocuments)
         {
             var existingCmsDocumentIds = Documents.Select(d => d.CmsDocumentId).ToList();
             var newDocuments =
@@ -109,7 +110,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newDocuments, updatedDocuments, deletedCmsDocumentIdsToRemove);
         }
 
-        private List<TrackerDocumentDto> CreateDocuments(List<TransitionDocument> createdDocuments)
+        private List<TrackerDocumentDto> CreateDocuments(List<TransitionDocumentDto> createdDocuments)
         {
             List<TrackerDocumentDto> newDocuments = new List<TrackerDocumentDto>();
 
@@ -138,7 +139,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newDocuments;
         }
 
-        private List<TrackerDocumentDto> UpdateDocuments(List<TransitionDocument> updatedDocuments)
+        private List<TrackerDocumentDto> UpdateDocuments(List<TransitionDocumentDto> updatedDocuments)
         {
             List<TrackerDocumentDto> changedDocuments = new List<TrackerDocumentDto>();
 
