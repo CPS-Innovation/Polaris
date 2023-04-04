@@ -1,5 +1,5 @@
 import { AsyncPipelineResult } from "../../../hooks/use-pipeline-api/AsyncPipelineResult";
-import { PipelineResults } from "../../../domain/PipelineResults";
+import { PipelineResults } from "../../../domain/gateway/PipelineResults";
 import { getRedactStatus } from "./pdfTabsUtils";
 
 describe("getRedactStatus util", () => {

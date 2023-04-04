@@ -11,7 +11,7 @@ import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
 import { RedactionWarning } from "./RedactionWarning";
-import { PresentationFlags } from "../../../../../features/cases/domain/PipelineDocument";
+import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";

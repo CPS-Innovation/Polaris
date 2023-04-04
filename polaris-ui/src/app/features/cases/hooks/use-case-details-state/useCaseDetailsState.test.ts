@@ -2,8 +2,8 @@ import { useCaseDetailsState, initialState } from "./useCaseDetailsState";
 import * as api from "../../api/gateway-api";
 import * as pipelineApi from "../use-pipeline-api/usePipelineApi";
 
-import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
-import { PipelineResults } from "../../domain/PipelineResults";
+import { ApiTextSearchResult } from "../../domain/gateway/ApiTextSearchResult";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { AsyncPipelineResult } from "../use-pipeline-api/AsyncPipelineResult";
 import { renderHook } from "@testing-library/react-hooks";
 import * as useApi from "../../../../common/hooks/useApi";
@@ -11,7 +11,7 @@ import * as reducer from "./reducer";
 import { act } from "react-dom/test-utils";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
-import { CaseDetails } from "../../domain/CaseDetails";
+import { CaseDetails } from "../../domain/gateway/CaseDetails";
 
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;

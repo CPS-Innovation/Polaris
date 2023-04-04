@@ -1,4 +1,4 @@
-import { ApiTextSearchResult } from "../../app/features/cases/domain/ApiTextSearchResult";
+import { ApiTextSearchResult } from "../../app/features/cases/domain/gateway/ApiTextSearchResult";
 import { SearchCaseDataSource } from "./types/SearchCaseDataSource";
 
 const dataSource: SearchCaseDataSource = (query: string) => searchResults;

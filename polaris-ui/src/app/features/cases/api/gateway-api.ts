@@ -1,12 +1,12 @@
 import { ApiError } from "../../../common/errors/ApiError";
 
-import { CaseSearchResult } from "../domain/CaseSearchResult";
-import { PipelineResults } from "../domain/PipelineResults";
-import { ApiTextSearchResult } from "../domain/ApiTextSearchResult";
-import { RedactionSaveRequest } from "../domain/RedactionSaveRequest";
-import { RedactionSaveResponse } from "../domain/RedactionSaveResponse";
+import { CaseSearchResult } from "../domain/gateway/CaseSearchResult";
+import { PipelineResults } from "../domain/gateway/PipelineResults";
+import { ApiTextSearchResult } from "../domain/gateway/ApiTextSearchResult";
+import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
+import { RedactionSaveResponse } from "../domain/gateway/RedactionSaveResponse";
 import * as HEADERS from "./header-factory";
-import { CaseDetails } from "../domain/CaseDetails";
+import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL } from "../../../config";
 

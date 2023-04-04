@@ -1,5 +1,5 @@
 import { ApiResult } from "../../../../common/types/ApiResult";
-import { PipelineResults } from "../../domain/PipelineResults";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
 import * as api from "../../api/gateway-api";
 import { waitFor } from "@testing-library/react";
