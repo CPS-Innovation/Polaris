@@ -1,11 +1,11 @@
 import { getAccessToken } from "../../../auth";
 import { GATEWAY_SCOPE } from "../../../config";
-import { v4 as uuidv4 } from "uuid";
+import { generateGuid } from "./generate-guid";
 
 const CORRELATION_ID = "Correlation-Id";
 
 export const correlationId = (existingCorrelationId?: string) => ({
-  [CORRELATION_ID]: existingCorrelationId || uuidv4(),
+  [CORRELATION_ID]: existingCorrelationId || generateGuid(),
 });
 
 export const auth = async () => ({

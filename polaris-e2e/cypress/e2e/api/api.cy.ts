@@ -3,44 +3,45 @@ import "cypress-wait-until"
 import { CaseDetails } from "../../../gateway/CaseDetails"
 import { CaseSearchResult } from "../../../gateway/CaseSearchResult"
 import { PipelineResults } from "../../../gateway/PipelineResults"
+import { CorrelationId, correlationIds } from "../../support/correlation-ids"
 
 const WAIT_UNTIL_OPTIONS = { interval: 5 * 1000, timeout: 60 * 1000 }
 const { TARGET_URN, API_ROOT_DOMAIN, TARGET_CASE_ID } = Cypress.env()
 
 // allow headers to be passed from beforeEach to tests
-let headers
+let authHeaders
 
-const LIST_CASES = () => ({
+const LIST_CASES = (correlationId: CorrelationId = "BLANK") => ({
   url: `${API_ROOT_DOMAIN}/api/urns/${TARGET_URN}/cases`,
-  headers,
+  headers: { ...authHeaders, "correlation-id": correlationIds[correlationId] },
 })
 
-const GET_CASE = (caseId: number) => ({
+const GET_CASE = (caseId: number, correlationId: CorrelationId = "BLANK") => ({
   url: `${API_ROOT_DOMAIN}/api/urns/${TARGET_URN}/cases/${caseId}`,
-  headers,
+  headers: { ...authHeaders, "correlation-id": correlationIds[correlationId] },
 })
 
-const TRACKER_CLEAR = () => ({
+const TRACKER_CLEAR = (correlationId: CorrelationId = "BLANK") => ({
   url: `${API_ROOT_DOMAIN}/api/urns/${TARGET_URN}/cases/${TARGET_CASE_ID}`,
-  headers,
+  headers: { ...authHeaders, "correlation-id": correlationIds[correlationId] },
   method: "DELETE",
 })
 
-const TRACKER_START = () => ({
+const TRACKER_START = (correlationId: CorrelationId = "BLANK") => ({
   url: `${API_ROOT_DOMAIN}/api/urns/${TARGET_URN}/cases/${TARGET_CASE_ID}`,
-  headers,
+  headers: { ...authHeaders, "correlation-id": correlationIds[correlationId] },
   method: "POST",
 })
 
-const GET_TRACKER = () => ({
+const GET_TRACKER = (correlationId: CorrelationId = "BLANK") => ({
   url: `${API_ROOT_DOMAIN}/api/urns/${TARGET_URN}/cases/${TARGET_CASE_ID}/tracker`,
-  headers,
+  headers: { ...authHeaders, "correlation-id": correlationIds[correlationId] },
 })
 
 describe("API tests", () => {
   beforeEach(() => {
-    cy.getApiHeaders().then((apiHeaders) => {
-      headers = apiHeaders
+    cy.getAuthHeaders().then((authHeaders) => {
+      authHeaders = authHeaders
     })
   })
 
@@ -57,24 +58,25 @@ describe("API tests", () => {
       .waitUntil(
         () =>
           cy
-            .api(GET_TRACKER())
-            .its("body.documents")
-            .then((documents) => documents.length === 0),
+            .api<PipelineResults>(GET_TRACKER())
+            .its("body")
+            .then(({ documents }) => documents.length === 0),
         WAIT_UNTIL_OPTIONS
       )
       .api(TRACKER_START())
       .waitUntil(
         () =>
           cy
-            .api(GET_TRACKER())
-            .its("body.status")
-            .then((status) => status === "Completed"),
+            .api<PipelineResults>(GET_TRACKER())
+            .its("body")
+            .then(({ status }) => status === "Completed"),
         WAIT_UNTIL_OPTIONS
       )
       .api<PipelineResults>(GET_TRACKER())
-      .then(({ body }) => {
+      .its("body")
+      .then(({ documents }) => {
         expect(
-          body.documents.every((document) => document.status === "Indexed")
+          documents.every((document) => document.status === "Indexed")
         ).to.equal(true)
       })
   })
