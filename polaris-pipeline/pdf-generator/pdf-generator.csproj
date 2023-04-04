@@ -72,6 +72,7 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
+    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
     <ItemGroup>

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Logging;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Services.Contract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -13,6 +12,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using PolarisDomain.Functions;
 using PolarisGateway;
+using DdeiClient.Services.Contracts;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
@@ -28,15 +28,13 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         };
 
         private readonly ILogger<InitiateCookies> _logger;
-        private readonly ICmsModernTokenService _cmsModernTokenService;
+        private readonly IDdeiClient _ddeiClient;
 
-        public InitiateCookies(
-            ILogger<InitiateCookies> logger,
-            ICmsModernTokenService cmsModernTokenService) :
-         base(logger)
+        public InitiateCookies(ILogger<InitiateCookies> logger, IDdeiClient ddeiClient) 
+            : base(logger)
         {
             _logger = logger;
-            _cmsModernTokenService = cmsModernTokenService;
+            _ddeiClient = ddeiClient;
         }
 
         [FunctionName("Init")]
@@ -104,7 +102,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId, string loggingName)
         {
-            var cmsToken = await _cmsModernTokenService.GetCmsModernToken(new DdeiCmsCaseDataArgDto
+            var cmsToken = await _ddeiClient.GetCmsModernToken(new DdeiCmsCaseDataArgDto
             {
                 CorrelationId = currentCorrelationId,
                 CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}"

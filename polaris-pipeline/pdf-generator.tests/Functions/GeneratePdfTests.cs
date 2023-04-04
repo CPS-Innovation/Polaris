@@ -12,8 +12,8 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Exceptions.Contracts;
 using Common.Services.BlobStorageService.Contracts;
-using Common.Services.DocumentExtractionService.Contracts;
 using Common.Wrappers.Contracts;
+using DdeiClient.Services.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -37,7 +37,7 @@ namespace pdf_generator.tests.Functions
         private HttpResponseMessage _errorHttpResponseMessage;
 
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<IDdeiDocumentExtractionService> _mockDocumentExtractionService;
+        private readonly Mock<IDdeiClient> _mockDocumentExtractionService;
         private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Mock<ILogger<GeneratePdf>> _mockLogger;
@@ -69,7 +69,7 @@ namespace pdf_generator.tests.Functions
 
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockValidatorWrapper = new Mock<IValidatorWrapper<GeneratePdfRequestDto>>();
-            _mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
+            _mockDocumentExtractionService = new Mock<IDdeiClient>();
             _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
             _mockPdfOrchestratorService = new Mock<IPdfOrchestratorService>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
