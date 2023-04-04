@@ -2,10 +2,7 @@ import { v4 as uuidv4, validate } from "uuid";
 
 declare global {
   var __POLARIS_INSTRUMENTATION_GUID__: string;
-  var __POLARIS_TEST__: boolean;
 }
-
-window.__POLARIS_TEST__ = true;
 
 export const generateGuid = () => {
   if (window.__POLARIS_INSTRUMENTATION_GUID__) {
