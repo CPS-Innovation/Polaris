@@ -24,12 +24,11 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
     "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_pipeline_storage_connection_string.id})"
+    "Ddei__BaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "Ddei__AccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
-    "DocumentsRepositoryBaseUrl"               = "https://fa-${local.ddei_resource_name}.azurewebsites.net/api/"
-    "ListDocumentsUrl"                         = "urns/{0}/cases/{1}/documents?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}",
-    "GetDocumentUrl"                           = "urns/{0}/cases/{1}/documents/{2}/{3}?code=${data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key}"
   }
   https_only = true
 
