@@ -59,7 +59,7 @@ namespace PolarisGateway.Functions.CaseData
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
-                DdeiCmsCaseArgDto caseArg = _caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId);
+                var caseArg = _caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId);
                 caseDetails = await _ddeiClient.GetCase(caseArg);
 
                 return caseDetails != null
