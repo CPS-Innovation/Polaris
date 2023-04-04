@@ -13,9 +13,7 @@ public abstract class BasePipelinePayload
     }
 
     public string CmsCaseUrn { get; set; }
-    
     public long CmsCaseId { get; set; }
-    
     public Guid CorrelationId { get; set; }
     public Guid PolarisDocumentId { get; init; }
 

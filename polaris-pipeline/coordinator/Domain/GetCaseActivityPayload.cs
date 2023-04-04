@@ -2,9 +2,9 @@
 
 namespace coordinator.Domain
 {
-    public class GetCaseDocumentsActivityPayload : BasePipelinePayload
+    public class GetCaseActivityPayload : BasePipelinePayload
     {
-        public GetCaseDocumentsActivityPayload(string caseUrn, long caseId, string cmsAuthValues, Guid correlationId) :
+        public GetCaseActivityPayload(string caseUrn, long caseId, string cmsAuthValues, Guid correlationId) :
             base(caseUrn, caseId, correlationId)
         {
             CmsAuthValues = cmsAuthValues;

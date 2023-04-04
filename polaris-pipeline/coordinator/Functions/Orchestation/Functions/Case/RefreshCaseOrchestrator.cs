@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Extensions;
+using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.Logging;
 using coordinator.Domain;
@@ -146,17 +147,17 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             }
         }
 
-        private async Task<TransitionDocument[]> RetrieveTransitionDocuments(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<TransitionDocumentDto[]> RetrieveTransitionDocuments(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of transition documents for case {payload.CmsCaseId}");
-            var documents = await context.CallActivityAsync<TransitionDocument[]>(
+            var documents = await context.CallActivityAsync<TransitionDocumentDto[]>(
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId));
 
             return documents;
         }
 
-        private static async Task<TrackerDocumentListDeltasDto> SynchroniseTrackerDocuments(ITrackerEntity tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, TransitionDocument[] documents)
+        private static async Task<TrackerDocumentListDeltasDto> SynchroniseTrackerDocuments(ITrackerEntity tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, TransitionDocumentDto[] documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 

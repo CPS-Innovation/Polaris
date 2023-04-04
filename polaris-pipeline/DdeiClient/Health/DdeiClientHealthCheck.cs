@@ -1,20 +1,19 @@
-﻿using Ddei.Factories.Contracts;
+﻿using Common.Health;
 using DdeiClient.Services.Contracts;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Common.Health
+namespace DDei.Health
 {
     public class DdeiClientHealthCheck : AuthenticatedHealthCheck, IHealthCheck
     {
-        private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly IDdeiClient _ddeiClient;
 
         static readonly string _testCaseUrn = "14XD1000422";
+        static readonly string _testCaseId = "2148897";
 
-        public DdeiClientHealthCheck(IDdeiClient ddeiClient, ICaseDataArgFactory caseDataArgFactory)
+        public DdeiClientHealthCheck(IDdeiClient ddeiClient)
         {
             _ddeiClient = ddeiClient;
-            _caseDataArgFactory = caseDataArgFactory;
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(
@@ -23,10 +22,9 @@ namespace Common.Health
         {
             try
             {
-                var urnArg = _caseDataArgFactory.CreateUrnArg(CmsAuthValue, CorrelationId, _testCaseUrn);
-                var caseIds = (await _ddeiClient.ListCases(urnArg)).ToList();
+                var response = await _ddeiClient.ListDocumentsAsync(_testCaseUrn, _testCaseId, CmsAuthValue, CorrelationId);
 
-                return HealthCheckResult.Healthy($"{caseIds.Count} Case(s) for test URN");
+                return HealthCheckResult.Healthy($"{response.Length} document(s) for test case");
             }
             catch (Exception ex)
             {

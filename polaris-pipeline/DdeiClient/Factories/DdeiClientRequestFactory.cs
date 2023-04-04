@@ -1,12 +1,11 @@
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net;
-using Ddei.Factories.Contracts;
 using Common.Constants;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Options;
 
-namespace Ddei.Factories
+namespace Ddei.Factories.Contracts
 {
     public class DdeiClientRequestFactory : IDdeiClientRequestFactory
     {
@@ -68,6 +67,16 @@ namespace Ddei.Factories
             AddAuthHeaders(request, arg);
             request.Content = new StreamContent(stream);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+            return request;
+        }
+
+        public HttpRequestMessage CreateGet(string requestUri, string cmsAuthValues, Guid correlationId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+
+            request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
+            request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
+
             return request;
         }
 

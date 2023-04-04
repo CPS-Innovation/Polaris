@@ -1,9 +1,9 @@
 using System;
 using System.IO;
+using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Common.Dto.Tracker;
-using coordinator.Domain.Tracker;
-using coordinator.Services.DocumentToggle;
+using Common.Services.DocumentToggle;
 using FluentAssertions;
 using Xunit;
 
@@ -178,7 +178,7 @@ namespace coordinator.tests.Services.DocumentToggle
             // Arrage
             var documentToggleService = new DocumentToggleService(configContent);
 
-            var document = new TransitionDocument();
+            var document = new TransitionDocumentDto();
             document.FileExtension = inputDocumentExtension;
             document.CmsDocType.DocumentType = inputDocumentCmsType;
 

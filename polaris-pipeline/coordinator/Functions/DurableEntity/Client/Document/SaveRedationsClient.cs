@@ -17,8 +17,8 @@ using Common.Wrappers.Contracts;
 using Common.Domain.Exceptions;
 using FluentValidation;
 using Ddei.Domain.CaseData.Args;
-using Ddei.Services;
 using Common.Dto.Request;
+using DdeiClient.Services.Contracts;
 
 namespace coordinator.Functions.DurableEntity.Client.Document
 {
@@ -30,19 +30,19 @@ namespace coordinator.Functions.DurableEntity.Client.Document
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
         private readonly IRedactionClient _redactionClient;
         private readonly IPolarisStorageClient _blobStorageClient;
-        private readonly IDocumentService _documentService;
+        private readonly IDdeiClient _gatewayDdeiService;
 
         public SaveRedactionsClient(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestDto> requestValidator,
                               IRedactionClient redactionClient,
                               IPolarisStorageClient blobStorageClient,
-                              IDocumentService documentService)
+                              IDdeiClient gatewayDdeiService)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _redactionClient = redactionClient;
             _blobStorageClient = blobStorageClient;
-            _documentService = documentService;
+            _gatewayDdeiService = gatewayDdeiService;
         }
 
         [FunctionName(nameof(SaveRedactionsClient))]
@@ -105,7 +105,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                await _documentService.UploadPdf(arg, pdfStream);
+                await _gatewayDdeiService.UploadPdf(arg, pdfStream);
 
                 return new ObjectResult(redactionResult);
             }
