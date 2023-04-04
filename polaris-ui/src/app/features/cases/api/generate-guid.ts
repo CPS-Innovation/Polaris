@@ -8,7 +8,6 @@ declare global {
 window.__POLARIS_TEST__ = true;
 
 export const generateGuid = () => {
-  console.log("Generating guid " + window.__POLARIS_INSTRUMENTATION_GUID__);
   if (window.__POLARIS_INSTRUMENTATION_GUID__) {
     if (!validate(window.__POLARIS_INSTRUMENTATION_GUID__)) {
       throw new Error(
