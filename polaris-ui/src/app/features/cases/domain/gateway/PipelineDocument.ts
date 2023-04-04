@@ -33,7 +33,6 @@ export type PresentationDocumentProperties = {
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
-  cmsVersionId: number;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

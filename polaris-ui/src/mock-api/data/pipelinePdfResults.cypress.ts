@@ -20,7 +20,6 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-01",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 1,
@@ -41,7 +40,6 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 2,
@@ -62,7 +60,6 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
@@ -83,7 +80,6 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-04",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 4,
@@ -104,7 +100,6 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
@@ -154,7 +149,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
@@ -175,7 +169,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 11,
@@ -196,7 +189,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
@@ -217,7 +209,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 6,
@@ -238,7 +229,6 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
@@ -268,7 +258,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
@@ -289,7 +278,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 11,
@@ -310,7 +298,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
@@ -331,7 +318,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 6,
@@ -352,7 +338,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
-      cmsVersionId: 1,
       polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,

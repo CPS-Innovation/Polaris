@@ -22,7 +22,6 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
-            cmsVersionId: 1,
             polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 3,
@@ -43,7 +42,6 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
-            cmsVersionId: 1,
             polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 11,
@@ -64,7 +62,6 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
-            cmsVersionId: 1,
             polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 11,
@@ -104,7 +101,6 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
-            cmsVersionId: 1,
             polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 3,
