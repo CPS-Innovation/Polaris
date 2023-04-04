@@ -73,14 +73,17 @@ public class DdeiDocumentExtractionServiceTests
             .ReturnsAsync(_httpResponseMessage);
         var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
 
-        var mockHttpRequestFactory = new Mock<IHttpRequestFactory>();
+        var mockHttpRequestFactory = new Mock<IDdeiClientRequestFactory>();
 
-        mockHttpRequestFactory.Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
+        mockHttpRequestFactory
+            .Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
         var ddeiOptions = new Mock<IOptions<DdeiOptions>>();
-        ddeiOptions.Setup(options => options.Value).Returns(new DdeiOptions { AccessKey="ABC", BaseUrl="" });
+        ddeiOptions
+            .Setup(options => options.Value)
+            .Returns(new DdeiOptions { AccessKey="ABC", BaseUrl="" });
 
         var caseDataArgFactory = new Mock<ICaseDataArgFactory>();
         var ddeiClientRequestFactory = new Mock<IDdeiClientRequestFactory>();
@@ -88,14 +91,13 @@ public class DdeiDocumentExtractionServiceTests
 
         _documentExtractionService = new Ddei.Services.DdeiClient
             (
-                httpClient, 
+                httpClient,
                 mockHttpRequestFactory.Object,
                 ddeiOptions.Object,
                 caseDataArgFactory.Object,
                 caseDetailsMapper.Object,
                 new DdeiCaseDocumentMapper(),
                 _jsonConvertWrapperMock.Object,
-                ddeiClientRequestFactory.Object,
                 loggerMock.Object
             );
     }

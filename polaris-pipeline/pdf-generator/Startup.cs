@@ -90,8 +90,6 @@ namespace pdf_generator
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
 
-            builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
-
             builder.Services.AddDdeiClient(configuration);
 
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();

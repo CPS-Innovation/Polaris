@@ -23,21 +23,21 @@ using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.CaseData
 {
-    public class CaseDataApiCaseInformationByUrn : BasePolarisFunction
+    public class Cases : BasePolarisFunction
     {
         private readonly IDdeiClient _caseDataService;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
-        private readonly ILogger<CaseDataApiCaseInformationByUrn> _logger;
+        private readonly ILogger<Cases> _logger;
         private readonly DdeiOptions _ddeiOptions;
 
-        const string loggingName = $"{nameof(CaseDataApiCaseInformationByUrn)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(Cases)} - {nameof(Run)}";
 
-        public CaseDataApiCaseInformationByUrn(ILogger<CaseDataApiCaseInformationByUrn> logger,
-                                               IDdeiClient caseDataService,
-                                               IAuthorizationValidator tokenValidator,
-                                               ICaseDataArgFactory caseDataArgFactory,
-                                               IOptions<DdeiOptions> options,
-                                               ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        public Cases(ILogger<Cases> logger,
+                        IDdeiClient caseDataService,
+                        IAuthorizationValidator tokenValidator,
+                        ICaseDataArgFactory caseDataArgFactory,
+                        IOptions<DdeiOptions> options,
+                        ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _caseDataService = caseDataService;
@@ -46,7 +46,7 @@ namespace PolarisGateway.Functions.CaseData
             _ddeiOptions = options.Value;
         }
 
-        [FunctionName(nameof(CaseDataApiCaseInformationByUrn))]
+        [FunctionName(nameof(Cases))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             Guid currentCorrelationId = default;

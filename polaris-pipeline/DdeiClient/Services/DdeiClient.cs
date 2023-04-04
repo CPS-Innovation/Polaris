@@ -14,7 +14,6 @@ using Common.Logging;
 using Common.Mappers.Contracts;
 using Ddei.Options;
 using Microsoft.Extensions.Logging;
-using Common.Factories.Contracts;
 using Microsoft.Extensions.Options;
 using Common.Exceptions;
 
@@ -29,7 +28,6 @@ namespace Ddei.Services
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDdeiClientRequestFactory _ddeiClientRequestFactory;
         private readonly ILogger<DdeiClient> _logger;
-        protected readonly IHttpRequestFactory _httpRequestFactory;
         protected readonly HttpClient _httpClient;
 
         static readonly string ListDocumentsUrlFormat = "api/urns/{0}/cases/{1}/documents?code={2}";
@@ -37,13 +35,12 @@ namespace Ddei.Services
 
         public DdeiClient(
             HttpClient httpClient,
-            IHttpRequestFactory httpRequestFactory,
+            IDdeiClientRequestFactory ddeiClientRequestFactory,
             IOptions<DdeiOptions> ddeiOptions,
             ICaseDataArgFactory caseDataServiceArgFactory,
             ICaseDetailsMapper caseDetailsMapper,
             ICaseDocumentMapper<DdeiCaseDocumentResponse> caseDocumentMapper,
             IJsonConvertWrapper jsonConvertWrapper,
-            IDdeiClientRequestFactory ddeiClientRequestFactory,
             ILogger<DdeiClient> logger
             )
         {
@@ -54,7 +51,6 @@ namespace Ddei.Services
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _ddeiClientRequestFactory = ddeiClientRequestFactory ?? throw new ArgumentNullException(nameof(ddeiClientRequestFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _httpRequestFactory = httpRequestFactory ?? throw new ArgumentNullException(nameof(httpRequestFactory));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
@@ -227,7 +223,7 @@ namespace Ddei.Services
         {
             _logger.LogMethodEntry(correlationId, nameof(GetHttpContentAsync), $"RequestUri: {requestUri}");
 
-            var request = _httpRequestFactory.CreateGet(requestUri, cmsAuthValues, correlationId);
+            var request = _ddeiClientRequestFactory.CreateGet(requestUri, cmsAuthValues, correlationId);
             _logger.LogMethodFlow(correlationId, nameof(GetHttpContentAsync), $"{request.Method} {_httpClient.BaseAddress}{requestUri}");
 
             var response = await _httpClient.SendAsync(request);

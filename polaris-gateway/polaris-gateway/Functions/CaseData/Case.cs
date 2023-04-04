@@ -20,28 +20,28 @@ using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.CaseData
 {
-    public class CaseDataApiCaseDetails : BasePolarisFunction
+    public class Case : BasePolarisFunction
     {
-        private readonly IDdeiClient _caseDataService;
+        private readonly IDdeiClient _ddeiClient;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
-        private readonly ILogger<CaseDataApiCaseDetails> _logger;
+        private readonly ILogger<Case> _logger;
 
-        const string loggingName = $"{nameof(CaseDataApiCaseDetails)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(Case)} - {nameof(Run)}";
 
-        public CaseDataApiCaseDetails(ILogger<CaseDataApiCaseDetails> logger,
-                                      IDdeiClient caseDataService,
-                                      IAuthorizationValidator tokenValidator,
-                                      ICaseDataArgFactory caseDataArgFactory,
-                                      IOptions<DdeiOptions> options,
-                                      ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
-        : base(logger, tokenValidator, telemetryAugmentationWrapper)
+        public Case(ILogger<Case> logger,
+                    IDdeiClient ddeiService,
+                    IAuthorizationValidator tokenValidator,
+                    ICaseDataArgFactory caseDataArgFactory,
+                    IOptions<DdeiOptions> options,
+                    ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
-            _caseDataService = caseDataService;
+            _ddeiClient = ddeiService;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
         }
 
-        [FunctionName(nameof(CaseDataApiCaseDetails))]
+        [FunctionName(nameof(Case))]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
@@ -58,7 +58,7 @@ namespace PolarisGateway.Functions.CaseData
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
-                caseDetails = await _caseDataService.GetCase(_caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId));
+                caseDetails = await _ddeiClient.GetCase(_caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId));
 
                 return caseDetails != null
                     ? new OkObjectResult(caseDetails)
