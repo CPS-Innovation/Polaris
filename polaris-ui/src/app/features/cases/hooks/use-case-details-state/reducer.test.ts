@@ -231,7 +231,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           pipelineState: {},
-          generalPipelineState: { refreshData: {} },
+          pipelineRefreshData: {},
           tabsState: { items: [] },
           documentsState: {
             status: "succeeded",

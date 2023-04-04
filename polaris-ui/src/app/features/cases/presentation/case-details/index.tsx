@@ -32,7 +32,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     searchState,
     searchTerm,
     pipelineState,
-    generalPipelineState: { refreshData },
+    pipelineRefreshData,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -161,7 +161,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabs
                 pipelineState={pipelineState}
                 tabsState={tabsState}
-                savedDocumentDetails={refreshData.savedDocumentDetails}
+                savedDocumentDetails={pipelineRefreshData.savedDocumentDetails}
                 handleTabSelection={handleTabSelection}
                 handleClosePdf={handleClosePdf}
                 handleLaunchSearchResults={handleLaunchSearchResults}

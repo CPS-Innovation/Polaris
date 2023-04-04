@@ -43,13 +43,14 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   return (
     <Tabs
       idPrefix="pdf"
-      items={items.map((item) => ({
+      items={items.map((item, index) => ({
         isDirty: item.redactionHighlights.length > 0,
         id: item.documentId,
         label: item.presentationFileName,
         panel: {
           children: (
             <PdfTab
+              tabIndex={index}
               caseDocumentViewModel={item}
               savedDocumentDetails={savedDocumentDetails}
               redactStatus={getRedactStatus(item.cmsDocumentId, pipelineState)}

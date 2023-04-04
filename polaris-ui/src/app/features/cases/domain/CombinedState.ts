@@ -15,14 +15,12 @@ export type CombinedState = {
   caseState: AsyncResult<CaseDetails>;
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
-  generalPipelineState: {
-    refreshData: {
-      startRefresh: boolean;
-      savedDocumentDetails: {
-        documentId: string;
-        polarisDocumentVersionId: number;
-      }[];
-    };
+  pipelineRefreshData: {
+    startRefresh: boolean;
+    savedDocumentDetails: {
+      documentId: string;
+      polarisDocumentVersionId: number;
+    }[];
     lastProcessingCompleted: string;
   };
   accordionState: AsyncResult<AccordionDocumentSection[]>;

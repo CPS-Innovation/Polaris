@@ -4,12 +4,14 @@ import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import classes from "./Footer.module.scss";
 
 type Props = {
+  tabIndex: number;
   redactionHighlights: IPdfHighlight[];
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
+  tabIndex,
   redactionHighlights,
   handleRemoveAllRedactions,
   handleSavedRedactions,
@@ -33,7 +35,11 @@ export const Footer: React.FC<Props> = ({
         )}
       </div>
 
-      <Button className={classes.saveButton} onClick={handleSavedRedactions}>
+      <Button
+        className={classes.saveButton}
+        onClick={handleSavedRedactions}
+        data-testid={`btn-save-redaction-${tabIndex}`}
+      >
         Save all redactions
       </Button>
     </div>

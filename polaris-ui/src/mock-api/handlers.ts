@@ -109,7 +109,6 @@ export const setupHandlers = ({
 
     rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
       callStack["TRACKER_ROUTE"]++;
-
       const result = pipelinePdfResultsDataSources[sourceName]();
       if (callStack["TRACKER_ROUTE"] > result.length) {
         return res(ctx.delay(sanitisedMaxDelay), ctx.json(result[0]));

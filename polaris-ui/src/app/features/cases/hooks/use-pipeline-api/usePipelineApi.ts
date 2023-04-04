@@ -8,9 +8,8 @@ import { CombinedState } from "../../domain/CombinedState";
 export const usePipelineApi = (
   urn: string,
   caseId: number,
-  generalPipelineState: CombinedState["generalPipelineState"]
+  pipelineRefreshData: CombinedState["pipelineRefreshData"]
 ): AsyncPipelineResult<PipelineResults> => {
-  const { refreshData } = generalPipelineState;
   const [pipelineResults, setPipelineResults] = useState<
     AsyncPipelineResult<PipelineResults>
   >({
@@ -19,17 +18,17 @@ export const usePipelineApi = (
   });
 
   useEffect(() => {
-    if (refreshData.startRefresh) {
+    if (pipelineRefreshData.startRefresh) {
       console.log("initiateAndPoll >>>>>");
       initiateAndPoll(
         urn,
         caseId,
         PIPELINE_POLLING_DELAY,
-        generalPipelineState,
+        pipelineRefreshData,
         (results) => setPipelineResults(results)
       );
     }
-  }, [caseId, urn, refreshData.startRefresh, generalPipelineState]);
+  }, [caseId, urn, pipelineRefreshData]);
 
   return pipelineResults;
 };

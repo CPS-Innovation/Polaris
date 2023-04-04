@@ -43,8 +43,7 @@ const hasDocumentUpdated = (
     return false;
   }
   if (
-    savedDocument.polarisDocumentVersionId ===
-    document.polarisDocumentVersionId + 1
+    savedDocument.polarisDocumentVersionId > document.polarisDocumentVersionId
   ) {
     return true;
   }
@@ -56,17 +55,13 @@ export const initiateAndPoll = (
   urn: string,
   caseId: number,
   delayMs: number,
-  generalPipelineState: CombinedState["generalPipelineState"],
-
+  pipelineRefreshData: CombinedState["pipelineRefreshData"],
   del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void
 ) => {
   let keepPolling = true;
   let trackingCallCount = 0;
 
-  const {
-    lastProcessingCompleted,
-    refreshData: { savedDocumentDetails },
-  } = generalPipelineState;
+  const { lastProcessingCompleted, savedDocumentDetails } = pipelineRefreshData;
 
   const handleApiCallSuccess = (pipelineResult: PipelineResults) => {
     trackingCallCount += 1;

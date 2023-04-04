@@ -42,8 +42,7 @@ const hasDocumentUpdated = (
   }
 
   if (
-    savedDocument.polarisDocumentVersionId ===
-    document.polarisDocumentVersionId + 1
+    savedDocument.polarisDocumentVersionId > document.polarisDocumentVersionId
   ) {
     return true;
   }
@@ -175,25 +174,24 @@ export const reducer = (
         if (!nextState.pipelineState.haveData) {
           nextState = {
             ...nextState,
-            generalPipelineState: {
-              ...nextState.generalPipelineState,
+            pipelineRefreshData: {
+              ...nextState.pipelineRefreshData,
               lastProcessingCompleted: action.payload.data.processingCompleted,
             },
           };
         } else {
           const newPipelineData = action.payload.data;
           const newSavedDocumentDetails =
-            nextState.generalPipelineState.refreshData.savedDocumentDetails.filter(
+            nextState.pipelineRefreshData.savedDocumentDetails.filter(
               (document) => !hasDocumentUpdated(document, newPipelineData)
             );
 
           nextState = {
             ...nextState,
-            generalPipelineState: {
-              refreshData: {
-                ...nextState.generalPipelineState.refreshData,
-                savedDocumentDetails: newSavedDocumentDetails,
-              },
+
+            pipelineRefreshData: {
+              ...nextState.pipelineRefreshData,
+              savedDocumentDetails: newSavedDocumentDetails,
               lastProcessingCompleted: action.payload.data.processingCompleted,
             },
           };
@@ -278,7 +276,7 @@ export const reducer = (
         const matchingFreshPdfRecord = openPdfsWeNeedToUpdate.find(
           (item) => item.documentId === curr.documentId
         );
-        debugger;
+
         if (matchingFreshPdfRecord) {
           const url = resolvePdfUrl(
             state.urn,
@@ -310,7 +308,7 @@ export const reducer = (
     case "UPDATE_REFRESH_PIPELINE": {
       console.log("UPDATE_REFRESH_PIPELINE>>>>", action.payload);
       let newSavedDocumentDetails =
-        state.generalPipelineState.refreshData.savedDocumentDetails;
+        state.pipelineRefreshData.savedDocumentDetails;
       if (action.payload.savedDocumentDetails) {
         newSavedDocumentDetails = [
           ...newSavedDocumentDetails,
@@ -319,12 +317,10 @@ export const reducer = (
       }
       return {
         ...state,
-        generalPipelineState: {
-          ...state.generalPipelineState,
-          refreshData: {
-            startRefresh: action.payload.startRefresh,
-            savedDocumentDetails: newSavedDocumentDetails,
-          },
+        pipelineRefreshData: {
+          ...state.pipelineRefreshData,
+          startRefresh: action.payload.startRefresh,
+          savedDocumentDetails: newSavedDocumentDetails,
         },
       };
     }

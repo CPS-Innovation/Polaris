@@ -24,12 +24,11 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        refreshData: {
-          startRefresh: false,
-          savedDocumentDetails: [],
-        },
+        startRefresh: false,
+        savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
+
       mockCallback
     );
     clock.tick(1000);
@@ -71,10 +70,8 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        refreshData: {
-          startRefresh: false,
-          savedDocumentDetails: [],
-        },
+        startRefresh: false,
+        savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
       mockCallback
@@ -126,10 +123,8 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        refreshData: {
-          startRefresh: false,
-          savedDocumentDetails: [],
-        },
+        startRefresh: false,
+        savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
       mockCallback
@@ -183,10 +178,8 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        refreshData: {
-          startRefresh: false,
-          savedDocumentDetails: [],
-        },
+        startRefresh: false,
+        savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
       mockCallback
@@ -263,10 +256,8 @@ describe("initiateAndPoll", () => {
       1,
       POLLING_INTERVAL_MS,
       {
-        refreshData: {
-          startRefresh: false,
-          savedDocumentDetails: [],
-        },
+        startRefresh: false,
+        savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
       mockCallback

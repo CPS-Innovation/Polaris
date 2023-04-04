@@ -1,14 +1,11 @@
 import { PipelineResults } from "../../app/features/cases/domain/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 
-const dataSource: PipelinePdfResultsDataSource = () => [
-  pipelinePdfResults,
-  pipelinePdfResultsSecond,
-];
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(5);
 
 export default dataSource;
 
-const pipelinePdfResults: PipelineResults = {
+const pipelinePdfResult: PipelineResults = {
   transactionId: "121",
   status: "Completed",
   processingCompleted: new Date().toISOString(),
@@ -227,12 +224,23 @@ const pipelinePdfResults: PipelineResults = {
   ],
 };
 
-const pipelinePdfResultsSecond = {
-  ...pipelinePdfResults,
-  processingCompleted: new Date(new Date().getTime() + 1000).toISOString(),
-  documentsRetrieved: new Date(new Date().getTime() + 1000).toISOString(),
-  documents: pipelinePdfResults.documents.map((document) => ({
-    ...document,
-    polarisDocumentVersionId: 2,
-  })),
+const getPipelinePdfResults = (resultsCount: number) => {
+  let resultsArray = Array(resultsCount)
+    .fill({})
+    .map((value, index) => ({
+      ...pipelinePdfResult,
+
+      processingCompleted: new Date(
+        new Date().getTime() + index * 1000
+      ).toISOString(),
+      documentsRetrieved: new Date(
+        new Date().getTime() + index * 1000
+      ).toISOString(),
+      documents: pipelinePdfResult.documents.map((document) => ({
+        ...document,
+        polarisDocumentVersionId: document.polarisDocumentVersionId + index,
+      })),
+    }));
+
+  return resultsArray;
 };
