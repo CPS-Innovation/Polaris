@@ -2,7 +2,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { mapDocumentsState } from "./map-documents-state";
 import * as documentCategoryDefinitions from "./document-category-definitions";
 import * as getFileNameWithoutExtension from "../../logic/get-file-name-without-extension";
-import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 describe("mapDocumentsState", () => {
   beforeEach(() => {

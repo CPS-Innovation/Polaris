@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Domain.DocumentExtraction;
 using Common.Domain.Extensions;
+using Common.Dto.Document;
 using Common.Logging;
-using Common.Services.DocumentExtractionService.Contracts;
+using Common.Mappers.Contracts;
+using Common.Services.DocumentToggle;
 using coordinator.Domain;
-using coordinator.Domain.Tracker;
-using coordinator.Mappers;
-using coordinator.Services.DocumentToggle;
+using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -17,7 +16,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
 {
     public class GetCaseDocuments
     {
-        private readonly IDdeiDocumentExtractionService _documentExtractionService;
+        private readonly IDdeiClient _ddeiService;
         private readonly IDocumentToggleService _documentToggleService;
         private readonly ITransitionDocumentMapper _transitionDocumentMapper;
         private readonly ILogger<GetCaseDocuments> _log;
@@ -25,19 +24,19 @@ namespace coordinator.Functions.ActivityFunctions.Case
         const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
 
         public GetCaseDocuments(
-                 IDdeiDocumentExtractionService documentExtractionService,
+                 IDdeiClient ddeiService,
                  IDocumentToggleService documentToggleService,
                  ITransitionDocumentMapper transitionDocumentMapper,
                  ILogger<GetCaseDocuments> logger)
         {
-            _documentExtractionService = documentExtractionService;
+            _ddeiService = ddeiService;
             _documentToggleService = documentToggleService;
             _transitionDocumentMapper = transitionDocumentMapper;
             _log = logger;
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<TransitionDocument[]> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<TransitionDocumentDto[]> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -53,7 +52,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 throw new ArgumentException("CorrelationId must be valid GUID");
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            var caseDocuments = await _documentExtractionService.ListDocumentsAsync(
+            var caseDocuments = await _ddeiService.ListDocumentsAsync(
               payload.CmsCaseUrn,
               payload.CmsCaseId.ToString(),
               payload.CmsAuthValues,
@@ -65,7 +64,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
                     .ToArray();
         }
 
-        private TransitionDocument MapToTransitionDocument(CmsCaseDocument document)
+        private TransitionDocumentDto MapToTransitionDocument(DocumentDto document)
         {
             var transitionDocument = _transitionDocumentMapper.MapToTransitionDocument(document);
 

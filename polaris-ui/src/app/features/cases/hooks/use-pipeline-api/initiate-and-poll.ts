@@ -1,10 +1,9 @@
 import { ApiError } from "../../../../common/errors/ApiError";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
-import { PipelineResults } from "../../domain/PipelineResults";
-import { getPipelinpipelineCompletionStatus } from "../../domain/PipelineStatus";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
+import { getPipelinpipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
-
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
 

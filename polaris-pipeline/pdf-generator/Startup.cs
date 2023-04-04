@@ -1,27 +1,21 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using Azure.Storage.Blobs;
 using Common.Constants;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
 using Common.Domain.Validators;
+using Common.Dto.Request;
 using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Health;
-using Common.Mappers;
-using Common.Mappers.Contracts;
 using Common.Services.BlobStorageService;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation;
 using Common.Services.DocumentEvaluation.Contracts;
-using Common.Services.DocumentExtractionService;
-using Common.Services.DocumentExtractionService.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
+using DDei.Health;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
@@ -32,6 +26,7 @@ using pdf_generator.Factories;
 using pdf_generator.Handlers;
 using pdf_generator.Services.DocumentRedactionService;
 using pdf_generator.Services.PdfService;
+using Ddei.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
@@ -78,7 +73,7 @@ namespace pdf_generator
             });
 
             builder.Services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
-            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequest>, ValidatorWrapper<GeneratePdfRequest>>();
+            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequestDto>, ValidatorWrapper<GeneratePdfRequestDto>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
@@ -95,25 +90,18 @@ namespace pdf_generator
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
 
-            builder.Services.AddTransient<IHttpRequestFactory, HttpRequestFactory>();
-            builder.Services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
-            
-            builder.Services.AddHttpClient<IDdeiDocumentExtractionService, DdeiDocumentExtractionService>(client =>
-            {
-                client.BaseAddress = new Uri(configuration[ConfigKeys.SharedKeys.DocumentsRepositoryBaseUrl]);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
+            builder.Services.AddDdeiClient(configuration);
 
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            builder.Services.AddScoped<IValidator<RedactPdfRequest>, RedactPdfRequestValidator>();
+            builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
 
             BuildHealthChecks(builder);
         }
 
         /// <summary>
-        /// see https://www.davidguida.net/azure-api-management-healthcheck for pattern
+        /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
         /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
         /// </summary>
         /// <param name="builder"></param>
@@ -122,7 +110,7 @@ namespace pdf_generator
             builder.Services.AddHealthChecks()
                  .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
                  .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                 .AddCheck<DdeiDocumentExtractionServiceHealthCheck>("DDEI Document Extraction Service");
+                 .AddCheck<DdeiClientHealthCheck>("DDEI Document Extraction Service");
         }
     }
 }

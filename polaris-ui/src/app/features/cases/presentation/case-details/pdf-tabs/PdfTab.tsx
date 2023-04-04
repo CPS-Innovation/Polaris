@@ -7,7 +7,7 @@ import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
-import { PresentationFlags } from "../../../../../features/cases/domain/PipelineDocument";
+import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 
 type PdfTabProps = {
   tabIndex: number;

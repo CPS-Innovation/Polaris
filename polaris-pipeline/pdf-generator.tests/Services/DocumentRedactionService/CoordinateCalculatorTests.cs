@@ -1,19 +1,19 @@
- using System;
- using System.IO;
- using Aspose.Cells;
- using Aspose.Pdf.Facades;
- using AutoFixture;
- using Common.Domain.Redaction;
- using FluentAssertions;
- using FluentAssertions.Execution;
- using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using Aspose.Cells;
+using Aspose.Pdf.Facades;
+using AutoFixture;
+using Common.Dto.Request.Redaction;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging;
 using Moq;
- using pdf_generator.Factories;
- using pdf_generator.Services.DocumentRedactionService;
- using pdf_generator.Services.PdfService;
- using Xunit;
+using pdf_generator.Factories;
+using pdf_generator.Services.DocumentRedactionService;
+using pdf_generator.Services.PdfService;
+using Xunit;
 
- namespace pdf_generator.tests.Services.DocumentRedactionService;
+namespace pdf_generator.tests.Services.DocumentRedactionService;
 
 public class CoordinateCalculatorTests
 {
@@ -44,7 +44,7 @@ public class CoordinateCalculatorTests
         var pdfInfo = new PdfFileInfo(pdfStream);
 
         var fixture = new Fixture();
-        var testCoordinates = fixture.Create<RedactionCoordinates>();
+        var testCoordinates = fixture.Create<RedactionCoordinatesDto>();
         
         var targetPdfWidth = pdfInfo.GetPageWidth(1);
         var targetPdfHeight = pdfInfo.GetPageHeight(1);

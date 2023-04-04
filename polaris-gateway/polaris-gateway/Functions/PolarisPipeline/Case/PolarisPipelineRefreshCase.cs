@@ -13,6 +13,7 @@ using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
+using PolarisGateway.Domain.PolarisPipeline;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
 {
@@ -24,11 +25,14 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
 
         const string loggingName = $"{nameof(PolarisPipelineRefreshCase)} - {nameof(Run)}";
 
-        public PolarisPipelineRefreshCase(ILogger<PolarisPipelineRefreshCase> logger,
-                                                 IPipelineClient pipelineClient,
-                                                 ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
-                                                 IAuthorizationValidator tokenValidator,
-                                                 ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        public PolarisPipelineRefreshCase
+            (
+                ILogger<PolarisPipelineRefreshCase> logger,
+                IPipelineClient pipelineClient,
+                ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
+                IAuthorizationValidator tokenValidator,
+                ITelemetryAugmentationWrapper telemetryAugmentationWrapper
+            )
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
@@ -53,9 +57,13 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("An empty case URN was received", currentCorrelationId, loggingName);
 
-                await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, request.CmsAuthValues, currentCorrelationId);
+                var response = await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, request.CmsAuthValues, currentCorrelationId);
 
-                return new OkObjectResult(_triggerCoordinatorResponseFactory.Create(req, currentCorrelationId));
+                TriggerCoordinatorResponse trackerUrlResponse = _triggerCoordinatorResponseFactory.Create(req, currentCorrelationId);
+                return new ObjectResult(trackerUrlResponse)
+                {
+                    StatusCode = response.StatusCode
+                };
             }
             catch (Exception exception)
             {

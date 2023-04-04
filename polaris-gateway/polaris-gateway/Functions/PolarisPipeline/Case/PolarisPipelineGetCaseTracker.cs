@@ -7,13 +7,13 @@ using Microsoft.Identity.Client;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Extensions;
 using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
+using Common.Dto.Tracker;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
 {

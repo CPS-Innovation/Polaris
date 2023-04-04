@@ -3,18 +3,17 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Ddei.Clients;
+using Ddei.Services;
 using Ddei.Factories;
 using Ddei.Factories.Contracts;
+using Ddei.Mappers;
 using Ddei.Options;
-using Ddei.Services;
-using Ddei.Services.Contract;
+using DdeiClient.Services.Contracts;
+using DdeiClient.Mappers.Contract;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PolarisGateway.CaseDataImplementations.Ddei.Mappers;
-using PolarisGateway.CaseDataImplementations.Ddei.Services;
-using PolarisGateway.Services;
+using Ddei.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(PolarisAuthHandover.Startup))]
 
@@ -33,25 +32,7 @@ namespace PolarisAuthHandover
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
-            builder.Services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
-
-            builder.Services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("ddei").Bind(settings);
-            });
-
-            builder.Services.AddTransient<ICaseDataService, DdeiService>();
-            builder.Services.AddTransient<IDocumentService, DdeiService>();
-            builder.Services.AddTransient<ICmsModernTokenService, DdeiService>();
-            builder.Services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
-            builder.Services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
-            {
-                var options = configuration.GetSection("ddei").Get<DdeiOptions>();
-                client.BaseAddress = new Uri(options.BaseUrl);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
-            builder.Services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
-            builder.Services.AddTransient<ICaseDocumentsMapper, CaseDocumentsMapper>();
+            builder.Services.AddDdeiClient(configuration);
         }
     }
 }

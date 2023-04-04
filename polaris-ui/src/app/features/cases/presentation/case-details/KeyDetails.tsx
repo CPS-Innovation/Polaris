@@ -3,7 +3,10 @@ import {
   formatDate,
   getAgeFromIsoDate,
 } from "../../../../common/utils/dates";
-import { CaseDetails, DefendantDetails } from "../../domain/CaseDetails";
+import {
+  CaseDetails,
+  DefendantDetails,
+} from "../../domain/gateway/CaseDetails";
 import { LinkButton } from "../../../../../app/common/presentation/components/LinkButton";
 import classes from "./index.module.scss";
 

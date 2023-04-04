@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
+using Azure.Core;
 using Common.Validators.Contracts;
 using FluentAssertions;
+using Gateway.Clients.PolarisPipeline;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -46,14 +49,21 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _triggerCoordinatorResponse = fixture.Create<TriggerCoordinatorResponse>();
 
             var mockLogger = new Mock<ILogger<PolarisPipelineRefreshCase>>();
-            _mockPipelineClient = new Mock<IPipelineClient>();
-            var mockTriggerCoordinatorResponseFactory = new Mock<ITriggerCoordinatorResponseFactory>();
 
-            mockTriggerCoordinatorResponseFactory.Setup(factory => factory.Create(_request, It.IsAny<Guid>())).Returns(_triggerCoordinatorResponse);
+            _mockPipelineClient = new Mock<IPipelineClient>();
+            _mockPipelineClient
+                .Setup(x => x.RefreshCaseAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>()))
+                .ReturnsAsync(new StatusCodeResult((int)HttpStatusCode.Accepted));
+
+            var mockTriggerCoordinatorResponseFactory = new Mock<ITriggerCoordinatorResponseFactory>();
+            mockTriggerCoordinatorResponseFactory
+                .Setup(factory => factory.Create(_request, It.IsAny<Guid>()))
+                .Returns(_triggerCoordinatorResponse);
 
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
-
-            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user-name" });
+            _mockTokenValidator
+                .Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user-name" });
 
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
@@ -113,11 +123,11 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         }
 
         [Fact]
-        public async Task Run_ReturnsOk()
+        public async Task Run_NewRefreshProcessReturnsAccepted()
         {
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
+            var result = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
 
-            response.Should().BeOfType<OkObjectResult>();
+            result.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
         }
 
         [Fact]
@@ -126,7 +136,6 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as OkObjectResult;
 
             response?.Value.Should().Be(_triggerCoordinatorResponse);
-
         }
 
         [Fact]

@@ -10,7 +10,6 @@ trigger:
   paths:
     include:
       - polaris-terraform/networking-terraform/*
-      - polaris-terraform/networking-events-terraform/*
        
 pr: none
   
@@ -20,48 +19,8 @@ variables:
   semanticVersion: $[counter(variables['majorMinorVersion'], 1)]
     
 stages:
-  - stage: Determine_Changes
-    displayName: Determine Changes
-    jobs:
-      - job: Generate_Diff
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              script: |
-                $files = $(git diff --name-only --relative --diff-filter AMR HEAD^ HEAD)
-                $temp=$files -split ' '
-                $count=$temp.Length
-                echo "Total changed $count files"
-
-                For ($i=0; $i -lt $temp.Length; $i++)
-                {
-                  $name=$temp[$i]
-                  echo "this is $name file"
-                  if ($name -like 'polaris-terraform/networking-terraform/*')
-                  {
-                    echo "run networking terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                  if ($name -like 'polaris-terraform/networking-events-terraform/*')
-                  {
-                    echo "run networking events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_NETWORKING_EVENTS_TERRAFORM;isOutput=true]true"
-                  }
-                }
-            name: Change_Results
-            displayName: Processing changes to repo
-        
   - stage: Publish_Artifacts
     displayName: Publish artifacts
-    dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_NETWORKING_EVENTS_TERRAFORM'], 'true')))
-    variables:
-      runNetworkingTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_TERRAFORM']]
-      runNetworkingEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_NETWORKING_EVENTS_TERRAFORM']]
     jobs:
       - job:
         pool:
@@ -69,16 +28,7 @@ stages:
         steps:
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline terraform artifact'
-            condition: eq(variables.runNetworkingTerraform, 'true')
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
               artifact: "networking-terraform-files"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish networking events terraform artifact'
-            condition: eq(variables.runNetworkingEventsTerraform, 'true')
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-events-terraform/"
-              artifact: "networking-events-terraform-files"
               publishLocation: "pipeline"

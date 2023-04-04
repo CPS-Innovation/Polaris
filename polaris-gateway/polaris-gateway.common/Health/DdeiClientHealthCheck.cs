@@ -1,5 +1,5 @@
-﻿using Ddei.Clients;
-using Ddei.Factories.Contracts;
+﻿using Ddei.Factories.Contracts;
+using DdeiClient.Services.Contracts;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Common.Health
@@ -24,7 +24,7 @@ namespace Common.Health
             try
             {
                 var urnArg = _caseDataArgFactory.CreateUrnArg(CmsAuthValue, CorrelationId, _testCaseUrn);
-                var caseIds = (await _ddeiClient.ListCaseIdsAsync(urnArg)).ToList();
+                var caseIds = (await _ddeiClient.ListCases(urnArg)).ToList();
 
                 return HealthCheckResult.Healthy($"{caseIds.Count} Case(s) for test URN");
             }

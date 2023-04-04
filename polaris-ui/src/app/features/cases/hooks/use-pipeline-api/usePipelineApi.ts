@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
-import { PipelineResults } from "../../domain/PipelineResults";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
 import { PIPELINE_POLLING_DELAY } from "../../../../config";
 import { CombinedState } from "../../domain/CombinedState";

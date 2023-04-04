@@ -8,12 +8,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.Exceptions;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Exceptions.Contracts;
 using Common.Services.BlobStorageService.Contracts;
-using Common.Services.DocumentExtractionService.Contracts;
 using Common.Wrappers.Contracts;
+using DdeiClient.Services.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -29,7 +29,7 @@ namespace pdf_generator.tests.Functions
         private readonly Fixture _fixture = new();
         private readonly string _serializedGeneratePdfRequest;
         private readonly HttpRequestMessage _httpRequestMessage;
-        private readonly GeneratePdfRequest _generatePdfRequest;
+        private readonly GeneratePdfRequestDto _generatePdfRequest;
         private readonly string _blobName;
         private readonly Stream _documentStream;
         private readonly Stream _pdfStream;
@@ -37,11 +37,11 @@ namespace pdf_generator.tests.Functions
         private HttpResponseMessage _errorHttpResponseMessage;
 
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<IDdeiDocumentExtractionService> _mockDocumentExtractionService;
+        private readonly Mock<IDdeiClient> _mockDocumentExtractionService;
         private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Mock<ILogger<GeneratePdf>> _mockLogger;
-        private readonly Mock<IValidatorWrapper<GeneratePdfRequest>> _mockValidatorWrapper;
+        private readonly Mock<IValidatorWrapper<GeneratePdfRequestDto>> _mockValidatorWrapper;
         private readonly Mock<IPdfOrchestratorService> _mockPdfOrchestratorService;
         private readonly Guid _correlationId;
 
@@ -56,7 +56,7 @@ namespace pdf_generator.tests.Functions
                 Content = new StringContent(_serializedGeneratePdfRequest)
             };
             _httpRequestMessage.Headers.Add("Cms-Auth-Values", cmsAuthValues);
-            _generatePdfRequest = _fixture.Build<GeneratePdfRequest>()
+            _generatePdfRequest = _fixture.Build<GeneratePdfRequestDto>()
                                     .With(r => r.FileName, "Test.doc")
                                     .With(r => r.CaseId, 123456)
                                     .With(r => r.VersionId, 123456)
@@ -68,15 +68,15 @@ namespace pdf_generator.tests.Functions
             _serializedGeneratePdfResponse = _fixture.Create<string>();
 
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
-            _mockValidatorWrapper = new Mock<IValidatorWrapper<GeneratePdfRequest>>();
-            _mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
+            _mockValidatorWrapper = new Mock<IValidatorWrapper<GeneratePdfRequestDto>>();
+            _mockDocumentExtractionService = new Mock<IDdeiClient>();
             _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
             _mockPdfOrchestratorService = new Mock<IPdfOrchestratorService>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockLogger = new Mock<ILogger<GeneratePdf>>();
             _correlationId = _fixture.Create<Guid>();
 
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<GeneratePdfRequest>(_serializedGeneratePdfRequest))
+            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<GeneratePdfRequestDto>(_serializedGeneratePdfRequest))
                 .Returns(_generatePdfRequest);
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<GeneratePdfResponse>(r => r.BlobName == _blobName)))
                 .Returns(_serializedGeneratePdfResponse);
@@ -231,7 +231,7 @@ namespace pdf_generator.tests.Functions
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             var exception = new Exception();
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<GeneratePdfRequest>(_serializedGeneratePdfRequest))
+            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<GeneratePdfRequestDto>(_serializedGeneratePdfRequest))
                 .Throws(exception);
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);

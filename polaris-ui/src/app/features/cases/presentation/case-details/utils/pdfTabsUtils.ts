@@ -1,5 +1,5 @@
 import { AsyncPipelineResult } from "../../../hooks/use-pipeline-api/AsyncPipelineResult";
-import { PipelineResults } from "../../../domain/PipelineResults";
+import { PipelineResults } from "../../../domain/gateway/PipelineResults";
 export const getRedactStatus = (
   id: string,
   pipelineState: AsyncPipelineResult<PipelineResults>

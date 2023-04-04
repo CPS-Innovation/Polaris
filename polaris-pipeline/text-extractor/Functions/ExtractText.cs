@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Exceptions;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using Common.Exceptions.Contracts;
 using Common.Logging;
 using Common.Services.OcrService;
@@ -20,14 +20,14 @@ namespace text_extractor.Functions
     public class ExtractText
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IValidatorWrapper<ExtractTextRequest> _validatorWrapper;
+        private readonly IValidatorWrapper<ExtractTextRequestDto> _validatorWrapper;
         private readonly IOcrService _ocrService;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<ExtractText> _log;
 
         public ExtractText(IJsonConvertWrapper jsonConvertWrapper,
-                           IValidatorWrapper<ExtractTextRequest> validatorWrapper, 
+                           IValidatorWrapper<ExtractTextRequestDto> validatorWrapper, 
                            IOcrService ocrService,
                            ISearchIndexService searchIndexService, 
                            IExceptionHandler exceptionHandler, 
@@ -67,7 +67,7 @@ namespace text_extractor.Functions
                 if (string.IsNullOrWhiteSpace(content))
                     throw new BadRequestException("Request body cannot be null.", nameof(request));
                 
-                var extractTextRequest = _jsonConvertWrapper.DeserializeObject<ExtractTextRequest>(content);
+                var extractTextRequest = _jsonConvertWrapper.DeserializeObject<ExtractTextRequestDto>(content);
                 if (extractTextRequest == null)
                     throw new BadRequestException($"An invalid message was received '{content}'", nameof(request));
 

@@ -2,9 +2,12 @@
 using Common.Constants;
 using Common.Factories;
 using Common.Factories.Contracts;
+using Ddei.Factories.Contracts;
+using Ddei.Options;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -16,19 +19,18 @@ namespace Common.tests.Factories
         private readonly string _cmsAuthValues;
         private readonly Guid _correlationId;
 
-        private readonly IHttpRequestFactory _documentExtractionHttpRequestFactory;
+        private readonly IDdeiClientRequestFactory _documentExtractionHttpRequestFactory;
 
         public HttpRequestFactoryTests()
         {
             var fixture = new Fixture();
             _requestUri = fixture.Create<string>();
-            //_accessToken = fixture.Create<string>(); //until Polaris DDEI supports oAuth, this is hardcoded to a not-implemented-yet string
             _cmsAuthValues = "sample-token";
             _correlationId = fixture.Create<Guid>();
 
-            var loggerMock = new Mock<ILogger<HttpRequestFactory>>();
+            Mock<IOptions<DdeiOptions>> ddeiOptions = new Mock<IOptions<DdeiOptions>>();
 
-            _documentExtractionHttpRequestFactory = new HttpRequestFactory(loggerMock.Object);
+            _documentExtractionHttpRequestFactory = new DdeiClientRequestFactory(ddeiOptions.Object);
         }
 
         [Fact]

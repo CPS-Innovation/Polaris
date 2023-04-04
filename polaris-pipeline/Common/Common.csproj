@@ -5,11 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="document-toggle.config" />
     <None Remove="Wrappers\" />
     <None Remove="Newtonsoft.Json" />
     <None Remove="Domain\" />
     <None Remove="Domain\Exceptions\" />
     <None Remove="Handlers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="document-toggle.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\Exceptions\" />

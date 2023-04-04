@@ -1,4 +1,4 @@
-import { PipelineResults } from "../../app/features/cases/domain/PipelineResults";
+import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 
 const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(6);
