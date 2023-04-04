@@ -14,28 +14,34 @@ using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
 using Common.Dto.Tracker;
+using PolarisGateway.Domain.PolarisPipeline;
+using PolarisGateway.Factories.Contracts;
+using Common.Domain.Exceptions;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
 {
-    public class PolarisPipelineDeleteTracker : BasePolarisFunction
+    public class PolarisPipelineCase : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineDeleteTracker> _logger;
+        private readonly ILogger<PolarisPipelineCase> _logger;
+        private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
 
-        public PolarisPipelineDeleteTracker(ILogger<PolarisPipelineDeleteTracker> logger,
-                                         IPipelineClient pipelineClient,
-                                         IAuthorizationValidator tokenValidator,
-                                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+        public PolarisPipelineCase( ILogger<PolarisPipelineCase> logger,
+                                    IPipelineClient pipelineClient,
+                                    IAuthorizationValidator tokenValidator,
+                                    ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
+                                    ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _pipelineClient = pipelineClient;
+            _triggerCoordinatorResponseFactory = triggerCoordinatorResponseFactory;
             _logger = logger;
         }
 
-        const string loggingName = $"{nameof(PolarisPipelineDeleteTracker)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(PolarisPipelineCase)} - {nameof(Run)}";
 
-        [FunctionName(nameof(PolarisPipelineDeleteTracker))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        [FunctionName(nameof(PolarisPipelineCase))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
             TrackerDto tracker = null;
@@ -52,9 +58,27 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, loggingName);
 
-                await _pipelineClient.DeleteCaseAsync(caseUrn, caseId, request.CmsAuthValues, currentCorrelationId);
+                switch (req.Method.ToUpperInvariant())
+                {
+                    case "GET":
+                        return new OkResult();
 
-                return new OkResult();
+                    case "POST":
+                        var response = await _pipelineClient.RefreshCaseAsync(caseUrn, caseId, request.CmsAuthValues, currentCorrelationId);
+                        TriggerCoordinatorResponse trackerUrlResponse = _triggerCoordinatorResponseFactory.Create(req, currentCorrelationId);
+                        return new ObjectResult(trackerUrlResponse)
+                        {
+                            StatusCode = response.StatusCode
+                        };
+
+                    case "DELETE":
+                        await _pipelineClient.DeleteCaseAsync(caseUrn, caseId, request.CmsAuthValues, currentCorrelationId);
+                        return new OkResult();
+
+                    default:
+                        throw new BadRequestException("Unexpected HTTP Verb", req.Method);
+                }
+
             }
             catch (Exception exception)
             {

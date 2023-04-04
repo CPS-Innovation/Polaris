@@ -1,4 +1,5 @@
 using Common.Dto.Case;
+using Common.Dto.Case.PreCharge;
 using Ddei.Domain;
 using Ddei.Domain.PreCharge;
 using DdeiClient.Mappers.Contract;
@@ -17,6 +18,7 @@ namespace Ddei.Mappers
             var leadDefendant = FindLeadDefendant(defendants, summary);
             var headlineCharge = FindHeadlineCharge(leadDefendant);
             var isCaseCharged = FindIsCaseCharged(defendants);
+            var preChargeDecisionRequests = MapPreChargeDecisionRequests(caseDetails.PreChargeDecisionRequests);
 
             return new CaseDto
             {
@@ -26,7 +28,8 @@ namespace Ddei.Mappers
                 NumberOfDefendants = summary.NumberOfDefendants,
                 LeadDefendantDetails = leadDefendant.DefendantDetails,
                 Defendants = defendants,
-                HeadlineCharge = headlineCharge
+                HeadlineCharge = headlineCharge,
+                PreChargeDecisionRequests = preChargeDecisionRequests
             };
         }
 
@@ -48,9 +51,9 @@ namespace Ddei.Mappers
             };
         }
 
-        private DefendantDetails MapDefendantDetails(DdeiCaseDefendantDto defendant)
+        private DefendantDetailsDto MapDefendantDetails(DdeiCaseDefendantDto defendant)
         {
-            return new DefendantDetails
+            return new DefendantDetailsDto
             {
                 Id = defendant.Id,
                 ListOrder = defendant.ListOrder,
@@ -147,9 +150,9 @@ namespace Ddei.Mappers
             // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
             // that we find the defendant recrod we want (e.g. if there are two John Smiths on the case?) 
             var foundDefendants = defendants.Where(defendant =>
-                areStringsEqual(caseSummary.LeadDefendantFirstNames, defendant.DefendantDetails.FirstNames)
-                && areStringsEqual(caseSummary.LeadDefendantSurname, defendant.DefendantDetails.Surname)
-                && areStringsEqual(caseSummary.LeadDefendantType, defendant.DefendantDetails.Type));
+                AreStringsEqual(caseSummary.LeadDefendantFirstNames, defendant.DefendantDetails.FirstNames)
+                && AreStringsEqual(caseSummary.LeadDefendantSurname, defendant.DefendantDetails.Surname)
+                && AreStringsEqual(caseSummary.LeadDefendantType, defendant.DefendantDetails.Type));
 
             // todo: needs logging as to which logic was used
             if (foundDefendants.Count() == 1)
@@ -195,8 +198,71 @@ namespace Ddei.Mappers
                 .Any();
         }
 
-        private bool areStringsEqual(string a, string b) => (string.IsNullOrEmpty(a)
-             && string.IsNullOrEmpty(b))
-             || string.Equals(a, b, StringComparison.CurrentCultureIgnoreCase);
+        private IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> preChargeDecisionRequests)
+        {
+            return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
+        }
+
+        private PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)
+        {
+            return new PcdRequestDto
+            {
+                Id = pcdr.Id,
+                DecisionRequiredBy = pcdr.DecisionRequiredBy,
+                DecisionRequested = pcdr.DecisionRequested,
+                CaseOutline = pcdr.CaseOutline.Select(ol => MapPcdCaseOutlineLine(ol)).ToList(),
+                Comments = MapPreChargeDecisionComments(pcdr.Comments),
+                Suspects = pcdr.Suspects.Select(s => MapPcdSuspect(s)).ToList()
+            };
+        }
+
+        private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(DdeiPcdCaseOutlineLineDto ol)
+        {
+            return new PcdCaseOutlineLineDto
+            {
+                Heading = ol.Heading,
+                Text = ol.Text,
+                TextWithCmsMarkup = ol.TextWithCmsMarkup
+            };
+        }
+        private PcdCommentsDto MapPreChargeDecisionComments(DdeiPcdCommentsDto comments)
+        {
+            return new PcdCommentsDto
+            {
+                Text = comments.Text,
+                TextWithCmsMarkup = comments.TextWithCmsMarkup,
+            };
+        }
+
+        private PcdRequestSuspectDto MapPcdSuspect(DdeiPcdRequestSuspectDto requestSuspectDto)
+        {
+            return new PcdRequestSuspectDto
+            {
+                Surname = requestSuspectDto.Surname,
+                FirstNames = requestSuspectDto.FirstNames,
+                Dob = requestSuspectDto.Dob,
+                BailConditions = requestSuspectDto.BailConditions,
+                BailDate = requestSuspectDto.BailDate,
+                RemandStatus = requestSuspectDto.RemandStatus,
+                ProposedCharges = requestSuspectDto.ProposedCharges.Select(pc => MapPcdProposedCharge(pc)).ToList()
+            };
+        }
+
+        private PcdProposedChargeDto MapPcdProposedCharge(DdeiPcdProposedChargeDto ddeiPcdProposedChargeDto)
+        {
+            return new PcdProposedChargeDto
+            {
+                Charge = ddeiPcdProposedChargeDto.Charge,
+                Date = ddeiPcdProposedChargeDto.Date,
+                Location = ddeiPcdProposedChargeDto.Location,
+                Category = ddeiPcdProposedChargeDto.Category
+            };
+        }
+
+        private bool AreStringsEqual(string a, string b) => 
+        (
+            string.IsNullOrEmpty(a) && string.IsNullOrEmpty(b))
+            || string.Equals(a, b, StringComparison.CurrentCultureIgnoreCase
+        );
     }
 }

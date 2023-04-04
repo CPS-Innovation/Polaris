@@ -4,6 +4,7 @@ using Common.Configuration;
 using Common.Dto.Case;
 using Common.Logging;
 using Common.Validators.Contracts;
+using Ddei.Domain.CaseData.Args;
 using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
 using Ddei.Options;
@@ -58,7 +59,8 @@ namespace PolarisGateway.Functions.CaseData
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
-                caseDetails = await _ddeiClient.GetCase(_caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId));
+                DdeiCmsCaseArgDto caseArg = _caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId);
+                caseDetails = await _ddeiClient.GetCase(caseArg);
 
                 return caseDetails != null
                     ? new OkObjectResult(caseDetails)

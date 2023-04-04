@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Common.Dto.Case.PreCharge;
+using Common.Dto.Tracker;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace Common.Dto.Case
@@ -18,12 +20,15 @@ namespace Common.Dto.Case
         public int NumberOfDefendants { get; set; }
 
         [JsonProperty("leadDefendantDetails")]
-        public DefendantDetails LeadDefendantDetails { get; set; }
+        public DefendantDetailsDto LeadDefendantDetails { get; set; }
 
         [JsonProperty("headlineCharge")]
         public HeadlineChargeDto HeadlineCharge { get; set; }
 
         [JsonProperty("defendants")]
         public IEnumerable<DefendantDto> Defendants { get; set; }
+
+        [JsonProperty("preChargeDecisionRequests")]
+        public IEnumerable<PcdRequestDto> PreChargeDecisionRequests { get; set; }
     }
 }
