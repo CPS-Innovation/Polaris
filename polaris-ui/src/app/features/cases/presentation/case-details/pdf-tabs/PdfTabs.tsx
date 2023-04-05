@@ -38,8 +38,6 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleSavedRedactions,
   handleOpenPdfInNewTab,
 }) => {
-  console.log("items>>>", items);
-
   return (
     <Tabs
       idPrefix="pdf"

@@ -29,8 +29,6 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 });
 
 Cypress.on("test:before:run:async", async () => {
-  // setMyFunction();
-  console.log("getMyObject£££££");
   await setupMockApi({
     sourceName: Cypress.env().REACT_APP_MOCK_API_SOURCE,
     baseUrl: Cypress.env().REACT_APP_GATEWAY_BASE_URL,

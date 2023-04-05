@@ -163,7 +163,6 @@ export const reducer = (
       }
 
       if (action.payload.status === "initiating") {
-        console.log("pipeline initiating..>>>>");
         return state;
       }
 
@@ -197,9 +196,6 @@ export const reducer = (
           };
         }
       }
-
-      console.log("state.documentsState.status>>", state.documentsState.status);
-      console.log(" action.payload.data.status>>", action.payload.data.status);
       // todo: proper logic to build documents
       // const shouldBuildDocumentsState =
       //   action.payload.data.status !== "Running" && // anything after "Running" has documents present
@@ -210,13 +206,11 @@ export const reducer = (
           action.payload.data.documentsRetrieved &&
           !state.pipelineState.haveData
         ) {
-          console.log("helloooooo 1111");
           shouldBuildDocumentsState = true;
         } else if (
           state.pipelineState.haveData &&
           action.payload.data.documentsRetrieved
         ) {
-          console.log("helloooooo 2222");
           shouldBuildDocumentsState = isNewTime(
             action.payload.data.documentsRetrieved,
             state.pipelineState.data.documentsRetrieved
@@ -225,7 +219,6 @@ export const reducer = (
       }
 
       if (shouldBuildDocumentsState) {
-        console.log("updating the accordionState");
         const documentsState = mapDocumentsState(action.payload.data.documents);
         const accordionState = mapAccordionState(documentsState);
         nextState = {
@@ -233,7 +226,6 @@ export const reducer = (
           documentsState,
           accordionState,
         };
-        console.log("updating the accordionState1>>>", accordionState);
       }
 
       const newPipelineResults = action.payload;
@@ -298,7 +290,6 @@ export const reducer = (
         return [...prev, curr];
       }, [] as CaseDocumentViewModel[]);
 
-      console.log("documents are updated 111111111111111111");
       return {
         ...coreNextPipelineState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
@@ -306,7 +297,6 @@ export const reducer = (
     }
 
     case "UPDATE_REFRESH_PIPELINE": {
-      console.log("UPDATE_REFRESH_PIPELINE>>>>", action.payload);
       let newSavedDocumentDetails =
         state.pipelineRefreshData.savedDocumentDetails;
       if (action.payload.savedDocumentDetails) {
@@ -340,8 +330,6 @@ export const reducer = (
     }
     case "OPEN_PDF":
       const { documentId, mode, headers } = action.payload;
-
-      console.log("documentId>>>>", documentId);
 
       const coreNewState = {
         ...state,
