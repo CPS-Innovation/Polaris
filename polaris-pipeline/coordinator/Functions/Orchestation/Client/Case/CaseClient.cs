@@ -98,7 +98,9 @@ namespace coordinator.Functions.Orchestation.Client.Case
 
                     case "DELETE":
                         var status = await orchestrationClient.GetStatusAsync(caseId);
-                        if( status != null)
+                        if( status != null &&
+                            (status.RuntimeStatus == OrchestrationRuntimeStatus.Running || status.RuntimeStatus == OrchestrationRuntimeStatus.Suspended)
+                          )
                             await orchestrationClient.TerminateAsync(status.InstanceId, $"{loggingName} - terminated via DELETE");
 
                         await orchestrationClient.StartNewAsync(nameof(DeleteCaseOrchestrator), caseId, casePayload);
