@@ -88,8 +88,8 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting tracker for {context.InstanceId}");
             await tracker.Reset(context.InstanceId);
 
-            var transitionDocuments = await RetrieveTransitionDocuments(context, tracker, loggingName, log, payload);
-            var deltas = await SynchroniseTrackerDocuments(tracker, loggingName, log, payload, transitionDocuments);
+            var documents = await RetrieveDocuments(context, tracker, loggingName, log, payload);
+            var deltas = await SynchroniseTrackerDocuments(tracker, loggingName, log, payload, documents);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"{deltas.Created.Count} document created, {deltas.Updated.Count} updated and {deltas.Deleted.Count} document deleted for case {payload.CmsCaseId}");
             var refreshDocuments = deltas.Created.Concat(deltas.Updated).ToList();
@@ -147,17 +147,17 @@ namespace coordinator.Functions.Orchestation.Functions.Case
             }
         }
 
-        private async Task<TransitionDocumentDto[]> RetrieveTransitionDocuments(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<DocumentDto[]> RetrieveDocuments(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of transition documents for case {payload.CmsCaseId}");
-            var documents = await context.CallActivityAsync<TransitionDocumentDto[]>(
+            var documents = await context.CallActivityAsync<DocumentDto[]>(
                 nameof(GetCaseDocuments),
                 new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId));
 
             return documents;
         }
 
-        private static async Task<TrackerDocumentListDeltasDto> SynchroniseTrackerDocuments(ITrackerEntity tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, TransitionDocumentDto[] documents)
+        private static async Task<TrackerDocumentListDeltasDto> SynchroniseTrackerDocuments(ITrackerEntity tracker, string nameToLog, ILogger safeLogger, BasePipelinePayload payload, DocumentDto[] documents)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 

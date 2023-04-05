@@ -7,7 +7,7 @@ namespace coordinator.Domain.Tracker;
 
 public class SynchroniseDocumentsArg
 {
-    public SynchroniseDocumentsArg(string caseUrn, long caseId, TransitionDocumentDto[] documents, Guid correlationId)
+    public SynchroniseDocumentsArg(string caseUrn, long caseId, DocumentDto[] documents, Guid correlationId)
     {
         CaseUrn = caseUrn ?? throw new ArgumentNullException(nameof(caseUrn));
         CaseId = caseId;
@@ -19,7 +19,7 @@ public class SynchroniseDocumentsArg
 
     public long CaseId { get; set; }
 
-    public List<TransitionDocumentDto> Documents { get; set; }
+    public List<DocumentDto> Documents { get; set; }
 
     public Guid CorrelationId { get; set; }
 }

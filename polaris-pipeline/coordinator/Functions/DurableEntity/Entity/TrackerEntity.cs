@@ -87,30 +87,30 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.FromResult(deltas);
         }
 
-        private (List<TransitionDocumentDto>, List<TransitionDocumentDto>, List<string>) GetDeltaDocuments(List<TransitionDocumentDto> transitionDocuments)
+        private (List<DocumentDto>, List<DocumentDto>, List<string>) GetDeltaDocuments(List<DocumentDto> documents)
         {
             var existingCmsDocumentIds = Documents.Select(d => d.CmsDocumentId).ToList();
             var newDocuments =
-                transitionDocuments
-                    .Where(d => !existingCmsDocumentIds.Contains(d.CmsDocumentId))
+                documents
+                    .Where(d => !existingCmsDocumentIds.Contains(d.DocumentId))
                     .ToList();
 
             var existingCmsDocumentIdVersions = Documents.Select(d => (d.CmsDocumentId, d.CmsVersionId)).ToList();
             var updatedDocuments =
-                transitionDocuments
-                    .Where(d => existingCmsDocumentIds.Contains(d.CmsDocumentId))
-                    .Where(d => !existingCmsDocumentIdVersions.Contains((d.CmsDocumentId, d.CmsVersionId)))
+                documents
+                    .Where(d => existingCmsDocumentIds.Contains(d.DocumentId))
+                    .Where(d => !existingCmsDocumentIdVersions.Contains((d.DocumentId, d.VersionId)))
                     .ToList();
 
             var deletedCmsDocumentIdsToRemove
-                = Documents.Where(trackedDocument => !transitionDocuments.Exists(x => x.CmsDocumentId == trackedDocument.CmsDocumentId))
+                = Documents.Where(trackedDocument => !documents.Exists(x => x.DocumentId == trackedDocument.CmsDocumentId))
                     .Select(d => d.CmsDocumentId)
                     .ToList();
 
             return (newDocuments, updatedDocuments, deletedCmsDocumentIdsToRemove);
         }
 
-        private List<TrackerDocumentDto> CreateDocuments(List<TransitionDocumentDto> createdDocuments)
+        private List<TrackerDocumentDto> CreateDocuments(List<DocumentDto> createdDocuments)
         {
             List<TrackerDocumentDto> newDocuments = new List<TrackerDocumentDto>();
 
@@ -119,15 +119,15 @@ namespace coordinator.Functions.DurableEntity.Entity
                 TrackerDocumentDto trackerDocument 
                     = new TrackerDocumentDto
                     (
-                        newDocument.PolarisDocumentId,
+                        Guid.NewGuid(),
                         1,
-                        newDocument.CmsDocumentId,
-                        newDocument.CmsVersionId,
+                        newDocument.DocumentId,
+                        newDocument.VersionId,
                         newDocument.CmsDocType,
                         newDocument.MimeType,
                         newDocument.FileExtension,
-                        newDocument.CreatedDate,
-                        newDocument.OriginalFileName,
+                        newDocument.DocumentDate,
+                        newDocument.FileName,
                         newDocument.PresentationFlags
                     );
 
@@ -139,21 +139,21 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newDocuments;
         }
 
-        private List<TrackerDocumentDto> UpdateDocuments(List<TransitionDocumentDto> updatedDocuments)
+        private List<TrackerDocumentDto> UpdateDocuments(List<DocumentDto> updatedDocuments)
         {
             List<TrackerDocumentDto> changedDocuments = new List<TrackerDocumentDto>();
 
             foreach (var updatedDocument in updatedDocuments)
             {
-                TrackerDocumentDto trackerDocument = Documents.Find(d => d.CmsDocumentId == updatedDocument.CmsDocumentId);
+                TrackerDocumentDto trackerDocument = Documents.Find(d => d.CmsDocumentId == updatedDocument.DocumentId);
 
                 trackerDocument.PolarisDocumentVersionId++;
-                trackerDocument.CmsVersionId = updatedDocument.CmsVersionId;
+                trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
                 trackerDocument.CmsMimeType = updatedDocument.MimeType;
                 trackerDocument.CmsFileExtension = updatedDocument.FileExtension;
-                trackerDocument.CmsFileCreatedDate = updatedDocument.CreatedDate;
-                trackerDocument.CmsOriginalFileName = updatedDocument.OriginalFileName;
+                trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
+                trackerDocument.CmsOriginalFileName = updatedDocument.FileName;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
 
                 changedDocuments.Add(trackerDocument);

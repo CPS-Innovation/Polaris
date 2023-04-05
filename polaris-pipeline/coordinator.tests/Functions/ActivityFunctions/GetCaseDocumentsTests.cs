@@ -11,7 +11,6 @@ using coordinator.Functions.ActivityFunctions.Case;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using DdeiClient.Services.Contracts;
-using Common.Mappers.Contracts;
 using Common.Services.DocumentToggle;
 
 namespace coordinator.tests.Functions.ActivityFunctions
@@ -19,8 +18,6 @@ namespace coordinator.tests.Functions.ActivityFunctions
     public class GetCaseDocumentsTests
     {
         private readonly DocumentDto[] _caseDocuments;
-
-        private readonly TransitionDocumentDto[] _transitionDocuments;
 
         private readonly PresentationFlagsDto[] _presentationFlags;
 
@@ -39,11 +36,6 @@ namespace coordinator.tests.Functions.ActivityFunctions
               fixture.Create<DocumentDto>()
             };
 
-            _transitionDocuments = new[] {
-              fixture.Create<TransitionDocumentDto>(),
-              fixture.Create<TransitionDocumentDto>()
-            };
-
             _presentationFlags = new[] {
               fixture.Create<PresentationFlagsDto>(),
               fixture.Create<PresentationFlagsDto>()
@@ -59,21 +51,12 @@ namespace coordinator.tests.Functions.ActivityFunctions
                     _payload.CmsAuthValues, _payload.CorrelationId))
                 .ReturnsAsync(_caseDocuments);
 
-            var mockTransitionDocumentMapper = new Mock<ITransitionDocumentMapper>();
-            mockTransitionDocumentMapper
-              .Setup(mapper => mapper.MapToTransitionDocument(_caseDocuments[0]))
-              .Returns(_transitionDocuments[0]);
-            mockTransitionDocumentMapper
-              .Setup(mapper => mapper.MapToTransitionDocument(_caseDocuments[1]))
-              .Returns(_transitionDocuments[1]);
-
-
             var mockDocumentToggleService = new Mock<IDocumentToggleService>();
             mockDocumentToggleService
-              .Setup(service => service.GetDocumentPresentationFlags(_transitionDocuments[0]))
+              .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[0]))
               .Returns(_presentationFlags[0]);
             mockDocumentToggleService
-              .Setup(service => service.GetDocumentPresentationFlags(_transitionDocuments[1]))
+              .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[1]))
               .Returns(_presentationFlags[1]);
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
@@ -81,7 +64,6 @@ namespace coordinator.tests.Functions.ActivityFunctions
             _getCaseDocuments = new GetCaseDocuments(
                 mockDocumentExtractionService.Object,
                 mockDocumentToggleService.Object,
-                mockTransitionDocumentMapper.Object,
                 mockLogger.Object);
         }
 
@@ -143,9 +125,9 @@ namespace coordinator.tests.Functions.ActivityFunctions
         [Fact]
         public async Task Run_ReturnsCaseDocuments()
         {
-            var transitionDocuments = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
+            var documents = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
 
-            transitionDocuments.Should().BeEquivalentTo(_transitionDocuments);
+            documents.Should().BeEquivalentTo(_caseDocuments);
         }
     }
 }

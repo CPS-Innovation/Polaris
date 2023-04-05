@@ -178,8 +178,9 @@ namespace coordinator.tests.Services.DocumentToggle
             // Arrage
             var documentToggleService = new DocumentToggleService(configContent);
 
-            var document = new TransitionDocumentDto();
+            var document = new DocumentDto();
             document.FileExtension = inputDocumentExtension;
+            document.CmsDocType = new DocumentTypeDto();
             document.CmsDocType.DocumentType = inputDocumentCmsType;
 
             // Act

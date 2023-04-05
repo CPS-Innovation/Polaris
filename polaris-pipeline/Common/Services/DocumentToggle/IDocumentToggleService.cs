@@ -6,7 +6,7 @@ namespace Common.Services.DocumentToggle
 {
     public interface IDocumentToggleService
     {
-        PresentationFlagsDto GetDocumentPresentationFlags(TransitionDocumentDto document);
+        PresentationFlagsDto GetDocumentPresentationFlags(DocumentDto document);
         bool CanReadDocument(TrackerDocumentDto document);
         bool CanWriteDocument(TrackerDocumentDto document);
     }
