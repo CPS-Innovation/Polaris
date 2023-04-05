@@ -169,53 +169,31 @@ export const reducer = (
       let nextState = { ...state };
 
       if (action.payload.data.status === "Completed") {
-        // this is for the very first time and trackerData comes back straight as status "Completed"
-        if (!nextState.pipelineState.haveData) {
-          nextState = {
-            ...nextState,
-            pipelineRefreshData: {
-              ...nextState.pipelineRefreshData,
-              lastProcessingCompleted: action.payload.data.processingCompleted,
-            },
-          };
-        } else {
-          const newPipelineData = action.payload.data;
-          const newSavedDocumentDetails =
-            nextState.pipelineRefreshData.savedDocumentDetails.filter(
-              (document) => !hasDocumentUpdated(document, newPipelineData)
-            );
+        const newPipelineData = action.payload.data;
+        const documentsNeedsToBeUpdated =
+          nextState.pipelineRefreshData.savedDocumentDetails.filter(
+            (document) => !hasDocumentUpdated(document, newPipelineData)
+          );
 
-          nextState = {
-            ...nextState,
-
-            pipelineRefreshData: {
-              ...nextState.pipelineRefreshData,
-              savedDocumentDetails: newSavedDocumentDetails,
-              lastProcessingCompleted: action.payload.data.processingCompleted,
-            },
-          };
-        }
+        nextState = {
+          ...nextState,
+          pipelineRefreshData: {
+            ...nextState.pipelineRefreshData,
+            savedDocumentDetails: documentsNeedsToBeUpdated,
+            lastProcessingCompleted: action.payload.data.processingCompleted,
+          },
+        };
       }
-      // todo: proper logic to build documents
-      // const shouldBuildDocumentsState =
-      //   action.payload.data.status !== "Running" && // anything after "Running" has documents present
-      //   state.documentsState.status === "loading";
+
       let shouldBuildDocumentsState = false;
       if (action.payload.data.status !== "Running") {
-        if (
-          action.payload.data.documentsRetrieved &&
-          !state.pipelineState.haveData
-        ) {
-          shouldBuildDocumentsState = true;
-        } else if (
-          state.pipelineState.haveData &&
-          action.payload.data.documentsRetrieved
-        ) {
-          shouldBuildDocumentsState = isNewTime(
-            action.payload.data.documentsRetrieved,
-            state.pipelineState.data.documentsRetrieved
-          );
-        }
+        const currentDocumentsRetrieved = !state.pipelineState.haveData
+          ? ""
+          : state.pipelineState.data.documentsRetrieved;
+        shouldBuildDocumentsState = isNewTime(
+          action.payload.data.documentsRetrieved,
+          currentDocumentsRetrieved
+        );
       }
 
       if (shouldBuildDocumentsState) {
@@ -250,7 +228,6 @@ export const reducer = (
           pdfBlobName,
           polarisDocumentVersionId,
         }));
-      // && !tabItem.url
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }

@@ -231,10 +231,18 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           pipelineState: {},
-          pipelineRefreshData: {},
           tabsState: { items: [] },
           documentsState: {
             status: "succeeded",
+          },
+          pipelineRefreshData: {
+            startRefresh: false,
+            savedDocumentDetails: [
+              {
+                documentId: "1",
+                polarisDocumentVersionId: 1,
+              },
+            ],
           },
         } as unknown as CombinedState, // todo: remove the "as unkwon"
         {
