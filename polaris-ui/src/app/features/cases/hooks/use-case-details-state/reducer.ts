@@ -19,35 +19,7 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
-
-const isNewTime = (currentTime: string, lastTime: string) => {
-  if (currentTime && !lastTime) {
-    return true;
-  }
-  if (new Date(currentTime) > new Date(lastTime)) {
-    return true;
-  }
-  return false;
-};
-
-const hasDocumentUpdated = (
-  document: { documentId: string; polarisDocumentVersionId: number },
-  newData: PipelineResults
-) => {
-  const savedDocument = newData.documents.find(
-    (newDocument) => newDocument.documentId === document.documentId
-  );
-  if (!savedDocument) {
-    return false;
-  }
-
-  if (
-    savedDocument.polarisDocumentVersionId > document.polarisDocumentVersionId
-  ) {
-    return true;
-  }
-  return false;
-};
+import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 
 export const reducer = (
   state: CombinedState,

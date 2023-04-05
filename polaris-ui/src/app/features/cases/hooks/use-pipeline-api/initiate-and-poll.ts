@@ -4,18 +4,10 @@ import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { getPipelinpipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
+import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
 
-const isNewTime = (currentTime: string, lastTime: string) => {
-  if (currentTime && !lastTime) {
-    return true;
-  }
-  if (new Date(currentTime) > new Date(lastTime)) {
-    return true;
-  }
-  return false;
-};
 const hasAnyDocumentUpdated = (
   savedDocumentDetails: {
     documentId: string;
@@ -29,24 +21,6 @@ const hasAnyDocumentUpdated = (
   return savedDocumentDetails.some((document) =>
     hasDocumentUpdated(document, pipelineResult)
   );
-};
-
-const hasDocumentUpdated = (
-  document: { documentId: string; polarisDocumentVersionId: number },
-  newData: PipelineResults
-) => {
-  const savedDocument = newData.documents.find(
-    (newDocument) => newDocument.documentId === document.documentId
-  );
-  if (!savedDocument) {
-    return false;
-  }
-  if (
-    savedDocument.polarisDocumentVersionId > document.polarisDocumentVersionId
-  ) {
-    return true;
-  }
-  return false;
 };
 
 export const initiateAndPoll = (
