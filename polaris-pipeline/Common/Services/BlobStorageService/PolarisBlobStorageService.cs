@@ -17,7 +17,7 @@ using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 
 namespace Common.Services.BlobStorageService
 {
-    public class PolarisBlobStorageService : IPolarisBlobStorageService
+    public class  PolarisBlobStorageService : IPolarisBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;

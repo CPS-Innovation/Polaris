@@ -14,7 +14,6 @@ declare global {
       requestToken(): Chainable<Response<{ access_token: string }>>
       getAuthHeaders(): Chainable<{
         Authorization: string
-        "Correlation-Id": string
       }>
       setPolarisInstrumentationGuid(guid: string): Chainable<AUTWindow>
 
@@ -49,6 +48,7 @@ const {
   CMS_PASSWORD_FIELD_LOCATOR,
   CMS_SUBMIT_BUTTON_LOCATOR,
   CMS_LOGGED_IN_CONFIRMATION_LOCATOR,
+  COOKIE_REDIRECT_URL,
 } = Cypress.env()
 
 const AUTOMATION_LANDING_PAGE_URL = "/?automation-test-first-visit=true"
@@ -185,8 +185,7 @@ Cypress.Commands.add("loginToCms", () => {
 Cypress.Commands.add("preemptivelyAttachCookies", () => {
   var args = {
     redirectUrl:
-      API_ROOT_DOMAIN +
-      "/polaris?polaris-ui-url=" +
+      COOKIE_REDIRECT_URL +
       encodeURIComponent(Cypress.config().baseUrl + "?auth-refresh"),
   } as { redirectUrl: string }
 
