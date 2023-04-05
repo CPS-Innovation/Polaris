@@ -82,19 +82,6 @@ export const setupHandlers = ({
 
     rest.post(makeApiPath(routes.INITIATE_PIPELINE_ROUTE), (req, res, ctx) => {
       const { caseId, urn } = req.params;
-      callStack["INITIATE_PIPELINE_ROUTE"]++;
-      if (
-        callStack["INITIATE_PIPELINE_ROUTE"] > 1 &&
-        callStack["INITIATE_PIPELINE_ROUTE"] < 3
-      ) {
-        return res(
-          delay(ctx),
-          ctx.status(423),
-          ctx.json({
-            trackerUrl: makeApiPath(`api/urns/${urn}/cases/${caseId}/tracker`),
-          })
-        );
-      }
       return res(
         delay(ctx),
         ctx.json({
@@ -108,6 +95,8 @@ export const setupHandlers = ({
     }),
 
     rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
+      // always maxDelay as we want this to be slow to illustrate async nature of tracker/polling
+      //  (when in dev mode)
       callStack["TRACKER_ROUTE"]++;
       const result = pipelinePdfResultsDataSources[sourceName]();
       if (callStack["TRACKER_ROUTE"] > result.length) {
@@ -117,8 +106,6 @@ export const setupHandlers = ({
         ctx.delay(sanitisedMaxDelay),
         ctx.json(result[callStack["TRACKER_ROUTE"] - 1])
       );
-      // always maxDelay as we want this to be slow to illustrate async nature of tracker/polling
-      //  (when in dev mode)
     }),
 
     rest.get(makeApiPath(routes.TEXT_SEARCH_ROUTE), (req, res, ctx) => {

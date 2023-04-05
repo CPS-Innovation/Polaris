@@ -19,7 +19,6 @@ export const usePipelineApi = (
 
   useEffect(() => {
     if (pipelineRefreshData.startRefresh) {
-      console.log("initiateAndPoll >>>>>");
       initiateAndPoll(
         urn,
         caseId,

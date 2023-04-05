@@ -1,7 +1,7 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 
-const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(6);
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(8);
 
 export default dataSource;
 

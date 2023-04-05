@@ -58,6 +58,10 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   }, [caseState, dispatch]);
 
   useEffect(() => {
+    dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState });
+  }, [pipelineState, dispatch]);
+
+  useEffect(() => {
     const { startRefresh } = combinedState.pipelineRefreshData;
     if (startRefresh) {
       dispatch({
@@ -68,10 +72,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       });
     }
   }, [combinedState.pipelineRefreshData, dispatch]);
-
-  useEffect(() => {
-    dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState });
-  }, [pipelineState, dispatch]);
 
   const searchResults = useApi(
     searchCase,
@@ -114,7 +114,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       documentId: CaseDocumentViewModel["documentId"];
       mode: CaseDocumentViewModel["mode"];
     }) => {
-      console.log("documentId>>>000", caseDocument.documentId);
       dispatch({
         type: "REQUEST_OPEN_PDF",
         payload: {

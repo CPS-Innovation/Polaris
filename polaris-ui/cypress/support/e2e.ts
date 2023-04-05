@@ -29,6 +29,8 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 });
 
 Cypress.on("test:before:run:async", async () => {
+  // setMyFunction();
+  console.log("getMyObject£££££");
   await setupMockApi({
     sourceName: Cypress.env().REACT_APP_MOCK_API_SOURCE,
     baseUrl: Cypress.env().REACT_APP_GATEWAY_BASE_URL,
@@ -48,6 +50,13 @@ declare global {
         apiRoute: string,
         response:
           | { type: "break"; httpStatusCode: number }
+          | { type: "delay"; timeMs: number }
+          | { type?: false; body: any }
+      ): Chainable<AUTWindow>;
+      overridePostRoute(
+        apiRoute: string,
+        response:
+          | { type: "break"; httpStatusCode: number; body: any }
           | { type: "delay"; timeMs: number }
           | { type?: false; body: any }
       ): Chainable<AUTWindow>;

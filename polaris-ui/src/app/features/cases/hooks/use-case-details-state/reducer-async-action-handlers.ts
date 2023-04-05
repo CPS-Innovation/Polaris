@@ -237,15 +237,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { redactionHighlights, pdfBlobName, polarisDocumentVersionId } =
-        document;
+      const { redactionHighlights, polarisDocumentVersionId } = document;
 
       const redactionSaveRequest = mapRedactionSaveRequest(
         documentId,
         redactionHighlights
       );
-
-      // todo: make sure UI knows we are saving
 
       const response = await saveRedactions(
         urn,
@@ -272,11 +269,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
       }
 
-      // window.open(response.redactedDocumentUrl);
-
       // todo: does a save IN THE CGI API check a document in automatically?
       //await cancelCheckoutDocument(urn, caseId, documentId);
-
-      // todo: make sure UI knows we are saved
     },
 };
