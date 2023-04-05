@@ -12,7 +12,7 @@ namespace Common.Dto.Case
         public int? ListOrder { get; set; }
 
         [JsonProperty("defendantDetails")]
-        public DefendantDetails DefendantDetails { get; set; }
+        public DefendantDetailsDto DefendantDetails { get; set; }
 
         [JsonProperty("custodyTimeLimit")]
         public CustodyTimeLimitDto CustodyTimeLimit { get; set; }

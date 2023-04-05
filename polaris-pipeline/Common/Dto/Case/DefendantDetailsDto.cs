@@ -2,7 +2,7 @@
 
 namespace Common.Dto.Case
 {
-    public class DefendantDetails
+    public class DefendantDetailsDto
     {
         [JsonProperty("id")]
         public int Id { get; set; }

@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Azure.Core;
 using Common.Validators.Contracts;
 using FluentAssertions;
-using Gateway.Clients.PolarisPipeline;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Functions.PolarisPipeline.Case;
 using PolarisGateway.Wrappers;
@@ -37,7 +32,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
-        private readonly PolarisPipelineRefreshCase _polarisPipelineTriggerCoordinator;
+        private readonly PolarisPipelineCase _polarisPipelineTriggerCoordinator;
 
         public PolarisPipelineTriggerCoordinatorTests()
         {
@@ -48,7 +43,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _request = CreateHttpRequest();
             _triggerCoordinatorResponse = fixture.Create<TriggerCoordinatorResponse>();
 
-            var mockLogger = new Mock<ILogger<PolarisPipelineRefreshCase>>();
+            var mockLogger = new Mock<ILogger<PolarisPipelineCase>>();
 
             _mockPipelineClient = new Mock<IPipelineClient>();
             _mockPipelineClient
@@ -69,7 +64,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
 
             _polarisPipelineTriggerCoordinator =
-                new PolarisPipelineRefreshCase(mockLogger.Object, _mockPipelineClient.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
+                new PolarisPipelineCase(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
@@ -117,6 +112,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_TriggersCoordinator()
         {
+            _request.Method = "POST";
             await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
 
             _mockPipelineClient.Verify(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()));
@@ -125,6 +121,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_NewRefreshProcessReturnsAccepted()
         {
+            _request.Method = "POST";
             var result = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
 
             result.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
