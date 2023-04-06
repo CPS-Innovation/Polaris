@@ -61,14 +61,10 @@ describe("redaction refresh flow", () => {
       cy.findByTestId("btn-save-redaction-0").click({ force: true });
       cy.findByTestId("pdfTab-spinner-1").should("exist");
       cy.findByTestId("div-pdfviewer-1").should("not.exist");
-      cy.findByTestId("btn-tab-0").click({ force: true });
       cy.findByTestId("pdfTab-spinner-0").should("exist");
       cy.findByTestId("div-pdfviewer-0").should("not.exist");
-      cy.findByTestId("btn-tab-1").click({ force: true });
       cy.findByTestId("pdfTab-spinner-1").should("not.exist");
       cy.findByTestId("div-pdfviewer-1").should("exist");
-      //switch to first tab and save redaction
-      cy.findByTestId("btn-tab-0").click({ force: true });
       cy.findByTestId("pdfTab-spinner-0").should("not.exist");
       cy.findByTestId("div-pdfviewer-0").should("exist");
     }

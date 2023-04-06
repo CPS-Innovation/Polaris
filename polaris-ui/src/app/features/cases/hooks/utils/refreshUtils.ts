@@ -1,5 +1,7 @@
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 
+export const LOCKED_STATUS_CODE = 423;
+
 export const isNewTime = (currentTime: string, lastTime: string) => {
   if (currentTime && !lastTime) {
     return true;

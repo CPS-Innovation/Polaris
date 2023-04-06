@@ -4,7 +4,11 @@ import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { getPipelinpipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
-import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
+import {
+  isNewTime,
+  hasDocumentUpdated,
+  LOCKED_STATUS_CODE,
+} from "../utils/refreshUtils";
 const delay = (delayMs: number) =>
   new Promise((resolve) => setTimeout(resolve, delayMs));
 
@@ -81,7 +85,7 @@ export const initiateAndPoll = (
       try {
         await delay(delayMs);
         const trackerArgs = await initiatePipeline(urn, caseId);
-        if (trackerArgs.status !== 423) {
+        if (trackerArgs.status !== LOCKED_STATUS_CODE) {
           startTrackerPolling(trackerArgs);
           break;
         }

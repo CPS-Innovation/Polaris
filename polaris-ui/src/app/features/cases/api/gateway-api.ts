@@ -7,6 +7,7 @@ import * as HEADERS from "./header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL } from "../../../config";
+import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 
 const buildHeaders = async (
   ...args: (
@@ -107,7 +108,7 @@ export const initiatePipeline = async (urn: string, caseId: number) => {
     method: "POST",
   });
 
-  if (!response.ok && response.status !== 423) {
+  if (!response.ok && response.status !== LOCKED_STATUS_CODE) {
     throw new ApiError("Initiate pipeline failed", path, response);
   }
 
