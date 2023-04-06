@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System.Text;
+using AutoFixture;
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
@@ -36,6 +37,8 @@ namespace Common.Tests.Clients
             _searchTerm = _fixture.Create<string>();
             _correlationId = _fixture.Create<Guid>();
             _documents = new List<TrackerDocumentDto>();
+            _documents = _fixture.CreateMany<TrackerDocumentDto>(1).ToList();
+            _documents[0].PolarisDocumentId=_fixture.Create<Guid>();
 
             var mockSearchClientFactory = new Mock<ISearchClientFactory>();
             _mockSearchClient = new Mock<SearchClient>();
@@ -96,11 +99,22 @@ namespace Common.Tests.Clients
         [Fact]
         public async Task Query_GivenValidSearchResults_ThenAStreamlinedResponseIsReturned()
         {
+            var buildSearchLineId = () => {
+              return Convert.ToBase64String(
+                Encoding.UTF8.GetBytes(
+                  _documents[0].PolarisDocumentId.ToString() + _fixture.Create<string>()
+                )
+              );
+            };
+
             var responseMock = new Mock<Response>();
             var fakeSearchLines = _fixture.CreateMany<SearchLine>(3).ToList();
             fakeSearchLines[0].DocumentId = "3333";
+            fakeSearchLines[0].Id = buildSearchLineId();
             fakeSearchLines[1].DocumentId = "2222";
+            fakeSearchLines[1].Id = buildSearchLineId();
             fakeSearchLines[2].DocumentId = "1111";
+            fakeSearchLines[2].Id = buildSearchLineId();
 
             _mockSearchClient.Setup(client => client.SearchAsync<SearchLine>(_searchTerm,
                     It.Is<SearchOptions>(o => o.Filter == $"caseId eq {_caseId}"), It.IsAny<CancellationToken>()))

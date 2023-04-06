@@ -40,7 +40,10 @@ namespace Common.Clients
 			var searchLines = new List<SearchLine>();
 			await foreach (var searchResult in searchResults.Value.GetResultsAsync())
 			{
-				searchLines.Add(searchResult.Document);
+            if (IsLiveDocumentResult(documents, searchResult.Document))
+            {
+                searchLines.Add(searchResult.Document);
+            }
 			}
 
 			_logger.LogMethodFlow(correlationId, nameof(Query), $"Found {searchLines.Count} results, building streamlined search results");
@@ -79,6 +82,17 @@ namespace Common.Clients
 
             _logger.LogMethodExit(correlationId, nameof(BuildStreamlinedResults), string.Empty);
             return streamlinedResults;
+        }
+
+        private bool IsLiveDocumentResult(List<TrackerDocumentDto> documents, SearchLine searchLine)
+        {
+            var decodedSearchLineId = Encoding.UTF8.GetString(
+              Convert.FromBase64String(searchLine.Id)
+            );
+            var guidString = decodedSearchLineId.Substring(0, 36);
+            var resultPolarisDocumentId = Guid.Parse(guidString);
+
+            return documents.Any(document => document.PolarisDocumentId == resultPolarisDocumentId);
         }
     }
 }
