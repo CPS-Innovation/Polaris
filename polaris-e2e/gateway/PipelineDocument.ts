@@ -2,7 +2,7 @@ import { CmsDocCategory } from "./CmsDocCategory"
 import { CmsDocType } from "./CmsDocType"
 
 export type PipelineDocumentProperties = {
-  polarisDocumentId: string
+  polarisDocumentId?: string
   documentId: string
   pdfBlobName: string
   isPdfAvailable?: boolean
