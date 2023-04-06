@@ -35,6 +35,16 @@ namespace Common.Clients
             {
                 Filter = filter
             };
+			
+			var searchResults = await _searchClient.SearchAsync<SearchLine>(searchTerm, searchOptions);
+			var searchLines = new List<SearchLine>();
+			await foreach (var searchResult in searchResults.Value.GetResultsAsync())
+			{
+            if (IsLiveDocumentResult(documents, searchResult.Document))
+            {
+                searchLines.Add(searchResult.Document);
+            }
+			}
 
             var searchResults = await _searchClient.SearchAsync<SearchLine>(searchTerm, searchOptions);
             var searchLines = new List<SearchLine>();
