@@ -1,6 +1,7 @@
 export type ApiTextSearchResult = {
   id: string;
   caseId: number;
+  polarisDocumentId?: string;
   documentId: string;
   pageIndex: number;
   lineIndex: number;
