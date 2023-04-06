@@ -19,6 +19,7 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
+import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 
 export const reducer = (
   state: CombinedState,
@@ -30,6 +31,16 @@ export const reducer = (
     | {
         type: "UPDATE_PIPELINE";
         payload: AsyncPipelineResult<PipelineResults>;
+      }
+    | {
+        type: "UPDATE_REFRESH_PIPELINE";
+        payload: {
+          startRefresh: boolean;
+          savedDocumentDetails?: {
+            documentId: string;
+            polarisDocumentVersionId: number;
+          };
+        };
       }
     | {
         type: "OPEN_PDF_IN_NEW_TAB";
@@ -129,10 +140,33 @@ export const reducer = (
 
       let nextState = { ...state };
 
-      // todo: proper logic to build documents
-      const shouldBuildDocumentsState =
-        action.payload.data.status !== "Running" && // anything after "Running" has documents present
-        state.documentsState.status === "loading";
+      if (action.payload.data.status === "Completed") {
+        const newPipelineData = action.payload.data;
+        const documentsNeedsToBeUpdated =
+          nextState.pipelineRefreshData.savedDocumentDetails.filter(
+            (document) => !hasDocumentUpdated(document, newPipelineData)
+          );
+
+        nextState = {
+          ...nextState,
+          pipelineRefreshData: {
+            ...nextState.pipelineRefreshData,
+            savedDocumentDetails: documentsNeedsToBeUpdated,
+            lastProcessingCompleted: action.payload.data.processingCompleted,
+          },
+        };
+      }
+
+      let shouldBuildDocumentsState = false;
+      if (action.payload.data.status !== "Running") {
+        const currentDocumentsRetrieved = !state.pipelineState.haveData
+          ? ""
+          : state.pipelineState.data.documentsRetrieved;
+        shouldBuildDocumentsState = isNewTime(
+          action.payload.data.documentsRetrieved,
+          currentDocumentsRetrieved
+        );
+      }
 
       if (shouldBuildDocumentsState) {
         const documentsState = mapDocumentsState(action.payload.data.documents);
@@ -158,12 +192,14 @@ export const reducer = (
           (item) =>
             item.pdfBlobName &&
             state.tabsState.items.some(
-              (tabItem) =>
-                tabItem.documentId === item.documentId && !tabItem.url
+              (tabItem) => tabItem.documentId === item.documentId
             )
         )
-        .map(({ documentId, pdfBlobName }) => ({ documentId, pdfBlobName }));
-
+        .map(({ documentId, pdfBlobName, polarisDocumentVersionId }) => ({
+          documentId,
+          pdfBlobName,
+          polarisDocumentVersionId,
+        }));
       if (!openPdfsWeNeedToUpdate.length) {
         return coreNextPipelineState;
       }
@@ -186,11 +222,18 @@ export const reducer = (
           const url = resolvePdfUrl(
             state.urn,
             state.caseId,
-            matchingFreshPdfRecord.documentId
+            matchingFreshPdfRecord.documentId,
+            matchingFreshPdfRecord.polarisDocumentVersionId
           );
           return [
             ...prev,
-            { ...curr, url, pdfBlobName: matchingFreshPdfRecord.pdfBlobName },
+            {
+              ...curr,
+              url,
+              pdfBlobName: matchingFreshPdfRecord.pdfBlobName,
+              polarisDocumentVersionId:
+                matchingFreshPdfRecord.polarisDocumentVersionId,
+            },
           ];
         }
         return [...prev, curr];
@@ -199,6 +242,25 @@ export const reducer = (
       return {
         ...coreNextPipelineState,
         tabsState: { ...state.tabsState, items: nextOpenTabs },
+      };
+    }
+
+    case "UPDATE_REFRESH_PIPELINE": {
+      let newSavedDocumentDetails =
+        state.pipelineRefreshData.savedDocumentDetails;
+      if (action.payload.savedDocumentDetails) {
+        newSavedDocumentDetails = [
+          ...newSavedDocumentDetails,
+          action.payload.savedDocumentDetails,
+        ];
+      }
+      return {
+        ...state,
+        pipelineRefreshData: {
+          ...state.pipelineRefreshData,
+          startRefresh: action.payload.startRefresh,
+          savedDocumentDetails: newSavedDocumentDetails,
+        },
       };
     }
     case "OPEN_PDF_IN_NEW_TAB": {
@@ -278,7 +340,12 @@ export const reducer = (
 
       const url =
         blobName &&
-        resolvePdfUrl(state.urn, state.caseId, pipelineDocument.documentId);
+        resolvePdfUrl(
+          state.urn,
+          state.caseId,
+          pipelineDocument.documentId,
+          pipelineDocument.polarisDocumentVersionId
+        );
 
       let item: CaseDocumentViewModel;
 

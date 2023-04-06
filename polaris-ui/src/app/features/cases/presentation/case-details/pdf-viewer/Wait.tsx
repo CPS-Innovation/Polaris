@@ -1,11 +1,15 @@
 import { Spinner } from "../../../../../common/presentation/components/Spinner";
 
 import classes from "./Wait.module.scss";
-
-export const Wait: React.FC = () => {
+type WaitProps = {
+  dataTestId?: string;
+};
+export const Wait: React.FC<WaitProps> = ({
+  dataTestId = "div-loading-spinner",
+}) => {
   return (
-    <span className={classes.content}>
+    <div className={classes.content} data-testid={dataTestId}>
       <Spinner diameterPx={50} />
-    </span>
+    </div>
   );
 };

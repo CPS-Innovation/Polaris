@@ -125,11 +125,11 @@ describe("case details page", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
 
-      cy.findByTestId("div-pdfviewer").should("not.exist");
+      cy.findByTestId("div-pdfviewer-0").should("not.exist");
 
       cy.findByTestId("link-document-1").click();
 
-      cy.findByTestId("div-pdfviewer")
+      cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
     });
@@ -165,7 +165,7 @@ describe("case details page", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -185,7 +185,7 @@ describe("case details page", () => {
         // click on ignore btn
         cy.findByTestId("btn-nav-ignore").click();
         cy.findByTestId("div-modal").should("not.exist");
-        cy.findByTestId("div-pdfviewer").should("not.exist");
+        cy.findByTestId("div-pdfviewer-0").should("not.exist");
       }
     );
 
@@ -196,12 +196,12 @@ describe("case details page", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.findByTestId("tab-remove").click();
         cy.findByTestId("div-modal").should("not.exist");
-        cy.findByTestId("div-pdfviewer").should("not.exist");
+        cy.findByTestId("div-pdfviewer-0").should("not.exist");
       }
     );
   });
@@ -233,7 +233,7 @@ describe("case details page", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -251,7 +251,7 @@ describe("case details page", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.reload();
@@ -266,7 +266,7 @@ describe("case details page", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -284,7 +284,7 @@ describe("case details page", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -321,7 +321,7 @@ describe("case details page", () => {
         cy.findByTestId("link-12AB1111111").click();
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-1").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
         cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -354,7 +354,7 @@ describe("case details page", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
         cy.findByTestId("link-document-2").click();
-        cy.findByTestId("div-pdfviewer")
+        cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("CASE OUTLINE");
         cy.selectPDFTextElement("This is a DV case.");

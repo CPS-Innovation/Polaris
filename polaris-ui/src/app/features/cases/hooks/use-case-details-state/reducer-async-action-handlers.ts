@@ -224,7 +224,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     },
 
   SAVE_REDACTIONS:
-    ({ getState }) =>
+    ({ dispatch, getState }) =>
     async (action) => {
       const { payload } = action;
       const { documentId } = payload;
@@ -237,14 +237,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       const document = items.find((item) => item.documentId === documentId)!;
 
-      const { redactionHighlights, pdfBlobName } = document;
+      const { redactionHighlights, polarisDocumentVersionId } = document;
 
       const redactionSaveRequest = mapRedactionSaveRequest(
         documentId,
         redactionHighlights
       );
-
-      // todo: make sure UI knows we are saving
 
       const response = await saveRedactions(
         urn,
@@ -253,11 +251,25 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         redactionSaveRequest
       );
 
-      window.open(response.redactedDocumentUrl);
+      if (response) {
+        dispatch({
+          type: "REMOVE_ALL_REDACTIONS",
+          payload: { documentId },
+        });
+
+        dispatch({
+          type: "UPDATE_REFRESH_PIPELINE",
+          payload: {
+            startRefresh: true,
+            savedDocumentDetails: {
+              documentId: documentId,
+              polarisDocumentVersionId: polarisDocumentVersionId,
+            },
+          },
+        });
+      }
 
       // todo: does a save IN THE CGI API check a document in automatically?
       //await cancelCheckoutDocument(urn, caseId, documentId);
-
-      // todo: make sure UI knows we are saved
     },
 };
