@@ -27,7 +27,6 @@ using pdf_generator.Handlers;
 using pdf_generator.Services.DocumentRedactionService;
 using pdf_generator.Services.PdfService;
 using Ddei.Services.Extensions;
-using Common.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
@@ -46,7 +45,7 @@ namespace pdf_generator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-
+            
             builder.Services.AddSingleton<IPdfService, WordsPdfService>();
             builder.Services.AddSingleton<IPdfService, CellsPdfService>();
             builder.Services.AddSingleton<IPdfService, SlidesPdfService>();
@@ -69,7 +68,7 @@ namespace pdf_generator
                 var pdfRendererService = servicesList.First(s => s.GetType() == typeof(PdfRendererService));
                 var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
 
-                return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
+                return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService, 
                     diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, loggingService);
             });
 
@@ -86,11 +85,10 @@ namespace pdf_generator
             builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
             {
                 var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
-
+                
                 return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
-            //builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
 
             builder.Services.AddDdeiClient(configuration);
 
