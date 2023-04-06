@@ -152,27 +152,27 @@ resource "azurerm_private_dns_a_record" "pipeline_coordinator_scm_dns_a" {
   tags                = local.common_tags
 }
 
-resource "azurerm_role_assignment" "kv_role_fa_coordinator_crypto_user" {
+resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_crypto_user" {
   scope                = data.azurerm_key_vault.terraform_key_vault.id
   role_definition_name = "Key Vault Crypto User"
   principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-  
+
   depends_on = [
     azurerm_linux_function_app.fa_coordinator
   ]
 }
 
-resource "azurerm_role_assignment" "kv_role_fa_coordinator_secrets_user" {
+resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_secrets_user" {
   scope                = data.azurerm_key_vault.terraform_key_vault.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-  
+
   depends_on = [
     azurerm_linux_function_app.fa_coordinator
   ]
 }
 
-resource "azurerm_key_vault_secret" "kvs_pipeline_coordinator_function_key" {
+resource "azurerm_key_vault_secret" "kvs_terraform_pipeline_coordinator_function_key" {
   name            = "pipeline-coordinator-function-key"
   value           = data.azurerm_function_app_host_keys.ak_coordinator.default_function_key
   key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
@@ -182,6 +182,6 @@ resource "azurerm_key_vault_secret" "kvs_pipeline_coordinator_function_key" {
   depends_on = [
     azurerm_role_assignment.kv_role_fa_coordinator_crypto_user,
     azurerm_role_assignment.kv_role_fa_coordinator_secrets_user,
-    azurerm_linux_function_app.fa_coordinator    
+    azurerm_linux_function_app.fa_coordinator
   ]
 }
