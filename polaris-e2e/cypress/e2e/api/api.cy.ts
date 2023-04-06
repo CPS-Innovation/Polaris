@@ -143,7 +143,12 @@ describe("API tests", () => {
               GET_TRACKER(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, "PHASE_1")
             )
             .its("body")
-            .then(({ status }) => status === "Completed"),
+            .then(({ status }) => {
+              if (status === "Failed") {
+                throw new Error("Pipeline failed, ending test")
+              }
+              return status === "Completed"
+            }),
         WAIT_UNTIL_OPTIONS
       )
       .api<PipelineResults>(
@@ -220,6 +225,22 @@ describe("API tests", () => {
           )
         )
         .api(
+          CHECKOUT_DOCUMENT(
+            REFRESH_TARGET_URN,
+            REFRESH_TARGET_CASE_ID,
+            phase1Vars.peopleDocId,
+            "PHASE_1"
+          )
+        )
+        .api(
+          SAVE_DOCUMENT(
+            REFRESH_TARGET_URN,
+            REFRESH_TARGET_CASE_ID,
+            phase1Vars.peopleDocId,
+            "PHASE_1"
+          )
+        )
+        .api(
           TRACKER_START(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, "PHASE_2")
         )
         .waitUntil(
@@ -233,11 +254,15 @@ describe("API tests", () => {
                 )
               )
               .its("body")
-              .then(
-                ({ processingCompleted }) =>
+              .then(({ processingCompleted, status }) => {
+                if (status === "Failed") {
+                  throw new Error("Pipeline failed, ending test")
+                }
+                return (
                   processingCompleted &&
                   processingCompleted !== phase1Vars.processingCompleted
-              ),
+                )
+              }),
           WAIT_UNTIL_OPTIONS
         )
     })
