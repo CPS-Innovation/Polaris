@@ -18,6 +18,9 @@ namespace Common.Configuration
         public const string Document = "urns/{caseUrn}/cases/{caseId}/documents/{documentId:guid}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId}/documents/{documentId:guid}/checkout";
         public const string DocumentSasUrl = "urns/{caseUrn}/cases/{caseId}/documents/{documentId:guid}/sasUrl";
+        
+        // Admin
+        public const string ResetDurableState = "admin/resetDurableState";
 
         // Other
         public const string Health = "health";

@@ -7,7 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.Orchestation.Functions.Tracker
+namespace coordinator.Functions.Orchestration.Functions.Tracker
 {
     public class UpdateTrackerOrchestrator : PolarisOrchestrator
     {
