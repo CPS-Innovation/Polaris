@@ -93,19 +93,18 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                az storage blob delete-batch --account-name $(cpsdocumentstorage-name) --source documents --account- key $(cpsdocumentstorage-key) --delete-snapshots include
+                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --account- key $(cpsdocumentstorage-key) --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
     display: Reset Durable State
     jobs:
       - job:
-        pool:
-          name: $(dev-build-agent)
+        pool: server
         steps:
           - task: AzureFunction@1
             displayName: Call Coordinator
             inputs:
-              function: $(reset-function-url) 
+              function: $(dev-reset-function-url) 
               key: $(reset-function-key) 
               method: 'DELETE'
               waitForCompletion: 'true'
