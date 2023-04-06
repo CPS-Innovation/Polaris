@@ -1,7 +1,8 @@
-import { PipelineDocument } from "./PipelineDocument";
+import { PipelineDocument } from "./PipelineDocument"
 
 export type PipelineResults = {
-  transactionId: string;
-  documents: PipelineDocument[];
-  status: "Running" | "DocumentsRetrieved" | "Completed" | "Failed" | "Deleted";
-};
+  transactionId: string
+  documents: PipelineDocument[]
+  processingCompleted?: string
+  status: "Running" | "DocumentsRetrieved" | "Completed" | "Failed" | "Deleted"
+}
