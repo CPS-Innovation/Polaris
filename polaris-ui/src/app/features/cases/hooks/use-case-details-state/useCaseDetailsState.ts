@@ -15,6 +15,11 @@ export const initialState = {
   caseState: { status: "loading" },
   documentsState: { status: "loading" },
   pipelineState: { status: "initiating", haveData: false },
+  pipelineRefreshData: {
+    startRefresh: true,
+    savedDocumentDetails: [],
+    lastProcessingCompleted: "",
+  },
   accordionState: { status: "loading" },
   tabsState: { items: [], headers: {}, activeTabId: undefined },
   searchTerm: "",
@@ -35,12 +40,16 @@ export const initialState = {
 export const useCaseDetailsState = (urn: string, caseId: number) => {
   const caseState = useApi(getCaseDetails, [urn, caseId]);
 
-  const pipelineState = usePipelineApi(urn, caseId);
-
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
     { ...initialState, caseId, urn },
     reducerAsyncActionHandlers
+  );
+
+  const pipelineState = usePipelineApi(
+    urn,
+    caseId,
+    combinedState.pipelineRefreshData
   );
 
   useEffect(() => {
@@ -48,10 +57,21 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
   }, [caseState, dispatch]);
 
-  useEffect(
-    () => dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState }),
-    [pipelineState, dispatch]
-  );
+  useEffect(() => {
+    dispatch({ type: "UPDATE_PIPELINE", payload: pipelineState });
+  }, [pipelineState, dispatch]);
+
+  useEffect(() => {
+    const { startRefresh } = combinedState.pipelineRefreshData;
+    if (startRefresh) {
+      dispatch({
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: false,
+        },
+      });
+    }
+  }, [combinedState.pipelineRefreshData, dispatch]);
 
   const searchResults = useApi(
     searchCase,

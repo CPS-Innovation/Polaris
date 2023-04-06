@@ -1,14 +1,13 @@
 import { ApiError } from "../../../common/errors/ApiError";
-
 import { CaseSearchResult } from "../domain/gateway/CaseSearchResult";
 import { PipelineResults } from "../domain/gateway/PipelineResults";
 import { ApiTextSearchResult } from "../domain/gateway/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
-import { RedactionSaveResponse } from "../domain/gateway/RedactionSaveResponse";
 import * as HEADERS from "./header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL } from "../../../config";
+import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 
 const buildHeaders = async (
   ...args: (
@@ -41,8 +40,12 @@ const temporaryApiModelMapping = (arr: any[]) =>
 export const resolvePdfUrl = (
   urn: string,
   caseId: number,
-  documentId: string
-) => fullUrl(`api/urns/${urn}/cases/${caseId}/documents/${documentId}`);
+  documentId: string,
+  polarisDocumentVersionId: number
+) =>
+  fullUrl(
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
+  );
 
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
@@ -105,13 +108,17 @@ export const initiatePipeline = async (urn: string, caseId: number) => {
     method: "POST",
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== LOCKED_STATUS_CODE) {
     throw new ApiError("Initiate pipeline failed", path, response);
   }
 
   const { trackerUrl }: { trackerUrl: string } = await response.json();
 
-  return { trackerUrl, correlationId: Object.values(correlationIdHeader)[0] };
+  return {
+    trackerUrl,
+    correlationId: Object.values(correlationIdHeader)[0],
+    status: response.status,
+  };
 };
 
 export const getPipelinePdfResults = async (
@@ -218,7 +225,7 @@ export const saveRedactions = async (
   caseId: number,
   documentId: string,
   redactionSaveRequest: RedactionSaveRequest
-) => {
+): Promise<boolean> => {
   const url = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
@@ -233,7 +240,7 @@ export const saveRedactions = async (
     throw new ApiError("Save redactions failed", url, response);
   }
 
-  return (await response.json()) as RedactionSaveResponse;
+  return true;
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

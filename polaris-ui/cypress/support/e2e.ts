@@ -51,6 +51,13 @@ declare global {
           | { type: "delay"; timeMs: number }
           | { type?: false; body: any }
       ): Chainable<AUTWindow>;
+      overridePostRoute(
+        apiRoute: string,
+        response:
+          | { type: "break"; httpStatusCode: number; body: any }
+          | { type: "delay"; timeMs: number }
+          | { type?: false; body: any }
+      ): Chainable<AUTWindow>;
     }
   }
 }

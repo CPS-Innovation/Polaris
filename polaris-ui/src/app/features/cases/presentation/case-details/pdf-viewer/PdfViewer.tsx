@@ -21,6 +21,7 @@ const SCROLL_TO_OFFSET = 120;
 
 type Props = {
   url: string;
+  tabIndex: number;
   headers: HeadersInit;
   redactStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
@@ -38,6 +39,7 @@ const ensureAllPdfInView = () =>
 
 export const PdfViewer: React.FC<Props> = ({
   url,
+  tabIndex,
   headers,
   redactStatus,
   searchHighlights = [],
@@ -83,7 +85,7 @@ export const PdfViewer: React.FC<Props> = ({
       <div
         className={classes.pdfViewer}
         ref={containerRef}
-        data-testid="div-pdfviewer"
+        data-testid={`div-pdfviewer-${tabIndex}`}
       >
         <PdfLoader url={url} headers={headers} beforeLoad={<Wait />}>
           {(pdfDocument) => (
@@ -141,6 +143,7 @@ export const PdfViewer: React.FC<Props> = ({
         </PdfLoader>
         {!!redactionHighlights.length && (
           <Footer
+            tabIndex={tabIndex}
             redactionHighlights={redactionHighlights}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
