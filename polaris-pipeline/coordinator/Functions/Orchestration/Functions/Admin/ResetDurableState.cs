@@ -35,16 +35,8 @@ public class ResetDurableState
     {
         try
         {
-            req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-            if (correlationIdValues == null)
-                throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(req));
-            
-            var correlationId = correlationIdValues.FirstOrDefault();
-            if (!Guid.TryParse(correlationId, out var currentCorrelationId))
-                if (currentCorrelationId == Guid.Empty)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
-            
-            _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
+            var correlationId = Guid.NewGuid();
+            _logger.LogMethodEntry(correlationId, LoggingName, string.Empty);
             
             var connectionString = _configuration[ConfigKeys.CoordinatorKeys.AzureWebJobsStorage];
             var settings = new AzureStorageOrchestrationServiceSettings
@@ -56,16 +48,16 @@ public class ResetDurableState
             var storageService = new AzureStorageOrchestrationService(settings);
 
             // Delete all Azure Storage tables, blobs, and queues in the task hub
-            _logger.LogMethodFlow(currentCorrelationId, LoggingName, $"Deleting all storage resources for task hub {settings.TaskHubName}...");
+            _logger.LogMethodFlow(correlationId, LoggingName, $"Deleting all storage resources for task hub {settings.TaskHubName}...");
             await storageService.DeleteAsync();
             
             // Wait for a minute to allow Azure Storage time to reset itself, otherwise it won't recreate resources with the same names as before.
-            _logger.LogMethodFlow(currentCorrelationId, LoggingName, "The delete operation completed. Waiting one minute before recreating...");
+            _logger.LogMethodFlow(correlationId, LoggingName, "The delete operation completed. Waiting one minute before recreating...");
             await Task.Delay(TimeSpan.FromMinutes(1));
             
             // Optional: Recreate all the Azure Storage resources for this task hub. This happens automatically whenever the function app restarts, so it's
             // not a required step, but it will slightly improve first-user performance via faster warm-up times
-            _logger.LogMethodFlow(currentCorrelationId, LoggingName, $"Recreating storage resources for task hub {settings.TaskHubName}...");
+            _logger.LogMethodFlow(correlationId, LoggingName, $"Recreating storage resources for task hub {settings.TaskHubName}...");
             await storageService.CreateIfNotExistsAsync();
             
             return req.CreateResponse(HttpStatusCode.OK);

@@ -1,0 +1,111 @@
+﻿trigger: none
+
+schedules:
+  - cron: "0 3 * * Mon-Sun" # First number represent the amount of minutes, second represent the hours. In this case 03:00 Monday - Sunday
+    displayName: Clear-down DEV Polaris Assets
+    branches:
+      include:
+        - main
+    always: true
+    
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+    
+stages:
+  - stage: Clear_down_SearchIndex
+    displayName: Reset Search Index
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline terraform artifact'
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+              artifact: "pipeline-terraform-files"
+              publishLocation: "pipeline"
+              
+      - job:
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+                
+          #download pipeline terraform build artifact
+          - download: PolarisBuild
+            displayName: Terraform > Download Pipeline terraform build
+            artifact: "pipeline-terraform-files"
+                
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -replace=restapi_object.definition
+            displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                
+          # Terraform Apply
+          - bash: |
+              terraform apply -auto-approve dev.tfplan
+            displayName: Terraform > Refresh Search Index
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                
+  - stage: Clear_down_BlobStorage
+    displayName: Reset Document Blob Storage
+    jobs:
+      - job:
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: AzureCLI@2
+            displayName: Refresh Blob Storage
+            inputs:
+              azureSubscription: $(innovation-development-subscription-name)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                az storage blob delete-batch --account-name sacpsdevpolarispipeline --source documents --account- key $(cpsdocumentstorage-key) --delete-snapshots include
+                
+  - stage: Clear_down_Durable_Orchestration_State
+    display: Reset Durable State
+    jobs:
+      - job:
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - task: AzureFunction@1
+            displayName: Call Coordinator
+            inputs:
+              function: $(reset-function-url) 
+              key: $(reset-function-key) 
+              method: 'DELETE'
+              waitForCompletion: 'true'
