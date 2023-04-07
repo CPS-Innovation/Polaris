@@ -218,7 +218,8 @@ declare global {
 Cypress.Commands.add(
   "setPolarisInstrumentationGuid",
   (correlationId: CorrelationId) =>
-    // note: on any direct navigate ion using cy.visit() this setting will be lost
+    // note: on any direct navigation using cy.visit() this setting will be lost
+    //  as the page is reloaded.
     cy.window().then((win) => {
       win.__POLARIS_INSTRUMENTATION_GUID__ = correlationIds[correlationId]
     })
