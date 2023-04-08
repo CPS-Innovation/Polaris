@@ -5,9 +5,9 @@ using System.Net.Mime;
 using System.Text;
 using Azure;
 using Common.Domain.Exceptions;
-using Common.Exceptions;
 using Common.Exceptions.Contracts;
 using Common.Logging;
+using Ddei.Exceptions;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Domain.Exceptions;
 
@@ -30,7 +30,7 @@ namespace pdf_generator.Handlers
                     baseErrorMessage = "Invalid request";
                     statusCode = HttpStatusCode.BadRequest;
                     break;
-                case HttpException httpException:
+                case DdeiClientException httpException:
                     baseErrorMessage = "An http exception occurred";
                     statusCode =
                         httpException.StatusCode == HttpStatusCode.BadRequest

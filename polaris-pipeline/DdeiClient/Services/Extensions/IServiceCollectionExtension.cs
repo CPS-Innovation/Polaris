@@ -4,7 +4,6 @@ using Common.Mappers.Contracts;
 using Ddei.Factories.Contracts;
 using Ddei.Factories;
 using Ddei.Mappers;
-using Ddei.Options;
 using DdeiClient.Mappers.Contract;
 using DdeiClient.Services.Contracts;
 using Microsoft.Extensions.Configuration;
@@ -16,18 +15,15 @@ namespace Ddei.Services.Extensions
 {
     public static class IServiceCollectionExtension
     {
+        private const string FunctionKey = "x-functions-key";
+
         public static void AddDdeiClient(this IServiceCollection services, IConfigurationRoot configuration)
-        {
-            services.AddOptions<DdeiOptions>().Configure<IConfiguration>((settings, _) =>
-            {
-                configuration.GetSection("ddei").Bind(settings);
-            });
-            var ddeiBaseUrl = new Uri(configuration.GetSection("ddei").GetValue<string>("BaseUrl"));
+        {                
             services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
-            services.AddTransient<IDdeiClient, DdeiClient>();
-            services.AddHttpClient<IDdeiClient, DdeiClient>((client) =>
+            services.AddHttpClient<IDdeiClient, DdeiClient>((service, client) =>
             {
-                client.BaseAddress = ddeiBaseUrl;
+                client.BaseAddress = new Uri(configuration["DdeiClientBaseUrl"]);
+                client.DefaultRequestHeaders.Add(FunctionKey, configuration["DdeiClientAccessKey"]);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
             services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();

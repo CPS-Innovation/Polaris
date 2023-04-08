@@ -2,23 +2,17 @@ using System.Net;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
-using Common.Constants;
 using Common.Dto.Response;
-using Common.Exceptions;
-using Common.Factories.Contracts;
 using Common.Mappers;
-using Common.Mappers.Contracts;
 using Common.Wrappers.Contracts;
-using Ddei.Services;
-using Ddei.Factories;
+using Ddei.Domain.CaseData.Args;
+using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
-using Ddei.Options;
 using DdeiClient.Mappers.Contract;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -45,9 +39,9 @@ public class DdeiDocumentExtractionServiceTests
         _fixture.Customize(new AutoMoqCustomization());
 
         _caseUrn = _fixture.Create<string>();
-        _caseId = _fixture.Create<string>();
+        _caseId = _fixture.Create<int>().ToString();
         _documentCategory = _fixture.Create<string>();
-        _documentId = _fixture.Create<string>();
+        _documentId = _fixture.Create<long>().ToString();
         _cmsAuthValues = _fixture.Create<string>();
         _correlationId = _fixture.Create<Guid>();
 
@@ -76,24 +70,21 @@ public class DdeiDocumentExtractionServiceTests
         var mockHttpRequestFactory = new Mock<IDdeiClientRequestFactory>();
 
         mockHttpRequestFactory
-            .Setup(factory => factory.CreateGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()))
+            .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCmsCaseArgDto>()))
+            .Returns(httpRequestMessage);
+
+        mockHttpRequestFactory
+            .Setup(factory => factory.CreateDocumentRequest(It.IsAny<DdeiCmsDocumentArgDto>()))
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
-        var ddeiOptions = new Mock<IOptions<DdeiOptions>>();
-        ddeiOptions
-            .Setup(options => options.Value)
-            .Returns(new DdeiOptions { AccessKey="ABC", BaseUrl="" });
-
         var caseDataArgFactory = new Mock<ICaseDataArgFactory>();
-        var ddeiClientRequestFactory = new Mock<IDdeiClientRequestFactory>();
         var caseDetailsMapper = new Mock<ICaseDetailsMapper>();
 
         _documentExtractionService = new Ddei.Services.DdeiClient
             (
                 httpClient,
                 mockHttpRequestFactory.Object,
-                ddeiOptions.Object,
                 caseDataArgFactory.Object,
                 caseDetailsMapper.Object,
                 new DdeiCaseDocumentMapper(),
@@ -122,7 +113,7 @@ public class DdeiDocumentExtractionServiceTests
     {
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-        await Assert.ThrowsAsync<HttpException>(() => _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId));
+        await Assert.ThrowsAsync<DdeiClientException>(() => _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId));
     }
 
     [Fact]
@@ -135,7 +126,7 @@ public class DdeiDocumentExtractionServiceTests
         {
             await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
         }
-        catch (HttpException exception)
+        catch (DdeiClientException exception)
         {
             exception.StatusCode.Should().Be(expectedStatusCode);
         }
@@ -151,7 +142,7 @@ public class DdeiDocumentExtractionServiceTests
         {
             await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
         }
-        catch (HttpException exception)
+        catch (DdeiClientException exception)
         {
             exception.InnerException.Should().BeOfType<HttpRequestException>();
         }
@@ -162,7 +153,7 @@ public class DdeiDocumentExtractionServiceTests
     {
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-        await Assert.ThrowsAsync<HttpException>(() => _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId));
+        await Assert.ThrowsAsync<DdeiClientException>(() => _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId));
     }
 
     [Fact]
@@ -175,7 +166,7 @@ public class DdeiDocumentExtractionServiceTests
         {
             await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
-        catch (HttpException exception)
+        catch (DdeiClientException exception)
         {
             exception.StatusCode.Should().Be(expectedStatusCode);
         }
@@ -191,7 +182,7 @@ public class DdeiDocumentExtractionServiceTests
         {
             await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
-        catch (HttpException exception)
+        catch (DdeiClientException exception)
         {
             exception.InnerException.Should().BeOfType<HttpRequestException>();
         }

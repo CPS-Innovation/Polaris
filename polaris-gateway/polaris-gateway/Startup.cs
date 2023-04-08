@@ -9,13 +9,6 @@ using Common.Validators;
 using Common.Validators.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Ddei.Services;
-using Ddei.Factories;
-using Ddei.Factories.Contracts;
-using Ddei.Mappers;
-using Ddei.Options;
-using DdeiClient.Services.Contracts;
-using DdeiClient.Mappers.Contract;
 using Gateway.Clients.PolarisPipeline;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -48,13 +41,14 @@ namespace PolarisGateway
 #endif
 
             var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
 #if DEBUG
                 .SetBasePath(Directory.GetCurrentDirectory())
 #endif
+                .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+        
+                // .AddEnvironmentVariables()
                 .Build();
-
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
@@ -74,6 +68,7 @@ namespace PolarisGateway
             builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
 
             BuildHealthChecks(builder);
+
         }
 
         // see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
