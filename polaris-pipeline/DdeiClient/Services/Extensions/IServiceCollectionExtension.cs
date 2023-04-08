@@ -22,8 +22,8 @@ namespace Ddei.Services.Extensions
             services.AddTransient<ICaseDataArgFactory, CaseDataArgFactory>();
             services.AddHttpClient<IDdeiClient, DdeiClient>((service, client) =>
             {
-                client.BaseAddress = new Uri(configuration["DdeiClientBaseUrl"]);
-                client.DefaultRequestHeaders.Add(FunctionKey, configuration["DdeiClientAccessKey"]);
+                client.BaseAddress = new Uri(configuration["DdeiBaseUrl"]);
+                client.DefaultRequestHeaders.Add(FunctionKey, configuration["DdeiAccessKey"]);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
             services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();

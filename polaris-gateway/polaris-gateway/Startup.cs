@@ -46,8 +46,6 @@ namespace PolarisGateway
 #endif
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-        
-                // .AddEnvironmentVariables()
                 .Build();
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();

@@ -53,7 +53,7 @@ namespace Ddei.Factories.Contracts
 
         public HttpRequestMessage CreateDocumentRequest(DdeiCmsDocumentArgDto arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{arg.VersionId}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}");
             AddAuthHeaders(request, arg);
             return request;
         }

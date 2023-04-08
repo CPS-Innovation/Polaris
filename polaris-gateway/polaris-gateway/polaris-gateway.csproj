@@ -43,11 +43,6 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
-    <None Update="local.e2e.settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\polaris-pipeline\Common\Common.csproj" />
