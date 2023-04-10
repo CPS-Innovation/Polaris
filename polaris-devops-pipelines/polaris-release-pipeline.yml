@@ -192,7 +192,7 @@ stages:
                       -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-                  displayName: Terraform > Init
+                  displayName: Terraform > Init Main Pipeline
                   condition: eq(variables.runPipelineTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
@@ -204,7 +204,7 @@ stages:
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-                  displayName: 'Terraform > Write Pipeline Plan'
+                  displayName: Terraform > Write Pipeline Plan
                   condition: eq(variables.runPipelineTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
@@ -216,7 +216,7 @@ stages:
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
-                  displayName: Terraform > Apply to DEV
+                  displayName: Terraform > Apply Main Pipeline
                   condition: eq(variables.runPipelineTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
@@ -238,7 +238,7 @@ stages:
                       -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-                  displayName: Terraform > Init
+                  displayName: Terraform > Init Pipeline Events
                   condition: eq(variables.runPipelineEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
@@ -250,7 +250,7 @@ stages:
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-                  displayName: 'Terraform > Write Pipeline Events Plan'
+                  displayName: Terraform > Write Pipeline Events Plan
                   condition: eq(variables.runPipelineEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
@@ -262,7 +262,7 @@ stages:
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
-                  displayName: Terraform > Apply to DEV
+                  displayName: Terraform > Apply Pipeline Events
                   condition: eq(variables.runPipelineEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
@@ -284,7 +284,7 @@ stages:
                       -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-                  displayName: Terraform > Init
+                  displayName: Terraform > Init UI Terraform
                   condition: eq(variables.runUITerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -296,7 +296,7 @@ stages:
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-                  displayName: 'Terraform > Write UI Plan'
+                  displayName: Terraform > Write UI Plan
                   condition: eq(variables.runUITerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -308,7 +308,7 @@ stages:
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
-                  displayName: Terraform > Apply to DEV
+                  displayName: Terraform > Apply UI Terraform
                   condition: eq(variables.runUITerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -330,7 +330,7 @@ stages:
                       -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-                  displayName: Terraform > Init
+                  displayName: Terraform > Init UI Events
                   condition: eq(variables.runUIEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
@@ -342,7 +342,7 @@ stages:
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-                  displayName: 'Terraform > Write UI Events Plan'
+                  displayName: Terraform > Write UI Events Plan
                   condition: eq(variables.runUIEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
@@ -354,7 +354,7 @@ stages:
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
-                  displayName: Terraform > Apply to DEV
+                  displayName: Terraform > Apply UI Events
                   condition: eq(variables.runUIEventsTerraform, 'true')
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
