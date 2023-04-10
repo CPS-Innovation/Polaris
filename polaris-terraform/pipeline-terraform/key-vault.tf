@@ -176,9 +176,9 @@ resource "azurerm_key_vault_secret" "kvs_pipeline_storage_connection_string" {
   ]
 }
 
-resource "azurerm_key_vault_secret" "kvs_pipeline_storage_access_key" {
-  name            = "cpsdocumentstorage-key"
-  value           = azurerm_storage_account.sa.primary_access_key
+resource "azurerm_key_vault_secret" "kvs_pipeline_storage_connection_string" {
+  name            = "cpsdocumentstorage-connection-string"
+  value           = azurerm_storage_account.sa.primary_connection_string
   key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
   expiration_date = timeadd(timestamp(), "8760h")
   content_type    = "password"

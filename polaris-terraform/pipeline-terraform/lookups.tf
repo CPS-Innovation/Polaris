@@ -104,7 +104,6 @@ data "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
 
-# Reference terraform key-vault
 data "azurerm_key_vault" "terraform_key_vault" {
   name                = "kv${var.env}terraform"
   resource_group_name = "rg-terraform"
