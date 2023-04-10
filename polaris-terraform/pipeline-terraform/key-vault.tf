@@ -171,18 +171,18 @@ resource "azurerm_key_vault_secret" "kvs_pipeline_storage_connection_string" {
   content_type    = "password"
 
   depends_on = [
-    azurerm_role_assignment.terraform_kv_role_terraform_sp,
+    azurerm_role_assignment.kv_role_terraform_sp,
     azurerm_storage_account.sa
   ]
 }
 
-resource "azurerm_key_vault_secret" "kvs_pipeline_storage_connection_string" {
+resource "azurerm_key_vault_secret" "kvs_pipeline_terraform_storage_connection_string" {
   name            = "cpsdocumentstorage-connection-string"
   value           = azurerm_storage_account.sa.primary_connection_string
   key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
   expiration_date = timeadd(timestamp(), "8760h")
   content_type    = "password"
-
+  
   depends_on = [
     azurerm_role_assignment.terraform_kv_role_terraform_sp,
     azurerm_storage_account.sa
