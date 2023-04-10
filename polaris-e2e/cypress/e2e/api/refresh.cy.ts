@@ -1,7 +1,5 @@
 /// <reference types="cypress" />
 import "cypress-wait-until"
-import { CaseDetails } from "../../../gateway/CaseDetails"
-import { CaseSearchResult } from "../../../gateway/CaseSearchResult"
 import { PipelineResults } from "../../../gateway/PipelineResults"
 import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
 import { makeRoutes } from "./helpers/make-routes"
@@ -140,22 +138,6 @@ describe("Refresh flow", () => {
           )
         )
         .api(
-          routes.CHECKOUT_DOCUMENT(
-            REFRESH_TARGET_URN,
-            REFRESH_TARGET_CASE_ID,
-            phase1Vars.peopleDocId,
-            "PHASE_1"
-          )
-        )
-        .api(
-          routes.SAVE_DOCUMENT(
-            REFRESH_TARGET_URN,
-            REFRESH_TARGET_CASE_ID,
-            phase1Vars.peopleDocId,
-            "PHASE_1"
-          )
-        )
-        .api(
           routes.TRACKER_START(
             REFRESH_TARGET_URN,
             REFRESH_TARGET_CASE_ID,
@@ -173,13 +155,120 @@ describe("Refresh flow", () => {
                 )
               )
               .its("body")
-              .then(({ processingCompleted, status }) => {
-                if (status === "Failed") {
+              .then((results) => {
+                if (results.status === "Failed") {
                   throw new Error("Pipeline failed, ending test")
                 }
                 return (
-                  processingCompleted &&
-                  processingCompleted !== phase1Vars.processingCompleted
+                  results.processingCompleted &&
+                  results.processingCompleted !== phase1Vars.processingCompleted
+                )
+              }),
+          WAIT_UNTIL_OPTIONS
+        )
+        .api<PipelineResults>(
+          routes.GET_TRACKER(
+            REFRESH_TARGET_URN,
+            REFRESH_TARGET_CASE_ID,
+            "PHASE_2"
+          )
+        )
+        .its("body")
+        .then((results) => {
+          cy.wrap(saveVariablesHelper(results)).as("phase2Vars")
+          expect(
+            results.documents.every((document) => document.status === "Indexed")
+          ).to.equal(true)
+        })
+    })
+
+    searchAssertion({
+      type: "EXPECT_RESULTS",
+      term: "one",
+      docId: "numbersDocId",
+      quatity: 1,
+    })
+    searchAssertion({
+      type: "EXPECT_RESULTS",
+      term: "two",
+      docId: "numbersDocId",
+      quatity: 1,
+    })
+    searchAssertion({
+      type: "EXPECT_NO_RESULTS",
+      term: "three",
+    })
+    searchAssertion({
+      type: "EXPECT_RESULTS",
+      term: "four",
+      docId: "numbersDocId",
+      quatity: 1,
+    })
+    searchAssertion({
+      type: "EXPECT_RESULTS",
+      term: "alice",
+      docId: "peopleDocId",
+      quatity: 1,
+    })
+    searchAssertion({
+      type: "EXPECT_RESULTS",
+      term: "bob",
+      docId: "peopleDocId",
+      quatity: 1,
+    })
+    searchAssertion({
+      type: "EXPECT_RESULTS",
+      term: "carol",
+      docId: "peopleDocId",
+      quatity: 1,
+    })
+    searchAssertion({
+      type: "EXPECT_NO_RESULTS",
+      term: "dave",
+    })
+
+    cy.get<SavedVariables>("@phase2Vars").then((phase2Vars) => {
+      cy.api(
+        routes.CHECKOUT_DOCUMENT(
+          REFRESH_TARGET_URN,
+          REFRESH_TARGET_CASE_ID,
+          phase2Vars.peopleDocId,
+          "PHASE_2"
+        )
+      )
+        .api(
+          routes.SAVE_DOCUMENT(
+            REFRESH_TARGET_URN,
+            REFRESH_TARGET_CASE_ID,
+            phase2Vars.peopleDocId,
+            "PHASE_2"
+          )
+        )
+        .api(
+          routes.TRACKER_START(
+            REFRESH_TARGET_URN,
+            REFRESH_TARGET_CASE_ID,
+            "PHASE_3"
+          )
+        )
+        .waitUntil(
+          () =>
+            cy
+              .api<PipelineResults>(
+                routes.GET_TRACKER(
+                  REFRESH_TARGET_URN,
+                  REFRESH_TARGET_CASE_ID,
+                  "PHASE_3"
+                )
+              )
+              .its("body")
+              .then((results) => {
+                if (results.status === "Failed") {
+                  throw new Error("Pipeline failed, ending test")
+                }
+                return (
+                  results.processingCompleted &&
+                  results.processingCompleted !== phase2Vars.processingCompleted
                 )
               }),
           WAIT_UNTIL_OPTIONS
@@ -232,6 +321,24 @@ describe("Refresh flow", () => {
     })
   })
 })
+
+
+        // .api(
+        //   routes.CHECKOUT_DOCUMENT(
+        //     REFRESH_TARGET_URN,
+        //     REFRESH_TARGET_CASE_ID,
+        //     phase1Vars.peopleDocId,
+        //     "PHASE_1"
+        //   )
+        // )
+        // .api(
+        //   routes.SAVE_DOCUMENT(
+        //     REFRESH_TARGET_URN,
+        //     REFRESH_TARGET_CASE_ID,
+        //     phase1Vars.peopleDocId,
+        //     "PHASE_1"
+        //   )
+        // )
 
 type SavedVariables = ReturnType<typeof saveVariablesHelper>
 const saveVariablesHelper = ({
