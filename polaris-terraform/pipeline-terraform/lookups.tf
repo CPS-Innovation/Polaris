@@ -103,3 +103,8 @@ data "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
   name                = "privatelink.cognitiveservices.azure.com"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
+
+data "azurerm_key_vault" "terraform_key_vault" {
+  name                = "kv${var.env}terraform"
+  resource_group_name = "rg-terraform"
+}

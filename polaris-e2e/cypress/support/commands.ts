@@ -1,5 +1,6 @@
 import "@testing-library/cypress/add-commands"
 import { injectTokens } from "./inject-tokens"
+import { CorrelationId, correlationIds } from "./correlation-ids"
 
 declare global {
   namespace Cypress {
@@ -11,20 +12,18 @@ declare global {
       fullLogin(): Chainable<any>
       clearCaseTracker(urn: string, caseId: string): Chainable<any>
       requestToken(): Chainable<Response<{ access_token: string }>>
-      getApiHeaders(): Chainable<{
+      getAuthHeaders(): Chainable<{
         Authorization: string
-        "Correlation-Id": string
       }>
+      setPolarisInstrumentationGuid(guid: string): Chainable<AUTWindow>
 
       // roll our own typing to help cast the body returned from the api call
       api<T>(url: string, body?: RequestBody): Chainable<ApiResponseBody<T>>
-
       api<T>(
         method: HttpMethod,
         url: string,
         body?: RequestBody
       ): Chainable<ApiResponseBody<T>>
-
       api<T>(options: Partial<RequestOptions>): Chainable<ApiResponseBody<T>>
     }
   }
@@ -49,7 +48,7 @@ const {
   CMS_PASSWORD_FIELD_LOCATOR,
   CMS_SUBMIT_BUTTON_LOCATOR,
   CMS_LOGGED_IN_CONFIRMATION_LOCATOR,
-  CORRELATION_ID,
+  COOKIE_REDIRECT_URL,
 } = Cypress.env()
 
 const AUTOMATION_LANDING_PAGE_URL = "/?automation-test-first-visit=true"
@@ -102,7 +101,7 @@ Cypress.Commands.add(
 )
 
 Cypress.Commands.add(
-  "getApiHeaders",
+  "getAuthHeaders",
   {
     prevSubject: ["optional"],
   },
@@ -119,7 +118,6 @@ Cypress.Commands.add(
     }).then(() => {
       cy.requestToken().then((response) => ({
         Authorization: `Bearer ${response.body.access_token}`,
-        "Correlation-Id": CORRELATION_ID,
         credentials: "include",
         //Cookie: response.headers["set-cookie"][0].split(";")[0],
       }))
@@ -187,8 +185,7 @@ Cypress.Commands.add("loginToCms", () => {
 Cypress.Commands.add("preemptivelyAttachCookies", () => {
   var args = {
     redirectUrl:
-      API_ROOT_DOMAIN +
-      "/polaris?polaris-ui-url=" +
+      COOKIE_REDIRECT_URL +
       encodeURIComponent(Cypress.config().baseUrl + "?auth-refresh"),
   } as { redirectUrl: string }
 
@@ -208,8 +205,21 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
     followRedirect: false,
     headers: {
       authorization: `Bearer ${cachedTokenResponse.access_token}`,
-      "correlation-id": CORRELATION_ID,
+      "correlation-id": correlationIds.BLANK,
     },
   })
   cy.wait(1000)
 })
+
+declare global {
+  var __POLARIS_INSTRUMENTATION_GUID__: string
+}
+
+Cypress.Commands.add(
+  "setPolarisInstrumentationGuid",
+  (correlationId: CorrelationId) =>
+    // note: on any direct navigate ion using cy.visit() this setting will be lost
+    cy.window().then((win) => {
+      win.__POLARIS_INSTRUMENTATION_GUID__ = correlationIds[correlationId]
+    })
+)
