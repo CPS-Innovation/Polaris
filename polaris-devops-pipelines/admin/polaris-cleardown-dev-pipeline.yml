@@ -94,7 +94,7 @@ stages:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
-              connectedServiceNameARM: 'Innovation-Development: All-Information Management'
+              connectedServiceNameARM: '$(innovation-development-subscription-name)'
               scriptType: 'ps'
               scriptLocation: 'inlineScript'
               inlineScript: |
