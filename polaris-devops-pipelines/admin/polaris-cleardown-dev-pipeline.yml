@@ -34,7 +34,7 @@ stages:
     dependsOn: Startup_Dev_Build_Agent
     condition: succeeded()
     jobs:
-      - job:
+      - job: Publish_Pipeline_Terraform
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -45,9 +45,11 @@ stages:
               artifact: "pipeline-terraform-files"
               publishLocation: "pipeline"
               
-      - job:
+      - job: Run_Terraform
         pool:
           name: $(dev-build-agent)
+        dependsOn: Publish_Pipeline_Terraform
+        condition: succeeded()
         steps:
           # Install Terraform based on version variable
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
