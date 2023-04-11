@@ -106,7 +106,8 @@ stages:
     condition: succeeded()
     jobs:
       - job: Reset
-        pool: server
+        pool:
+          name: $(dev-build-agent)
         steps:
           - task: AzureFunction@1
             displayName: Call Coordinator
