@@ -21,13 +21,13 @@ stages:
         pool:
           vmImage: windows-latest
         steps:
-          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
             displayName: 'Start Dev Build Agent'
             inputs:
+              serviceConnection: 'DevOps API Build and Release Connector'
+              project: 'b22de6aa-9da5-4bf2-afb5-c15f5f9cb3bf'
+              Pipeline: Build
               buildDefinition: 135
-              waitForQueuedBuildsToFinish: true
-              cancelBuildsIfAnyFails: true
-              password: $(devops-pat-token)
 
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
@@ -140,10 +140,10 @@ stages:
         pool:
           vmImage: windows-latest
         steps:
-          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
             displayName: 'Shutdown Dev Build Agent'
             inputs:
+              serviceConnection: 'DevOps API Build and Release Connector'
+              project: 'b22de6aa-9da5-4bf2-afb5-c15f5f9cb3bf'
+              Pipeline: Build
               buildDefinition: 136
-              waitForQueuedBuildsToFinish: true
-              cancelBuildsIfAnyFails: true
-              password: $(devops-pat-token)
