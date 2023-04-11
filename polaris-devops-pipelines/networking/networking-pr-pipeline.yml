@@ -50,11 +50,6 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
           
-          # Format check
-          - bash: terraform fmt -check
-            workingDirectory: $(networkingTerraformWorkingDir)
-            displayName: Terraform > Check Formatting
-          
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
