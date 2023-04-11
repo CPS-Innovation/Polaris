@@ -109,12 +109,13 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
-          - task: AzureFunction@1
+          - task: InvokeRESTAPI@1
             displayName: Call Coordinator
             inputs:
-              function: $(dev-reset-function-url) 
-              key: $(reset-function-key) 
+              connectionType: 'connectedServiceName'
+              serviceConnection: 'Innovation-Development: Reset Durable State'
               method: 'DELETE'
+              urlSuffix: '?code=$(reset-function-key)'
               waitForCompletion: 'true'
               
   - stage: Shutdown_Dev_Build_Agent
