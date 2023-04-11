@@ -4,5 +4,5 @@ declare global {
   var __POLARIS_INSTRUMENTATION_GUID__: string;
 }
 
-export const generateGuid = () => window.__POLARIS_INSTRUMENTATION_GUID__ || uuidv4();
-  
+export const generateGuid = () =>
+  window.__POLARIS_INSTRUMENTATION_GUID__ || uuidv4();
