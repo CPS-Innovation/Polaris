@@ -124,7 +124,9 @@ export const Tabs: React.FC<TabsProps> = ({
                   aria-controls={`panel-${index}`}
                   role="tab"
                   className={classes.tabButton}
-                  data-testid={index === activeTabIndex ? "tab-active" : ""}
+                  data-testid={
+                    index === activeTabIndex ? "tab-active" : `btn-tab-${index}`
+                  }
                   onClick={() => handleTabSelection(itemId)}
                   onKeyDown={handleKeyPressOnTab}
                   ref={index === activeTabIndex ? activeTabRef : undefined}

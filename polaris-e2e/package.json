@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "copy-domain": "cp -r ../polaris-ui/src/app/features/cases/domain/gateway ./gateway"
+    "copy-domain": "cp -r ../polaris-ui/src/app/features/cases/domain/gateway ."
   },
   "repository": {
     "type": "git",

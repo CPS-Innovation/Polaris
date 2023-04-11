@@ -5,7 +5,7 @@ using Common.Logging;
 using System;
 using coordinator.Functions.DurableEntity.Entity;
 
-namespace coordinator.Functions.Orchestation.Functions
+namespace coordinator.Functions.Orchestration.Functions
 {
     public class PolarisOrchestrator
     {

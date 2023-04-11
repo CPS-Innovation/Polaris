@@ -10,6 +10,8 @@ describe("getRedactStatus util", () => {
       data: {
         transactionId: "abc",
         status: "Completed",
+        processingCompleted: "",
+        documentsRetrieved: "",
         documents: [
           {
             documentId: "1",
@@ -20,6 +22,7 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 3,
               code: "MG3",
@@ -39,6 +42,7 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 11,
               code: "MG11",
@@ -58,6 +62,7 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 11,
               code: "MG11",
@@ -80,9 +85,12 @@ describe("getRedactStatus util", () => {
     const pipelineState: AsyncPipelineResult<PipelineResults> = {
       status: "complete",
       haveData: true,
+
       data: {
         transactionId: "abc",
         status: "Completed",
+        processingCompleted: "",
+        documentsRetrieved: "",
         documents: [
           {
             documentId: "1",
@@ -93,6 +101,7 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 3,
               code: "MG3",

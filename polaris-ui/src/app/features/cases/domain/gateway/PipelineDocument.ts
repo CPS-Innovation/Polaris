@@ -2,6 +2,7 @@ import { CmsDocCategory } from "./CmsDocCategory";
 import { CmsDocType } from "./CmsDocType";
 
 export type PipelineDocumentProperties = {
+  polarisDocumentId?: string;
   documentId: string;
   pdfBlobName: string;
   isPdfAvailable?: boolean;
@@ -26,6 +27,7 @@ export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
   cmsOriginalFileName: string;
+  polarisDocumentVersionId: number;
   cmsMimeType: string;
   cmsFileCreatedDate: string;
   cmsDocCategory: CmsDocCategory;

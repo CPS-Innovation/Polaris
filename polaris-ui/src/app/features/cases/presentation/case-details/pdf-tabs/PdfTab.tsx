@@ -10,9 +10,14 @@ import { HeaderSearchMode } from "./HeaderSearchMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 
 type PdfTabProps = {
+  tabIndex: number;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   redactStatus: PresentationFlags["write"];
+  savedDocumentDetails: {
+    documentId: string;
+    polarisDocumentVersionId: number;
+  }[];
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -22,9 +27,11 @@ type PdfTabProps = {
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
+  tabIndex,
   caseDocumentViewModel,
   headers,
   redactStatus,
+  savedDocumentDetails,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -60,6 +67,12 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     [documentId, handleSavedRedactions]
   );
 
+  const isDocumentRefreshing = () => {
+    return savedDocumentDetails.find(
+      (document) => document.documentId === caseDocumentViewModel.documentId
+    );
+  };
+
   return (
     <>
       {mode === "search" ? (
@@ -76,9 +89,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         />
       )}
 
-      {url ? (
+      {url && !isDocumentRefreshing() ? (
         <PdfViewer
           url={url}
+          tabIndex={tabIndex}
           headers={headers}
           searchHighlights={searchHighlights}
           redactStatus={redactStatus}
@@ -90,7 +104,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleSavedRedactions={localHandleSavedRedactions}
         />
       ) : (
-        <Wait />
+        <Wait dataTestId={`pdfTab-spinner-${tabIndex}`} />
       )}
     </>
   );

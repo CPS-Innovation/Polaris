@@ -13,13 +13,13 @@ using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions.Case;
-using coordinator.Functions.Orchestation.Functions.Document;
+using coordinator.Functions.Orchestration.Functions.Document;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.Orchestation.Functions.Case
+namespace coordinator.Functions.Orchestration.Functions.Case
 {
     public class RefreshCaseOrchestrator : PolarisOrchestrator
     {

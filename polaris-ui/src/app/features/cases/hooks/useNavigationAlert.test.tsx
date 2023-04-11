@@ -20,6 +20,7 @@ describe("useNavigationAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG3  very long",
+      polarisDocumentVersionId: 1,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -48,6 +49,7 @@ describe("useNavigationAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG4 test",
+      polarisDocumentVersionId: 1,
       presentationFlags: {
         read: "Ok",
         write: "Ok",

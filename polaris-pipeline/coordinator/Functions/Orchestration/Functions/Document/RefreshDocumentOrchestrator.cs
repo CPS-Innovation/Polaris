@@ -13,7 +13,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.Orchestation.Functions.Document
+namespace coordinator.Functions.Orchestration.Functions.Document
 {
     public class RefreshDocumentOrchestrator : PolarisOrchestrator
     {

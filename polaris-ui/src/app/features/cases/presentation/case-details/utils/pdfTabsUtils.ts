@@ -8,7 +8,6 @@ export const getRedactStatus = (
     pipelineState.haveData &&
     pipelineState.data.documents.find((document) => document.documentId === id)
       ?.presentationFlags.write;
-
   if (!status) {
     throw new Error(
       "Unable to resolve `presentationFlags.write` for a document"

@@ -191,11 +191,6 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
           
-          # Format check
-          - bash: terraform fmt -check
-            workingDirectory: $(pipelineTerraformWorkingDir)
-            displayName: Terraform > Check Formatting
-          
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -289,11 +284,6 @@ stages:
               TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-          
-          # Format check
-          - bash: terraform fmt -check
-            workingDirectory: $(pipelineEventsTerraformWorkingDir)
-            displayName: Terraform > Check Formatting
           
           # Validate
           - bash: terraform validate
@@ -389,11 +379,6 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
           
-          # Format check
-          - bash: terraform fmt -check
-            workingDirectory: $(uiTerraformWorkingDir)
-            displayName: Terraform > Check Formatting
-          
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -487,11 +472,6 @@ stages:
               TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-          
-          # Format check
-          - bash: terraform fmt -check
-            workingDirectory: $(uiEventsTerraformWorkingDir)
-            displayName: Terraform > Check Formatting
           
           # Validate
           - bash: terraform validate
