@@ -1,4 +1,5 @@
 trigger: none
+pr: none
 
 schedules:
   - cron: "0 3 * * *" # First number represent the amount of minutes, second represent the hours. In this case 03:00 Monday - Sunday
@@ -23,7 +24,7 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Start Dev Build Agent'
             inputs:
-              buildDefinition: 'ACI - Self-hosted agent start-up (Development)'
+              buildDefinition: 135
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
@@ -142,7 +143,7 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Shutdown Dev Build Agent'
             inputs:
-              buildDefinition: 'ACI - Self-hosted agent shut-down (Development)'
+              buildDefinition: 136
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
