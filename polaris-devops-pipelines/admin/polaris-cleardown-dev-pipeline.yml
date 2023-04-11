@@ -25,8 +25,8 @@ stages:
           - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
             displayName: 'Start Dev Build Agent'
             inputs:
-              serviceConnection: 'DevOps API Build and Release Connector'
-              project: 'b22de6aa-9da5-4bf2-afb5-c15f5f9cb3bf'
+              serviceConnection: $(build-release-connector)
+              project: $(project-id)
               Pipeline: Build
               buildDefinition: 135
 
@@ -94,11 +94,12 @@ stages:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
-              azureSubscription: $(innovation-development-subscription-name)
+              azureSubscription: '$(innovation-development-subscription-name)'
               scriptType: bash
               scriptLocation: inlineScript
+              arguments: '$(dev-document-storage-account) $(cpsdocumentstorage-connection-string)'
               inlineScript: |
-                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string $(cpsdocumentstorage-connection-string) --delete-snapshots include
+                az storage blob delete-batch --account-name $1 --source documents --connection-string $2 --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
     displayName: Reset Durable State
@@ -128,7 +129,7 @@ stages:
           - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
             displayName: 'Shutdown Dev Build Agent'
             inputs:
-              serviceConnection: 'DevOps API Build and Release Connector'
-              project: 'b22de6aa-9da5-4bf2-afb5-c15f5f9cb3bf'
+              serviceConnection: $(build-release-connector)
+              project: $(project-id)
               Pipeline: Build
               buildDefinition: 136
