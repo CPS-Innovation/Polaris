@@ -13,17 +13,18 @@ describe("Refresh via guid-controlled ", () => {
     cy.findByTestId("input-search-urn").type(`${REFRESH_TARGET_URN}{enter}`)
     cy.findByTestId(`link-${REFRESH_TARGET_URN}`).click()
 
-    cy.findByTestId("input-search-case").type(`four{enter}`)
-    cy.findByTestId("btn-modal-close")
-    cy.get("#modal").contains("Four").should("not.exist")
-    cy.findByTestId("btn-modal-close").click()
+    cy.findByTestId("btn-accordion-open-close-all").click()
+    cy.findByText("e2e-numbers-pre").click()
 
-    cy.findByTestId("input-search-case").clear().type(`three{enter}`)
-    cy.findByTestId("btn-modal-close")
-    cy.get("#modal").contains("Three")
-    cy.get("#modal").findByText("e2e-numbers-pre").click()
+    cy.selectPDFTextElement("Three")
 
-    
+    cy.setPolarisInstrumentationGuid("PHASE_2")
+    cy.findByTestId("btn-redact").click({ force: true })
+    cy.findByTestId("btn-save-redaction-0").click()
+    cy.findByTestId("pdfTab-spinner-0").should("exist")
+    cy.findByTestId("pdfTab-spinner-0").should("not.exist")
+    cy.findByTestId("div-pdfviewer-0").should("exist")
+    cy.selectPDFTextElement("Four")
   })
 })
 
