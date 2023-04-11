@@ -70,7 +70,7 @@ stages:
                 -backend-config="key=$TF_STATE_KEY" \
                 -backend-config="access_key=$TF_STATE_ACCESS_KEY"
             displayName: Terraform > Init
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+            workingDirectory: $(Pipeline.Workspace)/pipeline-terraform-files
             env:
               TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
               TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
@@ -81,7 +81,7 @@ stages:
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -replace=restapi_object.definition
             displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+            workingDirectory: $(Pipeline.Workspace)/pipeline-terraform-files
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
@@ -92,7 +92,7 @@ stages:
           - bash: |
               terraform apply -auto-approve dev.tfplan
             displayName: Terraform > Refresh Search Index
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+            workingDirectory: $(Pipeline.Workspace)/pipeline-terraform-files
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
