@@ -4,7 +4,6 @@ namespace coordinator.Domain
 {
     public class GeneratePdfHttpRequestActivityPayload : BasePipelinePayload
     {
-        // TODO - move over to PolarisDocumentId
         public GeneratePdfHttpRequestActivityPayload(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId, string cmsAuthValues, Guid correlationId)
             : base(caseUrn, caseId, correlationId)
         {

@@ -30,8 +30,6 @@ namespace Ddei.Services.Extensions
             services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
             services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             services.AddTransient<IDocumentToggleService, DocumentToggleService>();
-
-            services.AddSingleton<ITransitionDocumentMapper, TransitionDocumentMapper>();
             services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
               DocumentToggleService.ReadConfig()
             ));

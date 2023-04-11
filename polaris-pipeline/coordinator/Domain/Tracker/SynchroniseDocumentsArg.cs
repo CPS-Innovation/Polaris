@@ -1,3 +1,4 @@
+using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using System;
 using System.Collections.Generic;
@@ -7,11 +8,12 @@ namespace coordinator.Domain.Tracker;
 
 public class SynchroniseDocumentsArg
 {
-    public SynchroniseDocumentsArg(string caseUrn, long caseId, TransitionDocumentDto[] documents, Guid correlationId)
+    public SynchroniseDocumentsArg(string caseUrn, long caseId, DocumentDto[] documents, PcdRequestDto[] pcdRequests, Guid correlationId)
     {
         CaseUrn = caseUrn ?? throw new ArgumentNullException(nameof(caseUrn));
         CaseId = caseId;
         Documents = documents?.ToList() ?? throw new ArgumentNullException(nameof(documents));
+        PcdRequests = pcdRequests?.ToList() ?? throw new ArgumentNullException(nameof(pcdRequests));
         CorrelationId = correlationId;
     }
 
@@ -19,7 +21,9 @@ public class SynchroniseDocumentsArg
 
     public long CaseId { get; set; }
 
-    public List<TransitionDocumentDto> Documents { get; set; }
+    public List<DocumentDto> Documents { get; set; }
+
+    public List<PcdRequestDto> PcdRequests { get; set; }
 
     public Guid CorrelationId { get; set; }
 }

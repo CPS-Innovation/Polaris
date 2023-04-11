@@ -110,7 +110,7 @@ namespace pdf_generator
             builder.Services.AddHealthChecks()
                  .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
                  .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                 .AddCheck<DdeiClientHealthCheck>("DDEI Document Extraction Service");
+                 .AddCheck<DdeiClientHealthCheck>("DDEI Client");
         }
     }
 }
