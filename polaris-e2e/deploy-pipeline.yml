@@ -33,6 +33,7 @@ steps:
       CYPRESS_AD_PASSWORD: "$(cypress_ad_password)"
       CYPRESS_CMS_PASSWORD: "$(cypress_cms_password)"
       CYPRESS_ENVIRONMENT: "$(cypress_environment)"
+      CYPRESS_AD_USERNAME: "$(cypress_ad_username)"
     inputs:
       command: "custom"
       workingDir: "polaris-e2e"
