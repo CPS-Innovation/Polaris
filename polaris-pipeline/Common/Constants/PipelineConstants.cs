@@ -67,6 +67,7 @@
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
             public const string PdfGeneratorUrl = "PdfGeneratorUrl";
             public const string TextExtractorUrl = "TextExtractorUrl";
+            public const string AzureWebJobsStorage = "AzureWebJobsStorage";
         }
 
         public static class TextExtractorKeys
