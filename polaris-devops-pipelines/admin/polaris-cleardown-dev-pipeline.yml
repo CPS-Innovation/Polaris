@@ -28,13 +28,13 @@ stages:
               buildDefinition: 135
 
   - stage: Clear_down_SearchIndex
+    displayName: Reset Search Index
+    dependsOn: Startup_Dev_Build_Agent
+    condition: succeeded()
     variables:
       - group: polaris-global
       - group: kv-dev-terraform
       - group: pipeline-terraform
-    displayName: Reset Search Index
-    dependsOn: Startup_Dev_Build_Agent
-    condition: succeeded()
     jobs:
       - job: Clear_down_SearchIndex
         pool:
@@ -84,11 +84,11 @@ stages:
           #    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                 
   - stage: Clear_down_BlobStorage
-    variables:
-      - group: kv-dev-terraform
     displayName: Reset Document Blob Storage
     dependsOn: Clear_down_SearchIndex
     condition: succeeded()
+    variables:
+      - group: kv-dev-terraform
     jobs:
       - job: Clear_down_BlobStorage
         pool:
@@ -104,11 +104,12 @@ stages:
                 az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string $(cpsdocumentstorage-connection-string) --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
-    variables:
-      - group: kv-dev-terraform
     displayName: Reset Durable State
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
+    variables:
+      - group:
+          kv-dev-terraform
     jobs:
       - job: Reset
         pool: server
@@ -122,11 +123,11 @@ stages:
               waitForCompletion: 'true'
               
   - stage: Shutdown_Dev_Build_Agent
-    variables:
-      - group: polaris-global
     displayName: Shutdown Dev Build Agent
     dependsOn: Clear_down_Durable_Orchestration_State
     condition: succeeded()
+    variables:
+      - group: polaris-global
     jobs:
       - job: Shutdown_Dev_Build_Agent
         pool:
