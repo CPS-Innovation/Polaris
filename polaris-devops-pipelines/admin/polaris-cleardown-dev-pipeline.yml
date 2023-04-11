@@ -9,12 +9,12 @@ schedules:
         - main
     always: true
     
-variables:
-  - group: kv-dev-terraform
-  - group: polaris-global
-  - group: pipeline-terraform
-    
 stages:
+  variables:
+    - group: kv-dev-terraform
+    - group: polaris-global
+    - group: pipeline-terraform
+    
   - stage: Startup_Dev_Build_Agent
     displayName: Start Dev Build Agent
     jobs:
