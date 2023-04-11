@@ -12,6 +12,7 @@ schedules:
 variables:
   - group: kv-dev-terraform
   - group: polaris-global
+  - group: pipeline-terraform
     
 stages:
   - stage: Startup_Dev_Build_Agent
