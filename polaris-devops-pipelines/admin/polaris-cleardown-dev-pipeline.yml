@@ -56,7 +56,7 @@ stages:
               terraformVersion: $(terraform-version)
                 
           #download pipeline terraform build artifact
-          - download: PolarisBuild
+          - download: current
             displayName: Terraform > Download Pipeline terraform build
             artifact: "pipeline-terraform-files"
                 
