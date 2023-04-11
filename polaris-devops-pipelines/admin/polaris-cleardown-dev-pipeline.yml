@@ -23,7 +23,7 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Start Dev Build Agent'
             inputs:
-              buildDefinition: 129
+              buildDefinition: 135
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
@@ -129,3 +129,20 @@ stages:
               key: $(reset-function-key) 
               method: 'DELETE'
               waitForCompletion: 'true'
+              
+  - stage: Clear_down_Durable_Orchestration_State
+    displayName: Shutdown Dev Build Agent
+    dependsOn: Clear_down_BlobStorage
+    condition: succeeded()
+    jobs:
+      - job: Shutdown_Dev_Build_Agent
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Shutdown Dev Build Agent'
+            inputs:
+              buildDefinition: 136
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
