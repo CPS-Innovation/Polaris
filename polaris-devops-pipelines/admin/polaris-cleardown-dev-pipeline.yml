@@ -95,7 +95,7 @@ stages:
             displayName: Refresh Blob Storage
             inputs:
               connectedServiceNameARM: '$(dev-azure-subscription)'
-              scriptType: 'ps'
+              scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
