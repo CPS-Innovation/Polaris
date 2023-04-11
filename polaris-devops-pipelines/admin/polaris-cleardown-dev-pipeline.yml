@@ -9,32 +9,31 @@ schedules:
         - main
     always: true
 
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: pipeline-terraform
+
 stages:
   - stage: Startup_Dev_Build_Agent
     displayName: Start Dev Build Agent
-    variables:
-    - group: polaris-global
     jobs:
-    - job: Startup_Dev_Build_Agent
-      pool:
-        vmImage: windows-latest
-      steps:
-      - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
-        displayName: 'Start Dev Build Agent'
-        inputs:
-          serviceConnection: $(build-release-connector)
-          project: $(project-id)
-          Pipeline: Build
-          buildDefinition: 135
+      - job: Startup_Dev_Build_Agent
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
+            displayName: 'Start Dev Build Agent'
+            inputs:
+              serviceConnection: $(build-release-connector)
+              project: $(project-id)
+              Pipeline: Build
+              buildDefinition: 135
 
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
     dependsOn: Startup_Dev_Build_Agent
     condition: succeeded()
-    variables:
-      - group: polaris-global
-      - group: kv-dev-terraform
-      - group: pipeline-terraform
     jobs:
       - job: Clear_down_SearchIndex
         pool:
@@ -87,8 +86,6 @@ stages:
     displayName: Reset Document Blob Storage
     dependsOn: Clear_down_SearchIndex
     condition: succeeded()
-    variables:
-      - group: kv-dev-terraform
     jobs:
       - job: Clear_down_BlobStorage
         pool:
@@ -97,7 +94,7 @@ stages:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
-              connectedServiceNameARM: '$(innovation-development-subscription-name)'
+              connectedServiceNameARM: '$(dev-azure-subscription)'
               scriptType: 'ps'
               scriptLocation: 'inlineScript'
               inlineScript: |
@@ -107,9 +104,6 @@ stages:
     displayName: Reset Durable State
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
-    variables:
-      - group:
-          kv-dev-terraform
     jobs:
       - job: Reset
         pool: server
@@ -126,8 +120,6 @@ stages:
     displayName: Shutdown Dev Build Agent
     dependsOn: Clear_down_Durable_Orchestration_State
     condition: succeeded()
-    variables:
-      - group: polaris-global
     jobs:
       - job: Shutdown_Dev_Build_Agent
         pool:
