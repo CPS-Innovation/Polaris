@@ -15,7 +15,9 @@ declare global {
       getAuthHeaders(): Chainable<{
         Authorization: string
       }>
-      setPolarisInstrumentationGuid(guid: string): Chainable<AUTWindow>
+      setPolarisInstrumentationGuid(
+        correlationId: CorrelationId
+      ): Chainable<AUTWindow>
 
       // roll our own typing to help cast the body returned from the api call
       api<T>(url: string, body?: RequestBody): Chainable<ApiResponseBody<T>>
@@ -220,7 +222,10 @@ Cypress.Commands.add(
   (correlationId: CorrelationId) =>
     // note: on any direct navigation using cy.visit() this setting will be lost
     //  as the page is reloaded.
-    cy.window().then((win) => {
-      win.__POLARIS_INSTRUMENTATION_GUID__ = correlationIds[correlationId]
-    })
+    cy
+      .window()
+      .then((win) => {
+        win.__POLARIS_INSTRUMENTATION_GUID__ = correlationIds[correlationId]
+        console.log(win.__POLARIS_INSTRUMENTATION_GUID__)
+      })
 )

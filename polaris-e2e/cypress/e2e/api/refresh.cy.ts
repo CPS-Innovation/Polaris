@@ -10,7 +10,7 @@ const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID } = Cypress.env()
 
 let routes
 
-describe("Refresh flow", () => {
+describe("Refresh", () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeRoutes(headers)
@@ -126,7 +126,7 @@ describe("Refresh flow", () => {
           REFRESH_TARGET_URN,
           REFRESH_TARGET_CASE_ID,
           phase1Vars.numbersDocId,
-          "PHASE_1"
+          "PHASE_2"
         )
       )
         .api(
@@ -134,7 +134,7 @@ describe("Refresh flow", () => {
             REFRESH_TARGET_URN,
             REFRESH_TARGET_CASE_ID,
             phase1Vars.numbersDocId,
-            "PHASE_1"
+            "PHASE_2"
           )
         )
         .api(
@@ -233,7 +233,7 @@ describe("Refresh flow", () => {
           REFRESH_TARGET_URN,
           REFRESH_TARGET_CASE_ID,
           phase2Vars.peopleDocId,
-          "PHASE_2"
+          "PHASE_3"
         )
       )
         .api(
@@ -241,7 +241,7 @@ describe("Refresh flow", () => {
             REFRESH_TARGET_URN,
             REFRESH_TARGET_CASE_ID,
             phase2Vars.peopleDocId,
-            "PHASE_2"
+            "PHASE_3"
           )
         )
         .api(
@@ -321,24 +321,6 @@ describe("Refresh flow", () => {
     })
   })
 })
-
-
-        // .api(
-        //   routes.CHECKOUT_DOCUMENT(
-        //     REFRESH_TARGET_URN,
-        //     REFRESH_TARGET_CASE_ID,
-        //     phase1Vars.peopleDocId,
-        //     "PHASE_1"
-        //   )
-        // )
-        // .api(
-        //   routes.SAVE_DOCUMENT(
-        //     REFRESH_TARGET_URN,
-        //     REFRESH_TARGET_CASE_ID,
-        //     phase1Vars.peopleDocId,
-        //     "PHASE_1"
-        //   )
-        // )
 
 type SavedVariables = ReturnType<typeof saveVariablesHelper>
 const saveVariablesHelper = ({
