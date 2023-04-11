@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using Common.Constants;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain.Exceptions;
@@ -30,8 +30,7 @@ namespace coordinator.Factories
         public DurableHttpRequest Create(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId,
             string cmsAuthValues, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(Create), $"CaseUrn: {caseUrn}, CaseId: {caseId}, DocumentId: {documentId}, VersionId: {versionId}, " +
-                                                                  $"FileName: {fileName}");
+            _logger.LogMethodEntry(correlationId, nameof(Create), $"CaseUrn:{caseUrn}, CaseId:{caseId}, DocumentId:{documentId}, VersionId:{versionId}, FileName:{fileName}");
 
             try
             {
@@ -41,9 +40,11 @@ namespace coordinator.Factories
                     { HttpHeaderKeys.CorrelationId, correlationId.ToString() },
                     { HttpHeaderKeys.CmsAuthValues, cmsAuthValues }
                 };
-                var content = _jsonConvertWrapper.SerializeObject(new GeneratePdfRequest(caseUrn, caseId, documentCategory, documentId, fileName, versionId));
+                var pdfRequestDto = new GeneratePdfRequestDto(caseUrn, caseId, documentCategory, documentId, fileName, versionId);
+                var content = _jsonConvertWrapper.SerializeObject(pdfRequestDto);
 
-                return new DurableHttpRequest(HttpMethod.Post, new Uri(_configuration[ConfigKeys.CoordinatorKeys.PdfGeneratorUrl]), headers, content);
+                string pdfGeneratorUrl = $"{_configuration[PipelineSettings.PipelineRedactPdfBaseUrl]}/generate";
+                return new DurableHttpRequest(HttpMethod.Post, new Uri(pdfGeneratorUrl), headers, content);
             }
             catch (Exception ex)
             {

@@ -6,8 +6,8 @@ using Aspose.Pdf.Annotations;
 //using Aspose.Pdf.Devices;
 using Aspose.Pdf.Facades;
 using Common.Domain.Extensions;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Logging;
@@ -27,7 +27,7 @@ namespace pdf_generator.Services.DocumentRedactionService
             _logger = logger;
         }
 
-        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, Guid correlationId)
+        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
             var saveResult = new RedactPdfResponse();

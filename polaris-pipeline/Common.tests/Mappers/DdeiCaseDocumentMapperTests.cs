@@ -1,6 +1,6 @@
 using AutoFixture;
 using Common.Constants;
-using Common.Domain.Responses;
+using Common.Dto.Response;
 using Common.Mappers;
 using Common.Mappers.Contracts;
 using FluentAssertions;

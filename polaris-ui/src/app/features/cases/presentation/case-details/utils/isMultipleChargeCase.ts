@@ -1,4 +1,4 @@
-import { CaseDetails } from "../../../domain/CaseDetails";
+import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 
 export const isMultipleChargeCase = (caseDetails: CaseDetails): boolean => {
   const { defendants } = caseDetails;

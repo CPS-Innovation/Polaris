@@ -1,5 +1,5 @@
 import faker from "faker";
-import { CaseSearchResult } from "../../app/features/cases/domain/CaseSearchResult";
+import { CaseSearchResult } from "../../app/features/cases/domain/gateway/CaseSearchResult";
 import { SearchDataSource } from "./types/SearchDataSource";
 
 const dataSource: SearchDataSource = (urn) => {

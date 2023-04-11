@@ -43,12 +43,20 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+    <!-- 
+      Include document-toggle.config as well as embeddeding (see below) 
+      because the tests are interested in it 
+    -->
+    <None Update="document-toggle.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Functions\SubOrchestrators\" />
+    <EmbeddedResource Include="document-toggle.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Factories\" />
-    <Folder Include="Domain\Exceptions\" />
-    <Folder Include="Functions\ActivityFunctions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\polaris-gateway\polaris-gateway.common\polaris-gateway.common.csproj" />

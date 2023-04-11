@@ -1,9 +1,9 @@
 import { AsyncPipelineResult } from "../hooks/use-pipeline-api/AsyncPipelineResult";
 import { AsyncResult } from "../../../common/types/AsyncResult";
-import { CaseDetails } from "./CaseDetails";
+import { CaseDetails } from "./gateway/CaseDetails";
 
 import { CaseDocumentViewModel } from "./CaseDocumentViewModel";
-import { PipelineResults } from "./PipelineResults";
+import { PipelineResults } from "./gateway/PipelineResults";
 import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
@@ -15,6 +15,14 @@ export type CombinedState = {
   caseState: AsyncResult<CaseDetails>;
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
+  pipelineRefreshData: {
+    startRefresh: boolean;
+    savedDocumentDetails: {
+      documentId: string;
+      polarisDocumentVersionId: number;
+    }[];
+    lastProcessingCompleted: string;
+  };
   accordionState: AsyncResult<AccordionDocumentSection[]>;
   tabsState: {
     items: CaseDocumentViewModel[];

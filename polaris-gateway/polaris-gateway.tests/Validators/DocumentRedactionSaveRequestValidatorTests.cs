@@ -5,8 +5,8 @@ using AutoFixture;
 using PolarisGateway.Domain.Validators;
 using Xunit;
 using FluentValidation.TestHelper;
-using Common.Domain.Requests;
-using Common.Domain.Redaction;
+using Common.Dto.Request;
+using Common.Dto.Request.Redaction;
 
 namespace PolarisGateway.Tests.Validators
 {
@@ -22,7 +22,7 @@ namespace PolarisGateway.Tests.Validators
         [Fact]
         public async Task Redactions_WhenEmpty_ReturnsValidationError()
         {
-            var saveRequest = _fixture.Create<DocumentRedactionSaveRequest>();
+            var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
             saveRequest.Redactions = null;
 
             var redactionValidator = new DocumentRedactionSaveRequestValidator();
@@ -34,8 +34,8 @@ namespace PolarisGateway.Tests.Validators
         [Fact]
         public async Task Redactions_WhenZeroLength_ReturnsValidationError()
         {
-            var saveRequest = _fixture.Create<DocumentRedactionSaveRequest>();
-            saveRequest.Redactions = new List<RedactionDefinition>();
+            var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
+            saveRequest.Redactions = new List<RedactionDefinitionDto>();
 
             var redactionValidator = new DocumentRedactionSaveRequestValidator();
             var validationResult = await redactionValidator.TestValidateAsync(saveRequest);
@@ -46,8 +46,8 @@ namespace PolarisGateway.Tests.Validators
         [Fact]
         public void Redactions_CorrectChildValidator_Loaded()
         {
-            var saveRequest = _fixture.Create<DocumentRedactionSaveRequest>();
-            saveRequest.Redactions = new List<RedactionDefinition>();
+            var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
+            saveRequest.Redactions = new List<RedactionDefinitionDto>();
 
             var redactionValidator = new DocumentRedactionSaveRequestValidator();
             redactionValidator.ShouldHaveChildValidator(x => x.Redactions, typeof(RedactionValidator));
@@ -58,8 +58,8 @@ namespace PolarisGateway.Tests.Validators
         [InlineData(1)]
         public async Task Redaction_PageIndex_DoesNotReturnValidationError(int pageIndex)
         {
-            var saveRequest = _fixture.Create<DocumentRedactionSaveRequest>();
-            saveRequest.Redactions = _fixture.CreateMany<RedactionDefinition>().ToList();
+            var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
+            saveRequest.Redactions = _fixture.CreateMany<RedactionDefinitionDto>().ToList();
             saveRequest.Redactions[0].PageIndex = pageIndex;
 
             var redactionValidator = new DocumentRedactionSaveRequestValidator();

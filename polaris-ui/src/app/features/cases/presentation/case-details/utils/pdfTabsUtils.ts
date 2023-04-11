@@ -1,17 +1,18 @@
 import { AsyncPipelineResult } from "../../../hooks/use-pipeline-api/AsyncPipelineResult";
-import { PipelineResults } from "../../../domain/PipelineResults";
+import { PipelineResults } from "../../../domain/gateway/PipelineResults";
 export const getRedactStatus = (
   id: string,
   pipelineState: AsyncPipelineResult<PipelineResults>
 ) => {
-  if (pipelineState.haveData) {
-    const redactStatus = pipelineState.data.documents.find(
-      (document) => document.documentId === id
-    )?.presentationStatuses.redactStatus;
-    if (redactStatus) {
-      return redactStatus;
-    }
-    return null;
+  var status =
+    pipelineState.haveData &&
+    pipelineState.data.documents.find((document) => document.documentId === id)
+      ?.presentationFlags.write;
+  if (!status) {
+    throw new Error(
+      "Unable to resolve `presentationFlags.write` for a document"
+    );
   }
-  return null;
+
+  return status;
 };

@@ -4,9 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.DocumentEvaluation;
-using Common.Domain.DocumentExtraction;
-using Common.Domain.Pipeline;
 using coordinator.Domain.Tracker;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -15,6 +12,13 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Common.Wrappers.Contracts;
+using Common.Wrappers;
+using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Functions.DurableEntity.Client.Tracker;
+using Common.Dto.Tracker;
+using Common.Dto.Document;
+using Common.Dto.FeatureFlags;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -22,61 +26,63 @@ namespace coordinator.tests.Domain.Tracker
     {
         private readonly Fixture _fixture;
         private readonly string _transactionId;
-        private readonly List<IncomingDocument> _incomingDocuments;
+        private readonly List<DocumentDto> _documents;
         private readonly RegisterPdfBlobNameArg _pdfBlobNameArg;
-        private readonly RegisterDocumentIdsArg _registerDocumentIdsArg;
-        private readonly List<TrackerDocument> _trackerDocuments;
+        private readonly SynchroniseDocumentsArg _synchroniseDocumentsArg;
+        private readonly List<TrackerDocumentDto> _trackerDocuments;
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
-        private readonly EntityStateResponse<coordinator.Domain.Tracker.Tracker> _entityStateResponse;
+        private readonly EntityStateResponse<TrackerEntity> _entityStateResponse;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
         private readonly Mock<ILogger> _mockLogger;
 
-        private readonly coordinator.Domain.Tracker.Tracker _tracker;
-        private readonly coordinator.Functions.ClientFunctions.TrackerStatus _trackerStatus;
+        private readonly TrackerEntity _tracker;
+        private readonly TrackerClient _trackerStatus;
 
         public TrackerTests()
         {
             _fixture = new Fixture();
             _transactionId = _fixture.Create<string>();
-            _incomingDocuments = _fixture.CreateMany<IncomingDocument>(3).ToList();
+            _documents = _fixture.CreateMany<DocumentDto>(3).ToList();
             _correlationId = _fixture.Create<Guid>();
             _pdfBlobNameArg = _fixture.Build<RegisterPdfBlobNameArg>()
-                                .With(a => a.DocumentId, _incomingDocuments.First().DocumentId)
-                                .With(a => a.VersionId, _incomingDocuments.First().VersionId)
+                                .With(a => a.DocumentId, _documents.First().DocumentId)
+                                .With(a => a.VersionId, _documents.First().VersionId)
                                 .Create();
-            _trackerDocuments = _fixture.Create<List<TrackerDocument>>();
+            _trackerDocuments = _fixture.Create<List<TrackerDocumentDto>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
-            _registerDocumentIdsArg = _fixture.Build<RegisterDocumentIdsArg>()
+            _synchroniseDocumentsArg = _fixture.Build<SynchroniseDocumentsArg>()
                 .With(a => a.CaseUrn, _caseUrn)
                 .With(a => a.CaseId, _caseId)
-                .With(a => a.IncomingDocuments, _incomingDocuments)
+                .With(a => a.Documents, _documents)
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
-            _entityStateResponse = new EntityStateResponse<coordinator.Domain.Tracker.Tracker>() { EntityExists = true };
+            _entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = true };
+            _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
             _mockLogger = new Mock<ILogger>();
 
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<coordinator.Domain.Tracker.Tracker>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Domain.Tracker.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<TrackerEntity>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(_entityStateResponse);
 
-            _tracker = new coordinator.Domain.Tracker.Tracker();
-            _trackerStatus = new coordinator.Functions.ClientFunctions.TrackerStatus();
+            _tracker = new TrackerEntity();
+            _trackerStatus = new TrackerClient(_jsonConvertWrapper);
         }
 
         [Fact]
         public async Task Initialise_Initialises()
         {
-            await _tracker.Initialise(_transactionId);
+            await _tracker.Reset(_transactionId);
 
             _tracker.TransactionId.Should().Be(_transactionId);
             _tracker.Documents.Should().NotBeNull();
@@ -89,135 +95,102 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterPdfBlobName_RegistersPdfBlobName()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             await _tracker.RegisterPdfBlobName(_pdfBlobNameArg);
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
             document?.PdfBlobName.Should().Be(_pdfBlobNameArg.BlobName);
-            document?.Status.Should().Be(DocumentStatus.PdfUploadedToBlob);
+            document?.Status.Should().Be(TrackerDocumentStatus.PdfUploadedToBlob);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(9);
         }
 
-        [Fact]
-        public async Task RegisterDocumentNotFoundInDDEI_Registers()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterDocumentNotFoundInDDEI(_pdfBlobNameArg.DocumentId);
-
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.NotFoundInDDEI);
-
-            _tracker.Logs.Count.Should().Be(3);
-        }
-        
-        [Fact]
-        public async Task RegisterIfRequired_EvaluatedDocuments_RequireProcessing()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.ProcessEvaluatedDocuments();
-
-            _tracker.Logs.Count.Should().Be(3);
-        }
-        
         [Fact]
         public async Task RegisterDocumentAsAlreadyProcessed_Registers()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             await _tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(_pdfBlobNameArg.DocumentId, _pdfBlobNameArg.VersionId, _pdfBlobNameArg.BlobName));
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
-            document?.Status.Should().Be(DocumentStatus.DocumentAlreadyProcessed);
+            document?.Status.Should().Be(TrackerDocumentStatus.DocumentAlreadyProcessed);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(9);
         }
-        
+
         [Fact]
         public async Task RegisterDocumentAsFailedPDFConversion_Registers()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             await _tracker.RegisterUnableToConvertDocumentToPdf(_pdfBlobNameArg.DocumentId);
 
             var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
-            document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
+            document?.Status.Should().Be(TrackerDocumentStatus.UnableToConvertToPdf);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(9);
         }
 
         [Fact]
         public async Task Initialisation_SetsDocumentStatusToNone()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.None);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            document?.Status.Should().Be(TrackerDocumentStatus.New);
 
-            _tracker.Logs.Count.Should().Be(2);
+            _tracker.Logs.Count.Should().Be(8);
         }
 
         [Fact]
         public async Task RegisterUnexpectedDocumentFailure_Registers()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             await _tracker.RegisterUnexpectedPdfDocumentFailure(_pdfBlobNameArg.DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.UnexpectedFailure);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            document?.Status.Should().Be(TrackerDocumentStatus.UnexpectedFailure);
 
-            _tracker.Logs.Count.Should().Be(3);
-        }
-
-        [Fact]
-        public async Task RegisterNoDocumentsFoundInDDEI_RegistersNoDocumentsFoundInDDEI()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterNoDocumentsFoundInDDEI();
-
-            _tracker.Status.Should().Be(TrackerStatus.NoDocumentsFoundInDDEI);
-
-            _tracker.Logs.Count.Should().Be(2);
+            _tracker.Logs.Count.Should().Be(9);
         }
 
         [Fact]
         public async Task RegisterIndexed_RegistersIndexed()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterIndexed(_incomingDocuments.First().DocumentId);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            await _tracker.RegisterIndexed(_documents.First().DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.Indexed);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            document?.Status.Should().Be(TrackerDocumentStatus.Indexed);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(9);
         }
 
         [Fact]
         public async Task RegisterIndexed_RegistersOcrAndIndexFailure()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterOcrAndIndexFailure(_incomingDocuments.First().DocumentId);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            await _tracker.RegisterOcrAndIndexFailure(_documents.First().DocumentId);
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _incomingDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.OcrAndIndexFailure);
+            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            document?.Status.Should().Be(TrackerDocumentStatus.OcrAndIndexFailure);
 
-            _tracker.Logs.Count.Should().Be(3);
+            _tracker.Logs.Count.Should().Be(9);
         }
 
         [Fact]
         public async Task RegisterCompleted_RegistersCompleted()
         {
-            await _tracker.Initialise(_transactionId);
+            await _tracker.Reset(_transactionId);
             await _tracker.RegisterCompleted();
 
             _tracker.Status.Should().Be(TrackerStatus.Completed);
+            _tracker.ProcessingCompleted.Should().NotBeNull();
 
             _tracker.Logs.Count.Should().Be(2);
         }
@@ -225,14 +198,14 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterFailed_RegistersFailed()
         {
-            await _tracker.Initialise(_transactionId);
+            await _tracker.Reset(_transactionId);
             await _tracker.RegisterFailed();
 
             _tracker.Status.Should().Be(TrackerStatus.Failed);
 
             _tracker.Logs.Count.Should().Be(2);
         }
-        
+
         [Fact]
         public async Task GetDocuments_ReturnsDocuments()
         {
@@ -245,10 +218,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
-            _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure}
+            _tracker.Documents = new List<TrackerDocumentDto> {
+                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure}
             };
 
             var output = await _tracker.AllDocumentsFailed();
@@ -259,11 +231,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
-            _tracker.Documents = new List<TrackerDocument> {
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.NotFoundInDDEI},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.UnexpectedFailure},
-                new(_fixture.Create<Guid>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<CmsDocType>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) { Status = DocumentStatus.PdfUploadedToBlob},
+            _tracker.Documents = new List<TrackerDocumentDto> {
+                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure},
+                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.PdfUploadedToBlob},
             };
 
             var output = await _tracker.AllDocumentsFailed();
@@ -272,41 +243,11 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         [Fact]
-        public async Task IsAlreadyProcessed_ReturnsTrueIfStatusIsCompleted()
-        {
-            _tracker.Status = TrackerStatus.Completed;
-
-            var isAlreadyProcessed = await _tracker.IsAlreadyProcessed();
-
-            isAlreadyProcessed.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task IsAlreadyProcessed_ReturnsTrueIfStatusIsNoDocumentsFoundInDDEI()
-        {
-            _tracker.Status = TrackerStatus.NoDocumentsFoundInDDEI;
-
-            var isAlreadyProcessed = await _tracker.IsAlreadyProcessed();
-
-            isAlreadyProcessed.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task IsAlreadyProcessed_ReturnsFalseIfStatusIsNotCompletedAndNotNoDocumentsFoundInDDEI()
-        {
-            _tracker.Status = TrackerStatus.NotStarted;
-
-            var isAlreadyProcessed = await _tracker.IsAlreadyProcessed();
-
-            isAlreadyProcessed.Should().BeFalse();
-        }
-
-        [Fact]
         public async Task Run_Tracker_Dispatches()
         {
-            await coordinator.Domain.Tracker.Tracker.Run(_mockDurableEntityContext.Object);
+            await TrackerEntity.Run(_mockDurableEntityContext.Object);
 
-            _mockDurableEntityContext.Verify(context => context.DispatchAsync<coordinator.Domain.Tracker.Tracker>());
+            _mockDurableEntityContext.Verify(context => context.DispatchAsync<TrackerEntity>());
         }
 
         [Fact]
@@ -324,7 +265,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             var message = new HttpRequestMessage();
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
-            var response  = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
+            var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
             var okObjectResult = response as OkObjectResult;
 
@@ -334,10 +275,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsNotFoundIfEntityNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<coordinator.Domain.Tracker.Tracker>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<coordinator.Domain.Tracker.Tracker>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Domain.Tracker.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<TrackerEntity>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -347,14 +288,14 @@ namespace coordinator.tests.Domain.Tracker
 
             response.Should().BeOfType<NotFoundObjectResult>();
         }
-        
+
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsBadRequestIfCorrelationIdNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<coordinator.Domain.Tracker.Tracker>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                    client => client.ReadEntityStateAsync<coordinator.Domain.Tracker.Tracker>(
-                        It.Is<EntityId>(e => e.EntityName == nameof(coordinator.Domain.Tracker.Tracker).ToLower() && e.EntityKey == _caseId.ToString()),
+                    client => client.ReadEntityStateAsync<TrackerEntity>(
+                        It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                         null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -363,237 +304,222 @@ namespace coordinator.tests.Domain.Tracker
 
             response.Should().BeOfType<BadRequestObjectResult>();
         }
-        
-        #region IsStale Tests
-        
+
+        #region SynchroniseDocument
+
         [Fact]
-        public async Task IsStaleCheck_ReturnsTrue_WhenForceRefreshIsPassedAsTrue()
+        public async Task SynchroniseDocument_CreatesNewDocuments()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterCompleted();
+            // Arrange
+            TrackerEntity tracker = new TrackerEntity();
+            await tracker.Reset(_transactionId);
 
-            var result = await _tracker.IsStale(true);
+            // Act
+            var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            result.Should().BeTrue();
+            // Assert
+            tracker.VersionId.Should().Be(1);
+            tracker.Documents.Count.Should().Be(_documents.Count);
+            deltas.CreatedDocuments.Count.Should().Be(_documents.Count);
+            deltas.UpdatedDocuments.Count.Should().Be(0);
+            deltas.DeletedDocuments.Count.Should().Be(0);
+            deltas.Any().Should().BeTrue();
+            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Documents[1].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Documents[2].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Logs.Count.Should().Be(8);
         }
-        
+
         [Fact]
-        public async Task IsStaleCheck_ReturnsFalse_WhenForceRefreshIsPassedAsFalse()
+        public async Task SynchroniseDocument_NoChangesWithExistingDocumentAndVersionIds()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
+            // Arrange
+            TrackerEntity tracker = new TrackerEntity();
+            await tracker.Reset(_transactionId);
+            await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            var result = await _tracker.IsStale(false);
+            // Act 
+            var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            result.Should().BeFalse();
+            // Assert
+            tracker.VersionId.Should().Be(1);
+            tracker.Documents.Count.Should().Be(_documents.Count);
+            deltas.CreatedDocuments.Count.Should().Be(0);
+            deltas.UpdatedDocuments.Count.Should().Be(0);
+            deltas.DeletedDocuments.Count.Should().Be(0);
+            deltas.Any().Should().BeFalse();
+            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Documents[1].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Documents[2].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Logs.Count.Should().Be(9);
         }
-        
+
         [Fact]
-        public async Task IsStaleCheck_ReturnsTrue_WhenForceRefreshIsPassedAsFalse_ButTheTrackerStatusIsFailed()
+        public async Task SynchroniseDocument_ChangesWithUpdatedDocumentAndVersionIds()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterFailed();
+            // Arrange
+            TrackerEntity tracker = new TrackerEntity();
+            await tracker.Reset(_transactionId);
+            await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            var result = await _tracker.IsStale(false);
+            // Act 
+            _synchroniseDocumentsArg.Documents[1].VersionId = 111111111;
+            _synchroniseDocumentsArg.Documents[2].VersionId = 222222222;
+            var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            result.Should().BeTrue();
-            _tracker.Logs.Count.Should().Be(3);
+            // Assert
+            tracker.VersionId.Should().Be(2);
+            tracker.Documents.Count.Should().Be(_documents.Count);
+            deltas.CreatedDocuments.Count.Should().Be(0);
+            deltas.UpdatedDocuments.Count.Should().Be(2);
+            deltas.DeletedDocuments.Count.Should().Be(0);
+            deltas.Any().Should().BeTrue();
+            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Documents[1].PolarisDocumentVersionId.Should().Be(2);
+            tracker.Documents[2].PolarisDocumentVersionId.Should().Be(2);
+
+            tracker.Logs.Count.Should().Be(11);
         }
-        
+
         [Fact]
-        public async Task IsStaleCheck_ReturnsFalse_WhenForceRefreshIsPassedAsFalse_ButTheTrackerStatusIsRunning()
+        public async Task SynchroniseDocument_ChangesWithDeletedDocuments()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            _tracker.Status = TrackerStatus.Running;
+            // Arrange
+            TrackerEntity tracker = new TrackerEntity();
+            await tracker.Reset(_transactionId);
+            await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            var result = await _tracker.IsStale(false);
+            // Act 
+            _synchroniseDocumentsArg.Documents.RemoveAt(2);
+            _synchroniseDocumentsArg.Documents.RemoveAt(1);
+            var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            result.Should().BeFalse();
+            // Assert
+            tracker.VersionId.Should().Be(2);
+            tracker.Documents.Count.Should().Be(1);
+            deltas.CreatedDocuments.Count.Should().Be(0);
+            deltas.UpdatedDocuments.Count.Should().Be(0);
+            deltas.DeletedDocuments.Count.Should().Be(2);
+            deltas.Any().Should().BeTrue();
+            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Logs.Count.Should().Be(11);
         }
-        
+
         [Fact]
-        public async Task IsStaleCheck_ReturnsFalse_WhenForceRefreshIsPassedAsTrue_ButTheTrackerStatusIsRunning()
+        public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsTheSame_ReturnsNothingToEvaluate()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            _tracker.Status = TrackerStatus.Running;
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            _tracker.Documents.Count.Should().Be(_documents.Count);
 
-            var result = await _tracker.IsStale(true);
-
-            result.Should().BeFalse();
-        }
-        
-        [Fact]
-        public async Task IsStaleCheck_ReturnsFalse_WhenForceRefreshIsPassedAsFalse_AndTheProcessingDateHasNotBeenSet()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            _tracker.ProcessingCompleted = null;
-
-            var result = await _tracker.IsStale(false);
-
-            result.Should().BeFalse();
-        }
-        
-        [Fact]
-        public async Task IsStaleCheck_ReturnsFalse_WhenForceRefreshIsPassedAsFalse_AndTheProcessingDateIsTheSameAsToday()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterCompleted();
-
-            var result = await _tracker.IsStale(false);
-
-            result.Should().BeFalse();
-        }
-        
-        [Fact]
-        public async Task IsStaleCheck_ReturnsTrue_WhenForceRefreshIsPassedAsFalse_AndTheProcessingDateIsNotTheSameAsToday()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            await _tracker.RegisterCompleted();
-
-            _tracker.ProcessingCompleted = _tracker.ProcessingCompleted.GetValueOrDefault(DateTime.Now).AddDays(-1);
-
-            var result = await _tracker.IsStale(false);
-
-            result.Should().BeTrue();
-        }
-        
-        #endregion
-        
-        #region RegisterDocumentIds
-        
-        [Fact]
-        public async Task RegisterDocumentIds_ForTheFirstTime_HoldsTheCorrectNumberOfDocs()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-
-            _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
-
-            _tracker.Logs.Count.Should().Be(2);
-        }
-        
-        [Fact]
-        public async Task RegisterDocumentIds_TheNextDaysRun_IncomingDocumentsTheSame_ReturnsNothingToEvaluate()
-        {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
-            
-            var newDaysIncomingDocuments = new IncomingDocument[3];
-            _incomingDocuments.CopyTo(newDaysIncomingDocuments);
-            var newDaysDocumentIdsArg = _fixture.Build<RegisterDocumentIdsArg>()
+            var newDaysDocuments = new DocumentDto[3];
+            _documents.CopyTo(newDaysDocuments);
+            var newDaysDocumentIdsArg = _fixture.Build<SynchroniseDocumentsArg>()
                 .With(a => a.CaseUrn, _caseUrn)
                 .With(a => a.CaseId, _caseId)
-                .With(a => a.IncomingDocuments, newDaysIncomingDocuments.ToList())
+                .With(a => a.Documents, newDaysDocuments.ToList())
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
-                _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
+                _tracker.Documents.Count.Should().Be(_documents.Count);
             }
         }
-        
+
         [Fact]
-        public async Task RegisterDocumentIds_TheNextDaysRun_IncomingDocumentsNotTheSame_ReturnsRecordsToEvaluate()
+        public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsNotTheSame_ReturnsRecordsToEvaluate()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
-            
-            var newDaysIncomingDocuments = new List<IncomingDocument> {_incomingDocuments.First()};
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            _tracker.Documents.Count.Should().Be(_documents.Count);
+
+            var newDaysDocuments = new List<DocumentDto> { _documents.First() };
             ////only one document in today's run, the next two should be removed from the tracker and in the evaluation results
-            
-            var newDaysDocumentIdsArg = _fixture.Build<RegisterDocumentIdsArg>()
+
+            var newDaysDocumentIdsArg = _fixture.Build<SynchroniseDocumentsArg>()
                 .With(a => a.CaseUrn, _caseUrn)
                 .With(a => a.CaseId, _caseId)
-                .With(a => a.IncomingDocuments, newDaysIncomingDocuments)
+                .With(a => a.Documents, newDaysDocuments)
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
                 _tracker.Documents.Count.Should().Be(1);
             }
         }
-        
+
         [Fact]
-        public async Task RegisterDocumentIds_TheNextDaysRun_IncomingDocumentsTheSameExceptForANewVersionOfOneDoc_ReturnsOneRecordToEvaluate()
+        public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsTheSameExceptForANewVersionOfOneDoc_ReturnsOneRecordToEvaluate()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
-            
-            var newDaysIncomingDocuments = new IncomingDocument[3];
-            _incomingDocuments.CopyTo(newDaysIncomingDocuments);
-            var originalVersionId = newDaysIncomingDocuments[1].VersionId;
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            _tracker.Documents.Count.Should().Be(_documents.Count);
+
+            var newDaysDocuments = new DocumentDto[3];
+            _documents.CopyTo(newDaysDocuments);
+            var originalVersionId = newDaysDocuments[1].VersionId;
             var newVersionId = originalVersionId + 1;
-            newDaysIncomingDocuments[1].VersionId = newVersionId;
-            var modifiedDocumentId = newDaysIncomingDocuments[1].DocumentId;
-            var newDaysDocumentIdsArg = _fixture.Build<RegisterDocumentIdsArg>()
+            newDaysDocuments[1].VersionId = newVersionId;
+            var modifiedDocumentId = newDaysDocuments[1].DocumentId;
+            var newDaysDocumentIdsArg = _fixture.Build<SynchroniseDocumentsArg>()
                 .With(a => a.CaseUrn, _caseUrn)
                 .With(a => a.CaseId, _caseId)
-                .With(a => a.IncomingDocuments, newDaysIncomingDocuments.ToList())
+                .With(a => a.Documents, newDaysDocuments.ToList())
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
-                _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
+                _tracker.Documents.Count.Should().Be(_documents.Count);
                 var newVersion = _tracker.Documents.Find(x => x.CmsDocumentId == modifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
                 newVersion?.CmsVersionId.Should().Be(newVersionId);
             }
         }
-        
+
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_OneDocumentRemovedAndOneANewVersion_ReturnsTwoRecordToEvaluate()
         {
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(_registerDocumentIdsArg);
-            _tracker.Documents.Count.Should().Be(_incomingDocuments.Count);
-            
-            var newDaysIncomingDocuments = new List<IncomingDocument>
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            _tracker.Documents.Count.Should().Be(_documents.Count);
+
+            var newDaysDocuments = new List<DocumentDto>
             {
-                _incomingDocuments[1],
-                _incomingDocuments[2]
+                _documents[1],
+                _documents[2]
             };
 
-            var documentRemovedFromCmsId = _incomingDocuments[0].DocumentId;
-            var originalVersionId = newDaysIncomingDocuments[0].VersionId;
+            var documentRemovedFromCmsId = _documents[0].DocumentId;
+            var originalVersionId = newDaysDocuments[0].VersionId;
             var newVersionId = originalVersionId + 1;
-            newDaysIncomingDocuments[0].VersionId = newVersionId;
-            var modifiedDocumentId = newDaysIncomingDocuments[0].DocumentId;
+            newDaysDocuments[0].VersionId = newVersionId;
+            var modifiedDocumentId = newDaysDocuments[0].DocumentId;
 
-            var unmodifiedDocumentId = newDaysIncomingDocuments[1].DocumentId;
-            var unmodifiedDocumentVersionId = newDaysIncomingDocuments[1].VersionId;
-            
-            var newDaysDocumentIdsArg = _fixture.Build<RegisterDocumentIdsArg>()
+            var unmodifiedDocumentId = newDaysDocuments[1].DocumentId;
+            var unmodifiedDocumentVersionId = newDaysDocuments[1].VersionId;
+
+            var newDaysDocumentIdsArg = _fixture.Build<SynchroniseDocumentsArg>()
                 .With(a => a.CaseUrn, _caseUrn)
                 .With(a => a.CaseId, _caseId)
-                .With(a => a.IncomingDocuments, newDaysIncomingDocuments.ToList())
+                .With(a => a.Documents, newDaysDocuments.ToList())
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Initialise(_transactionId);
-            await _tracker.RegisterDocumentIds(newDaysDocumentIdsArg);
+            await _tracker.Reset(_transactionId);
+            await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
@@ -611,7 +537,7 @@ namespace coordinator.tests.Domain.Tracker
                 searchResultForDocumentRemovedFromCms.Should().BeNull();
             }
         }
-        
+
         #endregion
     }
 }

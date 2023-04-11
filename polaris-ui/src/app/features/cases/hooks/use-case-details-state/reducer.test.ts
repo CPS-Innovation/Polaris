@@ -4,13 +4,13 @@ import * as accordionMapper from "./map-accordion-state";
 import * as documentsMapper from "./map-documents-state";
 import * as apiGateway from "../../api/gateway-api";
 import { ApiResult } from "../../../../common/types/ApiResult";
-import { PipelineResults } from "../../domain/PipelineResults";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { AsyncPipelineResult } from "../use-pipeline-api/AsyncPipelineResult";
 import * as sorter from "./sort-mapped-text-search-result";
 import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 import { MappedDocumentResult } from "../../domain/MappedDocumentResult";
 import * as documentVisibility from "./is-document-visible";
-import { ApiTextSearchResult } from "../../domain/ApiTextSearchResult";
+import { ApiTextSearchResult } from "../../domain/gateway/ApiTextSearchResult";
 import * as textSearchMapper from "./map-text-search";
 import * as filters from "./map-filters";
 import * as missingDocuments from "./map-missing-documents";
@@ -18,7 +18,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import * as sanitizeSearchTerm from "./sanitizeSearchTerm";
-import { PipelineDocument } from "../../domain/PipelineDocument";
+import { PipelineDocument } from "../../domain/gateway/PipelineDocument";
 import * as filterApiResults from "./filter-api-results";
 
 const ERROR = new Error();
@@ -57,11 +57,16 @@ describe("useCaseDetailsState reducer", () => {
 
   describe("UPDATE_PIPELINE", () => {
     describe("building documents state", () => {
-      it("should not build documents state if there are no documents in the payload", () => {
+      it("should not build documents state if the documentRetrieved is not present", () => {
         const existingState = {
           pipelineState: {},
           documentsState: { status: "loading" },
-        } as CombinedState;
+          pipelineRefreshData: {
+            startRefresh: false,
+            savedDocumentDetails: [],
+            lastProcessingCompleted: "",
+          },
+        } as unknown as CombinedState;
 
         const nextState = reducer(existingState, {
           type: "UPDATE_PIPELINE",
@@ -70,7 +75,9 @@ describe("useCaseDetailsState reducer", () => {
             haveData: true,
             data: {
               transactionId: "123",
-              status: "Running",
+              status: "Completed",
+              processingCompleted: "",
+              documentsRetrieved: "",
               documents: [],
             },
           } as AsyncPipelineResult<PipelineResults>,
@@ -79,11 +86,16 @@ describe("useCaseDetailsState reducer", () => {
         expect(nextState.documentsState).toBe(existingState.documentsState);
       });
 
-      it("should not build documents state if the document state is already built", () => {
+      it("should not build documents state if the status is `Running` and documentRetrieved is present", () => {
         const existingState = {
           pipelineState: {},
-          documentsState: { status: "succeeded" },
-        } as CombinedState;
+          documentsState: { status: "loading" },
+          pipelineRefreshData: {
+            startRefresh: false,
+            savedDocumentDetails: [],
+            lastProcessingCompleted: "",
+          },
+        } as unknown as CombinedState;
 
         const nextState = reducer(existingState, {
           type: "UPDATE_PIPELINE",
@@ -93,12 +105,84 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               transactionId: "123",
               status: "Running",
-              documents: [{}],
+              processingCompleted: "",
+              documentsRetrieved: new Date().toISOString(),
+              documents: [],
             },
           } as AsyncPipelineResult<PipelineResults>,
         });
 
         expect(nextState.documentsState).toBe(existingState.documentsState);
+      });
+
+      it("should not build documents state if the current documentsRetrieved timestamp is not greater than the current one", () => {
+        const existingState = {
+          pipelineState: {
+            haveData: true,
+            data: { documentsRetrieved: new Date().toISOString() },
+          },
+          pipelineRefreshData: {
+            startRefresh: false,
+            savedDocumentDetails: [],
+            lastProcessingCompleted: "",
+          },
+          documentsState: {
+            status: "succeeded",
+          },
+        } as unknown as CombinedState;
+
+        const nextState = reducer(existingState, {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            haveData: true,
+            data: {
+              transactionId: "123",
+              status: "Completed",
+              documentsRetrieved: new Date().toISOString(),
+              documents: [],
+            },
+          } as unknown as AsyncPipelineResult<PipelineResults>,
+        });
+
+        expect(nextState.documentsState).toStrictEqual(
+          existingState.documentsState
+        );
+      });
+
+      it("should build documents state if there is no current documentsRetrieved timestamp and incoming data has got documentsRetrieved ", () => {
+        const existingState = {
+          pipelineState: {
+            haveData: false,
+          },
+          pipelineRefreshData: {
+            startRefresh: false,
+            savedDocumentDetails: [],
+            lastProcessingCompleted: "",
+          },
+          documentsState: {
+            status: "succeeded",
+          },
+        } as unknown as CombinedState;
+
+        const nextState = reducer(existingState, {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            haveData: true,
+            data: {
+              transactionId: "123",
+              status: "Completed",
+              documentsRetrieved: new Date().toISOString(),
+              documents: [],
+            },
+          } as unknown as AsyncPipelineResult<PipelineResults>,
+        });
+
+        expect(nextState.documentsState).toStrictEqual({
+          ...existingState.documentsState,
+          data: [],
+        });
       });
 
       it("should build documents state if there are are no documents in the payload and document state is not already built", () => {
@@ -134,8 +218,9 @@ describe("useCaseDetailsState reducer", () => {
               haveData: true,
               data: {
                 transactionId: "123",
-                status: "Running",
+                status: "DocumentsRetrieved",
                 documents: mockNewPdfDocuments,
+                documentsRetrieved: new Date().toISOString(),
               },
             } as AsyncPipelineResult<PipelineResults>,
           }
@@ -160,7 +245,7 @@ describe("useCaseDetailsState reducer", () => {
       ).toThrowError(ERROR);
     });
 
-    it("can update from pipeline if initiating", () => {
+    it("should not update the state if  pipeline is initiating", () => {
       const existingPipelineState = {
         status: "initiating",
       } as CombinedState["pipelineState"];
@@ -181,7 +266,7 @@ describe("useCaseDetailsState reducer", () => {
       expect(nextState.pipelineState).toEqual(existingPipelineState);
     });
 
-    it("can update from pipeline if succeeded", () => {
+    it("can update pipeline state from pipeline if succeeded", () => {
       const expectedNextState = {
         status: "incomplete",
         haveData: true,
@@ -214,6 +299,63 @@ describe("useCaseDetailsState reducer", () => {
       expect(nextState.pipelineState).toEqual(expectedNextState);
     });
 
+    it("Should update the piplineRefreshData if succeeded and is now complete", () => {
+      const expectedNextState = {
+        documentsState: {
+          status: "succeeded",
+        },
+        pipelineState: {
+          status: "incomplete",
+          haveData: true,
+          data: {
+            transactionId: "123",
+            status: "Completed",
+            processingCompleted: "2023-04-05T15:02:17.601Z",
+            documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
+          },
+        },
+        pipelineRefreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [
+            { documentId: "2", polarisDocumentVersionId: 1 },
+          ],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      } as unknown as CombinedState;
+
+      const nextState = reducer(
+        {
+          pipelineState: {},
+          documentsState: {
+            status: "succeeded",
+          },
+          pipelineRefreshData: {
+            startRefresh: false,
+            savedDocumentDetails: [
+              { documentId: "1", polarisDocumentVersionId: 1 },
+              { documentId: "2", polarisDocumentVersionId: 1 },
+            ],
+            lastProcessingCompleted: "2023-04-05T15:01:17.601Z",
+          },
+        } as unknown as CombinedState,
+        {
+          type: "UPDATE_PIPELINE",
+          payload: {
+            status: "incomplete",
+            haveData: true,
+            data: {
+              transactionId: "123",
+              status: "Completed",
+              processingCompleted: "2023-04-05T15:02:17.601Z",
+              documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
+            },
+          } as AsyncPipelineResult<PipelineResults>,
+        }
+      );
+
+      expect(nextState).toEqual(expectedNextState);
+    });
+
     it("can update from pipeline if succeeded and is now complete", () => {
       const expectedNextState = {
         status: "complete",
@@ -231,6 +373,15 @@ describe("useCaseDetailsState reducer", () => {
           tabsState: { items: [] },
           documentsState: {
             status: "succeeded",
+          },
+          pipelineRefreshData: {
+            startRefresh: false,
+            savedDocumentDetails: [
+              {
+                documentId: "1",
+                polarisDocumentVersionId: 1,
+              },
+            ],
           },
         } as unknown as CombinedState, // todo: remove the "as unkwon"
         {
@@ -264,6 +415,19 @@ describe("useCaseDetailsState reducer", () => {
         },
       } as AsyncPipelineResult<PipelineResults>;
 
+      const existingPipelineState = {
+        status: "complete",
+        haveData: true,
+        data: {
+          documents: [
+            {
+              documentId: "1",
+              pdfBlobName: "foo",
+            },
+          ],
+        },
+      };
+
       const existingTabsState = {
         activeTabId: "",
         items: [],
@@ -273,6 +437,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           tabsState: existingTabsState,
+          pipelineState: existingPipelineState,
           documentsState: { status: "succeeded" },
         } as CombinedState,
         {
@@ -287,6 +452,20 @@ describe("useCaseDetailsState reducer", () => {
     it("can update from pipeline tabs already open with pdf url", () => {
       const newPipelineState = {
         status: "complete",
+        haveData: true,
+        data: {
+          documents: [
+            {
+              documentId: "2",
+              pdfBlobName: "foo",
+              polarisDocumentVersionId: 2,
+            },
+          ],
+        },
+      } as CombinedState["pipelineState"];
+      const existingPipelineState = {
+        status: "complete",
+        haveData: true,
         data: {
           documents: [
             {
@@ -295,12 +474,12 @@ describe("useCaseDetailsState reducer", () => {
             },
           ],
         },
-      } as CombinedState["pipelineState"];
+      };
 
       const existingTabsState = {
         items: [
-          { documentId: "1", url: undefined },
-          { documentId: "2", url: undefined },
+          { documentId: "1", url: "abc" },
+          { documentId: "2", url: "efg" },
           { documentId: "3", url: undefined },
         ],
       } as CombinedState["tabsState"];
@@ -316,6 +495,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           tabsState: existingTabsState,
+          pipelineState: existingPipelineState,
           documentsState: { status: "succeeded" },
           urn: "bar",
           caseId: 99,
@@ -328,8 +508,13 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(nextState.tabsState).toEqual({
         items: [
-          { documentId: "1", url: undefined },
-          { documentId: "2", url: "baz", pdfBlobName: "foo" },
+          { documentId: "1", url: "abc" },
+          {
+            documentId: "2",
+            url: "baz",
+            pdfBlobName: "foo",
+            polarisDocumentVersionId: 2,
+          },
           { documentId: "3", url: undefined },
         ],
       });
@@ -1874,6 +2059,70 @@ describe("useCaseDetailsState reducer", () => {
 
   describe("UPDATE_SAVED_STATE", () => {
     it("can update ssaved state", () => {});
+  });
+
+  describe("UPDATE_REFRESH_PIPELINE", () => {
+    it("can update pipelineRefreshData", () => {
+      const existingState = {
+        pipelineRefreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [
+            { documentId: "1", polarisDocumentVersionId: 1 },
+          ],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState as CombinedState, {
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: true,
+          savedDocumentDetails: {
+            documentId: "2",
+            polarisDocumentVersionId: 1,
+          },
+        },
+      });
+
+      expect(result).toEqual({
+        pipelineRefreshData: {
+          startRefresh: true,
+          savedDocumentDetails: [
+            { documentId: "1", polarisDocumentVersionId: 1 },
+            { documentId: "2", polarisDocumentVersionId: 1 },
+          ],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      });
+    });
+    it("can update pipelineRefreshData if the payload doesn't have savedDocumentDetails ", () => {
+      const existingState = {
+        pipelineRefreshData: {
+          startRefresh: false,
+          savedDocumentDetails: [
+            { documentId: "1", polarisDocumentVersionId: 1 },
+          ],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState as CombinedState, {
+        type: "UPDATE_REFRESH_PIPELINE",
+        payload: {
+          startRefresh: true,
+        },
+      });
+
+      expect(result).toEqual({
+        pipelineRefreshData: {
+          startRefresh: true,
+          savedDocumentDetails: [
+            { documentId: "1", polarisDocumentVersionId: 1 },
+          ],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      });
+    });
   });
 
   it("can not handle an unknown action", () => {

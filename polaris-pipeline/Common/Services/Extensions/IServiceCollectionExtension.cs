@@ -7,6 +7,7 @@ using Common.Clients;
 using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
+using Common.Dto.Response;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
@@ -43,15 +44,6 @@ namespace Common.Services.Extensions
 
                 return blobStorageClient;
             }));
-
-            /* services.AddTransient<IBlobStorageService>(serviceProvider =>
-            {
-                var loggingService = serviceProvider.GetService<ILogger<BlobStorageService.BlobStorageService>>();
-
-                return new BlobStorageService.BlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
-                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
-
-            }); */
         }
 
         public static void AddBlobStorageWithConnectionString(this IServiceCollection services, IConfigurationRoot configuration)
@@ -69,15 +61,6 @@ namespace Common.Services.Extensions
                 string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
                 return new PolarisStorageClient(blobServiceClient, blobServiceContainerName, logger);
             }));
-
-            /* services.AddTransient<IBlobStorageService>(serviceProvider =>
-            {
-                var loggingService = serviceProvider.GetService<ILogger<BlobStorageService.BlobStorageService>>();
-
-                return new BlobStorageService.BlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
-                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
-
-            }); */
         }
 
 

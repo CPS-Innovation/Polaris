@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Constants;
 using Common.Domain.Extensions;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Factories.Contracts;
 using Common.Logging;
 using Common.Wrappers.Contracts;
@@ -37,7 +37,7 @@ namespace Common.Clients
             _logger = logger;
         }
 
-        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, Guid correlationId)
+        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
 

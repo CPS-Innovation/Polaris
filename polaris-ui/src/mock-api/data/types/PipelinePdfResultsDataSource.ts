@@ -1,3 +1,3 @@
-import { PipelineResults } from "../../../app/features/cases/domain/PipelineResults";
+import { PipelineResults } from "../../../app/features/cases/domain/gateway/PipelineResults";
 
-export type PipelinePdfResultsDataSource = () => PipelineResults;
+export type PipelinePdfResultsDataSource = () => PipelineResults[];

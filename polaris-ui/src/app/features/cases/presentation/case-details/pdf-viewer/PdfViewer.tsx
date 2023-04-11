@@ -11,7 +11,7 @@ import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
 import { RedactionWarning } from "./RedactionWarning";
-import { PresentationStatuses } from "../../../../../features/cases/domain/PipelineDocument";
+import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
@@ -21,8 +21,9 @@ const SCROLL_TO_OFFSET = 120;
 
 type Props = {
   url: string;
+  tabIndex: number;
   headers: HeadersInit;
-  redactStatus: PresentationStatuses["redactStatus"];
+  redactStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
@@ -38,6 +39,7 @@ const ensureAllPdfInView = () =>
 
 export const PdfViewer: React.FC<Props> = ({
   url,
+  tabIndex,
   headers,
   redactStatus,
   searchHighlights = [],
@@ -83,7 +85,7 @@ export const PdfViewer: React.FC<Props> = ({
       <div
         className={classes.pdfViewer}
         ref={containerRef}
-        data-testid="div-pdfviewer"
+        data-testid={`div-pdfviewer-${tabIndex}`}
       >
         <PdfLoader url={url} headers={headers} beforeLoad={<Wait />}>
           {(pdfDocument) => (
@@ -141,6 +143,7 @@ export const PdfViewer: React.FC<Props> = ({
         </PdfLoader>
         {!!redactionHighlights.length && (
           <Footer
+            tabIndex={tabIndex}
             redactionHighlights={redactionHighlights}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}

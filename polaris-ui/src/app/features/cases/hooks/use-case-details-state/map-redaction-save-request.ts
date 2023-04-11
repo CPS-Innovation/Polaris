@@ -1,6 +1,6 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
-import { RedactionSavePage } from "../../domain/RedactionSavePage";
-import { RedactionSaveRequest } from "../../domain/RedactionSaveRequest";
+import { RedactionSavePage } from "../../domain/gateway/RedactionSavePage";
+import { RedactionSaveRequest } from "../../domain/gateway/RedactionSaveRequest";
 
 export const mapRedactionSaveRequest = (
   documentId: RedactionSaveRequest["documentId"],

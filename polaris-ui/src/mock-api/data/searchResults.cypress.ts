@@ -1,6 +1,6 @@
 import faker from "faker";
 
-import { CaseSearchResult } from "../../app/features/cases/domain/CaseSearchResult";
+import { CaseSearchResult } from "../../app/features/cases/domain/gateway/CaseSearchResult";
 import { SearchDataSource } from "./types/SearchDataSource";
 
 const dataSource: SearchDataSource = (urn) =>
@@ -65,6 +65,28 @@ const searchResults: CaseSearchResult[] = [
       dob: "1977-11-28",
       youth: false,
       type: "SOME_TYPE",
+    },
+    headlineCharge: {
+      charge: faker.lorem.sentence(),
+      date: "2022-02-01",
+      nextHearingDate: "2023-01-02",
+    },
+  },
+
+  {
+    id: 13401,
+    uniqueReferenceNumber: "12AB2222233",
+    isCaseCharged: true,
+    numberOfDefendants: 2,
+    leadDefendantDetails: {
+      id: 901,
+      listOrder: 0,
+      firstNames: "Steve",
+      surname: "Walsh",
+      organisationName: "GUZZLERS BREWERY",
+      dob: "1977-11-28",
+      youth: false,
+      type: "Organisation",
     },
     headlineCharge: {
       charge: faker.lorem.sentence(),

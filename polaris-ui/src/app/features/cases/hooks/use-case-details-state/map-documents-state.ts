@@ -1,6 +1,6 @@
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 import { getFileNameWithoutExtension } from "../../logic/get-file-name-without-extension";
 import { getCategory } from "./document-category-definitions";
 

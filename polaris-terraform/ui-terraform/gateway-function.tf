@@ -25,8 +25,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "ClientSecret"                             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "PolarisPipelineCoordinatorBaseUrl"        = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
-    "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.pipeline_resource_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"   = data.azurerm_function_app_host_keys.fa_pipeline_pdf_generator_host_keys.default_function_key
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                        = "documents"
     "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_ui_storage_connection_string.id})"
@@ -35,8 +33,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidAudience"                  = var.polaris_webapp_details.valid_audience
     "CallingAppValidScopes"                    = var.polaris_webapp_details.valid_scopes
     "CallingAppValidRoles"                     = var.polaris_webapp_details.valid_roles
-    "Ddei__BaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "Ddei__AccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiBaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
 
   site_config {
@@ -77,7 +75,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   lifecycle {
     ignore_changes = [
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"]
     ]
   }
 

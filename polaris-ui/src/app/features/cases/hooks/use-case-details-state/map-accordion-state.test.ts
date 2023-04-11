@@ -2,7 +2,7 @@ import { mapAccordionState } from "./map-accordion-state";
 
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 jest.mock("./document-category-definitions", () => ({
   categoryNamesInPresentationOrder: ["category-a", "category-b"],
@@ -43,15 +43,16 @@ describe("mapAccordionState", () => {
           cmsMimeType: "application/pdf",
           presentationFileName: "foo!",
           cmsDocCategory: "MGForm",
+          polarisDocumentVersionId: 1,
           cmsDocType: {
             id: 1,
             code: "MG11",
             name: "MG11 File",
           },
           cmsFileCreatedDate: "2020-01-01",
-          presentationStatuses: {
-            viewStatus: "Ok",
-            redactStatus: "Ok",
+          presentationFlags: {
+            read: "Ok",
+            write: "Ok",
           },
         },
         {
@@ -62,15 +63,16 @@ describe("mapAccordionState", () => {
           cmsMimeType: "application/pdf",
           presentationFileName: "bar!",
           cmsDocCategory: "MGForm",
+          polarisDocumentVersionId: 1,
           cmsDocType: {
             id: 2,
             code: "MG12",
             name: "MG12 File",
           },
           cmsFileCreatedDate: "2020-01-02",
-          presentationStatuses: {
-            viewStatus: "Ok",
-            redactStatus: "Ok",
+          presentationFlags: {
+            read: "Ok",
+            write: "Ok",
           },
         },
       ],
@@ -93,15 +95,16 @@ describe("mapAccordionState", () => {
               cmsMimeType: "application/pdf",
               presentationFileName: "foo!",
               cmsDocCategory: "MGForm",
+              polarisDocumentVersionId: 1,
               cmsDocType: {
                 id: 1,
                 code: "MG11",
                 name: "MG11 File",
               },
               cmsFileCreatedDate: "2020-01-01",
-              presentationStatuses: {
-                viewStatus: "Ok",
-                redactStatus: "Ok",
+              presentationFlags: {
+                read: "Ok",
+                write: "Ok",
               },
             },
           ],
@@ -118,15 +121,16 @@ describe("mapAccordionState", () => {
               cmsMimeType: "application/pdf",
               presentationFileName: "bar!",
               cmsDocCategory: "MGForm",
+              polarisDocumentVersionId: 1,
               cmsDocType: {
                 id: 2,
                 code: "MG12",
                 name: "MG12 File",
               },
               cmsFileCreatedDate: "2020-01-02",
-              presentationStatuses: {
-                viewStatus: "Ok",
-                redactStatus: "Ok",
+              presentationFlags: {
+                read: "Ok",
+                write: "Ok",
               },
             },
           ],

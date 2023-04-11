@@ -1,12 +1,12 @@
 ﻿using AutoFixture;
-using Common.Domain.Requests;
+using Common.Dto.Request;
 using Common.Wrappers;
 using FluentAssertions;
 using Xunit;
 
 namespace pdf_generator.tests.Wrappers
 {
-	public class ValidatorWrapperTests
+    public class ValidatorWrapperTests
 	{
         private readonly Fixture _fixture;
 
@@ -23,13 +23,13 @@ namespace pdf_generator.tests.Wrappers
         [InlineData("!@£$%^&*().docx")]
         public void Validate_GeneratePdfRequest_ReturnsEmptyValidationResultsWhenFileNameIsValid(string fileName)
         {
-            var request = _fixture.Build<GeneratePdfRequest>()
+            var request = _fixture.Build<GeneratePdfRequestDto>()
                             .With(r => r.FileName, fileName)
                             .With(r => r.CaseId, 123456)
                             .With(r => r.VersionId, 123456)
                             .Create();
 
-            var results = new ValidatorWrapper<GeneratePdfRequest>().Validate(request);
+            var results = new ValidatorWrapper<GeneratePdfRequestDto>().Validate(request);
 
             results.Should().BeEmpty();
         }
@@ -37,13 +37,13 @@ namespace pdf_generator.tests.Wrappers
         [Fact]
         public void Validate_GeneratePdfRequest_ReturnsNonEmptyValidationResultsWhenCaseIdIsMissing()
         {
-            var request = _fixture.Build<GeneratePdfRequest>()
+            var request = _fixture.Build<GeneratePdfRequestDto>()
                 .With(r => r.CaseId, 0)
                 .With(r => r.FileName, "TestFile.doc")
                 .With(r => r.VersionId, 123456)
                 .Create();
 
-            var results = new ValidatorWrapper<GeneratePdfRequest>().Validate(request);
+            var results = new ValidatorWrapper<GeneratePdfRequestDto>().Validate(request);
 
             results.Should().NotBeEmpty();
         }
@@ -51,14 +51,14 @@ namespace pdf_generator.tests.Wrappers
         [Fact]
         public void Validate_GeneratePdfRequest_ReturnsNonEmptyValidationResultsWhenVersionIdIsMissing()
         {
-            var request = _fixture.Build<GeneratePdfRequest>()
+            var request = _fixture.Build<GeneratePdfRequestDto>()
                 .With(r => r.CaseId, 123456)
                 .With(r => r.DocumentId, "TestFile")
                 .With(r => r.FileName, "TestFile.doc")
                 .With(r => r.VersionId, 0)
                 .Create();
 
-            var results = new ValidatorWrapper<GeneratePdfRequest>().Validate(request);
+            var results = new ValidatorWrapper<GeneratePdfRequestDto>().Validate(request);
 
             results.Should().NotBeEmpty();
         }
@@ -66,13 +66,13 @@ namespace pdf_generator.tests.Wrappers
         [Fact]
         public void Validate_GeneratePdfRequest_ReturnsNonEmptyValidationResultsWhenFileNameIsMissing()
         {
-            var request = _fixture.Build<GeneratePdfRequest>()
+            var request = _fixture.Build<GeneratePdfRequestDto>()
                             .With(r => r.FileName, default(string))
                             .With(r => r.CaseId, 123456)
                             .With(r => r.VersionId, 123456)
                             .Create();
 
-            var results = new ValidatorWrapper<GeneratePdfRequest>().Validate(request);
+            var results = new ValidatorWrapper<GeneratePdfRequestDto>().Validate(request);
 
             results.Should().NotBeEmpty();
         }
@@ -83,13 +83,13 @@ namespace pdf_generator.tests.Wrappers
         [InlineData("Test.somet")]
         public void Validate_GeneratePdfRequest_ReturnsNonEmptyValidationResultsWhenFileNameIsInvalid(string fileName)
         {
-            var request = _fixture.Build<GeneratePdfRequest>()
+            var request = _fixture.Build<GeneratePdfRequestDto>()
                             .With(r => r.FileName, fileName)
                             .With(r => r.CaseId, 123456)
                             .With(r => r.VersionId, 123456)
                             .Create();
 
-            var results = new ValidatorWrapper<GeneratePdfRequest>().Validate(request);
+            var results = new ValidatorWrapper<GeneratePdfRequestDto>().Validate(request);
 
             results.Should().NotBeEmpty();
         }

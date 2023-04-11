@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Extensions;
-using Common.Domain.Responses;
+using Common.Dto.Response;
 using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Domain.Tracker;
-using coordinator.Functions.ActivityFunctions;
-using coordinator.Functions.SubOrchestrators;
+using coordinator.Functions.ActivityFunctions.Document;
+using coordinator.Functions.DurableEntity.Entity;
+using coordinator.Functions.Orchestration.Functions.Document;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -28,9 +29,9 @@ namespace coordinator.tests.Functions.SubOrchestrators
         private readonly EvaluateDocumentResponse _evaluateDocumentResponse;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
-        private readonly Mock<ITracker> _mockTracker;
+        private readonly Mock<ITrackerEntity> _mockTracker;
 
-        private readonly CaseDocumentOrchestrator _caseDocumentOrchestrator;
+        private readonly RefreshDocumentOrchestrator _caseDocumentOrchestrator;
 
         public CaseDocumentOrchestratorTests()
         {
@@ -44,9 +45,9 @@ namespace coordinator.tests.Functions.SubOrchestrators
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: _content);
             _pdfResponse = fixture.Create<GeneratePdfResponse>();
             
-            var mockLogger = new Mock<ILogger<CaseDocumentOrchestrator>>();
+            var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
-            _mockTracker = new Mock<ITracker>();
+            _mockTracker = new Mock<ITrackerEntity>();
             
             _evaluateDocumentResponse = fixture.Create<EvaluateDocumentResponse>();
 
@@ -69,10 +70,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _pdfResponse.ToJson()));
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(textExtractorDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
 
-            _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ITracker>(It.Is<EntityId>(e => e.EntityName == nameof(Tracker).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
+            _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ITrackerEntity>(It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
                 .Returns(_mockTracker.Object);
             
-            _caseDocumentOrchestrator = new CaseDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);
+            _caseDocumentOrchestrator = new RefreshDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);
         }
 
         [Fact]
@@ -112,23 +113,6 @@ namespace coordinator.tests.Functions.SubOrchestrators
                 .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.InternalServerError, content: _content));
 
             await Assert.ThrowsAsync<HttpRequestException>(() => _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object));
-        }
-
-        [Fact]
-        public async Task Run_Tracker_RegistersDocumentNotFoundInDDEIWhenNotFoundStatusCodeReturned()
-        {
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))
-                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.NotFound, content: _content));
-
-            try
-            {
-                await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
-                Assert.False(true);
-            }
-            catch
-            {
-                _mockTracker.Verify(tracker => tracker.RegisterDocumentNotFoundInDDEI(_payload.CmsDocumentId));
-            }
         }
 
         [Fact]

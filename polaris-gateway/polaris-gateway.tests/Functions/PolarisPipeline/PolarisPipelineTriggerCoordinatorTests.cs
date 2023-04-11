@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -7,16 +7,14 @@ using Common.Validators.Contracts;
 using FluentAssertions;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Factories.Contracts;
-using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Functions.PolarisPipeline.Case;
 using PolarisGateway.Wrappers;
 using Xunit;
 
@@ -34,7 +32,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
 
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
-        private readonly PolarisPipelineTriggerCoordinator _polarisPipelineTriggerCoordinator;
+        private readonly PolarisPipelineCase _polarisPipelineTriggerCoordinator;
 
         public PolarisPipelineTriggerCoordinatorTests()
         {
@@ -45,21 +43,28 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _request = CreateHttpRequest();
             _triggerCoordinatorResponse = fixture.Create<TriggerCoordinatorResponse>();
 
-            var mockLogger = new Mock<ILogger<PolarisPipelineTriggerCoordinator>>();
-            _mockPipelineClient = new Mock<IPipelineClient>();
-            var mockTriggerCoordinatorResponseFactory = new Mock<ITriggerCoordinatorResponseFactory>();
+            var mockLogger = new Mock<ILogger<PolarisPipelineCase>>();
 
-            mockTriggerCoordinatorResponseFactory.Setup(factory => factory.Create(_request, It.IsAny<Guid>())).Returns(_triggerCoordinatorResponse);
+            _mockPipelineClient = new Mock<IPipelineClient>();
+            _mockPipelineClient
+                .Setup(x => x.RefreshCaseAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>()))
+                .ReturnsAsync(new StatusCodeResult((int)HttpStatusCode.Accepted));
+
+            var mockTriggerCoordinatorResponseFactory = new Mock<ITriggerCoordinatorResponseFactory>();
+            mockTriggerCoordinatorResponseFactory
+                .Setup(factory => factory.Create(_request, It.IsAny<Guid>()))
+                .Returns(_triggerCoordinatorResponse);
 
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
-
-            _mockTokenValidator.Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user-name" });
+            _mockTokenValidator
+                .Setup(x => x.ValidateTokenAsync(It.IsAny<StringValues>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user-name" });
 
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
 
             _polarisPipelineTriggerCoordinator =
-                new PolarisPipelineTriggerCoordinator(mockLogger.Object, _mockPipelineClient.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
+                new PolarisPipelineCase(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
@@ -105,28 +110,21 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         }
 
         [Fact]
-        public async Task Run_ReturnsBadRequestWhenForceIsNotABool()
-        {
-            _request.Query = new QueryCollection(new Dictionary<string, StringValues> { { "force", new StringValues("not a bool") } });
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
-
-            response.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Fact]
         public async Task Run_TriggersCoordinator()
         {
+            _request.Method = "POST";
             await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
 
-            _mockPipelineClient.Verify(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()));
+            _mockPipelineClient.Verify(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()));
         }
 
         [Fact]
-        public async Task Run_ReturnsOk()
+        public async Task Run_NewRefreshProcessReturnsAccepted()
         {
-            var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId);
+            _request.Method = "POST";
+            var result = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
 
-            response.Should().BeOfType<OkObjectResult>();
+            result.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
         }
 
         [Fact]
@@ -135,13 +133,12 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as OkObjectResult;
 
             response?.Value.Should().Be(_triggerCoordinatorResponse);
-
         }
 
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenHttpExceptionOccurs()
         {
-            _mockPipelineClient.Setup(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new HttpRequestException());
 
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;
@@ -152,7 +149,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         [Fact]
         public async Task Run_ReturnsInternalServerErrorWhenUnhandledExceptionOccurs()
         {
-            _mockPipelineClient.Setup(client => client.TriggerCoordinatorAsync(_caseUrn, _caseId, It.IsAny<string>(), false, It.IsAny<Guid>()))
+            _mockPipelineClient.Setup(client => client.RefreshCaseAsync(_caseUrn, _caseId, It.IsAny<string>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception());
 
             var response = await _polarisPipelineTriggerCoordinator.Run(_request, _caseUrn, _caseId) as ObjectResult;

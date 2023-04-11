@@ -19,15 +19,14 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   handleOpenPdf,
 }) => {
-  const canViewDocument =
-    caseDocument.presentationStatuses?.viewStatus === "Ok";
+  const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>
       <div className={`${classes["accordion-document-item-wrapper"]}`}>
         {canViewDocument ? (
           <LinkButton
             onClick={() => {
-              handleOpenPdf(caseDocument);
+              handleOpenPdf({ documentId: caseDocument.documentId });
             }}
             className={`${classes["accordion-document-link-button"]}`}
             dataTestId={`link-document-${caseDocument.documentId}`}
@@ -51,7 +50,10 @@ export const AccordionDocument: React.FC<Props> = ({
         </span>
       </div>
       {!canViewDocument && (
-        <span data-testid={`view-warning-document-${caseDocument.documentId}`}>
+        <span
+          className={`${classes["accordion-document-read-warning"]}`}
+          data-testid={`view-warning-document-${caseDocument.documentId}`}
+        >
           Document only available on CMS
         </span>
       )}

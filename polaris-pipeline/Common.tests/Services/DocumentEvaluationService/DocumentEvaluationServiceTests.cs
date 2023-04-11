@@ -1,8 +1,8 @@
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.BlobStorage;
-using Common.Domain.DocumentExtraction;
-using Common.Domain.Requests;
+using Common.Dto.Document;
+using Common.Dto.Request;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation.Contracts;
 using FluentAssertions;
@@ -29,7 +29,7 @@ public class DocumentEvaluationServiceTests
 
         _correlationId = Guid.NewGuid();
 
-        var incomingDocument = _fixture.Create<CmsCaseDocument>();
+        var incomingDocument = _fixture.Create<DocumentDto>();
 
         _documentEvaluationService = new Common.Services.DocumentEvaluation.DocumentEvaluationService(_mockBlobStorageService.Object, mockLogger.Object);
 
@@ -44,7 +44,7 @@ public class DocumentEvaluationServiceTests
     [Fact]
     public async Task EvaluateDocumentAsync_WhenDocumentIsNotFoundInBlobStorage_ShouldAcquireDocument()
     {
-        var request = _fixture.Create<EvaluateDocumentRequest>();
+        var request = _fixture.Create<EvaluateDocumentRequestDto>();
         _mockBlobStorageService.Setup(x => x.FindBlobsByPrefixAsync(It.IsAny<string>(), It.IsAny<Guid>()))
             .ReturnsAsync(new List<BlobSearchResult>());
         
@@ -61,7 +61,7 @@ public class DocumentEvaluationServiceTests
     [Fact]
     public async Task EvaluateDocumentAsync_WhenDocumentIsMatchedExactlyToBlobStorage_ShouldLeaveTheDocumentUnchanged()
     {
-        var request = _fixture.Create<EvaluateDocumentRequest>();
+        var request = _fixture.Create<EvaluateDocumentRequestDto>();
         var storedDocument = new BlobSearchResult
         {
             BlobName = request.ProposedBlobName,
@@ -84,7 +84,7 @@ public class DocumentEvaluationServiceTests
     [Fact]
     public async Task EvaluateDocumentAsync_WhenDocumentIsNotMatchedExactlyToBlobStorage_ByVersionId_ShouldAcquireTheNewDocument_AndUpdateTheSearchIndexToRemoveTheOld()
     {
-        var request = _fixture.Create<EvaluateDocumentRequest>();
+        var request = _fixture.Create<EvaluateDocumentRequestDto>();
         var storedDocument = new BlobSearchResult
         {
             BlobName = _fixture.Create<string>(),

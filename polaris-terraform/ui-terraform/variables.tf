@@ -50,3 +50,7 @@ variable "polaris_ui_sub_folder" {
   //  scripts section.
   default = "polaris-ui"
 }
+
+variable "terraform_service_principal_display_name" {
+  type = string
+}

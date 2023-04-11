@@ -1,10 +1,10 @@
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { PipelineResults } from "../../domain/PipelineResults";
+import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { mapMissingDocuments } from "./map-missing-documents";
 
 const CASE_DOCUMENTS = [
-  { documentId: "1", cmsOriginalFileName: "file-name-1" },
-  { documentId: "2", cmsOriginalFileName: "file-name-2" },
+  { documentId: "1", presentationFileName: "file-name-1" },
+  { documentId: "2", presentationFileName: "file-name-2" },
 ] as MappedCaseDocument[];
 
 describe("mapMissingDocuments", () => {

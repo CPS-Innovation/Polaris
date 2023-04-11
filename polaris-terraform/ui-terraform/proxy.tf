@@ -21,7 +21,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DDEI_ENDPOINT_DOMAIN_NAME"                = "fa-${local.ddei_resource_name}.azurewebsites.net"
     "DDEI_ENDPOINT_FUNCTION_APP_KEY"           = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "ENDPOINT_HTTP_PROTOCOL"                   = "https"
-    "RESOLVER"                                 = "10.2.64.10 10.3.64.10 ${var.dns_server}"
+    "RESOLVER"                                 = "${var.dns_server}"
     "DOCKER_REGISTRY_SERVER_URL"               = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
     "DOCKER_REGISTRY_SERVER_USERNAME"          = data.azurerm_container_registry.polaris_container_registry.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD"          = data.azurerm_container_registry.polaris_container_registry.admin_password

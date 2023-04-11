@@ -1,4 +1,4 @@
-import { PresentationDocumentProperties } from "../../domain/PipelineDocument";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 const docTypeTest = (
   caseDocument: PresentationDocumentProperties,

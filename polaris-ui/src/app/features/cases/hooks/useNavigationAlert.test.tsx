@@ -20,9 +20,10 @@ describe("useNavigationAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG3  very long",
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      polarisDocumentVersionId: 1,
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
       redactionHighlights: [
         {
@@ -48,9 +49,10 @@ describe("useNavigationAlert hook", () => {
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG4 test",
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      polarisDocumentVersionId: 1,
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
       redactionHighlights: [
         {

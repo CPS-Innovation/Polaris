@@ -1,5 +1,5 @@
 import faker from "faker";
-import { CaseDetails } from "../../app/features/cases/domain/CaseDetails";
+import { CaseDetails } from "../../app/features/cases/domain/gateway/CaseDetails";
 import { CaseDetailsDataSource } from "./types/CaseDetailsDataSource";
 
 const dataSource: CaseDetailsDataSource = (id) =>

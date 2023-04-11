@@ -1,3 +1,2 @@
-test-account-login.sh
-run.sh
-open.sh
+*
+!*.example.sh

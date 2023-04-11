@@ -1,5 +1,6 @@
 import "@testing-library/cypress/add-commands"
 import { injectTokens } from "./inject-tokens"
+import { CorrelationId, correlationIds } from "./correlation-ids"
 
 declare global {
   namespace Cypress {
@@ -7,11 +8,32 @@ declare global {
       safeLogEnvVars(): Chainable<any>
       loginToAD(): Chainable<any>
       loginToCms(): Chainable<any>
-      requestToken(): Chainable<Response<unknown>>
+      preemptivelyAttachCookies(): Chainable<any>
+      fullLogin(): Chainable<any>
+      clearCaseTracker(urn: string, caseId: string): Chainable<any>
+      requestToken(): Chainable<Response<{ access_token: string }>>
+      getAuthHeaders(): Chainable<{
+        Authorization: string
+      }>
+      setPolarisInstrumentationGuid(
+        correlationId: CorrelationId
+      ): Chainable<AUTWindow>
+      selectPDFTextElement(matchString: string): void
+      // roll our own typing to help cast the body returned from the api call
+      api<T>(url: string, body?: RequestBody): Chainable<ApiResponseBody<T>>
+      api<T>(
+        method: HttpMethod,
+        url: string,
+        body?: RequestBody
+      ): Chainable<ApiResponseBody<T>>
+      api<T>(options: Partial<RequestOptions>): Chainable<ApiResponseBody<T>>
     }
   }
-}
 
+  export interface ApiResponseBody<T> extends Cypress.Response<T> {
+    size?: number
+  }
+}
 const {
   AUTHORITY,
   CLIENTID,
@@ -19,13 +41,16 @@ const {
   APISCOPE,
   AD_USERNAME,
   AD_PASSWORD,
+  API_ROOT_DOMAIN,
   CMS_USERNAME,
   CMS_PASSWORD,
   CMS_LOGIN_PAGE_URL,
+  CMS_FULL_COOKIE_LOGIN_PAGE_URL,
   CMS_USERNAME_FIELD_LOCATOR,
   CMS_PASSWORD_FIELD_LOCATOR,
   CMS_SUBMIT_BUTTON_LOCATOR,
   CMS_LOGGED_IN_CONFIRMATION_LOCATOR,
+  COOKIE_REDIRECT_URL,
 } = Cypress.env()
 
 const AUTOMATION_LANDING_PAGE_URL = "/?automation-test-first-visit=true"
@@ -55,6 +80,52 @@ Cypress.Commands.add("safeLogEnvVars", () => {
 
   cy.log(JSON.stringify(processedEnvVars))
 })
+
+Cypress.Commands.add(
+  "requestToken",
+  {
+    prevSubject: ["optional"],
+  },
+  () =>
+    cy.request({
+      url: AUTHORITY + "/oauth2/v2.0/token",
+      method: "POST",
+      body: {
+        grant_type: "password",
+        client_id: CLIENTID,
+        client_secret: CLIENTSECRET,
+        scope: ["openid profile"].concat([APISCOPE]).join(" "),
+        username: AD_USERNAME,
+        password: AD_PASSWORD,
+      },
+      form: true,
+    })
+)
+
+Cypress.Commands.add(
+  "getAuthHeaders",
+  {
+    prevSubject: ["optional"],
+  },
+  () => {
+    cy.request({
+      followRedirect: false,
+      method: "POST",
+      url: CMS_FULL_COOKIE_LOGIN_PAGE_URL,
+      form: true,
+      body: {
+        username: CMS_USERNAME,
+        password: CMS_PASSWORD,
+      },
+    }).then(() => {
+      cy.requestToken().then((response) => ({
+        Authorization: `Bearer ${response.body.access_token}`,
+        credentials: "include",
+        //Cookie: response.headers["set-cookie"][0].split(";")[0],
+      }))
+    })
+  }
+)
 
 Cypress.Commands.add("loginToAD", () => {
   let getToken =
@@ -113,23 +184,67 @@ Cypress.Commands.add("loginToCms", () => {
   )
 })
 
+Cypress.Commands.add("preemptivelyAttachCookies", () => {
+  var args = {
+    redirectUrl:
+      COOKIE_REDIRECT_URL +
+      encodeURIComponent(Cypress.config().baseUrl + "?auth-refresh"),
+  } as { redirectUrl: string }
+
+  cy.origin(API_ROOT_DOMAIN, { args }, ({ redirectUrl }) => {
+    cy.visit(redirectUrl)
+  })
+})
+
+Cypress.Commands.add("fullLogin", () => {
+  cy.loginToAD().loginToCms().preemptivelyAttachCookies()
+})
+
+Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
+  cy.request({
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
+    method: "DELETE",
+    followRedirect: false,
+    headers: {
+      authorization: `Bearer ${cachedTokenResponse.access_token}`,
+      "correlation-id": correlationIds.BLANK,
+    },
+  })
+  cy.wait(1000)
+})
+
+declare global {
+  var __POLARIS_INSTRUMENTATION_GUID__: string
+}
+
 Cypress.Commands.add(
-  "requestToken",
-  {
-    prevSubject: ["optional"],
-  },
-  () =>
-    cy.request({
-      url: AUTHORITY + "/oauth2/v2.0/token",
-      method: "POST",
-      body: {
-        grant_type: "password",
-        client_id: CLIENTID,
-        client_secret: CLIENTSECRET,
-        scope: ["openid profile"].concat([APISCOPE]).join(" "),
-        username: AD_USERNAME,
-        password: AD_PASSWORD,
-      },
-      form: true,
+  "setPolarisInstrumentationGuid",
+  (correlationId: CorrelationId) =>
+    // note: on any direct navigation using cy.visit() this setting will be lost
+    //  as the page is reloaded.
+    cy.window().then((win) => {
+      win.__POLARIS_INSTRUMENTATION_GUID__ = correlationIds[correlationId]
+      console.log(win.__POLARIS_INSTRUMENTATION_GUID__)
     })
 )
+
+Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
+  cy.wait(100)
+  cy.get(`.textLayer span:contains(${matchString})`)
+    .filter(":not(:has(*))")
+    .first()
+    .then((element) => {
+      cy.wrap(element)
+        .trigger("mousedown")
+        .then(() => {
+          const el = element[0]
+          const document = el.ownerDocument
+          const range = document.createRange()
+          range.selectNodeContents(el)
+          document.getSelection()?.removeAllRanges()
+          document.getSelection()?.addRange(range)
+        })
+        .trigger("mouseup")
+      cy.document().trigger("selectionchange")
+    })
+})

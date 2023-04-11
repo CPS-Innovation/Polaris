@@ -19,20 +19,7 @@ terraform {
   }
 
   backend "azurerm" {
-    storage_account_name = "__terraform_storage_account__"
-    container_name       = "__terraform_container_name__"
-    key                  = "__terraform_key__"
-    access_key           = "__storage_key__"
   }
-
-  /*backend "azurerm" {
-    resource_group_name  = "rg-terraform"
-    //storage_account_name = "cpsqastorageterraform" //QA
-    storage_account_name = "cpsdevstorageterraform" //DEV
-    container_name       = "terraform-polaris-ui-events"
-    key                  = "terraform.tfstate"
-    access_key           = "[Manually Acquired]"
-  }*/
 }
 
 provider "azurerm" {
@@ -62,9 +49,7 @@ locals {
 data "azurerm_client_config" "current" {}
 
 data "azuread_service_principal" "terraform_service_principal" {
-  application_id = "__terraform_service_principal_app_id__"
-  //application_id = "6a2484e4-fd87-41ce-b90d-62f988748192" // Dev 
-  //application_id = "db31e9e4-7fa8-4051-ae7b-b283987d3799" // QA
+  display_name = var.terraform_service_principal_display_name
 }
 
 data "azurerm_subscription" "current" {}

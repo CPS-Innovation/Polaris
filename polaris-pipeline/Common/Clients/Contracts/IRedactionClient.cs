@@ -1,5 +1,5 @@
-﻿using Common.Domain.Requests;
-using Common.Domain.Responses;
+﻿using Common.Dto.Request;
+using Common.Dto.Response;
 using System;
 using System.Threading.Tasks;
 
@@ -7,6 +7,6 @@ namespace Common.Clients.Contracts
 {
     public interface IRedactionClient
     {
-        Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequest redactPdfRequest, Guid correlationId);
+        Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId);
     }
 }

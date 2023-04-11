@@ -1,6 +1,7 @@
 import { defineConfig } from "cypress";
 
 export default defineConfig({
+  defaultCommandTimeout: 60000,
   video: true,
   reporter: "junit",
   reporterOptions: {

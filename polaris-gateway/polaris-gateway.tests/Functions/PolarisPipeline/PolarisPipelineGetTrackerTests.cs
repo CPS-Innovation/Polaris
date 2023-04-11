@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
+using Common.Dto.Tracker;
 using Common.Validators.Contracts;
 using FluentAssertions;
 using Gateway.Clients.PolarisPipeline.Contracts;
@@ -9,10 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
-using PolarisGateway.Functions.PolarisPipeline;
+using PolarisGateway.Functions.PolarisPipeline.Case;
 using PolarisGateway.Wrappers;
 using Xunit;
 
@@ -22,24 +21,24 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
     {
         private readonly string _caseUrn;
         private readonly int _caseId;
-        private readonly Tracker _tracker;
+        private readonly TrackerDto _tracker;
 
         private readonly Mock<IPipelineClient> _mockPipelineClient;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
 
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
 
-        private readonly PolarisPipelineGetTracker _polarisPipelineGetTracker;
+        private readonly PolarisPipelineGetCaseTracker _polarisPipelineGetTracker;
 
         public PolarisPipelineGetTrackerTests()
         {
             var fixture = new Fixture();
             _caseUrn = fixture.Create<string>();
             _caseId = fixture.Create<int>();
-            _tracker = fixture.Create<Tracker>();
+            _tracker = fixture.Create<TrackerDto>();
             fixture.Create<Guid>();
 
-            var mockLogger = new Mock<ILogger<PolarisPipelineGetTracker>>();
+            var mockLogger = new Mock<ILogger<PolarisPipelineGetCaseTracker>>();
             _mockPipelineClient = new Mock<IPipelineClient>();
             _mockTokenValidator = new Mock<IAuthorizationValidator>();
 
@@ -50,7 +49,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
 
-            _polarisPipelineGetTracker = new PolarisPipelineGetTracker(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
+            _polarisPipelineGetTracker = new PolarisPipelineGetCaseTracker(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
@@ -101,7 +100,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         public async Task Run_ReturnsNotFoundWhenPipelineClientReturnsNull()
         {
             _mockPipelineClient.Setup(client => client.GetTrackerAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Guid>()))
-                .ReturnsAsync(default(Tracker));
+                .ReturnsAsync(default(TrackerDto));
 
             var response = await _polarisPipelineGetTracker.Run(CreateHttpRequest(), _caseUrn, _caseId);
 

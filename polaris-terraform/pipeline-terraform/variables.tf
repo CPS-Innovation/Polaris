@@ -35,3 +35,7 @@ variable "networking_resource_name_suffix" {
 variable "dns_server" {
   type = string
 }
+
+variable "terraform_service_principal_display_name" {
+  type = string
+}

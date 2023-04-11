@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AutoFixture;
-using Common.Domain.DocumentExtraction;
-using Common.Services.DocumentExtractionService.Contracts;
 using coordinator.Domain;
-using coordinator.Functions.ActivityFunctions;
 using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using coordinator.Functions.ActivityFunctions.Case;
+using Common.Dto.Document;
+using Common.Dto.FeatureFlags;
+using DdeiClient.Services.Contracts;
+using Common.Services.DocumentToggle;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
     public class GetCaseDocumentsTests
     {
-        private readonly CmsCase _case;
+        private readonly DocumentDto[] _caseDocuments;
+
+        private readonly PresentationFlagsDto[] _presentationFlags;
+
         private readonly GetCaseDocumentsActivityPayload _payload;
 
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
@@ -26,9 +31,17 @@ namespace coordinator.tests.Functions.ActivityFunctions
         {
             var fixture = new Fixture();
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
-            _case = fixture.Create<CmsCase>();
+            _caseDocuments = new[] {
+              fixture.Create<DocumentDto>(),
+              fixture.Create<DocumentDto>()
+            };
 
-            var mockDocumentExtractionService = new Mock<IDdeiDocumentExtractionService>();
+            _presentationFlags = new[] {
+              fixture.Create<PresentationFlagsDto>(),
+              fixture.Create<PresentationFlagsDto>()
+            };
+
+            var mockDocumentExtractionService = new Mock<IDdeiClient>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();
 
             _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
@@ -36,10 +49,22 @@ namespace coordinator.tests.Functions.ActivityFunctions
 
             mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(),
                     _payload.CmsAuthValues, _payload.CorrelationId))
-                .ReturnsAsync(_case.CaseDocuments);
+                .ReturnsAsync(_caseDocuments);
+
+            var mockDocumentToggleService = new Mock<IDocumentToggleService>();
+            mockDocumentToggleService
+              .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[0]))
+              .Returns(_presentationFlags[0]);
+            mockDocumentToggleService
+              .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[1]))
+              .Returns(_presentationFlags[1]);
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
-            _getCaseDocuments = new GetCaseDocuments(mockDocumentExtractionService.Object, mockLogger.Object);
+
+            _getCaseDocuments = new GetCaseDocuments(
+                mockDocumentExtractionService.Object,
+                mockDocumentToggleService.Object,
+                mockLogger.Object);
         }
 
         [Fact]
@@ -100,9 +125,9 @@ namespace coordinator.tests.Functions.ActivityFunctions
         [Fact]
         public async Task Run_ReturnsCaseDocuments()
         {
-            var caseDocuments = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
+            var documents = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
 
-            caseDocuments.Should().BeEquivalentTo(_case.CaseDocuments);
+            documents.Should().BeEquivalentTo(_caseDocuments);
         }
     }
 }

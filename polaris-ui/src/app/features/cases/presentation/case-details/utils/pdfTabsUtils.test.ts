@@ -1,16 +1,8 @@
 import { AsyncPipelineResult } from "../../../hooks/use-pipeline-api/AsyncPipelineResult";
-import { PipelineResults } from "../../../domain/PipelineResults";
+import { PipelineResults } from "../../../domain/gateway/PipelineResults";
 import { getRedactStatus } from "./pdfTabsUtils";
 
 describe("getRedactStatus util", () => {
-  it("getRedactStatus should return null if pipelineState.haveData is false", () => {
-    const pipelineState: AsyncPipelineResult<PipelineResults> = {
-      status: "initiating",
-      haveData: false,
-    };
-    const result = getRedactStatus("1", pipelineState);
-    expect(result).toEqual(null);
-  });
   it("getRedactStatus should return redact status of the document with matching documentId from pipelineSate documents", () => {
     const pipelineState: AsyncPipelineResult<PipelineResults> = {
       status: "complete",
@@ -18,6 +10,8 @@ describe("getRedactStatus util", () => {
       data: {
         transactionId: "abc",
         status: "Completed",
+        processingCompleted: "",
+        documentsRetrieved: "",
         documents: [
           {
             documentId: "1",
@@ -28,14 +22,15 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 3,
               code: "MG3",
               name: "MG3 File",
             },
-            presentationStatuses: {
-              viewStatus: "OnlyAvailableInCms",
-              redactStatus: "Ok",
+            presentationFlags: {
+              read: "OnlyAvailableInCms",
+              write: "Ok",
             },
           },
           {
@@ -47,14 +42,15 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 11,
               code: "MG11",
               name: "MG11 File",
             },
-            presentationStatuses: {
-              viewStatus: "Ok",
-              redactStatus: "DocTypeNotAllowed",
+            presentationFlags: {
+              read: "Ok",
+              write: "DocTypeNotAllowed",
             },
           },
           {
@@ -66,14 +62,15 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 11,
               code: "MG11",
               name: "MG11 File",
             },
-            presentationStatuses: {
-              viewStatus: "Ok",
-              redactStatus: null,
+            presentationFlags: {
+              read: "Ok",
+              write: "OnlyAvailableInCms",
             },
           },
         ],
@@ -82,15 +79,18 @@ describe("getRedactStatus util", () => {
 
     expect(getRedactStatus("1", pipelineState)).toEqual("Ok");
     expect(getRedactStatus("2", pipelineState)).toEqual("DocTypeNotAllowed");
-    expect(getRedactStatus("3", pipelineState)).toEqual(null);
+    expect(getRedactStatus("3", pipelineState)).toEqual("OnlyAvailableInCms");
   });
-  it("getRedactStatus should return null, if it couldn't find a matching documentId from pipelineSate documents", () => {
+  it("getRedactStatus should throw if it couldn't find a matching documentId from pipelineSate documents", () => {
     const pipelineState: AsyncPipelineResult<PipelineResults> = {
       status: "complete",
       haveData: true,
+
       data: {
         transactionId: "abc",
         status: "Completed",
+        processingCompleted: "",
+        documentsRetrieved: "",
         documents: [
           {
             documentId: "1",
@@ -101,20 +101,21 @@ describe("getRedactStatus util", () => {
             cmsMimeType: "application/pdf",
             cmsFileCreatedDate: "2020-06-02",
             cmsDocCategory: "MGForm",
+            polarisDocumentVersionId: 1,
             cmsDocType: {
               id: 3,
               code: "MG3",
               name: "MG3 File",
             },
-            presentationStatuses: {
-              viewStatus: "OnlyAvailableInCms",
-              redactStatus: "Ok",
+            presentationFlags: {
+              read: "OnlyAvailableInCms",
+              write: "Ok",
             },
           },
         ],
       },
     };
-
-    expect(getRedactStatus("12", pipelineState)).toEqual(null);
+    const act = () => getRedactStatus("12", pipelineState);
+    expect(act).toThrowError();
   });
 });

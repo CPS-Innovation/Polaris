@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
-using Common.Domain.Requests;
-using Common.Domain.Responses;
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Exceptions.Contracts;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
-using Common.Services.DocumentExtractionService.Contracts;
 using Common.Wrappers.Contracts;
+using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -26,17 +26,19 @@ namespace pdf_generator.Functions
     public class GeneratePdf
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IValidatorWrapper<GeneratePdfRequest> _validatorWrapper;
-        private readonly IDdeiDocumentExtractionService _documentExtractionService;
+        private readonly IValidatorWrapper<GeneratePdfRequestDto> _validatorWrapper;
+        private readonly IDdeiClient _documentExtractionService;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<GeneratePdf> _log;
 
+        const string loggingName = nameof(GeneratePdf);
+
         public GeneratePdf(
              IJsonConvertWrapper jsonConvertWrapper, 
-             IValidatorWrapper<GeneratePdfRequest> validatorWrapper,
-             IDdeiDocumentExtractionService documentExtractionService,
+             IValidatorWrapper<GeneratePdfRequestDto> validatorWrapper,
+             IDdeiClient documentExtractionService,
              IPolarisBlobStorageService blobStorageService, 
              IPdfOrchestratorService pdfOrchestratorService, 
              IExceptionHandler exceptionHandler, 
@@ -51,11 +53,10 @@ namespace pdf_generator.Functions
             _log = logger;
         }
 
-        [FunctionName("generate-pdf")]
+        [FunctionName("generate")]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "generate")] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "GeneratePdf - Run";
             GeneratePdfResponse generatePdfResponse = null;
 
             try
@@ -84,7 +85,7 @@ namespace pdf_generator.Functions
                 if (string.IsNullOrWhiteSpace(content))
                     throw new BadRequestException("Request body cannot be null.", nameof(request));
 
-                var pdfRequest = _jsonConvertWrapper.DeserializeObject<GeneratePdfRequest>(content);
+                var pdfRequest = _jsonConvertWrapper.DeserializeObject<GeneratePdfRequestDto>(content);
                 if (pdfRequest == null)
                     throw new BadRequestException($"An invalid message was received '{content}'", nameof(request));
 
@@ -95,20 +96,11 @@ namespace pdf_generator.Functions
                 var blobName = $"{pdfRequest.CaseId}/pdfs/{Path.GetFileNameWithoutExtension(pdfRequest.FileName)}.pdf";
                 generatePdfResponse = new GeneratePdfResponse(blobName);
 
-                /*_log.LogMethodFlow(currentCorrelationId, loggingName, 
-                    $"Beginning document evaluation process for documentId {pdfRequest.DocumentId}, versionId {pdfRequest.VersionId}, proposedBlobName: {blobName}");
-                
-                var evaluateDocumentRequest = new EvaluateDocumentRequest(pdfRequest.CaseId, pdfRequest.DocumentId, pdfRequest.VersionId, blobName);
-                var evaluationResult = await _documentEvaluationService.EvaluateDocumentAsync(evaluateDocumentRequest, currentCorrelationId);
-                
-                if (evaluationResult.EvaluationResult == DocumentEvaluationResult.DocumentUnchanged)
-                {
-                    generatePdfResponse.AlreadyProcessed = true;
-                    return OkResponse(Serialize(generatePdfResponse));
-                }*/
-
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{pdfRequest.DocumentId}'");
 
+                // If CMS Document.... TODO If PcdRequest
+
+                // Step 1 - Get DDEI Document - TODO - move to parent
                 var documentStream = await _documentExtractionService.GetDocumentAsync(pdfRequest.CaseUrn, pdfRequest.CaseId.ToString(), pdfRequest.DocumentCategory,
                     pdfRequest.DocumentId, cmsAuthValues, currentCorrelationId);
 
@@ -116,8 +108,10 @@ namespace pdf_generator.Functions
                 _log.LogMethodFlow(currentCorrelationId, loggingName,
                     $"Processing retrieved document of type: '{fileType}'. Original file: '{pdfRequest.FileName}', with new fileName: '{blobName}'");
 
+                // Step 2 - Generate PDF Stream
                 var pdfStream = _pdfOrchestratorService.ReadToPdfStream(documentStream, fileType, pdfRequest.DocumentId, currentCorrelationId);
 
+                // Step 3 - Upload to Blob Storage - TODO - move to parent
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
                 await _blobStorageService.UploadDocumentAsync(pdfStream, blobName, pdfRequest.CaseId.ToString(), pdfRequest.DocumentId,
                     pdfRequest.VersionId.ToString(), currentCorrelationId);

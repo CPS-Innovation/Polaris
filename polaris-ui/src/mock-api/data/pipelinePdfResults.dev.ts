@@ -1,13 +1,15 @@
-import { PipelineResults } from "../../app/features/cases/domain/PipelineResults";
+import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 
-const dataSource: PipelinePdfResultsDataSource = () => pipelinePdfResults;
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(5);
 
 export default dataSource;
 
-const pipelinePdfResults: PipelineResults = {
+const pipelinePdfResult: PipelineResults = {
   transactionId: "121",
   status: "Completed",
+  processingCompleted: new Date().toISOString(),
+  documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",
@@ -18,14 +20,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG3",
         name: "MG3 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -37,14 +40,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 11,
         code: "MG11",
         name: "MG11 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -56,14 +60,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
         code: "MG5",
         name: "MG5 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -75,14 +80,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 6,
         code: "MG6",
         name: "MG6 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -94,14 +100,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG3",
         name: "MG3 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -113,14 +120,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 3,
         code: "MG3",
         name: "MG3 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -132,14 +140,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: -1,
         code: "Other Comm (In)",
         name: "Other Comm (In) File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -151,14 +160,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 5,
         code: "MG5",
         name: "MG5 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -170,14 +180,15 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 6,
         code: "MG6",
         name: "MG6 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
     {
@@ -189,15 +200,37 @@ const pipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       cmsDocCategory: "MGForm",
+      polarisDocumentVersionId: 1,
       cmsDocType: {
         id: 6,
         code: "MG6",
         name: "MG6 File",
       },
-      presentationStatuses: {
-        viewStatus: "Ok",
-        redactStatus: "Ok",
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
       },
     },
   ],
+};
+
+const getPipelinePdfResults = (resultsCount: number) => {
+  let resultsArray = Array(resultsCount)
+    .fill({})
+    .map((value, index) => ({
+      ...pipelinePdfResult,
+
+      processingCompleted: new Date(
+        new Date().getTime() + index * 1000
+      ).toISOString(),
+      documentsRetrieved: new Date(
+        new Date().getTime() + index * 1000
+      ).toISOString(),
+      documents: pipelinePdfResult.documents.map((document) => ({
+        ...document,
+        polarisDocumentVersionId: document.polarisDocumentVersionId + index,
+      })),
+    }));
+
+  return resultsArray;
 };

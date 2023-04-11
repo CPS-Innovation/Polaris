@@ -56,6 +56,7 @@
     {
         public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
         public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
+
         public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
         public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
     }
@@ -67,6 +68,7 @@
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
             public const string PdfGeneratorUrl = "PdfGeneratorUrl";
             public const string TextExtractorUrl = "TextExtractorUrl";
+            public const string AzureWebJobsStorage = "AzureWebJobsStorage";
         }
 
         public static class TextExtractorKeys
@@ -86,9 +88,6 @@
             public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
             public const string BlobServiceUrl = nameof(BlobServiceUrl);
             public const string BlobServiceConnectionString = nameof(BlobServiceConnectionString);
-            public const string DocumentsRepositoryBaseUrl = "DocumentsRepositoryBaseUrl";
-            public const string GetDocumentUrl = "GetDocumentUrl";
-            public const string ListDocumentsUrl = "ListDocumentsUrl";
         }
     }
 }
