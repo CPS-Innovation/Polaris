@@ -34,33 +34,15 @@ stages:
     dependsOn: Startup_Dev_Build_Agent
     condition: succeeded()
     jobs:
-      - job: Publish_Pipeline_Terraform
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files"
-              publishLocation: "pipeline"
-              
       - job: Run_Terraform
         pool:
           name: $(dev-build-agent)
-        dependsOn: Publish_Pipeline_Terraform
-        condition: succeeded()
         steps:
           # Install Terraform based on version variable
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: Terraform > Install
             inputs:
               terraformVersion: $(terraform-version)
-                
-          #download pipeline terraform build artifact
-          - download: current
-            displayName: Terraform > Download Pipeline terraform build
-            artifact: "pipeline-terraform-files"
                 
           # Terraform Init
           - bash: |
@@ -70,7 +52,7 @@ stages:
                 -backend-config="key=$TF_STATE_KEY" \
                 -backend-config="access_key=$TF_STATE_ACCESS_KEY"
             displayName: Terraform > Init
-            workingDirectory: $(Pipeline.Workspace)/pipeline-terraform-files
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
               TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
               TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
@@ -81,7 +63,7 @@ stages:
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -replace=restapi_object.definition
             displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
-            workingDirectory: $(Pipeline.Workspace)/pipeline-terraform-files
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
@@ -92,7 +74,7 @@ stages:
           - bash: |
               terraform apply -auto-approve dev.tfplan
             displayName: Terraform > Refresh Search Index
-            workingDirectory: $(Pipeline.Workspace)/pipeline-terraform-files
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
