@@ -1,4 +1,4 @@
-﻿trigger: none
+trigger: none
 
 schedules:
   - cron: "0 3 * * Mon-Sun" # First number represent the amount of minutes, second represent the hours. In this case 03:00 Monday - Sunday
