@@ -13,8 +13,25 @@ variables:
   - group: polaris-global
     
 stages:
+  - stage: Startup_Dev_Build_Agent
+    displayName: Start Dev Build Agent
+    jobs:
+      - job: Startup_Dev_Build_Agent
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Start Dev Build Agent'
+            inputs:
+              buildDefinition: 129
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
+    dependsOn: Startup_Dev_Build_Agent
+    condition: succeeded()
     jobs:
       - job:
         pool:
@@ -81,6 +98,8 @@ stages:
                 
   - stage: Clear_down_BlobStorage
     displayName: Reset Document Blob Storage
+    dependsOn: Clear_down_SearchIndex
+    condition: succeeded()
     jobs:
       - job:
         pool:
@@ -96,7 +115,9 @@ stages:
                 az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string $(cpsdocumentstorage-connection-string) --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
-    display: Reset Durable State
+    displayName: Reset Durable State
+    dependsOn: Clear_down_BlobStorage
+    condition: succeeded()
     jobs:
       - job:
         pool: server
