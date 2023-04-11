@@ -43,7 +43,7 @@ namespace coordinator.Factories
                 var pdfRequestDto = new GeneratePdfRequestDto(caseUrn, caseId, documentCategory, documentId, fileName, versionId);
                 var content = _jsonConvertWrapper.SerializeObject(pdfRequestDto);
 
-                string pdfGeneratorUrl = $"{_configuration[PipelineSettings.PipelineRedactPdfBaseUrl]}/generate";
+                string pdfGeneratorUrl = $"{_configuration[PipelineSettings.PipelineRedactPdfBaseUrl]}generate";
                 return new DurableHttpRequest(HttpMethod.Post, new Uri(pdfGeneratorUrl), headers, content);
             }
             catch (Exception ex)
