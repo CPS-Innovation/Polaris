@@ -130,7 +130,7 @@ stages:
               method: 'DELETE'
               waitForCompletion: 'true'
               
-  - stage: Clear_down_Durable_Orchestration_State
+  - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
