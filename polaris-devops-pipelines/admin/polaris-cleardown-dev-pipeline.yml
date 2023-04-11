@@ -132,7 +132,7 @@ stages:
               
   - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
-    dependsOn: Clear_down_BlobStorage
+    dependsOn: Clear_down_Durable_Orchestration_State
     condition: succeeded()
     jobs:
       - job: Shutdown_Dev_Build_Agent
