@@ -187,6 +187,13 @@ export const reducer = (
         },
       };
 
+      const deletedOpenPDfsTabs = state.tabsState.items.filter(
+        (item) =>
+          !newPipelineResults.data.documents.some(
+            (document) => document.documentId === item.documentId
+          )
+      );
+
       const openPdfsWeNeedToUpdate = newPipelineResults.data.documents
         .filter(
           (item) =>
@@ -236,6 +243,15 @@ export const reducer = (
             },
           ];
         }
+
+        //update the open tabs with deleted documents
+        const matchingDeletedPdfRecords = deletedOpenPDfsTabs.find(
+          (item) => item.documentId === curr.documentId
+        );
+        if (matchingDeletedPdfRecords) {
+          return [...prev, { ...curr, isDeleted: true }];
+        }
+
         return [...prev, curr];
       }, [] as CaseDocumentViewModel[]);
 

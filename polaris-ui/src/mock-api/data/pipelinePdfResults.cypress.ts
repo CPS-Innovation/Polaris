@@ -134,6 +134,26 @@ const getPipelinePdfResults = (resultsCount: number) => {
 
   return resultsArray;
 };
+const getRefreshDeletedDocuments = (resultsCount: number = 2) => {
+  let resultsArray = Array(resultsCount)
+    .fill({})
+    .map((value, index) => ({
+      ...pipelinePdfResult,
+
+      processingCompleted: new Date(
+        new Date().getTime() + index * 1000
+      ).toISOString(),
+      documentsRetrieved: new Date(
+        new Date().getTime() + index * 1000
+      ).toISOString(),
+      documents: pipelinePdfResult.documents.map((document) => ({
+        ...document,
+        polarisDocumentVersionId: document.polarisDocumentVersionId + index,
+      })),
+    }));
+
+  return resultsArray;
+};
 export const missingDocsPipelinePdfResults: PipelineResults = {
   transactionId: "121",
   status: "Completed",
@@ -351,3 +371,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
     },
   ],
 };
+
+export const refreshPipelineDeletedDocuments: PipelinePdfResultsDataSource =
+  () => getRefreshDeletedDocuments();

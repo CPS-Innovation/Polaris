@@ -60,6 +60,7 @@ describe("useCaseDetailsState reducer", () => {
       it("should not build documents state if the documentRetrieved is not present", () => {
         const existingState = {
           pipelineState: {},
+          tabsState: { items: [] },
           documentsState: { status: "loading" },
           pipelineRefreshData: {
             startRefresh: false,
@@ -89,6 +90,7 @@ describe("useCaseDetailsState reducer", () => {
       it("should not build documents state if the status is `Running` and documentRetrieved is present", () => {
         const existingState = {
           pipelineState: {},
+          tabsState: { items: [] },
           documentsState: { status: "loading" },
           pipelineRefreshData: {
             startRefresh: false,
@@ -121,6 +123,7 @@ describe("useCaseDetailsState reducer", () => {
             haveData: true,
             data: { documentsRetrieved: new Date().toISOString() },
           },
+          tabsState: { items: [] },
           pipelineRefreshData: {
             startRefresh: false,
             savedDocumentDetails: [],
@@ -155,6 +158,7 @@ describe("useCaseDetailsState reducer", () => {
           pipelineState: {
             haveData: false,
           },
+          tabsState: { items: [] },
           pipelineRefreshData: {
             startRefresh: false,
             savedDocumentDetails: [],
@@ -209,8 +213,9 @@ describe("useCaseDetailsState reducer", () => {
         const nextState = reducer(
           {
             pipelineState: {},
+            tabsState: { items: [] },
             documentsState: { status: "loading" },
-          } as CombinedState,
+          } as unknown as CombinedState,
           {
             type: "UPDATE_PIPELINE",
             payload: {
@@ -280,8 +285,9 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           pipelineState: {},
+          tabsState: { items: [] },
           documentsState: { status: "succeeded" },
-        } as CombinedState,
+        } as unknown as CombinedState,
         {
           type: "UPDATE_PIPELINE",
           payload: {
@@ -314,6 +320,7 @@ describe("useCaseDetailsState reducer", () => {
             documents: [{ documentId: "1", polarisDocumentVersionId: 2 }],
           },
         },
+        tabsState: { items: [] },
         pipelineRefreshData: {
           startRefresh: false,
           savedDocumentDetails: [
@@ -326,6 +333,7 @@ describe("useCaseDetailsState reducer", () => {
       const nextState = reducer(
         {
           pipelineState: {},
+          tabsState: { items: [] },
           documentsState: {
             status: "succeeded",
           },
@@ -360,6 +368,7 @@ describe("useCaseDetailsState reducer", () => {
       const expectedNextState = {
         status: "complete",
         haveData: true,
+
         data: {
           documents: [{ documentId: "1", pdfBlobName: "foo" }],
           transactionId: "123",
@@ -456,9 +465,19 @@ describe("useCaseDetailsState reducer", () => {
         data: {
           documents: [
             {
+              documentId: "1",
+              pdfBlobName: "foo",
+              polarisDocumentVersionId: 1,
+            },
+            {
               documentId: "2",
               pdfBlobName: "foo",
               polarisDocumentVersionId: 2,
+            },
+            {
+              documentId: "3",
+              pdfBlobName: "foo",
+              polarisDocumentVersionId: 1,
             },
           ],
         },
@@ -487,8 +506,7 @@ describe("useCaseDetailsState reducer", () => {
       jest
         .spyOn(apiGateway, "resolvePdfUrl")
         .mockImplementation((urn, caseId, documentId) => {
-          if (urn !== "bar" || caseId !== 99 || documentId !== "2")
-            throw new Error();
+          if (urn !== "bar" || caseId !== 99) throw new Error();
           return "baz";
         });
 
@@ -508,14 +526,95 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(nextState.tabsState).toEqual({
         items: [
-          { documentId: "1", url: "abc" },
+          {
+            documentId: "1",
+            url: "baz",
+            pdfBlobName: "foo",
+            polarisDocumentVersionId: 1,
+          },
           {
             documentId: "2",
             url: "baz",
             pdfBlobName: "foo",
             polarisDocumentVersionId: 2,
           },
-          { documentId: "3", url: undefined },
+          {
+            documentId: "3",
+            url: "baz",
+            pdfBlobName: "foo",
+            polarisDocumentVersionId: 1,
+          },
+        ],
+      });
+    });
+
+    it("can handle update from pipeline and update the tabsState of the deleted documents open in a tab ", () => {
+      const newPipelineState = {
+        status: "complete",
+        haveData: true,
+        data: {
+          documents: [
+            {
+              documentId: "2",
+              pdfBlobName: "foo",
+              polarisDocumentVersionId: 2,
+            },
+          ],
+        },
+      } as CombinedState["pipelineState"];
+      const existingPipelineState = {
+        status: "complete",
+        haveData: true,
+        data: {
+          documents: [
+            {
+              documentId: "2",
+              pdfBlobName: "foo",
+            },
+          ],
+        },
+      };
+
+      const existingTabsState = {
+        items: [
+          { documentId: "1", url: "abc" },
+          { documentId: "2", url: "efg" },
+        ],
+      } as CombinedState["tabsState"];
+
+      jest
+        .spyOn(apiGateway, "resolvePdfUrl")
+        .mockImplementation((urn, caseId, documentId) => {
+          return "baz";
+        });
+
+      const nextState = reducer(
+        {
+          tabsState: existingTabsState,
+          pipelineState: existingPipelineState,
+          documentsState: { status: "succeeded" },
+          urn: "bar",
+          caseId: 99,
+        } as CombinedState,
+        {
+          type: "UPDATE_PIPELINE",
+          payload: newPipelineState,
+        }
+      );
+
+      expect(nextState.tabsState).toEqual({
+        items: [
+          {
+            documentId: "1",
+            url: "abc",
+            isDeleted: true,
+          },
+          {
+            documentId: "2",
+            url: "baz",
+            pdfBlobName: "foo",
+            polarisDocumentVersionId: 2,
+          },
         ],
       });
     });
