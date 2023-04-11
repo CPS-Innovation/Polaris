@@ -30,8 +30,8 @@ public class ResetDurableState
     }
     
     [FunctionName("ResetDurableState")]
-    public async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Function, "delete", Route = RestApi.ResetDurableState)] HttpRequestMessage req, 
-        [DurableClient] IDurableClient client)
+    public async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Function, "delete", 
+        Route = RestApi.ResetDurableState)] HttpRequestMessage req, [DurableClient] IDurableClient client)
     {
         try
         {
@@ -55,8 +55,8 @@ public class ResetDurableState
             _logger.LogMethodFlow(correlationId, LoggingName, "The delete operation completed. Waiting one minute before recreating...");
             await Task.Delay(TimeSpan.FromMinutes(1));
             
-            // Optional: Recreate all the Azure Storage resources for this task hub. This happens automatically whenever the function app restarts, so it's
-            // not a required step, but it will slightly improve first-user performance via faster warm-up times
+            // Optional: Recreate all the Azure Storage resources for this task hub. This happens automatically whenever the function app restarts,
+            // so it's not a required step, but it will slightly improve first-user performance via faster warm-up times
             _logger.LogMethodFlow(correlationId, LoggingName, $"Recreating storage resources for task hub {settings.TaskHubName}...");
             await storageService.CreateIfNotExistsAsync();
             
