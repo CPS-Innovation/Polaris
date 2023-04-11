@@ -3,7 +3,6 @@ import { INITIATE_PIPELINE_ROUTE } from "../../../src/mock-api/routes";
 describe("redaction refresh flow", () => {
   it(
     "should successfully complete the redaction refresh flow for saving redaction of single document two times",
-    { defaultCommandTimeout: 15000 },
     () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -35,7 +34,6 @@ describe("redaction refresh flow", () => {
 
   it(
     "should successfully complete the redaction refresh flow for saving redaction of two different documents",
-    { defaultCommandTimeout: 15000 },
     () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -72,7 +70,6 @@ describe("redaction refresh flow", () => {
 
   it(
     "should call again the initiate pipeline, if the previous call return 423 status during redaction refresh flow and successfully complete the redaction refresh flow",
-    { defaultCommandTimeout: 15000 },
     () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -102,7 +99,6 @@ describe("redaction refresh flow", () => {
 
   it(
     "should call again the initiate pipeline, if the previous call return 423 status successfully load the documents on the initial load",
-    { defaultCommandTimeout: 15000 },
     () => {
       cy.overridePostRoute(INITIATE_PIPELINE_ROUTE, {
         type: "break",

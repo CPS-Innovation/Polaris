@@ -120,7 +120,7 @@ describe("case details page", () => {
   });
 
   describe("pdf viewing", () => {
-    it("can open a pdf", { defaultCommandTimeout: 15000 }, () => {
+    it("can open a pdf", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -160,7 +160,6 @@ describe("case details page", () => {
   describe("Document navigation away alert modal", () => {
     it(
       "Should show an alert modal when closing a document with active redactions",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
@@ -191,7 +190,6 @@ describe("case details page", () => {
 
     it(
       "Should not show an alert modal when closing a document when there are no active redactions",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
@@ -228,7 +226,6 @@ describe("case details page", () => {
 
     it(
       "Should show browser confirm modal when navigating away by refreshing the page, from a document with active redactions",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
@@ -246,7 +243,6 @@ describe("case details page", () => {
 
     it(
       "Should not show browser confirm modal when navigating away by refreshing the page, from a document with no active redactions",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
@@ -261,7 +257,6 @@ describe("case details page", () => {
 
     it(
       "Should show browser confirm modal when navigating away using Header Crown Prosecution Service link, from a document with active redactions",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
@@ -279,7 +274,6 @@ describe("case details page", () => {
 
     it(
       "Should show custom alert modal when navigating away using 'find a case' link from a document with active redactions",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
@@ -315,7 +309,6 @@ describe("case details page", () => {
 
     it(
       "Should show custom alert modal when navigating away using browser back button from a document with active redactions",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-search-results?urn=12AB1111111");
         cy.findByTestId("link-12AB1111111").click();
@@ -349,7 +342,6 @@ describe("case details page", () => {
   describe("feature toggle", () => {
     it(
       "Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentation redact status is not 'Ok'",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
@@ -368,7 +360,6 @@ describe("case details page", () => {
 
     it(
       "User shouldn't be allowed to view document and there should be document view warnings, if presentation view status is not 'Ok'",
-      { defaultCommandTimeout: 15000 },
       () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-accordion-open-close-all").click();
