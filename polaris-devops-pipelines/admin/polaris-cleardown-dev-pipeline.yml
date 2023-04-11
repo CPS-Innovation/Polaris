@@ -109,14 +109,11 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
-          - task: InvokeRESTAPI@1
+          - bash: |
+              curl -i -X DELETE 'https://fa-polaris-pipeline-dev-coordinator.azurewebsites.net/api/admin/resetDurableState?code=$APP_CODE'
             displayName: Call Coordinator
-            inputs:
-              connectionType: 'connectedServiceName'
-              serviceConnection: 'Innovation-Development: Reset Durable State'
-              method: 'DELETE'
-              urlSuffix: '?code=$(reset-function-key)'
-              waitForCompletion: 'true'
+            env:
+              APP_CODE: $(reset-function-key)
               
   - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
