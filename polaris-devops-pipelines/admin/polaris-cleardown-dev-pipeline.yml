@@ -94,9 +94,9 @@ stages:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
-              azureSubscription: $(innovation-development-subscription-name)
-              scriptType: ps
-              scriptLocation: inlineScript
+              connectedServiceNameARM: '$(innovation-development-subscription-name)'
+              scriptType: 'ps'
+              scriptLocation: 'inlineScript'
               inlineScript: |
                 az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string $(cpsdocumentstorage-connection-string) --delete-snapshots include
                 
