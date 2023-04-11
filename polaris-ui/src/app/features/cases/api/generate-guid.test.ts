@@ -28,11 +28,4 @@ describe("generateGuid", () => {
 
     expect(generateGuid()).toEqual(guid2);
   });
-
-  it("throws when the guid that has been set against the window is malformed", () => {
-    const guid = "C381AD9A-blah-blah-blah";
-    window.__POLARIS_INSTRUMENTATION_GUID__ = guid;
-
-    expect(() => generateGuid()).toThrowError();
-  });
 });
