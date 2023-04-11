@@ -14,7 +14,6 @@ export default defineConfig({
         throw new Error("Please provide an ENVIRONMENT variable")
       }
       const baseEnvFromFile = getConfigurationByFile("base")
-      console.log({ baseEnvFromFile })
       const environmentEnvFromFile = getConfigurationByFile(
         "env." + config.env.ENVIRONMENT
       )
@@ -24,7 +23,11 @@ export default defineConfig({
       }
 
       config.baseUrl = env.BASE_URL
-      return { ...config, env: { ...config.env, ...env } }
+
+      const resolvedEnv = { ...config.env, ...env }
+      console.log("Resolved env: ", resolvedEnv)
+
+      return { ...config, env: resolvedEnv }
     },
     baseUrl: "http://example.org",
     video: true,
