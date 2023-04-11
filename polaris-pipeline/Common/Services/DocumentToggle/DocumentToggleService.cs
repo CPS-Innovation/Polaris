@@ -9,6 +9,7 @@ using Common.Dto.FeatureFlags;
 using Common.Services.DocumentToggle.Domain;
 using Common.Services.DocumentToggle.Exceptions;
 using Common.Dto.Document;
+using Common.Dto.Case.PreCharge;
 
 namespace Common.Services.DocumentToggle
 {
@@ -80,6 +81,16 @@ namespace Common.Services.DocumentToggle
             {
                 Read = read,
                 Write = write
+            };
+        }
+
+        // TODO - this might needs expanded
+        public PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestDto pcdRequest)
+        {
+            return new PresentationFlagsDto
+            {
+                Read = ReadFlag.Ok,
+                Write = WriteFlag.DocTypeNotAllowed
             };
         }
 

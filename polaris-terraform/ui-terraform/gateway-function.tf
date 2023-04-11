@@ -25,8 +25,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "ClientSecret"                             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "PolarisPipelineCoordinatorBaseUrl"        = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
-    "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.pipeline_resource_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"   = data.azurerm_function_app_host_keys.fa_pipeline_pdf_generator_host_keys.default_function_key
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                        = "documents"
     "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_ui_storage_connection_string.id})"

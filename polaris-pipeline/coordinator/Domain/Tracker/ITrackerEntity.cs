@@ -9,11 +9,12 @@ namespace coordinator.Domain.Tracker
     {
         Task Reset(string transactionId);
         Task SetValue(TrackerEntity tracker);
-        Task<TrackerDocumentListDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg);
+        Task<TrackerDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
         Task RegisterUnableToConvertDocumentToPdf(string documentId);
         Task RegisterUnexpectedPdfDocumentFailure(string documentId);
+        Task RegisterUnexpectedPdfPcdRequestFailure(int id);
         Task RegisterIndexed(string documentId);
         Task RegisterOcrAndIndexFailure(string documentId);
         Task RegisterCompleted();

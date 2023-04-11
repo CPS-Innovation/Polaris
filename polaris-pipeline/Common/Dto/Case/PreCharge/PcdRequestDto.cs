@@ -1,3 +1,4 @@
+using Common.Dto.FeatureFlags;
 using System.Collections.Generic;
 
 namespace Common.Dto.Case.PreCharge
@@ -15,5 +16,7 @@ namespace Common.Dto.Case.PreCharge
         public PcdCommentsDto Comments { get; set; }
 
         public List<PcdRequestSuspectDto> Suspects { get; set; }
+
+        public PresentationFlagsDto PresentationFlags { get; set; }
     }
 }

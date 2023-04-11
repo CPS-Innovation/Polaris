@@ -23,7 +23,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_coordinator_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"       = "600"
-    "PdfGeneratorUrl"                          = "https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/api/generate?code=${data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key}"
     "TextExtractorUrl"                         = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/extract?code=${data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key}"
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"

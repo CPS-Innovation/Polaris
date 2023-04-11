@@ -1,4 +1,5 @@
-﻿using Common.Dto.Document;
+﻿using Common.Dto.Case.PreCharge;
+using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Domain.Tracker;
 using Microsoft.Azure.WebJobs;
@@ -8,11 +9,11 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace coordinator.Functions.DurableEntity.Entity
 {
-
     [JsonObject(MemberSerialization.OptIn)]
     public class TrackerEntity : ITrackerEntity
     {
@@ -35,6 +36,9 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("documents")]
         public List<TrackerDocumentDto> Documents { get; set; }
 
+        [JsonProperty("pcdRequests")]
+        public List<TrackerPcdRequestDto> PcdRequests { get; set; }
+
         [JsonProperty("logs")]
         public List<TrackerLogDto> Logs { get; set; }
 
@@ -44,6 +48,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             ProcessingCompleted = null;
             Status = TrackerStatus.Running;
             Documents = Documents ?? new List<TrackerDocumentDto>();
+            PcdRequests = PcdRequests ?? new List<TrackerPcdRequestDto>();
             Logs = Logs ?? new List<TrackerLogDto>();
 
             Log(TrackerLogType.Initialised);
@@ -58,48 +63,53 @@ namespace coordinator.Functions.DurableEntity.Entity
             Logs = new List<TrackerLogDto>();
 
             Documents = tracker.Documents;
+            PcdRequests = tracker.PcdRequests;
 
             return Task.CompletedTask;
         }
 
-        public Task<TrackerDocumentListDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg)
+        public Task<TrackerDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg)
         {
-            var incomingDocuments = arg.Documents;
-
             if (Documents == null)
                 Documents = new List<TrackerDocumentDto>();
 
-            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaDocuments(incomingDocuments);
+            if (PcdRequests == null)
+                PcdRequests = new List<TrackerPcdRequestDto>();
 
-            TrackerDocumentListDeltasDto deltas = new TrackerDocumentListDeltasDto
+            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaDocuments(arg.Documents);
+            var (createdPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(arg.PcdRequests);
+
+            TrackerDeltasDto deltas = new TrackerDeltasDto
             {
-                Created = CreateDocuments(createdDocuments),
-                Updated = UpdateDocuments(updatedDocuments),
-                Deleted = DeleteDocuments(deletedDocuments)
+                CreatedDocuments = CreateTrackerDocuments(createdDocuments),
+                UpdatedDocuments = UpdateTrackerDocuments(updatedDocuments),
+                DeletedDocuments = DeleteTrackerDocuments(deletedDocuments),
+                CreatedPcdRequests = CreateTrackerPcdRequests(createdPcdRequests),
+                DeletedPcdRequests = DeleteTrackerPcdRequests(deletedPcdRequests),
             };
 
             Status = TrackerStatus.DocumentsRetrieved;
             DocumentsRetrieved = DateTime.Now;
             VersionId = deltas.Any() ? VersionId+1 : Math.Max(VersionId, 1);
 
-            Log(TrackerLogType.DocumentsSynchronised, null, $"{deltas.Created.Count} created, {deltas.Updated.Count} updated, {deltas.Deleted.Count} deleted");
+            Log(TrackerLogType.DocumentsSynchronised, null, $"{deltas.CreatedDocuments.Count} created, {deltas.UpdatedDocuments.Count} updated, {deltas.DeletedDocuments.Count} deleted");
 
             return Task.FromResult(deltas);
         }
 
         private (List<DocumentDto>, List<DocumentDto>, List<string>) GetDeltaDocuments(List<DocumentDto> documents)
         {
-            var existingCmsDocumentIds = Documents.Select(d => d.CmsDocumentId).ToList();
+            var existingCmsDocumentIds = Documents.Select(doc => doc.CmsDocumentId).ToList();
             var newDocuments =
                 documents
-                    .Where(d => !existingCmsDocumentIds.Contains(d.DocumentId))
+                    .Where(doc => !existingCmsDocumentIds.Contains(doc.DocumentId))
                     .ToList();
 
-            var existingCmsDocumentIdVersions = Documents.Select(d => (d.CmsDocumentId, d.CmsVersionId)).ToList();
+            var existingCmsDocumentIdVersions = Documents.Select(doc => (doc.CmsDocumentId, doc.CmsVersionId)).ToList();
             var updatedDocuments =
                 documents
-                    .Where(d => existingCmsDocumentIds.Contains(d.DocumentId))
-                    .Where(d => !existingCmsDocumentIdVersions.Contains((d.DocumentId, d.VersionId)))
+                    .Where(doc => existingCmsDocumentIds.Contains(doc.DocumentId))
+                    .Where(doc => !existingCmsDocumentIdVersions.Contains((doc.DocumentId, doc.VersionId)))
                     .ToList();
 
             var deletedCmsDocumentIdsToRemove
@@ -110,7 +120,23 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newDocuments, updatedDocuments, deletedCmsDocumentIdsToRemove);
         }
 
-        private List<TrackerDocumentDto> CreateDocuments(List<DocumentDto> createdDocuments)
+        private (List<PcdRequestDto> createdPcdRequests, List<int> deletedPcdRequests) GetDeltaPcdRequests(List<PcdRequestDto> pcdRequests)
+        {
+            var existingPcdRequestIds = PcdRequests.Select(pcd => pcd.PcdRequestId).ToList();
+            var newPcdRequests =
+                pcdRequests
+                    .Where(pcd => !existingPcdRequestIds.Contains(pcd.Id))
+                    .ToList();
+
+            var deletedPcdRequestIdsToRemove
+                = PcdRequests.Where(pcd => !PcdRequests.Exists(x => pcd.PcdRequestId == x.PcdRequestId))
+                    .Select(pcd => pcd.PcdRequestId)
+                    .ToList();
+
+            return (newPcdRequests, deletedPcdRequestIdsToRemove);
+        }
+
+        private List<TrackerDocumentDto> CreateTrackerDocuments(List<DocumentDto> createdDocuments)
         {
             List<TrackerDocumentDto> newDocuments = new List<TrackerDocumentDto>();
 
@@ -124,8 +150,6 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.DocumentId,
                         newDocument.VersionId,
                         newDocument.CmsDocType,
-                        newDocument.MimeType,
-                        newDocument.FileExtension,
                         newDocument.DocumentDate,
                         newDocument.FileName,
                         newDocument.PresentationFlags
@@ -139,7 +163,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newDocuments;
         }
 
-        private List<TrackerDocumentDto> UpdateDocuments(List<DocumentDto> updatedDocuments)
+        private List<TrackerDocumentDto> UpdateTrackerDocuments(List<DocumentDto> updatedDocuments)
         {
             List<TrackerDocumentDto> changedDocuments = new List<TrackerDocumentDto>();
 
@@ -150,8 +174,6 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.PolarisDocumentVersionId++;
                 trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
-                trackerDocument.CmsMimeType = updatedDocument.MimeType;
-                trackerDocument.CmsFileExtension = updatedDocument.FileExtension;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.CmsOriginalFileName = updatedDocument.FileName;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
@@ -164,7 +186,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return changedDocuments;
         }
 
-        private List<TrackerDocumentDto> DeleteDocuments(List<string> documentIdsToDelete)
+        private List<TrackerDocumentDto> DeleteTrackerDocuments(List<string> documentIdsToDelete)
         {
             var deleteDocuments 
                 = Documents
@@ -173,11 +195,50 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             foreach (var document in deleteDocuments)
             {
-                Log(TrackerLogType.Deleted, document.CmsDocumentId);
+                Log(TrackerLogType.DeletedDocument, document.CmsDocumentId);
                 Documents.Remove(document);
             }
 
             return deleteDocuments;
+        }
+
+        private List<TrackerPcdRequestDto> CreateTrackerPcdRequests(List<PcdRequestDto> createdPcdRequests)
+        {
+            List<TrackerPcdRequestDto> newPcdRequests = new List<TrackerPcdRequestDto>();
+
+            foreach (var newPcdRequest in createdPcdRequests)
+            {
+                TrackerPcdRequestDto trackerPcdRequest
+                    = new TrackerPcdRequestDto
+                    (
+                        Guid.NewGuid(),
+                        1,
+                        newPcdRequest.Id,
+                        newPcdRequest.PresentationFlags
+                    );
+
+                PcdRequests.Add(trackerPcdRequest);
+                newPcdRequests.Add(trackerPcdRequest);
+                Log(TrackerLogType.PcdRequestRetrieved, trackerPcdRequest.PcdRequestId.ToString());
+            }
+
+            return newPcdRequests;
+        }
+
+        private List<TrackerPcdRequestDto> DeleteTrackerPcdRequests(List<int> deletedPcdRequestIds)
+        {
+            var deletePcdRequests
+                = PcdRequests
+                    .Where(pcd => deletedPcdRequestIds.Contains(pcd.PcdRequestId))
+                    .ToList();
+
+            foreach (var pcdRequest in deletePcdRequests)
+            {
+                Log(TrackerLogType.DeletedPcdRequest, pcdRequest.PcdRequestId.ToString());
+                PcdRequests.Remove(pcdRequest);
+            }
+
+            return deletePcdRequests;
         }
 
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
@@ -216,6 +277,17 @@ namespace coordinator.Functions.DurableEntity.Entity
                 document.Status = TrackerDocumentStatus.UnableToConvertToPdf;
 
             Log(TrackerLogType.UnableToConvertDocumentToPdf, documentId);
+
+            return Task.CompletedTask;
+        }
+
+        public Task RegisterUnexpectedPdfPcdRequestFailure(int id)
+        {
+            var pcdRequest = PcdRequests.Find(pcd => pcd.PcdRequestId == id);
+            if (pcdRequest != null)
+                pcdRequest.Status = TrackerDocumentStatus.UnableToConvertToPdf;
+
+            Log(TrackerLogType.UnableToConvertPcdRequestToPdf, id.ToString());
 
             return Task.CompletedTask;
         }
@@ -275,7 +347,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             ClearState(TrackerStatus.Deleted);
             ProcessingCompleted = DateTime.Now;
-            Log(TrackerLogType.Deleted);
+            Log(TrackerLogType.DeletedDocument);
 
             return Task.CompletedTask;
         }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Extensions;
+using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
@@ -33,7 +34,7 @@ namespace coordinator.tests.Functions
         private readonly DocumentDto[] _caseDocuments;
         private readonly string _transactionId;
         private readonly List<TrackerDocumentDto> _trackerDocuments;
-        private readonly TrackerDocumentListDeltasDto _deltaDocuments;
+        private readonly TrackerDeltasDto _deltaDocuments;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ITrackerEntity> _mockTracker;
@@ -53,11 +54,13 @@ namespace coordinator.tests.Functions
 
             _transactionId = fixture.Create<string>();
             _trackerDocuments = fixture.CreateMany<TrackerDocumentDto>(11).ToList();
-            _deltaDocuments = new TrackerDocumentListDeltasDto 
-            { 
-                Created = _trackerDocuments.Where(d => d.Status == TrackerDocumentStatus.New).ToList(),
-                Updated = fixture.Create<TrackerDocumentDto[]>().ToList(),
-                Deleted = fixture.Create<TrackerDocumentDto[]>().ToList() 
+            _deltaDocuments = new TrackerDeltasDto
+            {
+                CreatedDocuments = _trackerDocuments.Where(d => d.Status == TrackerDocumentStatus.New).ToList(),
+                UpdatedDocuments = fixture.Create<TrackerDocumentDto[]>().ToList(),
+                DeletedDocuments = fixture.Create<TrackerDocumentDto[]>().ToList(),
+                CreatedPcdRequests = new List<TrackerPcdRequestDto> { },
+                DeletedPcdRequests = new List<TrackerPcdRequestDto> { }
             };
             var evaluateDocumentsResponse = fixture.CreateMany<EvaluateDocumentResponse>().ToList();
 
@@ -115,11 +118,13 @@ namespace coordinator.tests.Functions
 
             _mockTracker
                 .Setup(tracker => tracker.SynchroniseDocuments(It.IsAny<SynchroniseDocumentsArg>()))
-                .ReturnsAsync(new TrackerDocumentListDeltasDto 
+                .ReturnsAsync(new TrackerDeltasDto 
                                 { 
-                                    Created  = new List<TrackerDocumentDto>(),
-                                    Updated = new List<TrackerDocumentDto>(),
-                                    Deleted = new List<TrackerDocumentDto>() 
+                                    CreatedDocuments = new List<TrackerDocumentDto>(),
+                                    UpdatedDocuments = new List<TrackerDocumentDto>(),
+                                    DeletedDocuments = new List<TrackerDocumentDto>(), 
+                                    CreatedPcdRequests = new List<TrackerPcdRequestDto>(),
+                                    DeletedPcdRequests = new List<TrackerPcdRequestDto>(), 
                                 });
 
             var documents = await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
@@ -149,7 +154,7 @@ namespace coordinator.tests.Functions
         public async Task Run_DoesNotThrowWhenSubOrchestratorCallFails()
         {
             _mockDurableOrchestrationContext.Setup(
-                context => context.CallSubOrchestratorAsync(nameof(RefreshDocumentOrchestrator), It.IsAny<CaseDocumentOrchestrationPayload>()))
+                context => context.CallSubOrchestratorAsync(nameof(RefreshDocumentOrchestrator), It.IsAny<GetCaseDocumentsActivityPayload>()))
                     .ThrowsAsync(new Exception());
             try
             {

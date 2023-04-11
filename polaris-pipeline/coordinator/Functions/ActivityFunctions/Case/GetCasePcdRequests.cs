@@ -2,10 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Domain.Extensions;
+using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Logging;
+using Common.Mappers.Contracts;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
+using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -13,26 +16,26 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.ActivityFunctions.Case
 {
-    public class GetCaseDocuments
+    public class GetCasePcdRequests
     {
         private readonly IDdeiClient _ddeiService;
         private readonly IDocumentToggleService _documentToggleService;
-        private readonly ILogger<GetCaseDocuments> _log;
+        private readonly ILogger<GetCasePcdRequests> _log;
 
-        const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(GetCasePcdRequests)} - {nameof(Run)}";
 
-        public GetCaseDocuments(
+        public GetCasePcdRequests(
                  IDdeiClient ddeiService,
                  IDocumentToggleService documentToggleService,
-                 ILogger<GetCaseDocuments> logger)
+                 ILogger<GetCasePcdRequests> logger)
         {
             _ddeiService = ddeiService;
             _documentToggleService = documentToggleService;
             _log = logger;
         }
 
-        [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<DocumentDto[]> Run([ActivityTrigger] IDurableActivityContext context)
+        [FunctionName(nameof(GetCasePcdRequests))]
+        public async Task<PcdRequestDto[]> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -47,24 +50,29 @@ namespace coordinator.Functions.ActivityFunctions.Case
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
 
-            _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            var caseDocuments = await _ddeiService.ListDocumentsAsync(
-              payload.CmsCaseUrn,
-              payload.CmsCaseId.ToString(),
-              payload.CmsAuthValues,
-              payload.CorrelationId);
+            var caseArgDto = new DdeiCmsCaseArgDto
+            {
+                Urn = payload.CmsCaseUrn,
+                CaseId = payload.CmsCaseId,
+                CmsAuthValues = payload.CmsAuthValues,
+                CorrelationId = payload.CorrelationId
+            };
 
-            _log.LogMethodExit(payload.CorrelationId, loggingName, caseDocuments.ToJson());
-            return caseDocuments
+            _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
+            var @case = await _ddeiService.GetCase(caseArgDto);
+            var preChargeDecisionRequests = @case.PreChargeDecisionRequests;
+
+            _log.LogMethodExit(payload.CorrelationId, loggingName, preChargeDecisionRequests.ToJson());
+            return preChargeDecisionRequests
                     .Select(MapPresentationFlags)
                     .ToArray();
         }
 
-        private DocumentDto MapPresentationFlags(DocumentDto document)
+        private PcdRequestDto MapPresentationFlags(PcdRequestDto pcdRequest)
         {
-            document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
+            pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
 
-            return document;
+            return pcdRequest;
         }
     }
 }
