@@ -11,9 +11,9 @@ schedules:
 
 stages:
   - stage: Startup_Dev_Build_Agent
+    displayName: Start Dev Build Agent
     variables:
       - group: polaris-global
-    displayName: Start Dev Build Agent
     jobs:
       - job: Startup_Dev_Build_Agent
         pool:
