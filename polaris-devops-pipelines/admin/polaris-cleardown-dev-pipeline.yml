@@ -89,7 +89,7 @@ stages:
     jobs:
       - job: Clear_down_BlobStorage
         pool:
-          vmImage: windows-latest
+          name: $(dev-build-agent)
         steps:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
@@ -98,7 +98,7 @@ stages:
               scriptType: 'ps'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --delete-snapshots include
+                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
     displayName: Reset Durable State
