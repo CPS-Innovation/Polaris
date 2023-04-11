@@ -35,7 +35,7 @@ stages:
     dependsOn: Startup_Dev_Build_Agent
     condition: succeeded()
     jobs:
-      - job: Run_Terraform
+      - job: Clear_down_SearchIndex
         pool:
           name: $(dev-build-agent)
         steps:
@@ -87,26 +87,25 @@ stages:
     dependsOn: Clear_down_SearchIndex
     condition: succeeded()
     jobs:
-      - job:
+      - job: Clear_down_BlobStorage
         pool:
-          name: $(dev-build-agent)
+          vmImage: windows-latest
         steps:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
-              azureSubscription: '$(innovation-development-subscription-name)'
-              scriptType: bash
+              azureSubscription: $(innovation-development-subscription-name)
+              scriptType: ps
               scriptLocation: inlineScript
-              arguments: '$(dev-document-storage-account) $(cpsdocumentstorage-connection-string)'
               inlineScript: |
-                az storage blob delete-batch --account-name $1 --source documents --connection-string $2 --delete-snapshots include
+                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string $(cpsdocumentstorage-connection-string) --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
     displayName: Reset Durable State
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
     jobs:
-      - job:
+      - job: Reset
         pool: server
         steps:
           - task: AzureFunction@1
