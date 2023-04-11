@@ -9,8 +9,6 @@ using PolarisGateway.Extensions;
 using Common.Validators.Contracts;
 using Common.Logging;
 using PolarisGateway.Wrappers;
-using Microsoft.Extensions.Options;
-using System;
 
 namespace PolarisGateway.Functions.Health
 {

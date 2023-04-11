@@ -41,10 +41,10 @@ namespace PolarisGateway
 #endif
 
             var configuration = new ConfigurationBuilder()
+                .AddEnvironmentVariables()
 #if DEBUG
                 .SetBasePath(Directory.GetCurrentDirectory())
 #endif
-                .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .Build();
             builder.Services.AddSingleton<IConfiguration>(configuration);

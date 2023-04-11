@@ -5,7 +5,6 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ddei.Services.Extensions;
-using System;
 
 [assembly: FunctionsStartup(typeof(PolarisAuthHandover.Startup))]
 
