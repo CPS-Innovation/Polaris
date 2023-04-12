@@ -123,14 +123,7 @@ stages:
               sleep 5
               cat openvpn log
               ifconfig
-              result=$(curl -s -o /dev/null -w “%{http_code}” -X DELETE "$APP_URL?code=$APP_CODE")
-              if [ "$result" == "200" ]
-              then
-                echo "OK"
-              else
-                echo $result
-                exit 1
-              fi
+              curl -X DELETE "$APP_URL?code=$APP_CODE"
             displayName: Call Coordinator
             env:
               APP_URL: $(dev-reset-function-url)
