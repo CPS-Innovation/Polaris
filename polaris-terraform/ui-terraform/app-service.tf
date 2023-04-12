@@ -26,7 +26,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     ftps_state       = "FtpsOnly"
     http2_enabled    = true
     ip_restriction   = []
-    app_command_line = "node subsititute-config.js; npx serve -s"
+    app_command_line = "node subsititute-config.js; npx serve"
     application_stack {
       node_version = "14-lts"
     }
@@ -68,7 +68,7 @@ module "azurerm_app_reg_as_web_polaris" {
       }]
   }]
   single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/", "http://localhost:3000/", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}"]
+    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}"]
   }
   web = {
     homepage_url  = "https://as-web-${local.resource_name}.azurewebsites.net"
