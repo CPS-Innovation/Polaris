@@ -3,41 +3,41 @@ pr: none
 
 schedules:
   - cron: "0 3 * * *" # First number represent the amount of minutes, second represent the hours. In this case 03:00 Monday - Sunday
-    displayName: Clear-down DEV Polaris Assets
+    displayName: Clear-down QA Polaris Assets
     branches:
       include:
         - main
     always: true
 
 variables:
-  - group: kv-dev-terraform
+  - group: kv-qa-terraform
   - group: polaris-global
   - group: pipeline-terraform
 
 stages:
-  - stage: Startup_Dev_Build_Agent
-    displayName: Start Dev Build Agent
+  - stage: Startup_QA_Build_Agent
+    displayName: Start QA Build Agent
     jobs:
-      - job: Startup_Dev_Build_Agent
+      - job: Startup_QA_Build_Agent
         pool:
           vmImage: windows-latest
         steps:
           - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
-            displayName: 'Start Dev Build Agent'
+            displayName: 'Start QA Build Agent'
             inputs:
               serviceConnection: $(build-release-connector)
               project: $(project-id)
               Pipeline: Build
-              buildDefinition: 135
-              
+              buildDefinition: 141
+
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
-    dependsOn: Startup_Dev_Build_Agent
+    dependsOn: Startup_QA_Build_Agent
     condition: succeeded()
     jobs:
       - job: Clear_down_SearchIndex
         pool:
-          name: $(dev-build-agent)
+          name: $(qa-build-agent)
         steps:
           # Install Terraform based on version variable
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -55,32 +55,32 @@ stages:
             displayName: Terraform > Init
             workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
               TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
               TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
                 
           # Terraform Plan
           - bash: |
-              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -replace=restapi_object.definition
+              terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars" -replace=restapi_object.definition
             displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
             workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+              ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                 
           # Terraform Apply
           - bash: |
-              terraform apply -auto-approve dev.tfplan
+              terraform apply -auto-approve qa.tfplan
             displayName: Terraform > Refresh Search Index
             workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+              ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                 
   - stage: Clear_down_BlobStorage
     displayName: Reset Document Blob Storage
@@ -89,25 +89,25 @@ stages:
     jobs:
       - job: Clear_down_BlobStorage
         pool:
-          name: $(dev-build-agent)
+          name: $(qa-build-agent)
         steps:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
-              connectedServiceNameARM: '$(dev-azure-subscription)'
+              connectedServiceNameARM: '$(qa-azure-subscription)'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
+                az storage blob delete-batch --account-name $(qa-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
     displayName: Reset Durable State
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
     jobs:
-      - job: Reset, stop and restart
+      - job: Reset
         pool:
-          name: $(dev-build-agent)
+          name: $(qa-build-agent)
         steps:
           - bash: |
               result=$(curl -s -o /dev/null -w “%{http_code}” -X DELETE "$APP_URL?code=$APP_CODE")
@@ -120,36 +120,36 @@ stages:
               fi
             displayName: Call Coordinator
             env:
-              APP_URL: $(dev-reset-function-url)
+              APP_URL: $(qa-reset-function-url)
               APP_CODE: $(reset-function-key)
-                
+              
           - task: AzureAppServiceManage@0
             displayName: 'Stop Orchestration Services'
             inputs:
-              azureSubscription: $(dev-azure-subscription)
+              azureSubscription: $(qa-azure-subscription)
               Action: 'Stop Azure App Service'
-              WebAppName: "fa-polaris-pipeline-dev-coordinator"
-              
+              WebAppName: "fa-polaris-pipeline-qa-coordinator"
+
           - task: AzureAppServiceManage@0
             displayName: 'Start Orchestration Services'
             inputs:
-              azureSubscription: $(dev-azure-subscription)
+              azureSubscription: $(qa-azure-subscription)
               Action: 'Start Azure App Service'
-              WebAppName: "fa-polaris-pipeline-dev-coordinator"
-  
-  - stage: Shutdown_Dev_Build_Agent
-    displayName: Shutdown Dev Build Agent
+              WebAppName: "fa-polaris-pipeline-qa-coordinator"
+              
+  - stage: Shutdown_QA_Build_Agent
+    displayName: Shutdown QA Build Agent
     dependsOn: Clear_down_Durable_Orchestration_State
     condition: succeeded()
     jobs:
-      - job: Shutdown_Dev_Build_Agent
+      - job: Shutdown_QA_Build_Agent
         pool:
           vmImage: windows-latest
         steps:
           - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
-            displayName: 'Shutdown Dev Build Agent'
+            displayName: 'Shutdown QA Build Agent'
             inputs:
               serviceConnection: $(build-release-connector)
               project: $(project-id)
               Pipeline: Build
-              buildDefinition: 136
+              buildDefinition: 142
