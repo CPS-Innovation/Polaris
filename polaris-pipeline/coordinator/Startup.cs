@@ -76,10 +76,10 @@ namespace coordinator
             builder.Services.AddDdeiClient(configuration);
             builder.Services.AddPdfGenerator();
 
-            var polarisPipelineRedactPdfBaseUri = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl"));
+            var pipelineRedactPdfBaseUrl = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
             builder.Services.AddHttpClient(nameof(GeneratePdf), client =>
             {
-                client.BaseAddress = polarisPipelineRedactPdfBaseUri;
+                client.BaseAddress = pipelineRedactPdfBaseUrl;
             });
 
             BuildHealthChecks(builder);
