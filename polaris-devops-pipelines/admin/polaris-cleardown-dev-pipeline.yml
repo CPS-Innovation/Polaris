@@ -128,7 +128,7 @@ stages:
                 echo "OK"
               else
                 echo $result
-                exit 1
+                echo "Nothing to reset"
               fi
             displayName: Call Coordinator
             env:
