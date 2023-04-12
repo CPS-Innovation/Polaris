@@ -1,0 +1,141 @@
+trigger: none
+pr: none
+
+schedules:
+  - cron: "0 3 * * *" # First number represent the amount of minutes, second represent the hours. In this case 03:00 Monday - Sunday
+    displayName: Clear-down PROD Polaris Assets
+    branches:
+      include:
+        - main
+    always: true
+
+variables:
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: pipeline-terraform
+
+stages:
+  - stage: Startup_Prod_Build_Agent
+    displayName: Start PROD Build Agent
+    jobs:
+      - job: Startup_Prod_Build_Agent
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
+            displayName: 'Start PROD Build Agent'
+            inputs:
+              serviceConnection: $(build-release-connector)
+              project: $(project-id)
+              Pipeline: Build
+              buildDefinition: 146
+
+  - stage: Clear_down_SearchIndex
+    displayName: Reset Search Index
+    dependsOn: Startup_Prod_Build_Agent
+    condition: succeeded()
+    jobs:
+      - job: Clear_down_SearchIndex
+        pool:
+          name: $(prod-build-agent)
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+                
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+            env:
+              TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars" -replace=restapi_object.definition
+            displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+            env:
+              ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+              ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+          # Terraform Apply
+          - bash: |
+              terraform apply -auto-approve prod.tfplan
+            displayName: Terraform > Refresh Search Index
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+            env:
+              ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+              ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+  - stage: Clear_down_BlobStorage
+    displayName: Reset Document Blob Storage
+    dependsOn: Clear_down_SearchIndex
+    condition: succeeded()
+    jobs:
+      - job: Clear_down_BlobStorage
+        pool:
+          name: $(prod-build-agent)
+        steps:
+          - task: AzureCLI@2
+            displayName: Refresh Blob Storage
+            inputs:
+              connectedServiceNameARM: '$(prod-azure-subscription)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az storage blob delete-batch --account-name $(prod-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
+                
+  - stage: Clear_down_Durable_Orchestration_State
+    displayName: Reset Durable State
+    dependsOn: Clear_down_BlobStorage
+    condition: succeeded()
+    jobs:
+      - job: Reset
+        pool:
+          name: $(prod-build-agent)
+        steps:
+          - bash: |
+              result=$(curl -s -o /dev/null -w “%{http_code}” -X DELETE "$APP_URL?code=$APP_CODE")
+              if [ $result == 200 ]
+              then
+                echo "OK"
+              else
+                echo $result
+                echo "Nothing to reset"
+              fi
+            displayName: Call Coordinator
+            env:
+              APP_URL: $(prod-reset-function-url)
+              APP_CODE: $(reset-function-key)
+              
+  - stage: Shutdown_Prod_Build_Agent
+    displayName: Shutdown PROD Build Agent
+    dependsOn: Clear_down_Durable_Orchestration_State
+    condition: succeeded()
+    jobs:
+      - job: Shutdown_Prod_Build_Agent
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
+            displayName: 'Shutdown PROD Build Agent'
+            inputs:
+              serviceConnection: $(build-release-connector)
+              project: $(project-id)
+              Pipeline: Build
+              buildDefinition: 147
