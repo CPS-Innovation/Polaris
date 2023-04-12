@@ -110,10 +110,12 @@ stages:
           name: $(dev-build-agent)
         steps:
           - bash: |
-              curl -i -X DELETE \ 
-                'https://fa-polaris-pipeline-dev-coordinator.azurewebsites.net/api/admin/resetDurableState?code="$APP_CODE"'
+              resetUrl = "$(APP_URL)?code=$(APP_CODE)"
+              echo '${resetUrl}'
+              curl -i -X DELETE '${resetUrl}'
             displayName: Call Coordinator
             env:
+              APP_URL: $(dev-reset-function-url)
               APP_CODE: $(reset-function-key)
               
   - stage: Shutdown_Dev_Build_Agent
