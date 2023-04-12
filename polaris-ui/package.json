@@ -60,8 +60,8 @@
     "xunit-viewer": "^7.1.5"
   },
   "scripts": {
-    "start": "PUBLIC_URL=/polaris-ui react-scripts start",
-    "build": "PUBLIC_URL=/polaris-ui react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test  --watchAll",
     "test:ci": "./scripts/test-ci.sh",
     "eject": "react-scripts eject",
