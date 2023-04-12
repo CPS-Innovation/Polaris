@@ -1,7 +1,8 @@
 trigger: none
+pr: none
 
 schedules:
-  - cron: "0 3 * * Mon-Sun" # First number represent the amount of minutes, second represent the hours. In this case 03:00 Monday - Sunday
+  - cron: "0 3 * * *" # First number represent the amount of minutes, second represent the hours. In this case 03:00 Monday - Sunday
     displayName: Clear-down DEV Polaris Assets
     branches:
       include:
@@ -130,9 +131,9 @@ stages:
               method: 'DELETE'
               waitForCompletion: 'true'
               
-  - stage: Clear_down_Durable_Orchestration_State
+  - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
-    dependsOn: Clear_down_BlobStorage
+    dependsOn: Clear_down_Durable_Orchestration_State
     condition: succeeded()
     jobs:
       - job: Shutdown_Dev_Build_Agent
