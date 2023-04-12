@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using pdf_generator;
+using pdf_generator.Domain;
 using pdf_generator.Services.PdfService;
 
 namespace coordinator.Functions
@@ -99,20 +101,22 @@ namespace coordinator.Functions
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{pdfRequest.DocumentId}'");
 
-                // If CMS Document.... TODO If PcdRequest
-
-                // Step 1 - Get DDEI Document - TODO - move to parent
-                var documentStream = await _documentExtractionService.GetDocumentAsync(pdfRequest.CaseUrn, pdfRequest.CaseId.ToString(), pdfRequest.DocumentCategory,
-                    pdfRequest.DocumentId, cmsAuthValues, currentCorrelationId);
+                var documentStream = await _documentExtractionService.GetDocumentAsync
+                    (
+                        pdfRequest.CaseUrn,
+                        pdfRequest.CaseId.ToString(),
+                        pdfRequest.DocumentCategory,
+                        pdfRequest.DocumentId,
+                        cmsAuthValues,
+                        currentCorrelationId
+                    );
 
                 var fileType = Path.GetExtension(pdfRequest.FileName).ToFileType();
                 _log.LogMethodFlow(currentCorrelationId, loggingName,
                     $"Processing retrieved document of type: '{fileType}'. Original file: '{pdfRequest.FileName}', with new fileName: '{blobName}'");
 
-                // Step 2 - Generate PDF Stream
-                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(documentStream, fileType, pdfRequest.DocumentId, currentCorrelationId);
+                Stream pdfStream = await ConvertToPdf(currentCorrelationId, pdfRequest, documentStream, fileType);
 
-                // Step 3 - Upload to Blob Storage - TODO - move to parent
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
                 await _blobStorageService.UploadDocumentAsync(pdfStream, blobName, pdfRequest.CaseId.ToString(), pdfRequest.DocumentId,
                     pdfRequest.VersionId.ToString(), currentCorrelationId);
@@ -129,6 +133,35 @@ namespace coordinator.Functions
             {
                 _log.LogMethodExit(currentCorrelationId, loggingName, generatePdfResponse.ToJson());
             }
+        }
+
+        private async Task<Stream> ConvertToPdf(Guid correlationId, GeneratePdfRequestDto pdfRequest, Stream documentStream, FileType fileType)
+        {
+            var pdfStream = new MemoryStream();
+
+            documentStream.Seek(0, SeekOrigin.Begin);
+            var request = new HttpRequestMessage(HttpMethod.Post, "convert-to-pdf");
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+            using (var requestContent = new StreamContent(documentStream))
+            {
+                HttpClient httpClient = new HttpClient();
+                httpClient.BaseAddress = new Uri("http://localhost:7073/api/");
+                request.Headers.Add("CorrelationId", correlationId.ToString());
+                request.Headers.Add("Filetype", fileType.ToString());
+                request.Headers.Add("DocumentId", pdfRequest.DocumentId);
+                request.Content = requestContent;
+                requestContent.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    response.EnsureSuccessStatusCode();
+                    await response.Content.CopyToAsync(pdfStream);
+                    pdfStream.Seek(0, SeekOrigin.Begin);
+                }
+            }
+
+            return pdfStream;
+
+            //return _pdfOrchestratorService.ReadToPdfStream(documentStream, fileType, pdfRequest.DocumentId, currentCorrelationId);
         }
 
         private string Serialize(object objectToSerialize)
