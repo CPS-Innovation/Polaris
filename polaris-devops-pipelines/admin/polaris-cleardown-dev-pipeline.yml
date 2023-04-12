@@ -110,9 +110,8 @@ stages:
           name: $(dev-build-agent)
         steps:
           - bash: |
-              resetUrl = "$APP_URL?code=$APP_CODE"
-              echo $resetUrl
-              curl -i -X DELETE $resetUrl
+              echo "$APP_URL?code=$APP_CODE"
+              curl -i -X DELETE "$APP_URL?code=$APP_CODE"
             displayName: Call Coordinator
             env:
               APP_URL: $(dev-reset-function-url)
