@@ -122,8 +122,6 @@ stages:
               head $(vpnConfig.secureFilePath)
               sudo openvpn $(vpnConfig.secureFilePath) &
               sleep 5
-              cat openvpn log
-              ifconfig
               result=$(curl -s -o /dev/null -w “%{http_code}” -X DELETE "$APP_URL?code=$APP_CODE")
               if [ $result == "200" ]
               then
