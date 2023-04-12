@@ -61,7 +61,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start:coredata": "sudo HTTPS=true PORT=443 env-cmd -f .env.coredata react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test  --watchAll",
     "test:ci": "./scripts/test-ci.sh",

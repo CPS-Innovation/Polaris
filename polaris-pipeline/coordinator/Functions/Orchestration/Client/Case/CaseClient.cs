@@ -5,8 +5,8 @@ using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.Orchestation.Functions.Case;
-using coordinator.Functions.Orchestation.Functions.Tracker;
+using coordinator.Functions.Orchestration.Functions.Case;
+using coordinator.Functions.Orchestration.Functions.Tracker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -20,7 +20,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace coordinator.Functions.Orchestation.Client.Case
+namespace coordinator.Functions.Orchestration.Client.Case
 {
     public class CaseClient
     {

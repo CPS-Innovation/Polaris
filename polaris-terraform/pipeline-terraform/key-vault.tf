@@ -95,8 +95,27 @@ resource "azurerm_role_assignment" "kv_role_terraform_sp" {
   principal_id         = data.azuread_service_principal.terraform_service_principal.object_id
 }
 
+resource "azurerm_role_assignment" "terraform_kv_role_terraform_sp" {
+  scope                = data.azurerm_key_vault.terraform_key_vault.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azuread_service_principal.terraform_service_principal.object_id
+}
+
 resource "azurerm_key_vault_access_policy" "kvap_terraform_sp" {
   key_vault_id = azurerm_key_vault.kv.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azuread_service_principal.terraform_service_principal.object_id
+
+  secret_permissions = [
+    "Get",
+    "Set",
+    "Delete",
+    "Purge"
+  ]
+}
+
+resource "azurerm_key_vault_access_policy" "terraform_kvap_terraform_sp" {
+  key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = data.azuread_service_principal.terraform_service_principal.object_id
 
@@ -153,6 +172,19 @@ resource "azurerm_key_vault_secret" "kvs_pipeline_storage_connection_string" {
 
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp,
+    azurerm_storage_account.sa
+  ]
+}
+
+resource "azurerm_key_vault_secret" "kvs_pipeline_terraform_storage_connection_string" {
+  name            = "cpsdocumentstorage-connection-string"
+  value           = azurerm_storage_account.sa.primary_connection_string
+  key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
+  expiration_date = timeadd(timestamp(), "8760h")
+  content_type    = "password"
+  
+  depends_on = [
+    azurerm_role_assignment.terraform_kv_role_terraform_sp,
     azurerm_storage_account.sa
   ]
 }

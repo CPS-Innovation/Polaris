@@ -66,41 +66,11 @@ resource "azurerm_storage_container" "container" {
   depends_on            = [azurerm_storage_account.sa]
 }
 
-resource "azurerm_storage_management_policy" "pipeline-documents-lifecycle" {
-  storage_account_id = azurerm_storage_account.sa.id
-
-  rule {
-    name    = "polaris-documents-${var.env != "prod" ? var.env : ""}-lifecycle"
-    enabled = true
-    filters {
-      prefix_match = ["documents"]
-      blob_types   = ["blockBlob"]
-    }
-    actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = 7
-      }
-    }
-  }
-  depends_on = [azurerm_storage_account.sa]
-}
-
 data "azurerm_function_app_host_keys" "fa_text_extractor_generator_host_keys" {
   name                = "fa-${local.resource_name}-text-extractor"
   resource_group_name = azurerm_resource_group.rg.name
 
   depends_on = [azurerm_linux_function_app.fa_text_extractor]
-}
-
-resource "azurerm_eventgrid_system_topic" "pipeline_document_deleted_topic" {
-  name                   = "pipeline-document-deleted-${var.env != "prod" ? var.env : ""}-topic"
-  location               = azurerm_resource_group.rg.location
-  resource_group_name    = azurerm_resource_group.rg.name
-  source_arm_resource_id = azurerm_storage_account.sa.id
-  topic_type             = "Microsoft.Storage.StorageAccounts"
-  tags                   = local.common_tags
-
-  depends_on = [azurerm_storage_account.sa, azurerm_storage_management_policy.pipeline-documents-lifecycle]
 }
 
 # Create Private Endpoint for Blobs

@@ -4,10 +4,9 @@
   "description": "TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run",
-    "copy-domain": "cp -r ../polaris-ui/src/app/features/cases/domain/gateway ./gateway"
+    "cy": "cypress open",
+    "cy:ci": "cypress run",
+    "copy-domain": "cp -r ../polaris-ui/src/app/features/cases/domain/gateway ."
   },
   "repository": {
     "type": "git",
@@ -22,6 +21,7 @@
   },
   "dependencies": {
     "@testing-library/cypress": "^9.0.0",
+    "@types/fs-extra": "^11.0.1",
     "@types/jsonwebtoken": "^9.0.1",
     "cypress-plugin-api": "^2.11.0",
     "cypress-wait-until": "^1.7.2",

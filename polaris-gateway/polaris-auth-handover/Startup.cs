@@ -1,15 +1,6 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Headers;
+﻿using System.Diagnostics.CodeAnalysis;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Ddei.Services;
-using Ddei.Factories;
-using Ddei.Factories.Contracts;
-using Ddei.Mappers;
-using Ddei.Options;
-using DdeiClient.Services.Contracts;
-using DdeiClient.Mappers.Contract;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

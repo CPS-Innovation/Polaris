@@ -11,7 +11,7 @@ using coordinator.Domain;
 using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity;
-using coordinator.Functions.Orchestation.Functions.Document;
+using coordinator.Functions.Orchestration.Functions.Document;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;

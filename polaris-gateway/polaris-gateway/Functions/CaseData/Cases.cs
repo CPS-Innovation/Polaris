@@ -9,14 +9,12 @@ using Common.Logging;
 using Common.Validators.Contracts;
 using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
-using Ddei.Options;
 using DdeiClient.Services.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using PolarisGateway.Extensions;
 using PolarisGateway.Wrappers;
@@ -28,22 +26,18 @@ namespace PolarisGateway.Functions.CaseData
         private readonly IDdeiClient _caseDataService;
         private readonly ICaseDataArgFactory _caseDataArgFactory;
         private readonly ILogger<Cases> _logger;
-        private readonly DdeiOptions _ddeiOptions;
-
         const string loggingName = $"{nameof(Cases)} - {nameof(Run)}";
 
         public Cases(ILogger<Cases> logger,
                         IDdeiClient caseDataService,
                         IAuthorizationValidator tokenValidator,
                         ICaseDataArgFactory caseDataArgFactory,
-                        IOptions<DdeiOptions> options,
                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
             _caseDataService = caseDataService;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
-            _ddeiOptions = options.Value;
         }
 
         [FunctionName(nameof(Cases))]

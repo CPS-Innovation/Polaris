@@ -7,13 +7,16 @@
         RegisteredPdfBlobName,
         DocumentAlreadyProcessed,
         UnableToConvertDocumentToPdf,
+        UnableToConvertPcdRequestToPdf,
         DocumentRetrieved,
+        PcdRequestRetrieved,
         UnexpectedDocumentFailure,
         Indexed,
         OcrAndIndexFailure,
         Completed,
         Failed,
         ProcessedEvaluatedDocuments,
-        Deleted
+        DeletedDocument,
+        DeletedPcdRequest
     }
 }

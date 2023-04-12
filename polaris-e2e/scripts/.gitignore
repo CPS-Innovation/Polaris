@@ -1,5 +1,2 @@
-test-account-login.sh
-run.sh
-run.local.sh
-open.sh
-open.local.sh
+*
+!*.example.sh

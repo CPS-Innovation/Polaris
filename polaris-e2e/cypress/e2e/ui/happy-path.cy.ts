@@ -17,6 +17,7 @@ describe("Happy Path", () => {
 
     cy.clearCaseTracker(TARGET_URN, TARGET_CASE_ID)
     cy.visit("/")
+
     cy.findByTestId("input-search-urn").type(`${TARGET_URN}{enter}`)
 
     // open case details page

@@ -39,19 +39,19 @@ namespace coordinator.tests.Factories
             _versionId = fixture.Create<long>();
             _cmsAuthValues = fixture.Create<string>();
             _content = fixture.Create<string>();
-            _pdfGeneratorUrl = "https://www.test.co.uk/";
+            _pdfGeneratorUrl = "https://www.generate.pdf/";
             _correlationId = fixture.Create<Guid>();
 
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             var mockConfiguration = new Mock<IConfiguration>();
-            
+
             mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<GeneratePdfRequestDto>(r => r.CaseId == _caseId && r.DocumentId == _documentId && r.FileName == _fileName)))
                 .Returns(_content);
 
             var mockLogger = new Mock<ILogger<GeneratePdfHttpRequestFactory>>();
 
-            mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.PdfGeneratorUrl]).Returns(_pdfGeneratorUrl);
-            
+            mockConfiguration.Setup(config => config[PipelineSettings.PipelineRedactPdfBaseUrl]).Returns(_pdfGeneratorUrl);
+
             _generatePdfHttpRequestFactory = new GeneratePdfHttpRequestFactory(mockJsonConvertWrapper.Object, mockConfiguration.Object, mockLogger.Object);
         }
 
@@ -68,7 +68,7 @@ namespace coordinator.tests.Factories
         {
             var durableRequest = _generatePdfHttpRequestFactory.Create(_caseUrn, _caseId, _documentCategory, _documentId, _fileName, _versionId, _cmsAuthValues, _correlationId);
 
-            durableRequest.Uri.AbsoluteUri.Should().Be(_pdfGeneratorUrl);
+            durableRequest.Uri.AbsoluteUri.Should().Be($"{_pdfGeneratorUrl}generate");
         }
 
         [Fact]

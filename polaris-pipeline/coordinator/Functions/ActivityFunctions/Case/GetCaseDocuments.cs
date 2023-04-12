@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Common.Domain.Extensions;
 using Common.Dto.Document;
 using Common.Logging;
-using Common.Mappers.Contracts;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
 using DdeiClient.Services.Contracts;
@@ -18,7 +17,6 @@ namespace coordinator.Functions.ActivityFunctions.Case
     {
         private readonly IDdeiClient _ddeiService;
         private readonly IDocumentToggleService _documentToggleService;
-        private readonly ITransitionDocumentMapper _transitionDocumentMapper;
         private readonly ILogger<GetCaseDocuments> _log;
 
         const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
@@ -26,17 +24,15 @@ namespace coordinator.Functions.ActivityFunctions.Case
         public GetCaseDocuments(
                  IDdeiClient ddeiService,
                  IDocumentToggleService documentToggleService,
-                 ITransitionDocumentMapper transitionDocumentMapper,
                  ILogger<GetCaseDocuments> logger)
         {
             _ddeiService = ddeiService;
             _documentToggleService = documentToggleService;
-            _transitionDocumentMapper = transitionDocumentMapper;
             _log = logger;
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<TransitionDocumentDto[]> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<DocumentDto[]> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -60,18 +56,15 @@ namespace coordinator.Functions.ActivityFunctions.Case
 
             _log.LogMethodExit(payload.CorrelationId, loggingName, caseDocuments.ToJson());
             return caseDocuments
-                    .Select(MapToTransitionDocument)
+                    .Select(MapPresentationFlags)
                     .ToArray();
         }
 
-        private TransitionDocumentDto MapToTransitionDocument(DocumentDto document)
+        private DocumentDto MapPresentationFlags(DocumentDto document)
         {
-            var transitionDocument = _transitionDocumentMapper.MapToTransitionDocument(document);
+            document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
 
-            transitionDocument.PresentationFlags = _documentToggleService
-              .GetDocumentPresentationFlags(transitionDocument);
-
-            return transitionDocument;
+            return document;
         }
     }
 }
