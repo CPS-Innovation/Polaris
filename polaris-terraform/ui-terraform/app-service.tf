@@ -14,7 +14,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_ui_file_share.name
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key  
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"               = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net"
@@ -68,7 +68,7 @@ module "azurerm_app_reg_as_web_polaris" {
       }]
   }]
   single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/", "http://localhost:3000/"] : ["https://as-web-${local.resource_name}.azurewebsites.net/"]
+    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/", "http://localhost:3000/", "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/", "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/${var.polaris_ui_sub_folder}"]
   }
   web = {
     homepage_url  = "https://as-web-${local.resource_name}.azurewebsites.net"
