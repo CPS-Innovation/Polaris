@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using Azure.Storage.Blobs;
 using Common.Constants;
 using Common.Domain.Validators;
 using Common.Dto.Request;
-using Common.Exceptions.Contracts;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Health;
@@ -13,8 +11,6 @@ using Common.Services.BlobStorageService;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation;
 using Common.Services.DocumentEvaluation.Contracts;
-using Common.Wrappers;
-using Common.Wrappers.Contracts;
 using DDei.Health;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -22,11 +18,9 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using pdf_generator.Factories;
-using pdf_generator.Handlers;
 using pdf_generator.Services.DocumentRedactionService;
-using pdf_generator.Services.PdfService;
 using Ddei.Services.Extensions;
+using Common.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
@@ -45,38 +39,6 @@ namespace pdf_generator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-            
-            builder.Services.AddSingleton<IPdfService, WordsPdfService>();
-            builder.Services.AddSingleton<IPdfService, CellsPdfService>();
-            builder.Services.AddSingleton<IPdfService, SlidesPdfService>();
-            builder.Services.AddSingleton<IPdfService, ImagingPdfService>();
-            builder.Services.AddSingleton<IPdfService, DiagramPdfService>();
-            builder.Services.AddSingleton<IPdfService, HtmlPdfService>();
-            builder.Services.AddSingleton<IPdfService, EmailPdfService>();
-            builder.Services.AddSingleton<IPdfService, PdfRendererService>();
-            builder.Services.AddSingleton<IPdfOrchestratorService, PdfOrchestratorService>(provider =>
-            {
-                var pdfServices = provider.GetServices<IPdfService>();
-                var servicesList = pdfServices.ToList();
-                var wordsPdfService = servicesList.First(s => s.GetType() == typeof(WordsPdfService));
-                var cellsPdfService = servicesList.First(s => s.GetType() == typeof(CellsPdfService));
-                var slidesPdfService = servicesList.First(s => s.GetType() == typeof(SlidesPdfService));
-                var imagingPdfService = servicesList.First(s => s.GetType() == typeof(ImagingPdfService));
-                var diagramPdfService = servicesList.First(s => s.GetType() == typeof(DiagramPdfService));
-                var htmlPdfService = servicesList.First(s => s.GetType() == typeof(HtmlPdfService));
-                var emailPdfService = servicesList.First(s => s.GetType() == typeof(EmailPdfService));
-                var pdfRendererService = servicesList.First(s => s.GetType() == typeof(PdfRendererService));
-                var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
-
-                return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService, 
-                    diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, loggingService);
-            });
-
-            builder.Services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
-            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequestDto>, ValidatorWrapper<GeneratePdfRequestDto>>();
-            builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
 
             builder.Services.AddAzureClients(azureClientFactoryBuilder =>
             {
@@ -90,6 +52,7 @@ namespace pdf_generator
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
 
+            builder.Services.AddPdfGenerator();
             builder.Services.AddDdeiClient(configuration);
 
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();

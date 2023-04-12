@@ -13,6 +13,7 @@ using Common.Dto.Response;
 using Common.Exceptions.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Wrappers.Contracts;
+using coordinator.Functions;
 using DdeiClient.Services.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

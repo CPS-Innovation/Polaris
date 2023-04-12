@@ -65,8 +65,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Factories\" />
     <Folder Include="Handlers\" />
     <Folder Include="Domain\Exceptions\" />
+    <Folder Include="Services\DocumentRedactionService\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
@@ -82,8 +84,7 @@
     <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
 
   </Target>
-  <Target Name="CopyLibSkiaSharpForMac" AfterTargets="Build"
-    Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
+  <Target Name="CopyLibSkiaSharpForMac" AfterTargets="Build" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
     <ItemGroup>
       <NativeAssetToCopy Include="$(OutputPath)runtimes\osx\native\libSkiaSharp.dylib" />
     </ItemGroup>

@@ -59,6 +59,7 @@
     <PackageReference Include="AutoFixture" Version="4.17.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\coordinator\coordinator.csproj" />
     <ProjectReference Include="..\pdf-generator\pdf-generator.csproj" />
   </ItemGroup>
 </Project>

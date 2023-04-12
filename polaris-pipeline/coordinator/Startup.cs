@@ -25,6 +25,10 @@ using System.IO;
 using Common.Dto.Request;
 using DDei.Health;
 using Ddei.Services.Extensions;
+using Azure.Storage.Blobs;
+using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
+using Microsoft.Extensions.Logging;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -49,6 +53,14 @@ namespace coordinator
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
 
+            builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
+            {
+                var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
+
+                return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
+                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
+            });
+
             // Redact PDF
             builder.Services.AddHttpClient<IRedactionClient, RedactionClient>(client =>
             {
@@ -62,6 +74,7 @@ namespace coordinator
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
             builder.Services.AddDdeiClient(configuration);
+            builder.Services.AddPdfGenerator();
 
             BuildHealthChecks(builder);
         }
