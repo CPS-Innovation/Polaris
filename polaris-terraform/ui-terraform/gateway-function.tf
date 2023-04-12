@@ -45,7 +45,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     cors {
       allowed_origins = [
         "https://as-web-${local.resource_name}.azurewebsites.net",
-        "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net",
+        "https://${local.resource_name}-cmsproxy.azurewebsites.net",
         var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true
