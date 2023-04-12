@@ -120,6 +120,16 @@ export const reducer = (
           lockedState: CaseDocumentViewModel["clientLockedState"];
         };
       }
+    | {
+        type: "SHOW_ERROR_MODAL";
+        payload: {
+          message: string;
+          title: string;
+        };
+      }
+    | {
+        type: "HIDE_ERROR_MODAL";
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -738,6 +748,27 @@ export const reducer = (
                 }
               : item
           ),
+        },
+      };
+    }
+    case "SHOW_ERROR_MODAL": {
+      const { message, title } = action.payload;
+      return {
+        ...state,
+        errorModal: {
+          show: true,
+          message: message,
+          title: title,
+        },
+      };
+    }
+    case "HIDE_ERROR_MODAL": {
+      return {
+        ...state,
+        errorModal: {
+          show: false,
+          message: "",
+          title: "",
         },
       };
     }

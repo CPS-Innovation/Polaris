@@ -95,7 +95,9 @@ export const Modal: React.FC<Props> = ({
                   className={classes.alertModalClose}
                   aria-label="Close"
                   onClick={handleClose}
-                ></button>
+                >
+                  <CloseIcon height={"25px"} width={"25px"} />
+                </button>
               </div>
             </header>
           )}

@@ -2157,7 +2157,7 @@ describe("useCaseDetailsState reducer", () => {
   });
 
   describe("UPDATE_SAVED_STATE", () => {
-    it("can update ssaved state", () => {});
+    it("can update saved state", () => {});
   });
 
   describe("UPDATE_REFRESH_PIPELINE", () => {
@@ -2219,6 +2219,57 @@ describe("useCaseDetailsState reducer", () => {
             { documentId: "1", polarisDocumentVersionId: 1 },
           ],
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      });
+    });
+  });
+
+  describe("SHOW_ERROR_MODAL", () => {
+    it("can show the error modal", () => {
+      const existingState = {
+        errorModal: {
+          show: false,
+          message: "",
+          title: "",
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState as CombinedState, {
+        type: "SHOW_ERROR_MODAL",
+        payload: {
+          message: "error message",
+          title: "error title",
+        },
+      });
+
+      expect(result).toEqual({
+        errorModal: {
+          show: true,
+          message: "error message",
+          title: "error title",
+        },
+      });
+    });
+  });
+  describe("HIDE_ERROR_MODAL", () => {
+    it("can hide the error modal", () => {
+      const existingState = {
+        errorModal: {
+          show: true,
+          message: "error message",
+          title: "error title",
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState as CombinedState, {
+        type: "HIDE_ERROR_MODAL",
+      });
+
+      expect(result).toEqual({
+        errorModal: {
+          show: false,
+          message: "",
+          title: "",
         },
       });
     });
