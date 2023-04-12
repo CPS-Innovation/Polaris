@@ -9,7 +9,7 @@ export const App: FC = () => {
     <>
       <ErrorBoundary>
         <Auth>
-          <Router basename={process.env.PUBLIC_URL}>
+          <Router>
             <Routes />
           </Router>
         </Auth>
