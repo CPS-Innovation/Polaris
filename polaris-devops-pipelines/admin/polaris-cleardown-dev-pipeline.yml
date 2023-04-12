@@ -116,6 +116,7 @@ stages:
               secureFile: 'vpnconfig_cert.ovpn'
 
           - bash: |
+              apt-get install sudo -y
               sudo apt-get install -y openvpn
               ls
               head $(vpnConfig.secureFilePath)
