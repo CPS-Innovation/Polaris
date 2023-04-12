@@ -89,6 +89,7 @@ namespace pdf_generator.tests.Functions
                 .Returns(_pdfStream);
 
             _generatePdf = new GeneratePdf(
+                                null,
                                 _mockJsonConvertWrapper.Object,
                                 _mockValidatorWrapper.Object,
                                 _mockDocumentExtractionService.Object,

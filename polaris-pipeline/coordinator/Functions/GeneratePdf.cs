@@ -28,6 +28,7 @@ namespace coordinator.Functions
 {
     public class GeneratePdf
     {
+        private readonly HttpClient _pdfGeneratorHttpClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<GeneratePdfRequestDto> _validatorWrapper;
         private readonly IDdeiClient _documentExtractionService;
@@ -39,6 +40,7 @@ namespace coordinator.Functions
         const string loggingName = nameof(GeneratePdf);
 
         public GeneratePdf(
+             IHttpClientFactory httpClientFactory,
              IJsonConvertWrapper jsonConvertWrapper,
              IValidatorWrapper<GeneratePdfRequestDto> validatorWrapper,
              IDdeiClient documentExtractionService,
@@ -47,6 +49,7 @@ namespace coordinator.Functions
              IExceptionHandler exceptionHandler,
              ILogger<GeneratePdf> logger)
         {
+            _pdfGeneratorHttpClient = httpClientFactory.CreateClient(nameof(GeneratePdf));
             _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;
             _documentExtractionService = documentExtractionService;
@@ -97,7 +100,6 @@ namespace coordinator.Functions
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
 
                 var blobName = $"{pdfRequest.CaseId}/pdfs/{Path.GetFileNameWithoutExtension(pdfRequest.FileName)}.pdf";
-                generatePdfResponse = new GeneratePdfResponse(blobName);
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{pdfRequest.DocumentId}'");
 
@@ -113,16 +115,25 @@ namespace coordinator.Functions
 
                 var fileType = Path.GetExtension(pdfRequest.FileName).ToFileType();
                 _log.LogMethodFlow(currentCorrelationId, loggingName,
-                    $"Processing retrieved document of type: '{fileType}'. Original file: '{pdfRequest.FileName}', with new fileName: '{blobName}'");
+                    $"Converting document of type: '{fileType}'. Original file: '{pdfRequest.FileName}', to PDF fileName: '{blobName}'");
 
-                Stream pdfStream = await ConvertToPdf(currentCorrelationId, pdfRequest, documentStream, fileType);
+                Stream pdfStream = await ConvertToPdf(currentCorrelationId, cmsAuthValues, pdfRequest.DocumentId, documentStream, fileType);
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
-                await _blobStorageService.UploadDocumentAsync(pdfStream, blobName, pdfRequest.CaseId.ToString(), pdfRequest.DocumentId,
-                    pdfRequest.VersionId.ToString(), currentCorrelationId);
+
+                await _blobStorageService.UploadDocumentAsync
+                    (
+                        pdfStream, 
+                        blobName, 
+                        pdfRequest.CaseId.ToString(), 
+                        pdfRequest.DocumentId,
+                        pdfRequest.VersionId.ToString(), 
+                        currentCorrelationId
+                    );
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"'{blobName}' uploaded successfully");
 
+                generatePdfResponse = new GeneratePdfResponse(blobName);
                 return OkResponse(Serialize(generatePdfResponse));
             }
             catch (Exception exception)
@@ -135,23 +146,22 @@ namespace coordinator.Functions
             }
         }
 
-        private async Task<Stream> ConvertToPdf(Guid correlationId, GeneratePdfRequestDto pdfRequest, Stream documentStream, FileType fileType)
+        private async Task<Stream> ConvertToPdf(Guid correlationId, string cmsAuthValues, string documentId, Stream documentStream, FileType fileType)
         {
             var pdfStream = new MemoryStream();
 
             documentStream.Seek(0, SeekOrigin.Begin);
             var request = new HttpRequestMessage(HttpMethod.Post, "convert-to-pdf");
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
             using (var requestContent = new StreamContent(documentStream))
             {
-                HttpClient httpClient = new HttpClient();
-                httpClient.BaseAddress = new Uri("http://localhost:7073/api/");
-                request.Headers.Add("CorrelationId", correlationId.ToString());
-                request.Headers.Add("Filetype", fileType.ToString());
-                request.Headers.Add("DocumentId", pdfRequest.DocumentId);
+                request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
+                request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
+                request.Headers.Add(HttpHeaderKeys.DocumentId, documentId);
+                request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
+
                 request.Content = requestContent;
-                requestContent.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-                using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+
+                using (var response = await _pdfGeneratorHttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
                 {
                     response.EnsureSuccessStatusCode();
                     await response.Content.CopyToAsync(pdfStream);
@@ -160,8 +170,6 @@ namespace coordinator.Functions
             }
 
             return pdfStream;
-
-            //return _pdfOrchestratorService.ReadToPdfStream(documentStream, fileType, pdfRequest.DocumentId, currentCorrelationId);
         }
 
         private string Serialize(object objectToSerialize)

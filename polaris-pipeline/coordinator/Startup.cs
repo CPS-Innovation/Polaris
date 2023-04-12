@@ -23,12 +23,12 @@ using FluentValidation;
 using Common.Domain.Validators;
 using System.IO;
 using Common.Dto.Request;
-using DDei.Health;
 using Ddei.Services.Extensions;
 using Azure.Storage.Blobs;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.BlobStorageService;
 using Microsoft.Extensions.Logging;
+using coordinator.Functions;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -75,6 +75,12 @@ namespace coordinator
             builder.Services.AddSearchClient(configuration);
             builder.Services.AddDdeiClient(configuration);
             builder.Services.AddPdfGenerator();
+
+            var polarisPipelineRedactPdfBaseUri = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl"));
+            builder.Services.AddHttpClient(nameof(GeneratePdf), client =>
+            {
+                client.BaseAddress = polarisPipelineRedactPdfBaseUri;
+            });
 
             BuildHealthChecks(builder);
         }
