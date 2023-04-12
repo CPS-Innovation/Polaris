@@ -61,7 +61,7 @@
   },
   "scripts": {
     "start": "PUBLIC_URL=/polaris-ui react-scripts start",
-    "build": "PUBLIC_URL=/polaris-ui react-scripts build",
+    "build": "PUBLIC_URL=/polaris-ui BUILD_PATH=build/polaris-ui react-scripts build",
     "test": "react-scripts test  --watchAll",
     "test:ci": "./scripts/test-ci.sh",
     "eject": "react-scripts eject",
