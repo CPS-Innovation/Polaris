@@ -109,7 +109,20 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: DownloadSecureFile@1
+            name: vpnConfig 
+            displayName: 'Download secure file'
+            inputs:
+              secureFile: 'vpnconfig_cert.ovpn'
+
           - bash: |
+              sudo apt-get install -y openvpn
+              ls
+              head $(vpnConfig.secureFilePath)
+              sudo openvpn $(vpnConfig.secureFilePath) &
+              sleep 5
+              cat openvpn log
+              ifconfig
               result=$(curl -s -o /dev/null -w “%{http_code}” -X DELETE "$APP_URL?code=$APP_CODE")
               if [ "$result" == "200" ]
               then
