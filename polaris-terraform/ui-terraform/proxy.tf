@@ -38,7 +38,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     }
     always_on                               = true
     vnet_route_all_enabled                  = true
-    container_registry_use_managed_identity = false
+    container_registry_use_managed_identity = true
   }
   auth_settings {
     enabled                       = false
