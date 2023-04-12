@@ -134,6 +134,7 @@ const getPipelinePdfResults = (resultsCount: number) => {
 
   return resultsArray;
 };
+// This will create two results one with document id 2 and the second with document id 2 deleted and all refresh properties updated.
 const getRefreshDeletedDocuments = (resultsCount: number = 2) => {
   let resultsArray = Array(resultsCount)
     .fill({})
@@ -146,10 +147,18 @@ const getRefreshDeletedDocuments = (resultsCount: number = 2) => {
       documentsRetrieved: new Date(
         new Date().getTime() + index * 1000
       ).toISOString(),
-      documents: pipelinePdfResult.documents.map((document) => ({
-        ...document,
-        polarisDocumentVersionId: document.polarisDocumentVersionId + index,
-      })),
+      documents: pipelinePdfResult.documents
+        .map((document) => ({
+          ...document,
+          polarisDocumentVersionId: document.polarisDocumentVersionId + index,
+        }))
+        .filter(({ documentId }) => {
+          if (index < 1) {
+            return true;
+          } else {
+            return documentId !== "2";
+          }
+        }),
     }));
 
   return resultsArray;
