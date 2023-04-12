@@ -29,7 +29,7 @@ stages:
               project: $(project-id)
               Pipeline: Build
               buildDefinition: 135
-
+              
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
     dependsOn: Startup_Dev_Build_Agent
@@ -105,7 +105,7 @@ stages:
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
     jobs:
-      - job: Reset
+      - job: Reset, stop and restart
         pool:
           name: $(dev-build-agent)
         steps:
@@ -122,7 +122,21 @@ stages:
             env:
               APP_URL: $(dev-reset-function-url)
               APP_CODE: $(reset-function-key)
+                
+          - task: AzureAppServiceManage@0
+            displayName: 'Stop Orchestration Services'
+            inputs:
+              azureSubscription: $(dev-azure-subscription)
+              Action: 'Stop Azure App Service'
+              WebAppName: "fa-polaris-pipeline-dev-coordinator"
               
+          - task: AzureAppServiceManage@0
+            displayName: 'Start Orchestration Services'
+            inputs:
+              azureSubscription: $(dev-azure-subscription)
+              Action: 'Start Azure App Service'
+              WebAppName: "fa-polaris-pipeline-dev-coordinator"
+  
   - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
     dependsOn: Clear_down_Durable_Orchestration_State
