@@ -105,7 +105,7 @@ stages:
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
     jobs:
-      - job: Reset, stop and restart
+      - job: Reset_stop_start
         pool:
           name: $(dev-build-agent)
         steps:
