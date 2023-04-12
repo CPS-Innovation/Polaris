@@ -8,11 +8,12 @@ schedules:
       include:
         - main
     always: true
-    
+
 variables:
   - group: kv-dev-terraform
   - group: polaris-global
-    
+  - group: pipeline-terraform
+
 stages:
   - stage: Startup_Dev_Build_Agent
     displayName: Start Dev Build Agent
@@ -21,31 +22,20 @@ stages:
         pool:
           vmImage: windows-latest
         steps:
-          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
             displayName: 'Start Dev Build Agent'
             inputs:
+              serviceConnection: $(build-release-connector)
+              project: $(project-id)
+              Pipeline: Build
               buildDefinition: 135
-              waitForQueuedBuildsToFinish: true
-              cancelBuildsIfAnyFails: true
-              password: $(devops-pat-token)
 
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
     dependsOn: Startup_Dev_Build_Agent
     condition: succeeded()
     jobs:
-      - job:
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline terraform artifact'
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files"
-              publishLocation: "pipeline"
-              
-      - job:
+      - job: Clear_down_SearchIndex
         pool:
           name: $(dev-build-agent)
         steps:
@@ -55,81 +45,78 @@ stages:
             inputs:
               terraformVersion: $(terraform-version)
                 
-          #download pipeline terraform build artifact
-          - download: PolarisBuild
-            displayName: Terraform > Download Pipeline terraform build
-            artifact: "pipeline-terraform-files"
-                
           # Terraform Init
-          - bash: |
-              terraform init \
-                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-                -backend-config="key=$TF_STATE_KEY" \
-                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-            displayName: Terraform > Init
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
-            env:
-              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
-              TF_STATE_KEY: $(terraform-key)
-              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          #- bash: |
+          #    terraform init \
+          #      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+          #      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+          #      -backend-config="key=$TF_STATE_KEY" \
+          #      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+          #  displayName: Terraform > Init
+          #  workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+          #  env:
+          #    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+          #    TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+          #    TF_STATE_KEY: $(terraform-key)
+          #    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
                 
           # Terraform Plan
-          - bash: |
-              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -replace=restapi_object.definition
-            displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
-            env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+          #- bash: |
+          #    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -replace=restapi_object.definition
+          #  displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
+          #  workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+          #  env:
+          #    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+          #    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+          #    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+          #    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                 
           # Terraform Apply
-          - bash: |
-              terraform apply -auto-approve dev.tfplan
-            displayName: Terraform > Refresh Search Index
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
-            env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+          #- bash: |
+          #    terraform apply -auto-approve dev.tfplan
+          #  displayName: Terraform > Refresh Search Index
+          #  workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+          #  env:
+          #    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+          #    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+          #    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+          #    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                 
   - stage: Clear_down_BlobStorage
     displayName: Reset Document Blob Storage
     dependsOn: Clear_down_SearchIndex
     condition: succeeded()
     jobs:
-      - job:
+      - job: Clear_down_BlobStorage
         pool:
           name: $(dev-build-agent)
         steps:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
-              azureSubscription: $(innovation-development-subscription-name)
-              scriptType: bash
-              scriptLocation: inlineScript
+              connectedServiceNameARM: '$(dev-azure-subscription)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
               inlineScript: |
-                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string $(cpsdocumentstorage-connection-string) --delete-snapshots include
+                az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
     displayName: Reset Durable State
     dependsOn: Clear_down_BlobStorage
     condition: succeeded()
     jobs:
-      - job:
-        pool: server
+      - job: Reset
+        pool:
+          name: $(dev-build-agent)
         steps:
-          - task: AzureFunction@1
+          - bash: |
+              resetUrl = "$(APP_URL)?code=$(APP_CODE)"
+              echo '${resetUrl}'
+              curl -i -X DELETE '${resetUrl}'
             displayName: Call Coordinator
-            inputs:
-              function: $(dev-reset-function-url) 
-              key: $(reset-function-key) 
-              method: 'DELETE'
-              waitForCompletion: 'true'
+            env:
+              APP_URL: $(dev-reset-function-url)
+              APP_CODE: $(reset-function-key)
               
   - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
@@ -140,10 +127,10 @@ stages:
         pool:
           vmImage: windows-latest
         steps:
-          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
             displayName: 'Shutdown Dev Build Agent'
             inputs:
+              serviceConnection: $(build-release-connector)
+              project: $(project-id)
+              Pipeline: Build
               buildDefinition: 136
-              waitForQueuedBuildsToFinish: true
-              cancelBuildsIfAnyFails: true
-              password: $(devops-pat-token)

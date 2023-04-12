@@ -20,7 +20,7 @@ namespace Common.Configuration
         public const string DocumentSasUrl = "urns/{caseUrn}/cases/{caseId}/documents/{documentId:guid}/sasUrl";
         
         // Admin
-        public const string ResetDurableState = "admin/resetDurableState";
+        public const string ResetDurableState = "maintenance/resetDurableState";
 
         // Other
         public const string Health = "health";
