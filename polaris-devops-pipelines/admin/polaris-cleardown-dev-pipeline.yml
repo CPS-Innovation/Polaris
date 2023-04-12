@@ -125,7 +125,7 @@ stages:
               cat openvpn log
               ifconfig
               result=$(curl -s -o /dev/null -w “%{http_code}” -X DELETE "$APP_URL?code=$APP_CODE")
-              if [ "$result" == "200" ]
+              if [ $result == "200" ]
               then
                 echo "OK"
               else
