@@ -82,27 +82,27 @@ stages:
           #    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
           #    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                 
-  - stage: Clear_down_BlobStorage
-    displayName: Reset Document Blob Storage
-    dependsOn: Clear_down_SearchIndex
-    condition: succeeded()
-    jobs:
-      - job: Clear_down_BlobStorage
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          #- task: AzureCLI@2
-          #  displayName: Refresh Blob Storage
-          #  inputs:
-          #    connectedServiceNameARM: '$(dev-azure-subscription)'
-          #    scriptType: 'bash'
-          #    scriptLocation: 'inlineScript'
-          #    inlineScript: |
-          #      az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
+  #- stage: Clear_down_BlobStorage
+  #  displayName: Reset Document Blob Storage
+  #  dependsOn: Clear_down_SearchIndex
+  #  condition: succeeded()
+  #  jobs:
+  #    - job: Clear_down_BlobStorage
+  #      pool:
+  #        name: $(dev-build-agent)
+  #      steps:
+  #        - task: AzureCLI@2
+  #          displayName: Refresh Blob Storage
+  #          inputs:
+  #            connectedServiceNameARM: '$(dev-azure-subscription)'
+  #            scriptType: 'bash'
+  #            scriptLocation: 'inlineScript'
+  #            inlineScript: |
+  #              az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
                 
   - stage: Clear_down_Durable_Orchestration_State
     displayName: Reset Durable State
-    dependsOn: Clear_down_BlobStorage
+    dependsOn: Clear_down_SearchIndex
     condition: succeeded()
     jobs:
       - job: Reset, stop and restart
