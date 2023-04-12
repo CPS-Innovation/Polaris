@@ -110,7 +110,7 @@ stages:
           name: $(dev-build-agent)
         steps:
           - bash: |
-              curl -i -X DELETE 'https://fa-polaris-pipeline-dev-coordinator.azurewebsites.net/api/admin/resetDurableState?code=$APP_CODE'
+              curl -i -X DELETE 'https://fa-polaris-pipeline-dev-coordinator.azurewebsites.net/api/admin/resetDurableState?code="$APP_CODE"'
             displayName: Call Coordinator
             env:
               APP_CODE: $(reset-function-key)
