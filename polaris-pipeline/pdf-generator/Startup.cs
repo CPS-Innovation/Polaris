@@ -6,6 +6,8 @@ using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Factories;
 using Common.Factories.Contracts;
+using Common.Handlers;
+using Common.Handlers.Contracts;
 using Common.Health;
 using Common.Services.BlobStorageService;
 using Common.Services.BlobStorageService.Contracts;
@@ -45,18 +47,18 @@ namespace pdf_generator
             builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
             {
                 var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
-                
+
                 return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
 
             builder.Services.AddPdfGenerator();
- 
+
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
-
+            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             BuildHealthChecks(builder);
         }
 
