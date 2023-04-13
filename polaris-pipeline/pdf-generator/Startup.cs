@@ -11,7 +11,6 @@ using Common.Services.BlobStorageService;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation;
 using Common.Services.DocumentEvaluation.Contracts;
-using DDei.Health;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
@@ -19,8 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Services.DocumentRedactionService;
-using Ddei.Services.Extensions;
-using Common.Services.Extensions;
+using pdf_generator.Services.Extensions;
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
@@ -53,8 +51,7 @@ namespace pdf_generator
             });
 
             builder.Services.AddPdfGenerator();
-            builder.Services.AddDdeiClient(configuration);
-
+ 
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
@@ -72,8 +69,7 @@ namespace pdf_generator
         {
             builder.Services.AddHealthChecks()
                  .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
-                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                 .AddCheck<DdeiClientHealthCheck>("DDEI Client");
+                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client");
         }
     }
 }

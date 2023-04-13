@@ -3,14 +3,12 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using text_extractor.Handlers;
 using Common.Services.OcrService;
 using Common.Services.SasGeneratorService;
 using Azure.Identity;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
-using Common.Exceptions.Contracts;
 using Common.Factories.Contracts;
 using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
@@ -20,6 +18,8 @@ using Common.Services.Extensions;
 using Common.Wrappers.Contracts;
 using System.IO;
 using Common.Dto.Request;
+using Common.Handlers.Contracts;
+using Common.Handlers;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor

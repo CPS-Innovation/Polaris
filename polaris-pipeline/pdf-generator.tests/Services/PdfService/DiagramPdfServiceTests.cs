@@ -4,7 +4,7 @@ using Aspose.Diagram;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
-using pdf_generator.Factories;
+using pdf_generator.Factories.Contracts;
 using pdf_generator.Services.PdfService;
 using Xunit;
 

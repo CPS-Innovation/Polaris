@@ -21,7 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Factories\" />
-    <Folder Include="Functions\" />
     <Folder Include="Functions\ActivityFunctions\" />
     <Folder Include="Functions\SubOrchestrators\" />
     <Folder Include="Domain\" />

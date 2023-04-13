@@ -39,7 +39,7 @@ namespace coordinator.tests.Factories
             _versionId = fixture.Create<long>();
             _cmsAuthValues = fixture.Create<string>();
             _content = fixture.Create<string>();
-            _pdfGeneratorUrl = "https://www.generate.pdf";
+            _pdfGeneratorUrl = "https://www.generate.pdf/";
             _correlationId = fixture.Create<Guid>();
 
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
@@ -50,7 +50,7 @@ namespace coordinator.tests.Factories
 
             var mockLogger = new Mock<ILogger<GeneratePdfHttpRequestFactory>>();
 
-            mockConfiguration.Setup(config => config[PipelineSettings.PipelineRedactPdfBaseUrl]).Returns(_pdfGeneratorUrl);
+            mockConfiguration.Setup(config => config[PipelineSettings.PipelineCoordinatorBaseUrl]).Returns(_pdfGeneratorUrl);
             
             _generatePdfHttpRequestFactory = new GeneratePdfHttpRequestFactory(mockJsonConvertWrapper.Object, mockConfiguration.Object, mockLogger.Object);
         }
@@ -68,7 +68,7 @@ namespace coordinator.tests.Factories
         {
             var durableRequest = _generatePdfHttpRequestFactory.Create(_caseUrn, _caseId, _documentCategory, _documentId, _fileName, _versionId, _cmsAuthValues, _correlationId);
 
-            durableRequest.Uri.AbsoluteUri.Should().Be($"{_pdfGeneratorUrl}/generate");
+            durableRequest.Uri.AbsoluteUri.Should().Be($"{_pdfGeneratorUrl}generate");
         }
 
         [Fact]

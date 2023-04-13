@@ -2,7 +2,7 @@
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Exceptions.Contracts
+namespace Common.Handlers.Contracts
 {
     public interface IExceptionHandler
     {

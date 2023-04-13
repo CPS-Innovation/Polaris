@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using pdf_generator.Domain;
+using Common.Domain.Document;
 
 namespace pdf_generator.Services.PdfService
 {

@@ -5,12 +5,12 @@ using AutoFixture;
 using Azure;
 using Common.Domain.Exceptions;
 using Common.Exceptions;
-using Common.Exceptions.Contracts;
+using Common.Handlers;
+using Common.Handlers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using pdf_generator.Domain.Exceptions;
-using pdf_generator.Handlers;
 using Xunit;
 
 namespace pdf_generator.tests.Handlers

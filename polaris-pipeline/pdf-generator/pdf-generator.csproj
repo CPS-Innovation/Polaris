@@ -63,18 +63,10 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Factories\" />
-    <Folder Include="Handlers\" />
-    <Folder Include="Domain\Exceptions\" />
-    <Folder Include="Services\DocumentRedactionService\" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
-    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
     <ItemGroup>

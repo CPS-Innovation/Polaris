@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
+using Aspose.Diagram;
 using pdf_generator.Domain.Exceptions;
-using pdf_generator.Factories;
-using License = Aspose.Pdf.License;
+using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
 {
-    public class HtmlPdfService : IPdfService
+    public class DiagramPdfService : IPdfService
     {
         private readonly IAsposeItemFactory _asposeItemFactory;
 
-        public HtmlPdfService(IAsposeItemFactory asposeItemFactory)
+        public DiagramPdfService(IAsposeItemFactory asposeItemFactory)
         {
             try
             {
@@ -27,8 +27,8 @@ namespace pdf_generator.Services.PdfService
 
         public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
         {
-            using var doc = _asposeItemFactory.CreateHtmlDocument(inputStream, correlationId);
-            doc.Save(pdfStream);
+            var doc = _asposeItemFactory.CreateDiagram(inputStream, correlationId);
+            doc.Save(pdfStream, SaveFileFormat.Pdf);
             pdfStream.Seek(0, SeekOrigin.Begin);
         }
     }

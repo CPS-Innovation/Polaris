@@ -3,16 +3,16 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using Common.Exceptions.Contracts;
+using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Wrappers.Contracts;
@@ -20,9 +20,6 @@ using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using pdf_generator;
-using pdf_generator.Domain;
-using pdf_generator.Services.PdfService;
 
 namespace coordinator.Functions
 {
@@ -33,7 +30,6 @@ namespace coordinator.Functions
         private readonly IValidatorWrapper<GeneratePdfRequestDto> _validatorWrapper;
         private readonly IDdeiClient _documentExtractionService;
         private readonly IPolarisBlobStorageService _blobStorageService;
-        private readonly IPdfOrchestratorService _pdfOrchestratorService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<GeneratePdf> _log;
 
@@ -45,7 +41,6 @@ namespace coordinator.Functions
              IValidatorWrapper<GeneratePdfRequestDto> validatorWrapper,
              IDdeiClient documentExtractionService,
              IPolarisBlobStorageService blobStorageService,
-             IPdfOrchestratorService pdfOrchestratorService,
              IExceptionHandler exceptionHandler,
              ILogger<GeneratePdf> logger)
         {
@@ -54,7 +49,6 @@ namespace coordinator.Functions
             _validatorWrapper = validatorWrapper;
             _documentExtractionService = documentExtractionService;
             _blobStorageService = blobStorageService;
-            _pdfOrchestratorService = pdfOrchestratorService;
             _exceptionHandler = exceptionHandler;
             _log = logger;
         }

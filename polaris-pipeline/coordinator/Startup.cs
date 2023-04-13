@@ -29,6 +29,8 @@ using Common.Services.BlobStorageService.Contracts;
 using Common.Services.BlobStorageService;
 using Microsoft.Extensions.Logging;
 using coordinator.Functions;
+using Common.Handlers.Contracts;
+using Common.Handlers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -49,9 +51,11 @@ namespace coordinator
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequestDto>, ValidatorWrapper<GeneratePdfRequestDto>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
 
             builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
             {
@@ -74,7 +78,6 @@ namespace coordinator
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
             builder.Services.AddDdeiClient(configuration);
-            builder.Services.AddPdfGenerator();
 
             var pipelineRedactPdfBaseUrl = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
             builder.Services.AddHttpClient(nameof(GeneratePdf), client =>

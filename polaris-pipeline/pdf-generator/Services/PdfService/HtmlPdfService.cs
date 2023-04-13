@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
-using Aspose.Cells;
 using pdf_generator.Domain.Exceptions;
-using pdf_generator.Factories;
+using pdf_generator.Factories.Contracts;
+using License = Aspose.Pdf.License;
 
 namespace pdf_generator.Services.PdfService
 {
-    public class CellsPdfService : IPdfService
+    public class HtmlPdfService : IPdfService
     {
         private readonly IAsposeItemFactory _asposeItemFactory;
 
-        public CellsPdfService(IAsposeItemFactory asposeItemFactory)
+        public HtmlPdfService(IAsposeItemFactory asposeItemFactory)
         {
             try
             {
@@ -27,8 +27,8 @@ namespace pdf_generator.Services.PdfService
 
         public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
         {
-            using var workbook = _asposeItemFactory.CreateWorkbook(inputStream, correlationId);
-            workbook.Save(pdfStream, new PdfSaveOptions { OnePagePerSheet = true });
+            using var doc = _asposeItemFactory.CreateHtmlDocument(inputStream, correlationId);
+            doc.Save(pdfStream);
             pdfStream.Seek(0, SeekOrigin.Begin);
         }
     }

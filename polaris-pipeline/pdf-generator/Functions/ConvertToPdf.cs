@@ -4,13 +4,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Domain.Document;
 using Common.Domain.Exceptions;
-using Common.Dto.Request;
-using Common.Exceptions.Contracts;
 using Common.Logging;
-using Common.Services.BlobStorageService.Contracts;
-using Common.Wrappers.Contracts;
-using DdeiClient.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -21,31 +17,16 @@ namespace pdf_generator.Functions
 {
     public class ConvertToPdf
     {
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly IValidatorWrapper<GeneratePdfRequestDto> _validatorWrapper;
-        private readonly IDdeiClient _documentExtractionService;
-        private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
-        private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<ConvertToPdf> _log;
 
         const string loggingName = nameof(ConvertToPdf);
 
         public ConvertToPdf(
-             IJsonConvertWrapper jsonConvertWrapper,
-             IValidatorWrapper<GeneratePdfRequestDto> validatorWrapper,
-             IDdeiClient documentExtractionService,
-             IPolarisBlobStorageService blobStorageService,
              IPdfOrchestratorService pdfOrchestratorService,
-             IExceptionHandler exceptionHandler,
              ILogger<ConvertToPdf> logger)
         {
-            _jsonConvertWrapper = jsonConvertWrapper;
-            _validatorWrapper = validatorWrapper;
-            _documentExtractionService = documentExtractionService;
-            _blobStorageService = blobStorageService;
             _pdfOrchestratorService = pdfOrchestratorService;
-            _exceptionHandler = exceptionHandler;
             _log = logger;
         }
 
@@ -88,7 +69,7 @@ namespace pdf_generator.Functions
                     throw new BadRequestException("Invalid DocumentId", correlationId);
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
-                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, Domain.FileType.DOCX, documentId, currentCorrelationId);
+                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, FileType.DOCX, documentId, currentCorrelationId);
                 pdfStream.Position = 0;
                 return new FileStreamResult(pdfStream, "application/pdf")
                 {
