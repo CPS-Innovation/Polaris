@@ -31,10 +31,12 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "BlobServiceContainerName"                 = "documents"
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
-    "DdeiBaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiBaseUrl"                              = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                            = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"   = data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key
+    "PolarisPipelineCoordinatorBaseUrl"        = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorFunctionAppKey" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
   }
   https_only = true
 
