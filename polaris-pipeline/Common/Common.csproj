@@ -18,7 +18,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\Exceptions\" />
-    <Folder Include="Services\NewFolder\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
