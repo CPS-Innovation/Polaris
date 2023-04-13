@@ -61,7 +61,7 @@ namespace pdf_generator.tests.Handlers
         public void HandleException_ReturnsInternalServerErrorWhenHttpExceptionWithBadRequestOccurs()
         {
             var httpResponseMessage = _exceptionHandler.HandleException(
-                new HttpException(HttpStatusCode.BadRequest, new HttpRequestException()), _correlationId, _source, _loggerMock.Object);
+                new DdeiClientException(HttpStatusCode.BadRequest, new HttpRequestException()), _correlationId, _source, _loggerMock.Object);
 
             httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
@@ -71,7 +71,7 @@ namespace pdf_generator.tests.Handlers
         {
             var expectedStatusCode = HttpStatusCode.ExpectationFailed;
             var httpResponseMessage = _exceptionHandler.HandleException(
-                new HttpException(expectedStatusCode, new HttpRequestException()), _correlationId, _source, _loggerMock.Object);
+                new DdeiClientException(expectedStatusCode, new HttpRequestException()), _correlationId, _source, _loggerMock.Object);
 
             httpResponseMessage.StatusCode.Should().Be(expectedStatusCode);
         }

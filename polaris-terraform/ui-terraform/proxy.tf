@@ -14,6 +14,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
     "UPSTREAM_CMS_DOMAIN_NAME"                 = "10.2.177.14"
     "UPSTREAM_CMS_MODERN_DOMAIN_NAME"          = "10.2.177.55"
+    "APP_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
+    "APP_SUBFOLDER_PATH"                       = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"       = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                = "fa-${local.ddei_resource_name}.azurewebsites.net"

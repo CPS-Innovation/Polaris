@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
-using Common.Domain.Exceptions;
 using Common.Logging;
 using DurableTask.AzureStorage;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace coordinator.Functions.Orchestration.Functions.Admin;
+namespace coordinator.Functions.Orchestration.Functions.Maintenance;
 
 public class ResetDurableState
 {

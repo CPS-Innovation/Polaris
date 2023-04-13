@@ -4,17 +4,14 @@ using Common.Configuration;
 using Common.Dto.Case;
 using Common.Logging;
 using Common.Validators.Contracts;
-using Ddei.Domain.CaseData.Args;
 using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
-using Ddei.Options;
 using DdeiClient.Services.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using PolarisGateway.Extensions;
 using PolarisGateway.Wrappers;
@@ -33,7 +30,6 @@ namespace PolarisGateway.Functions.CaseData
                     IDdeiClient ddeiService,
                     IAuthorizationValidator tokenValidator,
                     ICaseDataArgFactory caseDataArgFactory,
-                    IOptions<DdeiOptions> options,
                     ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
             : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {

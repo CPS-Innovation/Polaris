@@ -113,6 +113,7 @@ namespace coordinator.Functions
 
                 Stream pdfStream = await ConvertToPdf(currentCorrelationId, cmsAuthValues, pdfRequest.DocumentId, documentStream, fileType);
 
+                // Step 3 - Upload to Blob Storage - TODO - move to parent
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
 
                 await _blobStorageService.UploadDocumentAsync

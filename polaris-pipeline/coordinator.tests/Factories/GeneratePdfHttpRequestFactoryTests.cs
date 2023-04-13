@@ -44,7 +44,7 @@ namespace coordinator.tests.Factories
 
             var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             var mockConfiguration = new Mock<IConfiguration>();
-            
+
             mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.Is<GeneratePdfRequestDto>(r => r.CaseId == _caseId && r.DocumentId == _documentId && r.FileName == _fileName)))
                 .Returns(_content);
 

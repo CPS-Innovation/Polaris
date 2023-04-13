@@ -1,12 +1,35 @@
 import { defineConfig } from "cypress"
+import fs from "fs-extra"
+import path from "path"
+
+const getConfigurationByFile = (file: string) => {
+  const pathToConfigFile = path.resolve("config", `${file}.json`)
+  return fs.readJsonSync(pathToConfigFile)
+}
 
 export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      if (!config.env.ENVIRONMENT) {
+        throw new Error("Please provide an ENVIRONMENT variable")
+      }
+      const baseEnvFromFile = getConfigurationByFile("base")
+      const environmentEnvFromFile = getConfigurationByFile(
+        "env." + config.env.ENVIRONMENT
+      )
+      const env = {
+        ...baseEnvFromFile,
+        ...environmentEnvFromFile,
+      }
+
+      config.baseUrl = env.BASE_URL
+
+      const resolvedEnv = { ...config.env, ...env }
+      console.log("Resolved env: ", resolvedEnv)
+
+      return { ...config, env: resolvedEnv }
     },
-    // this will be overriden by CYPRESS_BASE_URL environment variable
-    baseUrl: "https://as-web-polaris-dev.azurewebsites.net/",
+    baseUrl: "http://example.org",
     video: true,
     // reporter: "junit",
     // reporterOptions: {

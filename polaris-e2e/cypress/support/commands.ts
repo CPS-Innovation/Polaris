@@ -15,8 +15,10 @@ declare global {
       getAuthHeaders(): Chainable<{
         Authorization: string
       }>
-      setPolarisInstrumentationGuid(guid: string): Chainable<AUTWindow>
-
+      setPolarisInstrumentationGuid(
+        correlationId: CorrelationId
+      ): Chainable<AUTWindow>
+      selectPDFTextElement(matchString: string): void
       // roll our own typing to help cast the body returned from the api call
       api<T>(url: string, body?: RequestBody): Chainable<ApiResponseBody<T>>
       api<T>(
@@ -218,8 +220,31 @@ declare global {
 Cypress.Commands.add(
   "setPolarisInstrumentationGuid",
   (correlationId: CorrelationId) =>
-    // note: on any direct navigate ion using cy.visit() this setting will be lost
+    // note: on any direct navigation using cy.visit() this setting will be lost
+    //  as the page is reloaded.
     cy.window().then((win) => {
       win.__POLARIS_INSTRUMENTATION_GUID__ = correlationIds[correlationId]
+      console.log(win.__POLARIS_INSTRUMENTATION_GUID__)
     })
 )
+
+Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
+  cy.wait(100)
+  cy.get(`.textLayer span:contains(${matchString})`)
+    .filter(":not(:has(*))")
+    .first()
+    .then((element) => {
+      cy.wrap(element)
+        .trigger("mousedown")
+        .then(() => {
+          const el = element[0]
+          const document = el.ownerDocument
+          const range = document.createRange()
+          range.selectNodeContents(el)
+          document.getSelection()?.removeAllRanges()
+          document.getSelection()?.addRange(range)
+        })
+        .trigger("mouseup")
+      cy.document().trigger("selectionchange")
+    })
+})

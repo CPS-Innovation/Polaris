@@ -33,8 +33,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidAudience"                  = var.polaris_webapp_details.valid_audience
     "CallingAppValidScopes"                    = var.polaris_webapp_details.valid_scopes
     "CallingAppValidRoles"                     = var.polaris_webapp_details.valid_roles
-    "Ddei__BaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "Ddei__AccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiBaseUrl"                              = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                            = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
 
   site_config {
@@ -43,7 +43,12 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     http2_enabled  = true
     ip_restriction = []
     cors {
-      allowed_origins     = ["https://as-web-${local.resource_name}.azurewebsites.net", var.env == "dev" ? "http://localhost:3000" : ""]
+      allowed_origins = [
+        "https://as-web-${local.resource_name}.azurewebsites.net",
+        "https://${local.resource_name}-cmsproxy.azurewebsites.net",
+        "https://${local.resource_name}-notprod.cpsdev.co.uk",
+        var.env == "dev" ? "http://localhost:3000" : ""
+      ]
       support_credentials = true
     }
     vnet_route_all_enabled           = true
