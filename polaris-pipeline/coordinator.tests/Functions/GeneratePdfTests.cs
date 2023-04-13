@@ -31,7 +31,6 @@ namespace pdf_generator.tests.Functions
         private readonly Fixture _fixture = new();
         private readonly string _serializedGeneratePdfRequest;
         private readonly HttpRequestMessage _httpRequestMessage;
-        private readonly HttpResponseMessage _httpResponeMessage;
         private readonly GeneratePdfRequestDto _generatePdfRequest;
         private readonly string _blobName;
         private readonly Stream _documentStream;

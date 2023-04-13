@@ -8,7 +8,6 @@ using Common.Domain.Exceptions;
 using Common.Exceptions;
 using Common.Handlers.Contracts;
 using Common.Logging;
-using Ddei.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Common.Handlers
@@ -30,14 +29,6 @@ namespace Common.Handlers
                 case BadRequestException or UnsupportedFileTypeException:
                     baseErrorMessage = "Invalid request";
                     statusCode = HttpStatusCode.BadRequest;
-                    break;
-
-                case HttpException httpException:
-                    baseErrorMessage = "An http exception occurred";
-                    statusCode =
-                        httpException.StatusCode == HttpStatusCode.BadRequest
-                            ? statusCode
-                            : httpException.StatusCode;
                     break;
 
                 case DdeiClientException httpException:

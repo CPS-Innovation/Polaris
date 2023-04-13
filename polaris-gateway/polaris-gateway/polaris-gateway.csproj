@@ -42,6 +42,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
       <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>local.settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
