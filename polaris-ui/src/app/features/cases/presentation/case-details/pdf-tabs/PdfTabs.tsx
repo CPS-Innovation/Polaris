@@ -1,7 +1,6 @@
 import { Tabs } from "../../../../../common/presentation/components/tabs";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-import { getRedactStatus } from "../utils/pdfTabsUtils";
 import { PdfTab } from "./PdfTab";
 
 type PdfTabsProps = {
@@ -51,7 +50,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               tabIndex={index}
               caseDocumentViewModel={item}
               savedDocumentDetails={savedDocumentDetails}
-              redactStatus={getRedactStatus(item.documentId, pipelineState)}
+              redactStatus={item.presentationFlags.write}
               headers={headers}
               handleLaunchSearchResults={handleLaunchSearchResults}
               handleAddRedaction={handleAddRedaction}

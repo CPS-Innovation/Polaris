@@ -525,11 +525,7 @@ describe("reducerAsyncActionHandlers", () => {
 
       const saveSpy = jest
         .spyOn(api, "saveRedactions")
-        .mockImplementation(() => Promise.resolve(true));
-
-      // const checkInSpy = jest
-      //   .spyOn(api, "cancelCheckoutDocument")
-      //   .mockImplementation(() => Promise.resolve(true));
+        .mockImplementation(() => Promise.resolve());
 
       const mockRedactionSaveRequest = {} as RedactionSaveRequest;
 
