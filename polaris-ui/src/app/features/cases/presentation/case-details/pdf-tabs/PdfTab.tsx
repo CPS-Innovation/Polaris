@@ -8,7 +8,7 @@ import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
-
+import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   tabIndex: number;
   caseDocumentViewModel: CaseDocumentViewModel;
@@ -42,7 +42,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
 
-  const { url, mode, redactionHighlights, documentId } = caseDocumentViewModel;
+  const { url, mode, redactionHighlights, documentId, isDeleted } =
+    caseDocumentViewModel;
 
   const searchHighlights =
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
@@ -72,6 +73,17 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       (document) => document.documentId === caseDocumentViewModel.documentId
     );
   };
+
+  if (isDeleted) {
+    return (
+      <div
+        className={classes.deletedDocument}
+        data-testid={`deleted-document-notification-${documentId}`}
+      >
+        <p>This document has been deleted and is unavailable.</p>
+      </div>
+    );
+  }
 
   return (
     <>
