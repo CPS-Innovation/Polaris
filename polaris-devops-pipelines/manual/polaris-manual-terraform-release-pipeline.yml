@@ -80,6 +80,48 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                      
+                #download coordinator build artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Deploy > Download Coordinator Codebase Build
+                  artifact: "polaris-coordinator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Coordinator Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-qa-coordinator"
+                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-coordinator-drop/a/coordinator
+                
+                #download pdf-generator build artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-qa-pdf-generator"
+                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-pdf-generator-drop/a/pdf-generator
+                
+                #download text-extractor build artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-qa-text-extractor"
+                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-text-extractor-drop/a/text-extractor
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisManualTerraformBuild
@@ -206,48 +248,6 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
-                
-                #download coordinator build artifact
-                - download: PolarisManualTerraformBuild
-                  displayName: Deploy > Download Coordinator Codebase Build
-                  artifact: "polaris-coordinator-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureFunctionApp@1
-                  displayName: 'Deploy Coordinator Azure Function App to QA'
-                  inputs:
-                    azureSubscription: $(qa-azure-subscription)
-                    appType: functionAppLinux
-                    appName: "fa-polaris-pipeline-qa-coordinator"
-                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-coordinator-drop/a/coordinator
-                
-                #download pdf-generator build artifact
-                - download: PolarisManualTerraformBuild
-                  displayName: Deploy > Download PDF Generator Codebase Build
-                  artifact: "polaris-pdf-generator-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureFunctionApp@1
-                  displayName: 'Deploy PDF Generator Azure Function App to QA'
-                  inputs:
-                    azureSubscription: $(qa-azure-subscription)
-                    appType: functionApp
-                    appName: "fa-polaris-pipeline-qa-pdf-generator"
-                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-pdf-generator-drop/a/pdf-generator
-                
-                #download text-extractor build artifact
-                - download: PolarisManualTerraformBuild
-                  displayName: Deploy > Download Text Extractor Codebase Build
-                  artifact: "polaris-text-extractor-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureFunctionApp@1
-                  displayName: 'Deploy Text Extractor Azure Function App to QA'
-                  inputs:
-                    azureSubscription: $(qa-azure-subscription)
-                    appType: functionAppLinux
-                    appName: "fa-polaris-pipeline-qa-text-extractor"
-                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-text-extractor-drop/a/text-extractor
                 
                 #download gateway build artifact
                 - download: PolarisManualTerraformBuild
@@ -358,6 +358,48 @@ stages:
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                 
+                #download coordinator build artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Deploy > Download Coordinator Codebase Build
+                  artifact: "polaris-coordinator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Coordinator Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-coordinator"
+                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-coordinator-drop/a/coordinator
+                
+                #download pdf-generator build artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-pdf-generator"
+                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-pdf-generator-drop/a/pdf-generator
+                
+                #download text-extractor build artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-text-extractor"
+                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-text-extractor-drop/a/text-extractor
+                
                 #download pipeline events terraform build artifact
                 - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download Pipeline Events terraform build
@@ -483,48 +525,6 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
-                
-                #download coordinator build artifact
-                - download: PolarisManualTerraformBuild
-                  displayName: Deploy > Download Coordinator Codebase Build
-                  artifact: "polaris-coordinator-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureFunctionApp@1
-                  displayName: 'Deploy Coordinator Azure Function App to PROD'
-                  inputs:
-                    azureSubscription: $(prod-azure-subscription)
-                    appType: functionAppLinux
-                    appName: "fa-polaris-pipeline-coordinator"
-                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-coordinator-drop/a/coordinator
-                
-                #download pdf-generator build artifact
-                - download: PolarisManualTerraformBuild
-                  displayName: Deploy > Download PDF Generator Codebase Build
-                  artifact: "polaris-pdf-generator-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureFunctionApp@1
-                  displayName: 'Deploy PDF Generator Azure Function App to PROD'
-                  inputs:
-                    azureSubscription: $(prod-azure-subscription)
-                    appType: functionApp
-                    appName: "fa-polaris-pipeline-pdf-generator"
-                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-pdf-generator-drop/a/pdf-generator
-                
-                #download text-extractor build artifact
-                - download: PolarisManualTerraformBuild
-                  displayName: Deploy > Download Text Extractor Codebase Build
-                  artifact: "polaris-text-extractor-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureFunctionApp@1
-                  displayName: 'Deploy Text Extractor Azure Function App to PROD'
-                  inputs:
-                    azureSubscription: $(prod-azure-subscription)
-                    appType: functionAppLinux
-                    appName: "fa-polaris-pipeline-text-extractor"
-                    package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-text-extractor-drop/a/text-extractor
                 
                 #download gateway build artifact
                 - download: PolarisManualTerraformBuild
