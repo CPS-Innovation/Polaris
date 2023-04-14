@@ -40,7 +40,7 @@ stages:
                     terraformVersion: $(terraform-version)
                 
                 #download pipeline terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download Pipeline terraform build
                   artifact: "pipeline-terraform-files"
                 
@@ -82,7 +82,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                 
                 #download pipeline events terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download Pipeline Events terraform build
                   artifact: "pipeline-events-terraform-files"
                 
@@ -124,7 +124,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                 
                 #download ui terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download UI terraform build
                   artifact: "ui-terraform-files"
                 
@@ -166,7 +166,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                 
                 #download ui events terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
@@ -208,7 +208,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                 
                 #download coordinator build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
@@ -222,7 +222,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-coordinator-drop/a/coordinator
                 
                 #download pdf-generator build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
@@ -236,7 +236,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-pdf-generator-drop/a/pdf-generator
                 
                 #download text-extractor build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
@@ -250,7 +250,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-text-extractor-drop/a/text-extractor
                 
                 #download gateway build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
@@ -264,7 +264,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-gateway-drop/a/polaris-gateway
                 
                 #download gateway build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
@@ -278,7 +278,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-auth-handover-drop/a/polaris-auth-handover
                 
                 #download UI build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
                 
@@ -317,7 +317,7 @@ stages:
                     terraformVersion: $(terraform-version)
                 
                 #download pipeline terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download Pipeline terraform build
                   artifact: "pipeline-terraform-files"
                 
@@ -359,7 +359,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                 
                 #download pipeline events terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download Pipeline Events terraform build
                   artifact: "pipeline-events-terraform-files"
                 
@@ -401,7 +401,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                 
                 #download ui terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download UI terraform build
                   artifact: "ui-terraform-files"
                 
@@ -443,7 +443,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                 
                 #download ui events terraform build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
@@ -485,7 +485,7 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                 
                 #download coordinator build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
@@ -499,7 +499,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-coordinator-drop/a/coordinator
                 
                 #download pdf-generator build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
@@ -513,7 +513,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-pdf-generator-drop/a/pdf-generator
                 
                 #download text-extractor build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
@@ -527,7 +527,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-text-extractor-drop/a/text-extractor
                 
                 #download gateway build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
@@ -541,7 +541,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-gateway-drop/a/polaris-gateway
                 
                 #download gateway build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
@@ -555,7 +555,7 @@ stages:
                     package: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-auth-handover-drop/a/polaris-auth-handover
                 
                 #download UI build artifact
-                - download: PolarisBuild
+                - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
                 
