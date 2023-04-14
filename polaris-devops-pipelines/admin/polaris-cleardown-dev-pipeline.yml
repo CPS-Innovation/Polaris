@@ -99,47 +99,10 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
-                
-  - stage: Clear_down_Durable_Orchestration_State
-    displayName: Reset Durable State
-    dependsOn: Clear_down_BlobStorage
-    condition: succeeded()
-    jobs:
-      - job: Reset_stop_start
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          - bash: |
-              result=$(curl -s -o /dev/null -w “%{http_code}” -X DELETE "$APP_URL?code=$APP_CODE")
-              if [ $result == 200 ]
-              then
-                echo "OK"
-              else
-                echo $result
-                echo "Nothing to reset"
-              fi
-            displayName: Call Coordinator
-            env:
-              APP_URL: $(dev-reset-function-url)
-              APP_CODE: $(reset-function-key)
-                
-          - task: AzureAppServiceManage@0
-            displayName: 'Stop Orchestration Services'
-            inputs:
-              azureSubscription: $(dev-azure-subscription)
-              Action: 'Stop Azure App Service'
-              WebAppName: "fa-polaris-pipeline-dev-coordinator"
-              
-          - task: AzureAppServiceManage@0
-            displayName: 'Start Orchestration Services'
-            inputs:
-              azureSubscription: $(dev-azure-subscription)
-              Action: 'Start Azure App Service'
-              WebAppName: "fa-polaris-pipeline-dev-coordinator"
   
   - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
-    dependsOn: Clear_down_Durable_Orchestration_State
+    dependsOn: Clear_down_BlobStorage
     condition: succeeded()
     jobs:
       - job: Shutdown_Dev_Build_Agent
