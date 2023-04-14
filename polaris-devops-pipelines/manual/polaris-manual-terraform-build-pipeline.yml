@@ -1,4 +1,4 @@
-﻿# Build and Publish Artifact Azure DevOps pipeline for Polaris Terraform and Codebase
+# Build and Publish Artifact Azure DevOps pipeline for Polaris Terraform and Codebase
 
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
 
