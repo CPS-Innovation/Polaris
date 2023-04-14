@@ -11,7 +11,12 @@ export const setupMockApi = async (config: MockApiConfig) => {
   }
 
   const worker = setupWorker(...setupHandlers(config));
-  await worker.start();
+  await worker.start({
+    serviceWorker: {
+      // Points to the custom location of the Service Worker file.
+      url: `${process.env.PUBLIC_URL}/mockServiceWorker.js`,
+    },
+  });
 
   (window as any).msw = { worker, rest }; // attach to window for cypress testing purposes
 };
