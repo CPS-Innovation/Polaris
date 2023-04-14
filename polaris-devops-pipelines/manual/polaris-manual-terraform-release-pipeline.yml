@@ -1,4 +1,4 @@
-﻿# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
 
 trigger: none
 pr: none
