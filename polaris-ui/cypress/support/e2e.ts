@@ -33,6 +33,7 @@ Cypress.on("test:before:run:async", async () => {
     sourceName: Cypress.env().REACT_APP_MOCK_API_SOURCE,
     baseUrl: Cypress.env().REACT_APP_GATEWAY_BASE_URL,
     maxDelayMs: Cypress.env().REACT_APP_MOCK_API_MAX_DELAY,
+    publicUrl: "",
   });
 });
 
