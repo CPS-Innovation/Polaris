@@ -28,9 +28,10 @@ using Azure.Storage.Blobs;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.BlobStorageService;
 using Microsoft.Extensions.Logging;
-using coordinator.Functions;
 using Common.Handlers.Contracts;
 using Common.Handlers;
+using coordinator.Functions.ActivityFunctions.Document;
+using coordinator.Domain;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -51,7 +52,7 @@ namespace coordinator
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequestDto>, ValidatorWrapper<GeneratePdfRequestDto>>();
+            builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();

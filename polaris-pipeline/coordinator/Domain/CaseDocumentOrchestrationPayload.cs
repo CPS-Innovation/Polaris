@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace coordinator.Domain
 {
@@ -31,6 +32,8 @@ namespace coordinator.Domain
 
         public long CmsVersionId { get; set; }
 
+        [Required]
+        [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsFileName { get; set; }
 
         public string CmsAuthValues { get; set; }
