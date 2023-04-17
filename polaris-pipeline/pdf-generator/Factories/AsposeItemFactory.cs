@@ -7,6 +7,7 @@ using Aspose.Slides;
 using Aspose.Words;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
+using pdf_generator.Factories.Contracts;
 using LoadFormat = Aspose.Words.LoadFormat;
 
 namespace pdf_generator.Factories

@@ -6,7 +6,7 @@ using Aspose.Email;
 using Aspose.Slides;
 using Aspose.Words;
 
-namespace pdf_generator.Factories
+namespace pdf_generator.Factories.Contracts
 {
 	public interface IAsposeItemFactory
 	{

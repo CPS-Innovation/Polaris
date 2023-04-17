@@ -1,11 +1,12 @@
-﻿using FluentAssertions;
-using pdf_generator.Domain;
-using pdf_generator.Domain.Exceptions;
+﻿using Common.Domain.Document;
+using Common.Domain.Exceptions;
+using FluentAssertions;
+using Common.Domain.Extensions;
 using Xunit;
 
 namespace pdf_generator.tests
 {
-	public class ExtensionsTests
+    public class ExtensionsTests
 	{
 		[Theory]
 		[InlineData("doc", FileType.DOC)]

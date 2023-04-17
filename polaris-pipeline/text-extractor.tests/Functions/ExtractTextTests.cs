@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Common.Domain.Exceptions;
-using Common.Exceptions.Contracts;
 using Common.Services.SearchIndexService.Contracts;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -19,6 +18,7 @@ using Common.Services.OcrService;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Dto.Request;
+using Common.Handlers.Contracts;
 
 namespace text_extractor.tests.Functions
 {

@@ -1,4 +1,4 @@
-﻿namespace pdf_generator.Domain
+﻿namespace Common.Domain.Document
 {
     public enum FileType
     {

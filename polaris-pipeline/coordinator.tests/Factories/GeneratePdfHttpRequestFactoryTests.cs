@@ -50,8 +50,8 @@ namespace coordinator.tests.Factories
 
             var mockLogger = new Mock<ILogger<GeneratePdfHttpRequestFactory>>();
 
-            mockConfiguration.Setup(config => config[PipelineSettings.PipelineRedactPdfBaseUrl]).Returns(_pdfGeneratorUrl);
-
+            mockConfiguration.Setup(config => config[PipelineSettings.PipelineCoordinatorBaseUrl]).Returns(_pdfGeneratorUrl);
+            
             _generatePdfHttpRequestFactory = new GeneratePdfHttpRequestFactory(mockJsonConvertWrapper.Object, mockConfiguration.Object, mockLogger.Object);
         }
 

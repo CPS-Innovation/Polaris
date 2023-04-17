@@ -1,5 +1,4 @@
-﻿// touched
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Common.Configuration;
@@ -24,8 +23,14 @@ using FluentValidation;
 using Common.Domain.Validators;
 using System.IO;
 using Common.Dto.Request;
-using DDei.Health;
 using Ddei.Services.Extensions;
+using Azure.Storage.Blobs;
+using Common.Services.BlobStorageService.Contracts;
+using Common.Services.BlobStorageService;
+using Microsoft.Extensions.Logging;
+using coordinator.Functions;
+using Common.Handlers.Contracts;
+using Common.Handlers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -46,9 +51,19 @@ namespace coordinator
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            builder.Services.AddTransient<IValidatorWrapper<GeneratePdfRequestDto>, ValidatorWrapper<GeneratePdfRequestDto>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
+
+            builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
+            {
+                var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
+
+                return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
+                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
+            });
 
             // Redact PDF
             builder.Services.AddHttpClient<IRedactionClient, RedactionClient>(client =>
@@ -63,6 +78,12 @@ namespace coordinator
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
             builder.Services.AddDdeiClient(configuration);
+
+            var pipelineRedactPdfBaseUrl = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
+            builder.Services.AddHttpClient(nameof(GeneratePdf), client =>
+            {
+                client.BaseAddress = pipelineRedactPdfBaseUrl;
+            });
 
             BuildHealthChecks(builder);
         }

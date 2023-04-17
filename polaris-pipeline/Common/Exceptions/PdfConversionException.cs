@@ -1,5 +1,6 @@
 ﻿using System;
-namespace pdf_generator.Domain.Exceptions
+
+namespace Common.Domain.Exceptions
 {
 	[Serializable]
 	public class PdfConversionException : Exception

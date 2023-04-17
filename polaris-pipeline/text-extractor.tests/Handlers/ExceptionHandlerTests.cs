@@ -3,11 +3,11 @@ using System.Net;
 using AutoFixture;
 using Azure;
 using Common.Domain.Exceptions;
-using Common.Exceptions.Contracts;
+using Common.Handlers;
+using Common.Handlers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using text_extractor.Handlers;
 using Xunit;
 
 namespace text_extractor.tests.Handlers
