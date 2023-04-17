@@ -120,6 +120,16 @@ export const reducer = (
           lockedState: CaseDocumentViewModel["clientLockedState"];
         };
       }
+    | {
+        type: "SHOW_ERROR_MODAL";
+        payload: {
+          message: string;
+          title: string;
+        };
+      }
+    | {
+        type: "HIDE_ERROR_MODAL";
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -187,6 +197,13 @@ export const reducer = (
         },
       };
 
+      const deletedOpenPDfsTabs = state.tabsState.items.filter(
+        (item) =>
+          !newPipelineResults.data.documents.some(
+            (document) => document.documentId === item.documentId
+          )
+      );
+
       const openPdfsWeNeedToUpdate = newPipelineResults.data.documents
         .filter(
           (item) =>
@@ -236,6 +253,15 @@ export const reducer = (
             },
           ];
         }
+
+        //update the open tabs with deleted documents
+        const matchingDeletedPdfRecords = deletedOpenPDfsTabs.find(
+          (item) => item.documentId === curr.documentId
+        );
+        if (matchingDeletedPdfRecords) {
+          return [...prev, { ...curr, isDeleted: true }];
+        }
+
         return [...prev, curr];
       }, [] as CaseDocumentViewModel[]);
 
@@ -722,6 +748,27 @@ export const reducer = (
                 }
               : item
           ),
+        },
+      };
+    }
+    case "SHOW_ERROR_MODAL": {
+      const { message, title } = action.payload;
+      return {
+        ...state,
+        errorModal: {
+          show: true,
+          message: message,
+          title: title,
+        },
+      };
+    }
+    case "HIDE_ERROR_MODAL": {
+      return {
+        ...state,
+        errorModal: {
+          show: false,
+          message: "",
+          title: "",
         },
       };
     }

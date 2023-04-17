@@ -26,6 +26,10 @@ variable "app_service_plan_gateway_sku" {
   type = string
 }
 
+variable "app_service_plan_proxy_sku" {
+  type = string
+}
+
 variable "environment_tag" {
   type        = string
   description = "Environment tag value"

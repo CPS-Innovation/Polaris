@@ -225,7 +225,7 @@ export const saveRedactions = async (
   caseId: number,
   documentId: string,
   redactionSaveRequest: RedactionSaveRequest
-): Promise<boolean> => {
+) => {
   const url = fullUrl(
     `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
   );
@@ -239,8 +239,6 @@ export const saveRedactions = async (
   if (!response.ok) {
     throw new ApiError("Save redactions failed", url, response);
   }
-
-  return true;
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

@@ -17,6 +17,7 @@ import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
 import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
+import { ErrorModalContent } from "../../../../common/presentation/components/ErrorModalContent";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -33,6 +34,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     searchTerm,
     pipelineState,
     pipelineRefreshData,
+    errorModal,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -46,6 +48,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveAllRedactions,
     handleSavedRedactions,
     handleOpenPdfInNewTab,
+    handleCloseErrorModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -66,6 +69,15 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   return (
     <>
+      {errorModal.show && (
+        <Modal isVisible handleClose={handleCloseErrorModal} type="alert">
+          <ErrorModalContent
+            title={errorModal.title}
+            message={errorModal.message}
+            handleClose={handleCloseErrorModal}
+          />
+        </Modal>
+      )}
       {showAlert && (
         <Modal
           isVisible

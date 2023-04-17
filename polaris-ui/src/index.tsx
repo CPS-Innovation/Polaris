@@ -12,6 +12,7 @@ if (process.env.REACT_APP_MOCK_API_SOURCE === "dev") {
     baseUrl: process.env.REACT_APP_GATEWAY_BASE_URL,
     maxDelayMs: process.env.REACT_APP_MOCK_API_MAX_DELAY,
     sourceName: "dev",
+    publicUrl: process.env.PUBLIC_URL,
   });
 }
 
