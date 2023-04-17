@@ -1,5 +1,4 @@
-﻿// touched
-using Common.Wrappers;
+﻿using Common.Wrappers;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
