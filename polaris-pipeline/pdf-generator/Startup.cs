@@ -51,7 +51,7 @@ namespace pdf_generator
                 return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
-
+             
             builder.Services.AddPdfGenerator();
 
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
