@@ -1,8 +1,8 @@
 ﻿using System;
-using pdf_generator.Domain;
-using pdf_generator.Domain.Exceptions;
+using Common.Domain.Document;
+using Common.Domain.Exceptions;
 
-namespace pdf_generator
+namespace Common.Domain.Extensions
 {
     public static class Extensions
     {

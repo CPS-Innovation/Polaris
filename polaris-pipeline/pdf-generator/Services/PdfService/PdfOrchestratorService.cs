@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
+using Common.Domain.Document;
+using Common.Domain.Exceptions;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
-using pdf_generator.Domain;
 using pdf_generator.Domain.Exceptions;
 
 namespace pdf_generator.Services.PdfService

@@ -62,7 +62,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             {
                 log.LogMethodEntry(payload.CorrelationId, nameof(CallPdfGeneratorAsync), payload.ToJson());
 
-                response = await CallPdfGeneratorHttpAsync(context, payload, tracker, log);
+                response = await context.CallActivityAsync<GeneratePdfResponse>(nameof(GeneratePdf), payload);
 
                 if (response.AlreadyProcessed)
                 {
@@ -89,29 +89,6 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             {
                 log.LogMethodExit(payload.CorrelationId, nameof(CallPdfGeneratorAsync), response.ToJson());
             }
-        }
-
-        private async Task<GeneratePdfResponse> CallPdfGeneratorHttpAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITrackerEntity tracker, ILogger log)
-        {
-            log.LogMethodEntry(payload.CorrelationId, nameof(CallPdfGeneratorHttpAsync), payload.ToJson());
-
-            var request = await context.CallActivityAsync<DurableHttpRequest>(
-                nameof(CreateGeneratePdfHttpRequest),
-                new GeneratePdfHttpRequestActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsDocumentCategory, payload.CmsDocumentId, payload.CmsFileName, payload.CmsVersionId, payload.CmsAuthValues, payload.CorrelationId));
-            var response = await context.CallHttpAsync(request);
-
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.OK:
-                    return _jsonConvertWrapper.DeserializeObject<GeneratePdfResponse>(response.Content);
-
-                case HttpStatusCode.NotFound:
-                case HttpStatusCode.NotImplemented:
-                    await tracker.RegisterUnableToConvertDocumentToPdf(payload.CmsDocumentId);
-                    break;
-            }
-
-            throw new HttpRequestException($"Failed to generate pdf for document id '{payload.CmsDocumentId}'. Status code: {response.StatusCode}.");
         }
 
         private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ITrackerEntity tracker, ILogger log)

@@ -5,13 +5,12 @@ using System.Net.Mime;
 using System.Text;
 using Azure;
 using Common.Domain.Exceptions;
-using Common.Exceptions.Contracts;
+using Common.Exceptions;
+using Common.Handlers.Contracts;
 using Common.Logging;
-using Ddei.Exceptions;
 using Microsoft.Extensions.Logging;
-using pdf_generator.Domain.Exceptions;
 
-namespace pdf_generator.Handlers
+namespace Common.Handlers
 {
     public class ExceptionHandler : IExceptionHandler
     {
@@ -26,19 +25,22 @@ namespace pdf_generator.Handlers
                     baseErrorMessage = "Unauthorized";
                     statusCode = HttpStatusCode.Unauthorized;
                     break;
+
                 case BadRequestException or UnsupportedFileTypeException:
                     baseErrorMessage = "Invalid request";
                     statusCode = HttpStatusCode.BadRequest;
                     break;
+
                 case DdeiClientException httpException:
-                    baseErrorMessage = "An http exception occurred";
+                    baseErrorMessage = "An DDEI client exception occurred";
                     statusCode =
                         httpException.StatusCode == HttpStatusCode.BadRequest
                             ? statusCode
                             : httpException.StatusCode;
                     break;
+
+                //this exception is thrown when generating a sas link
                 case RequestFailedException requestFailedException:
-                {
                     baseErrorMessage = "A service request failed exception occurred";
                     var requestFailedStatusCode = (HttpStatusCode)requestFailedException.Status;
                     statusCode =
@@ -46,7 +48,11 @@ namespace pdf_generator.Handlers
                             ? statusCode
                             : requestFailedStatusCode;
                     break;
-                }
+
+                case OcrServiceException:
+                    baseErrorMessage = "An Ocr service exception occurred";
+                    break;
+
                 case PdfConversionException:
                     statusCode = HttpStatusCode.NotImplemented;
                     baseErrorMessage = "A failed to convert to pdf exception occurred";
@@ -54,7 +60,7 @@ namespace pdf_generator.Handlers
             }
 
             logger.LogMethodError(correlationId, source, $"{baseErrorMessage}: {exception.Message}", exception);
-            logger.LogError(exception, "A PDF Generation exception has occurred");
+            logger.LogError(exception, $"A {source} exception has occurred");
             return ErrorResponse(baseErrorMessage, exception, statusCode);
         }
 

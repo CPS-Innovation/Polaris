@@ -1,16 +1,17 @@
 ﻿using System;
 using System.IO;
 using AutoFixture;
+using Common.Domain.Document;
+using Common.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using pdf_generator.Domain;
 using pdf_generator.Domain.Exceptions;
 using pdf_generator.Services.PdfService;
 using Xunit;
 
 namespace pdf_generator.tests.Services.PdfService
 {
-	public class PdfOrchestratorServiceTests
+    public class PdfOrchestratorServiceTests
 	{
         private readonly Stream _inputStream;
 		private readonly string _documentId;

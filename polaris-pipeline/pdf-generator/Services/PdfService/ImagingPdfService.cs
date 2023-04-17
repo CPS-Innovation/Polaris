@@ -4,7 +4,7 @@ using Aspose.Imaging;
 using Aspose.Imaging.FileFormats.Pdf;
 using Aspose.Imaging.ImageOptions;
 using pdf_generator.Domain.Exceptions;
-using pdf_generator.Factories;
+using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
 {

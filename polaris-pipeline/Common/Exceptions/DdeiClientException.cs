@@ -1,6 +1,8 @@
+using System;
 using System.Net;
+using System.Net.Http;
 
-namespace Ddei.Exceptions
+namespace Common.Exceptions
 {
     public class DdeiClientException : Exception
     {

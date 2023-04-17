@@ -14,6 +14,8 @@ namespace coordinator.Functions.ActivityFunctions.Document
         private readonly IGeneratePdfHttpRequestFactory _generatePdfHttpRequestFactory;
         private readonly ILogger<CreateGeneratePdfHttpRequest> _log;
 
+        const string loggingName = $"{nameof(CreateGeneratePdfHttpRequest)} - {nameof(Run)}";
+
         public CreateGeneratePdfHttpRequest(IGeneratePdfHttpRequestFactory generatePdfHttpRequestFactory, ILogger<CreateGeneratePdfHttpRequest> logger)
         {
             _generatePdfHttpRequestFactory = generatePdfHttpRequestFactory;
@@ -23,7 +25,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
         [FunctionName("CreateGeneratePdfHttpRequest")]
         public DurableHttpRequest Run([ActivityTrigger] IDurableActivityContext context)
         {
-            const string loggingName = $"{nameof(CreateGeneratePdfHttpRequest)} - {nameof(Run)}";
             var payload = context.GetInput<GeneratePdfHttpRequestActivityPayload>();
 
             if (payload == null)

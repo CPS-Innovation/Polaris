@@ -16,6 +16,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 namespace coordinator.tests.Functions.SubOrchestrators
 {
@@ -79,7 +80,13 @@ namespace coordinator.tests.Functions.SubOrchestrators
         [Fact]
         public async Task Run_ThrowsExceptionWhenPayloadIsNull()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>()).Returns(default(CaseDocumentOrchestrationPayload));
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), null))
+                .ReturnsAsync(default(GeneratePdfResponse));
+
+            _mockDurableOrchestrationContext
+                .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())
+                .Returns((CaseDocumentOrchestrationPayload)null);
 
             await Assert.ThrowsAsync<ArgumentException>(() => _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object));
         }
@@ -88,8 +95,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
         public async Task Run_Tracker_RegistersPdfBlobName()
         {
             _pdfResponse.AlreadyProcessed = false;
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _pdfResponse.ToJson()));
-            
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(_pdfResponse);
+
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
             _mockTracker.Verify(tracker => tracker.RegisterPdfBlobName(It.Is<RegisterPdfBlobNameArg>(a => a.DocumentId == _payload.CmsDocumentId && a.BlobName == _pdfResponse.BlobName)));
@@ -99,44 +108,22 @@ namespace coordinator.tests.Functions.SubOrchestrators
         public async Task Run_Tracker_RegistersIndexed_WhenNotAlreadyProcessed()
         {
             _pdfResponse.AlreadyProcessed = false;
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _pdfResponse.ToJson()));
-            
+
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(_pdfResponse);
+
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
             _mockTracker.Verify(tracker => tracker.RegisterIndexed(_payload.CmsDocumentId));
         }
         
         [Fact]
-        public async Task Run_ThrowsExceptionWhenCallToGeneratePdfReturnsNonOkResponse()
-        {
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))
-                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.InternalServerError, content: _content));
-
-            await Assert.ThrowsAsync<HttpRequestException>(() => _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object));
-        }
-
-        [Fact]
-        public async Task Run_Tracker_RegistersFailedToConvertToPdfWhenNotFoundStatusCodeReturned()
-        {
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))
-                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.NotImplemented, content: _content));
-  
-            try
-            {
-                await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
-                Assert.False(true);
-            }
-            catch
-            {
-                _mockTracker.Verify(tracker => tracker.RegisterUnableToConvertDocumentToPdf(_payload.CmsDocumentId));
-            }
-        }
-
-        [Fact]
         public async Task Run_WhenDocumentEvaluation_EqualsAcquireDocument_AndSearchIndexUpdated_RegistersUnexpectedDocumentFailureWhenCallToGeneratePdfReturnsNonOkResponse()
         {
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))
-                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.InternalServerError, content: _content));
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), null))
+                .ReturnsAsync(_pdfResponse);
 
             try
             {
@@ -153,8 +140,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
         public async Task Run_RegistersAsIndexed_WhenDocumentEvaluation_EqualsDocumentUnchanged()
         {
             _evaluateDocumentResponse.EvaluationResult = DocumentEvaluationResult.DocumentUnchanged;
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_evaluateDocumentDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _evaluateDocumentResponse.ToJson()));
-            
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<object>()))
+                .ReturnsAsync(_pdfResponse);
+
             try
             {
                 await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);

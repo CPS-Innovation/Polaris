@@ -1,0 +1,125 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisDevManualCodebaseOnlyBuild
+      source: Polaris DEV - Manual Codebase-Only Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: pipeline-terraform
+  - group: ui-terraform
+
+stages:
+  - stage: Apply_DEV
+    displayName: DEV Deployment
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: Deploy_DEV
+        environment: "DEV"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download coordinator build artifact
+                - download: PolarisDevManualCodebaseOnlyBuild
+                  displayName: Deploy > Download Coordinator Codebase Build
+                  artifact: "polaris-coordinator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Coordinator Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-dev-coordinator"
+                    package: $(Pipeline.Workspace)/PolarisDevManualCodebaseOnlyBuild/polaris-coordinator-drop/a/coordinator
+                
+                #download pdf-generator build artifact
+                - download: PolarisDevManualCodebaseOnlyBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-dev-pdf-generator"
+                    package: $(Pipeline.Workspace)/PolarisDevManualCodebaseOnlyBuild/polaris-pdf-generator-drop/a/pdf-generator
+                
+                #download text-extractor build artifact
+                - download: PolarisDevManualCodebaseOnlyBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-dev-text-extractor"
+                    package: $(Pipeline.Workspace)/PolarisDevManualCodebaseOnlyBuild/polaris-text-extractor-drop/a/text-extractor
+                
+                #download gateway build artifact
+                - download: PolarisDevManualCodebaseOnlyBuild
+                  displayName: Deploy > Download Gateway Codebase Build
+                  artifact: "polaris-gateway-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Gateway Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-dev-gateway"
+                    package: $(Pipeline.Workspace)/PolarisDevManualCodebaseOnlyBuild/polaris-gateway-drop/a/polaris-gateway
+                
+                #download gateway build artifact
+                - download: PolarisDevManualCodebaseOnlyBuild
+                  displayName: Deploy > Download Auth Handover Codebase Build
+                  artifact: "polaris-auth-handover-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Auth Handover Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-dev-auth-handover"
+                    package: $(Pipeline.Workspace)/PolarisDevManualCodebaseOnlyBuild/polaris-auth-handover-drop/a/polaris-auth-handover
+                
+                #download UI build artifact
+                - download: PolarisDevManualCodebaseOnlyBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy UI App Service to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris-dev"
+                    packageForLinux: $(Pipeline.Workspace)/PolarisDevManualCodebaseOnlyBuild/polaris-ui-drop
+                
+                # Restart app service    
+                - task: AzureAppServiceManage@0
+                  displayName: 'Restart Azure App Service'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    Action: 'Restart Azure App Service'
+                    WebAppName: "as-web-polaris-dev"

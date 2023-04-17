@@ -63,16 +63,10 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Handlers\" />
-    <Folder Include="Domain\Exceptions\" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
-    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
     <ItemGroup>
@@ -82,8 +76,7 @@
     <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
 
   </Target>
-  <Target Name="CopyLibSkiaSharpForMac" AfterTargets="Build"
-    Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
+  <Target Name="CopyLibSkiaSharpForMac" AfterTargets="Build" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
     <ItemGroup>
       <NativeAssetToCopy Include="$(OutputPath)runtimes\osx\native\libSkiaSharp.dylib" />
     </ItemGroup>
