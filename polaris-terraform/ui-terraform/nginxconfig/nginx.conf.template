@@ -2,7 +2,7 @@ load_module modules/ngx_http_js_module.so;
 user  nginx;
 worker_processes  auto;
 
-error_log  /dev/stderr warn;
+error_log  /dev/stderr debug;
 pid        /var/run/nginx.pid;
 
 events {}
@@ -29,28 +29,50 @@ http {
     listen 80;
     server_name ${WEBSITE_HOSTNAME};
 
-    location / {
+    location /home {
       add_header Content-Type text/plain;
       return 200 'Polaris Proxy is online';
     }
 
     # CMS UI traffic
     location /CMS.20.0.04 {
-			add_header X-UA-Compatible IE=5;
+
+      if ($http_user_agent !~* Trident) {
+        # add_header X-InternetExplorerMode 1;
+        # add_header X-UA-Compatible IE=5;
+        # return 302 /CMS.20.0.04;
+        return 403 'Need to enable IE Compability mode';
+      }
+			# add_header X-UA-Compatible IE=5;
+      # add_header X-InternetExplorerMode 1;
+      # add_header X-InternetExplorerModeConfigurable 1;
 
       sub_filter_once off;
       sub_filter ${UPSTREAM_CMS_DOMAIN_NAME} ${WEBSITE_HOSTNAME};
+      sub_filter ${UPSTREAM_CMS_MODERN_DOMAIN_NAME} ${WEBSITE_HOSTNAME}/ ;
       proxy_redirect     off;
       proxy_ssl_server_name on;
       proxy_set_header Host ${UPSTREAM_CMS_DOMAIN_NAME}:443;
       proxy_set_header X-Forwarded-For $remote_addr;
 
-      proxy_pass ${ENDPOINT_HTTP_PROTOCOL}://${UPSTREAM_CMS_DOMAIN_NAME};
+      proxy_pass ${ENDPOINT_HTTP_PROTOCOL}://${UPSTREAM_CMS_IP};
     }
 
     # At development time it is useful to have a path through to CMS Modern
-    location /modern/ {
-      proxy_pass ${ENDPOINT_HTTP_PROTOCOL}://${UPSTREAM_CMS_MODERN_DOMAIN_NAME}/;
+    location / {
+      add_header X-InternetExplorerMode 0;
+      sub_filter_once off;
+      sub_filter_types *;
+      sub_filter_types text/xml text/css text/javascript;
+      sub_filter ${UPSTREAM_CMS_DOMAIN_NAME} ${WEBSITE_HOSTNAME};
+      sub_filter ${UPSTREAM_CMS_MODERN_DOMAIN_NAME} ${WEBSITE_HOSTNAME} ;
+
+      proxy_redirect     off;
+      proxy_ssl_server_name on;
+      proxy_set_header Host ${UPSTREAM_CMS_MODERN_DOMAIN_NAME}:443;
+      proxy_set_header X-Forwarded-For $remote_addr;
+
+      proxy_pass ${ENDPOINT_HTTP_PROTOCOL}://${UPSTREAM_CMS_MODERN_IP};
     }
     
     # CMS UI -> Polaris cookie handover step 1 (CMS-side redirects to Polaris-side putting cookies in querystring)
