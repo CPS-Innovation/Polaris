@@ -6,7 +6,7 @@ pr: none
 resources:
   pipelines:
     - pipeline: PolarisPRODManualTerraformBuild
-      source: Polaris - Manual Terraform Build
+      source: Polaris PROD - Manual Terraform Build
       trigger:
         branches:
           include:
