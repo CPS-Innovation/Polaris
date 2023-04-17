@@ -9,7 +9,7 @@ events {}
 
 http {
   js_import templates/nginx.js;
-	access_log  /dev/stdout;
+  access_log  /dev/stdout;
 
   # Notes on proxy_pass:
   # 1) If the string passed to the proxy_pass directive DOES NOT have a slash in it: 
@@ -43,7 +43,7 @@ http {
         # return 302 /CMS.20.0.04;
         return 403 'Need to enable IE Compability mode';
       }
-			# add_header X-UA-Compatible IE=5;
+      # add_header X-UA-Compatible IE=5;
       # add_header X-InternetExplorerMode 1;
       # add_header X-InternetExplorerModeConfigurable 1;
 
@@ -99,7 +99,7 @@ http {
       sub_filter ${API_ENDPOINT_DOMAIN_NAME} ${WEBSITE_HOSTNAME};
       # By default nginx will only filter/transpose in html documents, so we include .json API
       #  responses by setting wildcard to filter all response comntent types
-	    sub_filter_types *;
+      sub_filter_types *;
       proxy_redirect off;
       proxy_ssl_server_name on;
       proxy_set_header Host ${API_ENDPOINT_DOMAIN_NAME}:443;
