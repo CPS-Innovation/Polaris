@@ -12,8 +12,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    "UPSTREAM_CMS_DOMAIN_NAME"                 = "10.2.177.14"
-    "UPSTREAM_CMS_MODERN_DOMAIN_NAME"          = "10.2.177.55"
+    "UPSTREAM_CMS_IP"                          = "10.2.177.14"
+    "UPSTREAM_CMS_MODERN_IP"                   = "10.2.177.55"
+    "UPSTREAM_CMS_DOMAIN_NAME"                 = "cin3.cps.gov.uk"
     "APP_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                       = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
