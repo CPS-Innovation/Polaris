@@ -1,0 +1,299 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisPRODManualTerraformBuild
+      source: Polaris - Manual Terraform Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: pipeline-terraform
+  - group: ui-terraform
+
+stages:
+  - stage: Apply_PROD
+    displayName: PROD Deployment
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - deployment: Deploy_PROD
+        environment: "Prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Install Terraform based on version variable
+                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+                  displayName: Terraform > Install
+                  inputs:
+                    terraformVersion: $(terraform-version)
+                
+                #download pipeline terraform build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Terraform > Download Pipeline terraform build
+                  artifact: "pipeline-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/pipeline-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write Pipeline Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                #download coordinator build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Deploy > Download Coordinator Codebase Build
+                  artifact: "polaris-coordinator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Coordinator Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-coordinator"
+                    package: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/polaris-coordinator-drop/a/coordinator
+                
+                #download pdf-generator build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-pdf-generator"
+                    package: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/polaris-pdf-generator-drop/a/pdf-generator
+                
+                #download text-extractor build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-text-extractor"
+                    package: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/polaris-text-extractor-drop/a/text-extractor
+                
+                #download pipeline events terraform build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Terraform > Download Pipeline Events terraform build
+                  artifact: "pipeline-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write Pipeline Events Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                #download ui terraform build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Terraform > Download UI terraform build
+                  artifact: "ui-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/ui-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write UI Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                #download ui events terraform build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Terraform > Download UI Events terraform build
+                  artifact: "ui-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/ui-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write UI Events Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                
+                #download gateway build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Deploy > Download Gateway Codebase Build
+                  artifact: "polaris-gateway-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Gateway Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-gateway"
+                    package: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/polaris-gateway-drop/a/polaris-gateway
+                
+                #download gateway build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Deploy > Download Auth Handover Codebase Build
+                  artifact: "polaris-auth-handover-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Auth Handover Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-auth-handover"
+                    package: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/polaris-auth-handover-drop/a/polaris-auth-handover
+                
+                #download UI build artifact
+                - download: PolarisPRODManualTerraformBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy UI App Service to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris"
+                    packageForLinux: $(Pipeline.Workspace)/PolarisPRODManualTerraformBuild/polaris-ui-drop
+                
+                # Restart app service    
+                - task: AzureAppServiceManage@0
+                  displayName: 'Restart Azure App Service'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    Action: 'Restart Azure App Service'
+                    WebAppName: "as-web-polaris"
