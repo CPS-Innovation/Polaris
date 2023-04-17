@@ -56,20 +56,22 @@ namespace pdf_generator.Functions
 
                 request.Headers.TryGetValues(HttpHeaderKeys.Filetype, out var filetypes);
                 if (filetypes == null)
-                    throw new BadRequestException("Missing Filetype", nameof(request));
-                var filetype = filetypes.First();
-                if (string.IsNullOrEmpty(filetype))
-                    throw new BadRequestException("Invalid Filetype", correlationId);
+                    throw new BadRequestException("Missing Filetype Value", nameof(request));
+                var filetypeValue = filetypes.First();
+                if (string.IsNullOrEmpty(filetypeValue))
+                    throw new BadRequestException("Null Filetype Value", filetypeValue);
+                if( !Enum.TryParse(filetypeValue, true, out FileType filetype) )
+                    throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
 
                 request.Headers.TryGetValues(HttpHeaderKeys.Filetype, out var documentIds);
                 if (documentIds == null)
                     throw new BadRequestException("Missing DocumentIds", nameof(request));
                 var documentId = documentIds.First();
-                if (string.IsNullOrEmpty(filetype))
+                if (string.IsNullOrEmpty(documentId))
                     throw new BadRequestException("Invalid DocumentId", correlationId);
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
-                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, FileType.DOCX, documentId, currentCorrelationId);
+                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
                 pdfStream.Position = 0;
                 return new FileStreamResult(pdfStream, "application/pdf")
                 {
