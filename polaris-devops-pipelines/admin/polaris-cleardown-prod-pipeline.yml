@@ -62,7 +62,7 @@ stages:
                 
           # Terraform Plan
           - bash: |
-              terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars" -replace=restapi_object.definition
+              terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars" -target="restapi_object.definition" -replace="restapi_object.definition"
             displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
             workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
             env:
