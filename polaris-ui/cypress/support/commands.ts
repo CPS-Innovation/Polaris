@@ -29,7 +29,7 @@ import { rest as mswRest } from "msw";
 const apiPath = (path: string) =>
   new URL(path, Cypress.env("REACT_APP_GATEWAY_BASE_URL")).toString();
 
-Cypress.Commands.add("overrideRoute", (apiRoute, response) => {
+Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
   return cy.window().then((/*window*/) => {
     // the `window` object passed into the function does not have `msw`
     //  attached to it - so god knows what's happening.  The ambient
@@ -37,40 +37,22 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response) => {
     const msw = (window as any).msw;
 
     msw.worker.use(
-      (msw.rest as typeof mswRest).get(apiPath(apiRoute), (req, res, ctx) => {
-        switch (response.type) {
-          case "break":
-            return res.once(ctx.status(response.httpStatusCode));
-          case "delay":
-            return res.once(ctx.delay(response.timeMs));
-          default:
-            return res.once(ctx.json(response.body));
+      (msw.rest as typeof mswRest)[`${method}`](
+        apiPath(apiRoute),
+        (req, res, ctx) => {
+          switch (response.type) {
+            case "break":
+              return res.once(
+                ctx.status(response.httpStatusCode),
+                ctx.json(response.body)
+              );
+            case "delay":
+              return res.once(ctx.delay(response.timeMs));
+            default:
+              return res.once(ctx.json(response.body));
+          }
         }
-      })
-    );
-  });
-});
-
-Cypress.Commands.add("overridePostRoute", (apiRoute, response) => {
-  return cy.window().then((/*window*/) => {
-    // the `window` object passed into the function does not have `msw`
-    //  attached to it - so god knows what's happening.  The ambient
-    //  `window` does have msw, so just use that.
-    const msw = (window as any).msw;
-    msw.worker.use(
-      (msw.rest as typeof mswRest).post(apiPath(apiRoute), (req, res, ctx) => {
-        switch (response.type) {
-          case "break":
-            return res.once(
-              ctx.status(response.httpStatusCode),
-              ctx.json(response.body)
-            );
-          case "delay":
-            return res.once(ctx.delay(response.timeMs));
-          default:
-            return res.once(ctx.json(response.body));
-        }
-      })
+      )
     );
   });
 });

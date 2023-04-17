@@ -14,3 +14,4 @@ export { SectionBreak } from "./SectionBreak";
 export { Select } from "./Select";
 export { SkipLink } from "./SkipLink";
 export { WaitPage } from "./WaitPage";
+export { ErrorModalContent } from "./ErrorModalContent";

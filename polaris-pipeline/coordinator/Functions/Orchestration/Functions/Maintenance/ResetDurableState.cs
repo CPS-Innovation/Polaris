@@ -28,12 +28,12 @@ public class ResetDurableState
     }
     
     [FunctionName("ResetDurableState")]
-    public async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Function, "delete", 
-        Route = RestApi.ResetDurableState)] HttpRequestMessage req, [DurableClient] IDurableClient client)
+    public async Task RunAsync([TimerTrigger("0 0 3 * * *")]TimerInfo myTimer, [DurableClient] IDurableClient client)
     {
+        var correlationId = Guid.NewGuid();
+
         try
         {
-            var correlationId = Guid.NewGuid();
             _logger.LogMethodEntry(correlationId, LoggingName, string.Empty);
             
             var connectionString = _configuration[ConfigKeys.CoordinatorKeys.AzureWebJobsStorage];
@@ -57,12 +57,15 @@ public class ResetDurableState
             // so it's not a required step, but it will slightly improve first-user performance via faster warm-up times
             _logger.LogMethodFlow(correlationId, LoggingName, $"Recreating storage resources for task hub {settings.TaskHubName}...");
             await storageService.CreateIfNotExistsAsync();
-            
-            return req.CreateResponse(HttpStatusCode.OK);
+
+            //Stop and start the service to ensure that all durable storage artifacts are rebuilt 
+            await storageService.StopAsync();
+            await Task.Delay(TimeSpan.FromMinutes(1));
+            await storageService.StartAsync();
         }
         catch (Exception ex)
         {
-            return req.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            _logger.LogMethodError(correlationId, LoggingName, ex.Message, ex);
         }
     }
 }

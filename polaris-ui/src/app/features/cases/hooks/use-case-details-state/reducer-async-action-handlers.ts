@@ -243,15 +243,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         documentId,
         redactionHighlights
       );
+      try {
+        await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
 
-      const response = await saveRedactions(
-        urn,
-        caseId,
-        documentId,
-        redactionSaveRequest
-      );
-
-      if (response) {
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
           payload: { documentId },
@@ -265,6 +259,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
               documentId: documentId,
               polarisDocumentVersionId: polarisDocumentVersionId,
             },
+          },
+        });
+      } catch (e) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Something went wrong!",
+            message: "Failed to save redaction. Please try again later.",
           },
         });
       }
