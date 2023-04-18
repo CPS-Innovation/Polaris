@@ -17,9 +17,9 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
     "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"               = "https://${local.resource_name}-cmsproxy.azurewebsites.net"
+    "REACT_APP_GATEWAY_BASE_URL"               = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net"
     "REACT_APP_GATEWAY_SCOPE"                  = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"            = "https://${local.resource_name}-cmsproxy.azurewebsites.net/polaris?polaris-ui-url="
+    "REACT_APP_REAUTH_REDIRECT_URL"            = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/polaris?polaris-ui-url="
   }
 
   site_config {
