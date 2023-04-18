@@ -6,6 +6,3 @@
 azurite
 /polaris-terraform/.vs
 .cache_ggshield
-/__blobstorage__
-/__queuestorage__
-/__azurite_*__.json
