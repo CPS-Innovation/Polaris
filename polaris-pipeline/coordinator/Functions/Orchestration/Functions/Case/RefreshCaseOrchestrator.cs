@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Constants;
@@ -104,8 +105,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             {
                 await Task.WhenAll(caseTasks.Select(BufferCall));
 
-                if (await tracker.AllDocumentsFailed())
-                    throw new CaseOrchestrationException("All documents failed to process during orchestration.");
+                if (!await tracker.ProcessSucceeded())
+                    throw new CaseOrchestrationException("Documents or PCD Requests failed to process during orchestration.");
             }
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Documents Refreshed, {deltas.CreatedDocuments.Count} created, {deltas.UpdatedDocuments.Count} updated, {deltas.DeletedDocuments.Count} deleted");
@@ -120,35 +121,51 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private static List<Task> GetCaseTasks
             (
                 IDurableOrchestrationContext context, 
-                CaseOrchestrationPayload payload, 
-                List<TrackerDocumentDto> createdOrUpdatedDocuments,
+                CaseOrchestrationPayload caseDocumentPayload, 
+                List<TrackerCmsDocumentDto> createdOrUpdatedDocuments,
                 List<TrackerPcdRequestDto> createdPcdRequests
             )
         {
-            var caseDocumentTasks
+            var cmsDocumentPayloads
                 = createdOrUpdatedDocuments
                     .Select
                     (
-                        t => context.CallSubOrchestratorAsync
-                                (
-                                    nameof(RefreshDocumentOrchestrator),
-                                    new CaseDocumentOrchestrationPayload
-                                    (
-                                        t.PolarisDocumentId,
-                                        payload.CmsCaseUrn,
-                                        payload.CmsCaseId,
-                                        t.CmsDocType.DocumentCategory,
-                                        t.CmsDocumentId,
-                                        t.CmsVersionId,
-                                        t.CmsOriginalFileName,
-                                        payload.CmsAuthValues,
-                                        payload.CorrelationId
-                                    )
-                                )
-                    )
-                    .ToList();
+                        trackerCmsDocument =>
+                        {
+                            return new CaseDocumentOrchestrationPayload
+                            (
+                                caseDocumentPayload.CmsAuthValues,
+                                caseDocumentPayload.CorrelationId,
+                                caseDocumentPayload.CmsCaseUrn,
+                                caseDocumentPayload.CmsCaseId,
+                                JsonSerializer.Serialize(trackerCmsDocument),
+                                null
+                            );
+                        }
+                    );
 
-            return caseDocumentTasks;
+            var pcdRequestsPayloads
+                = createdPcdRequests
+                    .Select
+                    (
+                        trackerPcdRequest =>
+                        {
+                            return new CaseDocumentOrchestrationPayload
+                            (
+                                caseDocumentPayload.CmsAuthValues,
+                                caseDocumentPayload.CorrelationId,
+                                caseDocumentPayload.CmsCaseUrn,
+                                caseDocumentPayload.CmsCaseId,
+                                null,
+                                JsonSerializer.Serialize(trackerPcdRequest)
+                            );
+                        }
+                    );
+
+            var allPayloads = cmsDocumentPayloads.Concat( pcdRequestsPayloads );
+            var allTasks = allPayloads.Select(payload => context.CallSubOrchestratorAsync(nameof(RefreshDocumentOrchestrator), payload));
+
+            return allTasks.ToList();
         }
 
         private static async Task BufferCall(Task task)
@@ -165,8 +182,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
         private async Task<(DocumentDto[], PcdRequestDto[])> RetrieveDocumentsAndPcdRequests(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of Documents for case {payload.CmsCaseId}");
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
+
+            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of Documents for case {payload.CmsCaseId}");
             var cmsDocuments = await context.CallActivityAsync<DocumentDto[]>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
 
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of PCD Requests for case {payload.CmsCaseId}");

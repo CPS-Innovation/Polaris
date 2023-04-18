@@ -17,12 +17,13 @@ using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
+using RenderPcd;
 
 namespace coordinator.Functions.ActivityFunctions.Document
 {
     public class GeneratePdf
     {
+        private readonly IConvertPcdRequestToHtmlService _convertPcdRequestToHtmlService;
         private readonly HttpClient _pdfGeneratorHttpClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
@@ -34,14 +35,16 @@ namespace coordinator.Functions.ActivityFunctions.Document
         const string loggingName = nameof(GeneratePdf);
 
         public GeneratePdf(
-             IHttpClientFactory httpClientFactory,
-             IJsonConvertWrapper jsonConvertWrapper,
-             IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
-             IDdeiClient documentExtractionService,
-             IPolarisBlobStorageService blobStorageService,
-             IExceptionHandler exceptionHandler,
-             ILogger<GeneratePdf> logger)
+            IConvertPcdRequestToHtmlService convertPcdRequestToHtmlService,
+            IHttpClientFactory httpClientFactory,
+            IJsonConvertWrapper jsonConvertWrapper,
+            IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
+            IDdeiClient documentExtractionService,
+            IPolarisBlobStorageService blobStorageService,
+            IExceptionHandler exceptionHandler,
+            ILogger<GeneratePdf> logger)
         {
+            _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
             _pdfGeneratorHttpClient = httpClientFactory.CreateClient(nameof(GeneratePdf));
             _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;
@@ -65,18 +68,22 @@ namespace coordinator.Functions.ActivityFunctions.Document
             if (results?.Any() == true)
                 throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
 
-            var blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.CmsFileName)}.pdf";
+            Stream documentStream = null;
+            string blobName = null;
+            FileType fileType = (FileType)(-1);
 
-            _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentId}'");
+            if(payload.CmsDocumentTracker != null)
+            {
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
 
-            var documentStream = await _documentExtractionService.GetDocumentAsync
-                (
-                    payload.CmsCaseUrn,
-                    payload.CmsCaseId.ToString(),
-                    payload.CmsDocumentCategory,
-                    payload.CmsDocumentId,
-                    payload.CmsAuthValues,
-                    payload.CorrelationId
+                documentStream = await _documentExtractionService.GetDocumentAsync
+                    (
+                        payload.CmsCaseUrn,
+                        payload.CmsCaseId.ToString(),
+                        payload.CmsDocumentTracker.CmsDocType.DocumentCategory,
+                        payload.CmsDocumentTracker.CmsDocumentId,
+                        payload.CmsAuthValues,
+                        payload.CorrelationId
                     );
                 blobName = $"{payload.CmsCaseId}/pdfs/PCD-{payload.CmsDocumentTracker.CmsDocumentId}.pdf";
                 fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
@@ -90,23 +97,33 @@ namespace coordinator.Functions.ActivityFunctions.Document
                 fileType = "HTML".ToFileType();
             }
 
-            var fileType = Path.GetExtension(payload.CmsFileName).ToFileType();
             _log.LogMethodFlow(payload.CorrelationId, loggingName,
                 $"Converting document of type: '{fileType}'. Original file: '{payload.CmsCaseUrn}', to PDF fileName: '{blobName}'");
-            Stream pdfStream = await ConvertToPdf(payload.CorrelationId, payload.CmsAuthValues, payload.CmsDocumentId, documentStream, fileType);
 
-            _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
-            await _blobStorageService.UploadDocumentAsync
-                (
-                    pdfStream, 
-                    blobName, 
-                    payload.CmsCaseId.ToString(), 
-                    payload.CmsDocumentId,
-                    payload.CmsVersionId.ToString(), 
-                    payload.CorrelationId
-                );
+            Stream pdfStream = null;
 
-            _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{blobName}' uploaded successfully");
+            try
+            {
+                pdfStream = await ConvertToPdf(payload.CorrelationId, payload.CmsAuthValues, payload.CmsDocumentId, documentStream, fileType);
+
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
+                await _blobStorageService.UploadDocumentAsync
+                    (
+                        pdfStream,
+                        blobName,
+                        payload.CmsCaseId.ToString(),
+                        payload.CmsDocumentId,
+                        payload.CmsVersionId.ToString(),
+                        payload.CorrelationId
+                    );
+
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{blobName}' uploaded successfully");
+            }
+            finally 
+            {
+                documentStream?.Dispose();
+                pdfStream?.Dispose();
+            }
 
             var generatePdfResponse = new GeneratePdfResponse(blobName);
             return generatePdfResponse;

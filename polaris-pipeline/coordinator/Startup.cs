@@ -32,6 +32,7 @@ using Common.Handlers.Contracts;
 using Common.Handlers;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Domain;
+using RenderPcd;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -55,6 +56,7 @@ namespace coordinator
             builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
+            builder.Services.AddSingleton<IConvertPcdRequestToHtmlService, ConvertPcdRequestToHtmlService>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
 

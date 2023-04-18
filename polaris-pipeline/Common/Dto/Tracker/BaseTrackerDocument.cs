@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
-using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 
 namespace Common.Dto.Tracker
