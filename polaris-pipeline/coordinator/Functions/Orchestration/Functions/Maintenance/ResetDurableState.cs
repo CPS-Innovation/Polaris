@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Net;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common.Configuration;
-using Common.Constants;
 using Common.Logging;
-using DurableTask.AzureStorage;
+using DurableTask.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Maintenance;
@@ -17,18 +12,15 @@ namespace coordinator.Functions.Orchestration.Functions.Maintenance;
 public class ResetDurableState
 {
     private readonly ILogger<ResetDurableState> _logger;
-    private readonly IConfiguration _configuration;
-
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
 
-    public ResetDurableState(ILogger<ResetDurableState> logger, IConfiguration configuration)
+    public ResetDurableState(ILogger<ResetDurableState> logger)
     {
         _logger = logger;
-        _configuration = configuration;
     }
     
     [FunctionName("ResetDurableState")]
-    public async Task RunAsync([TimerTrigger("0 0 3 * * *")]TimerInfo myTimer, [DurableClient] IDurableClient client)
+    public async Task RunAsync([TimerTrigger("0 0 3 * * *")] TimerInfo myTimer, [DurableClient] IDurableClient client)
     {
         var correlationId = Guid.NewGuid();
 
@@ -36,27 +28,15 @@ public class ResetDurableState
         {
             _logger.LogMethodEntry(correlationId, LoggingName, string.Empty);
             
-            var connectionString = _configuration[ConfigKeys.CoordinatorKeys.AzureWebJobsStorage];
-            var settings = new AzureStorageOrchestrationServiceSettings
-            {
-                StorageConnectionString = connectionString,
-                TaskHubName = client.TaskHubName
-            };
-            
-            var storageService = new AzureStorageOrchestrationService(settings);
-
-            // Delete all Azure Storage tables, blobs, and queues in the task hub
-            _logger.LogMethodFlow(correlationId, LoggingName, $"Deleting all storage resources for task hub {settings.TaskHubName}...");
-            await storageService.DeleteAsync();
-            
-            // Wait for a minute to allow Azure Storage time to reset itself, otherwise it won't recreate resources with the same names as before.
-            _logger.LogMethodFlow(correlationId, LoggingName, "The delete operation completed. Waiting one minute before recreating...");
-            await Task.Delay(TimeSpan.FromMinutes(1));
-            
-            //Stop and start the service to ensure that all durable storage artifacts are rebuilt 
-            await storageService.StopAsync();
-            await Task.Delay(TimeSpan.FromMinutes(1));
-            await storageService.StartAsync();
+            await client.PurgeInstanceHistoryAsync(
+                DateTime.MinValue,
+                DateTime.UtcNow,  
+                new List<OrchestrationStatus>
+                {
+                    OrchestrationStatus.Completed,
+                    OrchestrationStatus.Failed,
+                    OrchestrationStatus.Terminated
+                });
         }
         catch (Exception ex)
         {
