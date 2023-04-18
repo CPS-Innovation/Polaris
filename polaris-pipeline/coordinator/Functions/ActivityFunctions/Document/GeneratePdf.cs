@@ -77,7 +77,18 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     payload.CmsDocumentId,
                     payload.CmsAuthValues,
                     payload.CorrelationId
-                ) ;
+                    );
+                blobName = $"{payload.CmsCaseId}/pdfs/PCD-{payload.CmsDocumentTracker.CmsDocumentId}.pdf";
+                fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
+            }
+            else if(payload.PcdRequestTracker != null) 
+            {
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting PCD request to HTML for documentId: '{payload.PcdRequestTracker.CmsDocumentId}'");
+
+                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.PcdRequestTracker.CmsDocumentId)}.pdf";
+                documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
+                fileType = "HTML".ToFileType();
+            }
 
             var fileType = Path.GetExtension(payload.CmsFileName).ToFileType();
             _log.LogMethodFlow(payload.CorrelationId, loggingName,
