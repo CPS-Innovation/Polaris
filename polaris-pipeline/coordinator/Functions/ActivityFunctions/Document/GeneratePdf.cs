@@ -85,7 +85,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CmsAuthValues,
                         payload.CorrelationId
                     );
-                blobName = $"{payload.CmsCaseId}/pdfs/PCD-{payload.CmsDocumentTracker.CmsDocumentId}.pdf";
+                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.CmsDocumentTracker.CmsOriginalFileName)}.pdf";
                 fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
             }
             else if(payload.PcdRequestTracker != null) 
@@ -94,7 +94,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
                 blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.PcdRequestTracker.CmsDocumentId)}.pdf";
                 documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
-                fileType = "HTML".ToFileType();
+                fileType = FileType.HTML;
             }
 
             _log.LogMethodFlow(payload.CorrelationId, loggingName,

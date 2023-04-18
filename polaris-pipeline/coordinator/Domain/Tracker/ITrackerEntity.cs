@@ -22,6 +22,6 @@ namespace coordinator.Domain.Tracker
         Task RegisterDeleted();
         Task<List<TrackerCmsDocumentDto>> GetDocuments();
         Task ClearDocuments();
-        Task<bool> ProcessSucceeded();
+        Task<bool> AllDocumentsFailed();
     }
 }

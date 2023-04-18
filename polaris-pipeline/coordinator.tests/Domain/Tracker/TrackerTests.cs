@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using coordinator.Domain.Tracker;
+using coordinator.Domain.Mapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,8 @@ using coordinator.Functions.DurableEntity.Client.Tracker;
 using Common.Dto.Tracker;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
+using Mapster;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -35,6 +38,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Guid _correlationId;
         private readonly EntityStateResponse<TrackerEntity> _entityStateResponse;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly IServiceCollection _services;
 
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
@@ -64,6 +68,7 @@ namespace coordinator.tests.Domain.Tracker
                 .Create();
             _entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = true };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
+            _services = new ServiceCollection();    
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
@@ -223,9 +228,11 @@ namespace coordinator.tests.Domain.Tracker
                 new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure}
             };
 
-            var output = await _tracker.ProcessSucceeded();
+            _tracker.PcdRequests = new List<TrackerPcdRequestDto>();
 
-            output.Should().BeFalse();
+            var output = await _tracker.AllDocumentsFailed();
+
+            output.Should().BeTrue();
         }
 
         [Fact]
@@ -237,9 +244,11 @@ namespace coordinator.tests.Domain.Tracker
                 new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.PdfUploadedToBlob},
             };
 
-            var output = await _tracker.ProcessSucceeded();
+            _tracker.PcdRequests = new List<TrackerPcdRequestDto>();
 
-            output.Should().BeTrue();
+            var output = await _tracker.AllDocumentsFailed();
+
+            output.Should().BeFalse();
         }
 
         [Fact]
@@ -539,5 +548,19 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         #endregion
+
+        [Fact]
+        public void TrackerEntityMapsToTrackerDto()
+        {
+            // Arrange
+            _services.RegisterMapsterConfiguration();
+            var trackerEntity = _fixture.Create<TrackerEntity>();
+
+            // Act
+            var trackerDto = trackerEntity.Adapt<TrackerDto>();
+
+            // Assert
+            trackerDto.Documents.Count.Should().Be(trackerEntity.Documents.Count + trackerEntity.PcdRequests.Count);
+        }
     }
 }

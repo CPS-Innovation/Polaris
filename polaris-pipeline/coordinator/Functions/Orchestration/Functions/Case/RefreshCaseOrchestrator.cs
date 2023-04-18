@@ -105,7 +105,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             {
                 await Task.WhenAll(caseTasks.Select(BufferCall));
 
-                if (!await tracker.ProcessSucceeded())
+                if (await tracker.AllDocumentsFailed())
                     throw new CaseOrchestrationException("Documents or PCD Requests failed to process during orchestration.");
             }
 

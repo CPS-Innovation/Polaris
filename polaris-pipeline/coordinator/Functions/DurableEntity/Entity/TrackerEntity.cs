@@ -385,12 +385,16 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.CompletedTask;
         }
 
-        public Task<bool> ProcessSucceeded()
+        public Task<bool> AllDocumentsFailed()
         {
-            bool documentsSucceeded = !Documents.Any(d => d.Status is TrackerDocumentStatus.UnableToConvertToPdf or TrackerDocumentStatus.UnexpectedFailure);
-            bool pcdRequestsSucceeded = !PcdRequests.Any(d => d.Status is TrackerDocumentStatus.UnableToConvertToPdf or TrackerDocumentStatus.UnexpectedFailure);
+            var statuses = 
+                Documents
+                    .Select(doc => doc.Status)
+                    .Concat(PcdRequests.Select(pcd => pcd.Status))
+                    .ToList();
 
-            return Task.FromResult(documentsSucceeded && pcdRequestsSucceeded);
+            return Task.FromResult(
+                statuses.All(s => s is TrackerDocumentStatus.UnableToConvertToPdf or TrackerDocumentStatus.UnexpectedFailure));
         }
 
         private void ClearState(TrackerStatus status)

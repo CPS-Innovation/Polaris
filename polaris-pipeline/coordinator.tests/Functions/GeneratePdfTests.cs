@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.Exceptions;
 using Common.Dto.Response;
+using Common.Dto.Tracker;
 using Common.Handlers.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Wrappers.Contracts;
@@ -53,7 +55,16 @@ namespace pdf_generator.tests.Functions
         {
             _serializedGeneratePdfRequest = _fixture.Create<string>();
             var cmsAuthValues = _fixture.Create<string>();
-            _generatePdfRequest = _fixture.Build<CaseDocumentOrchestrationPayload>().Create();
+            var trackerCmsDocumentDto = _fixture.Create<TrackerCmsDocumentDto>();
+            _generatePdfRequest = new CaseDocumentOrchestrationPayload
+                (
+                    _fixture.Create<string>(),
+                    Guid.NewGuid(),
+                    _fixture.Create<string>(),
+                    _fixture.Create<long>(),
+                    JsonSerializer.Serialize(trackerCmsDocumentDto),
+                    null
+                );
             _generatePdfRequest.CmsCaseId = 123456;
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
             _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
@@ -193,7 +204,7 @@ namespace pdf_generator.tests.Functions
             var response = await _generatePdf.Run(_mockDurableActivityContext.Object);
 
             response.AlreadyProcessed.Should().BeFalse();
-            response.BlobName.Should().Be( _blobName );
+            response.BlobName.Should().Be(_blobName);
         }
     }
 }

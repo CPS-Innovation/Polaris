@@ -8,6 +8,10 @@ namespace Common.Dto.Tracker
 {
     public class TrackerCmsDocumentDto : BaseTrackerDocumentDto
     {
+        public TrackerCmsDocumentDto()
+            : base()
+        { }
+
         public TrackerCmsDocumentDto(
             Guid polarisDocumentId,
             int polarisDocumentVersionId,

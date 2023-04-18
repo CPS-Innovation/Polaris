@@ -2,11 +2,15 @@
 using Newtonsoft.Json.Converters;
 using System;
 using Common.Dto.FeatureFlags;
+using Mapster;
 
 namespace Common.Dto.Tracker
 {
     public class BaseTrackerDocumentDto
     {
+        public BaseTrackerDocumentDto()
+        { }
+
         public BaseTrackerDocumentDto(
             Guid polarisDocumentId,
             int polarisDocumentVersionId,
@@ -28,12 +32,13 @@ namespace Common.Dto.Tracker
         [JsonProperty("polarisDocumentVersionId")]
         public int PolarisDocumentVersionId { get; set; }
 
-        // Todo - don't send to client
         [JsonProperty("cmsDocumentId")]
+        [AdaptIgnore]
         public string CmsDocumentId { get; set; }
 
         // Todo - don't send to client
         [JsonProperty("cmsVersionId")]
+        [AdaptIgnore]
         public long CmsVersionId { get; set; }
 
         [JsonProperty("pdfBlobName")]

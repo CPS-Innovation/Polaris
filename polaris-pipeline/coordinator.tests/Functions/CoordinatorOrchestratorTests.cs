@@ -79,8 +79,8 @@ namespace coordinator.tests.Functions
                 .ReturnsAsync(_deltaDocuments);
 
             _mockTracker
-                .Setup(t => t.ProcessSucceeded())
-                .ReturnsAsync(true);
+                .Setup(t => t.AllDocumentsFailed())
+                .ReturnsAsync(false);
 
             _mockDurableOrchestrationContext
                 .Setup(context => context.GetInput<CaseOrchestrationPayload>())
@@ -183,7 +183,7 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ThrowsCoordinatorOrchestrationExceptionWhenAllDocumentsHaveFailed()
         {
-            _mockTracker.Setup(t => t.ProcessSucceeded()).ReturnsAsync(false);
+            _mockTracker.Setup(t => t.AllDocumentsFailed()).ReturnsAsync(true);
 
             await Assert.ThrowsAsync<CaseOrchestrationException>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
         }
