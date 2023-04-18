@@ -317,7 +317,15 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
+            {
                 document.Status = TrackerDocumentStatus.UnexpectedFailure;
+            }
+            else
+            {
+                var pcdRequest = PcdRequests.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+                if (pcdRequest != null)
+                    pcdRequest.Status = TrackerDocumentStatus.UnexpectedFailure;
+            }
 
             Log(TrackerLogType.UnexpectedDocumentFailure, documentId);
 
@@ -328,7 +336,15 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
+            {
                 document.Status = TrackerDocumentStatus.Indexed;
+            }
+            else
+            {
+                var pcdRequest = PcdRequests.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+                if (pcdRequest != null)
+                    pcdRequest.Status = TrackerDocumentStatus.Indexed;
+            }
 
             Log(TrackerLogType.Indexed, documentId);
 
@@ -339,7 +355,15 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var document = Documents.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (document != null)
+            {
                 document.Status = TrackerDocumentStatus.OcrAndIndexFailure;
+            }
+            else
+            {
+                var pcdRequest = PcdRequests.Find(document => document.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+                if (pcdRequest != null)
+                    pcdRequest.Status = TrackerDocumentStatus.OcrAndIndexFailure;
+            }
 
             Log(TrackerLogType.OcrAndIndexFailure, documentId);
 

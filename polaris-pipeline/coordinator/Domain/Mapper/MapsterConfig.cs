@@ -33,6 +33,7 @@ namespace coordinator.Domain.Mapper
                                     PresentationFlags = pcdRequest.PresentationFlags,
                                     PdfBlobName = pcdRequest.PdfBlobName,
                                     IsPdfAvailable = pcdRequest.IsPdfAvailable,
+                                    Status = pcdRequest.Status
                                 }
                             )
                         )
