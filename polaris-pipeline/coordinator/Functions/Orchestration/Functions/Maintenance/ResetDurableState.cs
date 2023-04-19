@@ -107,10 +107,7 @@ public class ResetDurableState
         if (purgedInstances.Count == 0)
             return;
 
-        foreach (var entityKey in purgedInstances)
-        {
-            await client.PurgeInstanceHistoryAsync($"@{TrackerEntityName}@{entityKey}");
-        }
+        await Task.WhenAll(purgedInstances.Select(async instanceId => await client.PurgeInstanceHistoryAsync($"@{TrackerEntityName}@{instanceId}")));
         
         _logger.LogMethodFlow(correlationId, LoggingName, $"Durable entity history for {purgedInstances.Count} entities purged");
     }
