@@ -35,6 +35,7 @@ public class ResetDurableState
         {
             await TerminateActiveOrchestrations(client, correlationId);
 
+            await Task.Delay(TimeSpan.FromMinutes(10)); //to allow time for any terminations to complete
             var purgedInstances = await PurgeOrchestrationHistory(client, correlationId);
 
             await PurgeDurableEntityInstanceData(client, correlationId, purgedInstances);
