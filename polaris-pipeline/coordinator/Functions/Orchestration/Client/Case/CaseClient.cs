@@ -39,7 +39,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)] 
         public async Task<HttpResponseMessage> Run
             (
-                [HttpTrigger(AuthorizationLevel.Anonymous, "put", "post" /*, "delete"*/, Route = RestApi.Case)] HttpRequestMessage req,
+                [HttpTrigger(AuthorizationLevel.Anonymous, "put", "post", Route = RestApi.Case)] HttpRequestMessage req,
                 string caseUrn,
                 string caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
@@ -95,17 +95,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
                         _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(CaseClient)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
                         return orchestrationClient.CreateCheckStatusResponse(req, caseId); 
-
-                    //case "DELETE":
-                    //    var status = await orchestrationClient.GetStatusAsync(caseId);
-                    //    if( status != null &&
-                    //        (status.RuntimeStatus == OrchestrationRuntimeStatus.Running || status.RuntimeStatus == OrchestrationRuntimeStatus.Suspended)
-                    //      )
-                    //        await orchestrationClient.TerminateAsync(status.InstanceId, $"{loggingName} - terminated via DELETE");
-
-                    //    await orchestrationClient.StartNewAsync(nameof(DeleteCaseOrchestrator), caseId, casePayload);
-
-                    //    return new HttpResponseMessage(HttpStatusCode.Accepted);
 
                     case "PUT":
                         var content = await req.Content.ReadAsStringAsync();
