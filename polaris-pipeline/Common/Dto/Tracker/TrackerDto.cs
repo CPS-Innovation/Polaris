@@ -24,7 +24,7 @@ namespace Common.Dto.Tracker
         public DateTime? ProcessingCompleted { get; set; }
 
         [JsonProperty("documents")]
-        public List<TrackerCmsDocumentDto> Documents { get; set; }
+        public List<TrackerDocumentDto> Documents { get; set; }
 
         [JsonProperty("logs")]
         public List<TrackerLogDto> Logs { get; set; }

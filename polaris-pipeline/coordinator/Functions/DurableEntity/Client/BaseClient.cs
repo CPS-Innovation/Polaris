@@ -17,7 +17,7 @@ namespace coordinator.Functions.DurableEntity.Client
         internal bool Success;
         internal IActionResult Error;
         internal Guid CorrelationId;
-        internal TrackerCmsDocumentDto Document;
+        internal TrackerDocumentDto Document;
     }
 
     public class BaseClient
