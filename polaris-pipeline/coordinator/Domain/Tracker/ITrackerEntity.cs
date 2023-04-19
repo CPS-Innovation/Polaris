@@ -20,7 +20,7 @@ namespace coordinator.Domain.Tracker
         Task RegisterCompleted();
         Task RegisterFailed();
         Task RegisterDeleted();
-        Task<List<TrackerDocumentDto>> GetDocuments();
+        Task<List<TrackerCmsDocumentDto>> GetDocuments();
         Task ClearDocuments();
         Task<bool> AllDocumentsFailed();
     }

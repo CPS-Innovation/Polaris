@@ -72,7 +72,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
             // Assert
@@ -85,7 +85,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.Ok;
 
             // Assert
@@ -98,7 +98,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
 
@@ -112,7 +112,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.Ok;
 
             // Assert
