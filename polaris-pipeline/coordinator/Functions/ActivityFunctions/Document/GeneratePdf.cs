@@ -17,13 +17,12 @@ using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using RenderPcd;
+using Microsoft.IdentityModel.Tokens;
 
 namespace coordinator.Functions.ActivityFunctions.Document
 {
     public class GeneratePdf
     {
-        private readonly IConvertPcdRequestToHtmlService _convertPcdRequestToHtmlService;
         private readonly HttpClient _pdfGeneratorHttpClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
@@ -35,16 +34,14 @@ namespace coordinator.Functions.ActivityFunctions.Document
         const string loggingName = nameof(GeneratePdf);
 
         public GeneratePdf(
-            IConvertPcdRequestToHtmlService convertPcdRequestToHtmlService,
-            IHttpClientFactory httpClientFactory,
-            IJsonConvertWrapper jsonConvertWrapper,
-            IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
-            IDdeiClient documentExtractionService,
-            IPolarisBlobStorageService blobStorageService,
-            IExceptionHandler exceptionHandler,
-            ILogger<GeneratePdf> logger)
+             IHttpClientFactory httpClientFactory,
+             IJsonConvertWrapper jsonConvertWrapper,
+             IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
+             IDdeiClient documentExtractionService,
+             IPolarisBlobStorageService blobStorageService,
+             IExceptionHandler exceptionHandler,
+             ILogger<GeneratePdf> logger)
         {
-            _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
             _pdfGeneratorHttpClient = httpClientFactory.CreateClient(nameof(GeneratePdf));
             _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;
@@ -68,62 +65,37 @@ namespace coordinator.Functions.ActivityFunctions.Document
             if (results?.Any() == true)
                 throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
 
-            Stream documentStream = null;
-            string blobName = null;
-            FileType fileType = (FileType)(-1);
+            var blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.CmsFileName)}.pdf";
 
-            if(payload.CmsDocumentTracker != null)
-            {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
+            _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentId}'");
 
-                documentStream = await _documentExtractionService.GetDocumentAsync
-                    (
-                        payload.CmsCaseUrn,
-                        payload.CmsCaseId.ToString(),
-                        payload.CmsDocumentTracker.CmsDocType.DocumentCategory,
-                        payload.CmsDocumentTracker.CmsDocumentId,
-                        payload.CmsAuthValues,
-                        payload.CorrelationId
-                    );
-                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.CmsDocumentTracker.CmsOriginalFileName)}.pdf";
-                fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
-            }
-            else if(payload.PcdRequestTracker != null) 
-            {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting PCD request to HTML for documentId: '{payload.PcdRequestTracker.CmsDocumentId}'");
+            var documentStream = await _documentExtractionService.GetDocumentAsync
+                (
+                    payload.CmsCaseUrn,
+                    payload.CmsCaseId.ToString(),
+                    payload.CmsDocumentCategory,
+                    payload.CmsDocumentId,
+                    payload.CmsAuthValues,
+                    payload.CorrelationId
+                ) ;
 
-                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.PcdRequestTracker.CmsDocumentId)}.pdf";
-                documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
-                fileType = FileType.HTML;
-            }
-
+            var fileType = Path.GetExtension(payload.CmsFileName).ToFileType();
             _log.LogMethodFlow(payload.CorrelationId, loggingName,
                 $"Converting document of type: '{fileType}'. Original file: '{payload.CmsCaseUrn}', to PDF fileName: '{blobName}'");
+            Stream pdfStream = await ConvertToPdf(payload.CorrelationId, payload.CmsAuthValues, payload.CmsDocumentId, documentStream, fileType);
 
-            Stream pdfStream = null;
+            _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
+            await _blobStorageService.UploadDocumentAsync
+                (
+                    pdfStream, 
+                    blobName, 
+                    payload.CmsCaseId.ToString(), 
+                    payload.CmsDocumentId,
+                    payload.CmsVersionId.ToString(), 
+                    payload.CorrelationId
+                );
 
-            try
-            {
-                pdfStream = await ConvertToPdf(payload.CorrelationId, payload.CmsAuthValues, payload.CmsDocumentId, documentStream, fileType);
-
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
-                await _blobStorageService.UploadDocumentAsync
-                    (
-                        pdfStream,
-                        blobName,
-                        payload.CmsCaseId.ToString(),
-                        payload.CmsDocumentId,
-                        payload.CmsVersionId.ToString(),
-                        payload.CorrelationId
-                    );
-
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{blobName}' uploaded successfully");
-            }
-            finally 
-            {
-                documentStream?.Dispose();
-                pdfStream?.Dispose();
-            }
+            _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{blobName}' uploaded successfully");
 
             var generatePdfResponse = new GeneratePdfResponse(blobName);
             return generatePdfResponse;

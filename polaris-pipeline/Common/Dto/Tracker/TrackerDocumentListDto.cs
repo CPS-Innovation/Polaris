@@ -6,7 +6,7 @@ namespace Common.Dto.Tracker
 {
     public static class TrackerDocumentListDto
     {
-        public static TrackerCmsDocumentDto GetDocument(this List<TrackerCmsDocumentDto> documents, Guid polarisDocumentId)
+        public static TrackerDocumentDto GetDocument(this List<TrackerDocumentDto> documents, Guid polarisDocumentId)
         {
             return documents.FirstOrDefault(doc => doc.PolarisDocumentId == polarisDocumentId);
         }

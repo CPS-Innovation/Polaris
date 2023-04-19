@@ -1,6 +1,5 @@
-﻿using Common.Dto.Tracker;
-using System;
-using System.Text.Json;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace coordinator.Domain
 {
@@ -8,47 +7,35 @@ namespace coordinator.Domain
     {
         public CaseDocumentOrchestrationPayload
             (
-                string cmsAuthValues,
-                Guid correlationId,
-                string cmsCaseUrn,
-                long cmsCaseId,
-                string serializedTrackerCmsDocumentDto,
-                string serializedTrackerPcdRequestDto
+                Guid polarisDocumentId,
+                string cmsCaseUrn, 
+                long cmsCaseId, 
+                string cmsDocumentCategory, 
+                string cmsDocumentId, 
+                long cmsVersionId, 
+                string cmsFileName, 
+                string cmsAuthValues, 
+                Guid correlationId
             )
-            : base(cmsCaseUrn, cmsCaseId, correlationId)
+            : base(cmsCaseUrn, cmsCaseId, correlationId, polarisDocumentId)
         {
-            if(serializedTrackerCmsDocumentDto != null)
-            {
-                CmsDocumentTracker = JsonSerializer.Deserialize<TrackerCmsDocumentDto>(serializedTrackerCmsDocumentDto);
-                base.PolarisDocumentId = CmsDocumentTracker.PolarisDocumentId;
-            }
-            else if(serializedTrackerPcdRequestDto != null)
-            {
-                PcdRequestTracker = JsonSerializer.Deserialize<TrackerPcdRequestDto>(serializedTrackerPcdRequestDto);
-                base.PolarisDocumentId = PcdRequestTracker.PolarisDocumentId;
-            }
+            CmsDocumentCategory = cmsDocumentCategory;
+            CmsDocumentId = cmsDocumentId;
+            CmsVersionId = cmsVersionId;
+            CmsFileName = cmsFileName;
             CmsAuthValues = cmsAuthValues;
         }
+
+        public string CmsDocumentCategory { get; set; }
+
+        public string CmsDocumentId { get; set; }
+
+        public long CmsVersionId { get; set; }
+
+        [Required]
+        [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
+        public string CmsFileName { get; set; }
+
         public string CmsAuthValues { get; set; }
-
-        public string CmsDocumentId 
-        { 
-            get
-            {
-                return CmsDocumentTracker != null ? CmsDocumentTracker.CmsDocumentId : PcdRequestTracker.CmsDocumentId;
-            }
-        }
-
-        public long CmsVersionId
-        {
-            get
-            {
-                return CmsDocumentTracker != null ? CmsDocumentTracker.CmsVersionId : PcdRequestTracker.CmsVersionId;
-            }
-        }
-
-        public TrackerCmsDocumentDto CmsDocumentTracker { get; set; }
-
-        public TrackerPcdRequestDto PcdRequestTracker { get; set; } 
     }
 }

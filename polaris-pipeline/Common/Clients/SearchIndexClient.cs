@@ -26,7 +26,7 @@ namespace Common.Clients
 			_logger = logger;
 		}
 
-		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<TrackerCmsDocumentDto> documents, string searchTerm, Guid correlationId)
+		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<TrackerDocumentDto> documents, string searchTerm, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(Query), $"CaseId '{caseId}', searchTerm '{searchTerm}'");
 
@@ -52,7 +52,7 @@ namespace Common.Clients
             return results;
 		}
 
-        private string GetSearchQuery(int caseId, List<TrackerCmsDocumentDto> documents)
+        private string GetSearchQuery(int caseId, List<TrackerDocumentDto> documents)
         {
             var stringBuilder = new StringBuilder($"caseId eq {caseId}");
 
@@ -84,7 +84,7 @@ namespace Common.Clients
             return streamlinedResults;
         }
 
-        private bool IsLiveDocumentResult(List<TrackerCmsDocumentDto> documents, SearchLine searchLine)
+        private bool IsLiveDocumentResult(List<TrackerDocumentDto> documents, SearchLine searchLine)
         {
             var decodedSearchLineId = Encoding.UTF8.GetString(
               Convert.FromBase64String(searchLine.Id)
