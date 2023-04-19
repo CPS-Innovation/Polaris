@@ -109,7 +109,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
             await _triggerCoordinatorPipelineClient.RefreshCaseAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
 
-        [Fact(Skip = "Overly complex to mock HTTP requests via Client Factory")]
+        [Fact(Skip = "Overly complex to mock HTTP requests via HTTP Client Factory")]
         public async Task GetTracker_ReturnsTracker()
         {
             var response = await _getTrackerPipelineClient.GetTrackerAsync(_caseUrn, _caseId, _correlationId);
