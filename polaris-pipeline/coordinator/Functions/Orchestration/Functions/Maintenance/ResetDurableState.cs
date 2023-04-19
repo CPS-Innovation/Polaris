@@ -100,7 +100,7 @@ public class ResetDurableState
         return orchestrationInstances;
     }
 
-    private async Task PurgeDurableEntityInstanceData(IDurableOrchestrationClient client, Guid correlationId, HashSet<string> purgedInstances)
+    private async Task PurgeDurableEntityInstanceData(IDurableOrchestrationClient client, Guid correlationId, IReadOnlyCollection<string> purgedInstances)
     {
         _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - third, purge durable entity instance history for {purgedInstances.Count} entities");
         
