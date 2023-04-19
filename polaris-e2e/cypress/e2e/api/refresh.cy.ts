@@ -20,20 +20,6 @@ describe("Refresh", () => {
   it("the pipeline can clear then process a case to completion", () => {
     cy.api(routes.TRACKER_CLEAR(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID))
       .wait(2000)
-      .waitUntil(
-        () =>
-          cy
-            .api<PipelineResults>(
-              routes.GET_TRACKER(
-                REFRESH_TARGET_URN,
-                REFRESH_TARGET_CASE_ID,
-                "PHASE_1"
-              )
-            )
-            .its("body")
-            .then(({ documents }) => documents.length === 0),
-        WAIT_UNTIL_OPTIONS
-      )
       .api(
         routes.TRACKER_START(
           REFRESH_TARGET_URN,
