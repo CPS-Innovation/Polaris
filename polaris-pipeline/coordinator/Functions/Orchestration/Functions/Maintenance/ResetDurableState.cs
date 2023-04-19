@@ -15,6 +15,7 @@ public class ResetDurableState
     private readonly ILogger<ResetDurableState> _logger;
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
     private const int DefaultPageSize = 100;
+    private const string TrackerEntityName = "trackerentity";
 
     // {second} {minute} {hour} {day} {month} {day-of-week}
     private const string TimerStartTime = "0 0 3 * * *";
@@ -34,7 +35,9 @@ public class ResetDurableState
         {
             await TerminateActiveOrchestrations(client, correlationId);
 
-            await PurgeOrchestrationHistory(client, correlationId);
+            var purgedInstances = await PurgeOrchestrationHistory(client, correlationId);
+
+            await PurgeDurableEntityInstanceData(client, correlationId, purgedInstances);
         }
         catch (Exception ex)
         {
@@ -69,9 +72,9 @@ public class ResetDurableState
         _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {runningInstances.Count} active durable instances forcibly terminated");
     }
 
-    private async Task PurgeOrchestrationHistory(IDurableOrchestrationClient client, Guid correlationId)
+    private async Task<HashSet<string>> PurgeOrchestrationHistory(IDurableOrchestrationClient client, Guid correlationId)
     {
-        _logger.LogMethodFlow(correlationId, LoggingName, "Overnight clear-down - second, purge durable instance history that is older than one week");
+        _logger.LogMethodFlow(correlationId, LoggingName, "Overnight clear-down - second, purge durable instance history");
         
         var orchestrationInstances = new HashSet<string>();
         var purgeCondition = CreateOrchestrationQuery(new[]
@@ -94,9 +97,25 @@ public class ResetDurableState
         } while (purgeCondition.ContinuationToken != null);
             
         _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {orchestrationInstances.Count} durable orchestration runs purged from history.");
+        return orchestrationInstances;
     }
 
-    private OrchestrationStatusQueryCondition CreateOrchestrationQuery(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses)
+    private async Task PurgeDurableEntityInstanceData(IDurableOrchestrationClient client, Guid correlationId, HashSet<string> purgedInstances)
+    {
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - third, purge durable entity instance history for {purgedInstances.Count} entities");
+        
+        if (purgedInstances.Count == 0)
+            return;
+
+        foreach (var entityKey in purgedInstances)
+        {
+            await client.PurgeInstanceHistoryAsync($"@{TrackerEntityName}@{entityKey}");
+        }
+        
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Durable entity history for {purgedInstances.Count} entities purged");
+    }
+
+    private static OrchestrationStatusQueryCondition CreateOrchestrationQuery(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses)
     {
         var condition = new OrchestrationStatusQueryCondition
         {
