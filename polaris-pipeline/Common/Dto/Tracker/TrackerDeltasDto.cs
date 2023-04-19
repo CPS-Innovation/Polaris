@@ -6,9 +6,9 @@ namespace Common.Dto.Tracker
 {
     public class TrackerDeltasDto
     {
-        public List<TrackerCmsDocumentDto> CreatedDocuments { get; set; }
-        public List<TrackerCmsDocumentDto> UpdatedDocuments { get; set; }
-        public List<TrackerCmsDocumentDto> DeletedDocuments { get; set; }
+        public List<TrackerDocumentDto> CreatedDocuments { get; set; }
+        public List<TrackerDocumentDto> UpdatedDocuments { get; set; }
+        public List<TrackerDocumentDto> DeletedDocuments { get; set; }
 
         // Read only, so Created and Updated only options
         public List<TrackerPcdRequestDto> CreatedPcdRequests { get; set; }

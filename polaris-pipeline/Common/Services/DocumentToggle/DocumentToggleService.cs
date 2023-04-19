@@ -40,12 +40,12 @@ namespace Common.Services.DocumentToggle
             _defintions = CreateDefinitions(lines);
         }
 
-        public bool CanReadDocument(TrackerCmsDocumentDto document)
+        public bool CanReadDocument(TrackerDocumentDto document)
         {
             return document.PresentationFlags.Read == ReadFlag.Ok;
         }
 
-        public bool CanWriteDocument(TrackerCmsDocumentDto document)
+        public bool CanWriteDocument(TrackerDocumentDto document)
         {
             return document.PresentationFlags.Write == WriteFlag.Ok;
         }
