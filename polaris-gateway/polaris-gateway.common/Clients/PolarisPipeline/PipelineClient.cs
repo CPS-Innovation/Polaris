@@ -58,12 +58,29 @@ namespace Gateway.Clients.PolarisPipeline
         {
             _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"CaseId: {caseId}");
 
-            var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
+            string url = await DeleteCaseOrchestration(caseId, cmsAuthValues, correlationId);
+            _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"Deeted Case Orchestration via {url}");
+
+            url = await DeleteCaseTrackerEntity(caseId, cmsAuthValues, correlationId);
+            _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"Deeted Case Tracker Entity via {url}");
 
             _logger.LogMethodExit(correlationId, nameof(DeleteCaseAsync), string.Empty);
 
             return new OkResult();
+        }
+
+        private async Task<string> DeleteCaseOrchestration(int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            var url = $"{RestApi.GetCaseOrchestrationInstanceUrl(caseId.ToString())}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}";
+            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
+            return url;
+        }
+
+        private async Task<string> DeleteCaseTrackerEntity(int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            string url = $"{RestApi.GetCaseOrchestrationInstanceUrl($"@trackerentity@{caseId}")}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}";
+            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
+            return url;
         }
 
         public async Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
