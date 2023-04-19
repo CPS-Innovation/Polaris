@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <None Remove="document-toggle.config" />
-    <None Remove="Services\RenderHtmlService\PcdRequest.cshtml" />
     <None Remove="Wrappers\" />
     <None Remove="Newtonsoft.Json" />
     <None Remove="Domain\" />
@@ -16,7 +15,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="document-toggle.config" />
-    <EmbeddedResource Include="Services\RenderHtmlService\PcdRequest.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\Exceptions\" />
@@ -29,7 +27,6 @@
     <PackageReference Include="Azure.Storage.Common" Version="12.13.0" />
     <PackageReference Include="FluentValidation" Version="11.2.0" />
     <PackageReference Include="FuzzySharp" Version="2.0.2" />
-    <PackageReference Include="Mapster" Version="7.3.0" />
 	<PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
@@ -47,7 +44,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.23.0" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.23.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="RazorEngineCore" Version="2022.8.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.1" />
   </ItemGroup>
 </Project>
