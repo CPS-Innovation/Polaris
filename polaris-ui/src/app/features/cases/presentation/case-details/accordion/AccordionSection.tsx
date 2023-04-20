@@ -8,7 +8,7 @@ type Props = {
   sectionLabel: string;
   docs: MappedCaseDocument[];
   isOpen: boolean;
-  handleToggleOpenSection: (id: string) => void;
+  handleToggleOpenSection: (id: string, sectionLabel: string) => void;
   handleOpenPdf: (caseDocument: {
     documentId: CaseDocumentViewModel["documentId"];
   }) => void;
@@ -40,7 +40,7 @@ export const AccordionSection: React.FC<Props> = ({
     >
       <button
         className={`${classes["accordion-section-header"]}`}
-        onClick={() => handleToggleOpenSection(sectionId)}
+        onClick={() => handleToggleOpenSection(sectionId, sectionLabel)}
       >
         <h2 className="govuk-heading-s">{sectionLabel}</h2>
         <span className={`${classes["icon"]}`}></span>

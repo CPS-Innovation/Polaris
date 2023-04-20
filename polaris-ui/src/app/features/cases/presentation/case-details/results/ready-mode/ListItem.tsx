@@ -8,6 +8,7 @@ import {
 import { MappedDocumentResult } from "../../../../domain/MappedDocumentResult";
 import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCaseDetailsState";
 import { ContextText } from "./ContextText";
+import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightTrackEvent";
 import classes from "./ListItem.module.scss";
 
 type Props = {
@@ -26,11 +27,16 @@ export const ListItem: React.FC<Props> = ({
   },
   handleOpenPdf,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   return (
     <div data-testid={`div-search-result-${documentId}`}>
       <h2 className="govuk-heading-s results-header">
         <LinkButton
           onClick={() => {
+            trackEvent("Open document from Document Search", {
+              documentId: documentId,
+              presentationFileName: presentationFileName,
+            });
             handleOpenPdf({ documentId, mode: "search" });
           }}
           dataTestId={`link-result-document-${documentId}`}
@@ -57,6 +63,9 @@ export const ListItem: React.FC<Props> = ({
         <Details
           data-testid="details-expand-search-results"
           isDefaultLeftBorderHidden
+          onClick={() => {
+            trackEvent("View 'x' more");
+          }}
           summaryChildren={`View ${
             occurrencesInDocumentCount - firstOcurrence.occurrencesInLine.length
           } more`}

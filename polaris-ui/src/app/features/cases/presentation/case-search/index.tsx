@@ -10,17 +10,23 @@ import {
 import { useSearchInputLogic } from "../../hooks/useSearchInputLogic";
 import classes from "./index.module.scss";
 import { PageContentWrapper } from "../../../../common/presentation/components";
-
+import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightTrackEvent";
 export const path = "/case-search";
 
 const validationFailMessage = "Enter a URN in the right format";
 
 const Page: React.FC = () => {
+  const trackEvent = useAppInsightsTrackEvent();
   const { urn: urnFromSearchParams, setParams } =
     useQueryParamsState<CaseSearchQueryParams>();
 
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
     useSearchInputLogic({ urnFromSearchParams, setParams });
+
+  const handleSearch = () => {
+    trackEvent("Search URN");
+    handleSubmit();
+  };
 
   return (
     <PageContentWrapper>
@@ -71,7 +77,7 @@ const Page: React.FC = () => {
               }}
             />
           </div>
-          <Button onClick={handleSubmit} data-testid="button-search">
+          <Button onClick={handleSearch} data-testid="button-search">
             Search
           </Button>
         </div>

@@ -1,6 +1,7 @@
 import { Button } from "../../../../../common/presentation/components";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
 import classes from "./Footer.module.scss";
 
 type Props = {
@@ -16,11 +17,20 @@ export const Footer: React.FC<Props> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
+  const handleRemoveAllRedactionsClick = () => {
+    trackEvent("Remove All Redactions");
+    handleRemoveAllRedactions();
+  };
+  const handleSaveAllRedactionsClick = () => {
+    trackEvent("Save All Redactions");
+    handleSavedRedactions();
+  };
   return (
     <div className={classes.footer}>
       <div className={classes.removeButton}>
         <LinkButton
-          onClick={handleRemoveAllRedactions}
+          onClick={handleRemoveAllRedactionsClick}
           dataTestId="link-removeAll"
         >
           Remove all redactions
@@ -37,7 +47,7 @@ export const Footer: React.FC<Props> = ({
 
       <Button
         className={classes.saveButton}
-        onClick={handleSavedRedactions}
+        onClick={handleSaveAllRedactionsClick}
         data-testid={`btn-save-redaction-${tabIndex}`}
       >
         Save all redactions

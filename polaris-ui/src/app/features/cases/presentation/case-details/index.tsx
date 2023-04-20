@@ -18,11 +18,13 @@ import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAl
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
 import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
 import { ErrorModalContent } from "../../../../common/presentation/components/ErrorModalContent";
+import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightTrackEvent";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
@@ -125,7 +127,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         />
       )}
 
-      <BackLink to={backLinkProps.to}>{backLinkProps.label}</BackLink>
+      <BackLink
+        to={backLinkProps.to}
+        onClick={() => trackEvent("Back to Find a Case")}
+      >
+        {backLinkProps.label}
+      </BackLink>
 
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
@@ -149,6 +156,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 value={searchTerm}
                 handleChange={handleSearchTermChange}
                 handleSubmit={handleLaunchSearchResults}
+                trackEventKey="Search case documents from Case File"
               />
 
               {accordionState.status === "loading" ? (

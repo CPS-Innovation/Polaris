@@ -1,6 +1,7 @@
 import { KeyboardEvent } from "react";
 import { Input } from "../../../../../common/presentation/components";
 import { ReactComponent as SearchIcon } from "../../../../../common/presentation/svgs/searchIcon.svg";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
 import classes from "./SearchBox.module.scss";
 
 type Props = {
@@ -9,6 +10,9 @@ type Props = {
   id: string;
   handleChange: (val: string) => void;
   handleSubmit: () => void;
+  trackEventKey?:
+    | "Search case documents from Case File"
+    | "Search case documents from Document Search";
   "data-testid"?: string;
 };
 
@@ -19,10 +23,17 @@ export const SearchBox: React.FC<Props> = ({
   labelText,
   id,
   "data-testid": dataTestId,
+  trackEventKey,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
+
+  const handleSearch = () => {
+    trackEvent(trackEventKey);
+    handleSubmit();
+  };
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      handleSubmit();
+      handleSearch();
       event.preventDefault();
     }
   };
@@ -47,7 +58,7 @@ export const SearchBox: React.FC<Props> = ({
               data-testid={dataTestId && `btn-${dataTestId}`}
               className={classes.button}
               type="submit"
-              onClick={handleSubmit}
+              onClick={handleSearch}
             >
               <SearchIcon width={"20px"} height={"20px"} />
             </button>

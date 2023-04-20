@@ -4,6 +4,7 @@ import * as GDS from "govuk-react-jsx";
 export type BackLinkProps = {
   to: string;
   label?: ReactNode;
+  onClick?: () => void;
 };
 
 export const BackLink: React.FC<BackLinkProps> = (props) => {
