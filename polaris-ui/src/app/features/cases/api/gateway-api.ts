@@ -26,7 +26,11 @@ const buildHeaders = async (
 };
 
 const fullUrl = (path: string) => {
-  return GATEWAY_BASE_URL ? new URL(path, GATEWAY_BASE_URL).toString() : path;
+  if (GATEWAY_BASE_URL?.startsWith("http")) {
+    return new URL(path, GATEWAY_BASE_URL).toString();
+  } else {
+    return path;
+  }
 };
 
 // hack
