@@ -1,7 +1,5 @@
 {
   "AUTHORITY": "https://login.microsoftonline.com/00dd0d1d-d7e6-4338-ac51-565339c7088c",
-  "CLIENTID": "3649c1c8-00cf-4b8f-a671-304bc074937c",
-  "APISCOPE": "https://CPSGOVUK.onmicrosoft.com/fa-polaris-dev-gateway/user_impersonation",
   "CMS_USERNAME": "mock.user",
   "CMS_PASSWORD": "mock.user",
 
