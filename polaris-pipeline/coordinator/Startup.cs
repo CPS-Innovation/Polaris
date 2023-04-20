@@ -32,6 +32,8 @@ using Common.Handlers.Contracts;
 using Common.Handlers;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Domain;
+using RenderPcd;
+using coordinator.Domain.Mapper;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -55,6 +57,7 @@ namespace coordinator
             builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
+            builder.Services.AddSingleton<IConvertPcdRequestToHtmlService, ConvertPcdRequestToHtmlService>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
 
@@ -75,6 +78,7 @@ namespace coordinator
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
 
+            builder.Services.RegisterMapsterConfiguration();
             builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);

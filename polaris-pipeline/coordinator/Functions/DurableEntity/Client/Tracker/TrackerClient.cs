@@ -7,7 +7,9 @@ using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Wrappers.Contracts;
+using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -71,7 +73,9 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 {
                     case "GET":
                         log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                        return new OkObjectResult(trackerState.EntityState);
+                        var trackerEntity = trackerState.EntityState;
+                        var trackerDto = trackerEntity.Adapt<TrackerDto>();
+                        return new OkObjectResult(trackerDto);
 
                     default:
                         throw new BadRequestException("Unexpected HTTP Verb", req.Method.Method);

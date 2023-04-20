@@ -24,7 +24,7 @@ namespace Common.Tests.Clients
         private readonly int _caseId;
         private readonly string _searchTerm;
         private readonly Guid _correlationId;
-        private readonly List<TrackerDocumentDto> _documents;
+        private readonly List<TrackerCmsDocumentDto> _documents;
 
         private readonly Mock<SearchClient> _mockSearchClient;
         private readonly ISearchIndexClient _searchIndexClient;
@@ -35,7 +35,7 @@ namespace Common.Tests.Clients
             _caseId = _fixture.Create<int>();
             _searchTerm = _fixture.Create<string>();
             _correlationId = _fixture.Create<Guid>();
-            _documents = new List<TrackerDocumentDto>();
+            _documents = new List<TrackerCmsDocumentDto>();
 
             var mockSearchClientFactory = new Mock<ISearchClientFactory>();
             _mockSearchClient = new Mock<SearchClient>();
