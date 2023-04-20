@@ -26,11 +26,10 @@ const buildHeaders = async (
 };
 
 const fullUrl = (path: string) => {
-  if (GATEWAY_BASE_URL?.startsWith("http")) {
-    return new URL(path, GATEWAY_BASE_URL).toString();
-  } else {
-    return path;
-  }
+  const origin = GATEWAY_BASE_URL?.startsWith("http")
+    ? GATEWAY_BASE_URL
+    : window.location.origin;
+  return new URL(path, origin).toString();
 };
 
 // hack
@@ -46,10 +45,11 @@ export const resolvePdfUrl = (
   caseId: number,
   documentId: string,
   polarisDocumentVersionId: number
-) =>
-  fullUrl(
+) => {
+  return fullUrl(
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
   );
+};
 
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
