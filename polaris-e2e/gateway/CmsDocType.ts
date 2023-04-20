@@ -1,5 +1,5 @@
 export type CmsDocType = {
-  id: number;
-  code: string;
-  name: string;
-};
+  documentTypeId: string
+  documentType: string
+  documentCategory: string
+}
