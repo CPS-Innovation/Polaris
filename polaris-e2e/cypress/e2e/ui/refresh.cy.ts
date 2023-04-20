@@ -1,5 +1,3 @@
-import { correlationIds } from "../../support/correlation-ids"
-
 const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID } = Cypress.env()
 
 describe("Refresh via guid-controlled ", () => {
@@ -8,7 +6,7 @@ describe("Refresh via guid-controlled ", () => {
 
     cy.clearCaseTracker(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID)
 
-    cy.visit("/")
+    cy.visit("/polaris-ui")
     cy.setPolarisInstrumentationGuid("PHASE_1")
     cy.findByTestId("input-search-urn").type(`${REFRESH_TARGET_URN}{enter}`)
     cy.findByTestId(`link-${REFRESH_TARGET_URN}`).click()

@@ -8,13 +8,13 @@ describe("Reauth flow", () => {
 
     // have we logged in OK?
     cy.loginToAD()
-      .visit(`/case-search-results?urn=${TARGET_URN}`)
+      .visit(`/polaris-ui/case-search-results?urn=${TARGET_URN}`)
       // we expect to not be logged-in to CMS...
       .contains("CMS_AUTH_ERROR")
       // ... and now we do log in
       .loginToCms()
 
-    cy.visit(`/case-search-results?urn=${TARGET_URN}`)
+    cy.visit(`/polaris-ui/case-search-results?urn=${TARGET_URN}`)
 
     // if we find the target URN we have made a successful round trip to DDEI
     cy.findByTestId(`link-${TARGET_URN}`)

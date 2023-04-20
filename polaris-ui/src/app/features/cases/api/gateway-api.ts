@@ -26,7 +26,7 @@ const buildHeaders = async (
 };
 
 const fullUrl = (path: string) => {
-  return new URL(path, GATEWAY_BASE_URL).toString();
+  return GATEWAY_BASE_URL ? new URL(path, GATEWAY_BASE_URL).toString() : path;
 };
 
 // hack
