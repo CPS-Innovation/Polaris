@@ -11,8 +11,8 @@ type Props = {
   handleChange: (val: string) => void;
   handleSubmit: () => void;
   trackEventKey?:
-    | "Search case documents from Case File"
-    | "Search case documents from Document Search";
+    | "Search Case Documents From Case File"
+    | "Search Case Documents From Document Search";
   "data-testid"?: string;
 };
 

@@ -74,7 +74,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
     <>
       <BackLink
         to={backLinkProps.to}
-        onClick={() => trackEvent("Back to Search URN")}
+        onClick={() => trackEvent("Back To Search URN")}
       >
         {backLinkProps.label}
       </BackLink>
@@ -143,7 +143,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <h2 className="govuk-heading-m ">
                     <Link
                       onClick={() => {
-                        trackEvent("Open case");
+                        trackEvent("Open Case");
                       }}
                       to={{
                         pathname: generatePath(casePath, {

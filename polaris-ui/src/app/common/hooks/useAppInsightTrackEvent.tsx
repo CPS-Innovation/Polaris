@@ -2,39 +2,39 @@ import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 type AppInsightsTrackEventNames =
   | "Search URN"
-  | "Back to Search URN"
-  | "Back to Find a Case"
-  | "Open case"
-  | "Search case documents from Case File"
-  | "Search case documents from Document Search"
+  | "Back To Search URN"
+  | "Back To Find A Case"
+  | "Open Case"
+  | "Search Case Documents From Case File"
+  | "Search Case Documents From Document Search"
   | "Open All Folders"
   | "Close All Folders"
   | "Expand Doc Category"
   | "Collapse Doc Category"
-  | "Open document from Case File"
-  | "View 'x' more"
+  | "Open Document From Case File"
+  | "View 'x' More"
   | "Filter Doc Search Results"
-  | "Open document from Document Search"
-  | "View document tab"
-  | "Open document in tab"
-  | "Close document"
-  | "Redact content"
-  | "Remove Redact content"
+  | "Open Document From Document Search"
+  | "View Document Tab"
+  | "Open Document In Tab"
+  | "Close Document"
+  | "Redact Content"
+  | "Remove Redact Content"
   | "Remove All Redactions"
   | "Save All Redactions";
 
 const eventDescription = {
   "Search URN":
     "User has clicked the 'Search' button on the 'Find a case' screen.",
-  "Back to Search URN":
+  "Back To Search URN":
     "User has clicked the '<Back' link on the 'Find a case' search results screen",
-  "Back to Find a Case":
+  "Back To Find A Case":
     "User has clicked the '<Find a case' link on the top-left of the case file screen",
-  "Open case":
+  "Open Case":
     "User has clicked the hyperlinked URN on the 'Find a case' screen",
-  "Search case documents from Case File":
+  "Search Case Documents From Case File":
     "User has clicked the 'Search' button in the left side menu on the 'Case File' screen.",
-  "Search case documents from Document Search":
+  "Search Case Documents From Document Search":
     "User has clicked the 'Search' button in the left side menu on the Document Search Results popup.",
   "Open All Folders":
     "User has clicked the 'Open all folders' link in the left side menu on the 'Find a case' screen",
@@ -44,23 +44,23 @@ const eventDescription = {
     "User has clicked the toggle '+' against any of the document categories in the left side menu on the 'Find a case' screen",
   "Collapse Doc Category":
     "User has clicked the toggle '-' against any of the document categories in the left side menu on the 'Find a case' screen",
-  "Open document from Case File":
+  "Open Document From Case File":
     "User has clicked the hyperlinked document name in the left side menu on the 'Find a case' screen",
-  "View 'x' more":
+  "View 'x' More":
     "User has clicked the 'view <insert number here> more' link against any of the search result rows",
   "Filter Doc Search Results":
     "User has clicked the checkbox against any of the search filters",
-  "Open document from Document Search":
+  "Open Document From Document Search":
     "User has clicked the hyperlinked document name in the left side menu",
-  "View document tab":
+  "View Document Tab":
     "User has clicked the tab in the tabs menu, which then brings that document tab into view",
-  "Open document in tab":
+  "Open Document In Tab":
     "User has clicked the '<doc name> (opens in new tab)' link",
-  "Close document":
+  "Close Document":
     "User has clicked the 'X' cross icon against the document tab",
-  "Redact content":
+  "Redact Content":
     "User has clicked the 'Redact' green popup button within any document tab",
-  "Remove Redact content":
+  "Remove Redact Content":
     "User has clicked the 'Remove redaction' green popup button within any document tab",
   "Remove All Redactions":
     "User has clicked the 'Remove All Redactions' link in the document tab",

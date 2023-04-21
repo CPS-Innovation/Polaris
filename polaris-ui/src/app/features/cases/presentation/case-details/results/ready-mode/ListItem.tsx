@@ -33,7 +33,7 @@ export const ListItem: React.FC<Props> = ({
       <h2 className="govuk-heading-s results-header">
         <LinkButton
           onClick={() => {
-            trackEvent("Open document from Document Search", {
+            trackEvent("Open Document From Document Search", {
               documentId: documentId,
               presentationFileName: presentationFileName,
             });
@@ -64,7 +64,7 @@ export const ListItem: React.FC<Props> = ({
           data-testid="details-expand-search-results"
           isDefaultLeftBorderHidden
           onClick={() => {
-            trackEvent("View 'x' more");
+            trackEvent("View 'x' More");
           }}
           summaryChildren={`View ${
             occurrencesInDocumentCount - firstOcurrence.occurrencesInLine.length

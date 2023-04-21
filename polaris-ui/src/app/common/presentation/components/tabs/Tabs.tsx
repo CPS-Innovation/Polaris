@@ -62,7 +62,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabIndex = activeTabIndex + ARROW_KEY_SHIFTS[typedKeyCode];
     const nextTabId = items[nextTabIndex].id;
-    trackEvent("View document tab");
+    trackEvent("View Document Tab");
     handleTabSelection(nextTabId);
 
     // prevent awkward vertical scroll on up/down key press
@@ -75,7 +75,7 @@ export const Tabs: React.FC<TabsProps> = ({
       setShowDocumentNavAlert(true);
       return;
     }
-    trackEvent("Close document");
+    trackEvent("Close Document");
     localHandleClosePdf();
   };
 
@@ -90,7 +90,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
     handleTabSelection(nextTabId);
-    trackEvent("Close document");
+    trackEvent("Close Document");
     handleClosePdf({ documentId: items[activeTabIndex].id });
   };
 
@@ -133,7 +133,7 @@ export const Tabs: React.FC<TabsProps> = ({
                     index === activeTabIndex ? "tab-active" : `btn-tab-${index}`
                   }
                   onClick={() => {
-                    trackEvent("View document tab");
+                    trackEvent("View Document Tab");
                     handleTabSelection(itemId);
                   }}
                   onKeyDown={handleKeyPressOnTab}

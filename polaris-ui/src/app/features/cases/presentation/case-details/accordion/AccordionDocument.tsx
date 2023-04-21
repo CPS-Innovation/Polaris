@@ -28,7 +28,7 @@ export const AccordionDocument: React.FC<Props> = ({
         {canViewDocument ? (
           <LinkButton
             onClick={() => {
-              trackEvent("Open document from Case File", {
+              trackEvent("Open Document From Case File", {
                 documentId: caseDocument.documentId,
                 presentationFileName: caseDocument.presentationFileName,
               });

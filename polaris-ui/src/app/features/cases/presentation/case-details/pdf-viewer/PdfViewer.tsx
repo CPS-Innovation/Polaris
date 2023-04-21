@@ -16,12 +16,14 @@ import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
 
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
   url: string;
   tabIndex: number;
+  documentType: string;
   headers: HeadersInit;
   redactStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
@@ -42,6 +44,7 @@ export const PdfViewer: React.FC<Props> = ({
   tabIndex,
   headers,
   redactStatus,
+  documentType,
   searchHighlights = [],
   redactionHighlights,
   handleAddRedaction,
@@ -52,6 +55,7 @@ export const PdfViewer: React.FC<Props> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
+  const trackEvent = useAppInsightsTrackEvent();
 
   const highlights = useMemo(
     () => [...searchHighlights, ...redactionHighlights],
@@ -111,6 +115,9 @@ export const PdfViewer: React.FC<Props> = ({
                 return (
                   <RedactButton
                     onConfirm={() => {
+                      trackEvent("Redact Content", {
+                        documentType: documentType,
+                      });
                       addRedaction(position, !!content.image);
                       hideTipAndSelection();
                     }}
@@ -128,6 +135,7 @@ export const PdfViewer: React.FC<Props> = ({
               ) => {
                 return (
                   <PdfHighlight
+                    documentType={documentType}
                     highlight={highlight}
                     index={index}
                     setTip={setTip}
@@ -143,6 +151,7 @@ export const PdfViewer: React.FC<Props> = ({
         </PdfLoader>
         {!!redactionHighlights.length && (
           <Footer
+            documentType={documentType}
             tabIndex={tabIndex}
             redactionHighlights={redactionHighlights}
             handleRemoveAllRedactions={handleRemoveAllRedactions}

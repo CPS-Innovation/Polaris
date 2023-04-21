@@ -5,6 +5,7 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 import classes from "./Footer.module.scss";
 
 type Props = {
+  documentType: string;
   tabIndex: number;
   redactionHighlights: IPdfHighlight[];
   handleRemoveAllRedactions: () => void;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export const Footer: React.FC<Props> = ({
+  documentType,
   tabIndex,
   redactionHighlights,
   handleRemoveAllRedactions,
@@ -19,11 +21,11 @@ export const Footer: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const handleRemoveAllRedactionsClick = () => {
-    trackEvent("Remove All Redactions");
+    trackEvent("Remove All Redactions", { documentType: documentType });
     handleRemoveAllRedactions();
   };
   const handleSaveAllRedactionsClick = () => {
-    trackEvent("Save All Redactions");
+    trackEvent("Save All Redactions", { documentType: documentType });
     handleSavedRedactions();
   };
   return (

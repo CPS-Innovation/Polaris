@@ -27,7 +27,7 @@ export const HeaderReadMode: React.FC<Props> = ({
       <LinkButton
         dataTestId="btn-open-pdf"
         onClick={() => {
-          trackEvent("Open document in tab", {
+          trackEvent("Open Document In Tab", {
             documentId: documentId,
             presentationFileName: presentationFileName,
           });
