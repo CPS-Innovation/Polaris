@@ -53,10 +53,18 @@ namespace PolarisGateway
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
             builder.Services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
+            builder.Services.AddTransient<IPipelineClient, PipelineClient>();
 
-            builder.Services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
+            var pipelineCoordinatorBaseUrl = GetValueFromConfig(configuration, PipelineSettings.PipelineCoordinatorBaseUrl);
+            var pipelineCoordinatorLowlevelBaseUrl = pipelineCoordinatorBaseUrl.Replace("/api", string.Empty);
+            builder.Services.AddHttpClient(nameof(PipelineClient), client =>
             {
-                client.BaseAddress = new Uri(GetValueFromConfig(configuration, PipelineSettings.PipelineCoordinatorBaseUrl));
+                client.BaseAddress = new Uri(pipelineCoordinatorBaseUrl);
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+            builder.Services.AddHttpClient($"Lowlevel{nameof(PipelineClient)}", client =>
+            {
+                client.BaseAddress = new Uri(pipelineCoordinatorLowlevelBaseUrl);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
@@ -76,6 +84,7 @@ namespace PolarisGateway
             builder.Services.AddHttpClient();
 
             var pipelineCoordinator = "pipelineCoordinator";
+            Uri uri = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
             builder.Services.AddHttpClient(pipelineCoordinator, client =>
             {
                 string url = Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl");
@@ -94,7 +103,6 @@ namespace PolarisGateway
             });
 
             var ddeiClient = "ddeiClient";
-
             builder.Services.AddHealthChecks()
                 .AddCheck<DdeiClientHealthCheck>(ddeiClient)
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator });
