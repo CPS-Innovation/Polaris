@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using Common.Configuration;
 using Common.Constants;
@@ -20,7 +19,7 @@ namespace Gateway.Clients.PolarisPipeline
     public class PipelineClient : IPipelineClient
     {
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<PipelineClient> _logger;
@@ -29,13 +28,13 @@ namespace Gateway.Clients.PolarisPipeline
 
     public PipelineClient(
             IPipelineClientRequestFactory pipelineClientRequestFactory,
-            HttpClient httpClient,
+            IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IJsonConvertWrapper jsonConvertWrapper,
             ILogger<PipelineClient> logger)
         {
             _pipelineClientRequestFactory = pipelineClientRequestFactory;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _jsonConvertWrapper = jsonConvertWrapper;
             _logger = logger;
@@ -58,12 +57,29 @@ namespace Gateway.Clients.PolarisPipeline
         {
             _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"CaseId: {caseId}");
 
-            var url = $"{RestApi.GetCaseUrl(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
+            string url = await DeleteCaseOrchestration(caseId, cmsAuthValues, correlationId);
+            _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"Deleted Case Orchestration via {url}");
+
+            url = await DeleteCaseTrackerEntity(caseId, cmsAuthValues, correlationId);
+            _logger.LogMethodEntry(correlationId, nameof(DeleteCaseAsync), $"Deleted Case Tracker Entity via {url}");
 
             _logger.LogMethodExit(correlationId, nameof(DeleteCaseAsync), string.Empty);
 
             return new OkResult();
+        }
+
+        private async Task<string> DeleteCaseOrchestration(int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            var url = $"{RestApi.GetCaseOrchestrationInstanceUrl(caseId.ToString())}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}";
+            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId, null, new HttpStatusCode[] { HttpStatusCode.NotFound });
+            return url;
+        }
+
+        private async Task<string> DeleteCaseTrackerEntity(int caseId, string cmsAuthValues, Guid correlationId)
+        {
+            string url = $"{RestApi.GetCaseOrchestrationInstanceUrl($"@trackerentity@{caseId}")}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}";
+            await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId, null, new HttpStatusCode[] { HttpStatusCode.NotFound });
+            return url;
         }
 
         public async Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
@@ -236,7 +252,11 @@ namespace Gateway.Clients.PolarisPipeline
 
             var request = _pipelineClientRequestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues);
             request.Content = content;
-            var response = await _httpClient.SendAsync(request);
+
+            string httpClientName = requestUri.StartsWith("urns") ? nameof(PipelineClient) : $"Lowlevel{nameof(PipelineClient)}";
+            HttpClient httpClient = _httpClientFactory.CreateClient(httpClientName);
+
+            var response = await httpClient.SendAsync(request);
 
             if (expectedResponseCodes?.Contains(response.StatusCode) != true)
                 response.EnsureSuccessStatusCode();
