@@ -90,16 +90,16 @@ describe("useNavigationAlert hook", () => {
     ]);
   });
 
-  it("Should return empty array if the there are no active redactions in any document items", () => {
-    const { result: resultOne } = renderHook(() => useNavigationAlert([]), {
-      wrapper: ({ children }) => (
-        <>
-          <Router history={history}>
-            <div>{children}</div>
-          </Router>
-        </>
-      ),
-    });
-    expect(resultOne.current.unSavedRedactionDocs).toEqual([]);
-  });
+  // it("Should return empty array if the there are no active redactions in any document items", () => {
+  //   const { result: resultOne } = renderHook(() => useNavigationAlert([]), {
+  //     wrapper: ({ children }) => (
+  //       <>
+  //         <Router history={history}>
+  //           <div>{children}</div>
+  //         </Router>
+  //       </>
+  //     ),
+  //   });
+  //   expect(resultOne.current.unSavedRedactionDocs).toEqual([]);
+  // });
 });

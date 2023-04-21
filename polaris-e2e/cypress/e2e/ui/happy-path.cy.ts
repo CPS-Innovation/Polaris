@@ -16,7 +16,7 @@ describe("Happy Path", () => {
     cy.fullLogin()
 
     cy.clearCaseTracker(TARGET_URN, TARGET_CASE_ID)
-    cy.visit("/")
+    cy.visit("/polaris-ui")
 
     cy.findByTestId("input-search-urn").type(`${TARGET_URN}{enter}`)
 
