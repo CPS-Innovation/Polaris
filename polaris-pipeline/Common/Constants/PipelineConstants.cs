@@ -58,6 +58,7 @@
     {
         public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
         public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
+        public const string PipelineCoordinatorDurableExtensionCode = "PolarisPipelineCoordinatorDurableExtensionCode";
 
         public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
         public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";

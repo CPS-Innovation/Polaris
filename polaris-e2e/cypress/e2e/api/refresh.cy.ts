@@ -25,15 +25,12 @@ describe("Refresh", () => {
       .waitUntil(
         () =>
           cy
-            .api<PipelineResults>(
-              routes.GET_TRACKER(
-                REFRESH_TARGET_URN,
-                REFRESH_TARGET_CASE_ID,
-                "PHASE_1"
-              )
-            )
-            .its("body")
-            .then(({ documents }) => documents.length === 0),
+            .api<PipelineResults>({
+              ...routes.GET_TRACKER(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID),
+              failOnStatusCode: false,
+            })
+            .its("status")
+            .then((status) => status === 404),
         WAIT_UNTIL_OPTIONS
       )
       .api(
@@ -42,6 +39,17 @@ describe("Refresh", () => {
           REFRESH_TARGET_CASE_ID,
           "PHASE_1"
         )
+      )
+      .waitUntil(
+        () =>
+          cy
+            .api<PipelineResults>({
+              ...routes.GET_TRACKER(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID),
+              failOnStatusCode: false,
+            })
+            .its("status")
+            .then((status) => status !== 404),
+        WAIT_UNTIL_OPTIONS
       )
       .waitUntil(
         () =>

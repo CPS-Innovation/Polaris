@@ -31,6 +31,13 @@ namespace Common.Configuration
             return url;
         }
 
+        public static string GetCaseOrchestrationInstanceUrl(string instanceId)
+        {
+            var url = $"runtime/webhooks/durabletask/instances/{instanceId}";
+            return url;
+        }
+
+
         public static string GetDocumentsUrl(string caseUrn, long caseId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}/documents";
