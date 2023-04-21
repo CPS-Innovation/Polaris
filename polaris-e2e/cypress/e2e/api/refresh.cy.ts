@@ -18,10 +18,7 @@ describe("Refresh", () => {
   })
 
   it("the pipeline can clear then process a case to completion", () => {
-    cy.log("================== REFRESH TEST STARTED ====================")
-    cy.log("------------------------ GET CASE --------------------------")
     cy.api(routes.TRACKER_CLEAR(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID))
-      .wait(2000)
       .waitUntil(
         () =>
           cy
@@ -39,17 +36,6 @@ describe("Refresh", () => {
           REFRESH_TARGET_CASE_ID,
           "PHASE_1"
         )
-      )
-      .waitUntil(
-        () =>
-          cy
-            .api<PipelineResults>({
-              ...routes.GET_TRACKER(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID),
-              failOnStatusCode: false,
-            })
-            .its("status")
-            .then((status) => status !== 404),
-        WAIT_UNTIL_OPTIONS
       )
       .waitUntil(
         () =>
@@ -83,20 +69,14 @@ describe("Refresh", () => {
         const documentTypes = results.documents.map(
           (doc) => doc.cmsDocType.documentType
         )
-        const cmsDocExists =
-          documentTypes.findIndex((val) => val == "MG 3") > -1
-        const pcdDocExists = documentTypes.findIndex((val) => val == "PCD") > -1
+        const cmsDocExists = documentTypes.some((val) => val == "MG 3")
+        const pcdDocExists = documentTypes.some((val) => val == "PCD")
         const allDocsIndexed = results.documents.every(
-          (document) => document.status === "Indexed"
+          ({ status }) => status === "Indexed"
         )
         expect(cmsDocExists && pcdDocExists && allDocsIndexed).to.equal(true)
-        expect(cmsDocExists && pcdDocExists && allDocsIndexed).to.equal(true)
       })
-      .log("CMS and PCD Documents processed OK")
 
-    cy.log(
-      "-------------------- SEARCH UNREDACTED CASE DOCUMENTS --------------------"
-    )
     searchAssertion({
       type: "EXPECT_RESULTS",
       term: "one",
@@ -142,7 +122,6 @@ describe("Refresh", () => {
       term: "dave",
     })
 
-    cy.log("-------------------- 1ST DOCUMENT REDACTION  --------------------")
     cy.get<SavedVariables>("@phase1Vars").then((phase1Vars) => {
       cy.api(
         routes.CHECKOUT_DOCUMENT(
@@ -202,20 +181,15 @@ describe("Refresh", () => {
           const documentTypes = results.documents.map(
             (doc) => doc.cmsDocType.documentType
           )
-          const cmsDocExists =
-            documentTypes.findIndex((val) => val == "MG 3") > -1
-          const pcdDocExists =
-            documentTypes.findIndex((val) => val == "PCD") > -1
+          const cmsDocExists = documentTypes.some((val) => val == "MG 3")
+          const pcdDocExists = documentTypes.some((val) => val == "PCD")
           const allDocsIndexed = results.documents.every(
-            (document) => document.status === "Indexed"
+            ({ status }) => status === "Indexed"
           )
           expect(cmsDocExists && pcdDocExists && allDocsIndexed).to.equal(true)
         })
     })
 
-    cy.log(
-      "-------------------- VALIDATE 1ST DOCUMENT REDACTION --------------------"
-    )
     searchAssertion({
       type: "EXPECT_RESULTS",
       term: "one",
@@ -261,7 +235,6 @@ describe("Refresh", () => {
       term: "dave",
     })
 
-    cy.log("-------------------- 2ND DOCUMENT REDACTION  --------------------")
     cy.get<SavedVariables>("@phase2Vars").then((phase2Vars) => {
       cy.api(
         routes.CHECKOUT_DOCUMENT(
@@ -310,9 +283,6 @@ describe("Refresh", () => {
         )
     })
 
-    cy.log(
-      "-------------------- VALIDATE 2ND DOCUMENT REDACTION  --------------------"
-    )
     searchAssertion({
       type: "EXPECT_RESULTS",
       term: "one",
@@ -357,8 +327,6 @@ describe("Refresh", () => {
       docId: "peopleDocId",
       quatity: 1,
     })
-
-    cy.log("================ REFRESH TEST COMPLETED ==================")
   })
 })
 
@@ -407,5 +375,3 @@ const searchAssertion = (arg: SearchAssertionArg) => {
       })
     })
 }
-
-export {}

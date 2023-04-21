@@ -18,7 +18,6 @@ describe("Simple Tracker", () => {
 
   it("run a trackerthrough to all documents being indexed", () => {
     cy.api(routes.TRACKER_CLEAR(TARGET_URN, TARGET_CASE_ID))
-      .wait(2000)
       .waitUntil(
         () =>
           cy
@@ -31,17 +30,6 @@ describe("Simple Tracker", () => {
         WAIT_UNTIL_OPTIONS
       )
       .api(routes.TRACKER_START(TARGET_URN, TARGET_CASE_ID))
-      .waitUntil(
-        () =>
-          cy
-            .api<PipelineResults>({
-              ...routes.GET_TRACKER(TARGET_URN, TARGET_CASE_ID),
-              failOnStatusCode: false,
-            })
-            .its("status")
-            .then((status) => status !== 404),
-        WAIT_UNTIL_OPTIONS
-      )
       .waitUntil(
         () =>
           cy

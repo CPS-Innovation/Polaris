@@ -215,7 +215,6 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
       "correlation-id": correlationIds.BLANK,
     },
   })
-  cy.wait(1000)
 })
 
 declare global {
