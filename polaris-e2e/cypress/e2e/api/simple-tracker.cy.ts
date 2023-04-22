@@ -1,18 +1,17 @@
 /// <reference types="cypress" />
 import "cypress-wait-until"
 import { PipelineResults } from "../../../gateway/PipelineResults"
-import { makeRoutes } from "./helpers/make-routes"
-
-const WAIT_UNTIL_OPTIONS = { interval: 3 * 1000, timeout: 60 * 1000 }
+import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
+import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 
 const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
 
-let routes
+let routes: ApiRoutes
 
 describe("Simple Tracker", () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
-      routes = makeRoutes(headers)
+      routes = makeApiRoutes(headers)
     })
   })
 
