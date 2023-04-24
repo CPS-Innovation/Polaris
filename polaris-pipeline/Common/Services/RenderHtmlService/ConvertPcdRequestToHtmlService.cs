@@ -1,7 +1,5 @@
 ﻿using Common.Dto.Case.PreCharge;
 using RazorLight;
-using System;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
