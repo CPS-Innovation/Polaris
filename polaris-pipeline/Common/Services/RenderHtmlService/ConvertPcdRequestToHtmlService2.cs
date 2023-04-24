@@ -34,7 +34,7 @@ namespace RenderPcd
                     return new MemoryStream(Encoding.UTF8.GetBytes(html));
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var templates = (typeof(ConvertPcdRequestToHtmlService2).Assembly).GetManifestResourceNames();
                 throw;
