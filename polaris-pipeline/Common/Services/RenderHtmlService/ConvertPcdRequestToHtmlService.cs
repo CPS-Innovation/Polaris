@@ -1,7 +1,7 @@
 ﻿using Common.Dto.Case.PreCharge;
-using Common.Dto.Tracker;
-using RazorEngineCore;
+using RazorLight;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -11,35 +11,28 @@ namespace RenderPcd
 {
     public class ConvertPcdRequestToHtmlService : IConvertPcdRequestToHtmlService
     {
-        const string pcdRequestTemplateFilename = "PcdRequestTemplate.dll";
+        private RazorLightEngine _engine;
 
-        public ConvertPcdRequestToHtmlService() 
+        public ConvertPcdRequestToHtmlService()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = $"Common.Services.RenderHtmlService.PcdRequest.cshtml";
-            string templateText = null;
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                templateText = reader.ReadToEnd();
-
-                IRazorEngine razorEngine = new RazorEngine();
-                IRazorEngineCompiledTemplate<RazorEngineTemplateBase<PcdRequestDto>> saveTemplate
-                    = razorEngine.Compile<RazorEngineTemplateBase<PcdRequestDto>>(templateText, builder =>
-                    {
-                        builder.AddAssemblyReferenceByName($"{nameof(System)}.{nameof(System.Collections)}");
-                    });
-                saveTemplate.SaveToFile(pcdRequestTemplateFilename);
-            }
+            _engine = new RazorLightEngineBuilder()
+                .SetOperatingAssembly(typeof(ConvertPcdRequestToHtmlService).Assembly)
+                .UseMemoryCachingProvider()
+                .Build();
         }
 
         public async Task<Stream> ConvertAsync(PcdRequestDto pcdRequest)
         {
-            IRazorEngineCompiledTemplate<RazorEngineTemplateBase<PcdRequestDto>> loadTemplate
-                = RazorEngineCompiledTemplate<RazorEngineTemplateBase<PcdRequestDto>>.LoadFromFile(pcdRequestTemplateFilename);
+            var resourceName = $"Common.Services.RenderHtmlService.PcdRequest.cshtml";
+            var assembly = Assembly.GetExecutingAssembly();
 
-            string html = await loadTemplate.RunAsync(instance => instance.Model = pcdRequest);
-            return new MemoryStream(Encoding.UTF8.GetBytes(html));
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                var model = reader.ReadToEnd();
+                var html = await _engine.CompileRenderStringAsync(nameof(ConvertPcdRequestToHtmlService), model, pcdRequest);
+                return new MemoryStream(Encoding.UTF8.GetBytes(html));
+            }
         }
     }
 }

@@ -57,7 +57,7 @@ namespace coordinator
             builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
-            builder.Services.AddSingleton<IConvertPcdRequestToHtmlService, ConvertPcdRequestToHtmlService2>();
+            builder.Services.AddSingleton<IConvertPcdRequestToHtmlService, ConvertPcdRequestToHtmlService>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
 
