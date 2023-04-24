@@ -97,20 +97,23 @@ public class ResetDurableState
             await Task.WhenAll(instancesToPurge.Select(async instanceId => await client.PurgeInstanceHistoryAsync(instanceId)));
         } while (purgeCondition.ContinuationToken != null);
             
-        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {orchestrationInstances.Count} durable orchestration runs purged from history.");
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {orchestrationInstances.Count} durable orchestration instances purged from history.");
         return orchestrationInstances;
     }
 
     private async Task PurgeDurableEntityInstanceData(IDurableOrchestrationClient client, Guid correlationId, IReadOnlyCollection<string> purgedInstances)
     {
+        if (purgedInstances.Count == 0)
+        {
+            _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - no entity-specific instances found - clear-down complete");
+            return;
+        }
+
         _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - third, purge durable entity instance history for {purgedInstances.Count} entities");
         
-        if (purgedInstances.Count == 0)
-            return;
-
         await Task.WhenAll(purgedInstances.Select(async instanceId => await client.PurgeInstanceHistoryAsync($"@{TrackerEntityName}@{instanceId}")));
         
-        _logger.LogMethodFlow(correlationId, LoggingName, $"Durable entity history for {purgedInstances.Count} entities purged");
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Durable entity history for {purgedInstances.Count} entities purged - clear-down complete");
     }
 
     private static OrchestrationStatusQueryCondition CreateOrchestrationQuery(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses)
