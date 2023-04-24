@@ -84,6 +84,11 @@ export const PdfViewer: React.FC<Props> = ({
     [handleAddRedaction]
   );
 
+  const removeRedaction = (id: string) => {
+    trackEvent("Remove Redact Content", { documentType: documentType });
+    handleRemoveRedaction(id);
+  };
+
   return (
     <>
       <div
@@ -135,13 +140,12 @@ export const PdfViewer: React.FC<Props> = ({
               ) => {
                 return (
                   <PdfHighlight
-                    documentType={documentType}
                     highlight={highlight}
                     index={index}
                     setTip={setTip}
                     hideTip={hideTip}
                     isScrolledTo={isScrolledTo}
-                    handleRemoveRedaction={handleRemoveRedaction}
+                    handleRemoveRedaction={removeRedaction}
                   />
                 );
               }}

@@ -4,12 +4,10 @@ import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { PdfAreaHighlight } from "./PdfAreaHighlight";
 import { PdfLinearHighlight } from "./PdfLinearHighlight";
 import { RemoveButton } from "./RemoveButton";
-import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
 
 type Props = {
   highlight: T_ViewportHighlight<IPdfHighlight>;
   index: number;
-  documentType: string;
   setTip: (
     highlight: T_ViewportHighlight<IPdfHighlight>,
     callback: (highlight: T_ViewportHighlight<IPdfHighlight>) => JSX.Element
@@ -22,13 +20,11 @@ type Props = {
 export const PdfHighlight: React.FC<Props> = ({
   highlight,
   index,
-  documentType,
   setTip,
   hideTip,
   isScrolledTo,
   handleRemoveRedaction,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
   const component =
     highlight.highlightType === "linear" ? (
       <PdfLinearHighlight
@@ -47,7 +43,6 @@ export const PdfHighlight: React.FC<Props> = ({
       popupContent={
         <RemoveButton
           onClick={() => {
-            trackEvent("Remove Redact Content", { documentType: documentType });
             handleRemoveRedaction(highlight.id);
             hideTip();
           }}
