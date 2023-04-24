@@ -3,6 +3,7 @@ using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -16,11 +17,9 @@ namespace coordinator.Domain.Mapper
                 .NewConfig()
                 .Map(
                         dest => dest.Documents,
-                        src => src.Documents.Concat
-                        (
-                            src.PcdRequests.Select
+                        src => src.PcdRequests.Select
                             (
-                                pcdRequest => 
+                                pcdRequest =>
                                 new TrackerCmsDocumentDto
                                 {
                                     PolarisDocumentId = pcdRequest.PolarisDocumentId,
@@ -28,15 +27,14 @@ namespace coordinator.Domain.Mapper
                                     CmsDocumentId = pcdRequest.CmsDocumentId,
                                     CmsVersionId = pcdRequest.CmsVersionId,
                                     CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
-                                    CmsFileCreatedDate = string.Empty,
-                                    CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName),
+                                    CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
+                                    CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? "(Pending) PCD.pdf",
                                     PresentationFlags = pcdRequest.PresentationFlags,
                                     PdfBlobName = pcdRequest.PdfBlobName,
                                     IsPdfAvailable = pcdRequest.IsPdfAvailable,
                                     Status = pcdRequest.Status
                                 }
-                            )
-                        )
+                            ).Concat(src.Documents)
                     );
         }
     }

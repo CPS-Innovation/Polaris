@@ -43,8 +43,8 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     return response.Error;
 
                 currentCorrelationId = response.CorrelationId;
-                var document = response.Document;
-                var blobName = document.PdfBlobName;
+
+                var blobName = response.CmsDocument?.PdfBlobName ?? response.PcdRequest.PdfBlobName;
                 log.LogMethodFlow(currentCorrelationId, loggingName, $"Getting PDF document from Polaris blob storage for blob named '{blobName}'");
                 var blobStream = await _blobStorageClient.GetDocumentAsync(blobName, currentCorrelationId);
 

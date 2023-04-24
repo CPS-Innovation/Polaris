@@ -45,7 +45,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     return response.Error;
 
                 currentCorrelationId = response.CorrelationId;
-                var document = response.Document;
+                var document = response.CmsDocument;
                 var blobName = document.PdfBlobName;
 
                 log.LogMethodFlow(currentCorrelationId, loggingName, $"Cancel checkout document for caseId: {caseId}, documentId: {documentId}");
