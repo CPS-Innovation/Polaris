@@ -68,10 +68,15 @@ namespace coordinator.Functions.DurableEntity.Client
             var document = stateResponse.EntityState.Documents.GetDocument(documentId);
             if (document == null)
             {
-                var baseMessage = $"No document found with id '{documentId}'";
-                log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
-                response.Error = new NotFoundObjectResult(baseMessage);
-                return response;
+//                var pcdDocument = stateResponse.EntityState.PcdRequests.Where(pcd => pcd.PolarisDocumentId == documentId);
+
+                //if (pcdDocument == null)
+               // {
+                    var baseMessage = $"No document found with id '{documentId}'";
+                    log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
+                    response.Error = new NotFoundObjectResult(baseMessage);
+                    return response;
+                //}
             }
 
             response.Success = true;

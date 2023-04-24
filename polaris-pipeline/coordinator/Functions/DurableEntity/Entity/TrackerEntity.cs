@@ -9,6 +9,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace coordinator.Functions.DurableEntity.Entity
@@ -232,6 +233,15 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             return deletePcdRequests;
         }
+
+        //private DocumentDto GetDocument(Guid polarisDocumentId)
+        //{
+        //    var cmsDocument = stateResponse.EntityState.Documents.GetDocument(documentId);
+        //    if (cmsDocument == null)
+        //    {
+        //        var pcdDocument = stateResponse.EntityState.PcdRequests.Where(pcd => pcd.PolarisDocumentId == documentId);
+
+        //    }
 
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
         {
