@@ -27,7 +27,7 @@ export const ListItem: React.FC<Props> = ({
   },
   handleOpenPdf,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
   return (
     <div data-testid={`div-search-result-${documentId}`}>
       <h2 className="govuk-heading-s results-header">

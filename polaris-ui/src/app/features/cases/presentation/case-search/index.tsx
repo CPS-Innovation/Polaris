@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQueryParamsState } from "../../../../common/hooks/useQueryParamsState";
 import { CaseSearchQueryParams } from "../../types/CaseSearchQueryParams";
 import {
@@ -16,7 +16,7 @@ export const path = "/case-search";
 const validationFailMessage = "Enter a URN in the right format";
 
 const Page: React.FC = () => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent, trackPageView } = useAppInsightsTrackEvent();
   const { urn: urnFromSearchParams, setParams } =
     useQueryParamsState<CaseSearchQueryParams>();
 
@@ -27,6 +27,13 @@ const Page: React.FC = () => {
     trackEvent("Search URN");
     handleSubmit();
   };
+
+  useEffect(() => {
+    console.log("CaseSearch Page1111>>>");
+    trackPageView("Case Search Page");
+  }, []);
+
+  console.log("CaseSearch Page>>>");
 
   return (
     <PageContentWrapper>

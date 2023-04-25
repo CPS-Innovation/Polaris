@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   BackLink,
   Button,
@@ -32,7 +33,13 @@ const validationFailMessage = "Enter a URN in the right format";
 type Props = BackLinkingPageProps & {};
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent, trackPageView } = useAppInsightsTrackEvent();
+
+  useEffect(() => {
+    console.log("Case Search Result Page>>>");
+    trackPageView("Case Search Result Page");
+  }, []);
+
   const getDefendantNameText = (item: CaseSearchResult) => {
     let titleString =
       item.leadDefendantDetails.type === "Organisation"

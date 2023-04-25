@@ -51,7 +51,7 @@ const eventDescription = {
   "Filter Doc Search Results":
     "User has clicked the checkbox against any of the search filters",
   "Open Document From Document Search":
-    "User has clicked the hyperlinked document name in the left side menu",
+    "User has clicked the hyperlinked document name in the search results",
   "View Document Tab":
     "User has clicked the tab in the tabs menu, which then brings that document tab into view",
   "Open Document In Tab":
@@ -74,7 +74,7 @@ export const useAppInsightsTrackEvent = () => {
     name?: AppInsightsTrackEventNames,
     properties: { [key: string]: any } = {}
   ) => {
-    if (!name) {
+    if (!name || !appInsights) {
       return;
     }
     const description: string = eventDescription[name]
@@ -87,5 +87,9 @@ export const useAppInsightsTrackEvent = () => {
     });
   };
 
-  return trackEvent;
+  const trackPageView = (name: string) => {
+    appInsights.trackPageView({ name });
+  };
+
+  return { trackEvent, trackPageView };
 };

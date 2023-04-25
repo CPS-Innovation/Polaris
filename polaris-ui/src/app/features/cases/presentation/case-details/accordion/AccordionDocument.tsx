@@ -20,7 +20,7 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   handleOpenPdf,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>

@@ -25,7 +25,7 @@ export const SearchBox: React.FC<Props> = ({
   "data-testid": dataTestId,
   trackEventKey,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
 
   const handleSearch = () => {
     trackEvent(trackEventKey);

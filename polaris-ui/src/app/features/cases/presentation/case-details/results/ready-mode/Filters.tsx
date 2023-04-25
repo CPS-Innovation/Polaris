@@ -25,7 +25,7 @@ export const Filters: React.FC<Props> = ({
   filterOptions: { docType, category },
   handleUpdateFilter,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
   const docTypeItems = toItemArray(docType);
   const categoryItems = toItemArray(category);
 

@@ -55,7 +55,7 @@ export const PdfViewer: React.FC<Props> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
 
   const highlights = useMemo(
     () => [...searchHighlights, ...redactionHighlights],
@@ -85,7 +85,10 @@ export const PdfViewer: React.FC<Props> = ({
   );
 
   const removeRedaction = (id: string) => {
-    trackEvent("Remove Redact Content", { documentType: documentType });
+    trackEvent("Remove Redact Content", {
+      documentType: documentType,
+      redactionsCount: 1,
+    });
     handleRemoveRedaction(id);
   };
 

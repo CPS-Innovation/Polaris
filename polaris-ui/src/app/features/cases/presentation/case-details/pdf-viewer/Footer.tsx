@@ -19,13 +19,19 @@ export const Footer: React.FC<Props> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
   const handleRemoveAllRedactionsClick = () => {
-    trackEvent("Remove All Redactions", { documentType: documentType });
+    trackEvent("Remove All Redactions", {
+      documentType: documentType,
+      redactionsCount: redactionHighlights.length,
+    });
     handleRemoveAllRedactions();
   };
   const handleSaveAllRedactionsClick = () => {
-    trackEvent("Save All Redactions", { documentType: documentType });
+    trackEvent("Save All Redactions", {
+      documentType: documentType,
+      redactionsCount: redactionHighlights.length,
+    });
     handleSavedRedactions();
   };
   return (

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
@@ -24,7 +25,7 @@ export const path = "/case-details/:urn/:id";
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent, trackPageView } = useAppInsightsTrackEvent();
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
@@ -60,6 +61,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     navigationUnblockHandle,
     unSavedRedactionDocs,
   } = useNavigationAlert(tabsState.items);
+
+  useEffect(() => {
+    console.log("Case Details Page>>>");
+    trackPageView("Case Details Page");
+  }, []);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message

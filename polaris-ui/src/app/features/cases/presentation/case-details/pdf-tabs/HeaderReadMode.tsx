@@ -15,7 +15,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { presentationFileName, sasUrl, documentId },
   handleOpenPdfInNewTab,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
   useEffect(() => {
     if (sasUrl) {
       window.open(sasUrl, "_blank");

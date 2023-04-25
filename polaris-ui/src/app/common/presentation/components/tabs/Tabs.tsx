@@ -31,7 +31,7 @@ export const Tabs: React.FC<TabsProps> = ({
   handleClosePdf,
   ...attributes
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTrackEvent();
   const activeTabRef = useRef<HTMLButtonElement>(null);
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 
