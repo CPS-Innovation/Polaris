@@ -66,7 +66,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
-            response.CmsDocument = stateResponse.EntityState.Documents.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
+            response.CmsDocument = stateResponse.EntityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
             if(response.CmsDocument == null )
             {
                 response.PcdRequest = stateResponse.EntityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId == documentId);

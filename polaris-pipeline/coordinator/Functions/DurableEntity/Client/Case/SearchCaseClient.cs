@@ -70,7 +70,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
                 log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
-                var searchResults = await _searchIndexClient.Query(caseId, trackerState.EntityState.Documents, searchTerm, currentCorrelationId);
+                var searchResults = await _searchIndexClient.Query(caseId, trackerState.EntityState.CmsDocuments, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }

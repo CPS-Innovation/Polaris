@@ -59,6 +59,7 @@ namespace coordinator.tests.Functions
                 UpdatedDocuments = fixture.Create<TrackerCmsDocumentDto[]>().ToList(),
                 DeletedDocuments = fixture.Create<TrackerCmsDocumentDto[]>().ToList(),
                 CreatedPcdRequests = new List<TrackerPcdRequestDto> { },
+                UpdatedPcdRequests = new List<TrackerPcdRequestDto> { },
                 DeletedPcdRequests = new List<TrackerPcdRequestDto> { }
             };
             var evaluateDocumentsResponse = fixture.CreateMany<EvaluateDocumentResponse>().ToList();
@@ -138,6 +139,7 @@ namespace coordinator.tests.Functions
                                     UpdatedDocuments = new List<TrackerCmsDocumentDto>(),
                                     DeletedDocuments = new List<TrackerCmsDocumentDto>(), 
                                     CreatedPcdRequests = new List<TrackerPcdRequestDto>(),
+                                    UpdatedPcdRequests = new List<TrackerPcdRequestDto>(),
                                     DeletedPcdRequests = new List<TrackerPcdRequestDto>(), 
                                 });
 
