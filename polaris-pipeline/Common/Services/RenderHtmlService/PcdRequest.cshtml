@@ -1,0 +1,92 @@
+@using Common.Dto.Case.PreCharge;
+@using RazorLight
+@inherits TemplatePage<PcdRequestDto>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>
+        PCD Request
+    </title>
+    <style>
+        body {
+            font-family: "TransportNew", "Arial", sans-serif
+        }
+
+        table {
+            width: 100%;
+            border-spacing: 0px;
+            padding-bottom: 20px;
+        }
+
+            table tr:first-child {
+                width: 300px;
+            }
+
+            table tr:last-child {
+                width: 500px;
+            }
+
+            table td {
+                font-size: 12px;
+                border-top: 1px solid #b1b4b6;
+                padding: 7px;
+            }
+
+            table .suspect td {
+                text-align: left
+            }
+
+            table tr:last-child td {
+                border-bottom: 1px solid #b1b4b6;
+            }
+    </style>
+</head>
+
+<body style="width:800px">
+    <h2>PCD Request</h2>
+    <div>
+        <table id="pcd-request">
+            <tr>
+                <td>Decision required by</td>
+                <td>@Model.DecisionRequiredBy</td>
+            </tr>
+            <tr>
+                <td>Decision requested</td>
+                <td>@Model.DecisionRequested</td>
+            </tr>
+        </table>
+    </div>
+
+    @for (var i = 0; i < @Model.Suspects.Count; i++)
+    {
+        <h4>@Model.Suspects[i].Surname, @Model.Suspects[i].FirstNames - DOB @Model.Suspects[i].Dob</h4>
+
+        for (var c = 0; c < @Model.Suspects[i].ProposedCharges.Count; c++)
+        {
+            <div>
+                <table id="suspect">
+                    <tr>
+                        <td>Description</td>
+                        <td>@Model.Suspects[i].ProposedCharges[c].Category</td>
+                    </tr>
+                    <tr>
+                        <td>Proposed Charge</td>
+                        <td>@Model.Suspects[i].ProposedCharges[c].Charge</td>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td>@Model.Suspects[i].ProposedCharges[c].Location</td>
+                    </tr>
+                    <tr>
+                        <td>Date</td>
+                        <td>@Model.Suspects[i].ProposedCharges[c].Date</td>
+                    </tr>
+                </table>
+            </div>
+        }
+    }
+
+</body>
+</html>

@@ -1,14 +1,18 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
+using System.ComponentModel.DataAnnotations;
 
 namespace Common.Dto.Tracker
 {
-    public class TrackerDocumentDto : BaseTrackerDocumentDto
+    public class TrackerCmsDocumentDto : BaseTrackerDocumentDto
     {
-        public TrackerDocumentDto(
+        public TrackerCmsDocumentDto()
+            : base()
+        { }
+
+        public TrackerCmsDocumentDto(
             Guid polarisDocumentId,
             int polarisDocumentVersionId,
             string cmsDocumentId,
@@ -29,6 +33,8 @@ namespace Common.Dto.Tracker
         public DocumentTypeDto CmsDocType { get; set; }
 
         [JsonProperty("cmsOriginalFileName")]
+        [Required]
+        [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
 
         [JsonProperty("cmsFileCreatedDate")]

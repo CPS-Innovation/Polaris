@@ -39,15 +39,15 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get the pipeline tracker for DocumentId: '{payload.CmsDocumentId}'");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get the pipeline tracker for CaseId: '{payload.CmsCaseId}'");
             var tracker = CreateOrGetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for DocumentId: '{payload.CmsDocumentId}', FileName: '{payload.CmsFileName}'");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for PolarisDocumentId: '{payload.PolarisDocumentId}'");
             var pdfGeneratorResponse = await CallPdfGeneratorAsync(context, payload, tracker, log);
 
             if (!pdfGeneratorResponse.AlreadyProcessed)
             {
-                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for DocumentId: '{payload.CmsDocumentId}', FileName: '{payload.CmsFileName}'");
+                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for DocumentId: '{payload.CmsDocumentId}', BlobName: '{pdfGeneratorResponse.BlobName}'");
                 await CallTextExtractorAsync(context, payload, pdfGeneratorResponse.BlobName, tracker, log);
             }
 
@@ -134,7 +134,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             var response = await context.CallHttpAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
-                throw new HttpRequestException($"Failed to ocr/index document with id '{payload.CmsDocumentId}'. Status code: {response.StatusCode}. CorrelationId: {payload.CorrelationId}");
+                throw new HttpRequestException($"Failed to OCR/Index document with id '{payload.CmsDocumentId}'. Status code: {response.StatusCode}. CorrelationId: {payload.CorrelationId}");
 
             log.LogMethodExit(payload.CorrelationId, nameof(CallTextExtractorHttpAsync), string.Empty);
         }

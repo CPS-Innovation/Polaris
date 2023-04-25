@@ -1,24 +1,22 @@
 /// <reference types="cypress" />
 import "cypress-wait-until"
 import { PipelineResults } from "../../../gateway/PipelineResults"
-import { makeRoutes } from "./helpers/make-routes"
-
-const WAIT_UNTIL_OPTIONS = { interval: 3 * 1000, timeout: 60 * 1000 }
+import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
+import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 
 const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
 
-let routes
+let routes: ApiRoutes
 
 describe("Simple Tracker", () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
-      routes = makeRoutes(headers)
+      routes = makeApiRoutes(headers)
     })
   })
 
   it("run a trackerthrough to all documents being indexed", () => {
     cy.api(routes.TRACKER_CLEAR(TARGET_URN, TARGET_CASE_ID))
-      .wait(2000)
       .waitUntil(
         () =>
           cy
@@ -31,17 +29,6 @@ describe("Simple Tracker", () => {
         WAIT_UNTIL_OPTIONS
       )
       .api(routes.TRACKER_START(TARGET_URN, TARGET_CASE_ID))
-      .waitUntil(
-        () =>
-          cy
-            .api<PipelineResults>({
-              ...routes.GET_TRACKER(TARGET_URN, TARGET_CASE_ID),
-              failOnStatusCode: false,
-            })
-            .its("status")
-            .then((status) => status !== 404),
-        WAIT_UNTIL_OPTIONS
-      )
       .waitUntil(
         () =>
           cy

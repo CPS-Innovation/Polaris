@@ -1,7 +1,7 @@
 import "@testing-library/cypress/add-commands"
 import { injectTokens } from "./inject-tokens"
 import { CorrelationId, correlationIds } from "./correlation-ids"
-
+import { WAIT_UNTIL_OPTIONS } from "./options"
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
@@ -34,6 +34,7 @@ declare global {
     size?: number
   }
 }
+
 const {
   AUTHORITY,
   CLIENTID,
@@ -214,8 +215,21 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
       authorization: `Bearer ${cachedTokenResponse.access_token}`,
       "correlation-id": correlationIds.BLANK,
     },
-  })
-  cy.wait(1000)
+  }).waitUntil(
+    () =>
+      cy
+        .request({
+          url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
+          failOnStatusCode: false,
+          headers: {
+            authorization: `Bearer ${cachedTokenResponse.access_token}`,
+            "correlation-id": correlationIds.BLANK,
+          },
+        })
+        .its("status")
+        .then((status) => status === 404),
+    WAIT_UNTIL_OPTIONS
+  )
 })
 
 declare global {
