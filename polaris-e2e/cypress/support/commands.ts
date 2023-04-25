@@ -2,6 +2,8 @@ import "@testing-library/cypress/add-commands"
 import { injectTokens } from "./inject-tokens"
 import { CorrelationId, correlationIds } from "./correlation-ids"
 import { WAIT_UNTIL_OPTIONS } from "./options"
+import "cypress-wait-until"
+
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
