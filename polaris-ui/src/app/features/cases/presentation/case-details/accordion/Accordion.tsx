@@ -5,7 +5,7 @@ import { AccordionHeader } from "./AccordionHeader";
 import { AccordionSection } from "./AccordionSection";
 import { buildInitialState, reducer } from "./reducer";
 import { AccordionDocumentSection } from "./types";
-import { useAppInsightsTracks } from "../../../../../common/hooks/useAppInsightsTracks";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
   accordionState: AccordionDocumentSection[];
@@ -18,7 +18,7 @@ export const Accordion: React.FC<Props> = ({
   accordionState: sections,
   handleOpenPdf,
 }) => {
-  const { trackEvent } = useAppInsightsTracks();
+  const trackEvent = useAppInsightsTrackEvent();
   const [state, dispatch] = useReducer(
     reducer,
     buildInitialState(sections.map((section) => section.sectionLabel))

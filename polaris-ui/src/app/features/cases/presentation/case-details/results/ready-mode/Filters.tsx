@@ -6,7 +6,7 @@ import {
 import { CombinedState } from "../../../../domain/CombinedState";
 import { FilterOption } from "../../../../domain/FilterOption";
 import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCaseDetailsState";
-import { useAppInsightsTracks } from "../../../../../../common/hooks/useAppInsightsTracks";
+import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
   filterOptions: CombinedState["searchState"]["filterOptions"];
@@ -25,7 +25,7 @@ export const Filters: React.FC<Props> = ({
   filterOptions: { docType, category },
   handleUpdateFilter,
 }) => {
-  const { trackEvent } = useAppInsightsTracks();
+  const trackEvent = useAppInsightsTrackEvent();
   const docTypeItems = toItemArray(docType);
   const categoryItems = toItemArray(category);
 

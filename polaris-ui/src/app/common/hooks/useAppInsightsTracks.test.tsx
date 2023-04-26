@@ -1,4 +1,7 @@
-import { useAppInsightsTracks } from "./useAppInsightsTracks";
+import {
+  useAppInsightsTrackEvent,
+  useAppInsightsTrackPageView,
+} from "./useAppInsightsTracks";
 import { renderHook } from "@testing-library/react-hooks";
 const mockTrackEvent = jest.fn();
 const mockTrackPageView = jest.fn();
@@ -17,8 +20,8 @@ describe("useAppInsightsTracks hook", () => {
   });
 
   test("Should call the trackEvent with correct properties", () => {
-    const { result } = renderHook(() => useAppInsightsTracks());
-    result.current.trackEvent("Search URN");
+    const { result } = renderHook(() => useAppInsightsTrackEvent());
+    result.current("Search URN");
     expect(mockTrackEvent).toHaveBeenCalledTimes(1);
     expect(mockTrackEvent).toHaveBeenCalledWith({
       name: "Search URN",
@@ -29,32 +32,30 @@ describe("useAppInsightsTracks hook", () => {
     });
   });
 
+  test("Should not call the mockTrackEvent if the name is empty", () => {
+    const { result } = renderHook(() => useAppInsightsTrackEvent());
+    result.current("" as any);
+    expect(mockTrackEvent).toHaveBeenCalledTimes(0);
+  });
+
   test("Should call the trackPageView with correct properties", () => {
-    const { result } = renderHook(() => useAppInsightsTracks());
-    result.current.trackPageView("Search Page View");
+    renderHook(() => useAppInsightsTrackPageView("Search Page View"));
     expect(mockTrackPageView).toHaveBeenCalledTimes(1);
     expect(mockTrackPageView).toHaveBeenCalledWith({
       name: "Search Page View",
     });
   });
 
-  test("Should not call the mockTrackEvent if the name is empty", () => {
-    const { result } = renderHook(() => useAppInsightsTracks());
-    result.current.trackEvent("" as any);
-    expect(mockTrackEvent).toHaveBeenCalledTimes(0);
-  });
-
   test("Should not call the mockTrackPageView if the name is empty", () => {
-    const { result } = renderHook(() => useAppInsightsTracks());
-    result.current.trackPageView("" as any);
+    renderHook(() => useAppInsightsTrackPageView("" as any));
     expect(mockTrackPageView).toHaveBeenCalledTimes(0);
   });
 
   test("Should not throw error if appInsight is not initialized properly, when tracking PageView", () => {
     mockUseAppInsightsContext = undefined as any;
-    const { result } = renderHook(() => useAppInsightsTracks());
-    result.current.trackPageView("abc");
-    expect(() => result.current.trackPageView("abc")).not.toThrowError();
+    expect(() =>
+      renderHook(() => useAppInsightsTrackPageView("abc"))
+    ).not.toThrowError();
     expect(mockTrackPageView).toHaveBeenCalledTimes(0);
   });
 
@@ -63,8 +64,8 @@ describe("useAppInsightsTracks hook", () => {
       trackEvent: undefined,
       trackPageView: undefined,
     } as any;
-    const { result } = renderHook(() => useAppInsightsTracks());
-    expect(() => result.current.trackEvent("Search URN")).not.toThrowError();
+    const { result } = renderHook(() => useAppInsightsTrackEvent());
+    expect(() => result.current("Search URN")).not.toThrowError();
     expect(mockTrackEvent).toHaveBeenCalledTimes(0);
   });
 });

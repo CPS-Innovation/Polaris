@@ -10,13 +10,17 @@ import {
 import { useSearchInputLogic } from "../../hooks/useSearchInputLogic";
 import classes from "./index.module.scss";
 import { PageContentWrapper } from "../../../../common/presentation/components";
-import { useAppInsightsTracks } from "../../../../common/hooks/useAppInsightsTracks";
+import {
+  useAppInsightsTrackEvent,
+  useAppInsightsTrackPageView,
+} from "../../../../common/hooks/useAppInsightsTracks";
 export const path = "/case-search";
 
 const validationFailMessage = "Enter a URN in the right format";
 
 const Page: React.FC = () => {
-  const { trackEvent, trackPageView } = useAppInsightsTracks();
+  useAppInsightsTrackPageView("Case Search Page");
+  const trackEvent = useAppInsightsTrackEvent();
   const { urn: urnFromSearchParams, setParams } =
     useQueryParamsState<CaseSearchQueryParams>();
 
@@ -27,10 +31,6 @@ const Page: React.FC = () => {
     trackEvent("Search URN");
     handleSubmit();
   };
-
-  useEffect(() => {
-    trackPageView("Case Search Page");
-  }, []);
 
   return (
     <PageContentWrapper>

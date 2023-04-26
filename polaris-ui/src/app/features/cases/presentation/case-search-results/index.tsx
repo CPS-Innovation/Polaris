@@ -25,7 +25,10 @@ import { CaseSearchResult } from "../../domain/gateway/CaseSearchResult";
 
 import classes from "./index.module.scss";
 import { SectionBreak } from "../../../../common/presentation/components";
-import { useAppInsightsTracks } from "../../../../common/hooks/useAppInsightsTracks";
+import {
+  useAppInsightsTrackEvent,
+  useAppInsightsTrackPageView,
+} from "../../../../common/hooks/useAppInsightsTracks";
 export const path = "/case-search-results";
 
 const validationFailMessage = "Enter a URN in the right format";
@@ -33,11 +36,8 @@ const validationFailMessage = "Enter a URN in the right format";
 type Props = BackLinkingPageProps & {};
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
-  const { trackEvent, trackPageView } = useAppInsightsTracks();
-
-  useEffect(() => {
-    trackPageView("Case Search Result Page");
-  }, []);
+  useAppInsightsTrackPageView("Case Search Result Page");
+  const trackEvent = useAppInsightsTrackEvent();
 
   const getDefendantNameText = (item: CaseSearchResult) => {
     let titleString =

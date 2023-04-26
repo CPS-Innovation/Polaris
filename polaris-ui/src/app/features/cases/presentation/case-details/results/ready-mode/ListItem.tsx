@@ -8,7 +8,7 @@ import {
 import { MappedDocumentResult } from "../../../../domain/MappedDocumentResult";
 import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCaseDetailsState";
 import { ContextText } from "./ContextText";
-import { useAppInsightsTracks } from "../../../../../../common/hooks/useAppInsightsTracks";
+import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./ListItem.module.scss";
 
 type Props = {
@@ -27,7 +27,7 @@ export const ListItem: React.FC<Props> = ({
   },
   handleOpenPdf,
 }) => {
-  const { trackEvent } = useAppInsightsTracks();
+  const trackEvent = useAppInsightsTrackEvent();
   return (
     <div data-testid={`div-search-result-${documentId}`}>
       <h2 className="govuk-heading-s results-header">

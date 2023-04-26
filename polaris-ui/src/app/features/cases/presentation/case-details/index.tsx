@@ -19,13 +19,17 @@ import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAl
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
 import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
 import { ErrorModalContent } from "../../../../common/presentation/components/ErrorModalContent";
-import { useAppInsightsTracks } from "../../../../common/hooks/useAppInsightsTracks";
+import {
+  useAppInsightsTrackEvent,
+  useAppInsightsTrackPageView,
+} from "../../../../common/hooks/useAppInsightsTracks";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
-  const { trackEvent, trackPageView } = useAppInsightsTracks();
+  useAppInsightsTrackPageView("Case Details Page");
+  const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
@@ -61,10 +65,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     navigationUnblockHandle,
     unSavedRedactionDocs,
   } = useNavigationAlert(tabsState.items);
-
-  useEffect(() => {
-    trackPageView("Case Details Page");
-  }, []);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message

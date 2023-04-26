@@ -1,7 +1,7 @@
 import { Button } from "../../../../../common/presentation/components";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
-import { useAppInsightsTracks } from "../../../../../common/hooks/useAppInsightsTracks";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./Footer.module.scss";
 
 type Props = {
@@ -19,7 +19,7 @@ export const Footer: React.FC<Props> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
 }) => {
-  const { trackEvent } = useAppInsightsTracks();
+  const trackEvent = useAppInsightsTrackEvent();
   const handleRemoveAllRedactionsClick = () => {
     trackEvent("Remove All Redactions", {
       documentType: documentType,
