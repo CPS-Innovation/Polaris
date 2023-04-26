@@ -1,7 +1,7 @@
 import { KeyboardEvent } from "react";
 import { Input } from "../../../../../common/presentation/components";
 import { ReactComponent as SearchIcon } from "../../../../../common/presentation/svgs/searchIcon.svg";
-import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
+import { useAppInsightsTracks } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./SearchBox.module.scss";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   id: string;
   handleChange: (val: string) => void;
   handleSubmit: () => void;
-  trackEventKey?:
+  trackEventKey:
     | "Search Case Documents From Case File"
     | "Search Case Documents From Document Search";
   "data-testid"?: string;
@@ -25,7 +25,7 @@ export const SearchBox: React.FC<Props> = ({
   "data-testid": dataTestId,
   trackEventKey,
 }) => {
-  const { trackEvent } = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTracks();
 
   const handleSearch = () => {
     trackEvent(trackEventKey);

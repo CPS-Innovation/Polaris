@@ -67,14 +67,14 @@ const eventDescription = {
   "Save All Redactions":
     "User has clicked the 'Save All Redactions' green button in the document tab",
 };
-export const useAppInsightsTrackEvent = () => {
+export const useAppInsightsTracks = () => {
   const appInsights = useAppInsightsContext();
 
   const trackEvent = (
-    name?: AppInsightsTrackEventNames,
+    name: AppInsightsTrackEventNames,
     properties: { [key: string]: any } = {}
   ) => {
-    if (!name || !appInsights) {
+    if (!name || !appInsights?.trackEvent) {
       return;
     }
     const description: string = eventDescription[name]
@@ -88,6 +88,9 @@ export const useAppInsightsTrackEvent = () => {
   };
 
   const trackPageView = (name: string) => {
+    if (!name || !appInsights?.trackPageView) {
+      return;
+    }
     appInsights.trackPageView({ name });
   };
 

@@ -2,8 +2,8 @@ import { Tabs, TabsProps } from "./Tabs";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useState } from "react";
 import { within } from "@testing-library/dom";
-jest.mock("../../../../common/hooks/useAppInsightTrackEvent", () => ({
-  useAppInsightsTrackEvent: () => ({
+jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
+  useAppInsightsTracks: () => ({
     trackEvent: jest.fn(),
   }),
 }));

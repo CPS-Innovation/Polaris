@@ -16,7 +16,7 @@ import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
-import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
+import { useAppInsightsTracks } from "../../../../../common/hooks/useAppInsightsTracks";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -55,7 +55,7 @@ export const PdfViewer: React.FC<Props> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
-  const { trackEvent } = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTracks();
 
   const highlights = useMemo(
     () => [...searchHighlights, ...redactionHighlights],

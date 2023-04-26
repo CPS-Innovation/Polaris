@@ -4,7 +4,7 @@ import { useLastFocus } from "../../../hooks/useLastFocus";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
 import { ReactComponent as CloseIcon } from "../../svgs/closeIconBold.svg";
-import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightTrackEvent";
+import { useAppInsightsTracks } from "../../../hooks/useAppInsightsTracks";
 import classes from "./Tabs.module.scss";
 
 const ARROW_KEY_SHIFTS = {
@@ -31,7 +31,7 @@ export const Tabs: React.FC<TabsProps> = ({
   handleClosePdf,
   ...attributes
 }) => {
-  const { trackEvent } = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTracks();
   const activeTabRef = useRef<HTMLButtonElement>(null);
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 

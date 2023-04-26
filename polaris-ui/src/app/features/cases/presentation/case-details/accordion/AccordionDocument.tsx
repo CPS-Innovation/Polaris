@@ -5,7 +5,7 @@ import {
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
-import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
+import { useAppInsightsTracks } from "../../../../../common/hooks/useAppInsightsTracks";
 
 import classes from "./Accordion.module.scss";
 
@@ -20,7 +20,7 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   handleOpenPdf,
 }) => {
-  const { trackEvent } = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTracks();
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>

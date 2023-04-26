@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
-import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightTrackEvent";
+import { useAppInsightsTracks } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
@@ -15,7 +15,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { presentationFileName, sasUrl, documentId },
   handleOpenPdfInNewTab,
 }) => {
-  const { trackEvent } = useAppInsightsTrackEvent();
+  const { trackEvent } = useAppInsightsTracks();
   useEffect(() => {
     if (sasUrl) {
       window.open(sasUrl, "_blank");

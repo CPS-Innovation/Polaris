@@ -19,13 +19,13 @@ import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAl
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
 import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
 import { ErrorModalContent } from "../../../../common/presentation/components/ErrorModalContent";
-import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightTrackEvent";
+import { useAppInsightsTracks } from "../../../../common/hooks/useAppInsightsTracks";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
-  const { trackEvent, trackPageView } = useAppInsightsTrackEvent();
+  const { trackEvent, trackPageView } = useAppInsightsTracks();
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
