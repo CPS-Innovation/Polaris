@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Domain.Extensions;
+using Common.Dto.Case;
+using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Logging;
 using Common.Services.DocumentToggle;
@@ -32,7 +34,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<DocumentDto[]> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -55,9 +57,9 @@ namespace coordinator.Functions.ActivityFunctions.Case
               payload.CorrelationId);
 
             _log.LogMethodExit(payload.CorrelationId, loggingName, caseDocuments.ToJson());
-            return caseDocuments
+            return (caseDocuments
                     .Select(MapPresentationFlags)
-                    .ToArray();
+                    .ToArray(), new PcdRequestDto[0]);
         }
 
         private DocumentDto MapPresentationFlags(DocumentDto document)
@@ -65,6 +67,19 @@ namespace coordinator.Functions.ActivityFunctions.Case
             document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
 
             return document;
+        }
+
+        private PcdRequestDto MapPresentationFlags(PcdRequestDto pcdRequest)
+        {
+            pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
+
+            return pcdRequest;
+        }
+        private DefendantAndChargesDto MapPresentationFlags(DefendantAndChargesDto defendantAndCharges)
+        {
+            defendantAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges);
+
+            return defendantAndCharges;
         }
     }
 }
