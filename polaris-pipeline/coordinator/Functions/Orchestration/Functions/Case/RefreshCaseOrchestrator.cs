@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Extensions;
+using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
@@ -90,8 +91,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting tracker for {context.InstanceId}");
             await tracker.Reset(context.InstanceId);
 
-            var (documents, pcdRequests) = await RetrieveDocumentsAndPcdRequests(context, tracker, loggingName, log, payload);
-            var deltas = await SynchroniseTrackerDocuments(tracker, loggingName, log, payload, documents, pcdRequests);
+            var documents = await RetrieveDocumentsAndPcdRequests(context, tracker, loggingName, log, payload);
+            var deltas = await SynchroniseTrackerDocuments(tracker, loggingName, log, payload, documents);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"{deltas.CreatedDocuments.Count} CMS documents created, {deltas.UpdatedDocuments.Count} updated and {deltas.DeletedDocuments.Count} document deleted for case {payload.CmsCaseId}");
             var createdOrUpdatedDocuments = deltas.CreatedDocuments.Concat(deltas.UpdatedDocuments).ToList();
@@ -164,16 +165,15 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<(DocumentDto[], PcdRequestDto[])> RetrieveDocumentsAndPcdRequests(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges)> RetrieveDocumentsAndPcdRequests(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of Documents for case {payload.CmsCaseId}");
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
-            var documents = await context.CallActivityAsync<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
+            var documents = await context.CallActivityAsync<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
 
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of PCD Requests for case {payload.CmsCaseId}");
-            var pcdRequests = await context.CallActivityAsync<PcdRequestDto[]>(nameof(GetCasePcdRequests), getCaseEntitiesActivityPayload);
+            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
 
-            return (documents.CmsDocuments, pcdRequests);
+            return documents;
         }
 
         private static async Task<TrackerDeltasDto> SynchroniseTrackerDocuments
@@ -181,9 +181,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 ITrackerEntity tracker, 
                 string nameToLog, 
                 ILogger safeLogger, 
-                BasePipelinePayload payload, 
-                DocumentDto[] documents,
-                PcdRequestDto[] pcdRequests
+                BasePipelinePayload payload,
+                (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges) documents
             )
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
