@@ -29,11 +29,8 @@ const Page: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("CaseSearch Page1111>>>");
     trackPageView("Case Search Page");
   }, []);
-
-  console.log("CaseSearch Page>>>");
 
   return (
     <PageContentWrapper>

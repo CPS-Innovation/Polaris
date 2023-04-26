@@ -36,7 +36,6 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   const { trackEvent, trackPageView } = useAppInsightsTrackEvent();
 
   useEffect(() => {
-    console.log("Case Search Result Page>>>");
     trackPageView("Case Search Result Page");
   }, []);
 

@@ -63,7 +63,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   } = useNavigationAlert(tabsState.items);
 
   useEffect(() => {
-    console.log("Case Details Page>>>");
     trackPageView("Case Details Page");
   }, []);
 
