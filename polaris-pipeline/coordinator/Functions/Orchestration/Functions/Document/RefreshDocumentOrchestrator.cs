@@ -64,20 +64,17 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
                 response = await context.CallActivityAsync<GeneratePdfResponse>(nameof(GeneratePdf), payload);
 
+                var registerPdfBlobNameArg = new RegisterPdfBlobNameArg(context.CurrentUtcDateTime, payload.CmsDocumentId, payload.CmsVersionId, response.BlobName);
                 if (response.AlreadyProcessed)
-                {
-                    await tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(payload.CmsDocumentId, payload.CmsVersionId, response.BlobName));
-                }
+                    await tracker.RegisterBlobAlreadyProcessed(registerPdfBlobNameArg);
                 else
-                {
-                    await tracker.RegisterPdfBlobName(new RegisterPdfBlobNameArg(payload.CmsDocumentId, payload.CmsVersionId, response.BlobName));
-                }
+                    await tracker.RegisterPdfBlobName(registerPdfBlobNameArg);
 
                 return response;
             }
             catch (Exception exception)
             {
-                await tracker.RegisterUnexpectedPdfDocumentFailure(payload.CmsDocumentId);
+                await tracker.RegisterUnexpectedPdfDocumentFailure((context.CurrentUtcDateTime, payload.CmsDocumentId));
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator),
                     $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}",
@@ -98,11 +95,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             try
             {
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
-                await tracker.RegisterIndexed(payload.CmsDocumentId);
+                await tracker.RegisterIndexed((context.CurrentUtcDateTime, payload.CmsDocumentId));
             }
             catch (Exception exception)
             {
-                await tracker.RegisterOcrAndIndexFailure(payload.CmsDocumentId);
+                await tracker.RegisterOcrAndIndexFailure((context.CurrentUtcDateTime, payload.CmsDocumentId));
 
                 log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;
