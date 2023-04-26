@@ -15,6 +15,7 @@ using coordinator.Domain.Exceptions;
 using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions.Case;
 using coordinator.Functions.Orchestration.Functions.Document;
+using Mapster;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
-        public async Task<TrackerDeltasDto> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task<TrackerDto> Run([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var payload = context.GetInput<CaseOrchestrationPayload>();
             if (payload == null)
@@ -70,7 +71,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
             catch (Exception exception)
             {
-                await tracker.RegisterFailed();
+                await tracker.RegisterFailed(context.CurrentUtcDateTime);
                 log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }
@@ -80,52 +81,57 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<TrackerDeltasDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
+        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting tracker for {context.InstanceId}");
-            await tracker.Reset(context.InstanceId);
+            await tracker.Reset((context.CurrentUtcDateTime, context.InstanceId));
+            var (cmsDocuments, pcdRequests) = await RetrieveDocumentsAndPcdRequests(context, tracker, loggingName, log, payload);
 
-            var (documents, pcdRequests) = await RetrieveDocumentsAndPcdRequests(context, tracker, loggingName, log, payload);
-            var deltas = await SynchroniseTrackerDocuments(tracker, loggingName, log, payload, documents, pcdRequests);
-
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"{deltas.CreatedDocuments.Count} CMS documents created, {deltas.UpdatedDocuments.Count} updated and {deltas.DeletedDocuments.Count} document deleted for case {payload.CmsCaseId}");
-            var createdOrUpdatedDocuments = deltas.CreatedDocuments.Concat(deltas.UpdatedDocuments).ToList();
-            var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
-
-            List<Task> caseTasks = GetCaseTasks(context, payload, createdOrUpdatedDocuments, createdOrUpdatedPcdRequests);
-
-            var changed = deltas.Any();
-
-            if (changed)
+            var documentTasks = await GetDocumentTasks(context, tracker, 1, payload, cmsDocuments, pcdRequests, log);
+            for(var retry=1;  retry <= 3 && documentTasks.Any(); retry++)
             {
-                await Task.WhenAll(caseTasks.Select(BufferCall));
+                await Task.WhenAll(documentTasks.Select(BufferCall));
 
-                if (await tracker.AllDocumentsFailed())
-                    throw new CaseOrchestrationException("Documents or PCD Requests failed to process during orchestration.");
+                if (await tracker.AnyDocumentsFailed())
+                {
+                    documentTasks = await GetDocumentTasks(context, tracker, retry+1, payload, cmsDocuments, pcdRequests, log);
+                }
             }
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Documents Refreshed, {deltas.CreatedDocuments.Count} created, {deltas.UpdatedDocuments.Count} updated, {deltas.DeletedDocuments.Count} deleted");
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"PCD Requests Refreshed, {deltas.CreatedPcdRequests.Count} created, {deltas.DeletedPcdRequests.Count} deleted");
+            if (await tracker.AllDocumentsFailed())
+                throw new CaseOrchestrationException("Documents or PCD Requests failed to process during orchestration.");
 
-            await tracker.RegisterCompleted();
+            await tracker.RegisterCompleted(context.CurrentUtcDateTime);
 
-            log.LogMethodExit(payload.CorrelationId, loggingName, "Returning changed documents");
-            return deltas;
+            log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
+
+            var trackerDto = tracker.Adapt<TrackerDto>();
+            return trackerDto;
         }
 
-        private static List<Task> GetCaseTasks
+        private async static Task<List<Task>> GetDocumentTasks
             (
-                IDurableOrchestrationContext context, 
+                IDurableOrchestrationContext context,
+                ITrackerEntity tracker,
+                int retry,
                 CaseOrchestrationPayload caseDocumentPayload, 
-                List<TrackerCmsDocumentDto> createdOrUpdatedDocuments,
-                List<TrackerPcdRequestDto> createdPcdRequests
+                DocumentDto[] cmsDocuments,
+                PcdRequestDto[] pcdRequests,
+                ILogger log
             )
         {
+            var deltas = await SynchroniseTrackerDocuments(context.CurrentUtcDateTime, tracker, loggingName, log, caseDocumentPayload, cmsDocuments, pcdRequests);
+
+            var logMessage = $"Refresh Documents, retry {retry}, CMS:({deltas.CreatedCmsDocuments.Count} created, {deltas.UpdatedCmsDocuments.Count} updated, {deltas.DeletedCmsDocuments.Count} deleted). PCD :({deltas.CreatedPcdRequests.Count} created, {deltas.DeletedPcdRequests.Count} deleted)";
+            log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, logMessage);
+
+            var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
+            var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
+
             var cmsDocumentPayloads
                 = createdOrUpdatedDocuments
                     .Select
@@ -145,7 +151,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                     );
 
             var pcdRequestsPayloads
-                = createdPcdRequests
+                = createdOrUpdatedPcdRequests
                     .Select
                     (
                         trackerPcdRequest =>
@@ -195,6 +201,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
         private static async Task<TrackerDeltasDto> SynchroniseTrackerDocuments
             (
+                DateTime t,
                 ITrackerEntity tracker, 
                 string nameToLog, 
                 ILogger safeLogger, 
@@ -205,7 +212,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 
-            var arg = new SynchroniseDocumentsArg(payload.CmsCaseUrn, payload.CmsCaseId, documents, pcdRequests, payload.CorrelationId);
+            var arg = new SynchroniseDocumentsArg(t, payload.CmsCaseUrn, payload.CmsCaseId, documents, pcdRequests, payload.CorrelationId);
             var deltas = await tracker.SynchroniseDocuments(arg);
 
             return deltas;
