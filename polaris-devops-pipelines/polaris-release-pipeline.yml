@@ -773,7 +773,7 @@ stages:
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
                     Action: 'Restart Azure App Service'
-                    WebAppName: 
+                    WebAppName: "as-web-polaris-qa"
                         
                 #download ui events terraform build artifact
                 - download: PolarisBuild

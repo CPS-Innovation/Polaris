@@ -45,7 +45,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     return response.Error;
 
                 currentCorrelationId = response.CorrelationId;
-                var document = response.Document;
+                var document = response.CmsDocument;
 
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))

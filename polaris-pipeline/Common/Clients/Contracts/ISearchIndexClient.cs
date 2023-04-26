@@ -8,7 +8,7 @@ namespace Common.Clients.Contracts
 {
     public interface ISearchIndexClient
     {
-        Task<IList<StreamlinedSearchLine>> Query(int caseId, List<TrackerDocumentDto> documents, string searchTerm, Guid correlationId);
+        Task<IList<StreamlinedSearchLine>> Query(int caseId, List<TrackerCmsDocumentDto> documents, string searchTerm, Guid correlationId);
 
         IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm, Guid correlationId);
     }

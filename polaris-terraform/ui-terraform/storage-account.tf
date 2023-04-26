@@ -62,8 +62,7 @@ resource "azurerm_storage_account_network_rules" "polaris_sacpspolaris_rules" {
     azurerm_linux_function_app.fa_polaris,
     azurerm_linux_function_app.fa_polaris_auth_handover,
     azurerm_linux_web_app.as_web_polaris,
-    azurerm_linux_web_app.polaris_proxy,
-    azurerm_application_insights.ai_polaris
+    azurerm_linux_web_app.polaris_proxy
   ]
 }
 

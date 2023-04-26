@@ -2,16 +2,16 @@
 import "cypress-wait-until"
 import { CaseDetails } from "../../../gateway/CaseDetails"
 import { CaseSearchResult } from "../../../gateway/CaseSearchResult"
-import { makeRoutes } from "./helpers/make-routes"
+import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 
 const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
 
-let routes
+let routes: ApiRoutes
 
 describe("Case search and details", () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
-      routes = makeRoutes(headers)
+      routes = makeApiRoutes(headers)
     })
   })
 
