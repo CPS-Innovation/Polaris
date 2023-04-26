@@ -42,8 +42,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
 
-  const { url, mode, redactionHighlights, documentId, isDeleted } =
-    caseDocumentViewModel;
+  const {
+    url,
+    mode,
+    redactionHighlights,
+    documentId,
+    isDeleted,
+    cmsDocType: { code: documentType },
+  } = caseDocumentViewModel;
 
   const searchHighlights =
     mode === "search" ? caseDocumentViewModel.searchHighlights : undefined;
@@ -108,6 +114,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           redactStatus={redactStatus}
+          documentType={documentType}
           redactionHighlights={redactionHighlights}
           focussedHighlightIndex={focussedHighlightIndex}
           handleAddRedaction={localHandleAddRedaction}

@@ -54,6 +54,7 @@ export const Content: React.FC<Props> = ({
             {...{ labelText, value, handleChange, handleSubmit }}
             data-testid="results-search-case"
             id="case-details-result-search"
+            trackEventKey="Search Case Documents From Document Search"
           />
         </div>
       </div>

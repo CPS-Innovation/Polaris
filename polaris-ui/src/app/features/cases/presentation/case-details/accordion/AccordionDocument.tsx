@@ -5,6 +5,7 @@ import {
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 import classes from "./Accordion.module.scss";
 
@@ -19,6 +20,7 @@ export const AccordionDocument: React.FC<Props> = ({
   caseDocument,
   handleOpenPdf,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>
@@ -26,6 +28,10 @@ export const AccordionDocument: React.FC<Props> = ({
         {canViewDocument ? (
           <LinkButton
             onClick={() => {
+              trackEvent("Open Document From Case File", {
+                documentId: caseDocument.documentId,
+                presentationFileName: caseDocument.presentationFileName,
+              });
               handleOpenPdf({ documentId: caseDocument.documentId });
             }}
             className={`${classes["accordion-document-link-button"]}`}
