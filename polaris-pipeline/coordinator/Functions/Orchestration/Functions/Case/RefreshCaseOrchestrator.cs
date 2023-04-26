@@ -95,9 +95,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"{deltas.CreatedDocuments.Count} CMS documents created, {deltas.UpdatedDocuments.Count} updated and {deltas.DeletedDocuments.Count} document deleted for case {payload.CmsCaseId}");
             var createdOrUpdatedDocuments = deltas.CreatedDocuments.Concat(deltas.UpdatedDocuments).ToList();
-            var createdPcdRequests = deltas.CreatedPcdRequests;
+            var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
 
-            List<Task> caseTasks = GetCaseTasks(context, payload, createdOrUpdatedDocuments, createdPcdRequests);
+            List<Task> caseTasks = GetCaseTasks(context, payload, createdOrUpdatedDocuments, createdOrUpdatedPcdRequests);
 
             var changed = deltas.Any();
 

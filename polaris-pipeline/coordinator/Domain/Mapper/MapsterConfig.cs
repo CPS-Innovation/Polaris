@@ -34,7 +34,7 @@ namespace coordinator.Domain.Mapper
                                     IsPdfAvailable = pcdRequest.IsPdfAvailable,
                                     Status = pcdRequest.Status
                                 }
-                            ).Concat(src.Documents)
+                            ).Concat(src.CmsDocuments)
                     );
         }
     }
