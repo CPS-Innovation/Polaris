@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Domain.Extensions;
+using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Logging;
@@ -35,7 +36,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
         }
 
         [FunctionName(nameof(GetCasePcdRequests))]
-        public async Task<PcdRequestDto[]> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -50,6 +51,14 @@ namespace coordinator.Functions.ActivityFunctions.Case
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
 
+            _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
+            DocumentDto[] documents = await _ddeiService.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
+
+            var cmsDocuments =
+                documents
+                    .Select(doc => MapPresentationFlags(doc))
+                    .ToArray();
+
             var caseArgDto = new DdeiCmsCaseArgDto
             {
                 Urn = payload.CmsCaseUrn,
@@ -57,15 +66,25 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 CmsAuthValues = payload.CmsAuthValues,
                 CorrelationId = payload.CorrelationId
             };
-
-            _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             var @case = await _ddeiService.GetCase(caseArgDto);
-            var preChargeDecisionRequests = @case.PreChargeDecisionRequests;
 
-            _log.LogMethodExit(payload.CorrelationId, loggingName, preChargeDecisionRequests.ToJson());
-            return preChargeDecisionRequests
+            var pcdRequests
+                = @case.PreChargeDecisionRequests
                     .Select(MapPresentationFlags)
                     .ToArray();
+            var defendantsAndCharges 
+                = @case.DefendantsAndCharges
+                    .Select(MapPresentationFlags)
+                    .ToArray();
+
+            return (documents, pcdRequests, defendantsAndCharges);
+        }
+
+        private DocumentDto MapPresentationFlags(DocumentDto document)
+        {
+            document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
+
+            return document;
         }
 
         private PcdRequestDto MapPresentationFlags(PcdRequestDto pcdRequest)
@@ -73,6 +92,12 @@ namespace coordinator.Functions.ActivityFunctions.Case
             pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
 
             return pcdRequest;
+        }
+        private DefendantAndChargesDto MapPresentationFlags(DefendantAndChargesDto defendantAndCharges)
+        {
+            defendantAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges);
+
+            return defendantAndCharges;
         }
     }
 }

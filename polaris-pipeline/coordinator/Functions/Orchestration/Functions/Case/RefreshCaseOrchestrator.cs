@@ -25,6 +25,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
+        private readonly TimeSpan _timeout;
 
         const string loggingName = $"{nameof(RefreshCaseOrchestrator)} - {nameof(Run)}";
 
@@ -32,6 +33,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             _log = log;
             _configuration = configuration;
+            _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
         }
 
         [FunctionName(nameof(RefreshCaseOrchestrator))]
@@ -49,8 +51,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             try
             {
-                var timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
-                var deadline = context.CurrentUtcDateTime.Add(timeout);
+                var deadline = context.CurrentUtcDateTime.Add(_timeout);
 
                 using var cts = new CancellationTokenSource();
                 log.LogMethodFlow(payload.CorrelationId, loggingName, $"Run main orchestration for case {currentCaseId}");
@@ -167,12 +168,12 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of Documents for case {payload.CmsCaseId}");
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
-            var cmsDocuments = await context.CallActivityAsync<DocumentDto[]>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
+            var documents = await context.CallActivityAsync<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
 
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of PCD Requests for case {payload.CmsCaseId}");
             var pcdRequests = await context.CallActivityAsync<PcdRequestDto[]>(nameof(GetCasePcdRequests), getCaseEntitiesActivityPayload);
 
-            return (cmsDocuments, pcdRequests);
+            return (documents.CmsDocuments, pcdRequests);
         }
 
         private static async Task<TrackerDeltasDto> SynchroniseTrackerDocuments

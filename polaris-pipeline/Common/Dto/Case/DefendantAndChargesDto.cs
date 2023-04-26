@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Common.Dto.FeatureFlags;
 using Newtonsoft.Json;
 
 namespace Common.Dto.Case
 {
-    public class DefendantDto
+    public class DefendantAndChargesDto
     {
         [JsonProperty("id")]
         public int Id { get; set; }
@@ -22,5 +23,7 @@ namespace Common.Dto.Case
 
         [JsonProperty("proposedCharges")]
         public IEnumerable<ProposedChargeDto> ProposedCharges { get; set; }
+
+        public PresentationFlagsDto PresentationFlags { get; set; }
     }
 }
