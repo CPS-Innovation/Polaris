@@ -1,4 +1,5 @@
 import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
+import { useEffect } from "react";
 
 type AppInsightsTrackEventNames =
   | "Search URN"
@@ -23,7 +24,7 @@ type AppInsightsTrackEventNames =
   | "Remove All Redactions"
   | "Save All Redactions";
 
-const eventDescription = {
+const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
     "User has clicked the 'Search' button on the 'Find a case' screen.",
   "Back To Search URN":
@@ -95,4 +96,19 @@ export const useAppInsightsTracks = () => {
   };
 
   return { trackEvent, trackPageView };
+};
+
+export const useTrackPageView = (name: string) => {
+  const appInsights = useAppInsightsContext();
+
+  const trackPageView = (name: string) => {
+    if (!name || !appInsights?.trackPageView) {
+      return;
+    }
+    appInsights.trackPageView({ name });
+  };
+
+  useEffect(() => {
+    trackPageView(name);
+  }, []);
 };
