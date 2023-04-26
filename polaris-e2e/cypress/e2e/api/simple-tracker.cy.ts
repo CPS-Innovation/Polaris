@@ -32,6 +32,17 @@ describe("Simple Tracker", () => {
       .waitUntil(
         () =>
           cy
+            .api({
+              ...routes.GET_TRACKER(TARGET_URN, TARGET_CASE_ID),
+              failOnStatusCode: false,
+            })
+            .its("status")
+            .then((status) => status !== 404),
+        WAIT_UNTIL_OPTIONS
+      )
+      .waitUntil(
+        () =>
+          cy
             .api<PipelineResults>(
               routes.GET_TRACKER(TARGET_URN, TARGET_CASE_ID)
             )
