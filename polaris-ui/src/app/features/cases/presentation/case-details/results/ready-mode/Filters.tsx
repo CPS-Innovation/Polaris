@@ -6,6 +6,7 @@ import {
 import { CombinedState } from "../../../../domain/CombinedState";
 import { FilterOption } from "../../../../domain/FilterOption";
 import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCaseDetailsState";
+import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
   filterOptions: CombinedState["searchState"]["filterOptions"];
@@ -24,6 +25,7 @@ export const Filters: React.FC<Props> = ({
   filterOptions: { docType, category },
   handleUpdateFilter,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const docTypeItems = toItemArray(docType);
   const categoryItems = toItemArray(category);
 
@@ -58,13 +60,18 @@ export const Filters: React.FC<Props> = ({
             name="docType"
             items={docTypeItems}
             className="govuk-checkboxes--small"
-            onChange={(ev) =>
+            onChange={(ev) => {
+              trackEvent("Filter Doc Search Results", {
+                filterCategory: "Document type",
+                filterId: ev.currentTarget.id,
+                filterChecked: ev.target.checked,
+              });
               handleUpdateFilter({
                 filter: "docType",
                 id: ev.currentTarget.id,
                 isSelected: ev.target.checked,
-              })
-            }
+              });
+            }}
           />
 
           <Label className="govuk-label--s" htmlFor="category">
@@ -75,13 +82,18 @@ export const Filters: React.FC<Props> = ({
             name="category"
             items={categoryItems}
             className="govuk-checkboxes--small"
-            onChange={(ev) =>
+            onChange={(ev) => {
+              trackEvent("Filter Doc Search Results", {
+                filterCategory: "Category",
+                filterId: ev.currentTarget.id,
+                filterChecked: ev.target.checked,
+              });
               handleUpdateFilter({
                 filter: "category",
                 id: ev.currentTarget.id,
                 isSelected: ev.target.checked,
-              })
-            }
+              });
+            }}
           />
         </>
       )}

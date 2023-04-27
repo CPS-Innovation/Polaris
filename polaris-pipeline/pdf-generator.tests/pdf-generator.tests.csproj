@@ -34,7 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Factories\" />
-    <Folder Include="Handlers\" />
     <Folder Include="Wrappers\" />
   </ItemGroup>
   <ItemGroup>

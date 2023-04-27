@@ -1,6 +1,8 @@
 import "@testing-library/cypress/add-commands"
 import { injectTokens } from "./inject-tokens"
 import { CorrelationId, correlationIds } from "./correlation-ids"
+import { WAIT_UNTIL_OPTIONS } from "./options"
+import "cypress-wait-until"
 
 declare global {
   namespace Cypress {
@@ -34,6 +36,7 @@ declare global {
     size?: number
   }
 }
+
 const {
   AUTHORITY,
   CLIENTID,
@@ -53,7 +56,8 @@ const {
   COOKIE_REDIRECT_URL,
 } = Cypress.env()
 
-const AUTOMATION_LANDING_PAGE_URL = "/?automation-test-first-visit=true"
+const AUTOMATION_LANDING_PAGE_PATH =
+  "/polaris-ui/?automation-test-first-visit=true"
 
 let cachedTokenExpiryTime = new Date().getTime()
 let cachedTokenResponse = null
@@ -130,10 +134,10 @@ Cypress.Commands.add(
 Cypress.Commands.add("loginToAD", () => {
   let getToken =
     cachedTokenResponse && cachedTokenExpiryTime > new Date().getTime()
-      ? cy.visit(AUTOMATION_LANDING_PAGE_URL).then(() => ({
+      ? cy.visit(AUTOMATION_LANDING_PAGE_PATH).then(() => ({
           body: cachedTokenResponse,
         }))
-      : cy.visit(AUTOMATION_LANDING_PAGE_URL).requestToken()
+      : cy.visit(AUTOMATION_LANDING_PAGE_PATH).requestToken()
 
   return getToken
     .then((response) => {
@@ -142,7 +146,7 @@ Cypress.Commands.add("loginToAD", () => {
       cachedTokenExpiryTime = new Date().getTime() + 20 * 60 * 1000 // 20 mins ok for a start?
     })
     .reload()
-    .visit("/")
+    .visit("/polaris-ui")
     .contains(AD_USERNAME)
 })
 
@@ -164,36 +168,40 @@ Cypress.Commands.add("loginToCms", () => {
     loggedInConfirmationLocator: string
   }
 
-  cy.origin(
-    CMS_LOGIN_PAGE_URL,
-    { args },
-    ({
-      username,
-      password,
-      usernameFieldLocator,
-      passwordFieldLocator,
-      submitButtonLocator,
-      loggedInConfirmationLocator,
-    }) => {
-      cy.visit("/")
-      cy.get(usernameFieldLocator).type(username)
-      cy.get(passwordFieldLocator).type(password)
-      cy.get(submitButtonLocator).click()
-      cy.get(loggedInConfirmationLocator).should("exist")
-    }
-  )
+  if (isFullUrl(CMS_LOGIN_PAGE_URL)) {
+    cy.origin(
+      CMS_LOGIN_PAGE_URL,
+      { args },
+      ({
+        username,
+        password,
+        usernameFieldLocator,
+        passwordFieldLocator,
+        submitButtonLocator,
+        loggedInConfirmationLocator,
+      }) => {
+        cy.visit("/")
+        cy.get(usernameFieldLocator).type(username)
+        cy.get(passwordFieldLocator).type(password)
+        cy.get(submitButtonLocator).click()
+        cy.get(loggedInConfirmationLocator).should("exist")
+      }
+    )
+  } else {
+    cy.reload()
+    cy.visit(CMS_LOGIN_PAGE_URL)
+    cy.get(args.usernameFieldLocator).type(args.username)
+    cy.get(args.passwordFieldLocator).type(args.password)
+    cy.get(args.submitButtonLocator).click()
+    cy.get(args.loggedInConfirmationLocator).should("exist")
+  }
 })
 
 Cypress.Commands.add("preemptivelyAttachCookies", () => {
-  var args = {
-    redirectUrl:
-      COOKIE_REDIRECT_URL +
-      encodeURIComponent(Cypress.config().baseUrl + "?auth-refresh"),
-  } as { redirectUrl: string }
-
-  cy.origin(API_ROOT_DOMAIN, { args }, ({ redirectUrl }) => {
-    cy.visit(redirectUrl)
-  })
+  cy.visit(
+    COOKIE_REDIRECT_URL +
+      encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
+  )
 })
 
 Cypress.Commands.add("fullLogin", () => {
@@ -209,8 +217,21 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
       authorization: `Bearer ${cachedTokenResponse.access_token}`,
       "correlation-id": correlationIds.BLANK,
     },
-  })
-  cy.wait(1000)
+  }).waitUntil(
+    () =>
+      cy
+        .request({
+          url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
+          failOnStatusCode: false,
+          headers: {
+            authorization: `Bearer ${cachedTokenResponse.access_token}`,
+            "correlation-id": correlationIds.BLANK,
+          },
+        })
+        .its("status")
+        .then((status) => status === 404),
+    WAIT_UNTIL_OPTIONS
+  )
 })
 
 declare global {
@@ -248,3 +269,5 @@ Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
       cy.document().trigger("selectionchange")
     })
 })
+
+const isFullUrl = (url: string) => url.startsWith("http")

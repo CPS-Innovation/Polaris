@@ -134,6 +134,21 @@ const getPipelinePdfResults = (resultsCount: number) => {
 
   return resultsArray;
 };
+// This will create two results one with document id 2 and the second with document id 2 deleted.
+const getRefreshDeletedDocuments = () => {
+  const resultsArray = getPipelinePdfResults(2);
+
+  return [
+    resultsArray[0],
+    {
+      ...resultsArray[1],
+      documents: resultsArray[1].documents.filter(
+        ({ documentId }) => documentId !== "2"
+      ),
+    },
+  ];
+};
+
 export const missingDocsPipelinePdfResults: PipelineResults = {
   transactionId: "121",
   status: "Completed",
@@ -351,3 +366,6 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
     },
   ],
 };
+
+export const refreshPipelineDeletedDocuments: PipelinePdfResultsDataSource =
+  () => getRefreshDeletedDocuments();

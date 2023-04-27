@@ -6,18 +6,24 @@ namespace Common.Dto.Tracker
 {
     public class TrackerDeltasDto
     {
-        public List<TrackerDocumentDto> CreatedDocuments { get; set; }
-        public List<TrackerDocumentDto> UpdatedDocuments { get; set; }
-        public List<TrackerDocumentDto> DeletedDocuments { get; set; }
+        // Cms Document
+        public List<TrackerCmsDocumentDto> CreatedCmsDocuments { get; set; }
+        public List<TrackerCmsDocumentDto> UpdatedCmsDocuments { get; set; }
+        public List<TrackerCmsDocumentDto> DeletedCmsDocuments { get; set; }
 
-        // Read only, so Created and Updated only options
+        // PCD Requests
         public List<TrackerPcdRequestDto> CreatedPcdRequests { get; set; }
+        public List<TrackerPcdRequestDto> UpdatedPcdRequests { get; set; }
         public List<TrackerPcdRequestDto> DeletedPcdRequests { get; set; }
+
+        public int CreatedCount { get {  return CreatedCmsDocuments.Count + CreatedPcdRequests.Count; } }
+        public int UpdatedCount { get { return UpdatedCmsDocuments.Count + UpdatedPcdRequests.Count; } }
+        public int DeletedCount { get { return DeletedCmsDocuments.Count + DeletedPcdRequests.Count; } }
 
         public bool Any()
         {
-            return CreatedDocuments.Any() || UpdatedDocuments.Any() || DeletedDocuments.Any() ||
-                   CreatedPcdRequests.Any() || DeletedPcdRequests.Any();
+            return CreatedCmsDocuments.Any() || UpdatedCmsDocuments.Any() || DeletedCmsDocuments.Any() ||
+                   CreatedPcdRequests.Any() || UpdatedPcdRequests.Any() || DeletedPcdRequests.Any();
         }
     }
 }

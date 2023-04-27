@@ -81,6 +81,7 @@ describe("useCaseDetailsState", () => {
         handleSavedRedactions,
         handleOpenPdfInNewTab,
         handleTabSelection,
+        handleCloseErrorModal,
         ...stateProperties
       } = result.current;
 
@@ -234,6 +235,18 @@ describe("useCaseDetailsState", () => {
       expect(reducerSpy).toBeCalledWith(expect.anything(), {
         type: "UPDATE_FILTER",
         payload: { filter: "category", id: "1", isSelected: true },
+      });
+    });
+    it("can hide the error modal", () => {
+      const {
+        result: {
+          current: { handleCloseErrorModal },
+        },
+      } = renderHook(() => useCaseDetailsState("bar", 1));
+      act(() => handleCloseErrorModal());
+
+      expect(reducerSpy).toBeCalledWith(expect.anything(), {
+        type: "HIDE_ERROR_MODAL",
       });
     });
   });

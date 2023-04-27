@@ -67,5 +67,18 @@ namespace coordinator.Functions.ActivityFunctions.Case
 
             return document;
         }
+
+        private PcdRequestDto MapPresentationFlags(PcdRequestDto pcdRequest)
+        {
+            pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
+
+            return pcdRequest;
+        }
+        private DefendantAndChargesDto MapPresentationFlags(DefendantAndChargesDto defendantAndCharges)
+        {
+            defendantAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges);
+
+            return defendantAndCharges;
+        }
     }
 }

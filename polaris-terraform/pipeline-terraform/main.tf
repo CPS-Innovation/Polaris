@@ -1,3 +1,4 @@
+#touch - comment
 terraform {
   required_version = "1.2.8"
 
@@ -51,8 +52,10 @@ provider "azurerm" {
 }
 
 locals {
-  resource_name      = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
-  ddei_resource_name = var.env != "prod" ? "${var.ddei_resource_name_prefix}-${var.env}" : var.ddei_resource_name_prefix
+  global_name          = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}" : var.polaris_resource_name_prefix
+  analytics_group_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-analytics-${var.env}" : "${var.polaris_resource_name_prefix}-analytics"
+  resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
+  ddei_resource_name   = var.env != "prod" ? "${var.ddei_resource_name_prefix}-${var.env}" : var.ddei_resource_name_prefix
   common_tags = {
     environment = var.environment_tag
     project     = var.resource_name_prefix

@@ -5,7 +5,7 @@ export const msalInstance = new PublicClientApplication({
   auth: {
     clientId: CLIENT_ID,
     authority: `https://login.microsoftonline.com/${TENANT_ID}`,
-    redirectUri: "/",
+    redirectUri: process.env.PUBLIC_URL,
     postLogoutRedirectUri: "/",
   },
 });

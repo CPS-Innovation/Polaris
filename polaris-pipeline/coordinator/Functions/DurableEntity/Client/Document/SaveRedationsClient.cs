@@ -65,7 +65,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     return response.Error;
 
                 currentCorrelationId = response.CorrelationId;
-                var document = response.Document;
+                var document = response.CmsDocument;
                 var content = await req.Content.ReadAsStringAsync();
                 if (string.IsNullOrWhiteSpace(content))
                 {

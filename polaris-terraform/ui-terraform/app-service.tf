@@ -14,19 +14,22 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_ui_file_share.name
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"               = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net"
+    "REACT_APP_GATEWAY_BASE_URL"               = ""
     "REACT_APP_GATEWAY_SCOPE"                  = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"            = "https://${azurerm_linux_web_app.polaris_proxy.name}.azurewebsites.net/polaris?polaris-ui-url="
+    "REACT_APP_REAUTH_REDIRECT_URL"            = "/polaris?polaris-ui-url="
   }
 
   site_config {
     ftps_state       = "FtpsOnly"
     http2_enabled    = true
     ip_restriction   = []
-    app_command_line = "node subsititute-config.js; npx serve -s"
+    # The -s in npx serve -s is very important.  It allows any url that hits the app
+    #  to be served from the root index.html.  This is important as it accomodates any
+    #  sub directory that the app may be hosted with, or none at all.
+    app_command_line = "node polaris-ui/subsititute-config.js; npx serve -s"
     application_stack {
       node_version = "14-lts"
     }
@@ -68,7 +71,7 @@ module "azurerm_app_reg_as_web_polaris" {
       }]
   }]
   single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/", "http://localhost:3000/"] : ["https://as-web-${local.resource_name}.azurewebsites.net/"]
+    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cpsdev.co.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}"]
   }
   web = {
     homepage_url  = "https://as-web-${local.resource_name}.azurewebsites.net"

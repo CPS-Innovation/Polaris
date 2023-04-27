@@ -1,27 +1,31 @@
 ﻿using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace coordinator.Domain.Tracker
 {
+    // n.b. Entity proxy interface methods must define at most one argument for operation input.
+    // (A single tuple is acceptable)
     public interface ITrackerEntity
     {
-        Task Reset(string transactionId);
+        Task Reset((DateTime t, string transactionId) arg);
         Task SetValue(TrackerEntity tracker);
         Task<TrackerDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
-        Task RegisterUnableToConvertDocumentToPdf(string documentId);
-        Task RegisterUnexpectedPdfDocumentFailure(string documentId);
-        Task RegisterUnexpectedPdfPcdRequestFailure(int id);
-        Task RegisterIndexed(string documentId);
-        Task RegisterOcrAndIndexFailure(string documentId);
-        Task RegisterCompleted();
-        Task RegisterFailed();
-        Task RegisterDeleted();
-        Task<List<TrackerDocumentDto>> GetDocuments();
+        Task RegisterUnableToConvertDocumentToPdf((DateTime t, string documentId) arg);
+        Task RegisterUnexpectedPdfDocumentFailure((DateTime t, string documentId) arg);
+        Task RegisterUnexpectedPdfPcdRequestFailure((DateTime t, int id) arg);
+        Task RegisterIndexed((DateTime t, string documentId) arg);
+        Task RegisterOcrAndIndexFailure((DateTime t, string documentId) arg);
+        Task RegisterCompleted(DateTime t);
+        Task RegisterFailed(DateTime t);
+        Task RegisterDeleted(DateTime t);
+        Task<List<TrackerCmsDocumentDto>> GetDocuments();
         Task ClearDocuments();
+        Task<bool> AnyDocumentsFailed();
         Task<bool> AllDocumentsFailed();
     }
 }

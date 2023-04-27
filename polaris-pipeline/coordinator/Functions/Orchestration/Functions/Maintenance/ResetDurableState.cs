@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Net;
-using System.Net.Http;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Common.Configuration;
-using Common.Constants;
 using Common.Logging;
-using DurableTask.AzureStorage;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Maintenance;
@@ -17,52 +13,119 @@ namespace coordinator.Functions.Orchestration.Functions.Maintenance;
 public class ResetDurableState
 {
     private readonly ILogger<ResetDurableState> _logger;
-    private readonly IConfiguration _configuration;
-
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
+    private const int DefaultPageSize = 100;
+    private const string TrackerEntityName = "trackerentity";
 
-    public ResetDurableState(ILogger<ResetDurableState> logger, IConfiguration configuration)
+    // {second} {minute} {hour} {day} {month} {day-of-week}
+    private const string TimerStartTime = "0 0 3 * * *";
+
+    public ResetDurableState(ILogger<ResetDurableState> logger)
     {
         _logger = logger;
-        _configuration = configuration;
     }
     
     [FunctionName("ResetDurableState")]
-    public async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Function, "delete", 
-        Route = RestApi.ResetDurableState)] HttpRequestMessage req, [DurableClient] IDurableClient client)
+    public async Task RunAsync(
+        [TimerTrigger(TimerStartTime)] TimerInfo myTimer, 
+        [DurableClient] IDurableOrchestrationClient client)
     {
+        var correlationId = Guid.NewGuid();
         try
         {
-            var correlationId = Guid.NewGuid();
-            _logger.LogMethodEntry(correlationId, LoggingName, string.Empty);
-            
-            var connectionString = _configuration[ConfigKeys.CoordinatorKeys.AzureWebJobsStorage];
-            var settings = new AzureStorageOrchestrationServiceSettings
-            {
-                StorageConnectionString = connectionString,
-                TaskHubName = client.TaskHubName
-            };
-            
-            var storageService = new AzureStorageOrchestrationService(settings);
+            await TerminateActiveOrchestrations(client, correlationId);
 
-            // Delete all Azure Storage tables, blobs, and queues in the task hub
-            _logger.LogMethodFlow(correlationId, LoggingName, $"Deleting all storage resources for task hub {settings.TaskHubName}...");
-            await storageService.DeleteAsync();
-            
-            // Wait for a minute to allow Azure Storage time to reset itself, otherwise it won't recreate resources with the same names as before.
-            _logger.LogMethodFlow(correlationId, LoggingName, "The delete operation completed. Waiting one minute before recreating...");
-            await Task.Delay(TimeSpan.FromMinutes(1));
-            
-            // Optional: Recreate all the Azure Storage resources for this task hub. This happens automatically whenever the function app restarts,
-            // so it's not a required step, but it will slightly improve first-user performance via faster warm-up times
-            _logger.LogMethodFlow(correlationId, LoggingName, $"Recreating storage resources for task hub {settings.TaskHubName}...");
-            await storageService.CreateIfNotExistsAsync();
-            
-            return req.CreateResponse(HttpStatusCode.OK);
+            await Task.Delay(TimeSpan.FromMinutes(10)); //to allow time for any terminations to complete
+            var purgedInstances = await PurgeOrchestrationHistory(client, correlationId);
+
+            await PurgeDurableEntityInstanceData(client, correlationId, purgedInstances);
         }
         catch (Exception ex)
         {
-            return req.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            _logger.LogMethodError(correlationId, LoggingName, ex.Message, ex);
         }
+    }
+
+    private async Task TerminateActiveOrchestrations(IDurableOrchestrationClient client, Guid correlationId)
+    {
+        _logger.LogMethodFlow(correlationId, LoggingName, "Overnight clear-down - first, terminate running durable instances");
+
+        var runningInstances = new HashSet<string>();
+        var terminateCondition = CreateOrchestrationQuery(new[]
+        {
+            OrchestrationRuntimeStatus.Running,
+            OrchestrationRuntimeStatus.Pending,
+            OrchestrationRuntimeStatus.Suspended,
+            OrchestrationRuntimeStatus.ContinuedAsNew
+        });
+        
+        do
+        {
+            var statusQueryResult = await client.ListInstancesAsync(terminateCondition, CancellationToken.None);
+            terminateCondition.ContinuationToken = statusQueryResult.ContinuationToken;
+
+            var instancesToTerminate = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToHashSet();
+            runningInstances.UnionWith(instancesToTerminate);
+            
+            await Task.WhenAll(instancesToTerminate.Select(async instanceId => await client.TerminateAsync(instanceId, "Forcibly terminated by overnight clear-down")));
+        } while (terminateCondition.ContinuationToken != null);
+        
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {runningInstances.Count} active durable instances forcibly terminated");
+    }
+
+    private async Task<HashSet<string>> PurgeOrchestrationHistory(IDurableOrchestrationClient client, Guid correlationId)
+    {
+        _logger.LogMethodFlow(correlationId, LoggingName, "Overnight clear-down - second, purge durable instance history");
+        
+        var orchestrationInstances = new HashSet<string>();
+        var purgeCondition = CreateOrchestrationQuery(new[]
+        {
+            OrchestrationRuntimeStatus.Completed,
+            OrchestrationRuntimeStatus.Canceled,
+            OrchestrationRuntimeStatus.Failed,
+            OrchestrationRuntimeStatus.Terminated
+        });
+        
+        do
+        {
+            var statusQueryResult = await client.ListInstancesAsync(purgeCondition, CancellationToken.None);
+            purgeCondition.ContinuationToken = statusQueryResult.ContinuationToken;
+            
+            var instancesToPurge = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToHashSet();
+            orchestrationInstances.UnionWith(instancesToPurge);
+
+            await Task.WhenAll(instancesToPurge.Select(async instanceId => await client.PurgeInstanceHistoryAsync(instanceId)));
+        } while (purgeCondition.ContinuationToken != null);
+            
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {orchestrationInstances.Count} durable orchestration instances purged from history.");
+        return orchestrationInstances;
+    }
+
+    private async Task PurgeDurableEntityInstanceData(IDurableOrchestrationClient client, Guid correlationId, IReadOnlyCollection<string> purgedInstances)
+    {
+        if (purgedInstances.Count == 0)
+        {
+            _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - no entity-specific instances found - clear-down complete");
+            return;
+        }
+
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - third, purge durable entity instance history for {purgedInstances.Count} entities");
+        
+        await Task.WhenAll(purgedInstances.Select(async instanceId => await client.PurgeInstanceHistoryAsync($"@{TrackerEntityName}@{instanceId}")));
+        
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Durable entity history for {purgedInstances.Count} entities purged - clear-down complete");
+    }
+
+    private static OrchestrationStatusQueryCondition CreateOrchestrationQuery(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses)
+    {
+        var condition = new OrchestrationStatusQueryCondition
+        {
+            CreatedTimeFrom = DateTime.MinValue,
+            CreatedTimeTo = DateTime.UtcNow,
+            RuntimeStatus = runtimeStatuses,
+            PageSize = DefaultPageSize,
+            ContinuationToken = null
+        };
+        return condition;
     }
 }

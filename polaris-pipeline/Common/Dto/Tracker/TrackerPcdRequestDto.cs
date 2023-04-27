@@ -1,16 +1,19 @@
-﻿using Common.Dto.FeatureFlags;
+﻿using Common.Dto.Case.PreCharge;
 using System;
 
 namespace Common.Dto.Tracker
 {
     public class TrackerPcdRequestDto : BaseTrackerDocumentDto
     {
-        public TrackerPcdRequestDto(Guid polarisDocumentId, int polarisDocumentVersionId, int pcdRequestId, PresentationFlagsDto presentationFlags)
-            : base(polarisDocumentId, polarisDocumentVersionId, $"PCD-{pcdRequestId}", 1, presentationFlags)
+        public TrackerPcdRequestDto() 
+        { }
+
+        public TrackerPcdRequestDto(Guid polarisDocumentId, int polarisDocumentVersionId, PcdRequestDto pcdRequest)
+            : base(polarisDocumentId, polarisDocumentVersionId, $"PCD-{pcdRequest.Id}", 1, pcdRequest.PresentationFlags)
         {
-            PcdRequestId = pcdRequestId;
+            PcdRequest = pcdRequest;
         }
 
-        public int PcdRequestId { get; set; }
+        public PcdRequestDto PcdRequest { get; set; }
     }
 }

@@ -35,6 +35,11 @@ export const initialState = {
     missingDocs: [],
     results: { status: "loading" },
   },
+  errorModal: {
+    show: false,
+    message: "",
+    title: "",
+  },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -239,6 +244,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
       }),
     [dispatch]
   );
+
+  const handleCloseErrorModal = useCallback(
+    () =>
+      dispatch({
+        type: "HIDE_ERROR_MODAL",
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdfInNewTab,
@@ -254,5 +268,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleRemoveRedaction,
     handleRemoveAllRedactions,
     handleSavedRedactions,
+    handleCloseErrorModal,
   };
 };

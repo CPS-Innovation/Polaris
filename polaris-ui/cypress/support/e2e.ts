@@ -33,6 +33,7 @@ Cypress.on("test:before:run:async", async () => {
     sourceName: Cypress.env().REACT_APP_MOCK_API_SOURCE,
     baseUrl: Cypress.env().REACT_APP_GATEWAY_BASE_URL,
     maxDelayMs: Cypress.env().REACT_APP_MOCK_API_MAX_DELAY,
+    publicUrl: "",
   });
 });
 
@@ -47,16 +48,10 @@ declare global {
       overrideRoute(
         apiRoute: string,
         response:
-          | { type: "break"; httpStatusCode: number }
+          | { type: "break"; httpStatusCode: number; body?: any }
           | { type: "delay"; timeMs: number }
-          | { type?: false; body: any }
-      ): Chainable<AUTWindow>;
-      overridePostRoute(
-        apiRoute: string,
-        response:
-          | { type: "break"; httpStatusCode: number; body: any }
-          | { type: "delay"; timeMs: number }
-          | { type?: false; body: any }
+          | { type?: false; body: any },
+        method?: "get" | "post" | "put"
       ): Chainable<AUTWindow>;
     }
   }

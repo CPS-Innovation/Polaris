@@ -1,4 +1,6 @@
+using Common.Validators;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace coordinator.Domain;
 
@@ -12,9 +14,15 @@ public abstract class BasePipelinePayload
         CorrelationId = correlationId;
     }
 
+    [Required]
     public string CmsCaseUrn { get; set; }
+
+    [RequiredLongGreaterThanZero]
     public long CmsCaseId { get; set; }
+
+    [Required]
     public Guid CorrelationId { get; set; }
+
     public Guid PolarisDocumentId { get; init; }
 
 }

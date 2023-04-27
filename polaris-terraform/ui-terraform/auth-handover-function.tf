@@ -10,7 +10,7 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
     "WEBSITE_CONTENTOVERVNET"                  = "1"
@@ -19,8 +19,8 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_auth_handover_file_share.name
     "AzureWebJobsStorage"                      = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "DdeiBaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiBaseUrl"                              = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                            = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
 
   site_config {

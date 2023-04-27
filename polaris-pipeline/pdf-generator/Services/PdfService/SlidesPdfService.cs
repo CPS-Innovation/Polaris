@@ -3,7 +3,7 @@ using System.IO;
 using Aspose.Slides;
 using Aspose.Slides.Export;
 using pdf_generator.Domain.Exceptions;
-using pdf_generator.Factories;
+using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
 {

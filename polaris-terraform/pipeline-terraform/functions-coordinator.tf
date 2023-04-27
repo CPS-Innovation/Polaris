@@ -13,7 +13,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai.instrumentation_key
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
@@ -31,8 +31,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "BlobServiceContainerName"                 = "documents"
     "BlobExpirySecs"                           = 3600
     "BlobUserDelegationKeyExpirySecs"          = 3600
-    "DdeiBaseUrl"                            = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                          = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiBaseUrl"                              = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                            = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"   = data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key
   }

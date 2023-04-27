@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Dto.Request;
-using Common.Exceptions.Contracts;
+using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Services.OcrService;
 using Common.Services.SearchIndexService.Contracts;

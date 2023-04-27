@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
@@ -17,11 +18,18 @@ import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
 import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
+import { ErrorModalContent } from "../../../../common/presentation/components/ErrorModalContent";
+import {
+  useAppInsightsTrackEvent,
+  useAppInsightsTrackPageView,
+} from "../../../../common/hooks/useAppInsightsTracks";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
+  useAppInsightsTrackPageView("Case Details Page");
+  const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
@@ -33,6 +41,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     searchTerm,
     pipelineState,
     pipelineRefreshData,
+    errorModal,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -46,6 +55,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveAllRedactions,
     handleSavedRedactions,
     handleOpenPdfInNewTab,
+    handleCloseErrorModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -66,6 +76,15 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   return (
     <>
+      {errorModal.show && (
+        <Modal isVisible handleClose={handleCloseErrorModal} type="alert">
+          <ErrorModalContent
+            title={errorModal.title}
+            message={errorModal.message}
+            handleClose={handleCloseErrorModal}
+          />
+        </Modal>
+      )}
       {showAlert && (
         <Modal
           isVisible
@@ -113,7 +132,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         />
       )}
 
-      <BackLink to={backLinkProps.to}>{backLinkProps.label}</BackLink>
+      <BackLink
+        to={backLinkProps.to}
+        onClick={() => trackEvent("Back To Find A Case")}
+      >
+        {backLinkProps.label}
+      </BackLink>
 
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
@@ -137,6 +161,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 value={searchTerm}
                 handleChange={handleSearchTermChange}
                 handleSubmit={handleLaunchSearchResults}
+                trackEventKey="Search Case Documents From Case File"
               />
 
               {accordionState.status === "loading" ? (

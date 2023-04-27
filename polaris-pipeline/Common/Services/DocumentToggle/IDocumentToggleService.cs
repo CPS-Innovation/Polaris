@@ -12,7 +12,7 @@ namespace Common.Services.DocumentToggle
         PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestDto pcdRequest);
         PresentationFlagsDto GetDefendantAndChargesPresentationFlags(DefendantAndChargesDto defendantAndCharges);
 
-        bool CanReadDocument(TrackerDocumentDto document);
-        bool CanWriteDocument(TrackerDocumentDto document);
+        bool CanReadDocument(TrackerCmsDocumentDto document);
+        bool CanWriteDocument(TrackerCmsDocumentDto document);
     }
 }

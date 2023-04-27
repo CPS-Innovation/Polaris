@@ -10,7 +10,7 @@ using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Response;
-using Common.Exceptions.Contracts;
+using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using FluentValidation;

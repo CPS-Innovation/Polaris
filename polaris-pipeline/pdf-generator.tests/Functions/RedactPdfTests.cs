@@ -13,13 +13,13 @@ using Xunit;
 using System;
 using System.Threading;
 using Common.Domain.Extensions;
-using Common.Exceptions.Contracts;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using Common.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
+using Common.Handlers.Contracts;
 
 namespace pdf_generator.tests.Functions
 {

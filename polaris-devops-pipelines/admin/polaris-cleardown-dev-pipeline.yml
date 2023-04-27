@@ -29,7 +29,7 @@ stages:
               project: $(project-id)
               Pipeline: Build
               buildDefinition: 135
-
+              
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
     dependsOn: Startup_Dev_Build_Agent
@@ -46,41 +46,41 @@ stages:
               terraformVersion: $(terraform-version)
                 
           # Terraform Init
-          #- bash: |
-          #    terraform init \
-          #      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-          #      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-          #      -backend-config="key=$TF_STATE_KEY" \
-          #      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-          #  displayName: Terraform > Init
-          #  workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-          #  env:
-          #    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-          #    TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
-          #    TF_STATE_KEY: $(terraform-key)
-          #    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
                 
           # Terraform Plan
-          #- bash: |
-          #    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -replace=restapi_object.definition
-          #  displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
-          #  workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-          #  env:
-          #    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-          #    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-          #    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-          #    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars" -target="restapi_object.definition" -replace="restapi_object.definition"
+            displayName: 'Terraform > Write Pipeline Plan, flagging search index refresh'
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                 
           # Terraform Apply
-          #- bash: |
-          #    terraform apply -auto-approve dev.tfplan
-          #  displayName: Terraform > Refresh Search Index
-          #  workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-          #  env:
-          #    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-          #    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-          #    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-          #    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+          - bash: |
+              terraform apply -auto-approve dev.tfplan
+            displayName: Terraform > Refresh Search Index
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                 
   - stage: Clear_down_BlobStorage
     displayName: Reset Document Blob Storage
@@ -99,28 +99,10 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az storage blob delete-batch --account-name $(dev-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
-                
-  - stage: Clear_down_Durable_Orchestration_State
-    displayName: Reset Durable State
-    dependsOn: Clear_down_BlobStorage
-    condition: succeeded()
-    jobs:
-      - job: Reset
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          - bash: |
-              resetUrl = "$(APP_URL)?code=$(APP_CODE)"
-              echo '${resetUrl}'
-              curl -i -X DELETE '${resetUrl}'
-            displayName: Call Coordinator
-            env:
-              APP_URL: $(dev-reset-function-url)
-              APP_CODE: $(reset-function-key)
-              
+  
   - stage: Shutdown_Dev_Build_Agent
     displayName: Shutdown Dev Build Agent
-    dependsOn: Clear_down_Durable_Orchestration_State
+    dependsOn: Clear_down_BlobStorage
     condition: succeeded()
     jobs:
       - job: Shutdown_Dev_Build_Agent

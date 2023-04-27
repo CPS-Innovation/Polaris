@@ -2,18 +2,21 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   name                      = "${local.resource_name}-cmsproxy"
   resource_group_name       = azurerm_resource_group.rg_polaris.name
   location                  = azurerm_resource_group.rg_polaris.location
-  service_plan_id           = azurerm_service_plan.asp_polaris.id
+  service_plan_id           = azurerm_service_plan.asp_polaris_proxy.id
   virtual_network_subnet_id = data.azurerm_subnet.polaris_proxy_subnet.id
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                  = "1"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = azurerm_application_insights.ai_polaris.instrumentation_key
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    "UPSTREAM_CMS_DOMAIN_NAME"                 = "10.2.177.14"
-    "UPSTREAM_CMS_MODERN_DOMAIN_NAME"          = "10.2.177.55"
+    "UPSTREAM_CMS_IP"                          = "10.2.177.14"
+    "UPSTREAM_CMS_MODERN_IP"                   = "10.2.177.55"
+    "UPSTREAM_CMS_DOMAIN_NAME"                 = "cin3.cps.gov.uk"
+    "APP_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
+    "APP_SUBFOLDER_PATH"                       = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"       = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                = "fa-${local.ddei_resource_name}.azurewebsites.net"
@@ -36,7 +39,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     }
     always_on                               = true
     vnet_route_all_enabled                  = true
-    container_registry_use_managed_identity = false
+    container_registry_use_managed_identity = true
   }
   auth_settings {
     enabled                       = false

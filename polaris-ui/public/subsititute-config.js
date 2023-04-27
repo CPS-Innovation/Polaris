@@ -1,7 +1,7 @@
 // this file is required for setting config values in deployed code see #12977
 const fs = require("fs");
 
-const folder = "static/js";
+const folder = "polaris-ui/static/js";
 
 const REACT_APP_CONFIGS = Object.entries(process.env).filter(([key]) =>
   key.startsWith("REACT_APP_")

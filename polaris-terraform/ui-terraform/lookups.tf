@@ -114,3 +114,12 @@ data "azurerm_container_registry" "polaris_container_registry" {
   name                = "polariscontainers${var.env}"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
+
+data "azurerm_application_insights" "global_ai" {
+  name                = "ai-${local.resource_name}"
+  resource_group_name = "rg-${local.analytics_group_name}"
+}
+
+data "azurerm_resource_group" "rg_analytics" {
+  name                = "rg-${local.analytics_group_name}"
+}

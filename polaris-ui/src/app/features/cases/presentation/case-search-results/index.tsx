@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   BackLink,
   Button,
@@ -24,7 +25,10 @@ import { CaseSearchResult } from "../../domain/gateway/CaseSearchResult";
 
 import classes from "./index.module.scss";
 import { SectionBreak } from "../../../../common/presentation/components";
-
+import {
+  useAppInsightsTrackEvent,
+  useAppInsightsTrackPageView,
+} from "../../../../common/hooks/useAppInsightsTracks";
 export const path = "/case-search-results";
 
 const validationFailMessage = "Enter a URN in the right format";
@@ -32,6 +36,9 @@ const validationFailMessage = "Enter a URN in the right format";
 type Props = BackLinkingPageProps & {};
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
+  useAppInsightsTrackPageView("Case Search Result Page");
+  const trackEvent = useAppInsightsTrackEvent();
+
   const getDefendantNameText = (item: CaseSearchResult) => {
     let titleString =
       item.leadDefendantDetails.type === "Organisation"
@@ -64,9 +71,19 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   const { data } = state;
 
+  const handleSearch = () => {
+    trackEvent("Search URN");
+    handleSubmit();
+  };
+
   return (
     <>
-      <BackLink to={backLinkProps.to}>{backLinkProps.label}</BackLink>
+      <BackLink
+        to={backLinkProps.to}
+        onClick={() => trackEvent("Back To Search URN")}
+      >
+        {backLinkProps.label}
+      </BackLink>
       <PageContentWrapper>
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -111,7 +128,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                   className: "govuk-!-width-full",
                 }}
               />
-              <Button onClick={handleSubmit} data-testid="button-search">
+              <Button onClick={handleSearch} data-testid="button-search">
                 Search
               </Button>
             </div>
@@ -131,6 +148,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                 <div key={item.id} className={classes.result}>
                   <h2 className="govuk-heading-m ">
                     <Link
+                      onClick={() => {
+                        trackEvent("Open Case");
+                      }}
                       to={{
                         pathname: generatePath(casePath, {
                           urn: encodeURIComponent(item.uniqueReferenceNumber),

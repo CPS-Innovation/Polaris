@@ -26,6 +26,10 @@ variable "app_service_plan_gateway_sku" {
   type = string
 }
 
+variable "app_service_plan_proxy_sku" {
+  type = string
+}
+
 variable "environment_tag" {
   type        = string
   description = "Environment tag value"
@@ -41,6 +45,14 @@ variable "polaris_webapp_details" {
 
 variable "dns_server" {
   type = string
+}
+
+variable "polaris_ui_sub_folder" {
+  type = string
+  // this value must match the PUBLIC_URL=... value
+  //  as seen in the ui project top-level package.json
+  //  scripts section.
+  default = "polaris-ui"
 }
 
 variable "terraform_service_principal_display_name" {

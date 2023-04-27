@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using pdf_generator.Factories;
+using pdf_generator.Factories.Contracts;
 using Xunit;
 
 namespace pdf_generator.tests.Factories

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using coordinator.Domain.Tracker;
+using coordinator.Domain.Mapper;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,8 @@ using coordinator.Functions.DurableEntity.Client.Tracker;
 using Common.Dto.Tracker;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
+using Mapster;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -29,12 +32,13 @@ namespace coordinator.tests.Domain.Tracker
         private readonly List<DocumentDto> _documents;
         private readonly RegisterPdfBlobNameArg _pdfBlobNameArg;
         private readonly SynchroniseDocumentsArg _synchroniseDocumentsArg;
-        private readonly List<TrackerDocumentDto> _trackerDocuments;
+        private readonly List<TrackerCmsDocumentDto> _trackerDocuments;
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
         private readonly EntityStateResponse<TrackerEntity> _entityStateResponse;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly IServiceCollection _services;
 
         private readonly Mock<IDurableEntityContext> _mockDurableEntityContext;
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
@@ -53,7 +57,7 @@ namespace coordinator.tests.Domain.Tracker
                                 .With(a => a.DocumentId, _documents.First().DocumentId)
                                 .With(a => a.VersionId, _documents.First().VersionId)
                                 .Create();
-            _trackerDocuments = _fixture.Create<List<TrackerDocumentDto>>();
+            _trackerDocuments = _fixture.Create<List<TrackerCmsDocumentDto>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
             _synchroniseDocumentsArg = _fixture.Build<SynchroniseDocumentsArg>()
@@ -64,6 +68,7 @@ namespace coordinator.tests.Domain.Tracker
                 .Create();
             _entityStateResponse = new EntityStateResponse<TrackerEntity>() { EntityExists = true };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
+            _services = new ServiceCollection();    
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
@@ -82,10 +87,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task Initialise_Initialises()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
 
             _tracker.TransactionId.Should().Be(_transactionId);
-            _tracker.Documents.Should().NotBeNull();
+            _tracker.CmsDocuments.Should().NotBeNull();
             _tracker.Logs.Should().NotBeNull();
             _tracker.Status.Should().Be(TrackerStatus.Running);
 
@@ -95,99 +100,99 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterPdfBlobName_RegistersPdfBlobName()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
             await _tracker.RegisterPdfBlobName(_pdfBlobNameArg);
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
             document?.PdfBlobName.Should().Be(_pdfBlobNameArg.BlobName);
             document?.Status.Should().Be(TrackerDocumentStatus.PdfUploadedToBlob);
 
-            _tracker.Logs.Count.Should().Be(9);
+            _tracker.Logs.Count.Should().Be(10);
         }
 
         [Fact]
         public async Task RegisterDocumentAsAlreadyProcessed_Registers()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            await _tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(_pdfBlobNameArg.DocumentId, _pdfBlobNameArg.VersionId, _pdfBlobNameArg.BlobName));
+            await _tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId, _pdfBlobNameArg.VersionId, _pdfBlobNameArg.BlobName));
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.DocumentAlreadyProcessed);
 
-            _tracker.Logs.Count.Should().Be(9);
+            _tracker.Logs.Count.Should().Be(10);
         }
 
         [Fact]
         public async Task RegisterDocumentAsFailedPDFConversion_Registers()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            await _tracker.RegisterUnableToConvertDocumentToPdf(_pdfBlobNameArg.DocumentId);
+            await _tracker.RegisterUnableToConvertDocumentToPdf((It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId));
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.UnableToConvertToPdf);
 
-            _tracker.Logs.Count.Should().Be(9);
+            _tracker.Logs.Count.Should().Be(10);
         }
 
         [Fact]
         public async Task Initialisation_SetsDocumentStatusToNone()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.New);
 
-            _tracker.Logs.Count.Should().Be(8);
+            _tracker.Logs.Count.Should().Be(9);
         }
 
         [Fact]
         public async Task RegisterUnexpectedDocumentFailure_Registers()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            await _tracker.RegisterUnexpectedPdfDocumentFailure(_pdfBlobNameArg.DocumentId);
+            await _tracker.RegisterUnexpectedPdfDocumentFailure((It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId));
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.UnexpectedFailure);
 
-            _tracker.Logs.Count.Should().Be(9);
+            _tracker.Logs.Count.Should().Be(10);
         }
 
         [Fact]
         public async Task RegisterIndexed_RegistersIndexed()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            await _tracker.RegisterIndexed(_documents.First().DocumentId);
+            await _tracker.RegisterIndexed((It.IsAny<DateTime>(), _documents.First().DocumentId));
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.Indexed);
 
-            _tracker.Logs.Count.Should().Be(9);
+            _tracker.Logs.Count.Should().Be(10);
         }
 
         [Fact]
         public async Task RegisterIndexed_RegistersOcrAndIndexFailure()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            await _tracker.RegisterOcrAndIndexFailure(_documents.First().DocumentId);
+            await _tracker.RegisterOcrAndIndexFailure((It.IsAny<DateTime>(), _documents.First().DocumentId));
 
-            var document = _tracker.Documents.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _documents.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.OcrAndIndexFailure);
 
-            _tracker.Logs.Count.Should().Be(9);
+            _tracker.Logs.Count.Should().Be(10);
         }
 
         [Fact]
         public async Task RegisterCompleted_RegistersCompleted()
         {
-            await _tracker.Reset(_transactionId);
-            await _tracker.RegisterCompleted();
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
+            await _tracker.RegisterCompleted(It.IsAny<DateTime>());
 
             _tracker.Status.Should().Be(TrackerStatus.Completed);
             _tracker.ProcessingCompleted.Should().NotBeNull();
@@ -198,8 +203,8 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterFailed_RegistersFailed()
         {
-            await _tracker.Reset(_transactionId);
-            await _tracker.RegisterFailed();
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
+            await _tracker.RegisterFailed(It.IsAny<DateTime>());
 
             _tracker.Status.Should().Be(TrackerStatus.Failed);
 
@@ -209,7 +214,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task GetDocuments_ReturnsDocuments()
         {
-            _tracker.Documents = _trackerDocuments;
+            _tracker.CmsDocuments = _trackerDocuments;
             var documents = await _tracker.GetDocuments();
 
             documents.Should().BeEquivalentTo(_trackerDocuments);
@@ -218,10 +223,12 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
-            _tracker.Documents = new List<TrackerDocumentDto> {
+            _tracker.CmsDocuments = new List<TrackerCmsDocumentDto> {
                 new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
                 new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure}
             };
+
+            _tracker.PcdRequests = new List<TrackerPcdRequestDto>();
 
             var output = await _tracker.AllDocumentsFailed();
 
@@ -231,11 +238,13 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
-            _tracker.Documents = new List<TrackerDocumentDto> {
+            _tracker.CmsDocuments = new List<TrackerCmsDocumentDto> {
                 new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
                 new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure},
                 new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.PdfUploadedToBlob},
             };
+
+            _tracker.PcdRequests = new List<TrackerPcdRequestDto>();
 
             var output = await _tracker.AllDocumentsFailed();
 
@@ -308,26 +317,32 @@ namespace coordinator.tests.Domain.Tracker
         #region SynchroniseDocument
 
         [Fact]
-        public async Task SynchroniseDocument_CreatesNewDocuments()
+        public async Task SynchroniseDocument_CreatesNewDocumentsAndPcdRequests()
         {
             // Arrange
             TrackerEntity tracker = new TrackerEntity();
-            await tracker.Reset(_transactionId);
+            await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
 
             // Act
             var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
             // Assert
             tracker.VersionId.Should().Be(1);
-            tracker.Documents.Count.Should().Be(_documents.Count);
-            deltas.CreatedDocuments.Count.Should().Be(_documents.Count);
-            deltas.UpdatedDocuments.Count.Should().Be(0);
-            deltas.DeletedDocuments.Count.Should().Be(0);
+            tracker.CmsDocuments.Count.Should().Be(_documents.Count);
+            deltas.CreatedCmsDocuments.Count.Should().Be(_documents.Count);
+            deltas.UpdatedCmsDocuments.Count.Should().Be(0);
+            deltas.DeletedCmsDocuments.Count.Should().Be(0);
+            deltas.CreatedPcdRequests.Count.Should().Be(_documents.Count);
+            deltas.UpdatedPcdRequests.Count.Should().Be(0);
+            deltas.DeletedPcdRequests.Count.Should().Be(0);
             deltas.Any().Should().BeTrue();
-            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Documents[1].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Documents[2].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Logs.Count.Should().Be(8);
+            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
+            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
+            tracker.PcdRequests[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.PcdRequests[1].PolarisDocumentVersionId.Should().Be(1);
+            tracker.PcdRequests[2].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Logs.Count.Should().Be(9);
         }
 
         [Fact]
@@ -335,32 +350,118 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             TrackerEntity tracker = new TrackerEntity();
-            await tracker.Reset(_transactionId);
+            await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
+            tracker.PcdRequests.ForEach(pcd => pcd.Status = TrackerDocumentStatus.Indexed);
 
             // Act 
             var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
             // Assert
             tracker.VersionId.Should().Be(1);
-            tracker.Documents.Count.Should().Be(_documents.Count);
-            deltas.CreatedDocuments.Count.Should().Be(0);
-            deltas.UpdatedDocuments.Count.Should().Be(0);
-            deltas.DeletedDocuments.Count.Should().Be(0);
+            tracker.CmsDocuments.Count.Should().Be(_documents.Count);
+            deltas.CreatedCmsDocuments.Count.Should().Be(0);
+            deltas.UpdatedCmsDocuments.Count.Should().Be(0);
+            deltas.DeletedCmsDocuments.Count.Should().Be(0);
             deltas.Any().Should().BeFalse();
-            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Documents[1].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Documents[2].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Logs.Count.Should().Be(9);
+            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
+            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Logs.Count.Should().Be(11);
         }
+
+        [Fact]
+        public async Task SynchroniseDocument_IndexedCmsDocumentAreRetained()
+        {
+            // Arrange
+            TrackerEntity tracker = new TrackerEntity();
+            await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
+            await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
+            tracker.PcdRequests.ForEach(pcd => pcd.Status = TrackerDocumentStatus.Indexed);
+
+            // Act 
+            var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+
+            // Assert
+            tracker.VersionId.Should().Be(1);
+            tracker.CmsDocuments.Count.Should().Be(_documents.Count);
+            deltas.CreatedCmsDocuments.Count.Should().Be(0);
+            deltas.UpdatedCmsDocuments.Count.Should().Be(0);
+            deltas.DeletedCmsDocuments.Count.Should().Be(0);
+            deltas.Any().Should().BeFalse();
+            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(1);
+            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Logs.Count.Should().Be(11);
+        }
+
+        [Fact]
+        public async Task SynchroniseDocument_FailedCmsDocumentAreReprocessed()
+        {
+            // Arrange
+            TrackerEntity tracker = new TrackerEntity();
+            await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
+            await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.UnexpectedFailure);
+            tracker.PcdRequests.ForEach(pcd => pcd.Status = TrackerDocumentStatus.Indexed);
+
+            // Act 
+            var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+
+            // Assert
+            tracker.VersionId.Should().Be(2);
+            tracker.CmsDocuments.Count.Should().Be(_documents.Count);
+            deltas.CreatedCmsDocuments.Count.Should().Be(0);
+            deltas.UpdatedCmsDocuments.Count.Should().Be(3);
+            deltas.DeletedCmsDocuments.Count.Should().Be(0);
+            deltas.Any().Should().BeTrue();
+            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(2);
+            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(2);
+            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(2);
+            tracker.Logs.Count.Should().Be(14);
+        }
+
+        [Fact]
+        public async Task SynchroniseDocument_FailedPcdRequestsAreReprocessed()
+        {
+            // Arrange
+            TrackerEntity tracker = new TrackerEntity();
+            await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
+            await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
+            tracker.PcdRequests.ForEach(pcd => pcd.Status = TrackerDocumentStatus.UnexpectedFailure);
+
+            // Act 
+            var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+
+            // Assert
+            tracker.VersionId.Should().Be(2);
+            tracker.CmsDocuments.Count.Should().Be(_documents.Count);
+            deltas.CreatedCmsDocuments.Count.Should().Be(0);
+            deltas.UpdatedCmsDocuments.Count.Should().Be(0);
+            deltas.DeletedCmsDocuments.Count.Should().Be(0);
+            deltas.CreatedPcdRequests.Count.Should().Be(0);
+            deltas.UpdatedPcdRequests.Count.Should().Be(3);
+            deltas.DeletedPcdRequests.Count.Should().Be(0);
+            deltas.Any().Should().BeTrue();
+            tracker.PcdRequests[0].PolarisDocumentVersionId.Should().Be(2);
+            tracker.PcdRequests[1].PolarisDocumentVersionId.Should().Be(2);
+            tracker.PcdRequests[2].PolarisDocumentVersionId.Should().Be(2);
+            tracker.Logs.Count.Should().Be(14);
+        }
+
 
         [Fact]
         public async Task SynchroniseDocument_ChangesWithUpdatedDocumentAndVersionIds()
         {
             // Arrange
             TrackerEntity tracker = new TrackerEntity();
-            await tracker.Reset(_transactionId);
+            await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
+            tracker.PcdRequests.ForEach(pcd => pcd.Status = TrackerDocumentStatus.Indexed);
 
             // Act 
             _synchroniseDocumentsArg.Documents[1].VersionId = 111111111;
@@ -369,16 +470,16 @@ namespace coordinator.tests.Domain.Tracker
 
             // Assert
             tracker.VersionId.Should().Be(2);
-            tracker.Documents.Count.Should().Be(_documents.Count);
-            deltas.CreatedDocuments.Count.Should().Be(0);
-            deltas.UpdatedDocuments.Count.Should().Be(2);
-            deltas.DeletedDocuments.Count.Should().Be(0);
+            tracker.CmsDocuments.Count.Should().Be(_documents.Count);
+            deltas.CreatedCmsDocuments.Count.Should().Be(0);
+            deltas.UpdatedCmsDocuments.Count.Should().Be(2);
+            deltas.DeletedCmsDocuments.Count.Should().Be(0);
             deltas.Any().Should().BeTrue();
-            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Documents[1].PolarisDocumentVersionId.Should().Be(2);
-            tracker.Documents[2].PolarisDocumentVersionId.Should().Be(2);
+            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.CmsDocuments[1].PolarisDocumentVersionId.Should().Be(2);
+            tracker.CmsDocuments[2].PolarisDocumentVersionId.Should().Be(2);
 
-            tracker.Logs.Count.Should().Be(11);
+            tracker.Logs.Count.Should().Be(13);
         }
 
         [Fact]
@@ -386,31 +487,39 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             TrackerEntity tracker = new TrackerEntity();
-            await tracker.Reset(_transactionId);
+            await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
+            tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
+            tracker.PcdRequests.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
 
             // Act 
             _synchroniseDocumentsArg.Documents.RemoveAt(2);
             _synchroniseDocumentsArg.Documents.RemoveAt(1);
+            _synchroniseDocumentsArg.PcdRequests.RemoveAt(2);
             var deltas = await tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
 
             // Assert
             tracker.VersionId.Should().Be(2);
-            tracker.Documents.Count.Should().Be(1);
-            deltas.CreatedDocuments.Count.Should().Be(0);
-            deltas.UpdatedDocuments.Count.Should().Be(0);
-            deltas.DeletedDocuments.Count.Should().Be(2);
+            tracker.CmsDocuments.Count.Should().Be(1);
+            deltas.CreatedCmsDocuments.Count.Should().Be(0);
+            deltas.UpdatedCmsDocuments.Count.Should().Be(0);
+            deltas.DeletedCmsDocuments.Count.Should().Be(2);
+            deltas.CreatedPcdRequests.Count.Should().Be(0);
+            deltas.UpdatedPcdRequests.Count.Should().Be(0);
+            deltas.DeletedPcdRequests.Count.Should().Be(1);
             deltas.Any().Should().BeTrue();
-            tracker.Documents[0].PolarisDocumentVersionId.Should().Be(1);
-            tracker.Logs.Count.Should().Be(11);
+            tracker.CmsDocuments[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.PcdRequests[0].PolarisDocumentVersionId.Should().Be(1);
+            tracker.PcdRequests[1].PolarisDocumentVersionId.Should().Be(1);
+            tracker.Logs.Count.Should().Be(14);
         }
 
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsTheSame_ReturnsNothingToEvaluate()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            _tracker.Documents.Count.Should().Be(_documents.Count);
+            _tracker.CmsDocuments.Count.Should().Be(_documents.Count);
 
             var newDaysDocuments = new DocumentDto[3];
             _documents.CopyTo(newDaysDocuments);
@@ -421,21 +530,21 @@ namespace coordinator.tests.Domain.Tracker
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
-                _tracker.Documents.Count.Should().Be(_documents.Count);
+                _tracker.CmsDocuments.Count.Should().Be(_documents.Count);
             }
         }
 
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsNotTheSame_ReturnsRecordsToEvaluate()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            _tracker.Documents.Count.Should().Be(_documents.Count);
+            _tracker.CmsDocuments.Count.Should().Be(_documents.Count);
 
             var newDaysDocuments = new List<DocumentDto> { _documents.First() };
             ////only one document in today's run, the next two should be removed from the tracker and in the evaluation results
@@ -447,21 +556,21 @@ namespace coordinator.tests.Domain.Tracker
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
-                _tracker.Documents.Count.Should().Be(1);
+                _tracker.CmsDocuments.Count.Should().Be(1);
             }
         }
 
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_DocumentsTheSameExceptForANewVersionOfOneDoc_ReturnsOneRecordToEvaluate()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            _tracker.Documents.Count.Should().Be(_documents.Count);
+            _tracker.CmsDocuments.Count.Should().Be(_documents.Count);
 
             var newDaysDocuments = new DocumentDto[3];
             _documents.CopyTo(newDaysDocuments);
@@ -476,13 +585,13 @@ namespace coordinator.tests.Domain.Tracker
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
-                _tracker.Documents.Count.Should().Be(_documents.Count);
-                var newVersion = _tracker.Documents.Find(x => x.CmsDocumentId == modifiedDocumentId);
+                _tracker.CmsDocuments.Count.Should().Be(_documents.Count);
+                var newVersion = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == modifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
                 newVersion?.CmsVersionId.Should().Be(newVersionId);
@@ -492,9 +601,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task RegisterDocumentIds_TheNextDaysRun_OneDocumentRemovedAndOneANewVersion_ReturnsTwoRecordToEvaluate()
         {
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(_synchroniseDocumentsArg);
-            _tracker.Documents.Count.Should().Be(_documents.Count);
+            _tracker.CmsDocuments.Count.Should().Be(_documents.Count);
 
             var newDaysDocuments = new List<DocumentDto>
             {
@@ -518,14 +627,14 @@ namespace coordinator.tests.Domain.Tracker
                 .With(a => a.CorrelationId, _correlationId)
                 .Create();
 
-            await _tracker.Reset(_transactionId);
+            await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.SynchroniseDocuments(newDaysDocumentIdsArg);
 
             using (new AssertionScope())
             {
-                _tracker.Documents.Count.Should().Be(2);
-                var newVersion = _tracker.Documents.Find(x => x.CmsDocumentId == modifiedDocumentId);
-                var unmodifiedDocument = _tracker.Documents.Find(x => x.CmsDocumentId == unmodifiedDocumentId);
+                _tracker.CmsDocuments.Count.Should().Be(2);
+                var newVersion = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == modifiedDocumentId);
+                var unmodifiedDocument = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == unmodifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
                 newVersion?.CmsVersionId.Should().Be(newVersionId);
@@ -533,11 +642,25 @@ namespace coordinator.tests.Domain.Tracker
                 unmodifiedDocument.Should().NotBeNull();
                 unmodifiedDocument?.CmsVersionId.Should().Be(unmodifiedDocumentVersionId);
 
-                var searchResultForDocumentRemovedFromCms = _tracker.Documents.Find(x => x.CmsDocumentId == documentRemovedFromCmsId);
+                var searchResultForDocumentRemovedFromCms = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == documentRemovedFromCmsId);
                 searchResultForDocumentRemovedFromCms.Should().BeNull();
             }
         }
 
         #endregion
+
+        [Fact]
+        public void TrackerEntityMapsToTrackerDto()
+        {
+            // Arrange
+            _services.RegisterMapsterConfiguration();
+            var trackerEntity = _fixture.Create<TrackerEntity>();
+
+            // Act
+            var trackerDto = trackerEntity.Adapt<TrackerDto>();
+
+            // Assert
+            trackerDto.Documents.Count.Should().Be(trackerEntity.CmsDocuments.Count + trackerEntity.PcdRequests.Count);
+        }
     }
 }

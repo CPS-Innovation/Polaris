@@ -17,7 +17,8 @@ namespace coordinator.Functions.DurableEntity.Client
         internal bool Success;
         internal IActionResult Error;
         internal Guid CorrelationId;
-        internal TrackerDocumentDto Document;
+        internal TrackerCmsDocumentDto CmsDocument;
+        internal TrackerPcdRequestDto PcdRequest;
     }
 
     public class BaseClient
@@ -65,17 +66,21 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
-            var document = stateResponse.EntityState.Documents.GetDocument(documentId);
-            if (document == null)
+            response.CmsDocument = stateResponse.EntityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
+            if(response.CmsDocument == null )
             {
-                var baseMessage = $"No document found with id '{documentId}'";
-                log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
-                response.Error = new NotFoundObjectResult(baseMessage);
-                return response;
+                response.PcdRequest = stateResponse.EntityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId == documentId);
+
+                if (response.PcdRequest == null)
+                {
+                    var baseMessage = $"No CMS document or PCD Request found with id '{documentId}'";
+                    log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
+                    response.Error = new NotFoundObjectResult(baseMessage);
+                    return response;
+                }
             }
 
             response.Success = true;
-            response.Document = document;
 
             return response;
         }

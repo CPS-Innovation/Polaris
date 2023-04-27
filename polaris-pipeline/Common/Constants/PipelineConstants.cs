@@ -5,6 +5,8 @@
         public const string ContentType = "Content-Type";
         public const string CorrelationId = "Correlation-Id";
         public const string CmsAuthValues = "Cms-Auth-Values";
+        public const string Filetype = nameof(Filetype);
+        public const string DocumentId = nameof(DocumentId);
     }
 
     public static class HttpHeaderValues
@@ -56,6 +58,7 @@
     {
         public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
         public const string PipelineCoordinatorFunctionAppKey = "PolarisPipelineCoordinatorFunctionAppKey";
+        public const string PipelineCoordinatorDurableExtensionCode = "PolarisPipelineCoordinatorDurableExtensionCode";
 
         public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
         public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
@@ -66,7 +69,6 @@
         public static class CoordinatorKeys
         {
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
-            public const string PdfGeneratorUrl = "PdfGeneratorUrl";
             public const string TextExtractorUrl = "TextExtractorUrl";
             public const string AzureWebJobsStorage = "AzureWebJobsStorage";
         }

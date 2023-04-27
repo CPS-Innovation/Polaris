@@ -48,4 +48,9 @@ export type CombinedState = {
     }[];
     results: AsyncResult<MappedTextSearchResult>;
   };
+  errorModal: {
+    show: boolean;
+    message: string;
+    title: string;
+  };
 };

@@ -3,7 +3,9 @@ import { CorrelationId, correlationIds } from "../../../support/correlation-ids"
 
 const { API_ROOT_DOMAIN } = Cypress.env()
 
-export const makeRoutes = (authHeaders: any) => {
+export type ApiRoutes = ReturnType<typeof makeApiRoutes>
+
+export const makeApiRoutes = (authHeaders: any) => {
   const LIST_CASES = (urn: string, correlationId: CorrelationId = "BLANK") => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases`,
     headers: {

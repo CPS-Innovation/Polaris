@@ -108,3 +108,8 @@ data "azurerm_key_vault" "terraform_key_vault" {
   name                = "kv${var.env}terraform"
   resource_group_name = "rg-terraform"
 }
+
+data "azurerm_application_insights" "global_ai" {
+  name                = "ai-${local.global_name}"
+  resource_group_name = "rg-${local.analytics_group_name}"
+}

@@ -8,14 +8,17 @@ namespace coordinator.Domain.Tracker;
 
 public class SynchroniseDocumentsArg
 {
-    public SynchroniseDocumentsArg(string caseUrn, long caseId, DocumentDto[] documents, PcdRequestDto[] pcdRequests, Guid correlationId)
+    public SynchroniseDocumentsArg(DateTime currentUtcDateTime, string caseUrn, long caseId, DocumentDto[] documents, PcdRequestDto[] pcdRequests, Guid correlationId)
     {
+        CurrentUtcDateTime = currentUtcDateTime;
         CaseUrn = caseUrn ?? throw new ArgumentNullException(nameof(caseUrn));
         CaseId = caseId;
         Documents = documents?.ToList() ?? throw new ArgumentNullException(nameof(documents));
         PcdRequests = pcdRequests?.ToList() ?? throw new ArgumentNullException(nameof(pcdRequests));
         CorrelationId = correlationId;
     }
+
+    public DateTime CurrentUtcDateTime { get; set; }
 
     public string CaseUrn { get; set; }
 

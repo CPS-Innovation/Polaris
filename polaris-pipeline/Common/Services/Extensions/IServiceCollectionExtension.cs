@@ -1,13 +1,10 @@
-﻿using Azure;
-using Azure.Identity;
+﻿using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Common.Clients;
 using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
-using Common.Dto.Response;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
@@ -20,7 +17,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 
 namespace Common.Services.Extensions
 {
@@ -62,7 +58,6 @@ namespace Common.Services.Extensions
                 return new PolarisStorageClient(blobServiceClient, blobServiceContainerName, logger);
             }));
         }
-
 
         public static void AddBlobSasGenerator(this IServiceCollection services)
         {
