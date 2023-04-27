@@ -31,7 +31,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly string _transactionId;
         private readonly List<DocumentDto> _documents;
         private readonly RegisterPdfBlobNameArg _pdfBlobNameArg;
-        private readonly SynchroniseDocumentsArg _synchroniseDocumentsArg;
+        //private readonly SynchroniseDocumentsArg _synchroniseDocumentsArg;
         private readonly List<TrackerCmsDocumentDto> _trackerDocuments;
         private readonly string _caseUrn;
         private readonly long _caseId;

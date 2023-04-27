@@ -47,18 +47,17 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var log = context.CreateReplaySafeLogger(_log);
-            var currentCaseId = payload.CmsCaseId;
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve tracker for case {payload.CmsCaseId}");
             var tracker = CreateOrGetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
 
             try
             {
-                var deadline = context.CurrentUtcDateTime.Add(_timeout);
+                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Run main orchestration for case {payload.CmsCaseId}");
+                var orchestratorTask = RunCaseOrchestrator(context, tracker, payload);
 
                 using var cts = new CancellationTokenSource();
-                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Run main orchestration for case {currentCaseId}");
-                var orchestratorTask = RunCaseOrchestrator(context, tracker, payload);
+                var deadline = context.CurrentUtcDateTime.Add(_timeout);
                 var timeoutTask = context.CreateTimer(deadline, cts.Token);
 
                 var result = await Task.WhenAny(orchestratorTask, timeoutTask);
@@ -91,16 +90,17 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting tracker for {context.InstanceId}");
             await tracker.Reset((context.CurrentUtcDateTime, context.InstanceId));
-            var (cmsDocuments, pcdRequests) = await RetrieveDocumentsAndPcdRequests(context, tracker, loggingName, log, payload);
 
-            var documentTasks = await GetDocumentTasks(context, tracker, 1, payload, cmsDocuments, pcdRequests, log);
+            var documents = await GetDocuments(context, tracker, loggingName, log, payload);
+            var documentTasks = await GetDocumentTasks(context, tracker, 1, payload, documents, log);
+
             for(var retry=1;  retry <= 3 && documentTasks.Any(); retry++)
             {
                 await Task.WhenAll(documentTasks.Select(BufferCall));
 
                 if (await tracker.AnyDocumentsFailed())
                 {
-                    documentTasks = await GetDocumentTasks(context, tracker, retry+1, payload, cmsDocuments, pcdRequests, log);
+                    documentTasks = await GetDocumentTasks(context, tracker, retry+1, payload, documents, log);
                 }
             }
 
@@ -120,13 +120,12 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 IDurableOrchestrationContext context,
                 ITrackerEntity tracker,
                 int retry,
-                CaseOrchestrationPayload caseDocumentPayload, 
-                DocumentDto[] cmsDocuments,
-                PcdRequestDto[] pcdRequests,
+                CaseOrchestrationPayload caseDocumentPayload,
+                (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges) documents,
                 ILogger log
             )
         {
-            var deltas = await SynchroniseTrackerDocuments(context.CurrentUtcDateTime, tracker, loggingName, log, caseDocumentPayload, cmsDocuments, pcdRequests);
+            var deltas = await SynchroniseTrackerDocuments(context.CurrentUtcDateTime, tracker, loggingName, log, caseDocumentPayload, documents);
 
             var logMessage = $"Refresh Documents, retry {retry}, CMS:({deltas.CreatedCmsDocuments.Count} created, {deltas.UpdatedCmsDocuments.Count} updated, {deltas.DeletedCmsDocuments.Count} deleted). PCD :({deltas.CreatedPcdRequests.Count} created, {deltas.DeletedPcdRequests.Count} deleted)";
             log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, logMessage);
@@ -188,15 +187,12 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges)> RetrieveDocumentsAndPcdRequests(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
-            var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
+            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
 
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting list of Documents for case {payload.CmsCaseId}");
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
             var documents = await context.CallActivityAsync<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
-
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
 
             return documents;
         }
@@ -213,8 +209,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 
-            var arg = new SynchroniseDocumentsArg(t, payload.CmsCaseUrn, payload.CmsCaseId, documents, pcdRequests, payload.CorrelationId);
-            var deltas = await tracker.SynchroniseDocuments(arg);
+            var synchroniseDocumentArgs = (t, payload.CmsCaseUrn, payload.CmsCaseId, documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges, payload.CorrelationId);
+            var deltas = await tracker.SynchroniseDocuments(synchroniseDocumentArgs);
 
             return deltas;
         }

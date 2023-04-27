@@ -1,4 +1,5 @@
-﻿using Common.Dto.Case.PreCharge;
+﻿using Common.Dto.Case;
+using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Domain.Tracker;
@@ -69,7 +70,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.CompletedTask;
         }
 
-        public Task<TrackerDeltasDto> SynchroniseDocuments(SynchroniseDocumentsArg arg)
+        public Task<TrackerDeltasDto> SynchroniseDocuments((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges, Guid CorrelationId) arg)
         {
             if (CmsDocuments == null)
                 CmsDocuments = new List<TrackerCmsDocumentDto>();
@@ -77,8 +78,8 @@ namespace coordinator.Functions.DurableEntity.Entity
             if (PcdRequests == null)
                 PcdRequests = new List<TrackerPcdRequestDto>();
 
-            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(arg.Documents);
-            var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(arg.PcdRequests);
+            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(arg.CmsDocuments.ToList());
+            var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(arg.PcdRequests.ToList());
 
             TrackerDeltasDto deltas = new TrackerDeltasDto
             {

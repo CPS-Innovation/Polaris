@@ -2,11 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Domain.Extensions;
+using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Logging;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
+using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -33,10 +35,11 @@ namespace coordinator.Functions.ActivityFunctions.Case
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
+            #region Validate-Inputs
             if (payload == null)
                 throw new ArgumentException("Payload cannot be null.");
             if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
@@ -47,18 +50,35 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 throw new ArgumentException("Cms Auth Token cannot be null");
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
+            #endregion
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            var caseDocuments = await _ddeiService.ListDocumentsAsync(
-              payload.CmsCaseUrn,
-              payload.CmsCaseId.ToString(),
-              payload.CmsAuthValues,
-              payload.CorrelationId);
+            DocumentDto[] documents = await _ddeiService.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
-            _log.LogMethodExit(payload.CorrelationId, loggingName, caseDocuments.ToJson());
-            return (caseDocuments
+            var cmsDocuments =
+                documents
+                    .Select(doc => MapPresentationFlags(doc))
+                    .ToArray();
+
+            var caseArgDto = new DdeiCmsCaseArgDto
+            {
+                Urn = payload.CmsCaseUrn,
+                CaseId = payload.CmsCaseId,
+                CmsAuthValues = payload.CmsAuthValues,
+                CorrelationId = payload.CorrelationId
+            };
+            var @case = await _ddeiService.GetCase(caseArgDto);
+
+            var pcdRequests 
+                = @case.PreChargeDecisionRequests
                     .Select(MapPresentationFlags)
-                    .ToArray(), new PcdRequestDto[0]);
+                    .ToArray();
+            var defendantsAndCharges 
+                 = @case.DefendantsAndCharges
+                    .Select(MapPresentationFlags)
+                    .ToArray();
+
+            return (documents, pcdRequests, defendantsAndCharges);
         }
 
         private DocumentDto MapPresentationFlags(DocumentDto document)
