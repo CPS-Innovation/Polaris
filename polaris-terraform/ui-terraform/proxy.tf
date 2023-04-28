@@ -32,7 +32,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   site_config {
     ftps_state     = "FtpsOnly"
     http2_enabled  = true
-    ip_restriction = []
     application_stack {
       docker_image     = "nginx"
       docker_image_tag = "latest"
