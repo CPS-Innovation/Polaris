@@ -10,6 +10,7 @@ using PolarisGateway.Domain.Validation;
 using PolarisGateway.Wrappers;
 using System;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions
@@ -63,7 +64,7 @@ namespace PolarisGateway.Functions
 
             return result;
         }
-
+        
         private static Guid EstablishCorrelation(HttpRequest req)
         {
             if (!req.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationId) || string.IsNullOrWhiteSpace(correlationId))

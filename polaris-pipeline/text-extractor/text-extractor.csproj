@@ -26,9 +26,6 @@
    </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Handlers\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
