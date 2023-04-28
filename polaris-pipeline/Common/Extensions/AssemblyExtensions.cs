@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Globalization;
+using System.Net;
 using System.Reflection;
 using Common.Health.Status;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +15,29 @@ public static class AssemblyExtensions
             return new JsonResult(new {status = "Assembly version could not be retrieved"}) {StatusCode = (int) HttpStatusCode.BadRequest};
         
         var assemblyName = currentAssembly.GetName();
-        var version = currentAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-
+        
         var response = new AssemblyStatus
         {
             Name = assemblyName.Name,
-            Version = version
+            Version = assemblyName.Version?.ToString(),
+            LastBuilt = GetBuildDate(currentAssembly)
         };
         return new JsonResult(response) {StatusCode = (int) HttpStatusCode.OK};
+    }
+    
+    private static DateTime GetBuildDate(Assembly assembly)
+    {
+        const string buildVersionMetadataPrefix = "+build";
+
+        var attribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        if (attribute?.InformationalVersion == null) return default;
+        
+        var value = attribute.InformationalVersion;
+        var index = value.IndexOf(buildVersionMetadataPrefix, StringComparison.Ordinal);
+        if (index <= 0) return default;
+        
+        value = value[(index + buildVersionMetadataPrefix.Length)..];
+        return DateTime.TryParseExact(value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result) 
+            ? result : default;
     }
 }
