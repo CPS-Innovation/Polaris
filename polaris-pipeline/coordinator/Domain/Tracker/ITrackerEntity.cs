@@ -4,7 +4,6 @@ using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace coordinator.Domain.Tracker
@@ -14,20 +13,13 @@ namespace coordinator.Domain.Tracker
     public interface ITrackerEntity
     {
         Task Reset((DateTime t, string transactionId) arg);
+        Task ClearDocuments();
         Task SetValue(TrackerEntity tracker);
-        Task<TrackerDeltasDto> SynchroniseDocuments((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantsAndCharges, Guid CorrelationId) arg);
+        Task<TrackerDeltasDto> GetCaseDocumentChanges((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId) arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
-        Task RegisterUnableToConvertDocumentToPdf((DateTime t, string documentId) arg);
-        Task RegisterUnexpectedPdfDocumentFailure((DateTime t, string documentId) arg);
-        Task RegisterUnexpectedPdfPcdRequestFailure((DateTime t, int id) arg);
-        Task RegisterIndexed((DateTime t, string documentId) arg);
-        Task RegisterOcrAndIndexFailure((DateTime t, string documentId) arg);
-        Task RegisterCompleted(DateTime t);
-        Task RegisterFailed(DateTime t);
-        Task RegisterDeleted(DateTime t);
-        Task<List<TrackerCmsDocumentDto>> GetDocuments();
-        Task ClearDocuments();
+        Task RegisterStatus((DateTime t, string documentId, TrackerDocumentStatus status, TrackerLogType logType) arg);
+        Task RegisterCompleted((DateTime t, bool success) arg);
         Task<bool> AnyDocumentsFailed();
         Task<bool> AllDocumentsFailed();
     }

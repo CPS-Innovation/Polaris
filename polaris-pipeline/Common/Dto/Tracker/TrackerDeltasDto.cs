@@ -1,4 +1,4 @@
-﻿using Common.Dto.Case.PreCharge;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,14 +16,20 @@ namespace Common.Dto.Tracker
         public List<TrackerPcdRequestDto> UpdatedPcdRequests { get; set; }
         public List<TrackerPcdRequestDto> DeletedPcdRequests { get; set; }
 
-        public int CreatedCount { get {  return CreatedCmsDocuments.Count + CreatedPcdRequests.Count; } }
-        public int UpdatedCount { get { return UpdatedCmsDocuments.Count + UpdatedPcdRequests.Count; } }
-        public int DeletedCount { get { return DeletedCmsDocuments.Count + DeletedPcdRequests.Count; } }
+        // Defendants And Charges
+        public TrackerDefendantsAndChargesDto CreatedDefendantsAndCharges { get; set; }
+        public TrackerDefendantsAndChargesDto UpdatedDefendantsAndCharges { get; set; }
+        public int? DeletedDefendantsAndChargesCaseId { get; set; }
+
+        public int CreatedCount { get { return CreatedCmsDocuments.Count + CreatedPcdRequests.Count + (CreatedDefendantsAndCharges != null ? 1 : 0); } }
+        public int UpdatedCount { get { return UpdatedCmsDocuments.Count + UpdatedPcdRequests.Count + (UpdatedDefendantsAndCharges != null ? 1 : 0); } }
+        public int DeletedCount { get { return DeletedCmsDocuments.Count + DeletedPcdRequests.Count + (DeletedDefendantsAndChargesCaseId != null ? 1 : 0); } }
 
         public bool Any()
         {
             return CreatedCmsDocuments.Any() || UpdatedCmsDocuments.Any() || DeletedCmsDocuments.Any() ||
-                   CreatedPcdRequests.Any() || UpdatedPcdRequests.Any() || DeletedPcdRequests.Any();
+                   CreatedPcdRequests.Any() || UpdatedPcdRequests.Any() || DeletedPcdRequests.Any() ||
+                   CreatedDefendantsAndCharges != null || UpdatedDefendantsAndCharges != null || DeletedDefendantsAndChargesCaseId != null;
         }
     }
 }

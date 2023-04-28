@@ -126,8 +126,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId);
-            _mockTracker.Verify(tracker => tracker.RegisterIndexed(arg));
+            var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed);
+            _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
         }
         
         [Fact]
@@ -144,8 +144,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
             }
             catch
             {
-                var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId);
-                _mockTracker.Verify(tracker => tracker.RegisterUnexpectedPdfDocumentFailure(arg));
+                var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure);
+                _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
             }
         }
 

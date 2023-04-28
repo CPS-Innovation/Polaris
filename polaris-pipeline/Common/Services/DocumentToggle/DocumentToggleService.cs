@@ -18,7 +18,13 @@ namespace Common.Services.DocumentToggle
     {
         private const string ConfigResourceName = "Common.document-toggle.config";
 
-        private List<Definition> _defintions { get; set; }
+        private static readonly PresentationFlagsDto ReadOnly = new PresentationFlagsDto
+        {
+            Read = ReadFlag.Ok,
+            Write = WriteFlag.DocTypeNotAllowed
+        };
+
+        private List<Definition> _definitions { get; set; }
 
         public static string ReadConfig()
         {
@@ -38,7 +44,7 @@ namespace Common.Services.DocumentToggle
 
             var lines = SplitConfigLines(configFileContent);
 
-            _defintions = CreateDefinitions(lines);
+            _definitions = CreateDefinitions(lines);
         }
 
         public bool CanReadDocument(TrackerCmsDocumentDto document)
@@ -87,29 +93,21 @@ namespace Common.Services.DocumentToggle
 
         public PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestDto pcdRequest)
         {
-            return new PresentationFlagsDto
-            {
-                Read = ReadFlag.Ok,
-                Write = WriteFlag.DocTypeNotAllowed
-            };
+            return ReadOnly;
         }
 
-        public PresentationFlagsDto GetDefendantAndChargesPresentationFlags(DefendantAndChargesDto defendantAndCharges)
+        public PresentationFlagsDto GetDefendantAndChargesPresentationFlags(DefendantsAndChargesListDto defendantAndCharges)
         {
-            return new PresentationFlagsDto
-            {
-                Read = ReadFlag.Ok,
-                Write = WriteFlag.DocTypeNotAllowed
-            };
+            return ReadOnly;
         }
 
-        private void AssertIsInitialised()
-        {
-            if (_defintions == null)
-            {
-                throw new DocumentToggleException("DocumentToggleService not initialised when processing document");
-            }
-        }
+        //private void AssertIsInitialised()
+        //{
+        //    if (_definitions == null)
+        //    {
+        //        throw new DocumentToggleException("DocumentToggleService not initialised when processing document");
+        //    }
+        //}
 
         private string[] SplitConfigLines(string content)
         {
@@ -181,7 +179,7 @@ namespace Common.Services.DocumentToggle
 
         private DefinitionLevel GetLevelForFileType(DocumentDto document)
         {
-            var winningConfigLine = _defintions
+            var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.FileType
                         && (
                           (def.Identifier == Domain.Constants.Wildcard ||
@@ -192,7 +190,7 @@ namespace Common.Services.DocumentToggle
 
         private DefinitionLevel GetLevelForDocType(DocumentDto document)
         {
-            var winningConfigLine = _defintions
+            var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.DocType
                         && (
                           (def.Identifier == Domain.Constants.Wildcard ||

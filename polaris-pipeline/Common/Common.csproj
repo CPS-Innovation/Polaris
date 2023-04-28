@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="document-toggle.config" />
+    <None Remove="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
     <None Remove="Services\RenderHtmlService\PcdRequest.cshtml" />
     <None Remove="Wrappers\" />
     <None Remove="Newtonsoft.Json" />
@@ -15,6 +16,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="document-toggle.config" />
+    <EmbeddedResource Include="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
     <EmbeddedResource Include="Services\RenderHtmlService\PcdRequest.cshtml" />
   </ItemGroup>
   <ItemGroup>

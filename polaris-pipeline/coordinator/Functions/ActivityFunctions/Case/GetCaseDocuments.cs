@@ -35,7 +35,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantAndChargesDto[] DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -55,7 +55,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             DocumentDto[] documents = await _ddeiService.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
-            var cmsDocuments =
+            var cmsDocuments = 
                 documents
                     .Select(doc => MapPresentationFlags(doc))
                     .ToArray();
@@ -69,16 +69,15 @@ namespace coordinator.Functions.ActivityFunctions.Case
             };
             var @case = await _ddeiService.GetCase(caseArgDto);
 
-            var pcdRequests 
-                = @case.PreChargeDecisionRequests
-                    .Select(MapPresentationFlags)
-                    .ToArray();
-            var defendantsAndCharges 
-                 = @case.DefendantsAndCharges
-                    .Select(MapPresentationFlags)
-                    .ToArray();
+            var pcdRequests = 
+                @case.PreChargeDecisionRequests
+                       .Select(MapPresentationFlags)
+                       .ToArray();
 
-            return (documents, pcdRequests, defendantsAndCharges);
+            var defendantsAndCharges = new DefendantsAndChargesListDto { CaseId = @case.Id, DefendantsAndCharges = @case.DefendantsAndCharges.OrderBy(dac => dac.ListOrder) };
+            defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
+
+            return (cmsDocuments, pcdRequests, defendantsAndCharges);
         }
 
         private DocumentDto MapPresentationFlags(DocumentDto document)
@@ -93,12 +92,6 @@ namespace coordinator.Functions.ActivityFunctions.Case
             pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
 
             return pcdRequest;
-        }
-        private DefendantAndChargesDto MapPresentationFlags(DefendantAndChargesDto defendantAndCharges)
-        {
-            defendantAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges);
-
-            return defendantAndCharges;
         }
     }
 }

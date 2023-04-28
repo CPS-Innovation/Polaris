@@ -229,7 +229,8 @@ namespace coordinator.tests.Functions
             }
             catch
             {
-                _mockTracker.Verify(tracker => tracker.RegisterFailed(It.IsAny<DateTime>()));
+                var arg = (It.IsAny<DateTime>(), false);
+                _mockTracker.Verify(tracker => tracker.RegisterCompleted(arg));
             }
         }
     }
