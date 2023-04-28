@@ -5,40 +5,50 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { UnSavedRedactionDoc } from "../../../hooks/useNavigationAlert";
 import classes from "./NavigationAwayAlertContent.module.scss";
 
-type Props = {
-  type?: "document" | "casefile";
-  unSavedRedactionDocs?: UnSavedRedactionDoc[];
-  handleCancelAction: () => void;
-  handleContinueAction: () => void;
-  handleOpenPdf?: (doc: {
-    documentId: CaseDocumentViewModel["documentId"];
-  }) => void;
-};
+type Props =
+  | {
+      type: "document";
+      documentId: string;
+      handleCancelAction: () => void;
+      handleContinueAction: (documentIds: string[]) => void;
+    }
+  | {
+      type: "casefile";
+      handleCancelAction: () => void;
+      handleContinueAction: (documentIds: string[]) => void;
+      unSavedRedactionDocs: UnSavedRedactionDoc[];
+      handleOpenPdf: (doc: {
+        documentId: CaseDocumentViewModel["documentId"];
+      }) => void;
+    };
 
-export const NavigationAwayAlertContent: React.FC<Props> = ({
-  unSavedRedactionDocs = [],
-  type = "document",
-  handleCancelAction,
-  handleContinueAction,
-  handleOpenPdf,
-}) => {
+export const NavigationAwayAlertContent: React.FC<Props> = (props) => {
+  const { type, handleCancelAction, handleContinueAction } = props;
   const headingText =
     type === "document"
       ? "You have unsaved redactions"
       : `You have ${
-          unSavedRedactionDocs.length > 1
-            ? `${unSavedRedactionDocs.length} documents`
+          props.unSavedRedactionDocs.length > 1
+            ? `${props.unSavedRedactionDocs.length} documents`
             : `1 document`
         } with unsaved redactions`;
+
+  const handleIgnoreBtnClick = () => {
+    let documentIds =
+      props.type === "document"
+        ? [props.documentId]
+        : props.unSavedRedactionDocs.map(({ documentId }) => documentId);
+    handleContinueAction(documentIds);
+  };
   return (
     <div className={classes.alertContent}>
       <h1 className="govuk-heading-l">{headingText}</h1>
       {type === "casefile" && (
         <div className={classes.documentLinks}>
-          {unSavedRedactionDocs.map((caseDocument) => (
+          {props.unSavedRedactionDocs.map((caseDocument) => (
             <LinkButton
               key={caseDocument.documentId}
-              onClick={() => handleOpenPdf && handleOpenPdf(caseDocument)}
+              onClick={() => props.handleOpenPdf(caseDocument)}
               dataTestId={`link-document-${caseDocument.documentId}`}
             >
               {caseDocument.presentationFileName}
@@ -51,7 +61,7 @@ export const NavigationAwayAlertContent: React.FC<Props> = ({
         <Button onClick={handleCancelAction} data-testid="btn-nav-return">
           Return to case file
         </Button>
-        <LinkButton onClick={handleContinueAction} dataTestId="btn-nav-ignore">
+        <LinkButton onClick={handleIgnoreBtnClick} dataTestId="btn-nav-ignore">
           Ignore
         </LinkButton>
       </div>

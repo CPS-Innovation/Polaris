@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
@@ -56,6 +55,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleSavedRedactions,
     handleOpenPdfInNewTab,
     handleCloseErrorModal,
+    handleUnLockDocuments,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -99,8 +99,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleCancelAction={() => {
               setShowAlert(false);
             }}
-            handleContinueAction={() => {
+            handleContinueAction={(documentIds) => {
               setShowAlert(false);
+              handleUnLockDocuments(documentIds);
               navigationUnblockHandle.current();
               history.push(newPath);
             }}
@@ -195,6 +196,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleRemoveAllRedactions={handleRemoveAllRedactions}
                 handleSavedRedactions={handleSavedRedactions}
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
+                handleUnLockDocuments={handleUnLockDocuments}
               />
             )}
           </div>

@@ -8,9 +8,9 @@ export const GET_SAS_URL_ROUTE =
 export const TEXT_SEARCH_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/search?query=";
 export const DOCUMENT_CHECKOUT_ROUTE =
-  "api/documents/checkout/:caseId/:documentId";
+  "/api/urns/:urn/cases/:caseId/documents/:documentId/checkout";
 export const DOCUMENT_CHECKIN_ROUTE =
-  "api/documents/checkin/:caseId/:documentId";
+  "/api/urns/:urn/cases/:caseId/documents/:documentId/checkout";
 export const SAS_URL_ROUTE = "api/some-complicated-sas-url/:blobName";
 export const SAVE_REDACTION_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId";

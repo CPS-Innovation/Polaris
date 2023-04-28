@@ -60,6 +60,12 @@ type AsyncActions =
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
       };
+    }
+  | {
+      type: "UNLOCK_DOCUMENTS";
+      payload: {
+        documentIds: CaseDocumentViewModel["documentId"][];
+      };
     };
 
 export const reducerAsyncActionHandlers: AsyncActionHandlers<
@@ -273,5 +279,27 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
       // todo: does a save IN THE CGI API check a document in automatically?
       //await cancelCheckoutDocument(urn, caseId, documentId);
+    },
+
+  UNLOCK_DOCUMENTS:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentIds },
+      } = action;
+
+      const {
+        tabsState: { items },
+        caseId,
+        urn,
+      } = getState();
+
+      const requests = documentIds.map((documentId) =>
+        cancelCheckoutDocument(urn, caseId, documentId)
+      );
+
+      Promise.allSettled(requests).then((values) => {
+        console.log(values);
+      });
     },
 };
