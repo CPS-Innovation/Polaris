@@ -8,6 +8,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   storage_account_name        = azurerm_storage_account.sa.name
   storage_account_access_key  = azurerm_storage_account.sa.primary_access_key
   virtual_network_subnet_id   = data.azurerm_subnet.polaris_pdfgenerator_subnet.id
+  tags                        = local.common_tags
   functions_extension_version = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
@@ -41,13 +42,16 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     type = "SystemAssigned"
   }
 
-  auth_settings {
-    enabled                       = false
-    issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "AllowAnonymous"
+  auth_settings_v2 {
+    auth_enabled                  = false
+    unauthenticated_action        = "AllowAnonymous"
   }
 
-  tags = local.common_tags
+  #auth_settings {
+  #  enabled                       = false
+  #  issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
+  #  unauthenticated_client_action = "AllowAnonymous"
+  #}
 }
 
 module "azurerm_app_reg_fa_pdf_generator" {

@@ -40,17 +40,24 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     vnet_route_all_enabled                  = true
     container_registry_use_managed_identity = true
   }
-  auth_settings {
-    enabled                       = false
-    issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "AllowAnonymous"
+
+  auth_settings_v2 {
+    auth_enabled                  = false
+    unauthenticated_action        = "AllowAnonymous"
+  }
+  
+  #auth_settings {
+  #  enabled                       = false
+  #  issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
+  #  unauthenticated_client_action = "AllowAnonymous"
     /*default_provider              = "AzureActiveDirectory"
     active_directory {
       client_id         = module.azurerm_app_reg_polaris_proxy.client_id
       client_secret     = azuread_application_password.asap_polaris_cms_proxy.value
       allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/${local.resource_name}-cmsproxy"]
     }*/
-  }
+  #}
+  
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key
     account_name = azurerm_storage_account.sacpspolaris.name
@@ -59,6 +66,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     type         = "AzureBlob"
     mount_path   = "/etc/nginx/templates"
   }
+  
   identity {
     type = "SystemAssigned"
   }

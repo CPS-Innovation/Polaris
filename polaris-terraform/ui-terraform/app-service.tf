@@ -36,16 +36,35 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     always_on              = true
     vnet_route_all_enabled = true
   }
+  
+  auth_settings_v2 {
+    auth_enabled                  = true
+    require_authentication        = true
+    default_provider              = "AzureActiveDirectory"
+    unauthenticated_action        = "AllowAnonymous"
 
-  auth_settings {
-    enabled = true
-    issuer  = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
+    # our default_provider:
+    active_directory_v2 {
+      tenant_auth_endpoint        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      client_secret_setting_name  = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      client_id                   = module.azurerm_app_reg_as_web_polaris.client_id
+    }
+
+    # use a store for tokens (az blob storage backed)
+    login {
+      token_store_enabled = true
+    }
+  }
+
+  #auth_settings {
+  #  enabled = true
+  #  issuer  = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
 
     # AllowAnonymous as no need for web auth if we are hosted within CPS network, the SPA auth handles hiding UI 
     # from unauthed users. Also having web auth switched on means that Cypress automation tests don't work.
-    unauthenticated_client_action = "AllowAnonymous"
-    token_store_enabled           = true
-  }
+  #  unauthenticated_client_action = "AllowAnonymous"
+  #  token_store_enabled           = true
+  #}
 }
 
 module "azurerm_app_reg_as_web_polaris" {

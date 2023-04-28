@@ -36,11 +36,16 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
     type = "SystemAssigned"
   }
 
-  auth_settings {
-    enabled                       = false
-    issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "AllowAnonymous"
+  auth_settings_v2 {
+    auth_enabled                  = false
+    unauthenticated_action        = "AllowAnonymous"
   }
+
+  #auth_settings {
+  #  enabled                       = false
+  #  issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
+  #  unauthenticated_client_action = "AllowAnonymous"
+  #}
 
   lifecycle {
     ignore_changes = [
