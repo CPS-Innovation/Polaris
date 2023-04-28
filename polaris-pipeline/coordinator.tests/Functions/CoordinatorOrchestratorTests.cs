@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Extensions;
+using Common.Dto.Case.PreCharge;
+using Common.Dto.Case;
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
@@ -71,13 +73,13 @@ namespace coordinator.tests.Functions
 
             mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]).Returns("300");
 
-            _mockTracker
-                .Setup(tracker => tracker.GetDocuments())
-                .ReturnsAsync(_trackerCmsDocuments);
+            ////_mockTracker
+            //    .Setup(tracker => tracker.GetDocuments())
+            //    .ReturnsAsync(_trackerCmsDocuments);
 
-            _mockTracker
-                .Setup(tracker => tracker.SynchroniseDocuments(It.IsAny<SynchroniseDocumentsArg>()))
-                .ReturnsAsync(_deltaDocuments);
+            //_mockTracker
+            //    .Setup(tracker => tracker.SynchroniseDocuments(It.IsAny<SynchroniseDocumentsArg>()))
+            //    .ReturnsAsync(_deltaDocuments);
 
             _mockTracker
                 .Setup(t => t.AllDocumentsFailed())
@@ -133,7 +135,7 @@ namespace coordinator.tests.Functions
                 .ReturnsAsync(new DocumentDto[] { });
 
             _mockTracker
-                .Setup(tracker => tracker.SynchroniseDocuments(It.IsAny<SynchroniseDocumentsArg>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId)>()))
                 .ReturnsAsync(new TrackerDeltasDto 
                                 { 
                                     CreatedCmsDocuments = new List<TrackerCmsDocumentDto>(),
@@ -196,7 +198,8 @@ namespace coordinator.tests.Functions
         {
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            _mockTracker.Verify(tracker => tracker.RegisterCompleted(It.IsAny<DateTime>()));
+            var arg = (It.IsAny<DateTime>(), true);
+            _mockTracker.Verify(tracker => tracker.RegisterCompleted(arg));
         }
 
         [Fact]

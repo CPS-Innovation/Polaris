@@ -19,17 +19,17 @@ namespace Common.Dto.Tracker
         // Defendants And Charges
         public TrackerDefendantsAndChargesDto CreatedDefendantsAndCharges { get; set; }
         public TrackerDefendantsAndChargesDto UpdatedDefendantsAndCharges { get; set; }
-        public int? DeletedDefendantsAndChargesCaseId { get; set; }
+        public bool IsDeletedDefendantsAndCharges { get; set; }
 
         public int CreatedCount { get { return CreatedCmsDocuments.Count + CreatedPcdRequests.Count + (CreatedDefendantsAndCharges != null ? 1 : 0); } }
         public int UpdatedCount { get { return UpdatedCmsDocuments.Count + UpdatedPcdRequests.Count + (UpdatedDefendantsAndCharges != null ? 1 : 0); } }
-        public int DeletedCount { get { return DeletedCmsDocuments.Count + DeletedPcdRequests.Count + (DeletedDefendantsAndChargesCaseId != null ? 1 : 0); } }
+        public int DeletedCount { get { return DeletedCmsDocuments.Count + DeletedPcdRequests.Count + (IsDeletedDefendantsAndCharges ? 1 : 0); } }
 
         public bool Any()
         {
             return CreatedCmsDocuments.Any() || UpdatedCmsDocuments.Any() || DeletedCmsDocuments.Any() ||
                    CreatedPcdRequests.Any() || UpdatedPcdRequests.Any() || DeletedPcdRequests.Any() ||
-                   CreatedDefendantsAndCharges != null || UpdatedDefendantsAndCharges != null || DeletedDefendantsAndChargesCaseId != null;
+                   CreatedDefendantsAndCharges != null || UpdatedDefendantsAndCharges != null || !IsDeletedDefendantsAndCharges;
         }
     }
 }

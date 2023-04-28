@@ -63,6 +63,7 @@ namespace pdf_generator.tests.Functions
                     _fixture.Create<string>(),
                     _fixture.Create<long>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
+                    null,
                     null
                 );
             _generatePdfRequest.CmsCaseId = 123456;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Extensions;
+using Common.Dto.Case;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Wrappers;
@@ -40,15 +41,17 @@ namespace coordinator.tests.Functions.SubOrchestrators
             var fixture = new Fixture();
             var trackerCmsDocumentDto = fixture.Create<TrackerCmsDocumentDto>();
             var trackerPcdRequestDto = fixture.Create<TrackerPcdRequestDto>();
+            var defendantsAndChargesListDto = fixture.Create<TrackerDefendantsAndChargesDto>();
             _payload = new CaseDocumentOrchestrationPayload
                 (
-                    fixture.Create<string>(), 
+                    fixture.Create<string>(),
                     Guid.NewGuid(),
                     fixture.Create<string>(),
-                    fixture.Create<long>(), 
-                    JsonSerializer.Serialize(trackerCmsDocumentDto), 
-                    JsonSerializer.Serialize(trackerPcdRequestDto)
-                );
+                    fixture.Create<long>(),
+                    JsonSerializer.Serialize(trackerCmsDocumentDto),
+                    JsonSerializer.Serialize(trackerPcdRequestDto),
+                    JsonSerializer.Serialize(defendantsAndChargesListDto)
+                ); ;
             _evaluateDocumentDurableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk/evaluateDocument"));
             _generatePdfDurableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk/generatePdf"));
             var updateSearchIndexDurableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk/updateSearchIndex"));

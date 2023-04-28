@@ -83,7 +83,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(arg.CmsDocuments.ToList());
             var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(arg.PcdRequests.ToList());
-            var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndChargesCaseId) = GetDeltaDefendantsAndCharges(arg.DefendantsAndCharges);
+            var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges) = GetDeltaDefendantsAndCharges(arg.DefendantsAndCharges);
 
             TrackerDeltasDto deltas = new TrackerDeltasDto
             {
@@ -95,7 +95,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 DeletedPcdRequests = DeleteTrackerPcdRequests(arg.CurrentUtcDateTime, deletedPcdRequests),
                 CreatedDefendantsAndCharges = CreateTrackerDefendantsAndCharges(arg.CurrentUtcDateTime, createdDefendantsAndCharges),
                 UpdatedDefendantsAndCharges = UpdateTrackerDefendantsAndCharges(arg.CurrentUtcDateTime, updatedDefendantsAndCharges),
-                DeletedDefendantsAndChargesCaseId = DeleteTrackerDefendantsAndCharges(arg.CurrentUtcDateTime, deletedDefendantsAndChargesCaseId),
+                IsDeletedDefendantsAndCharges = DeleteTrackerDefendantsAndCharges(arg.CurrentUtcDateTime, deletedDefendantsAndCharges),
             };
 
             Status = TrackerStatus.DocumentsRetrieved;
@@ -104,7 +104,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             var logMessage = $"CMS=({deltas.CreatedCmsDocuments.Count} created, {deltas.UpdatedCmsDocuments.Count} updated, {deltas.DeletedCmsDocuments.Count} deleted), " +
                              $"PCD=({deltas.CreatedPcdRequests.Count} created, {deltas.UpdatedPcdRequests.Count} updated, {deltas.DeletedPcdRequests.Count} deleted), " +
-                             $"DAC=({(deltas.CreatedDefendantsAndCharges != null ? 1 : 0)} created, {(deltas.UpdatedDefendantsAndCharges != null ? 1 : 0)} updated, {(deltas.DeletedDefendantsAndChargesCaseId != null ? 1 : 0)} deleted)";
+                             $"DAC=({(deltas.CreatedDefendantsAndCharges != null ? 1 : 0)} created, {(deltas.UpdatedDefendantsAndCharges != null ? 1 : 0)} updated, {(deltas.IsDeletedDefendantsAndCharges ? 1 : 0)} deleted)";
             Log(arg.CurrentUtcDateTime, TrackerLogType.DocumentsSynchronised, null, logMessage);
 
             return Task.FromResult(deltas);
@@ -153,10 +153,9 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newPcdRequests, updatedPcdRequests, deletedPcdRequestIds);
         }
 
-        private (DefendantsAndChargesListDto createdDefendantsAndCharges, DefendantsAndChargesListDto updatedDefendantsAndCharges, int? deletedDefendantsAndChargesCaseId) GetDeltaDefendantsAndCharges(DefendantsAndChargesListDto incomingDefendantsAndCharges)
+        private (DefendantsAndChargesListDto createdDefendantsAndCharges, DefendantsAndChargesListDto updatedDefendantsAndCharges, bool deletedDefendantsAndCharges) GetDeltaDefendantsAndCharges(DefendantsAndChargesListDto incomingDefendantsAndCharges)
         {
             DefendantsAndChargesListDto newDefendantsAndCharges = null, updatedDefendantsAndCharges = null;
-            int? deletedDefendantsAndChargesCaseId = null;
 
             if (DefendantsAndCharges == null && incomingDefendantsAndCharges != null) 
                 newDefendantsAndCharges = incomingDefendantsAndCharges;
@@ -167,10 +166,9 @@ namespace coordinator.Functions.DurableEntity.Entity
                     updatedDefendantsAndCharges = incomingDefendantsAndCharges;
             }
 
-            if (DefendantsAndCharges != null && incomingDefendantsAndCharges == null)
-                deletedDefendantsAndChargesCaseId = incomingDefendantsAndCharges.CaseId;
+            var deletedDefendantsAndCharges = (DefendantsAndCharges != null && incomingDefendantsAndCharges == null);
 
-            return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndChargesCaseId);
+            return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
         private List<TrackerCmsDocumentDto> CreateTrackerCmsDocuments(DateTime t, List<DocumentDto> createdDocuments)
@@ -318,15 +316,15 @@ namespace coordinator.Functions.DurableEntity.Entity
             return null;
         }
 
-        private int? DeleteTrackerDefendantsAndCharges(DateTime t, int? deletedDefendantsAndChargesCaseId)
+        private bool DeleteTrackerDefendantsAndCharges(DateTime t, bool deletedDefendantsAndCharges)
         {
-            if(deletedDefendantsAndChargesCaseId.HasValue) 
+            if(deletedDefendantsAndCharges) 
             {
                 DefendantsAndCharges = null;
-                Log(t, TrackerLogType.DefendantAndChargesDeleted, deletedDefendantsAndChargesCaseId.ToString());
+                Log(t, TrackerLogType.DefendantAndChargesDeleted, deletedDefendantsAndCharges.ToString());
             }
 
-            return deletedDefendantsAndChargesCaseId;
+            return deletedDefendantsAndCharges;
         }
 
         public Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg)
@@ -364,7 +362,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         public Task RegisterCompleted((DateTime t, bool success) arg)
         {
-            Status = TrackerStatus.Completed;
+            Status = arg.success ? TrackerStatus.Completed : TrackerStatus.Failed;
             ProcessingCompleted = arg.t;
             Log(arg.t, arg.success ? TrackerLogType.Completed : TrackerLogType.Failed);
 
