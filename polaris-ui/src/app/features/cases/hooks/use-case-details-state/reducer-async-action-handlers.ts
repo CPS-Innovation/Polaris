@@ -11,12 +11,13 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { mapRedactionSaveRequest } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
+import { ApiError } from "../../../../common/errors/ApiError";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
 
 const UNLOCKED_STATES_REQUIRING_LOCK: CaseDocumentViewModel["clientLockedState"][] =
-  ["unlocked", "unlocking"];
+  ["unlocked", "unlocking", "locked-by-other-user"];
 
 type State = Parameters<typeof reducer>[0];
 type Action = Parameters<typeof reducer>[1];
@@ -123,9 +124,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       const documentRequiresLocking =
         UNLOCKED_STATES_REQUIRING_LOCK.includes(clientLockedState);
 
-      dispatch({ type: "ADD_REDACTION", payload });
-
       if (!documentRequiresLocking) {
+        dispatch({ type: "ADD_REDACTION", payload });
         return;
       }
 
@@ -133,16 +133,57 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         type: "UPDATE_DOCUMENT_LOCK_STATE",
         payload: { documentId, lockedState: "locking" },
       });
+      try {
+        await checkoutDocument(urn, caseId, documentId);
 
-      const isLockSuccessful = await checkoutDocument(urn, caseId, documentId);
-
-      dispatch({
-        type: "UPDATE_DOCUMENT_LOCK_STATE",
-        payload: {
-          documentId,
-          lockedState: isLockSuccessful ? "locked" : "locked-by-other-user",
-        },
-      });
+        dispatch({ type: "ADD_REDACTION", payload });
+        dispatch({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: {
+            documentId,
+            lockedState: "locked",
+          },
+        });
+      } catch (error: unknown) {
+        const { code } = error as ApiError;
+        /* NOTE: Ideally we a need another api request to get the locked status of a document , 
+        which is fired when a document is opened in a Tab, 
+        So that based on that we can update the user the the document is locked by another user if it is not available and 
+        block the selection and subsequent redaction on locked files"
+        */
+        if (code === 409) {
+          dispatch({
+            type: "UPDATE_DOCUMENT_LOCK_STATE",
+            payload: {
+              documentId,
+              lockedState: "locked-by-other-user",
+            },
+          });
+          dispatch({
+            type: "SHOW_ERROR_MODAL",
+            payload: {
+              title: "Failed to redact document",
+              message:
+                "It is not possible to redact as the document is already checked out by another user. Please try again later.",
+            },
+          });
+          return;
+        }
+        dispatch({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: {
+            documentId,
+            lockedState: "unlocked",
+          },
+        });
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Something went wrong!",
+            message: "Failed to checkout document. Please try again later.",
+          },
+        });
+      }
     },
 
   REMOVE_REDACTION_AND_POTENTIALLY_UNLOCK:
