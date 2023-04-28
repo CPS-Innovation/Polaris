@@ -10,7 +10,6 @@ using PolarisGateway.Domain.Validation;
 using PolarisGateway.Wrappers;
 using System;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions

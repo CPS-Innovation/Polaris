@@ -5,7 +5,6 @@ using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using pdf_generator.Domain.Exceptions;
 using pdf_generator.Services.PdfService;
 using Xunit;
 

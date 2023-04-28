@@ -6,7 +6,6 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using NSubstitute;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Wrappers;
 using Xunit;
 

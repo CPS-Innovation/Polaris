@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -24,14 +23,7 @@ namespace PolarisGateway.Functions.Health
             const string loggingName = "Status - Run";
 
             var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-            if (validationResult.InvalidResponseResult != null)
-                return validationResult.InvalidResponseResult;
-
-            var response = Assembly.GetExecutingAssembly().CurrentStatus();
-            var result = response == null ? new JsonResult(new { status = "Assembly version could not be retrieved" }) {StatusCode = (int)HttpStatusCode.BadRequest} 
-                : new JsonResult(response) {StatusCode = (int)HttpStatusCode.OK};
-
-            return result;
+            return validationResult.InvalidResponseResult ?? Assembly.GetExecutingAssembly().CurrentStatus();
         }
     }
 }

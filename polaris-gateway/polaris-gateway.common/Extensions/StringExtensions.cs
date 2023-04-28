@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PolarisGateway.Extensions;
+﻿namespace PolarisGateway.Extensions;
 
 public static class StringExtensions
 {

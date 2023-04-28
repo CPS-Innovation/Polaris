@@ -1,5 +1,4 @@
 ﻿using Common.Dto.Case.PreCharge;
-using Common.Dto.Tracker;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
