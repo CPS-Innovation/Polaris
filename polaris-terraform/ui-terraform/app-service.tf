@@ -9,6 +9,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
 
   app_settings = {
+    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITE_CONTENTOVERVNET"                  = "1"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
@@ -31,8 +32,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     app_command_line                       = "node polaris-ui/subsititute-config.js; npx serve -s"
     always_on                              = true
     vnet_route_all_enabled                 = true
-    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
-    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     
     application_stack {
       node_version = "14-lts"
