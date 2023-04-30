@@ -13,3 +13,6 @@ polaris_webapp_details = {
 }
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
+
+certificate_name         = "polaris.cpsdev.co.uk-polaris-cmsproxy-undefined"
+custom_proxy_domain_name = "polaris.cpsdev.co.uk"
