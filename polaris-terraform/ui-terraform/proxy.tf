@@ -40,20 +40,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     always_on                               = true
     vnet_route_all_enabled                  = true
     container_registry_use_managed_identity = true
-    health_check_path                       = "/"
-    health_check_eviction_time_in_min       = "2" 
+    /*health_check_path                       = "/"
+    health_check_eviction_time_in_min       = "2"*/ 
   }
   
   auth_settings {
     enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
     unauthenticated_client_action = "AllowAnonymous"
-    /*default_provider              = "AzureActiveDirectory"
-    active_directory {
-      client_id         = module.azurerm_app_reg_polaris_proxy.client_id
-      client_secret     = azuread_application_password.asap_polaris_cms_proxy.value
-      allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/${local.resource_name}-cmsproxy"]
-    }*/
   }
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key
@@ -85,13 +79,6 @@ module "azurerm_app_reg_polaris_proxy" {
       type = "Scope"
     }]
   }]
-  /*web = {
-    homepage_url  = "https://${local.resource_name}-cmsproxy.azurewebsites.net"
-    redirect_uris = ["https://getpostman.com/oauth2/callback", "https://${local.resource_name}-cmsproxy.azurewebsites.net/.auth/login/aad/callback"]
-    implicit_grant = {
-      id_token_issuance_enabled = true
-    }
-  }*/
   tags = ["terraform"]
 }
 
@@ -185,6 +172,7 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
 
 # Retrieve the proxy's certificate and bind it to the proxy definition, post proxy creation
 # First, read the containing key vault
+/*
 data "azurerm_key_vault" "proxy_key_vault" {
   name                = "kv-polaris-cert-${var.env}"
   resource_group_name = azurerm_resource_group.rg_polaris.name
@@ -216,3 +204,4 @@ resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind"
   ssl_state           = "SniEnabled"
   thumbprint          = azurerm_app_service_certificate.proxy_cert_ref.thumbprint
 }
+*/
