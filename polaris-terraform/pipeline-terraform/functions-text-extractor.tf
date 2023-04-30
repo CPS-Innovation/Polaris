@@ -28,8 +28,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_pipeline_storage_connection_string.id})"
     "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
     "ComputerVisionClientServiceUrl"           = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientAuthorizationKey"             = data.azurerm_search_service.polaris_search_service.primary_key
+    "SearchClientEndpointUrl"                  = var.search_client_endpoint_url "https://ss-polaris-pipeline-dev.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
   }
   https_only = true
