@@ -1,3 +1,4 @@
+/*
 resource "azurerm_linux_web_app" "polaris_proxy" {
   name                      = "${local.resource_name}-cmsproxy"
   resource_group_name       = azurerm_resource_group.rg_polaris.name
@@ -50,12 +51,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   #  enabled                       = false
   #  issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
   #  unauthenticated_client_action = "AllowAnonymous"
-    /*default_provider              = "AzureActiveDirectory"
+    */
+/*default_provider              = "AzureActiveDirectory"
     active_directory {
       client_id         = module.azurerm_app_reg_polaris_proxy.client_id
       client_secret     = azuread_application_password.asap_polaris_cms_proxy.value
       allowed_audiences = ["https://CPSGOVUK.onmicrosoft.com/${local.resource_name}-cmsproxy"]
-    }*/
+    }*//*
+
   #}
   
   storage_account {
@@ -88,13 +91,15 @@ module "azurerm_app_reg_polaris_proxy" {
       type = "Scope"
     }]
   }]
-  /*web = {
+  */
+/*web = {
     homepage_url  = "https://${local.resource_name}-cmsproxy.azurewebsites.net"
     redirect_uris = ["https://getpostman.com/oauth2/callback", "https://${local.resource_name}-cmsproxy.azurewebsites.net/.auth/login/aad/callback"]
     implicit_grant = {
       id_token_issuance_enabled = true
     }
-  }*/
+  }*//*
+
   tags = ["terraform"]
 }
 
@@ -184,4 +189,4 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   records             = [azurerm_private_endpoint.polaris_proxy_pe.private_service_connection.0.private_ip_address]
   tags                = local.common_tags
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
-}
+}*/

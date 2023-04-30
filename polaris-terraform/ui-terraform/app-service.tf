@@ -14,7 +14,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_ui_file_share.name
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"               = ""
@@ -24,17 +23,20 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   }
 
   site_config {
-    ftps_state       = "FtpsOnly"
-    http2_enabled    = true
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
     # The -s in npx serve -s is very important.  It allows any url that hits the app
     #  to be served from the root index.html.  This is important as it accomodates any
     #  sub directory that the app may be hosted with, or none at all.
-    app_command_line = "node polaris-ui/subsititute-config.js; npx serve -s"
+    app_command_line                       = "node polaris-ui/subsititute-config.js; npx serve -s"
+    always_on                              = true
+    vnet_route_all_enabled                 = true
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    
     application_stack {
       node_version = "14-lts"
     }
-    always_on              = true
-    vnet_route_all_enabled = true
   }
   
   auth_settings_v2 {
@@ -42,6 +44,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     require_authentication        = true
     default_provider              = "AzureActiveDirectory"
     unauthenticated_action        = "AllowAnonymous"
+    excluded_paths                = ["/status"]
 
     # our default_provider:
     active_directory_v2 {
@@ -52,19 +55,9 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
     # use a store for tokens (az blob storage backed)
     login {
-      token_store_enabled = true
+      token_store_enabled         = true
     }
   }
-
-  #auth_settings {
-  #  enabled = true
-  #  issuer  = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-
-    # AllowAnonymous as no need for web auth if we are hosted within CPS network, the SPA auth handles hiding UI 
-    # from unauthed users. Also having web auth switched on means that Cypress automation tests don't work.
-  #  unauthenticated_client_action = "AllowAnonymous"
-  #  token_store_enabled           = true
-  #}
 }
 
 module "azurerm_app_reg_as_web_polaris" {
