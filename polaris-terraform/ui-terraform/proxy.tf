@@ -1,3 +1,4 @@
+/*
 resource "azurerm_linux_web_app" "polaris_proxy" {
   name                      = "${local.resource_name}-cmsproxy"
   resource_group_name       = azurerm_resource_group.rg_polaris.name
@@ -29,10 +30,10 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "NGINX_ENVSUBST_OUTPUT_DIR"                = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                     = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
   }
+  
   site_config {
     ftps_state     = "FtpsOnly"
     http2_enabled  = true
-    ip_restriction = []
     application_stack {
       docker_image     = "nginx"
       docker_image_tag = "latest"
@@ -40,15 +41,27 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     always_on                               = true
     vnet_route_all_enabled                  = true
     container_registry_use_managed_identity = true
-    /*health_check_path                       = "/"
-    health_check_eviction_time_in_min       = "2"*/ 
+    health_check_path                       = "/"
+    health_check_eviction_time_in_min       = "2"
+  }
+
+  auth_settings_v2 {
+    auth_enabled                  = false
+    unauthenticated_action        = "AllowAnonymous"
+    default_provider              = "AzureActiveDirectory"
+    excluded_paths                = ["/status"]
+
+    active_directory_v2 {
+      tenant_auth_endpoint        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      client_secret_setting_name  = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      client_id                   = module.azurerm_app_reg_polaris_proxy.client_id
+    }
+
+    login {
+      token_store_enabled         = false
+    }
   }
   
-  auth_settings {
-    enabled                       = false
-    issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "AllowAnonymous"
-  }
   storage_account {
     access_key   = azurerm_storage_account.sacpspolaris.primary_access_key
     account_name = azurerm_storage_account.sacpspolaris.name
@@ -57,9 +70,11 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     type         = "AzureBlob"
     mount_path   = "/etc/nginx/templates"
   }
+  
   identity {
     type = "SystemAssigned"
   }
+  
   https_only = true
 }
 
@@ -79,6 +94,7 @@ module "azurerm_app_reg_polaris_proxy" {
       type = "Scope"
     }]
   }]
+
   tags = ["terraform"]
 }
 
@@ -172,7 +188,6 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
 
 # Retrieve the proxy's certificate and bind it to the proxy definition, post proxy creation
 # First, read the containing key vault
-/*
 data "azurerm_key_vault" "proxy_key_vault" {
   name                = "kv-polaris-cert-${var.env}"
   resource_group_name = azurerm_resource_group.rg_polaris.name
