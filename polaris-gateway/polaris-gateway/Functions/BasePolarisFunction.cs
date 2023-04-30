@@ -63,7 +63,7 @@ namespace PolarisGateway.Functions
 
             return result;
         }
-
+        
         private static Guid EstablishCorrelation(HttpRequest req)
         {
             if (!req.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationId) || string.IsNullOrWhiteSpace(correlationId))

@@ -10,7 +10,6 @@ using Common.Handlers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using pdf_generator.Domain.Exceptions;
 using Xunit;
 
 namespace pdf_generator.tests.Handlers

@@ -1,5 +1,3 @@
-using System;
-
 namespace Ddei.Exceptions
 {
     public class CaseDataServiceException : Exception

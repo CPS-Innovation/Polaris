@@ -27,7 +27,6 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
     always_on              = true
     ftps_state             = "FtpsOnly"
     http2_enabled          = true
-    ip_restriction         = []
     vnet_route_all_enabled = true
   }
 

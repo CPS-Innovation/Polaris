@@ -1,4 +1,5 @@
-﻿#################### App Service Plan ####################
+﻿/*
+#################### App Service Plan ####################
 
 resource "azurerm_service_plan" "asp_polaris_proxy" {
   name                = "asp-${local.resource_name}-proxy"
@@ -60,3 +61,4 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_proxy" {
     }
   }
 }
+*/

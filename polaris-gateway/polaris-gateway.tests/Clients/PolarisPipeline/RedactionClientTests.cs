@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Factories.Contracts;
 using Common.Clients.Contracts;
 using Common.Wrappers.Contracts;
 using Common.Constants;

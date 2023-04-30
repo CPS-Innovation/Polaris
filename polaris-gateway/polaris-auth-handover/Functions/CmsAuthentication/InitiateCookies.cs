@@ -1,9 +1,7 @@
-using System.Net;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Constants;
-using Common.Logging;
 using Ddei.Domain.CaseData.Args;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

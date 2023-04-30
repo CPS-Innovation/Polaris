@@ -1,5 +1,4 @@
-﻿using Common.Dto.Case.PreCharge;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Common.Dto.Tracker

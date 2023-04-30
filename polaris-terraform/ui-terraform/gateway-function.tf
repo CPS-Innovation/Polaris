@@ -42,7 +42,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     always_on      = false
     ftps_state     = "FtpsOnly"
     http2_enabled  = true
-    ip_restriction = []
     cors {
       allowed_origins = [
         "https://as-web-${local.resource_name}.azurewebsites.net",

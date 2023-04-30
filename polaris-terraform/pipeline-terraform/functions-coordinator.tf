@@ -39,7 +39,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   https_only = true
 
   site_config {
-    ip_restriction                   = []
     ftps_state                       = "FtpsOnly"
     http2_enabled                    = true
     runtime_scale_monitoring_enabled = true

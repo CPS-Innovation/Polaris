@@ -1,5 +1,4 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using Common.Constants;
 using FluentAssertions;
 using Moq;

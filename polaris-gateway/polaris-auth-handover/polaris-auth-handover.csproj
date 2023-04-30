@@ -4,6 +4,9 @@
         <AzureFunctionsVersion>V4</AzureFunctionsVersion>
         <RootNamespace>PolarisAuthHandover</RootNamespace>
     </PropertyGroup>
+    <PropertyGroup>
+        <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</SourceRevisionId>
+    </PropertyGroup>
     <ItemGroup>
 		<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.2" />
 	</ItemGroup>

@@ -1,6 +1,4 @@
-﻿using Common.Domain.SearchIndex;
-
-namespace Common.Domain.SearchIndex;
+﻿namespace Common.Domain.SearchIndex;
 
 public class SearchTermResult
 {
