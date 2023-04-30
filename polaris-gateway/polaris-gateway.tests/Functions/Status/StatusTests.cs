@@ -73,7 +73,7 @@ namespace PolarisGateway.Tests.Functions.Status
             var statusFunction = GetStatusFunction();
 
             //Act
-            var results = await statusFunction.Run(CreateHttpRequest()) as Microsoft.AspNetCore.Mvc.ObjectResult;
+            var results = await statusFunction.Run(CreateHttpRequest()) as Microsoft.AspNetCore.Mvc.JsonResult;
 
             //Assert
             Assert.Equal(200, results?.StatusCode);
