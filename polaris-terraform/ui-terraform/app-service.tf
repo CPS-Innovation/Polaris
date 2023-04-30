@@ -25,7 +25,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   site_config {
     ftps_state       = "FtpsOnly"
     http2_enabled    = true
-    ip_restriction   = []
     # The -s in npx serve -s is very important.  It allows any url that hits the app
     #  to be served from the root index.html.  This is important as it accomodates any
     #  sub directory that the app may be hosted with, or none at all.
