@@ -10,7 +10,6 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = ""
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = ""
     "WEBSITE_CONTENTOVERVNET"                  = "1"
@@ -24,10 +23,12 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   }
 
   site_config {
-    always_on              = true
-    ftps_state             = "FtpsOnly"
-    http2_enabled          = true
-    vnet_route_all_enabled = true
+    always_on                              = true
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
+    vnet_route_all_enabled                 = true
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
   }
 
   tags = local.common_tags
@@ -36,10 +37,21 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
     type = "SystemAssigned"
   }
 
-  auth_settings {
-    enabled                       = false
-    issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "AllowAnonymous"
+  auth_settings_v2 {
+    auth_enabled                  = false
+    unauthenticated_action        = "AllowAnonymous"
+    default_provider              = "AzureActiveDirectory"
+    excluded_paths                = ["/status"]
+
+    active_directory_v2 {
+      tenant_auth_endpoint        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      client_secret_setting_name  = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      client_id                   = module.azurerm_app_reg_fa_polaris_auth_handover.client_id
+    }
+
+    login {
+      token_store_enabled         = false
+    }
   }
 
   lifecycle {

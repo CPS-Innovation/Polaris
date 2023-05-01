@@ -13,7 +13,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
@@ -39,25 +38,38 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   https_only = true
 
   site_config {
-    ftps_state                       = "FtpsOnly"
-    http2_enabled                    = true
-    runtime_scale_monitoring_enabled = true
-    vnet_route_all_enabled           = true
-
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
+    runtime_scale_monitoring_enabled       = true
+    vnet_route_all_enabled                 = true
+    elastic_instance_minimum               = 1
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    
     cors {
       allowed_origins = []
     }
-    elastic_instance_minimum = 1
   }
 
   identity {
     type = "SystemAssigned"
   }
 
-  auth_settings {
-    enabled                       = false
-    issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
-    unauthenticated_client_action = "AllowAnonymous"
+  auth_settings_v2 {
+    auth_enabled                  = false
+    unauthenticated_action        = "AllowAnonymous"
+    default_provider              = "AzureActiveDirectory"
+    excluded_paths                = ["/status"]
+
+    active_directory_v2 {
+      tenant_auth_endpoint        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      client_secret_setting_name  = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      client_id                   = module.azurerm_app_reg_fa_coordinator.client_id
+    }
+
+    login {
+      token_store_enabled         = false
+    }
   }
 }
 
