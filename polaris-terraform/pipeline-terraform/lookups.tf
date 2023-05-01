@@ -113,3 +113,8 @@ data "azurerm_application_insights" "global_ai" {
   name                = "ai-${local.global_name}"
   resource_group_name = "rg-${local.analytics_group_name}"
 }
+
+data "azurerm_search_service" "polaris_search_service" {
+  name                = local.search_service_name
+  resource_group_name = azurerm_resource_group.rg.name
+}

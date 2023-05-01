@@ -1,5 +1,4 @@
 ﻿using Common.Dto.Case.PreCharge;
-using Common.Dto.Tracker;
 using System.IO;
 using System.Threading.Tasks;
 

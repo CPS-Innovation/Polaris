@@ -3,7 +3,7 @@ location                     = "UK South"
 environment_tag              = "development"
 app_service_plan_web_sku     = "P1v2"
 app_service_plan_gateway_sku = "EP1"
-app_service_plan_proxy_sku   = "P1v3"
+app_service_plan_proxy_sku   = "P1v2"
 dns_server                   = "10.7.197.20"
 
 polaris_webapp_details = {

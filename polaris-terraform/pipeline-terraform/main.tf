@@ -56,6 +56,7 @@ locals {
   analytics_group_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-analytics-${var.env}" : "${var.polaris_resource_name_prefix}-analytics"
   resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
   ddei_resource_name   = var.env != "prod" ? "${var.ddei_resource_name_prefix}-${var.env}" : var.ddei_resource_name_prefix
+  search_service_name  = var.env != "prod"? "ss-polaris-pipeline-${var.env}" : "ss-polaris-pipeline"
   common_tags = {
     environment = var.environment_tag
     project     = var.resource_name_prefix

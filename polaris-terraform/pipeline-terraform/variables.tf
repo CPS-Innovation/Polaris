@@ -39,3 +39,7 @@ variable "dns_server" {
 variable "terraform_service_principal_display_name" {
   type = string
 }
+
+variable "search_service_endpoint" {
+  type = string
+}
