@@ -23,8 +23,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"       = "600"
     "TextExtractorUrl"                         = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/extract?code=${data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key}"
-    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientAuthorizationKey"             = data.azurerm_search_service.polaris_search_service.primary_key
+    "SearchClientEndpointUrl"                  = var.search_service_endpoint
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
