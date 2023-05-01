@@ -43,21 +43,10 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     type = "SystemAssigned"
   }
 
-  auth_settings_v2 {
-    auth_enabled                  = false
-    unauthenticated_action        = "AllowAnonymous"
-    default_provider              = "AzureActiveDirectory"
-    excluded_paths                = ["/status"]
-
-    active_directory_v2 {
-      tenant_auth_endpoint        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
-      client_secret_setting_name  = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_id                   = module.azurerm_app_reg_fa_pdf_generator.client_id
-    }
-
-    login {
-      token_store_enabled         = false
-    }
+  auth_settings {
+    enabled                       = false
+    issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
+    unauthenticated_client_action = "AllowAnonymous"
   }
 }
 
