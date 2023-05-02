@@ -2,5 +2,5 @@ DEBUG=instrument-cra CYPRESS_INSTRUMENT_PRODUCTION=true BUILD_PATH='./build-cypr
 rimraf report-cypress &&
 cypress verify &&
 cypress info &&
-start-server-and-test 'serve -l 3000 -s build-cypress' http-get://localhost:3000 'env-cmd -f .env.cypress cypress run' &&
+start-server-and-test 'serve -l 3000 -s build-cypress' http-get://localhost:3000 'env-cmd -f .env.cypress cypress run --spec "cypress/e2e/integration/**/*"' &&
 xunit-viewer -r report-cypress -o report-cypress/index.html

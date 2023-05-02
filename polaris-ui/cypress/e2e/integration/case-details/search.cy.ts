@@ -1,8 +1,11 @@
 import {
   allMissingDocsPipelinePdfResults,
   missingDocsPipelinePdfResults,
-} from "../../../src/mock-api/data/pipelinePdfResults.cypress";
-import { TEXT_SEARCH_ROUTE, TRACKER_ROUTE } from "../../../src/mock-api/routes";
+} from "../../../../src/mock-api/data/pipelinePdfResults.cypress";
+import {
+  TEXT_SEARCH_ROUTE,
+  TRACKER_ROUTE,
+} from "../../../../src/mock-api/routes";
 
 describe("Case Details Search", () => {
   describe("Search box", () => {

@@ -1,4 +1,4 @@
-import { CASE_SEARCH_ROUTE } from "../../src/mock-api/routes";
+import { CASE_SEARCH_ROUTE } from "../../../src/mock-api/routes";
 
 describe("search results", () => {
   it("displays search result and summarises returned count and URN", () => {
