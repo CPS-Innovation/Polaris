@@ -1,4 +1,4 @@
-/*provider "restapi" {
+provider "restapi" {
   uri                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
   debug                = true
   write_returns_object = true
@@ -16,4 +16,4 @@ resource "restapi_object" "definition" {
   query_string = "api-version=2021-04-30-Preview"
   data         = file("search-index-definition.json")
   depends_on   = [azurerm_search_service.ss]
-}*/
+}
