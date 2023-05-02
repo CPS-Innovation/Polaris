@@ -1,18 +1,36 @@
-import {
-  SAVE_REDACTION_ROUTE,
-  TRACKER_ROUTE,
-} from "../../../src/mock-api/routes";
+import { SAVE_REDACTION_ROUTE } from "../../../src/mock-api/routes";
 describe("redaction assurance", () => {
-  it("For Single defendant and single charge, should show defendant details, charge details and custody time limits and Youth Offender if applicable", () => {
-    cy.visit("/case-details/12AB1111111/13401");
-    cy.writeFile("request.txt", "Hello, world");
-    const fileNameWithoutExtension = `redaction-${+new Date()}`;
+  it("redaction assurance", () => {
+    const fileNameWithoutExtension = `1`;
 
-    cy.overrideRoute(SAVE_REDACTION_ROUTE, { type: "writeRequest" }, "put");
+    cy.overrideRoute(
+      SAVE_REDACTION_ROUTE,
+      { type: "break", httpStatusCode: 500 },
+      "get"
+    );
+
+    cy.overrideRoute(
+      SAVE_REDACTION_ROUTE,
+      { type: "writeRequest", fileName: fileNameWithoutExtension },
+      "put"
+    );
+
+    cy.visit("/case-details/12AB1111111/13401");
+
+    const documentRoute = `${Cypress.env(
+      "REACT_APP_GATEWAY_BASE_URL"
+    )}/api/urns/12AB1111111/cases/13401/documents/1?v=1`;
+
+    cy.log(documentRoute);
 
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0").should("exist").contains("ABC");
+
+    cy.get("body").first().screenshot(`${fileNameWithoutExtension}-pre`, {
+      overwrite: true,
+      capture: "fullPage",
+    });
 
     cy.findByTestId("div-pdfviewer-0")
       .realMouseDown({ position: { x: 207, y: 130 } })
@@ -20,20 +38,11 @@ describe("redaction assurance", () => {
 
     cy.findByTestId("btn-redact").click({ force: true });
 
-    // .trigger("mouseover")
-    // .trigger("mousedown", { which: 1 })
-    // .trigger("mousemove", {
-    //   clientX: 100,
-    //   clientY: 100,
-    //   screenX: 100,
-    //   screenY: 100,
-    //   pageX: 100,
-    //   pageY: 100,
-    // })
-    // .trigger("mouseup", { which: 1 });
+    cy.get("body").first().screenshot(`${fileNameWithoutExtension}-post`, {
+      overwrite: true,
+      capture: "fullPage",
+    });
 
-    // cy.findByTestId("btn-redact").click({ force: true });
-    // cy.screenshot(`${fileNameWithoutExtension}.png`);
-    // cy.findByTestId("btn-save-redaction-0").click();
+    cy.findByTestId("btn-save-redaction-0").click();
   });
 });

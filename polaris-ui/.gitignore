@@ -30,3 +30,5 @@ yarn-error.log*
 /cypress/videos
 /coverage-merged
 /.vscode/settings.json
+/cypress/json
+/cypress/assurance-output

@@ -51,7 +51,7 @@ declare global {
         response:
           | { type: "break"; httpStatusCode: number; body?: any }
           | { type: "delay"; timeMs: number }
-          | { type: "writeRequest" }
+          | { type: "writeRequest"; fileName: string }
           | { type?: false; body: any },
         method?: "get" | "post" | "put"
       ): Chainable<AUTWindow>;

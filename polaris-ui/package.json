@@ -71,8 +71,9 @@
     "lint": "eslint ./src --ext .ts,.tsx",
     "prettier": "prettier --check .",
     "cy": "./scripts/cy.sh",
+    "cy:assurance": "./scripts/cy.assurance.sh",
     "cy:ci": "./scripts/cy-ci.sh",
-    "cy:assurance": "./scripts/cy-assurance.sh",
+    "cy:ci:assurance": "./scripts/cy-ci.assurance.sh",
     "coverage": "./scripts/combine-coverage.sh",
     "clean": "./scripts/clean.sh"
   },

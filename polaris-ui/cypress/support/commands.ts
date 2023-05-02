@@ -25,7 +25,6 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 import "@testing-library/cypress/add-commands";
 import { rest as mswRest } from "msw";
-import { SAVE_REDACTION_ROUTE } from "../../src/mock-api/routes";
 
 const apiPath = (path: string) =>
   new URL(path, Cypress.env("REACT_APP_GATEWAY_BASE_URL")).toString();
@@ -51,8 +50,8 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
               return res.once(ctx.delay(response.timeMs));
             case "writeRequest":
               cy.writeFile(
-                "cypress/fixtures/request.json",
-                req.body!.toString()
+                `cypress/assurance-output/${response.fileName}.json`,
+                JSON.stringify(JSON.parse(req.body!.toString()), null, 2)
               );
 
               return res.once();
