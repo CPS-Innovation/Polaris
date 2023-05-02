@@ -14,9 +14,9 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "1",
       cmsDocumentId: "1",
-      pdfBlobName: "MCLOVEMG3",
+      pdfBlobName: "specimen",
       status: "Indexed",
-      cmsOriginalFileName: "MCLOVEMG3",
+      cmsOriginalFileName: "specimen",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-01",
       cmsDocCategory: "MGForm",
