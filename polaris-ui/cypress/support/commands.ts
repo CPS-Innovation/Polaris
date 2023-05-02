@@ -25,6 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 import "@testing-library/cypress/add-commands";
 import { rest as mswRest } from "msw";
+import { SAVE_REDACTION_ROUTE } from "../../src/mock-api/routes";
 
 const apiPath = (path: string) =>
   new URL(path, Cypress.env("REACT_APP_GATEWAY_BASE_URL")).toString();
@@ -48,6 +49,10 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
               );
             case "delay":
               return res.once(ctx.delay(response.timeMs));
+            case "writeRequest":
+              cy.log(req.body!.toString());
+              cy.writeFile("request.txt", "Hello, world");
+              return res.once();
             default:
               return res.once(ctx.json(response.body));
           }
@@ -56,6 +61,7 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
     );
   });
 });
+
 Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
   cy.wait(100);
   cy.get(`.textLayer span:contains(${matchString})`)

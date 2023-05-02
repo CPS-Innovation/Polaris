@@ -50,8 +50,13 @@ declare global {
         response:
           | { type: "break"; httpStatusCode: number; body?: any }
           | { type: "delay"; timeMs: number }
+          | { type: "writeRequest" }
           | { type?: false; body: any },
         method?: "get" | "post" | "put"
+      ): Chainable<AUTWindow>;
+      interceptAndLogRequest(
+        options: Partial<Cypress.RequestOptions>,
+        fileName: string
       ): Chainable<AUTWindow>;
     }
   }
