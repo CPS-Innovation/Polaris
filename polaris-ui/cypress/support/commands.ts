@@ -50,8 +50,11 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
             case "delay":
               return res.once(ctx.delay(response.timeMs));
             case "writeRequest":
-              cy.log(req.body!.toString());
-              cy.writeFile("request.txt", "Hello, world");
+              cy.writeFile(
+                "cypress/fixtures/request.json",
+                req.body!.toString()
+              );
+
               return res.once();
             default:
               return res.once(ctx.json(response.body));
