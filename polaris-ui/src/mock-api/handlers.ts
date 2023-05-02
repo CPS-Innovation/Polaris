@@ -3,9 +3,11 @@ import { rest, RestContext } from "msw";
 import devSearchDataSource from "./data/searchResults.dev";
 import cypressSearchDataSource from "./data/searchResults.cypress";
 import devCaseDetailsDataSource from "./data/caseDetails.dev";
-import cypressDetailsDataSource from "./data/caseDetails.cypress";
-import devpipelinePdfResultsDataSource from "./data/pipelinePdfResults.dev";
-import cypresspipelinePdfResultsDataSource from "./data/pipelinePdfResults.cypress";
+import cypressCaseDetailsDataSource from "./data/caseDetails.cypress";
+import assuranceCaseDetailsDataSource from "./data/caseDetails.assurance";
+import devPipelinePdfResultsDataSource from "./data/pipelinePdfResults.dev";
+import cypressPipelinePdfResultsDataSource from "./data/pipelinePdfResults.cypress";
+import assurancePipelinePdfResultsDataSource from "./data/pipelinePdfResults.assurance";
 import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
 import { SearchDataSource } from "./data/types/SearchDataSource";
@@ -25,23 +27,27 @@ import pdfStrings from "./data/pdfs/pdf-strings.json";
 const searchDataSources: { [key: string]: SearchDataSource } = {
   dev: devSearchDataSource,
   cypress: cypressSearchDataSource,
+  assurance: cypressSearchDataSource,
 };
 
 const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
   dev: devCaseDetailsDataSource,
-  cypress: cypressDetailsDataSource,
+  cypress: cypressCaseDetailsDataSource,
+  assurance: assuranceCaseDetailsDataSource,
 };
 
 const pipelinePdfResultsDataSources: {
   [key: string]: PipelinePdfResultsDataSource;
 } = {
-  dev: devpipelinePdfResultsDataSource,
-  cypress: cypresspipelinePdfResultsDataSource,
+  dev: devPipelinePdfResultsDataSource,
+  cypress: cypressPipelinePdfResultsDataSource,
+  assurance: assurancePipelinePdfResultsDataSource,
 };
 
 const searchCaseDataSources: { [key: string]: SearchCaseDataSource } = {
   dev: devSearchCaseDataSource,
   cypress: cypressSearchCaseDataSource,
+  assurance: cypressSearchCaseDataSource,
 };
 
 export const setupHandlers = ({
