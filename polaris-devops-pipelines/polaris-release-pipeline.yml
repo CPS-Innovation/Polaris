@@ -48,10 +48,16 @@ stages:
                     echo "run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
