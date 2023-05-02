@@ -15,18 +15,23 @@ describe("redaction assurance", () => {
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
     //cy.selectPDFTextElement("9");
 
-    cy.findByTestId("div-charges")
-      .trigger("mouseover")
-      .trigger("mousedown", { which: 1 })
-      .trigger("mousemove", {
-        clientX: 100,
-        clientY: 100,
-        screenX: 100,
-        screenY: 100,
-        pageX: 100,
-        pageY: 100,
-      })
-      .trigger("mouseup", { which: 1 });
+    cy.findByTestId("div-pdfviewer-0")
+      .realMouseDown({ position: { x: 10, y: 10 } })
+      .realMouseUp({ position: { x: 200, y: 200 } });
+
+    cy.findByTestId("btn-redact").click({ force: true });
+
+    // .trigger("mouseover")
+    // .trigger("mousedown", { which: 1 })
+    // .trigger("mousemove", {
+    //   clientX: 100,
+    //   clientY: 100,
+    //   screenX: 100,
+    //   screenY: 100,
+    //   pageX: 100,
+    //   pageY: 100,
+    // })
+    // .trigger("mouseup", { which: 1 });
 
     // cy.findByTestId("btn-redact").click({ force: true });
     // cy.screenshot(`${fileNameWithoutExtension}.png`);
