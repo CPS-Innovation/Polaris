@@ -1,4 +1,3 @@
-/*
 resource "azurerm_linux_web_app" "polaris_proxy" {
   name                      = "${local.resource_name}-cmsproxy"
   resource_group_name       = azurerm_resource_group.rg_polaris.name
@@ -219,4 +218,3 @@ resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind"
   ssl_state           = "SniEnabled"
   thumbprint          = azurerm_app_service_certificate.proxy_cert_ref.thumbprint
 }
-*/
