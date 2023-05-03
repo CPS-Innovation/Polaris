@@ -198,23 +198,20 @@ data "azurerm_key_vault_secret" "proxy_cert_read" {
   key_vault_id = data.azurerm_key_vault.proxy_key_vault.id
 }
 
-# Third, get certificate from key vault
-resource "azurerm_app_service_certificate" "proxy_cert_ref" {
+# Third, lookup certificate thumbproint from key vault
+data "azurerm_app_service_certificate" "proxy_cert_ref" {
   name                = var.certificate_name
   resource_group_name = azurerm_resource_group.rg_polaris.name
-  location            = azurerm_resource_group.rg_polaris.location
-  pfx_blob            = data.azurerm_key_vault_secret.proxy_cert_read.value
 }
 
 #Fourth, bind the certificate to the proxy definition
 resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind" {
   depends_on = [
-    azurerm_app_service_certificate.proxy_cert_ref,
     azurerm_linux_web_app.polaris_proxy
   ]
   hostname            = var.custom_proxy_domain_name
   app_service_name    = azurerm_linux_web_app.polaris_proxy.name
   resource_group_name = azurerm_resource_group.rg_polaris.name
   ssl_state           = "SniEnabled"
-  thumbprint          = azurerm_app_service_certificate.proxy_cert_ref.thumbprint
+  thumbprint          = data.azurerm_app_service_certificate.proxy_cert_ref.thumbprint
 }
