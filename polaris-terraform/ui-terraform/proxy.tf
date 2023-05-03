@@ -185,26 +185,7 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
 
-# Retrieve the proxy's certificate and bind it to the proxy definition, post proxy creation
-# First, read the containing key vault
-data "azurerm_key_vault" "proxy_key_vault" {
-  name                = "kv-polaris-cert-${var.env}"
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-}
-
-# Second, read the certificate
-data "azurerm_key_vault_secret" "proxy_cert_read" {
-  name         = var.certificate_name
-  key_vault_id = data.azurerm_key_vault.proxy_key_vault.id
-}
-
-# Third, lookup certificate thumbproint from key vault
-data "azurerm_app_service_certificate" "proxy_cert_ref" {
-  name                = var.certificate_name
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-}
-
-#Fourth, bind the certificate to the proxy definition
+#Bind the appropriate certificate to the proxy definition
 resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind" {
   depends_on = [
     azurerm_linux_web_app.polaris_proxy
