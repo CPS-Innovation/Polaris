@@ -1,5 +1,4 @@
-import { SAVE_REDACTION_ROUTE } from "../../../src/mock-api/routes";
-// import pdfs from "../../../src/mock-api/data/pdfs/pdf-strings.json";
+import { SAVE_REDACTION_ROUTE, FILE_ROUTE } from "../../../src/mock-api/routes";
 
 describe("redaction assurance", () => {
   it("redaction assurance", () => {
@@ -10,14 +9,8 @@ describe("redaction assurance", () => {
       { type: "writeRequest", fileName: fileNameWithoutExtension },
       "put"
     );
-
+    //cy.viewport(1500, 2500);
     cy.visit("/case-details/12AB1111111/13401");
-
-    // const documentRoute = `${Cypress.env(
-    //   "REACT_APP_GATEWAY_BASE_URL"
-    // )}/api/urns/12AB1111111/cases/13401/documents/1?v=1`;
-
-    // cy.log(documentRoute);
 
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
@@ -28,7 +21,12 @@ describe("redaction assurance", () => {
       capture: "fullPage",
     });
 
-    cy.findByTestId("div-pdfviewer-0")
+    // cy.findByTestId("div-pdfviewer-1")
+    //   .realMouseDown({ position: { x: 207, y: 130 } })
+    //   .realMouseUp({ position: { x: 525, y: 365 } });
+
+    cy.get(".page")
+      .last()
       .realMouseDown({ position: { x: 207, y: 130 } })
       .realMouseUp({ position: { x: 525, y: 365 } });
 
