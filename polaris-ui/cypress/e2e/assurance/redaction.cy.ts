@@ -14,7 +14,7 @@ describe("redaction assurance", () => {
 
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
-    cy.findByTestId("div-pdfviewer-0").should("exist").contains("ABC");
+    cy.findByTestId("div-pdfviewer-0").should("exist").contains("1");
 
     cy.get("body").first().screenshot(`${fileNameWithoutExtension}-pre`, {
       overwrite: true,
@@ -26,9 +26,15 @@ describe("redaction assurance", () => {
     //   .realMouseUp({ position: { x: 525, y: 365 } });
 
     cy.get(".page")
+      .first()
+      .realMouseDown({ position: { x: 60, y: 60 } })
+      .realMouseUp({ position: { x: 285, y: 190 } });
+    cy.findByTestId("btn-redact").click({ force: true });
+
+    cy.get(".page")
       .last()
-      .realMouseDown({ position: { x: 207, y: 130 } })
-      .realMouseUp({ position: { x: 525, y: 365 } });
+      .realMouseDown({ position: { x: 60, y: 50 } })
+      .realMouseUp({ position: { x: 285, y: 180 } });
 
     cy.findByTestId("btn-redact").click({ force: true });
 

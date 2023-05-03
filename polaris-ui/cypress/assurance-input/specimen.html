@@ -1,15 +1,49 @@
+<!DOCTYPE html>
 <html>
+  <head>
+    <style>
+      .grid-container {
+        display: grid;
+        row-gap: 5px;
+        column-gap: 5px;
+        grid-template-columns: auto auto auto auto;
+        background-color: #2196f3;
+        padding: 0px;
+        height: 1040px;
+      }
 
-<body>
-  <div
-    style="border: 1px solid red; background-color: green; top: 100px; left: 200px; height: 300px; width: 400px; position: absolute; ">
-    <div style="margin: 10px">ABC</div>
-  </div>
-  <div
-    style="border: 1px solid orange; background-color: blue; top: 2500px; left: 200px; height: 300px; width: 400px; position: absolute;">
-    <div style="margin: 10px">DEF</div>
-  </div>
-
-</body>
-
+      .grid-item {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        font-size: 30px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const bgColors = ["red", "green", "blue"];
+      const addGrid = (bgColor) => {
+        const container = document.createElement("div");
+        container.style.backgroundColor = bgColor;
+        container.classList.add("grid-container");
+        for (let i = 1; i < 41; i++) {
+          const child = document.createElement("div");
+          child.classList.add("grid-item");
+          child.textContent = i;
+          container.appendChild(child);
+        }
+        document.body.appendChild(container);
+      };
+      const addGridPages = (pages) => {
+        for (let i = 0; i < pages; i++) {
+          addGrid(bgColors[i]);
+        }
+      };
+      addGridPages(2);
+    </script>
+  </body>
 </html>
