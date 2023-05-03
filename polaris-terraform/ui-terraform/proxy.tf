@@ -15,6 +15,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "UPSTREAM_CMS_IP"                          = "10.2.177.14"
     "UPSTREAM_CMS_MODERN_IP"                   = "10.2.177.55"
     "UPSTREAM_CMS_DOMAIN_NAME"                 = "cin3.cps.gov.uk"
+    "UPSTREAM_CMS_MODERN_DOMAIN_NAME"          = "cmsmodcin3.cps.gov.uk"
     "APP_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                       = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                 = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
