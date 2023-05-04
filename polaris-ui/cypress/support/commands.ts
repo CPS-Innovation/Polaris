@@ -49,12 +49,12 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
             case "delay":
               return res.once(ctx.delay(response.timeMs));
             case "writeRequest":
-              cy.writeFile(
-                `cypress/assurance-output/${response.fileName}.json`,
-                JSON.stringify(JSON.parse(req.body!.toString()), null, 2)
-              );
-
-              return res.once();
+              cy.window().then((win: any) => {
+                win.latestWriteRequest = req.body;
+              });
+              return res.once(ctx.json({}));
+            case "returnFile":
+              return res.once(ctx.body(response.body));
             default:
               return res.once(ctx.json(response.body));
           }

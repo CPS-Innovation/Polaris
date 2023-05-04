@@ -1,0 +1,16 @@
+[
+  {
+    "fileName": "specimen",
+    "coordinates": [
+      { "pageIndex": 1, "x0": 60, "y0": 60, "x1": 285, "y1": 190 },
+      { "pageIndex": 2, "x0": 60, "y0": 50, "x1": 285, "y1": 180 }
+    ]
+  },
+  {
+    "fileName": "LorumIpsum",
+    "coordinates": [
+      { "pageIndex": 1, "x0": 87, "y0": 165, "x1": 158, "y1": 220 },
+      { "pageIndex": 2, "x0": 824, "y0": 145, "x1": 887, "y1": 183 }
+    ]
+  }
+]

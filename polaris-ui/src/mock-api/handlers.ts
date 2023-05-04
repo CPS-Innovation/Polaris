@@ -162,7 +162,7 @@ export const setupHandlers = ({
   ];
 };
 
-function _base64ToArrayBuffer(base64: string) {
+export function _base64ToArrayBuffer(base64: string) {
   var binary_string = window.atob(base64);
   var len = binary_string.length;
   var bytes = new Uint8Array(len);

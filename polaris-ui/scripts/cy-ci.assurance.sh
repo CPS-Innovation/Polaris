@@ -1,3 +1,4 @@
+node cypress/assurance-input/convertToStrings && 
 BUILD_PATH='./build-cypress' env-cmd -f .env.cypress react-scripts build &&
 cypress verify &&
 cypress info &&
