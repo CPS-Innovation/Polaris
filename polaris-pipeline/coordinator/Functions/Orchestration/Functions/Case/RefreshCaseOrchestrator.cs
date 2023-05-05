@@ -127,7 +127,11 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             var deltas = await GetCaseDocumentChanges(context.CurrentUtcDateTime, tracker, loggingName, log, caseDocumentPayload, documents);
 
-            var logMessage = $"Refresh Documents, retry {retry}, CMS:({deltas.CreatedCmsDocuments.Count} created, {deltas.UpdatedCmsDocuments.Count} updated, {deltas.DeletedCmsDocuments.Count} deleted). PCD :({deltas.CreatedPcdRequests.Count} created, {deltas.DeletedPcdRequests.Count} deleted)";
+            var logMessage = $"Refresh Documents, retry {retry}, " +
+                                $"CMS:({deltas.CreatedCmsDocuments.Count} created, {deltas.UpdatedCmsDocuments.Count} updated, {deltas.DeletedCmsDocuments.Count} deleted), " +
+                                $"PCD :({deltas.CreatedPcdRequests.Count} created, {deltas.DeletedPcdRequests.Count} deleted), " +
+                                $"DAC :({(deltas.CreatedDefendantsAndCharges != null ? 1 : 0)} created, {(deltas.UpdatedDefendantsAndCharges != null ? 1 : 0)} deleted).";
+
             log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, logMessage);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();

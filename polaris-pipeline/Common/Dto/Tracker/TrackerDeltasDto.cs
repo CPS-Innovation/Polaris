@@ -29,7 +29,7 @@ namespace Common.Dto.Tracker
         {
             return CreatedCmsDocuments.Any() || UpdatedCmsDocuments.Any() || DeletedCmsDocuments.Any() ||
                    CreatedPcdRequests.Any() || UpdatedPcdRequests.Any() || DeletedPcdRequests.Any() ||
-                   CreatedDefendantsAndCharges != null || UpdatedDefendantsAndCharges != null || !IsDeletedDefendantsAndCharges;
+                   (CreatedDefendantsAndCharges != null) || (UpdatedDefendantsAndCharges != null) || IsDeletedDefendantsAndCharges;
         }
     }
 }

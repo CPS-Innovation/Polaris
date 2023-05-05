@@ -155,10 +155,12 @@ namespace coordinator.tests.Functions.SubOrchestrators
         [Fact]
         public async Task Run_RegistersAsIndexed_WhenDocumentEvaluation_EqualsDocumentUnchanged()
         {
-            _evaluateDocumentResponse.EvaluationResult = DocumentEvaluationResult.DocumentUnchanged;
+            var pdfResponse = new GeneratePdfResponse(new Fixture().Create<string>());
+            pdfResponse.AlreadyProcessed = true;
+
             _mockDurableOrchestrationContext
                 .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<object>()))
-                .ReturnsAsync(_pdfResponse);
+                .ReturnsAsync(pdfResponse);
 
             try
             {
