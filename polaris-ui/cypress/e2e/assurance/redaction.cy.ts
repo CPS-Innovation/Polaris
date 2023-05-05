@@ -81,13 +81,13 @@ describe("redaction assurance", () => {
 
         cy.findByTestId("btn-redact").click({ force: true });
 
-        // cy.get(`@page-${coordinate.pageIndex}`).screenshot(
-        //   `${input.fileName}-page${coordinate.pageIndex}-post`,
-        //   {
-        //     overwrite: true,
-        //     capture: "fullPage",
-        //   }
-        // );
+        //   cy.get(`@page-${coordinate.pageIndex}`).screenshot(
+        //     `${input.fileName}-page${coordinate.pageIndex}-post`,
+        //     {
+        //       overwrite: true,
+        //       capture: "fullPage",
+        //     }
+        //   );
       });
 
       cy.findByTestId("btn-save-redaction-0").click();
@@ -98,10 +98,6 @@ describe("redaction assurance", () => {
           cy.writeFile(
             `cypress/assurance-output/${input.fileName}.json`,
             JSON.stringify(JSON.parse(reqBody!.toString()), null, 2)
-          );
-          console.log(
-            "JSON.parse(reqBody!.toString()",
-            JSON.parse(reqBody!.toString())
           );
 
           const currentRedactions = JSON.parse(reqBody!.toString()).redactions;

@@ -1,2 +1,2 @@
 node cypress/assurance-input/convertToStrings && 
-DEBUG=instrument-cra start-server-and-test 'env-cmd -f .env.cypress react-scripts -r @cypress/instrument-cra start' http-get://localhost:3000 'env-cmd -f .env.assurance cypress open'
+DEBUG=instrument-cra start-server-and-test 'env-cmd -f .env.assurance react-scripts -r @cypress/instrument-cra start' http-get://localhost:3000 'env-cmd -f .env.assurance cypress open'

@@ -104,9 +104,13 @@ export const PdfViewer: React.FC<Props> = ({
             <PdfHighlighter
               onWheelDownwards={ensureAllPdfInView}
               pdfDocument={pdfDocument}
-              enableAreaSelection={(event) =>
-                (event.target as HTMLElement).className === "textLayer"
-              }
+              enableAreaSelection={(event) => {
+                //this is to enable multiple selection using mouse down and ups for assurance test, by disabling the text selection.
+                if (process.env.REACT_APP_MOCK_API_SOURCE === "assurance") {
+                  return true;
+                }
+                return (event.target as HTMLElement).className === "textLayer";
+              }}
               onScrollChange={() => {}}
               pdfScaleValue="page-width"
               scrollRef={(scrollTo) => {
