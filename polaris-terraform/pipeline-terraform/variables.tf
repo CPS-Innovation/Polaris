@@ -39,3 +39,11 @@ variable "dns_server" {
 variable "terraform_service_principal_display_name" {
   type = string
 }
+
+variable "pipeline_logging" {
+  type = object({
+    coordinator_scale_controller = string
+    pdf_generator_scale_controller = string
+    text_extractor_scale_controller = string
+  })
+}

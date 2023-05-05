@@ -20,6 +20,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_pdf_generator_file_share.name
+    "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.pdf_generator_scale_controller
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"

@@ -70,3 +70,11 @@ variable "proxy_domain_name_1" {
 variable "proxy_domain_name_2" {
   type = string
 }
+
+variable "ui_logging" {
+  type = object({
+    gateway_scale_controller       = string
+    auth_handover_scale_controller = string
+    proxy_scale_controller         = string
+  })
+}

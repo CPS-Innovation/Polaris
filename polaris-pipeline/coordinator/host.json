@@ -3,16 +3,16 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Information",
-      "Host.Results": "Information",
+      "default": "Warning",
       "Function": "Information",
-      "Host.Aggregator": "Information"
+      "Host.Aggregator": "Error",
+      "Host.Results": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": false,
+        "isEnabled": true,
         "maxTelemetryItemsPerSecond": 20,
-        "samplingExcludedTypes": "Request"
+        "excludedTypes": "Request;Exception"
       },
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,
