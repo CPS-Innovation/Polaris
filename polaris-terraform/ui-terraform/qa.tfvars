@@ -19,7 +19,7 @@ proxy_domain_name_1 = "polaris-qa-cmsproxy.azurewebsites.net"
 proxy_domain_name_2 = "polaris-qa-notprod.cpsdev.co.uk"
 
 ui_logging = {
-  gateway_scale_controller        = "AppInsights:None"
-  auth_handover_scale_controller  = "AppInsights:None"
-  proxy_scale_controller          = "AppInsights:None"
+  gateway_scale_controller       = "AppInsights:None"
+  auth_handover_scale_controller = "AppInsights:None"
+  proxy_scale_controller         = "AppInsights:None"
 }
