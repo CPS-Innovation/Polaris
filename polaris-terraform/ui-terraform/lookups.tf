@@ -121,7 +121,7 @@ data "azurerm_application_insights" "global_ai" {
 }
 
 data "azurerm_resource_group" "rg_analytics" {
-  name                = "rg-${local.analytics_group_name}"
+  name = "rg-${local.analytics_group_name}"
 }
 
 data "azurerm_key_vault" "proxy_key_vault" {

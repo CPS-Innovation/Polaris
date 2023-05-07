@@ -25,37 +25,37 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   }
 
   site_config {
-    ftps_state                             = "FtpsOnly"
-    http2_enabled                          = true
+    ftps_state    = "FtpsOnly"
+    http2_enabled = true
     # The -s in npx serve -s is very important.  It allows any url that hits the app
     #  to be served from the root index.html.  This is important as it accomodates any
     #  sub directory that the app may be hosted with, or none at all.
-    app_command_line                       = "node polaris-ui/subsititute-config.js; npx serve -s"
-    always_on                              = true
-    vnet_route_all_enabled                 = true
-    
+    app_command_line       = "node polaris-ui/subsititute-config.js; npx serve -s"
+    always_on              = true
+    vnet_route_all_enabled = true
+
     application_stack {
       node_version = "14-lts"
     }
   }
-  
+
   auth_settings_v2 {
-    auth_enabled                  = true
-    require_authentication        = true
-    default_provider              = "AzureActiveDirectory"
-    unauthenticated_action        = "AllowAnonymous"
-    excluded_paths                = ["/status"]
+    auth_enabled           = true
+    require_authentication = true
+    default_provider       = "AzureActiveDirectory"
+    unauthenticated_action = "AllowAnonymous"
+    excluded_paths         = ["/status"]
 
     # our default_provider:
     active_directory_v2 {
-      tenant_auth_endpoint        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
-      client_secret_setting_name  = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_id                   = module.azurerm_app_reg_as_web_polaris.client_id
+      tenant_auth_endpoint       = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      client_id                  = module.azurerm_app_reg_as_web_polaris.client_id
     }
 
     # use a store for tokens (az blob storage backed)
     login {
-      token_store_enabled         = true
+      token_store_enabled = true
     }
   }
 }

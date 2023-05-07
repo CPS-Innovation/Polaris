@@ -14,6 +14,12 @@ polaris_webapp_details = {
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
 
-certificate_name         = "polaris-qa-certd0457722-dafa-440f-8d83-0f2cbb1b17ad"
-proxy_domain_name_1      = "polaris-qa-cmsproxy.azurewebsites.net"
-proxy_domain_name_2      = "polaris-qa-notprod.cpsdev.co.uk"
+certificate_name    = "polaris-qa-certd0457722-dafa-440f-8d83-0f2cbb1b17ad"
+proxy_domain_name_1 = "polaris-qa-cmsproxy.azurewebsites.net"
+proxy_domain_name_2 = "polaris-qa-notprod.cpsdev.co.uk"
+
+ui_logging = {
+  gateway_scale_controller       = "AppInsights:None"
+  auth_handover_scale_controller = "AppInsights:None"
+  proxy_scale_controller         = "AppInsights:None"
+}
