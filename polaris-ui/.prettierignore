@@ -14,3 +14,5 @@ public/mockServiceWorker.js
 src/react-pdf-highlighter
 src/mock-api/data/pdfs/pdf-strings.json
 deploy-pipeline.yml
+cypress/assurance-input/pdf-strings.json
+cypress/assurance-output
