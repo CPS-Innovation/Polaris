@@ -113,10 +113,9 @@ describe("reducerAsyncActionHandlers", () => {
     >([
       ["unlocked", true, "locked"],
       ["unlocking", true, "locked"],
-      ["unlocked", false, "locked-by-other-user"],
-      ["unlocking", false, "locked-by-other-user"],
+      ["locked-by-other-user", true, "locked"],
     ])(
-      "can add a redaction and lock the document if the document is unlocked or unlocking",
+      "can add a redaction and lock the document if the document is unlocked or unlocking and document checkout is successfull",
       async (
         clientLockedState,
         isLockSuccessful,
@@ -158,18 +157,161 @@ describe("reducerAsyncActionHandlers", () => {
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
-          type: "ADD_REDACTION",
-          payload: { documentId: "1", redaction: { type: "redaction" } },
-        });
-        expect(dispatchMock.mock.calls[1][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: { documentId: "1", lockedState: "locking" },
         });
+        expect(dispatchMock.mock.calls[1][0]).toEqual({
+          type: "ADD_REDACTION",
+          payload: { documentId: "1", redaction: { type: "redaction" } },
+        });
+
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: {
             documentId: "1",
             lockedState: expectedFinalDispatchedLockedState,
+          },
+        });
+      }
+    );
+
+    it.each<
+      [
+        CaseDocumentViewModel["clientLockedState"],
+        boolean,
+        CaseDocumentViewModel["clientLockedState"]
+      ]
+    >([
+      ["unlocked", false, "unlocked"],
+      ["unlocking", false, "unlocked"],
+      ["locked-by-other-user", false, "unlocked"],
+    ])(
+      "Should not add redaction, if the document is unlocked or unlocking and document checkout is unsuccessfull",
+      async (
+        clientLockedState,
+        isLockSuccessful,
+        expectedFinalDispatchedLockedState
+      ) => {
+        // arrange
+        combinedStateMock = {
+          tabsState: {
+            items: [
+              { documentId: "1", clientLockedState, cmsDocCategory: "MGForm" },
+            ] as CaseDocumentViewModel[],
+          },
+          caseId: 2,
+          urn: "foo",
+        } as CombinedState;
+
+        const checkoutSpy = jest
+          .spyOn(api, "checkoutDocument")
+          .mockImplementation(() => Promise.reject({ isLockSuccessful }));
+
+        const handler =
+          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+            dispatch: dispatchMock,
+            getState: () => combinedStateMock,
+            signal: new AbortController().signal,
+          });
+
+        //act
+        await handler({
+          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          payload: {
+            documentId: "1",
+            redaction: { type: "redaction" } as NewPdfHighlight,
+          },
+        });
+
+        //assert
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
+
+        expect(dispatchMock.mock.calls.length).toBe(3);
+        expect(dispatchMock.mock.calls[0][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: { documentId: "1", lockedState: "locking" },
+        });
+        expect(dispatchMock.mock.calls[1][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: {
+            documentId: "1",
+            lockedState: expectedFinalDispatchedLockedState,
+          },
+        });
+        expect(dispatchMock.mock.calls[2][0]).toEqual({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Something went wrong!",
+            message: "Failed to checkout document. Please try again later.",
+          },
+        });
+      }
+    );
+
+    it.each<
+      [
+        CaseDocumentViewModel["clientLockedState"],
+        CaseDocumentViewModel["clientLockedState"]
+      ]
+    >([
+      ["unlocked", "locked-by-other-user"],
+      ["unlocking", "locked-by-other-user"],
+      ["locked-by-other-user", "locked-by-other-user"],
+    ])(
+      "Should not add redaction, if the document is unlocked or unlocking and document checkout is unsuccessfull because it is locked by another user statuscode(409)",
+      async (clientLockedState, expectedFinalDispatchedLockedState) => {
+        // arrange
+        combinedStateMock = {
+          tabsState: {
+            items: [
+              { documentId: "1", clientLockedState, cmsDocCategory: "MGForm" },
+            ] as CaseDocumentViewModel[],
+          },
+          caseId: 2,
+          urn: "foo",
+        } as CombinedState;
+
+        const checkoutSpy = jest
+          .spyOn(api, "checkoutDocument")
+          .mockImplementation(() => Promise.reject({ code: 409 }));
+
+        const handler =
+          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+            dispatch: dispatchMock,
+            getState: () => combinedStateMock,
+            signal: new AbortController().signal,
+          });
+
+        //act
+        await handler({
+          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          payload: {
+            documentId: "1",
+            redaction: { type: "redaction" } as NewPdfHighlight,
+          },
+        });
+
+        //assert
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
+
+        expect(dispatchMock.mock.calls.length).toBe(3);
+        expect(dispatchMock.mock.calls[0][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: { documentId: "1", lockedState: "locking" },
+        });
+        expect(dispatchMock.mock.calls[1][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: {
+            documentId: "1",
+            lockedState: expectedFinalDispatchedLockedState,
+          },
+        });
+        expect(dispatchMock.mock.calls[2][0]).toEqual({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Failed to redact document",
+            message:
+              "It is not possible to redact as the document is already checked out by another user. Please try again later.",
           },
         });
       }
