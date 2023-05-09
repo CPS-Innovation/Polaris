@@ -57,6 +57,7 @@ stages:
                     TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -68,6 +69,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -79,6 +81,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 #download coordinator build artifact
                 - download: PolarisPRODManualTerraformBuild
@@ -141,6 +144,7 @@ stages:
                     TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -152,6 +156,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -163,6 +168,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 #download ui terraform build artifact
                 - download: PolarisPRODManualTerraformBuild
@@ -183,6 +189,7 @@ stages:
                     TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -194,6 +201,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -205,6 +213,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 #download ui events terraform build artifact
                 - download: PolarisPRODManualTerraformBuild
@@ -225,6 +234,7 @@ stages:
                     TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -236,6 +246,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -247,6 +258,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 #download gateway build artifact
                 - download: PolarisPRODManualTerraformBuild
