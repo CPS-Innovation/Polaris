@@ -8,7 +8,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Moq;
-using pdf_generator.Factories;
 using pdf_generator.Factories.Contracts;
 using pdf_generator.Services.DocumentRedactionService;
 using pdf_generator.Services.PdfService;

@@ -8,11 +8,11 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   storage_account_name        = azurerm_storage_account.sa.name
   storage_account_access_key  = azurerm_storage_account.sa.primary_access_key
   virtual_network_subnet_id   = data.azurerm_subnet.polaris_textextractor_subnet.id
+  tags                        = local.common_tags
   functions_extension_version = "~4"
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
@@ -20,6 +20,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
+    "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.text_extractor_scale_controller
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "BlobServiceContainerName"                 = azurerm_storage_container.container.name
     "BlobExpirySecs"                           = 3600
@@ -35,11 +36,13 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   https_only = true
 
   site_config {
-    ip_restriction                   = []
-    ftps_state                       = "FtpsOnly"
-    http2_enabled                    = true
-    runtime_scale_monitoring_enabled = true
-    vnet_route_all_enabled           = true
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
+    runtime_scale_monitoring_enabled       = true
+    vnet_route_all_enabled                 = true
+    elastic_instance_minimum               = 3 
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
   }
 
   identity {
@@ -51,8 +54,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
     unauthenticated_client_action = "AllowAnonymous"
   }
-
-  tags = local.common_tags
 }
 
 module "azurerm_app_reg_fa_text_extractor" {

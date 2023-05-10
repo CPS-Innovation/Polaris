@@ -13,7 +13,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
@@ -21,6 +20,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_coordinator_file_share.name
+    "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.coordinator_scale_controller
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"       = "600"
     "TextExtractorUrl"                         = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/extract?code=${data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key}"
@@ -39,16 +39,17 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   https_only = true
 
   site_config {
-    ip_restriction                   = []
-    ftps_state                       = "FtpsOnly"
-    http2_enabled                    = true
-    runtime_scale_monitoring_enabled = true
-    vnet_route_all_enabled           = true
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
+    runtime_scale_monitoring_enabled       = true
+    vnet_route_all_enabled                 = true
+    elastic_instance_minimum               = 3
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
 
     cors {
       allowed_origins = []
     }
-    elastic_instance_minimum = 1
   }
 
   identity {

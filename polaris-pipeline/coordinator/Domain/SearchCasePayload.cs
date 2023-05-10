@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace coordinator.Domain
+﻿namespace coordinator.Domain
 {
     public class SearchCasePayload
     {

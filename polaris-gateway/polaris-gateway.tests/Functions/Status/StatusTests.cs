@@ -6,7 +6,6 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using NSubstitute;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Domain.Validators;
 using PolarisGateway.Wrappers;
 using Xunit;
 
@@ -74,7 +73,7 @@ namespace PolarisGateway.Tests.Functions.Status
             var statusFunction = GetStatusFunction();
 
             //Act
-            var results = await statusFunction.Run(CreateHttpRequest()) as Microsoft.AspNetCore.Mvc.ObjectResult;
+            var results = await statusFunction.Run(CreateHttpRequest()) as Microsoft.AspNetCore.Mvc.JsonResult;
 
             //Assert
             Assert.Equal(200, results?.StatusCode);
