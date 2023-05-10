@@ -1,7 +1,10 @@
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { CombinedState } from "../../domain/CombinedState";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
-import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
+import {
+  reducerAsyncActionHandlers,
+  CHECKOUT_BLOCKED_STATUS_CODE,
+} from "./reducer-async-action-handlers";
 import * as api from "../../api/gateway-api";
 import * as headerFactory from "../../api/header-factory";
 import * as mapRedactionSaveRequest from "./map-redaction-save-request";
@@ -273,7 +276,9 @@ describe("reducerAsyncActionHandlers", () => {
 
         const checkoutSpy = jest
           .spyOn(api, "checkoutDocument")
-          .mockImplementation(() => Promise.reject({ code: 409 }));
+          .mockImplementation(() =>
+            Promise.reject({ code: CHECKOUT_BLOCKED_STATUS_CODE })
+          );
 
         const handler =
           reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({

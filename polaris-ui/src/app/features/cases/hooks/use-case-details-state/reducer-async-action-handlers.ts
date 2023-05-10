@@ -69,6 +69,7 @@ type AsyncActions =
       };
     };
 
+export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const reducerAsyncActionHandlers: AsyncActionHandlers<
   Reducer<State, Action>,
   AsyncActions
@@ -146,12 +147,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
       } catch (error: unknown) {
         const { code } = error as ApiError;
-        /* NOTE: Ideally we a need another api request to get the locked status of a document , 
-        which is fired when a document is opened in a Tab, 
-        So that based on that we can update the user the the document is locked by another user if it is not available and 
-        block the selection and subsequent redaction on locked files"
-        */
-        if (code === 409) {
+        if (code === CHECKOUT_BLOCKED_STATUS_CODE) {
           dispatch({
             type: "UPDATE_DOCUMENT_LOCK_STATE",
             payload: {
