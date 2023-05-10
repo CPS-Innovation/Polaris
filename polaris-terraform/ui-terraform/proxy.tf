@@ -197,3 +197,29 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   tags                = local.common_tags
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
+
+/*
+resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_1" {
+  hostname            = var.proxy_domain_name_1
+  app_service_name    = azurerm_linux_web_app.polaris_proxy.name
+  resource_group_name = azurerm_resource_group.rg_polaris.name
+  ssl_state           = "SniEnabled"
+  thumbprint          = lookup(data.azurerm_key_vault_secret.proxy_cert_ref.tags, "Thumbprint", null)
+
+  depends_on = [
+    azurerm_linux_web_app.polaris_proxy
+  ]
+}
+
+resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_2" {
+  hostname            = var.proxy_domain_name_2
+  app_service_name    = azurerm_linux_web_app.polaris_proxy.name
+  resource_group_name = azurerm_resource_group.rg_polaris.name
+  ssl_state           = "SniEnabled"
+  thumbprint          = lookup(data.azurerm_key_vault_secret.proxy_cert_ref.tags, "Thumbprint", null)
+
+  depends_on = [
+    azurerm_linux_web_app.polaris_proxy
+  ]
+}
+*/
