@@ -11,7 +11,19 @@
     </title>
     <style>
         body {
-            font-family: "TransportNew", "Arial", sans-serif
+            font-family: "TransportNew", "Arial", sans-serif;
+            font-size:12px;
+        }
+
+        #supervising-officers-comments
+        {
+            padding-top:8px;
+            padding-bottom:14px;
+        }
+
+        .dev-outline-entry
+        {
+            margin-left:20px;
         }
 
         table {
@@ -29,7 +41,6 @@
             }
 
             table td {
-                font-size: 12px;
                 border-top: 1px solid #b1b4b6;
                 padding: 7px;
             }
@@ -57,6 +68,22 @@
                 <td>@Model.DecisionRequested</td>
             </tr>
         </table>
+    </div>
+
+    <div id="case-outline">
+        <h2>Case Outline</h2>
+        @for(var i=0; i < Model.CaseOutline.Count ; i++)
+        {
+            <div class="dev-outline-entry">
+                <h4>@Model.CaseOutline[i].Heading</h4>
+                <blockquote>@Model.CaseOutline[i].Text</blockquote>
+            </div>
+        }
+    </div>
+
+    <div id="supervising-officers-comments">
+        <h2>Supervising Officer's Comments</h2>
+        <blockquote>@Model.Comments.Text</blockquote>
     </div>
 
     @for (var i = 0; i < @Model.Suspects.Count; i++)
