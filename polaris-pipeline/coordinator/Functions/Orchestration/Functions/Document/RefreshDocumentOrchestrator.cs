@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Domain.Extensions;
 using Common.Dto.Response;
+using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
@@ -74,7 +75,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
             catch (Exception exception)
             {
-                await tracker.RegisterUnexpectedPdfDocumentFailure((context.CurrentUtcDateTime, payload.CmsDocumentId));
+                await tracker.RegisterStatus((context.CurrentUtcDateTime, payload.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure));
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator),
                     $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}",
@@ -95,11 +96,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             try
             {
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
-                await tracker.RegisterIndexed((context.CurrentUtcDateTime, payload.CmsDocumentId));
+                await tracker.RegisterStatus((context.CurrentUtcDateTime, payload.CmsDocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed));
             }
             catch (Exception exception)
             {
-                await tracker.RegisterOcrAndIndexFailure((context.CurrentUtcDateTime, payload.CmsDocumentId));
+                await tracker.RegisterStatus((context.CurrentUtcDateTime, payload.CmsDocumentId, TrackerDocumentStatus.OcrAndIndexFailure, TrackerLogType.OcrAndIndexFailure));
 
                 log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;

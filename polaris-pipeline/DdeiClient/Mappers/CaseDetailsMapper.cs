@@ -27,20 +27,20 @@ namespace Ddei.Mappers
                 IsCaseCharged = isCaseCharged,
                 NumberOfDefendants = summary.NumberOfDefendants,
                 LeadDefendantDetails = leadDefendant.DefendantDetails,
-                Defendants = defendants,
+                DefendantsAndCharges = defendants,
                 HeadlineCharge = headlineCharge,
                 PreChargeDecisionRequests = preChargeDecisionRequests
             };
         }
 
-        private IEnumerable<DefendantDto> MapDefendants(DdeiCaseDetailsDto caseDetails)
+        private IEnumerable<DefendantAndChargesDto> MapDefendants(DdeiCaseDetailsDto caseDetails)
         {
             return caseDetails.Defendants.Select(defendant => MapDefendant(defendant, caseDetails.PreChargeDecisionRequests));
         }
 
-        private DefendantDto MapDefendant(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
+        private DefendantAndChargesDto MapDefendant(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
         {
-            return new DefendantDto
+            return new DefendantAndChargesDto
             {
                 Id = defendant.Id,
                 ListOrder = defendant.ListOrder,
@@ -62,7 +62,7 @@ namespace Ddei.Mappers
                 // todo: no organisation name in DDEI?
                 OrganisationName = defendant.Surname,
                 Dob = defendant.Dob,
-                isYouth = defendant.Youth,
+                IsYouth = defendant.Youth,
                 Type = defendant.Type
             };
         }
@@ -144,7 +144,7 @@ namespace Ddei.Mappers
                 Date = proposedCharge.Date
             };
         }
-        private DefendantDto FindLeadDefendant(IEnumerable<DefendantDto> defendants, DdeiCaseSummaryDto caseSummary)
+        private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, DdeiCaseSummaryDto caseSummary)
         {
 
             // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
@@ -168,7 +168,7 @@ namespace Ddei.Mappers
             }
         }
 
-        private HeadlineChargeDto FindHeadlineCharge(DefendantDto leadDefendant)
+        private HeadlineChargeDto FindHeadlineCharge(DefendantAndChargesDto leadDefendant)
         {
             var firstCharge = leadDefendant.Charges
                 .OrderBy(charge => charge.ListOrder)
@@ -190,7 +190,7 @@ namespace Ddei.Mappers
             return new HeadlineChargeDto();
         }
 
-        private bool FindIsCaseCharged(IEnumerable<DefendantDto> defendants)
+        private bool FindIsCaseCharged(IEnumerable<DefendantAndChargesDto> defendants)
         {
             return defendants
                 .SelectMany(defendant => defendant.Charges)
