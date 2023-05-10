@@ -70,7 +70,7 @@ namespace pdf_generator.tests.Functions
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
             _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
 
-            _blobName = $"{_generatePdfRequest.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(_generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName)}.pdf";
+            _blobName = $"{_generatePdfRequest.CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(_generatePdfRequest.CmsDocumentTracker.DocumentId)}.pdf";
             _fixture.Create<string>();
             _documentStream = new MemoryStream();
             _pdfStream = new MemoryStream();
@@ -106,7 +106,7 @@ namespace pdf_generator.tests.Functions
             _mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_generatePdfRequest)).Returns(new List<ValidationResult>());
             _mockDocumentExtractionService
                 .Setup(service => service.GetDocumentAsync(_generatePdfRequest.CmsCaseUrn, _generatePdfRequest.CmsCaseId.ToString(),
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocType.DocumentCategory, _generatePdfRequest.CmsDocumentTracker.CmsDocumentId, It.IsAny<string>(), It.IsAny<Guid>()))
+                    _generatePdfRequest.CmsDocumentTracker.CmsDocType.DocumentCategory, _generatePdfRequest.CmsDocumentTracker.DocumentId, It.IsAny<string>(), It.IsAny<Guid>()))
                 .ReturnsAsync(_documentStream);
             _mockHttpClientFactory
                 .Setup(httpClientFactory => httpClientFactory.CreateClient(It.IsAny<string>()))
@@ -158,7 +158,7 @@ namespace pdf_generator.tests.Functions
                     _generatePdfRequest.CmsCaseUrn, 
                     _generatePdfRequest.CmsCaseId.ToString(),
                     _generatePdfRequest.CmsDocumentTracker.CmsDocType.DocumentCategory, 
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId, 
+                    _generatePdfRequest.CmsDocumentTracker.DocumentId, 
                     It.IsAny<string>(), 
                     It.IsAny<Guid>())
                 )
@@ -173,7 +173,7 @@ namespace pdf_generator.tests.Functions
                     It.IsAny<Stream>(), 
                     _blobName, 
                     _generatePdfRequest.CmsCaseId.ToString(), 
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
+                    _generatePdfRequest.CmsDocumentTracker.DocumentId,
                     _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
                     _generatePdfRequest.CorrelationId
                 )
@@ -192,7 +192,7 @@ namespace pdf_generator.tests.Functions
                     It.IsAny<Stream>(), 
                     _blobName, 
                     _generatePdfRequest.CmsCaseId.ToString(), 
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
+                    _generatePdfRequest.CmsDocumentTracker.DocumentId,
                     _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
                     _generatePdfRequest.CorrelationId
                 )

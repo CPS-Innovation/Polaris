@@ -74,33 +74,33 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             if(payload.CmsDocumentTracker != null)
             {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.DocumentId}'");
 
                 documentStream = await _documentExtractionService.GetDocumentAsync
                     (
                         payload.CmsCaseUrn,
                         payload.CmsCaseId.ToString(),
                         payload.CmsDocumentTracker.CmsDocType.DocumentCategory,
-                        payload.CmsDocumentTracker.CmsDocumentId,
+                        payload.CmsDocumentTracker.DocumentId,
                         payload.CmsAuthValues,
                         payload.CorrelationId
                     );
-                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.CmsDocumentTracker.CmsOriginalFileName)}.pdf";
+                blobName = $"{payload.CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(payload.CmsDocumentTracker.DocumentId)}.pdf";
                 fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
             }
             else if(payload.PcdRequestTracker != null) 
             {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting PCD request to HTML for documentId: '{payload.PcdRequestTracker.CmsDocumentId}'");
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting PCD request to HTML for documentId: '{payload.PcdRequestTracker.DocumentId}'");
 
-                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.PcdRequestTracker.CmsDocumentId)}.pdf";
+                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.PcdRequestTracker.DocumentId)}.pdf";
                 documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
                 fileType = FileType.HTML;
             }
             else if (payload.DefendantAndChargesTracker != null)
             {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting Defendant and Charges to HTML for documentId: '{payload.DefendantAndChargesTracker.CmsDocumentId}'");
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting Defendant and Charges to HTML for documentId: '{payload.DefendantAndChargesTracker.DocumentId}'");
 
-                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.DefendantAndChargesTracker.CmsDocumentId)}.pdf";
+                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.DefendantAndChargesTracker.DocumentId)}.pdf";
                 documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.DefendantAndChargesTracker.DefendantsAndCharges);
                 fileType = FileType.HTML;
             }

@@ -102,7 +102,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     Urn = caseUrn,
                     CaseId = long.Parse(caseId),
                     CmsDocCategory = document.CmsDocType.DocumentCategory,
-                    DocumentId = int.Parse(document.CmsDocumentId),
+                    DocumentId = int.Parse(document.DocumentId),
                     VersionId = document.CmsVersionId
                 };
                 await _gatewayDdeiService.UploadPdf(arg, pdfStream);

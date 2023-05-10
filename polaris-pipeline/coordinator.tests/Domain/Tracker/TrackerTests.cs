@@ -106,7 +106,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             await _tracker.RegisterPdfBlobName(_pdfBlobNameArg);
 
-            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.DocumentId == _cmsDocuments.First().DocumentId);
             document?.PdfBlobName.Should().Be(_pdfBlobNameArg.BlobName);
             document?.Status.Should().Be(TrackerDocumentStatus.PdfUploadedToBlob);
 
@@ -120,7 +120,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             await _tracker.RegisterBlobAlreadyProcessed(new RegisterPdfBlobNameArg(It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId, _pdfBlobNameArg.VersionId, _pdfBlobNameArg.BlobName));
 
-            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.DocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.DocumentAlreadyProcessed);
 
             _tracker.Logs.Count.Should().Be(9);
@@ -133,7 +133,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             await _tracker.RegisterStatus((It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId, TrackerDocumentStatus.UnableToConvertToPdf, TrackerLogType.UnableToConvertDocumentToPdf));
 
-            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.DocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.UnableToConvertToPdf);
 
             _tracker.Logs.Count.Should().Be(9);
@@ -145,7 +145,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
-            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.DocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.New);
 
             _tracker.Logs.Count.Should().Be(8);
@@ -158,7 +158,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             await _tracker.RegisterStatus((It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure));
 
-            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.DocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.UnexpectedFailure);
 
             _tracker.Logs.Count.Should().Be(9);
@@ -171,7 +171,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             await _tracker.RegisterStatus(((It.IsAny<DateTime>(), _cmsDocuments.First().DocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed)));
 
-            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.DocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.Indexed);
 
             _tracker.Logs.Count.Should().Be(9);
@@ -184,7 +184,7 @@ namespace coordinator.tests.Domain.Tracker
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             await _tracker.RegisterStatus((It.IsAny<DateTime>(), _cmsDocuments.First().DocumentId, TrackerDocumentStatus.OcrAndIndexFailure, TrackerLogType.OcrAndIndexFailure));
 
-            var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
+            var document = _tracker.CmsDocuments.Find(document => document.DocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.OcrAndIndexFailure);
 
             _tracker.Logs.Count.Should().Be(9);
@@ -577,7 +577,7 @@ namespace coordinator.tests.Domain.Tracker
             using (new AssertionScope())
             {
                 _tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
-                var newVersion = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == modifiedDocumentId);
+                var newVersion = _tracker.CmsDocuments.Find(x => x.DocumentId == modifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
                 newVersion?.CmsVersionId.Should().Be(newVersionId);
@@ -615,8 +615,8 @@ namespace coordinator.tests.Domain.Tracker
             using (new AssertionScope())
             {
                 _tracker.CmsDocuments.Count.Should().Be(2);
-                var newVersion = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == modifiedDocumentId);
-                var unmodifiedDocument = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == unmodifiedDocumentId);
+                var newVersion = _tracker.CmsDocuments.Find(x => x.DocumentId == modifiedDocumentId);
+                var unmodifiedDocument = _tracker.CmsDocuments.Find(x => x.DocumentId == unmodifiedDocumentId);
 
                 newVersion.Should().NotBeNull();
                 newVersion?.CmsVersionId.Should().Be(newVersionId);
@@ -624,7 +624,7 @@ namespace coordinator.tests.Domain.Tracker
                 unmodifiedDocument.Should().NotBeNull();
                 unmodifiedDocument?.CmsVersionId.Should().Be(unmodifiedDocumentVersionId);
 
-                var searchResultForDocumentRemovedFromCms = _tracker.CmsDocuments.Find(x => x.CmsDocumentId == documentRemovedFromCmsId);
+                var searchResultForDocumentRemovedFromCms = _tracker.CmsDocuments.Find(x => x.DocumentId == documentRemovedFromCmsId);
                 searchResultForDocumentRemovedFromCms.Should().BeNull();
             }
         }

@@ -42,11 +42,11 @@ namespace coordinator.Domain
             get
             {
                 if(CmsDocumentTracker != null)
-                    return CmsDocumentTracker.CmsDocumentId;
+                    return CmsDocumentTracker.DocumentId;
                 if (PcdRequestTracker != null)
-                    return PcdRequestTracker.CmsDocumentId;
+                    return PcdRequestTracker.DocumentId;
                 else
-                    return DefendantAndChargesTracker.CmsDocumentId ?? string.Empty;
+                    return DefendantAndChargesTracker.DocumentId ?? string.Empty;
             }
         }
 

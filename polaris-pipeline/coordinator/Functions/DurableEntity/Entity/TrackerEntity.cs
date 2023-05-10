@@ -114,20 +114,20 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var newDocuments =
                 (from incomingDocument in incomingDocuments
-                 let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.CmsDocumentId == incomingDocument.DocumentId)
+                 let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.DocumentId == incomingDocument.DocumentId)
                  where cmsDocument == null
                  select incomingDocument).ToList();
 
             var updatedDocuments =
                 (from incomingDocument in incomingDocuments
-                let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.CmsDocumentId == incomingDocument.DocumentId)
+                let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.DocumentId == incomingDocument.DocumentId)
                 where cmsDocument != null 
                 where cmsDocument.Status != TrackerDocumentStatus.Indexed || cmsDocument.CmsVersionId != incomingDocument.VersionId
                 select incomingDocument).ToList();
 
             var deletedCmsDocumentIdsToRemove
-                = CmsDocuments.Where(doc => !incomingDocuments.Any(incomingDoc => incomingDoc.DocumentId == doc.CmsDocumentId))
-                    .Select(doc => doc.CmsDocumentId)
+                = CmsDocuments.Where(doc => !incomingDocuments.Any(incomingDoc => incomingDoc.DocumentId == doc.DocumentId))
+                    .Select(doc => doc.DocumentId)
                     .ToList();
 
             return (newDocuments, updatedDocuments, deletedCmsDocumentIdsToRemove);
@@ -192,7 +192,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
                 CmsDocuments.Add(trackerDocument);
                 newDocuments.Add(trackerDocument);
-                Log(t, TrackerLogType.CmsDocumentRetrieved, trackerDocument.CmsDocumentId);
+                Log(t, TrackerLogType.CmsDocumentRetrieved, trackerDocument.DocumentId);
             }
 
             return newDocuments;
@@ -204,7 +204,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             foreach (var updatedDocument in updatedDocuments)
             {
-                var trackerDocument = CmsDocuments.Find(d => d.CmsDocumentId == updatedDocument.DocumentId);
+                var trackerDocument = CmsDocuments.Find(d => d.DocumentId == updatedDocument.DocumentId);
 
                 trackerDocument.PolarisDocumentVersionId++;
                 trackerDocument.CmsVersionId = updatedDocument.VersionId;
@@ -215,7 +215,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
                 changedDocuments.Add(trackerDocument);
 
-                Log(t, TrackerLogType.CmsDocumentUpdated, trackerDocument.CmsDocumentId);
+                Log(t, TrackerLogType.CmsDocumentUpdated, trackerDocument.DocumentId);
             }
 
             return changedDocuments;
@@ -225,12 +225,12 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var deleteDocuments 
                 = CmsDocuments
-                    .Where(d => documentIdsToDelete.Contains(d.CmsDocumentId))
+                    .Where(d => documentIdsToDelete.Contains(d.DocumentId))
                     .ToList();
 
             foreach (var document in deleteDocuments)
             {
-                Log(t, TrackerLogType.CmsDocumentDeleted, document.CmsDocumentId);
+                Log(t, TrackerLogType.CmsDocumentDeleted, document.DocumentId);
                 CmsDocuments.Remove(document);
             }
 
@@ -402,13 +402,13 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         private BaseTrackerDocumentDto GetBaseTracker(string documentId)
         {
-            var cmsDocument = CmsDocuments.Find(doc => doc.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var cmsDocument = CmsDocuments.Find(doc => doc.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (cmsDocument != null)
             {
                 return cmsDocument;
             }
 
-            var pcdRequest = PcdRequests.Find(pcd => pcd.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var pcdRequest = PcdRequests.Find(pcd => pcd.DocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (pcdRequest != null)
             {
                 return pcdRequest;

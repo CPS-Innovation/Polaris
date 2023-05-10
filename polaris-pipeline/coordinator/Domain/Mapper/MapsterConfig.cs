@@ -31,7 +31,7 @@ namespace coordinator.Domain.Mapper
             {
                 PolarisDocumentId = pcdRequest.PolarisDocumentId,
                 PolarisDocumentVersionId = pcdRequest.PolarisDocumentVersionId,
-                CmsDocumentId = pcdRequest.CmsDocumentId,
+                DocumentId = pcdRequest.DocumentId,
                 CmsVersionId = pcdRequest.CmsVersionId,
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
                 CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
@@ -54,7 +54,7 @@ namespace coordinator.Domain.Mapper
                 {
                     PolarisDocumentId = defendantsAndCharges.PolarisDocumentId,
                     PolarisDocumentVersionId = defendantsAndCharges.PolarisDocumentVersionId,
-                    CmsDocumentId = defendantsAndCharges.CmsDocumentId,
+                    DocumentId = defendantsAndCharges.DocumentId,
                     CmsVersionId = defendantsAndCharges.CmsVersionId,
                     CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
                     CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),

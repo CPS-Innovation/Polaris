@@ -69,11 +69,11 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockDurableOrchestrationContext.Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>()).Returns(_payload);
             _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<DurableHttpRequest>(
                 nameof(CreateGeneratePdfHttpRequest),
-                It.Is<GeneratePdfHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && p.FileName == _payload.CmsDocumentTracker.CmsOriginalFileName)))
+                It.Is<GeneratePdfHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.DocumentId && p.FileName == _payload.CmsDocumentTracker.CmsOriginalFileName)))
                     .ReturnsAsync(_generatePdfDurableRequest);
             _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<DurableHttpRequest>(
                 nameof(CreateTextExtractorHttpRequest),
-                It.Is<TextExtractorHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && p.BlobName == _pdfResponse.BlobName)))
+                It.Is<TextExtractorHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.DocumentId && p.BlobName == _pdfResponse.BlobName)))
                     .ReturnsAsync(textExtractorDurableRequest);
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest)).ReturnsAsync(durableResponse);
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(textExtractorDurableRequest)).ReturnsAsync(durableResponse);
@@ -115,7 +115,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            _mockTracker.Verify(tracker => tracker.RegisterPdfBlobName(It.Is<RegisterPdfBlobNameArg>(a => a.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && a.BlobName == _pdfResponse.BlobName)));
+            _mockTracker.Verify(tracker => tracker.RegisterPdfBlobName(It.Is<RegisterPdfBlobNameArg>(a => a.DocumentId == _payload.CmsDocumentTracker.DocumentId && a.BlobName == _pdfResponse.BlobName)));
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed);
+            var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.DocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed);
             _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
         }
         
@@ -147,7 +147,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             }
             catch
             {
-                var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure);
+                var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.DocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure);
                 _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
             }
         }

@@ -20,7 +20,7 @@ namespace Common.Dto.Tracker
         {
             PolarisDocumentId = polarisDocumentId;
             PolarisDocumentVersionId = polarisDocumentVersionId;
-            CmsDocumentId = cmsDocumentId;
+            DocumentId = cmsDocumentId;
             CmsVersionId = cmsVersionId;
             PresentationFlags = presentationFlags;
             Status = TrackerDocumentStatus.New;
@@ -34,7 +34,7 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("cmsDocumentId")]
         [AdaptIgnore]
-        public string CmsDocumentId { get; set; }
+        public string DocumentId { get; set; }
 
         // Todo - don't send to client
         [JsonProperty("cmsVersionId")]

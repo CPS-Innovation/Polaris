@@ -184,8 +184,8 @@ namespace coordinator.tests.Functions
                         payload =>
                             payload.CmsCaseId == _payload.CmsCaseId &&
                             (
-                                (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.CmsDocumentId)) ||
-                                (payload.DefendantAndChargesTracker != null && payload.DefendantAndChargesTracker.CmsDocumentId == document.CmsDocumentId)
+                                (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.DocumentId == document.DocumentId)) ||
+                                (payload.DefendantAndChargesTracker != null && payload.DefendantAndChargesTracker.DocumentId == document.DocumentId)
                             )
                 ));
             }
