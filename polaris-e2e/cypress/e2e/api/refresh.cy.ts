@@ -86,6 +86,9 @@ describe("Refresh", () => {
         expect(
           documents.some(({ cmsDocType }) => cmsDocType.documentType === "PCD")
         ).to.be.true
+        expect(
+          documents.some(({ cmsDocType }) => cmsDocType.documentType === "DAC")
+        ).to.be.true
       })
 
     assertSearchExpectation({
@@ -196,6 +199,11 @@ describe("Refresh", () => {
             expect(
               documents.some(
                 ({ cmsDocType }) => cmsDocType.documentType === "PCD"
+              )
+            ).to.be.true
+            expect(
+              documents.some(
+                ({ cmsDocType }) => cmsDocType.documentType === "DAC"
               )
             ).to.be.true
           })
