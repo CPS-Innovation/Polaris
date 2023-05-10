@@ -703,4 +703,80 @@ describe("reducerAsyncActionHandlers", () => {
       //expect(checkInSpy).toBeCalledWith("foo", 2, 1);
     });
   });
+
+  describe("UNLOCK_DOCUMENTS", () => {
+    it("it can unlock all the documents passed in", async () => {
+      // arrange
+      const cancelCheckoutSpy = jest
+        .spyOn(api, "cancelCheckoutDocument")
+        .mockImplementation(() => Promise.resolve(true));
+
+      combinedStateMock = {
+        urn: "foo",
+        caseId: 99,
+        tabsState: {
+          items: [
+            { documentId: "1", pdfBlobName: "bar1" },
+            { documentId: "2", pdfBlobName: "bar2" },
+            { documentId: "3", pdfBlobName: "bar3" },
+          ] as CaseDocumentViewModel[],
+        },
+      } as CombinedState;
+
+      const handler = reducerAsyncActionHandlers.UNLOCK_DOCUMENTS({
+        dispatch: dispatchMock,
+        getState: () => combinedStateMock,
+        signal: new AbortController().signal,
+      });
+
+      // act
+      await handler({
+        type: "UNLOCK_DOCUMENTS",
+        payload: {
+          documentIds: ["1", "2", "3"],
+        },
+      });
+
+      // assert
+      expect(cancelCheckoutSpy).toBeCalledTimes(3);
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "1");
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "2");
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "3");
+    });
+    it("it shouldn't make api call to unlock if no documentIds passed in", async () => {
+      // arrange
+      const cancelCheckoutSpy = jest
+        .spyOn(api, "cancelCheckoutDocument")
+        .mockImplementation(() => Promise.resolve(true));
+
+      combinedStateMock = {
+        urn: "foo",
+        caseId: 99,
+        tabsState: {
+          items: [
+            { documentId: "1", pdfBlobName: "bar1" },
+            { documentId: "2", pdfBlobName: "bar2" },
+            { documentId: "3", pdfBlobName: "bar3" },
+          ] as CaseDocumentViewModel[],
+        },
+      } as CombinedState;
+
+      const handler = reducerAsyncActionHandlers.UNLOCK_DOCUMENTS({
+        dispatch: dispatchMock,
+        getState: () => combinedStateMock,
+        signal: new AbortController().signal,
+      });
+
+      // act
+      await handler({
+        type: "UNLOCK_DOCUMENTS",
+        payload: {
+          documentIds: [],
+        },
+      });
+
+      // assert
+      expect(cancelCheckoutSpy).toBeCalledTimes(0);
+    });
+  });
 });

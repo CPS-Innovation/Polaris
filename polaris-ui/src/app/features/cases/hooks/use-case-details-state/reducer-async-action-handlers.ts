@@ -339,8 +339,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         cancelCheckoutDocument(urn, caseId, documentId)
       );
 
-      Promise.allSettled(requests).then((values) => {
-        console.log(values);
-      });
+      Promise.allSettled(requests);
     },
 };
