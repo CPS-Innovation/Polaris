@@ -128,7 +128,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", clientLockedState, cmsDocCategory: "MGForm" },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -199,7 +199,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", clientLockedState, cmsDocCategory: "MGForm" },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -267,7 +267,7 @@ describe("reducerAsyncActionHandlers", () => {
         combinedStateMock = {
           tabsState: {
             items: [
-              { documentId: "1", clientLockedState, cmsDocCategory: "MGForm" },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
@@ -486,7 +486,6 @@ describe("reducerAsyncActionHandlers", () => {
               {
                 documentId: "1",
                 cmsDocumentId: "a",
-                cmsDocCategory: "MGForm",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
               },
@@ -550,7 +549,6 @@ describe("reducerAsyncActionHandlers", () => {
             items: [
               {
                 documentId: "1",
-                cmsDocCategory: "MGForm",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
               },
@@ -600,7 +598,6 @@ describe("reducerAsyncActionHandlers", () => {
               {
                 documentId: "1",
                 cmsDocumentId: "a",
-                cmsDocCategory: "MGForm",
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
               },
@@ -660,7 +657,6 @@ describe("reducerAsyncActionHandlers", () => {
             {
               documentId: "1",
               cmsDocumentId: "a",
-              cmsDocCategory: "MGForm",
               redactionHighlights,
               pdfBlobName: "baz",
             },
