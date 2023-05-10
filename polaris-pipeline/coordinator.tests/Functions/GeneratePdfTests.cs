@@ -14,6 +14,7 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Handlers.Contracts;
 using Common.Services.BlobStorageService.Contracts;
+using Common.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
@@ -23,7 +24,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
-using RenderPcd;
 using Xunit;
 
 namespace pdf_generator.tests.Functions
@@ -38,7 +38,7 @@ namespace pdf_generator.tests.Functions
         private readonly Stream _pdfStream;
         private readonly string _serializedGeneratePdfResponse;
 
-        private readonly Mock<IConvertPcdRequestToHtmlService> _mockConvertPcdRequestToHtmlService;
+        private readonly Mock<IConvertModelToHtmlService> _mockConvertPcdRequestToHtmlService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<IDdeiClient> _mockDocumentExtractionService;
         private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
@@ -63,6 +63,7 @@ namespace pdf_generator.tests.Functions
                     _fixture.Create<string>(),
                     _fixture.Create<long>(),
                     JsonSerializer.Serialize(trackerCmsDocumentDto),
+                    null,
                     null
                 );
             _generatePdfRequest.CmsCaseId = 123456;
@@ -75,7 +76,7 @@ namespace pdf_generator.tests.Functions
             _pdfStream = new MemoryStream();
             _serializedGeneratePdfResponse = _fixture.Create<string>();
 
-            _mockConvertPcdRequestToHtmlService = new Mock<IConvertPcdRequestToHtmlService>();
+            _mockConvertPcdRequestToHtmlService = new Mock<IConvertModelToHtmlService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockValidatorWrapper = new Mock<IValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             _mockDocumentExtractionService = new Mock<IDdeiClient>();

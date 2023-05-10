@@ -25,7 +25,7 @@ namespace Common.Dto.Case
         public HeadlineChargeDto HeadlineCharge { get; set; }
 
         [JsonProperty("defendants")]
-        public IEnumerable<DefendantDto> Defendants { get; set; }
+        public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; }
 
         [JsonProperty("preChargeDecisionRequests")]
         public IEnumerable<PcdRequestDto> PreChargeDecisionRequests { get; set; }

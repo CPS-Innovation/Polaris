@@ -42,7 +42,7 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
             }
             catch (Exception exception)
             {
-                await tracker.RegisterFailed(context.CurrentUtcDateTime);
+                await tracker.RegisterCompleted((context.CurrentUtcDateTime, false));
                 log.LogMethodError(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Error when running {nameof(UpdateTrackerOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }

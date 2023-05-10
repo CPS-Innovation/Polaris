@@ -12,25 +12,25 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using DdeiClient.Services.Contracts;
 using Common.Services.DocumentToggle;
+using Ddei.Domain.CaseData.Args;
+using Common.Dto.Case;
 
 namespace coordinator.tests.Functions.ActivityFunctions
 {
     public class GetCaseDocumentsTests
     {
+        private readonly CaseDto _case;
         private readonly DocumentDto[] _caseDocuments;
-
         private readonly PresentationFlagsDto[] _presentationFlags;
-
         private readonly GetCaseDocumentsActivityPayload _payload;
-
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
-
         private readonly GetCaseDocuments _getCaseDocuments;
 
         public GetCaseDocumentsTests()
         {
             var fixture = new Fixture();
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
+            _case = fixture.Create<CaseDto>();
             _caseDocuments = new[] {
               fixture.Create<DocumentDto>(),
               fixture.Create<DocumentDto>()
@@ -44,11 +44,15 @@ namespace coordinator.tests.Functions.ActivityFunctions
             var mockDocumentExtractionService = new Mock<IDdeiClient>();
             _mockDurableActivityContext = new Mock<IDurableActivityContext>();
 
-            _mockDurableActivityContext.Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
+            _mockDurableActivityContext
+                .Setup(context => context.GetInput<GetCaseDocumentsActivityPayload>())
                 .Returns(_payload);
 
-            mockDocumentExtractionService.Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(),
-                    _payload.CmsAuthValues, _payload.CorrelationId))
+            mockDocumentExtractionService
+                .Setup(client => client.GetCase(It.IsAny<DdeiCmsCaseArgDto>()))
+                .ReturnsAsync(_case);
+            mockDocumentExtractionService
+                .Setup(client => client.ListDocumentsAsync(_payload.CmsCaseUrn, _payload.CmsCaseId.ToString(), _payload.CmsAuthValues, _payload.CorrelationId))
                 .ReturnsAsync(_caseDocuments);
 
             var mockDocumentToggleService = new Mock<IDocumentToggleService>();
@@ -125,7 +129,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
         [Fact]
         public async Task Run_ReturnsCaseDocuments()
         {
-            var documents = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
+            var (documents, _, _) = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
 
             documents.Should().BeEquivalentTo(_caseDocuments);
         }

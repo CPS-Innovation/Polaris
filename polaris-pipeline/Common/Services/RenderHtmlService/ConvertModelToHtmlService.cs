@@ -1,4 +1,4 @@
-﻿using Common.Dto.Case.PreCharge;
+﻿using Common.Services.RenderHtmlService.Contract;
 using RazorLight;
 using System.IO;
 using System.Reflection;
@@ -7,28 +7,29 @@ using System.Threading.Tasks;
 
 namespace RenderPcd
 {
-    public class ConvertPcdRequestToHtmlService : IConvertPcdRequestToHtmlService
+    public class ConvertModelToHtmlService : IConvertModelToHtmlService
     {
         private RazorLightEngine _engine;
 
-        public ConvertPcdRequestToHtmlService()
+        public ConvertModelToHtmlService()
         {
             _engine = new RazorLightEngineBuilder()
-                .SetOperatingAssembly(typeof(ConvertPcdRequestToHtmlService).Assembly)
+                .SetOperatingAssembly(typeof(ConvertModelToHtmlService).Assembly)
                 .UseMemoryCachingProvider()
                 .Build();
         }
 
-        public async Task<Stream> ConvertAsync(PcdRequestDto pcdRequest)
+        public async Task<Stream> ConvertAsync<T>(T data)
         {
-            var resourceName = $"Common.Services.RenderHtmlService.PcdRequest.cshtml";
+            var name = $"{typeof(T).Name}".Replace("Dto", string.Empty);
+            var resourceName = $"Common.Services.RenderHtmlService.{name}.cshtml";
             var assembly = Assembly.GetExecutingAssembly();
 
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             using (StreamReader reader = new StreamReader(stream))
             {
                 var model = reader.ReadToEnd();
-                var html = await _engine.CompileRenderStringAsync(nameof(ConvertPcdRequestToHtmlService), model, pcdRequest);
+                string html = await _engine.CompileRenderStringAsync<T>(name, model, data);
                 return new MemoryStream(Encoding.UTF8.GetBytes(html));
             }
         }
