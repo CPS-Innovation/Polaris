@@ -62,7 +62,7 @@ namespace Ddei.Mappers
                 // todo: no organisation name in DDEI?
                 OrganisationName = defendant.Surname,
                 Dob = defendant.Dob,
-                isYouth = defendant.Youth,
+                IsYouth = defendant.Youth,
                 Type = defendant.Type
             };
         }

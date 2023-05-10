@@ -50,7 +50,7 @@ namespace Common.Dto.Case
         }
 
         [JsonProperty("youth")]
-        public bool isYouth { get; set; }
+        public bool IsYouth { get; set; }
 
         [JsonProperty("type")]
         public string Type { get; set; }
