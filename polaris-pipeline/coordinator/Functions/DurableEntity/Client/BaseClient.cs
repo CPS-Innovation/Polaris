@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.Dto.Tracker;
+using Mapster;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -18,7 +19,6 @@ namespace coordinator.Functions.DurableEntity.Client
         internal IActionResult Error;
         internal Guid CorrelationId;
         internal TrackerCmsDocumentDto CmsDocument;
-        internal TrackerPcdRequestDto PcdRequest;
     }
 
     public class BaseClient
@@ -66,18 +66,16 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
-            response.CmsDocument = stateResponse.EntityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
+            var trackerEntity = stateResponse.EntityState;
+            var trackerDto = trackerEntity.Adapt<TrackerDto>();
+
+            response.CmsDocument = trackerDto.Documents.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
             if(response.CmsDocument == null )
             {
-                response.PcdRequest = stateResponse.EntityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId == documentId);
-
-                if (response.PcdRequest == null)
-                {
-                    var baseMessage = $"No CMS document or PCD Request found with id '{documentId}'";
-                    log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
-                    response.Error = new NotFoundObjectResult(baseMessage);
-                    return response;
-                }
+                var baseMessage = $"No document found with id '{documentId}'";
+                log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
+                response.Error = new NotFoundObjectResult(baseMessage);
+                return response;
             }
 
             response.Success = true;
