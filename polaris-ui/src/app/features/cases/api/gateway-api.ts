@@ -128,7 +128,7 @@ export const initiatePipeline = async (urn: string, caseId: number) => {
 export const getPipelinePdfResults = async (
   trackerUrl: string,
   existingCorrelationId: string
-) => {
+): Promise<false | PipelineResults> => {
   const headers = await buildHeaders(
     HEADERS.correlationId(existingCorrelationId),
     HEADERS.auth
@@ -137,7 +137,10 @@ export const getPipelinePdfResults = async (
   const response = await internalFetch(trackerUrl, {
     headers,
   });
-
+  // we are ignoring the tracker status 404 as it is an expected one and continue polling
+  if (response.status === 404) {
+    return false;
+  }
   const rawResponse: { documents: any[] } = await response.json();
   const { documents } = rawResponse;
   temporaryApiModelMapping(documents);
@@ -159,7 +162,6 @@ export const getPipelinePdfResults = async (
 
   return rawResponse as PipelineResults;
 };
-
 export const searchCase = async (
   urn: string,
   caseId: number,
