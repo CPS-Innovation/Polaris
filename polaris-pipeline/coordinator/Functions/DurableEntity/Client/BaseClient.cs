@@ -37,6 +37,7 @@ namespace coordinator.Functions.DurableEntity.Client
         {
             var response = new GetTrackerDocumentResponse { Success = false };
 
+            #region Validate Inputs
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
@@ -55,6 +56,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 }
 
             log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
+            #endregion
 
             var entityId = new EntityId(nameof(TrackerEntity), caseId);
             var stateResponse = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
@@ -78,6 +80,11 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
+            var sourceCmsDocument = trackerEntity.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
+            if(sourceCmsDocument != null)
+            {
+                response.CmsDocument = sourceCmsDocument;
+            }
             response.Success = true;
 
             return response;
