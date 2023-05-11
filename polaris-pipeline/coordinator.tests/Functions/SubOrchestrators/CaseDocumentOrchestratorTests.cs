@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Extensions;
+using Common.Dto.Case;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Wrappers;
@@ -40,15 +41,17 @@ namespace coordinator.tests.Functions.SubOrchestrators
             var fixture = new Fixture();
             var trackerCmsDocumentDto = fixture.Create<TrackerCmsDocumentDto>();
             var trackerPcdRequestDto = fixture.Create<TrackerPcdRequestDto>();
+            var defendantsAndChargesListDto = fixture.Create<TrackerDefendantsAndChargesDto>();
             _payload = new CaseDocumentOrchestrationPayload
                 (
-                    fixture.Create<string>(), 
+                    fixture.Create<string>(),
                     Guid.NewGuid(),
                     fixture.Create<string>(),
-                    fixture.Create<long>(), 
-                    JsonSerializer.Serialize(trackerCmsDocumentDto), 
-                    JsonSerializer.Serialize(trackerPcdRequestDto)
-                );
+                    fixture.Create<long>(),
+                    JsonSerializer.Serialize(trackerCmsDocumentDto),
+                    JsonSerializer.Serialize(trackerPcdRequestDto),
+                    JsonSerializer.Serialize(defendantsAndChargesListDto)
+                ); ;
             _evaluateDocumentDurableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk/evaluateDocument"));
             _generatePdfDurableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk/generatePdf"));
             var updateSearchIndexDurableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk/updateSearchIndex"));
@@ -126,8 +129,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId);
-            _mockTracker.Verify(tracker => tracker.RegisterIndexed(arg));
+            var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed);
+            _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
         }
         
         [Fact]
@@ -144,18 +147,20 @@ namespace coordinator.tests.Functions.SubOrchestrators
             }
             catch
             {
-                var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId);
-                _mockTracker.Verify(tracker => tracker.RegisterUnexpectedPdfDocumentFailure(arg));
+                var arg = (It.IsAny<DateTime>(), _payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure);
+                _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
             }
         }
 
         [Fact]
         public async Task Run_RegistersAsIndexed_WhenDocumentEvaluation_EqualsDocumentUnchanged()
         {
-            _evaluateDocumentResponse.EvaluationResult = DocumentEvaluationResult.DocumentUnchanged;
+            var pdfResponse = new GeneratePdfResponse(new Fixture().Create<string>());
+            pdfResponse.AlreadyProcessed = true;
+
             _mockDurableOrchestrationContext
                 .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<object>()))
-                .ReturnsAsync(_pdfResponse);
+                .ReturnsAsync(pdfResponse);
 
             try
             {

@@ -11,19 +11,19 @@ using Common.Dto.Response;
 using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
+using Common.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using RenderPcd;
 
 namespace coordinator.Functions.ActivityFunctions.Document
 {
     public class GeneratePdf
     {
-        private readonly IConvertPcdRequestToHtmlService _convertPcdRequestToHtmlService;
+        private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
         private readonly HttpClient _pdfGeneratorHttpClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
@@ -35,7 +35,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
         const string loggingName = nameof(GeneratePdf);
 
         public GeneratePdf(
-            IConvertPcdRequestToHtmlService convertPcdRequestToHtmlService,
+            IConvertModelToHtmlService convertPcdRequestToHtmlService,
             IHttpClientFactory httpClientFactory,
             IJsonConvertWrapper jsonConvertWrapper,
             IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
@@ -94,6 +94,14 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
                 blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.PcdRequestTracker.CmsDocumentId)}.pdf";
                 documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
+                fileType = FileType.HTML;
+            }
+            else if (payload.DefendantAndChargesTracker != null)
+            {
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting Defendant and Charges to HTML for documentId: '{payload.DefendantAndChargesTracker.CmsDocumentId}'");
+
+                blobName = $"{payload.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(payload.DefendantAndChargesTracker.CmsDocumentId)}.pdf";
+                documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.DefendantAndChargesTracker.DefendantsAndCharges);
                 fileType = FileType.HTML;
             }
 
