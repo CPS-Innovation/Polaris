@@ -47,6 +47,24 @@ const caseDetails: CaseDetails[] = [
         },
         charges: [],
       },
+      {
+        defendantDetails: {
+          id: 902,
+          listOrder: 2,
+          firstNames: "Peter",
+          surname: "Victor",
+          organisationName: "",
+          dob: "1987-10-20",
+          youth: false,
+          type: "SOME_TYPE",
+        },
+        custodyTimeLimit: {
+          expiryDate: "2022-11-20",
+          expiryDays: 120,
+          expiryIndicator: "ACTIVE",
+        },
+        charges: [],
+      },
     ],
   },
 ];
