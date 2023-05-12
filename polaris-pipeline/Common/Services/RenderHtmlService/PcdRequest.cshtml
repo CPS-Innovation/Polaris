@@ -10,20 +10,20 @@
         PCD Request
     </title>
     <style>
+        /* https://jsfiddle.net/pandelus/ofm2Lhyk/1/ */
+
         body {
             font-family: "TransportNew", "Arial", sans-serif;
-            font-size:12px;
+            font-size: 12px;
         }
 
-        #supervising-officers-comments
-        {
-            padding-top:8px;
-            padding-bottom:14px;
+        section {
+            padding-top: 8px;
+            padding-bottom: 14px;
         }
 
-        .dev-outline-entry
-        {
-            margin-left:20px;
+        div {
+            margin-left: 20px;
         }
 
         table {
@@ -31,6 +31,10 @@
             border-spacing: 0px;
             padding-bottom: 20px;
         }
+
+            table .suspect {
+                margin-left: 20px;
+            }
 
             table tr:first-child {
                 width: 300px;
@@ -56,8 +60,8 @@
 </head>
 
 <body style="width:800px">
-    <h2>PCD Request</h2>
-    <div>
+    <section>
+        <h2>PCD Request</h2>
         <table id="pcd-request">
             <tr>
                 <td>Decision required by</td>
@@ -68,32 +72,33 @@
                 <td>@Model.DecisionRequested</td>
             </tr>
         </table>
-    </div>
+    </section>
 
-    <div id="case-outline">
+    <section>
         <h2>Case Outline</h2>
-        @for(var i=0; i < Model.CaseOutline.Count ; i++)
+        @for (var i = 0; i < Model.CaseOutline.Count; i++)
         {
-            <div class="dev-outline-entry">
+            <div>
                 <h4>@Model.CaseOutline[i].Heading</h4>
                 <blockquote>@Model.CaseOutline[i].Text</blockquote>
             </div>
         }
-    </div>
+    </section>
 
-    <div id="supervising-officers-comments">
+    <section>
         <h2>Supervising Officer's Comments</h2>
         <blockquote>@Model.Comments.Text</blockquote>
-    </div>
+    </section>
 
-    @for (var i = 0; i < @Model.Suspects.Count; i++)
-    {
-        <h4>@Model.Suspects[i].Surname, @Model.Suspects[i].FirstNames - DOB @Model.Suspects[i].Dob</h4>
-
-        for (var c = 0; c < @Model.Suspects[i].ProposedCharges.Count; c++)
+    <section>
+        <h2>Proposed Charges</h2>
+        @for (var i = 0; i < @Model.Suspects.Count; i++)
         {
             <div>
-                <table id="suspect">
+            <h3>@Model.Suspects[i].Surname, @Model.Suspects[i].FirstNames - DOB @Model.Suspects[i].Dob</h3>
+            @for (var c = 0; c < @Model.Suspects[i].ProposedCharges.Count; c++)
+            {
+                <table>
                     <tr>
                         <td>Description</td>
                         <td>@Model.Suspects[i].ProposedCharges[c].Category</td>
@@ -111,9 +116,10 @@
                         <td>@Model.Suspects[i].ProposedCharges[c].Date</td>
                     </tr>
                 </table>
+            }
             </div>
         }
-    }
+    </section>
 
 </body>
 </html>
