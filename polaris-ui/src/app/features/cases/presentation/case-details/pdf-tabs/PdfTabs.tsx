@@ -22,6 +22,7 @@ type PdfTabsProps = {
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
+  handleUnLockDocuments: CaseDetailsState["handleUnLockDocuments"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -36,6 +37,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
   handleOpenPdfInNewTab,
+  handleUnLockDocuments,
 }) => {
   return (
     <Tabs
@@ -66,6 +68,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
       activeTabId={activeTabId}
       handleClosePdf={handleClosePdf}
       handleTabSelection={handleTabSelection}
+      handleUnLockDocuments={handleUnLockDocuments}
     />
   );
 };

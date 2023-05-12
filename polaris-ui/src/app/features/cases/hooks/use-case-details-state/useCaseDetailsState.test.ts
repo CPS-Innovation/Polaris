@@ -82,6 +82,7 @@ describe("useCaseDetailsState", () => {
         handleOpenPdfInNewTab,
         handleTabSelection,
         handleCloseErrorModal,
+        handleUnLockDocuments,
         ...stateProperties
       } = result.current;
 

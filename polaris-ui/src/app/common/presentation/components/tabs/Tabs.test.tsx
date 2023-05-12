@@ -15,6 +15,7 @@ describe("Tabs", () => {
       activeTabId: "",
       handleClosePdf: () => {},
       handleTabSelection: () => {},
+      handleUnLockDocuments: () => {},
     };
 
     render(<Tabs {...props} />);
@@ -33,6 +34,7 @@ describe("Tabs", () => {
       ],
       handleClosePdf: () => {},
       handleTabSelection: () => {},
+      handleUnLockDocuments: () => {},
     };
 
     render(<Tabs {...props} />);
@@ -51,6 +53,7 @@ describe("Tabs", () => {
       ],
       handleClosePdf: () => {},
       handleTabSelection: () => {},
+      handleUnLockDocuments: () => {},
     };
 
     const { rerender } = render(<Tabs {...props} />);
@@ -90,6 +93,7 @@ describe("Tabs", () => {
         handleTabSelection: (id: string) => {
           setActiveTabId(id);
         },
+        handleUnLockDocuments: () => {},
       };
       return (
         <div>
@@ -144,6 +148,7 @@ describe("Tabs", () => {
       activeTabId: "",
       handleClosePdf: () => {},
       handleTabSelection: () => {},
+      handleUnLockDocuments: () => {},
       items: [],
     };
 
@@ -187,6 +192,7 @@ describe("Tabs", () => {
         ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
+        handleUnLockDocuments: () => {},
       };
       render(<Tabs {...props} />);
       await screen.findByTestId("tabs");
@@ -221,6 +227,7 @@ describe("Tabs", () => {
         ],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
+        handleUnLockDocuments: () => {},
       };
       render(<Tabs {...props} />);
       await screen.findByTestId("tabs");
@@ -251,6 +258,7 @@ describe("Tabs", () => {
         items: [{ id: "t1", label: "tab-1", panel: <></>, isDirty: false }],
         handleClosePdf: mockHandleClosePdf,
         handleTabSelection: mockHandleTabSelection,
+        handleUnLockDocuments: () => {},
       };
       render(<Tabs {...props} />);
       await screen.findByTestId("tabs");
