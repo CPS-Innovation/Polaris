@@ -63,11 +63,7 @@ variable "certificate_name" {
   type = string
 }
 
-variable "proxy_domain_name_1" {
-  type = string
-}
-
-variable "proxy_domain_name_2" {
+variable "custom_domain_name" {
   type = string
 }
 
