@@ -1,3 +1,4 @@
+using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
@@ -9,6 +10,7 @@ namespace Common.Services.DocumentToggle
     {
         PresentationFlagsDto GetDocumentPresentationFlags(DocumentDto document);
         PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestDto pcdRequest);
+        PresentationFlagsDto GetDefendantAndChargesPresentationFlags(DefendantsAndChargesListDto defendantAndCharges);
 
         bool CanReadDocument(TrackerCmsDocumentDto document);
         bool CanWriteDocument(TrackerCmsDocumentDto document);

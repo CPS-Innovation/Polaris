@@ -1,5 +1,3 @@
-using System;
-
 namespace PolarisGateway.Domain.Exceptions;
 
 [Serializable]

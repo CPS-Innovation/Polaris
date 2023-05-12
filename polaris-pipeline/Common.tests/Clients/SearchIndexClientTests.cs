@@ -10,8 +10,6 @@ using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
 using FluentAssertions;
-using FluentAssertions.Execution;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;

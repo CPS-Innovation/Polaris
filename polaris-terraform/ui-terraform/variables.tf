@@ -58,3 +58,23 @@ variable "polaris_ui_sub_folder" {
 variable "terraform_service_principal_display_name" {
   type = string
 }
+
+variable "certificate_name" {
+  type = string
+}
+
+variable "proxy_domain_name_1" {
+  type = string
+}
+
+variable "proxy_domain_name_2" {
+  type = string
+}
+
+variable "ui_logging" {
+  type = object({
+    gateway_scale_controller       = string
+    auth_handover_scale_controller = string
+    proxy_scale_controller         = string
+  })
+}

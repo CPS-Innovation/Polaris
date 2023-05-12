@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

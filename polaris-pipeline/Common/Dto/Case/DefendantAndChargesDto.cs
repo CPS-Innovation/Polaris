@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Common.Dto.Case
 {
-    public class DefendantDto
+    public class DefendantAndChargesDto
     {
         [JsonProperty("id")]
         public int Id { get; set; }

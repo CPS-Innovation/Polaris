@@ -1,16 +1,16 @@
-#touch - comment
+#touch - comment 1
 terraform {
-  required_version = "1.2.8"
+  required_version = "1.4.6"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.44.1"
+      version = "3.54.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.34.1"
+      version = "2.38.0"
     }
 
     restapi = {
@@ -20,7 +20,7 @@ terraform {
 
     random = {
       source  = "hashicorp/random"
-      version = "3.4.3"
+      version = "3.5.1"
     }
 
     azapi = {
@@ -56,6 +56,7 @@ locals {
   analytics_group_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-analytics-${var.env}" : "${var.polaris_resource_name_prefix}-analytics"
   resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
   ddei_resource_name   = var.env != "prod" ? "${var.ddei_resource_name_prefix}-${var.env}" : var.ddei_resource_name_prefix
+  search_service_name  = var.env != "prod" ? "ss-polaris-pipeline-${var.env}" : "ss-polaris-pipeline"
   common_tags = {
     environment = var.environment_tag
     project     = var.resource_name_prefix

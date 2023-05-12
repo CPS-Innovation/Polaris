@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Linq;
-using System.ComponentModel;
 using System.Linq;
 
 namespace Common.Domain.Extensions

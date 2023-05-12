@@ -58,6 +58,7 @@ stages:
                     TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -69,6 +70,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -80,6 +82,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
                     
   - stage: Apply_QA
     displayName: QA Deployment
@@ -117,6 +120,7 @@ stages:
                     TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_LOG: $(qa-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -128,6 +132,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -139,6 +144,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
 
   - stage: Apply_PROD
     displayName: PROD Deployment
@@ -176,6 +182,7 @@ stages:
                     TF_STATE_CONTAINER_NAME: $(networking-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -187,6 +194,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -198,3 +206,4 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)

@@ -56,7 +56,8 @@ stages:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
                     TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
-                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -68,6 +69,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -79,6 +81,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                       
                 #download coordinator build artifact
                 - download: PolarisDevManualTerraformBuild
@@ -140,7 +143,8 @@ stages:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
                     TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
-                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -152,6 +156,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -163,6 +168,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 #download ui terraform build artifact
                 - download: PolarisDevManualTerraformBuild
@@ -182,7 +188,8 @@ stages:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
                     TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
-                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -194,6 +201,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -205,6 +213,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 #download ui events terraform build artifact
                 - download: PolarisDevManualTerraformBuild
@@ -224,7 +233,8 @@ stages:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
                     TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
                     TF_STATE_KEY: $(terraform-key)
-                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Plan
                 - bash: |
@@ -236,6 +246,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 # Terraform Apply
                 - bash: |
@@ -247,6 +258,7 @@ stages:
                     ARM_CLIENT_SECRET: $(innovation-dev-spn-secret)
                     ARM_TENANT_ID: $(innovation-dev-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-dev-subscription-id)
+                    TF_LOG: $(dev-log-level)
                 
                 #download gateway build artifact
                 - download: PolarisDevManualTerraformBuild
