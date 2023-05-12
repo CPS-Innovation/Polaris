@@ -21,5 +21,8 @@ polarisDnsResolveSubnet            = "10.7.198.160/28"
 gatewaySubnet                      = "10.7.198.128/27"
 polarisAuthHandoverSubnet          = "10.7.199.16/28"
 mockCmsServiceSubnet               = "10.7.199.48/28"
+vpn_aad_tenant_id                  = ""
+vpn_aad_audience_id                = ""
+vpn_client_ip_pool                 = ""
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
