@@ -27,8 +27,7 @@
   "extensions": {
     "durableTask": {
       "maxConcurrentActivityFunctions": 10,
-      "maxConcurrentOrchestratorFunctions": 10,
-      "hubName": "%MyTaskHub%"
+      "maxConcurrentOrchestratorFunctions": 10
     }
   }
 }
