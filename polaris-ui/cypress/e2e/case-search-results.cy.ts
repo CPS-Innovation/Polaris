@@ -16,6 +16,12 @@ describe("search results", () => {
     cy.findByTestId("txt-result-urn").contains("12AB2222222");
   });
 
+  it("can navigate to a split URL case using the root URN in the URL and not the split URN", () => {
+    cy.visit("/case-search-results?urn=12AB2222222");
+    cy.findByTestId("link-12AB2222222/1").click();
+    cy.url().should("include", "/case-details/12AB2222222/13401");
+  });
+
   it("can not accept an invalid URN and return an appropriate validation message to the user", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
 
