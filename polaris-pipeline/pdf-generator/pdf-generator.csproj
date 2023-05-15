@@ -31,7 +31,7 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
 
     <PackageReference Include="Aspose.Cells" Version="22.3.0" />
-    <PackageReference Include="Aspose.Slides.NET" Version="22.2.0" />
+    <PackageReference Include="Aspose.Slides.NET" Version="23.2.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Aspose.Imaging" Version="22.3.0" />
     <PackageReference Include="Aspose.Diagram" Version="22.3.0" />
