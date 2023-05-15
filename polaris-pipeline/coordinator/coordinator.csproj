@@ -37,9 +37,6 @@
     <None Remove="Functions\ActivityFunctions\" />
     <None Remove="Domain\DocumentExtraction\" />
     <None Remove="Azure.Identity" />
-    <None Update="local.settings.host.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

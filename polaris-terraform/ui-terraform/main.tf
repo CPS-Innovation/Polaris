@@ -44,11 +44,12 @@ provider "azurerm" {
 }
 
 locals {
-  analytics_group_name   = var.env != "prod" ? "${var.resource_name_prefix}-analytics-${var.env}" : "${var.resource_name_prefix}-analytics"
-  resource_name          = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
-  pipeline_resource_name = var.env != "prod" ? "${var.resource_name_prefix}-pipeline-${var.env}" : "${var.resource_name_prefix}-pipeline"
-  ddei_resource_name     = var.env != "prod" ? "${var.resource_name_prefix}-ddei-${var.env}" : "${var.resource_name_prefix}-ddei"
+  analytics_group_name          = var.env != "prod" ? "${var.resource_name_prefix}-analytics-${var.env}" : "${var.resource_name_prefix}-analytics"
+  resource_name                 = var.env != "prod" ? "${var.resource_name_prefix}-${var.env}" : var.resource_name_prefix
+  pipeline_resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-pipeline-${var.env}" : "${var.resource_name_prefix}-pipeline"
+  ddei_resource_name            = var.env != "prod" ? "${var.resource_name_prefix}-ddei-${var.env}" : "${var.resource_name_prefix}-ddei"
   app_service_certificate_store = var.env != "prod" ? "kv-polaris-cert-${var.env}" : "kv-polaris-cert"
+  
   common_tags = {
     environment = var.environment_tag
     project     = "${var.resource_name_prefix}-ui"
