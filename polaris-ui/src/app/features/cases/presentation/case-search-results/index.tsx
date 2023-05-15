@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   BackLink,
   Button,
@@ -59,7 +58,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   const { handleChange, handleKeyPress, handleSubmit, isError, urn } =
     useSearchInputLogic({ urnFromSearchParams, setParams });
 
-  const state = useApi(searchUrn, [urnFromSearchParams!])!;
+  const state = useApi(searchUrn, [urnFromSearchParams])!;
 
   if (state.status === "loading" || state.status === "initial") {
     return <WaitPage />;
@@ -153,7 +152,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       }}
                       to={{
                         pathname: generatePath(casePath, {
-                          urn: encodeURIComponent(item.uniqueReferenceNumber),
+                          urn: urnFromSearchParams,
                           id: item.id,
                         }),
                         state: search,
