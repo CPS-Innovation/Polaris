@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.Dto.Tracker;
+using Azure;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -19,14 +20,19 @@ namespace coordinator.Functions.DurableEntity.Client
         internal Guid CorrelationId;
         internal TrackerCmsDocumentDto CmsDocument;
         internal TrackerPcdRequestDto PcdRequest;
+        internal TrackerDefendantsAndChargesDto DefendantsAndCharges;
+
+        public string GetBlobName()
+        {
+            return CmsDocument?.PdfBlobName ?? PcdRequest?.PdfBlobName ?? DefendantsAndCharges.PdfBlobName;
+        }
     }
 
     public class BaseClient
     {
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
-
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
-            (
+        (
                 HttpRequestMessage req,
                 IDurableEntityClient client,
                 string loggingName,
@@ -66,17 +72,25 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
-            response.CmsDocument = stateResponse.EntityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
+            TrackerEntity entityState = stateResponse.EntityState;
+            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
             if(response.CmsDocument == null )
             {
-                response.PcdRequest = stateResponse.EntityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId == documentId);
+                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId == documentId);
 
                 if (response.PcdRequest == null)
                 {
-                    var baseMessage = $"No CMS document or PCD Request found with id '{documentId}'";
-                    log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
-                    response.Error = new NotFoundObjectResult(baseMessage);
-                    return response;
+                    if(documentId == entityState.DefendantsAndCharges.PolarisDocumentId)
+                    {
+                        response.DefendantsAndCharges = entityState.DefendantsAndCharges;
+                    }
+                    else
+                    {
+                        var baseMessage = $"No Document found with id '{documentId}'";
+                        log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
+                        response.Error = new NotFoundObjectResult(baseMessage);
+                        return response;
+                    }
                 }
             }
 
