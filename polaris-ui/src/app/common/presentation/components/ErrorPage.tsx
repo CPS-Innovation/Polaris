@@ -9,7 +9,7 @@ export const ErrorPage = ({ error }: Props) => (
     </h1>
     <p>
       Try again later, or{" "}
-      <a href="/" className="govuk-link">
+      <a href={process.env.PUBLIC_URL} className="govuk-link">
         click here to start a new search
       </a>
       .
