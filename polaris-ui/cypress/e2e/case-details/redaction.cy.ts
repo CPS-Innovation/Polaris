@@ -2,6 +2,7 @@ import {
   INITIATE_PIPELINE_ROUTE,
   SAVE_REDACTION_ROUTE,
   TRACKER_ROUTE,
+  DOCUMENT_CHECKOUT_ROUTE,
 } from "../../../src/mock-api/routes";
 
 import { refreshPipelineDeletedDocuments } from "../../../src/mock-api/data/pipelinePdfResults.cypress";
@@ -177,5 +178,53 @@ describe("redaction refresh flow", () => {
     cy.findByText("This document has been deleted and is unavailable.").should(
       "exist"
     );
+  });
+  it("should show correct error message on unsuccessful checkout, due to the document is locked by another user", () => {
+    cy.overrideRoute(
+      DOCUMENT_CHECKOUT_ROUTE,
+      {
+        type: "break",
+        httpStatusCode: 409,
+      },
+      "post"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").should("have.length", 1);
+    cy.findByTestId("btn-redact").click({ force: true });
+    cy.findByTestId("div-modal")
+      .should("exist")
+      .contains(
+        "It is not possible to redact as the document is already checked out by another user. Please try again later."
+      );
+    cy.findByTestId("btn-save-redaction-0").should("have.length", 0);
+  });
+  it("should show general error message on unsuccessful checkout, due to any reason other than document is locked by another user", () => {
+    cy.overrideRoute(
+      DOCUMENT_CHECKOUT_ROUTE,
+      {
+        type: "break",
+        httpStatusCode: 500,
+      },
+      "post"
+    );
+    cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").should("have.length", 1);
+    cy.findByTestId("btn-redact").click({ force: true });
+    cy.findByTestId("div-modal")
+      .should("exist")
+      .contains("Failed to checkout document. Please try again later.");
+    cy.findByTestId("btn-save-redaction-0").should("have.length", 0);
   });
 });

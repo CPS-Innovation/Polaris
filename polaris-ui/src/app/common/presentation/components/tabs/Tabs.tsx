@@ -18,6 +18,7 @@ export type TabsProps = CommonTabsProps & {
   activeTabId: string | undefined;
   handleTabSelection: (documentId: string) => void;
   handleClosePdf: (caseDocument: { documentId: string }) => void;
+  handleUnLockDocuments: (documentIds: string[]) => void;
 };
 
 export const Tabs: React.FC<TabsProps> = ({
@@ -29,6 +30,7 @@ export const Tabs: React.FC<TabsProps> = ({
   activeTabId,
   handleTabSelection,
   handleClosePdf,
+  handleUnLockDocuments,
   ...attributes
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -98,9 +100,10 @@ export const Tabs: React.FC<TabsProps> = ({
     setShowDocumentNavAlert(false);
   };
 
-  const handleNavigateAwayContinueAction = () => {
+  const handleNavigateAwayContinueAction = (documentIds: string[]) => {
     setShowDocumentNavAlert(false);
     localHandleClosePdf();
+    handleUnLockDocuments(documentIds);
   };
 
   const renderTabs = () => {
@@ -207,6 +210,8 @@ export const Tabs: React.FC<TabsProps> = ({
           type={"alert"}
         >
           <NavigationAwayAlertContent
+            type="document"
+            documentId={activeTabId!}
             handleCancelAction={handleNavigateAwayCancelAction}
             handleContinueAction={handleNavigateAwayContinueAction}
           />

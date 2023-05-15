@@ -106,8 +106,9 @@ export const initiateAndPoll = (
           trackerArgs.trackerUrl,
           trackerArgs.correlationId
         );
-
-        handleApiCallSuccess(pipelineResult);
+        if (pipelineResult) {
+          handleApiCallSuccess(pipelineResult);
+        }
       } catch (error) {
         handleApiCallError(error);
       }

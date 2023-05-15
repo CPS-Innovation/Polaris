@@ -1,7 +1,10 @@
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { CombinedState } from "../../domain/CombinedState";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
-import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
+import {
+  reducerAsyncActionHandlers,
+  CHECKOUT_BLOCKED_STATUS_CODE,
+} from "./reducer-async-action-handlers";
 import * as api from "../../api/gateway-api";
 import * as headerFactory from "../../api/header-factory";
 import * as mapRedactionSaveRequest from "./map-redaction-save-request";
@@ -113,10 +116,9 @@ describe("reducerAsyncActionHandlers", () => {
     >([
       ["unlocked", true, "locked"],
       ["unlocking", true, "locked"],
-      ["unlocked", false, "locked-by-other-user"],
-      ["unlocking", false, "locked-by-other-user"],
+      ["locked-by-other-user", true, "locked"],
     ])(
-      "can add a redaction and lock the document if the document is unlocked or unlocking",
+      "can add a redaction and lock the document if the document is unlocked or unlocking and document checkout is successfull",
       async (
         clientLockedState,
         isLockSuccessful,
@@ -158,18 +160,163 @@ describe("reducerAsyncActionHandlers", () => {
 
         expect(dispatchMock.mock.calls.length).toBe(3);
         expect(dispatchMock.mock.calls[0][0]).toEqual({
-          type: "ADD_REDACTION",
-          payload: { documentId: "1", redaction: { type: "redaction" } },
-        });
-        expect(dispatchMock.mock.calls[1][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: { documentId: "1", lockedState: "locking" },
         });
+        expect(dispatchMock.mock.calls[1][0]).toEqual({
+          type: "ADD_REDACTION",
+          payload: { documentId: "1", redaction: { type: "redaction" } },
+        });
+
         expect(dispatchMock.mock.calls[2][0]).toEqual({
           type: "UPDATE_DOCUMENT_LOCK_STATE",
           payload: {
             documentId: "1",
             lockedState: expectedFinalDispatchedLockedState,
+          },
+        });
+      }
+    );
+
+    it.each<
+      [
+        CaseDocumentViewModel["clientLockedState"],
+        boolean,
+        CaseDocumentViewModel["clientLockedState"]
+      ]
+    >([
+      ["unlocked", false, "unlocked"],
+      ["unlocking", false, "unlocked"],
+      ["locked-by-other-user", false, "unlocked"],
+    ])(
+      "Should not add redaction, if the document is unlocked or unlocking and document checkout is unsuccessfull",
+      async (
+        clientLockedState,
+        isLockSuccessful,
+        expectedFinalDispatchedLockedState
+      ) => {
+        // arrange
+        combinedStateMock = {
+          tabsState: {
+            items: [
+              { documentId: "1", clientLockedState, cmsDocCategory: "MGForm" },
+            ] as CaseDocumentViewModel[],
+          },
+          caseId: 2,
+          urn: "foo",
+        } as CombinedState;
+
+        const checkoutSpy = jest
+          .spyOn(api, "checkoutDocument")
+          .mockImplementation(() => Promise.reject({ isLockSuccessful }));
+
+        const handler =
+          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+            dispatch: dispatchMock,
+            getState: () => combinedStateMock,
+            signal: new AbortController().signal,
+          });
+
+        //act
+        await handler({
+          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          payload: {
+            documentId: "1",
+            redaction: { type: "redaction" } as NewPdfHighlight,
+          },
+        });
+
+        //assert
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
+
+        expect(dispatchMock.mock.calls.length).toBe(3);
+        expect(dispatchMock.mock.calls[0][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: { documentId: "1", lockedState: "locking" },
+        });
+        expect(dispatchMock.mock.calls[1][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: {
+            documentId: "1",
+            lockedState: expectedFinalDispatchedLockedState,
+          },
+        });
+        expect(dispatchMock.mock.calls[2][0]).toEqual({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Something went wrong!",
+            message: "Failed to checkout document. Please try again later.",
+          },
+        });
+      }
+    );
+
+    it.each<
+      [
+        CaseDocumentViewModel["clientLockedState"],
+        CaseDocumentViewModel["clientLockedState"]
+      ]
+    >([
+      ["unlocked", "locked-by-other-user"],
+      ["unlocking", "locked-by-other-user"],
+      ["locked-by-other-user", "locked-by-other-user"],
+    ])(
+      "Should not add redaction, if the document is unlocked or unlocking and document checkout is unsuccessfull because it is locked by another user statuscode(409)",
+      async (clientLockedState, expectedFinalDispatchedLockedState) => {
+        // arrange
+        combinedStateMock = {
+          tabsState: {
+            items: [
+              { documentId: "1", clientLockedState, cmsDocCategory: "MGForm" },
+            ] as CaseDocumentViewModel[],
+          },
+          caseId: 2,
+          urn: "foo",
+        } as CombinedState;
+
+        const checkoutSpy = jest
+          .spyOn(api, "checkoutDocument")
+          .mockImplementation(() =>
+            Promise.reject({ code: CHECKOUT_BLOCKED_STATUS_CODE })
+          );
+
+        const handler =
+          reducerAsyncActionHandlers.ADD_REDACTION_AND_POTENTIALLY_LOCK({
+            dispatch: dispatchMock,
+            getState: () => combinedStateMock,
+            signal: new AbortController().signal,
+          });
+
+        //act
+        await handler({
+          type: "ADD_REDACTION_AND_POTENTIALLY_LOCK",
+          payload: {
+            documentId: "1",
+            redaction: { type: "redaction" } as NewPdfHighlight,
+          },
+        });
+
+        //assert
+        expect(checkoutSpy).toBeCalledWith("foo", 2, "1");
+
+        expect(dispatchMock.mock.calls.length).toBe(3);
+        expect(dispatchMock.mock.calls[0][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: { documentId: "1", lockedState: "locking" },
+        });
+        expect(dispatchMock.mock.calls[1][0]).toEqual({
+          type: "UPDATE_DOCUMENT_LOCK_STATE",
+          payload: {
+            documentId: "1",
+            lockedState: expectedFinalDispatchedLockedState,
+          },
+        });
+        expect(dispatchMock.mock.calls[2][0]).toEqual({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Failed to redact document",
+            message:
+              "It is not possible to redact as the document is already checked out by another user. Please try again later.",
           },
         });
       }
@@ -559,6 +706,82 @@ describe("reducerAsyncActionHandlers", () => {
       // assert
       expect(saveSpy).toBeCalledWith("foo", 2, "1", mockRedactionSaveRequest);
       //expect(checkInSpy).toBeCalledWith("foo", 2, 1);
+    });
+  });
+
+  describe("UNLOCK_DOCUMENTS", () => {
+    it("it can unlock all the documents passed in", async () => {
+      // arrange
+      const cancelCheckoutSpy = jest
+        .spyOn(api, "cancelCheckoutDocument")
+        .mockImplementation(() => Promise.resolve(true));
+
+      combinedStateMock = {
+        urn: "foo",
+        caseId: 99,
+        tabsState: {
+          items: [
+            { documentId: "1", pdfBlobName: "bar1" },
+            { documentId: "2", pdfBlobName: "bar2" },
+            { documentId: "3", pdfBlobName: "bar3" },
+          ] as CaseDocumentViewModel[],
+        },
+      } as CombinedState;
+
+      const handler = reducerAsyncActionHandlers.UNLOCK_DOCUMENTS({
+        dispatch: dispatchMock,
+        getState: () => combinedStateMock,
+        signal: new AbortController().signal,
+      });
+
+      // act
+      await handler({
+        type: "UNLOCK_DOCUMENTS",
+        payload: {
+          documentIds: ["1", "2", "3"],
+        },
+      });
+
+      // assert
+      expect(cancelCheckoutSpy).toBeCalledTimes(3);
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "1");
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "2");
+      expect(cancelCheckoutSpy).toBeCalledWith("foo", 99, "3");
+    });
+    it("it shouldn't make api call to unlock if no documentIds passed in", async () => {
+      // arrange
+      const cancelCheckoutSpy = jest
+        .spyOn(api, "cancelCheckoutDocument")
+        .mockImplementation(() => Promise.resolve(true));
+
+      combinedStateMock = {
+        urn: "foo",
+        caseId: 99,
+        tabsState: {
+          items: [
+            { documentId: "1", pdfBlobName: "bar1" },
+            { documentId: "2", pdfBlobName: "bar2" },
+            { documentId: "3", pdfBlobName: "bar3" },
+          ] as CaseDocumentViewModel[],
+        },
+      } as CombinedState;
+
+      const handler = reducerAsyncActionHandlers.UNLOCK_DOCUMENTS({
+        dispatch: dispatchMock,
+        getState: () => combinedStateMock,
+        signal: new AbortController().signal,
+      });
+
+      // act
+      await handler({
+        type: "UNLOCK_DOCUMENTS",
+        payload: {
+          documentIds: [],
+        },
+      });
+
+      // assert
+      expect(cancelCheckoutSpy).toBeCalledTimes(0);
     });
   });
 });
