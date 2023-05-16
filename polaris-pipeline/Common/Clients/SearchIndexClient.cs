@@ -26,7 +26,7 @@ namespace Common.Clients
 			_logger = logger;
 		}
 
-		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<TrackerCmsDocumentDto> documents, string searchTerm, Guid correlationId)
+		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<BaseTrackerDocumentDto> documents, string searchTerm, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(Query), $"CaseId '{caseId}', searchTerm '{searchTerm}'");
 
@@ -40,10 +40,10 @@ namespace Common.Clients
 			var searchLines = new List<SearchLine>();
 			await foreach (var searchResult in searchResults.Value.GetResultsAsync())
 			{
-            if (IsLiveDocumentResult(documents, searchResult.Document))
-            {
-                searchLines.Add(searchResult.Document);
-            }
+                if (IsLiveDocumentResult(documents, searchResult.Document))
+                {
+                    searchLines.Add(searchResult.Document);
+                }
 			}
 
 			_logger.LogMethodFlow(correlationId, nameof(Query), $"Found {searchLines.Count} results, building streamlined search results");
@@ -52,7 +52,7 @@ namespace Common.Clients
             return results;
 		}
 
-        private string GetSearchQuery(int caseId, List<TrackerCmsDocumentDto> documents)
+        private string GetSearchQuery(int caseId, List<BaseTrackerDocumentDto> documents)
         {
             var stringBuilder = new StringBuilder($"caseId eq {caseId}");
 
@@ -84,11 +84,9 @@ namespace Common.Clients
             return streamlinedResults;
         }
 
-        private bool IsLiveDocumentResult(List<TrackerCmsDocumentDto> documents, SearchLine searchLine)
+        private bool IsLiveDocumentResult(List<BaseTrackerDocumentDto> documents, SearchLine searchLine)
         {
-            var decodedSearchLineId = Encoding.UTF8.GetString(
-              Convert.FromBase64String(searchLine.Id)
-            );
+            var decodedSearchLineId = Encoding.UTF8.GetString(Convert.FromBase64String(searchLine.Id));
             var guidString = decodedSearchLineId.Substring(0, 36);
             var resultPolarisDocumentId = Guid.Parse(guidString);
 
