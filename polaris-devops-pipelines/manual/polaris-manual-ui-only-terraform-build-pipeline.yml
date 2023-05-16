@@ -1,6 +1,6 @@
 # Build and Publish Artifact Azure DevOps pipeline for Polaris Terraform and Codebase
 
-name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-man'
 
 trigger: none
 pr: none
