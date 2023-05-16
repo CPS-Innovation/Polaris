@@ -382,6 +382,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 CmsDocuments
                     .Select(doc => doc.Status)
                     .Concat(PcdRequests.Select(pcd => pcd.Status))
+                    .Append(DefendantsAndCharges.Status)
                     .ToList();
 
             return Task.FromResult(
@@ -394,6 +395,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 CmsDocuments
                     .Select(doc => doc.Status)
                     .Concat(PcdRequests.Select(pcd => pcd.Status))
+                    .Append(DefendantsAndCharges.Status)
                     .ToList();
 
             return Task.FromResult(
