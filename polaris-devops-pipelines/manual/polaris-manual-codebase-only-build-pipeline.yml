@@ -29,7 +29,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)/a/coordinator"
               artifact: "polaris-coordinator-drop"
             displayName: "Publish Coordinator codebase artifact"
             
@@ -57,7 +57,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)/a/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
             
@@ -72,7 +72,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)/a/text-extractor"
               artifact: "polaris-text-extractor-drop"
             displayName: "Publish Text-Extractor codebase artifact"
 
@@ -87,7 +87,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)/a/polaris-auth-handover"
               artifact: "polaris-auth-handover-drop"
             displayName: "Publish Auth Handover codebase artifact"
             
@@ -102,7 +102,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)/a/polaris-gateway"
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
             
