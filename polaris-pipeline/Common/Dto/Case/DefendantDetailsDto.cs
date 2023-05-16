@@ -28,7 +28,7 @@ namespace Common.Dto.Case
             get
             {
                 // YYYY-MM-DD ?
-                if((Dob.Length == 10) 
+                if(Dob?.Length == 10 
                     && char.IsDigit(Dob[0]) && char.IsDigit(Dob[1]) && char.IsDigit(Dob[2]) && char.IsDigit(Dob[3])
                     && Dob[4] == '-'
                     && char.IsDigit(Dob[5]) && char.IsDigit(Dob[6])

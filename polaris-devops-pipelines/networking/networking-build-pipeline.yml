@@ -1,6 +1,6 @@
 # Build and Publish Artifact Azure DevOps pipeline for Networking and Networking-Events Terraform files
 
-name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
 trigger:
   batch: true
