@@ -140,7 +140,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-gateway"
-                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-gateway-drop/a/polaris-gateway
+                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-gateway-drop
                 
                 #download gateway build artifact
                 - download: PolarisDevManualTerraformBuild
@@ -154,7 +154,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-auth-handover"
-                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-auth-handover-drop/a/polaris-auth-handover
+                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-auth-handover-drop
                 
                 #download UI build artifact
                 - download: PolarisDevManualTerraformBuild
