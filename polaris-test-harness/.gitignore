@@ -1,0 +1,5 @@
+bin
+obj
+output
+run.sh
+*.log
