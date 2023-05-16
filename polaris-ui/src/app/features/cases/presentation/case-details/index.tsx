@@ -25,6 +25,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
+import { SURVEY_LINK } from "../../../../config";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -142,7 +143,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         Your{" "}
         <a
           className="govuk-link"
-          href="https://www.smartsurvey.co.uk/s/DG5B6G/"
+          href={SURVEY_LINK}
           target="_blank"
           rel="noreferrer"
         >
