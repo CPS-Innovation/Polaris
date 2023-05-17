@@ -1,5 +1,5 @@
 function getPolarisUrl() {
-  var domainUrl = "https://as-web-polaris-dev.azurewebsites.net/case-details/";
+  var domainUrl = window.location.origin + "/polaris-ui/case-details/";
   var polarisUrl = "";
   if (window.iCaseId && window.sURN) {
     polarisUrl = domainUrl + window.sURN + "/" + window.iCaseId;
