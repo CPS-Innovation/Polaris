@@ -20,7 +20,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_proxy" {
     capacity {
       default = 1
       minimum = 1
-      maximum = 10
+      maximum = 1
     }
     rule {
       metric_trigger {
