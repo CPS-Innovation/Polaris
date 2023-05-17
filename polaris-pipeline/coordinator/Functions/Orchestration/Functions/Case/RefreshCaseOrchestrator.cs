@@ -92,17 +92,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             await tracker.Reset((context.CurrentUtcDateTime, context.InstanceId));
 
             var documents = await GetDocuments(context, tracker, loggingName, log, payload);
-
-            var documentTasks = await GetDocumentTasks(context, tracker, 1, payload, documents, log);
-            for(var retry=1; retry <= 3 && documentTasks.Any(); retry++)
-            {
-                await Task.WhenAll(documentTasks.Select(BufferCall));
-
-                if (await tracker.AnyDocumentsFailed())
-                {
-                    documentTasks = await GetDocumentTasks(context, tracker, retry+1, payload, documents, log);
-                }
-            }
+            var documentTasks = await GetDocumentTasks(context, tracker, payload, documents, log);
+            await Task.WhenAll(documentTasks.Select(BufferCall));
 
             if (await tracker.AllDocumentsFailed())
                 throw new CaseOrchestrationException("Cms Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
@@ -119,7 +110,6 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             (
                 IDurableOrchestrationContext context,
                 ITrackerEntity tracker,
-                int retry,
                 CaseOrchestrationPayload caseDocumentPayload,
                 (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
                 ILogger log
@@ -127,7 +117,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             var deltas = await GetCaseDocumentChanges(context.CurrentUtcDateTime, tracker, loggingName, log, caseDocumentPayload, documents);
 
-            var logMessage = $"Refresh Documents, retry {retry}, " +
+            var logMessage = $"Refresh Documents, " +
                                 $"CMS:({deltas.CreatedCmsDocuments.Count} created, {deltas.UpdatedCmsDocuments.Count} updated, {deltas.DeletedCmsDocuments.Count} deleted), " +
                                 $"PCD :({deltas.CreatedPcdRequests.Count} created, {deltas.DeletedPcdRequests.Count} deleted), " +
                                 $"DAC :({(deltas.CreatedDefendantsAndCharges != null ? 1 : 0)} created, {(deltas.UpdatedDefendantsAndCharges != null ? 1 : 0)} deleted).";
