@@ -376,24 +376,13 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.CompletedTask;
         }
 
-        public Task<bool> AnyDocumentsFailed()
-        {
-            var statuses =
-                CmsDocuments
-                    .Select(doc => doc.Status)
-                    .Concat(PcdRequests.Select(pcd => pcd.Status))
-                    .ToList();
-
-            return Task.FromResult(
-                statuses.Any(s => s is TrackerDocumentStatus.UnableToConvertToPdf or TrackerDocumentStatus.UnexpectedFailure));
-        }
-
         public Task<bool> AllDocumentsFailed()
         {
             var statuses = 
                 CmsDocuments
                     .Select(doc => doc.Status)
                     .Concat(PcdRequests.Select(pcd => pcd.Status))
+                    .Append(DefendantsAndCharges.Status)
                     .ToList();
 
             return Task.FromResult(

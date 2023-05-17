@@ -20,7 +20,6 @@ namespace coordinator.Domain.Tracker
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
         Task RegisterStatus((DateTime t, string documentId, TrackerDocumentStatus status, TrackerLogType logType) arg);
         Task RegisterCompleted((DateTime t, bool success) arg);
-        Task<bool> AnyDocumentsFailed();
         Task<bool> AllDocumentsFailed();
     }
 }
