@@ -1,26 +1,23 @@
 using System.Text.RegularExpressions;
 using System.Net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 public static class Api
 {
     static HttpStatusCode[] _expectedStatusCodes = new HttpStatusCode[] {
       HttpStatusCode.OK,
+      HttpStatusCode.Accepted,
+      HttpStatusCode.Locked,
       HttpStatusCode.NotFound,
       HttpStatusCode.Conflict
     };
 
+    static string _cmsAuthValues { get; set; }
+
     static HttpClient httpClient = new HttpClient(new HttpClientHandler
     {
-        MaxConnectionsPerServer = 32
+        MaxConnectionsPerServer = 32,
+        UseCookies = false,
     });
-
-    static JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings()
-    {
-        Formatting = Formatting.Indented,
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
-    };
 
     public static async Task AttachCookiesToClient(Args args)
     {
@@ -31,13 +28,21 @@ public static class Api
         var response = await Api.MakeCall(new HttpRequestMessage
         {
             Method = HttpMethod.Post,
-            RequestUri = args.GetDDEIRequestUri("login-full-cookie"),
+            RequestUri = args.GetDDEIRequestUri("api/login-full-cookie"),
             Content = postContent
         });
+
+        response.Headers.TryGetValues("Set-Cookie", out var cookies);
+        _cmsAuthValues = ExtractCmsAuthValues(cookies);
     }
 
     public static async Task<HttpResponseMessage> MakeCall(HttpRequestMessage req)
     {
+        if (!string.IsNullOrEmpty(_cmsAuthValues))
+        {
+            req.Headers.Add("Cms-Auth-Values", _cmsAuthValues);
+        }
+
         HttpResponseMessage response = null;
         string content = string.Empty;
         try
@@ -61,15 +66,24 @@ public static class Api
 
     public static async Task<(HttpStatusCode, T)> MakeJsonCall<T>(HttpRequestMessage req)
     {
+        if (!string.IsNullOrEmpty(_cmsAuthValues))
+        {
+            req.Headers.Add("Cms-Auth-Values", _cmsAuthValues);
+        }
+
+
         HttpResponseMessage response = null;
         string content = string.Empty;
         try
         {
             response = await httpClient.SendAsync(req);
             content = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
+            if (!_expectedStatusCodes.Contains(response.StatusCode))
+            {
+                throw new Exception("Expecting only 200s or 404s");
+            }
             Report(req, response, content);
-            return (response.StatusCode, JsonConvert.DeserializeObject<T>(content, _jsonSerializerSettings)!);
+            return (response.StatusCode, Json.Deserialize<T>(content));
         }
         catch (Exception exception)
         {
@@ -80,10 +94,12 @@ public static class Api
 
     private static void Report(HttpRequestMessage req, HttpResponseMessage response, string content)
     {
-        var rawLog = $"{Pad(req.Method.ToString(), 6)} {Pad(((int)response.StatusCode).ToString(), 3)} {Pad(content.Length.ToString(), 9)} {req.RequestUri}";
+        var timestamp = DateTime.Now.ToString("o");
+        var rawLog = $"{timestamp} {Pad(req.Method.ToString(), 6)} {Pad(((int)response.StatusCode).ToString(), 3)} {Pad(content.Length.ToString(), 9)} {req.RequestUri}";
         var log = Regex.Replace(rawLog, "code=.*", "code=redacted");
         File.AppendAllLines("log.log", new[] { log });
         Console.WriteLine(log);
+        //Console.WriteLine(content);
     }
 
     private static void ReportException(Exception exception, HttpRequestMessage req, HttpResponseMessage response, string content)
@@ -108,5 +124,13 @@ public static class Api
     private static string Pad(string s, int length)
     {
         return s.PadRight(length, ' ');
+    }
+
+    private static string ExtractCmsAuthValues(IEnumerable<string> cookies)
+    {
+        var cookieString = string.Join(";", cookies);
+        Console.WriteLine(cookieString);
+        var match = Regex.Match(cookieString, "Cms-Auth-Values=([^;]+);");
+        return WebUtility.UrlDecode(match.Groups[1].Value);
     }
 }

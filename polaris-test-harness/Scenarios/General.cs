@@ -1,5 +1,7 @@
 ﻿
 
+using System.Net;
+using System.Net.Http;
 public static class General
 {
     public static async Task EntryAsync(Args args)
@@ -11,9 +13,11 @@ public static class General
             {
                 done = await RetryLoop(args);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await Task.Delay(3 * 1000);
+                Console.WriteLine(ex.ToString());
+                throw ex;
+                //await Task.Delay(3 * 1000);
             }
         }
     }
@@ -33,7 +37,7 @@ public static class General
     {
         var request = new HttpRequestMessage
         {
-            RequestUri = args.GetDDEIRequestUri($"urns/{urn}/cases")
+            RequestUri = args.GetDDEIRequestUri($"api/urns/{urn}/cases")
         };
 
         var (statusCode, content) = await Api.MakeJsonCall<IEnumerable<CaseIdentifiers>>(request);
@@ -48,15 +52,39 @@ public static class General
 
     static async Task ProcessCase(Args args, IEnumerable<int> ids, string urn, int id, int index)
     {
-        var request = new HttpRequestMessage
+        var correlationId = Guid.NewGuid().ToString();
+
+        await DeleteCaseOrchestration(args, id, correlationId);
+        await DeleteCaseTrackerEntity(args, id, correlationId);
+        await RefreshTracker(args, urn, id, correlationId);
+
+        while (true)
         {
-            RequestUri = args.GetCoordinatorRequestUri($"urns/{urn}/cases/{id}")
-        };
+            await Task.Delay(2000);
+            var response = await GetTrackerEntity(args, urn, id, correlationId);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var dto = Json.Deserialize<TrackerDto>(content);
+                if (dto.Status == TrackerStatus.Completed || dto.Status == TrackerStatus.Failed)
+                {
+                    Console.WriteLine(content);
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(dto.Status);
+                }
+            }
 
-        var (statusCode, content) = await Api.MakeJsonCall<dynamic>(request);
+            // if (response.StatusCode != HttpStatusCode.NotFound)
+            // {
+            //     break;
+            // }
+        }
 
-        FileSystem.DeleteCaseDirectory(args, urn, id);
-        await FileSystem.WriteCaseJson(args, urn, id, content);
+        // FileSystem.DeleteCaseDirectory(args, urn, id);
+        // await FileSystem.WriteCaseJson(args, urn, id, content);
 
         //Console.WriteLine($"Processed case {index + 1} of {ids.Count()} for urn {urn}, {id}, status {(int)statusCode}");
 
@@ -65,36 +93,51 @@ public static class General
         //await FileSystem.WriteCompletedCase(args, urn);
     }
 
-    static async Task DeleteCaseOrchestration(Args args, int caseId, string cmsAuthValues, Guid correlationId)
+    static async Task DeleteCaseOrchestration(Args args, int caseId, string correlationId)
     {
-        var url = $"runtime/webhooks/durabletask/instances/{caseId}?code={args.CoordinatorFunctionKey}";
-        var request = new HttpRequestMessage(HttpMethod.Delete, url);
-        request.Headers.Add("Correlation-Id", correlationId.ToString());
-        request.Headers.Add("Cms-Auth-Values", cmsAuthValues);
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Delete,
+            RequestUri = args.GetCoordinatorLowLevelRequestUri($"runtime/webhooks/durabletask/instances/{caseId}"),
+        };
+        request.Headers.Add("Correlation-Id", correlationId);
 
         await Api.MakeCall(request);
     }
 
-    static async Task DeleteCaseTrackerEntity(Args args, int caseId, string cmsAuthValues, Guid correlationId)
+    static async Task DeleteCaseTrackerEntity(Args args, int caseId, string correlationId)
     {
-        var url = $"runtime/webhooks/durabletask/instances/@trackerentity@{caseId}?code={args.CoordinatorFunctionKey}";
-        var request = new HttpRequestMessage(HttpMethod.Delete, url);
-        request.Headers.Add("Correlation-Id", correlationId.ToString());
-        request.Headers.Add("Cms-Auth-Values", cmsAuthValues);
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Delete,
+            RequestUri = args.GetCoordinatorLowLevelRequestUri($"runtime/webhooks/durabletask/instances/@trackerentity@{caseId}"),
+        };
+        request.Headers.Add("Correlation-Id", correlationId);
 
         await Api.MakeCall(request);
     }
 
-    static async Task<TrackerDto> GetTrackerEntity(Args args, string caseUrn, int caseId, string cmsAuthValues, Guid correlationId)
+    static async Task RefreshTracker(Args args, string caseUrn, int caseId, string correlationId)
     {
-        var url = $"urns/{caseUrn}/cases/{caseId}?code={args.CoordinatorFunctionKey}";
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Add("Correlation-Id", correlationId.ToString());
-        request.Headers.Add("Cms-Auth-Values", cmsAuthValues);
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Post,
+            RequestUri = args.GetCoordinatorRequestUri($"api/urns/{caseUrn}/cases/{caseId}"),
+        };
+        request.Headers.Add("Correlation-Id", correlationId);
 
-        var result = await Api.MakeJsonCall<TrackerDto>(request);
+        await Api.MakeCall(request);
+    }
 
-        return result.Item2;
+    static async Task<HttpResponseMessage> GetTrackerEntity(Args args, string caseUrn, int caseId, string correlationId)
+    {
+        var request = new HttpRequestMessage
+        {
+            RequestUri = args.GetCoordinatorRequestUri($"api/urns/{caseUrn}/cases/{caseId}/tracker"),
+        };
+        request.Headers.Add("Correlation-Id", correlationId);
+
+        return await Api.MakeCall(request);
     }
 }
 

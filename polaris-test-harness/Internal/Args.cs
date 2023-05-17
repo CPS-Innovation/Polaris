@@ -11,9 +11,11 @@ public class Args
     [Option]
     public string DDEIFunctionKey { get; set; }
     [Option]
-    private string CoordinatorHostName { get; set; }
+    public string CoordinatorHostName { get; set; }
     [Option]
     public string CoordinatorFunctionKey { get; set; }
+    [Option]
+    public string CoordinatorDurableFunctionKey { get; set; }
     [Option]
     public string CmsUsername { get; set; }
     [Option]
@@ -53,11 +55,16 @@ public class Args
 
     public Uri GetCoordinatorRequestUri(string path)
     {
-        return new Uri($"{CoordinatorHostName}/api/{path}?code={CoordinatorFunctionKey}");
+        return new Uri($"{CoordinatorHostName}/{path}?code={CoordinatorFunctionKey}");
+    }
+
+    public Uri GetCoordinatorLowLevelRequestUri(string path)
+    {
+        return new Uri($"{CoordinatorHostName}/{path}?code={CoordinatorDurableFunctionKey}");
     }
 
     public Uri GetDDEIRequestUri(string path)
     {
-        return new Uri($"{DDEIHostName}/api/{path}?code={DDEIFunctionKey}");
+        return new Uri($"{DDEIHostName}/{path}?code={DDEIFunctionKey}");
     }
 }

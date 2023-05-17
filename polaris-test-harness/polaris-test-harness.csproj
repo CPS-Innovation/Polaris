@@ -7,6 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoWarn>CS8618</NoWarn>
+    <NoWarn>CS8604</NoWarn>
+    <NoWarn>CS8600c</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
