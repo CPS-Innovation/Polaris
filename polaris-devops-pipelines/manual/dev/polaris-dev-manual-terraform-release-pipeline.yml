@@ -61,7 +61,7 @@ stages:
                 
                 # Terraform Plan
                 - bash: |
-                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: 'Terraform > Write Pipeline Plan'
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/pipeline-terraform-files
                   env:
@@ -73,7 +73,7 @@ stages:
                 
                 # Terraform Apply
                 - bash: |
-                    terraform apply -auto-approve qa.tfplan
+                    terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply to DEV
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/pipeline-terraform-files
                   env:
@@ -148,7 +148,7 @@ stages:
                 
                 # Terraform Plan
                 - bash: |
-                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: 'Terraform > Write Pipeline Events Plan'
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/pipeline-events-terraform-files
                   env:
@@ -160,7 +160,7 @@ stages:
                 
                 # Terraform Apply
                 - bash: |
-                    terraform apply -auto-approve qa.tfplan
+                    terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply to DEV
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/pipeline-events-terraform-files
                   env:
@@ -193,7 +193,7 @@ stages:
                 
                 # Terraform Plan
                 - bash: |
-                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: 'Terraform > Write UI Plan'
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-terraform-files
                   env:
@@ -205,7 +205,7 @@ stages:
                 
                 # Terraform Apply
                 - bash: |
-                    terraform apply -auto-approve qa.tfplan
+                    terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply to DEV
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-terraform-files
                   env:
@@ -238,7 +238,7 @@ stages:
                 
                 # Terraform Plan
                 - bash: |
-                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: 'Terraform > Write UI Events Plan'
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-events-terraform-files
                   env:
@@ -250,7 +250,7 @@ stages:
                 
                 # Terraform Apply
                 - bash: |
-                    terraform apply -auto-approve qa.tfplan
+                    terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply to DEV
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-events-terraform-files
                   env:
