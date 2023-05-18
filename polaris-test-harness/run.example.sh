@@ -5,5 +5,6 @@ dotnet run \
   --ddeifunctionkey=REDACTED \
   --coordinatorhostname=https://fa-polaris-pipeline-dev-coordinator.azurewebsites.net \
   --coordinatorfunctionkey=REDACTED \
+  --coordinatordurablefunctionkey=REDACTED \
   --cmsusername=stefanstachow.cin3 \
   --cmspassword=REDACTED
