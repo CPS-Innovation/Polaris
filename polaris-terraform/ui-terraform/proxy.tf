@@ -41,6 +41,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DOCKER_REGISTRY_SERVER_PASSWORD"                 = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
+    "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
+    "CMS_RATE_LIMIT"                                  = "1024r/s"
   }
 
   site_config {
