@@ -5,11 +5,6 @@ public static class ProcessListHelper
         if (args.RunInParallel)
         {
             var i = 0;
-            // var chunks = items.Chunk(10);
-            // foreach (var chunk in chunks)
-            // {
-            //     await Task.WhenAll(chunk.Select((item, index) => processItem(item, index)));
-            // }
             await ConcurrentAsync(32, items, (item) => processItem(item, i++));
         }
         else

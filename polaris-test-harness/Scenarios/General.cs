@@ -58,9 +58,13 @@ public static class General
         await DeleteCaseTrackerEntity(args, id, correlationId);
         await RefreshTracker(args, urn, id, correlationId);
 
-        while (true)
+        var loop = true;
+        while (loop)
         {
-            await Task.Delay(2000);
+            //var statusResponse = await GetOrchestratorStatus(args, id, correlationId);
+            //  Console.WriteLine(statusResponse);
+
+            await Task.Delay(5000);
             var response = await GetTrackerEntity(args, urn, id, correlationId);
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -69,28 +73,29 @@ public static class General
                 if (dto.Status == TrackerStatus.Completed || dto.Status == TrackerStatus.Failed)
                 {
                     Console.WriteLine(content);
-                    break;
+                    loop = false;
                 }
                 else
                 {
                     Console.WriteLine(dto.Status);
                 }
             }
-
-            // if (response.StatusCode != HttpStatusCode.NotFound)
-            // {
-            //     break;
-            // }
         }
 
-        // FileSystem.DeleteCaseDirectory(args, urn, id);
-        // await FileSystem.WriteCaseJson(args, urn, id, content);
+    }
 
-        //Console.WriteLine($"Processed case {index + 1} of {ids.Count()} for urn {urn}, {id}, status {(int)statusCode}");
+    static async Task<string> GetOrchestratorStatus(Args args, int caseId, string correlationId)
+    {
+        var uri = new Uri($"{args.CoordinatorHostName}/runtime/webhooks/durabletask/instances/{caseId}?code={args.CoordinatorDurableFunctionKey}&showHistory=true&showHistoryOutput=true&showInput=true&returnInternalServerErrorOnFailure=true");
 
-        //await ProcessDocuments(args, urn, id);
+        var request = new HttpRequestMessage
+        {
+            RequestUri = uri,
+        };
+        request.Headers.Add("Correlation-Id", correlationId);
 
-        //await FileSystem.WriteCompletedCase(args, urn);
+        var response = await Api.MakeCall(request);
+        return await response.Content.ReadAsStringAsync();
     }
 
     static async Task DeleteCaseOrchestration(Args args, int caseId, string correlationId)

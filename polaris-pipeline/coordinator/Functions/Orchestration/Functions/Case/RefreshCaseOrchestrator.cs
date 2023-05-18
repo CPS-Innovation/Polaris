@@ -169,7 +169,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                     ToList();
 
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
-            if (createdOrUpdatedDefendantsAndCharges != null) 
+            if (createdOrUpdatedDefendantsAndCharges != null)
             {
                 var payload = new CaseDocumentOrchestrationPayload
                 (
@@ -198,7 +198,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
             catch (Exception)
             {
-                return;
+                throw;
+                //return;
             }
         }
 
@@ -215,9 +216,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private static async Task<TrackerDeltasDto> GetCaseDocumentChanges
             (
                 DateTime t,
-                ITrackerEntity tracker, 
-                string nameToLog, 
-                ILogger safeLogger, 
+                ITrackerEntity tracker,
+                string nameToLog,
+                ILogger safeLogger,
                 BasePipelinePayload payload,
                 (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents
             )
