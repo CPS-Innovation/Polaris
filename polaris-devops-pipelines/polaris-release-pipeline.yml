@@ -480,11 +480,29 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
                     
-  - stage: Run_e2e_Tests
-    displayName: Run e2e Tests
+  - stage: Run_Status_Checks
+    displayName: Run Status Checks
     dependsOn:
       - Determine_Changes
       - Apply_DEV
+    condition: succeeded()
+    variables:
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR']]
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
+      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
+      runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE']]
+    jobs:
+      - job: Run_Status_Checks
+        pool: 
+                    
+  - stage: Run_e2e_Tests
+    displayName: Run e2e Tests
+    dependsOn: 
+      - Determine_Changes
+      - Apply_DEV
+      - Run_Status_Checks
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
