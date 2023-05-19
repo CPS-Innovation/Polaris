@@ -5,7 +5,7 @@ public static class ProcessListHelper
         if (args.RunInParallel)
         {
             var i = 0;
-            await ConcurrentAsync(32, items, (item) => processItem(item, i++));
+            await ConcurrentAsync(args.RunInParallelInFlightLimit, items, (item) => processItem(item, i++));
         }
         else
         {

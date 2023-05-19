@@ -98,7 +98,7 @@ public static class Api
         var rawLog = $"{timestamp} {Pad(req.Method.ToString(), 6)} {Pad(((int)response.StatusCode).ToString(), 3)} {Pad(content.Length.ToString(), 9)} {req.RequestUri}";
         var log = Regex.Replace(rawLog, "code=.*", "code=redacted");
         File.AppendAllLines("log.log", new[] { log });
-        Console.WriteLine(log);
+        //Console.WriteLine(log);
         //Console.WriteLine(content);
     }
 

@@ -22,6 +22,9 @@ public class Args
     public string CmsPassword { get; set; }
     [Option(Default = false)]
     public bool RunInParallel { get; set; }
+    [Option(Default = 4)]
+    public int RunInParallelInFlightLimit { get; set; }
+
     [Option(Default = 10)]
     public int SequentialRunningMidCallDelay { get; set; }
 

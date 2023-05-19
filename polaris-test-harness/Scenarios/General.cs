@@ -1,9 +1,31 @@
-﻿
+﻿using System.Net;
 
-using System.Net;
-using System.Net.Http;
+public enum CaseState
+{
+    Running,
+    Completed,
+    Failed
+}
+
+public class CaseRecord
+{
+    public int Id { get; set; }
+    public DateTime Start { get; set; }
+
+    public DateTime End { get; set; }
+
+    public CaseState CaseState { get; set; }
+
+    public int DocumentCount { get; set; }
+}
+
+
+
 public static class General
 {
+    public static List<CaseRecord> CaseRecords = new List<CaseRecord>();
+
+    public static Dictionary<string, string> _cookies = new Dictionary<string, string>();
     public static async Task EntryAsync(Args args)
     {
         var done = false;
@@ -52,36 +74,66 @@ public static class General
 
     static async Task ProcessCase(Args args, IEnumerable<int> ids, string urn, int id, int index)
     {
+
         var correlationId = Guid.NewGuid().ToString();
+
 
         await DeleteCaseOrchestration(args, id, correlationId);
         await DeleteCaseTrackerEntity(args, id, correlationId);
+        var caseRecord = new CaseRecord { Id = id, Start = DateTime.Now, CaseState = CaseState.Running };
+        CaseRecords.Add(caseRecord);
         await RefreshTracker(args, urn, id, correlationId);
 
         var loop = true;
         while (loop)
         {
-            //var statusResponse = await GetOrchestratorStatus(args, id, correlationId);
-            //  Console.WriteLine(statusResponse);
-
-            await Task.Delay(5000);
+            await Task.Delay(2000);
             var response = await GetTrackerEntity(args, urn, id, correlationId);
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var dto = Json.Deserialize<TrackerDto>(content);
-                if (dto.Status == TrackerStatus.Completed || dto.Status == TrackerStatus.Failed)
+
+                if (dto.Status == TrackerStatus.Completed)
                 {
-                    Console.WriteLine(content);
+
+                    caseRecord.End = DateTime.Now;
+                    caseRecord.CaseState = CaseState.Completed;
+                    caseRecord.DocumentCount = dto.Documents.Count();
                     loop = false;
+                    Report();
                 }
-                else
+                if (dto.Status == TrackerStatus.Failed)
                 {
-                    Console.WriteLine(dto.Status);
+                    caseRecord.End = DateTime.Now;
+                    caseRecord.CaseState = CaseState.Failed;
+                    caseRecord.DocumentCount = dto.Documents.Count();
+                    loop = false;
+                    Report();
                 }
+
             }
         }
 
+    }
+
+    static void Report()
+    {
+        var completed = CaseRecords.Where(item => item.CaseState == CaseState.Completed).Count();
+        var failed = CaseRecords.Where(item => item.CaseState == CaseState.Failed).Count();
+        var running = CaseRecords.Where(item => item.CaseState == CaseState.Running).Count();
+        var averageCompletionTime = CaseRecords
+            .Where(item => item.CaseState == CaseState.Completed)
+            .Average(item => (item.End - item.Start)
+            .TotalSeconds);
+
+        Console.WriteLine($"Running: {Pad(running.ToString(), 3)} Completed: {Pad(completed.ToString(), 3)} Failed: {Pad(failed.ToString(), 3)} Average Completion Time: {Math.Round(averageCompletionTime, 1)}s");
+    }
+
+    static string Pad(string s, int length)
+    {
+        return s.PadRight(length, ' ');
     }
 
     static async Task<string> GetOrchestratorStatus(Args args, int caseId, string correlationId)
