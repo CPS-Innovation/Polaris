@@ -13,7 +13,14 @@ import classes from "./index.module.scss";
 export const KeyDetails: React.FC<{
   caseDetails: CaseDetails;
   isMultipleDefendantsOrCharges: boolean;
-}> = ({ caseDetails, isMultipleDefendantsOrCharges }) => {
+  handleOpenPdf: (caseDocument: { documentId: string; mode: "read" }) => void;
+  dacDocumentId: string;
+}> = ({
+  caseDetails,
+  isMultipleDefendantsOrCharges,
+  handleOpenPdf,
+  dacDocumentId,
+}) => {
   const getOrderedDefendantsList = (caseDetails: CaseDetails) => {
     const { defendants } = caseDetails;
     defendants.sort(
@@ -52,15 +59,19 @@ export const KeyDetails: React.FC<{
               </li>
             ))}
           </ul>
-          <LinkButton
-            dataTestId="link-defendant-details"
-            className={classes.defendantDetailsLink}
-            onClick={() => {}}
-          >
-            {`View ${defendantsList.length} ${
-              defendantsList.length > 1 ? "defendants" : "defendant"
-            } and charges`}
-          </LinkButton>
+          {dacDocumentId && (
+            <LinkButton
+              dataTestId="link-defendant-details"
+              className={classes.defendantDetailsLink}
+              onClick={() =>
+                handleOpenPdf({ documentId: dacDocumentId, mode: "read" })
+              }
+            >
+              {`View ${defendantsList.length} ${
+                defendantsList.length > 1 ? "defendants" : "defendant"
+              } and charges`}
+            </LinkButton>
+          )}
         </>
       )}
       {!isMultipleDefendantsOrCharges && (

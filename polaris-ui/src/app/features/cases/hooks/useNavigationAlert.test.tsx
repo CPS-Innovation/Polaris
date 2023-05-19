@@ -9,8 +9,12 @@ describe("useNavigationAlert hook", () => {
   const tabItems: CaseDocumentViewModel[] = [
     {
       clientLockedState: "unlocked",
-      cmsDocCategory: "MGForm",
-      cmsDocType: { id: 3, code: "MG3", name: "MG3 File" },
+
+      cmsDocType: {
+        documentTypeId: 3,
+        documentType: "MG3",
+        documentCategory: "MGForm",
+      },
       cmsFileCreatedDate: "2020-06-02",
       documentId: "1",
       cmsDocumentId: "1",
@@ -38,8 +42,11 @@ describe("useNavigationAlert hook", () => {
     },
     {
       clientLockedState: "unlocked",
-      cmsDocCategory: "MGForm",
-      cmsDocType: { id: 3, code: "MG3", name: "MG3 File" },
+      cmsDocType: {
+        documentTypeId: 3,
+        documentType: "MG3",
+        documentCategory: "MGForm",
+      },
       cmsFileCreatedDate: "2020-06-02",
       documentId: "2",
       cmsDocumentId: "2",

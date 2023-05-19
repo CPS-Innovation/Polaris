@@ -5,7 +5,7 @@ describe("isDocumentVisible", () => {
   it("can indicate a document is visible if no filters are set", () => {
     const result = isDocumentVisible(
       {
-        cmsDocType: { code: "foo" },
+        cmsDocType: { documentType: "foo" },
         isVisible: true,
       } as MappedDocumentResult,
       {
@@ -26,7 +26,7 @@ describe("isDocumentVisible", () => {
   it("can indicate a document is visible its docType is set to be visible", () => {
     const result = isDocumentVisible(
       {
-        cmsDocType: { code: "foo" },
+        cmsDocType: { documentType: "foo" },
         isVisible: true,
       } as MappedDocumentResult,
       {
@@ -41,7 +41,7 @@ describe("isDocumentVisible", () => {
   it("can indicate a document is visible its category is set to be visible", () => {
     const result = isDocumentVisible(
       {
-        cmsDocType: { code: "foo" },
+        cmsDocType: { documentType: "foo" },
         presentationCategory: "bar",
         isVisible: true,
       } as MappedDocumentResult,
@@ -57,7 +57,7 @@ describe("isDocumentVisible", () => {
   it("can indicate a document is not visible", () => {
     const result = isDocumentVisible(
       {
-        cmsDocType: { code: "foo" },
+        cmsDocType: { documentType: "foo" },
         presentationCategory: "bar",
         isVisible: false,
       } as MappedDocumentResult,
@@ -73,7 +73,7 @@ describe("isDocumentVisible", () => {
   it("can indicate a document has changed visibility", () => {
     const result = isDocumentVisible(
       {
-        cmsDocType: { code: "foo" },
+        cmsDocType: { documentType: "foo" },
         presentationCategory: "bar",
         isVisible: true,
       } as MappedDocumentResult,

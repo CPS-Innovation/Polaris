@@ -1,7 +1,8 @@
-env                  = "prod"
-environment_tag      = "production"
-app_service_plan_sku = "EP1"
-dns_server           = "10.7.204.164"
+env                          = "prod"
+environment_tag              = "production"
+app_service_plan_sku         = "EP1"
+coordinator_service_plan_sku = "P1v3"
+dns_server                   = "10.7.204.164"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 

@@ -53,7 +53,7 @@ export const ListItem: React.FC<Props> = ({
         </div>
         <div>
           <span className={classes.label}>Type:</span>
-          {cmsDocType.name}
+          {cmsDocType.documentType}
         </div>
       </div>
 
