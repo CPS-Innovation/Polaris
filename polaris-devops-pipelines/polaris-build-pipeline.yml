@@ -262,7 +262,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)/text-extractor"
+              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
               artifact: "polaris-text-extractor-drop"
             displayName: "Publish Text-Extractor codebase artifact"
             condition: eq(variables.runTextExtractor, 'true')
@@ -279,7 +279,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
               artifact: "polaris-auth-handover-drop"
             displayName: "Publish Auth Handover codebase artifact"
             condition: eq(variables.runAuthHandover, 'true')
