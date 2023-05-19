@@ -85,12 +85,6 @@ variable "vpn_client_ip_pool" {
   default     = ["10.1.0.0/24"]
 }
 
-variable "vpn_aad_tenant_id" {
-  description = "VPN - Azure AD Tenant ID, for granting VPN access from"
-  type        = string
-  default     = ""
-}
-
 variable "vpn_aad_audience_id" {
   description = "VPN - Azure AD Application (client) ID, for granting VPN access from. Passed into the audience argument of the VPN configuration"
   type        = string
