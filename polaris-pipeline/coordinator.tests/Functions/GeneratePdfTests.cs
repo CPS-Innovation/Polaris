@@ -70,7 +70,7 @@ namespace pdf_generator.tests.Functions
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
             _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
 
-            _blobName = $"{_generatePdfRequest.CmsCaseId}/pdfs/{Path.GetFileNameWithoutExtension(_generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName)}.pdf";
+            _blobName = $"{_generatePdfRequest.CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(_generatePdfRequest.CmsDocumentTracker.CmsDocumentId)}.pdf";
             _fixture.Create<string>();
             _documentStream = new MemoryStream();
             _pdfStream = new MemoryStream();

@@ -1,6 +1,6 @@
 # Build and Publish Artifact Azure DevOps pipeline for Polaris Terraform and Codebase
 
-name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)'
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-man'
 
 trigger: none
 pr: none
@@ -57,7 +57,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
               artifact: "polaris-coordinator-drop"
             displayName: "Publish Coordinator codebase artifact"
             
@@ -85,7 +85,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
             
@@ -100,7 +100,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
               artifact: "polaris-text-extractor-drop"
             displayName: "Publish Text-Extractor codebase artifact"
 
@@ -115,7 +115,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
               artifact: "polaris-auth-handover-drop"
             displayName: "Publish Auth Handover codebase artifact"
             
@@ -130,7 +130,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
             

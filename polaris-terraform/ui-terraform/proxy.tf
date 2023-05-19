@@ -40,7 +40,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD"                 = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
-    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
+    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
+    "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
+    "CMS_RATE_LIMIT"                                  = "1024r/s"
   }
 
   site_config {
@@ -155,6 +157,16 @@ resource "azurerm_storage_blob" "nginx_js" {
   depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
+resource "azurerm_storage_blob" "nginx_injected_js" {
+  name                   = "polaris-script.js"
+  content_md5            = md5(file("polaris-script.js"))
+  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
+  type                   = "Block"
+  source                 = "polaris-script.js"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
+}
+
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_proxy_pe" {
   name                = "${azurerm_linux_web_app.polaris_proxy.name}-pe"
@@ -198,9 +210,8 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
 
-/*
 resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_1" {
-  hostname            = var.proxy_domain_name_1
+  hostname            = var.custom_domain_name
   app_service_name    = azurerm_linux_web_app.polaris_proxy.name
   resource_group_name = azurerm_resource_group.rg_polaris.name
   ssl_state           = "SniEnabled"
@@ -210,16 +221,3 @@ resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_
     azurerm_linux_web_app.polaris_proxy
   ]
 }
-
-resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_2" {
-  hostname            = var.proxy_domain_name_2
-  app_service_name    = azurerm_linux_web_app.polaris_proxy.name
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  ssl_state           = "SniEnabled"
-  thumbprint          = lookup(data.azurerm_key_vault_secret.proxy_cert_ref.tags, "Thumbprint", null)
-
-  depends_on = [
-    azurerm_linux_web_app.polaris_proxy
-  ]
-}
-*/

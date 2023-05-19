@@ -125,7 +125,7 @@ data "azurerm_resource_group" "rg_analytics" {
 }
 
 data "azurerm_key_vault" "proxy_key_vault" {
-  name                = "kv-polaris-cert-${var.env}"
+  name                = local.app_service_certificate_store
   resource_group_name = azurerm_resource_group.rg_polaris.name
 }
 

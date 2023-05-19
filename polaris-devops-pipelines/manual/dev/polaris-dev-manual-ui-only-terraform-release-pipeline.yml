@@ -61,7 +61,7 @@ stages:
                 
                 # Terraform Plan
                 - bash: |
-                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: 'Terraform > Write UI Plan'
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-terraform-files
                   env:
@@ -73,7 +73,7 @@ stages:
                 
                 # Terraform Apply
                 - bash: |
-                    terraform apply -auto-approve qa.tfplan
+                    terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply to DEV
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-terraform-files
                   env:
@@ -106,7 +106,7 @@ stages:
                 
                 # Terraform Plan
                 - bash: |
-                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: 'Terraform > Write UI Events Plan'
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-events-terraform-files
                   env:
@@ -118,7 +118,7 @@ stages:
                 
                 # Terraform Apply
                 - bash: |
-                    terraform apply -auto-approve qa.tfplan
+                    terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply to DEV
                   workingDirectory: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/ui-events-terraform-files
                   env:
@@ -140,7 +140,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-gateway"
-                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-gateway-drop/a/polaris-gateway
+                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-gateway-drop
                 
                 #download gateway build artifact
                 - download: PolarisDevManualTerraformBuild
@@ -154,7 +154,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-auth-handover"
-                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-auth-handover-drop/a/polaris-auth-handover
+                    package: $(Pipeline.Workspace)/PolarisDevManualTerraformBuild/polaris-auth-handover-drop
                 
                 #download UI build artifact
                 - download: PolarisDevManualTerraformBuild

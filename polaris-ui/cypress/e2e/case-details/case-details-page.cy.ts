@@ -42,6 +42,15 @@ describe("case details page", () => {
   });
 
   describe("case details", () => {
+    it("Should show the feedback from link", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("feedback-banner")
+        .should("exist")
+        .contains(
+          "Your feedback (opens in a new tab) will help us to improve this service."
+        );
+    });
     it("For Single defendant and single charge, should show defendant details, charge details and custody time limits and Youth Offender if applicable", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");

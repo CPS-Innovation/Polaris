@@ -27,6 +27,12 @@
   }
 }
 
+.phaseBanner {
+  [class*="govuk-tag"] {
+    display: none;
+  }
+}
+
 .mainContent {
   margin-top: -25px;
 }

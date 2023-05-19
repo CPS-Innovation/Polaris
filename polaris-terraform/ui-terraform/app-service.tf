@@ -22,6 +22,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_GATEWAY_SCOPE"                  = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
     "REACT_APP_REAUTH_REDIRECT_URL"            = "/polaris?polaris-ui-url="
     "REACT_APP_AI_CONNECTION_STRING"           = data.azurerm_application_insights.global_ai.connection_string
+    "REACT_APP_SURVEY_LINK"                    = "https://www.smartsurvey.co.uk/s/DG5B6G/"
   }
 
   site_config {
@@ -83,7 +84,7 @@ module "azurerm_app_reg_as_web_polaris" {
       }]
   }]
   single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cpsdev.co.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}"]
+    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}"]
   }
   web = {
     homepage_url  = "https://as-web-${local.resource_name}.azurewebsites.net"

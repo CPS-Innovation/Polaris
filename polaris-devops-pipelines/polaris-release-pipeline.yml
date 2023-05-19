@@ -242,7 +242,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-dev-coordinator"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop/a/coordinator
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -258,7 +258,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionApp
                     appName: "fa-polaris-pipeline-dev-pdf-generator"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop/a/pdf-generator
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -274,7 +274,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-dev-text-extractor"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop/a/text-extractor
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -388,7 +388,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-gateway"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop/a/polaris-gateway
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -404,7 +404,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-auth-handover"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop/a/polaris-auth-handover
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop
                 
                 #download UI build artifact
                 - download: PolarisBuild
@@ -607,7 +607,7 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-qa-coordinator"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop/a/coordinator
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -623,7 +623,7 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
                     appType: functionApp
                     appName: "fa-polaris-pipeline-qa-pdf-generator"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop/a/pdf-generator
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -639,7 +639,7 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-qa-text-extractor"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop/a/text-extractor
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -753,7 +753,7 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-qa-gateway"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop/a/polaris-gateway
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -769,7 +769,7 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-qa-auth-handover"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop/a/polaris-auth-handover
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop
                 
                 #download UI build artifact
                 - download: PolarisBuild
@@ -941,7 +941,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-coordinator"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop/a/coordinator
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -957,7 +957,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
                     appType: functionApp
                     appName: "fa-polaris-pipeline-pdf-generator"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop/a/pdf-generator
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -973,7 +973,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-text-extractor"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop/a/text-extractor
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -1087,7 +1087,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-gateway"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop/a/polaris-gateway
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -1103,7 +1103,7 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-auth-handover"
-                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop/a/polaris-auth-handover
+                    package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop
                 
                 #download UI build artifact
                 - download: PolarisBuild
