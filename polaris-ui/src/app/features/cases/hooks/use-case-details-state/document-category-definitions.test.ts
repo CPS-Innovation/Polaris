@@ -30,7 +30,7 @@ describe("documentCategoryDefinitions", () => {
   it("every doctype in the csv file maps to the expected category", () => {
     rows.forEach(({ docType, category }) => {
       const categoryResult = getCategory({
-        cmsDocType: { code: docType },
+        cmsDocType: { documentType: docType },
       } as PresentationDocumentProperties);
 
       expect({ docType, category: categoryResult }).toEqual({
@@ -50,7 +50,7 @@ describe("documentCategoryDefinitions", () => {
 
   it("can resolve an unknown category to Uncategorised if no prior categories match", () => {
     const result = getCategory({
-      cmsDocType: { id: -1, name: "Unknown", code: "Unknown" },
+      cmsDocType: { documentTypeId: -1, documentType: "Unknown" },
     } as PresentationDocumentProperties);
 
     expect(result).toBe("Uncategorised");

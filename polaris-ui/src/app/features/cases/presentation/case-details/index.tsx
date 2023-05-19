@@ -1,7 +1,10 @@
 import { useParams, useHistory } from "react-router-dom";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
-import { WaitPage } from "../../../../common/presentation/components";
+import {
+  WaitPage,
+  PhaseBanner,
+} from "../../../../common/presentation/components";
 import { Wait as AccordionWait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
 import { Accordion } from "./accordion/Accordion";
@@ -22,6 +25,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
+import { SURVEY_LINK } from "../../../../config";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -132,7 +136,21 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           }}
         />
       )}
-
+      <PhaseBanner
+        className={classes["phaseBanner"]}
+        data-testid="feedback-banner"
+      >
+        Your{" "}
+        <a
+          className="govuk-link"
+          href={SURVEY_LINK}
+          target="_blank"
+          rel="noreferrer"
+        >
+          feedback (opens in a new tab)
+        </a>{" "}
+        will help us to improve this service.
+      </PhaseBanner>
       <BackLink
         to={backLinkProps.to}
         onClick={() => trackEvent("Back To Find A Case")}

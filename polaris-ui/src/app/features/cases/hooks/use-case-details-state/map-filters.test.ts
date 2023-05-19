@@ -13,11 +13,11 @@ describe("mapFilters", () => {
       filteredDocumentCount: -1,
       documentResults: [
         {
-          cmsDocType: { code: "code-x", name: undefined },
+          cmsDocType: { documentType: "code-x" },
           presentationCategory: "category-1",
         },
         {
-          cmsDocType: { code: "code-c", name: "doc-type-b" },
+          cmsDocType: { documentType: "code-c" },
           presentationCategory: "category-1",
         },
       ],
@@ -47,12 +47,12 @@ describe("mapFilters", () => {
         "code-c": {
           count: 1,
           isSelected: false,
-          label: "doc-type-b",
+          label: "code-c",
         },
         "code-x": {
           count: 1,
           isSelected: false,
-          label: "Unknown",
+          label: "code-x",
         },
       },
     });
@@ -65,19 +65,19 @@ describe("mapFilters", () => {
       filteredDocumentCount: -1,
       documentResults: [
         {
-          cmsDocType: { code: "code-c", name: "doc-type-c" },
+          cmsDocType: { documentType: "code-c" },
           presentationCategory: "category-3",
         },
         {
-          cmsDocType: { code: "code-c", name: "doc-type-b" },
+          cmsDocType: { documentType: "code-c" },
           presentationCategory: "category-1",
         },
         {
-          cmsDocType: { code: "code-b", name: "doc-type-c" },
+          cmsDocType: { documentType: "code-b" },
           presentationCategory: "category-2",
         },
         {
-          cmsDocType: { code: "code-a", name: "doc-type-a" },
+          cmsDocType: { documentType: "code-a" },
           presentationCategory: "category-1",
         },
       ],
@@ -107,17 +107,17 @@ describe("mapFilters", () => {
         "code-a": {
           count: 1,
           isSelected: false,
-          label: "doc-type-a",
+          label: "code-a",
         },
         "code-b": {
           count: 1,
           isSelected: false,
-          label: "doc-type-c",
+          label: "code-b",
         },
         "code-c": {
           count: 2,
           isSelected: false,
-          label: "doc-type-b",
+          label: "code-c",
         },
       },
     });

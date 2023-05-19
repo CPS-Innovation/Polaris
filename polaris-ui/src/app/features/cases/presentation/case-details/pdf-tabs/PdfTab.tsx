@@ -48,7 +48,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     redactionHighlights,
     documentId,
     isDeleted,
-    cmsDocType: { code: documentType },
+    cmsDocType: { documentType },
   } = caseDocumentViewModel;
 
   const searchHighlights =

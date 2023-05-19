@@ -96,7 +96,7 @@ describe("Case Details Search", () => {
           "drink and has left in her car."
         );
         cy.findByTestId("div-search-result-2").contains("Uploaded:02 Jun 2020");
-        cy.findByTestId("div-search-result-2").contains("Type:MG12 File");
+        cy.findByTestId("div-search-result-2").contains("Type:MG12");
 
         cy.findByTestId("div-search-result-2")
           .findByTestId("details-expand-search-results")
@@ -107,7 +107,7 @@ describe("Case Details Search", () => {
           "DRINK THE SCENE IN HER CAR IN DRINK"
         );
         cy.findByTestId("div-search-result-3").contains("Uploaded:03 Jun 2020");
-        cy.findByTestId("div-search-result-3").contains("Type:MG13 File");
+        cy.findByTestId("div-search-result-3").contains("Type:MG13");
       });
 
       it("can display results that have multiple occurrences across several lines", () => {
