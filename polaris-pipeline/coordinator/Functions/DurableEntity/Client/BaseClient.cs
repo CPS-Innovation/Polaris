@@ -95,11 +95,6 @@ namespace coordinator.Functions.DurableEntity.Client
                 }
             }
 
-            var sourceCmsDocument = trackerEntity.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
-            if(sourceCmsDocument != null)
-            {
-                response.CmsDocument = sourceCmsDocument;
-            }
             response.Success = true;
 
             return response;
