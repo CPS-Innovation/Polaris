@@ -33,7 +33,7 @@
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.1" />
     <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
