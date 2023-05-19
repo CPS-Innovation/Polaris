@@ -1,9 +1,11 @@
 function getPolarisUrl() {
+  var host = window.location.host;
+  //adding the port for testing locally
+  if (host === "localhost") {
+    host = host + ":3000";
+  }
   var domainUrl =
-    window.location.protocol +
-    "//" +
-    window.location.host +
-    "/polaris-ui/case-details/";
+    window.location.protocol + "//" + host + "/polaris-ui/case-details/";
   var polarisUrl = "";
   if (window.iCaseId && window.sURN) {
     polarisUrl = domainUrl + window.sURN + "/" + window.iCaseId;
