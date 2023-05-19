@@ -44,6 +44,12 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 if (!response.Success)
                     return response.Error;
 
+                var docType = response.CmsDocument.CmsDocType.DocumentType;
+                if (docType == "PCD" || docType == "DAC")
+                {
+                    return new BadRequestObjectResult($"Invalid document type specified : {docType}");
+                }
+
                 currentCorrelationId = response.CorrelationId;
                 var document = response.CmsDocument;
                 var blobName = document.PdfBlobName;
