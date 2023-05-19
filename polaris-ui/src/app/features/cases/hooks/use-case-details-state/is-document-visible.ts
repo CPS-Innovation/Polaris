@@ -3,7 +3,7 @@ import { MappedDocumentResult } from "../../domain/MappedDocumentResult";
 
 export const isDocumentVisible = (
   {
-    cmsDocType: { code },
+    cmsDocType: { documentType },
     presentationCategory: docCategory,
     isVisible: existingIsVisible,
   }: MappedDocumentResult,
@@ -13,7 +13,7 @@ export const isDocumentVisible = (
     Object.values(docType).some((item) => item.isSelected) ||
     Object.values(category).some((item) => item.isSelected);
 
-  const isVisibleForDocType = !!docType[code]?.isSelected;
+  const isVisibleForDocType = !!docType[documentType]?.isSelected;
 
   const isVisibleForCategory = !!category[docCategory]?.isSelected;
 

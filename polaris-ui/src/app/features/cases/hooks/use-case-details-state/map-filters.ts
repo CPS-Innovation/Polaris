@@ -22,10 +22,11 @@ export const mapFilters = (
   const orderedDocumentResults = mappedTextSearchResult.documentResults.sort(
     (a, b) =>
       // todo: _ get rid of hack
-      (a.cmsDocType && a.cmsDocType.name) < (b.cmsDocType && b.cmsDocType.name)
+      (a.cmsDocType && a.cmsDocType.documentType) <
+      (b.cmsDocType && b.cmsDocType.documentType)
         ? -1
-        : (a.cmsDocType && a.cmsDocType.name) >
-          (b.cmsDocType && b.cmsDocType.name)
+        : (a.cmsDocType && a.cmsDocType.documentType) >
+          (b.cmsDocType && b.cmsDocType.documentType)
         ? 1
         : 0
   );
@@ -34,15 +35,15 @@ export const mapFilters = (
     {} as CombinedState["searchState"]["filterOptions"]["docType"];
 
   for (var doc of orderedDocumentResults) {
-    if (!docType[doc.cmsDocType.code]) {
-      docType[doc.cmsDocType.code] = {
-        label: doc.cmsDocType.name || "Unknown",
+    if (!docType[doc.cmsDocType.documentType]) {
+      docType[doc.cmsDocType.documentType] = {
+        label: doc.cmsDocType.documentType || "Unknown",
         count: 0,
         isSelected: false,
       };
     }
 
-    docType[doc.cmsDocType.code].count += 1;
+    docType[doc.cmsDocType.documentType].count += 1;
     category[doc.presentationCategory].count += 1;
   }
 

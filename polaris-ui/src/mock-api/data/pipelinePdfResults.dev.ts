@@ -19,12 +19,11 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MCLOVEMG3 very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 3,
-        code: "MG3",
-        name: "MG3 File",
+        documentTypeId: 3,
+        documentType: "MG3",
+        documentCategory: "MGForm",
       },
       presentationFlags: {
         read: "Ok",
@@ -39,12 +38,11 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "CM01  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 11,
-        code: "MG11",
-        name: "MG11 File",
+        documentTypeId: 11,
+        documentType: "MG11",
+        documentCategory: "MGForm",
       },
       presentationFlags: {
         read: "Ok",
@@ -59,12 +57,11 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MG05MCLOVE very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 5,
-        code: "MG5",
-        name: "MG5 File",
+        documentTypeId: 5,
+        documentType: "MG5",
+        documentCategory: "MGForm",
       },
       presentationFlags: {
         read: "Ok",
@@ -79,12 +76,11 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MG06_3June  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 6,
-        code: "MG6",
-        name: "MG6 File",
+        documentTypeId: 6,
+        documentType: "MG6",
+        documentCategory: "MGForm",
       },
       presentationFlags: {
         read: "Ok",
@@ -99,12 +95,11 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MG06_10june  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 3,
-        code: "MG3",
-        name: "MG3 File",
+        documentTypeId: 3,
+        documentType: "MG3",
+        documentCategory: "MGForm",
       },
       presentationFlags: {
         read: "Ok",
@@ -119,12 +114,11 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MCLOVEMG3  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 3,
-        code: "MG3",
-        name: "MG3 File",
+        documentTypeId: 3,
+        documentType: "MG3",
+        documentCategory: "MGForm",
       },
       presentationFlags: {
         read: "Ok",
@@ -139,12 +133,11 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "CM01  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: -1,
-        code: "Other Comm (In)",
-        name: "Other Comm (In) File",
+        documentTypeId: -1,
+        documentType: "Other Comm (In)",
+        documentCategory: "MGForm",
       },
       presentationFlags: {
         read: "Ok",
@@ -159,13 +152,13 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MG05MCLOVE very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 5,
-        code: "MG5",
-        name: "MG5 File",
+        documentTypeId: 5,
+        documentType: "MG5",
+        documentCategory: "MGForm",
       },
+
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -179,13 +172,13 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MG06_3June  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 6,
-        code: "MG6",
-        name: "MG6 File",
+        documentTypeId: 6,
+        documentType: "MG6",
+        documentCategory: "MGForm",
       },
+
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -199,13 +192,13 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MG06_10june  very long .docx",
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
-      cmsDocCategory: "MGForm",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        id: 6,
-        code: "MG6",
-        name: "MG6 File",
+        documentTypeId: 6,
+        documentType: "MG6",
+        documentCategory: "MGForm",
       },
+
       presentationFlags: {
         read: "Ok",
         write: "Ok",

@@ -42,12 +42,11 @@ describe("mapAccordionState", () => {
           cmsOriginalFileName: "foo",
           cmsMimeType: "application/pdf",
           presentationFileName: "foo!",
-          cmsDocCategory: "MGForm",
           polarisDocumentVersionId: 1,
           cmsDocType: {
-            id: 1,
-            code: "MG11",
-            name: "MG11 File",
+            documentTypeId: 1,
+            documentType: "MG11",
+            documentCategory: "MGForm",
           },
           cmsFileCreatedDate: "2020-01-01",
           presentationFlags: {
@@ -62,12 +61,11 @@ describe("mapAccordionState", () => {
           cmsOriginalFileName: "bar",
           cmsMimeType: "application/pdf",
           presentationFileName: "bar!",
-          cmsDocCategory: "MGForm",
           polarisDocumentVersionId: 1,
           cmsDocType: {
-            id: 2,
-            code: "MG12",
-            name: "MG12 File",
+            documentTypeId: 2,
+            documentType: "MG12",
+            documentCategory: "MGForm",
           },
           cmsFileCreatedDate: "2020-01-02",
           presentationFlags: {
@@ -94,12 +92,11 @@ describe("mapAccordionState", () => {
               cmsOriginalFileName: "foo",
               cmsMimeType: "application/pdf",
               presentationFileName: "foo!",
-              cmsDocCategory: "MGForm",
               polarisDocumentVersionId: 1,
               cmsDocType: {
-                id: 1,
-                code: "MG11",
-                name: "MG11 File",
+                documentTypeId: 1,
+                documentType: "MG11",
+                documentCategory: "MGForm",
               },
               cmsFileCreatedDate: "2020-01-01",
               presentationFlags: {
@@ -120,12 +117,11 @@ describe("mapAccordionState", () => {
               cmsOriginalFileName: "bar",
               cmsMimeType: "application/pdf",
               presentationFileName: "bar!",
-              cmsDocCategory: "MGForm",
               polarisDocumentVersionId: 1,
               cmsDocType: {
-                id: 2,
-                code: "MG12",
-                name: "MG12 File",
+                documentTypeId: 2,
+                documentType: "MG12",
+                documentCategory: "MGForm",
               },
               cmsFileCreatedDate: "2020-01-02",
               presentationFlags: {

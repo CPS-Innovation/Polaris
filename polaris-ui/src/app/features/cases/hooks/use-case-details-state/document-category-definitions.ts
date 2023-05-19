@@ -4,12 +4,12 @@ const docTypeTest = (
   caseDocument: PresentationDocumentProperties,
   codes: string[]
 ) =>
-  !!caseDocument.cmsDocType.code &&
+  !!caseDocument.cmsDocType.documentType &&
   codes.some(
     (code) =>
       !!code &&
       code.replace(/\s+/g, "") ===
-        caseDocument.cmsDocType.code.replace(/\s+/g, "")
+        caseDocument.cmsDocType.documentType.replace(/\s+/g, "")
   );
 
 const documentCategoryDefinitions: {
