@@ -134,4 +134,87 @@ describe("mapAccordionState", () => {
       ],
     } as ReturnType<typeof mapAccordionState>);
   });
+  it("can filter out the DAC doc type, from any accordion category", () => {
+    const apiResult: ApiResult<MappedCaseDocument[]> = {
+      status: "succeeded",
+      data: [
+        {
+          documentId: "1",
+          cmsDocumentId: "1",
+          presentationCategory: "category-a",
+          cmsOriginalFileName: "foo",
+          cmsMimeType: "application/pdf",
+          presentationFileName: "foo!",
+          polarisDocumentVersionId: 1,
+          cmsDocType: {
+            documentTypeId: 1,
+            documentType: "DAC",
+            documentCategory: "MGForm",
+          },
+          cmsFileCreatedDate: "2020-01-01",
+          presentationFlags: {
+            read: "Ok",
+            write: "Ok",
+          },
+        },
+        {
+          documentId: "2",
+          cmsDocumentId: "2",
+          presentationCategory: "category-b",
+          cmsOriginalFileName: "bar",
+          cmsMimeType: "application/pdf",
+          presentationFileName: "bar!",
+          polarisDocumentVersionId: 1,
+          cmsDocType: {
+            documentTypeId: 2,
+            documentType: "MG12",
+            documentCategory: "MGForm",
+          },
+          cmsFileCreatedDate: "2020-01-02",
+          presentationFlags: {
+            read: "Ok",
+            write: "Ok",
+          },
+        },
+      ],
+    };
+
+    const result = mapAccordionState(apiResult);
+
+    expect(result).toEqual({
+      status: "succeeded",
+      data: [
+        {
+          sectionId: "category-a",
+          sectionLabel: "category-a",
+          docs: [],
+        },
+        {
+          sectionId: "category-b",
+          sectionLabel: "category-b",
+          docs: [
+            {
+              documentId: "2",
+              cmsDocumentId: "2",
+              presentationCategory: "category-b",
+              cmsOriginalFileName: "bar",
+              cmsMimeType: "application/pdf",
+              presentationFileName: "bar!",
+              polarisDocumentVersionId: 1,
+              cmsDocType: {
+                documentTypeId: 2,
+                documentType: "MG12",
+                documentCategory: "MGForm",
+              },
+              cmsFileCreatedDate: "2020-01-02",
+              presentationFlags: {
+                read: "Ok",
+                write: "Ok",
+              },
+            },
+          ],
+        },
+      ],
+    } as ReturnType<typeof mapAccordionState>);
+  });
 });
