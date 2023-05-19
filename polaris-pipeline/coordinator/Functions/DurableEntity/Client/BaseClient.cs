@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.Dto.Tracker;
-using Azure;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -43,6 +42,7 @@ namespace coordinator.Functions.DurableEntity.Client
         {
             var response = new GetTrackerDocumentResponse { Success = false };
 
+            #region Validate Inputs
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
@@ -61,6 +61,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 }
 
             log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
+            #endregion
 
             var entityId = new EntityId(nameof(TrackerEntity), caseId);
             var stateResponse = await client.ReadEntityStateAsync<TrackerEntity>(entityId);

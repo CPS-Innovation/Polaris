@@ -42,6 +42,15 @@ describe("case details page", () => {
   });
 
   describe("case details", () => {
+    it("Should show the feedback from link", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("feedback-banner")
+        .should("exist")
+        .contains(
+          "Your feedback (opens in a new tab) will help us to improve this service."
+        );
+    });
     it("For Single defendant and single charge, should show defendant details, charge details and custody time limits and Youth Offender if applicable", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.visit("/case-details/12AB1111111/13401");
@@ -115,6 +124,31 @@ describe("case details page", () => {
         .should("have.text", "Walsh, Steve");
       cy.findByTestId("link-defendant-details").contains(
         "View 1 defendant and charges"
+      );
+    });
+
+    it("For multiple charges / defendants, it can open the defendant and charges pdf and user should not be able to redact that document", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13201");
+      cy.findByTestId("txt-case-urn").contains("12AB1111111");
+      cy.findByTestId("div-charges").should("not.exist");
+      cy.findByTestId("list-defendant-names")
+        .get("li")
+        .first()
+        .should("have.text", "Walsh, Steve");
+      cy.findByTestId("link-defendant-details").contains(
+        "View 1 defendant and charges"
+      );
+      cy.findByTestId("link-defendant-details").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE OUTLINE");
+      cy.findByTestId("tab-active").contains("Test DAC");
+      cy.selectPDFTextElement("This is a DV case.");
+      cy.findByTestId("btn-redact").should("have.length", 0);
+      cy.findByTestId("redaction-warning").should("have.length", 1);
+      cy.findByTestId("redaction-warning").contains(
+        "This document can only be redacted in CMS."
       );
     });
   });
