@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
+using Common.Dto.Tracker;
 using Common.Logging;
 using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.AspNetCore.Mvc;
@@ -70,7 +71,13 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
                 log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
-                var searchResults = await _searchIndexClient.Query(caseId, trackerState.EntityState.CmsDocuments, searchTerm, currentCorrelationId);
+                TrackerEntity entityState = trackerState.EntityState;
+                var documents =
+                    entityState.CmsDocuments.OfType<BaseTrackerDocumentDto>()
+                        .Concat(entityState.PcdRequests)
+                        .Append(entityState.DefendantsAndCharges)
+                        .ToList();
+                var searchResults = await _searchIndexClient.Query(caseId, documents, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }

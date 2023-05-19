@@ -9,6 +9,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_SCHEME"                                  = "https"
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
     "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
@@ -35,12 +36,13 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
     "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
-    "RESOLVER"                                        = "${var.dns_server}"
     "DOCKER_REGISTRY_SERVER_URL"                      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
     "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD"                 = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}"
+    "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
+    "CMS_RATE_LIMIT"                                  = "1024r/s"
   }
 
   site_config {
@@ -198,9 +200,8 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
 
-/*
 resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_1" {
-  hostname            = var.proxy_domain_name_1
+  hostname            = var.custom_domain_name
   app_service_name    = azurerm_linux_web_app.polaris_proxy.name
   resource_group_name = azurerm_resource_group.rg_polaris.name
   ssl_state           = "SniEnabled"
@@ -210,16 +211,3 @@ resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_
     azurerm_linux_web_app.polaris_proxy
   ]
 }
-
-resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_2" {
-  hostname            = var.proxy_domain_name_2
-  app_service_name    = azurerm_linux_web_app.polaris_proxy.name
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  ssl_state           = "SniEnabled"
-  thumbprint          = lookup(data.azurerm_key_vault_secret.proxy_cert_ref.tags, "Thumbprint", null)
-
-  depends_on = [
-    azurerm_linux_web_app.polaris_proxy
-  ]
-}
-*/

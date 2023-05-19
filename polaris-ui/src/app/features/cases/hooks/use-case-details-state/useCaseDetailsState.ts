@@ -253,6 +253,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleUnLockDocuments = useCallback(
+    (documentIds: CaseDocumentViewModel["documentId"][]) =>
+      dispatch({
+        type: "UNLOCK_DOCUMENTS",
+        payload: { documentIds },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdfInNewTab,
@@ -269,5 +278,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleRemoveAllRedactions,
     handleSavedRedactions,
     handleCloseErrorModal,
+    handleUnLockDocuments,
   };
 };

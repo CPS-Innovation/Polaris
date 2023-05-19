@@ -19,6 +19,10 @@ variable "env" {
   type = string
 }
 
+variable "coordinator_service_plan_sku" {
+  type = string
+}
+
 variable "app_service_plan_sku" {
   type = string
 }
