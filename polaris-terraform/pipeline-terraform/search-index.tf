@@ -15,5 +15,9 @@ resource "restapi_object" "definition" {
   path         = "/indexes"
   query_string = "api-version=2021-04-30-Preview"
   data         = file("search-index-definition.json")
-  depends_on   = [azurerm_search_service.ss]
+  depends_on   = [
+    azurerm_search_service.ss, 
+    azurerm_private_endpoint.pipeline_search_service_pe, 
+    azurerm_private_dns_a_record.pipeline_search_service_dns_a
+  ]
 }
