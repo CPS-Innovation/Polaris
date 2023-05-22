@@ -124,10 +124,12 @@ data "azurerm_resource_group" "rg_analytics" {
   name = "rg-${local.analytics_group_name}"
 }
 
+/*
 data "azurerm_key_vault" "proxy_key_vault" {
   name                = local.app_service_certificate_store
   resource_group_name = azurerm_resource_group.rg_polaris.name
 }
+*/
 
 /*
 data "azurerm_key_vault_secret" "proxy_cert_ref" {
