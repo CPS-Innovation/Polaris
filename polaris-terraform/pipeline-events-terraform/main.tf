@@ -11,11 +11,6 @@ terraform {
       source  = "hashicorp/azuread"
       version = "2.38.0"
     }
-
-    restapi = {
-      source  = "Mastercard/restapi"
-      version = "1.18.0"
-    }
   }
 
   backend "azurerm" {
