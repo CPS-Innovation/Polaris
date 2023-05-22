@@ -24,10 +24,5 @@ data "azurerm_storage_account" "pipeline_storage_account" {
 }
 
 data "azuread_service_principal" "computer_vision_sp" {
-  display_name        = "cv-${local.pipeline_resource_name}"
-}
-
-data "azurerm_search_service" "pipeline_search_service" {
-  name                = "ss-${local.pipeline_resource_name}"
-  resource_group_name = "rg-${local.pipeline_resource_name}"
+  display_name = "cv-${local.pipeline_resource_name}"
 }
