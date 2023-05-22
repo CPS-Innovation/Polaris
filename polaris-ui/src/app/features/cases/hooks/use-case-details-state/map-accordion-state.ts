@@ -24,8 +24,11 @@ export const mapAccordionState = (
       docs: [],
     }));
 
+  const nonDACDocuments = documentsState.data.filter(
+    (document) => document.cmsDocType.documentType !== "DAC"
+  );
   // cycle through each doc from the api
-  for (const caseDocument of documentsState.data) {
+  for (const caseDocument of nonDACDocuments) {
     const resultItem = results.find(
       (item) => item.sectionId === caseDocument.presentationCategory
     )!;

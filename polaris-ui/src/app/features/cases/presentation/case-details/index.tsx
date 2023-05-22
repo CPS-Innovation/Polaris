@@ -19,7 +19,10 @@ import { Charges } from "./Charges";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
 import { useNavigationAlert } from "../../hooks/useNavigationAlert";
-import { isMultipleChargeCase } from "./utils/isMultipleChargeCase";
+import {
+  isMultipleChargeCase,
+  getDACDocumentId,
+} from "./utils/multipleChargeCaseUtils";
 import { ErrorModalContent } from "../../../../common/presentation/components/ErrorModalContent";
 import {
   useAppInsightsTrackEvent,
@@ -77,6 +80,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   }
 
   const isMultipleDefendantsOrCharges = isMultipleChargeCase(caseState.data);
+
+  const dacDocumentId = getDACDocumentId(
+    pipelineState?.haveData ? pipelineState.data.documents : []
+  );
 
   return (
     <>
@@ -165,8 +172,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           >
             <div>
               <KeyDetails
+                handleOpenPdf={handleOpenPdf}
                 caseDetails={caseState.data}
                 isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+                dacDocumentId={dacDocumentId}
               />
 
               {!isMultipleDefendantsOrCharges && (

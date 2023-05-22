@@ -106,6 +106,23 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
     },
+    {
+      documentId: "6",
+      cmsDocumentId: "null",
+      pdfBlobName: "CM01",
+      status: "UnexpectedFailure",
+      cmsOriginalFileName: "Test DAC.pdf",
+      cmsMimeType: "application/pdf",
+      cmsFileCreatedDate: "2023-05-11",
+      polarisDocumentVersionId: 1,
+      cmsDocType: {
+        documentTypeId: 1029,
+        documentType: "DAC",
+        documentCategory: "Review",
+      },
+      isPdfAvailable: false,
+      presentationFlags: { read: "Ok", write: "DocTypeNotAllowed" },
+    },
   ],
 };
 // this will return updated tracker data with updated polarisDocumentVersionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow
