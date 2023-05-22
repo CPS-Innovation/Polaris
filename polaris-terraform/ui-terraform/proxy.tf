@@ -210,6 +210,7 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
 
+/*
 resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_1" {
   hostname            = var.custom_domain_name
   app_service_name    = azurerm_linux_web_app.polaris_proxy.name
@@ -221,3 +222,4 @@ resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_
     azurerm_linux_web_app.polaris_proxy
   ]
 }
+*/

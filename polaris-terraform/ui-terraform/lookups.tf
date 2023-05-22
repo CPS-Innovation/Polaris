@@ -129,7 +129,9 @@ data "azurerm_key_vault" "proxy_key_vault" {
   resource_group_name = azurerm_resource_group.rg_polaris.name
 }
 
+/*
 data "azurerm_key_vault_secret" "proxy_cert_ref" {
   name         = var.certificate_name
   key_vault_id = data.azurerm_key_vault.proxy_key_vault.id
 }
+*/
