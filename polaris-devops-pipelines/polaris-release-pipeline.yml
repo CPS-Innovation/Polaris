@@ -493,9 +493,10 @@ stages:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE']]
+    pool: server
     jobs:
       - job: Run_Status_Checks
-        pool: 
+        
                     
   - stage: Run_e2e_Tests
     displayName: Run e2e Tests
