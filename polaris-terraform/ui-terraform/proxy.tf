@@ -25,10 +25,10 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.proxy_scale_controller
-    "UPSTREAM_CMS_IP"                                 = "10.2.177.14"
-    "UPSTREAM_CMS_MODERN_IP"                          = "10.2.177.55"
-    "UPSTREAM_CMS_DOMAIN_NAME"                        = "cin3.cps.gov.uk"
-    "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = "cmsmodcin3.cps.gov.uk"
+    "UPSTREAM_CMS_IP"                                 = var.cms_details.upstream_cms_ip
+    "UPSTREAM_CMS_MODERN_IP"                          = var.cms_details.upstream_cms_modern_ip
+    "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
+    "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
@@ -210,6 +210,7 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
 
+/*
 resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_1" {
   hostname            = var.custom_domain_name
   app_service_name    = azurerm_linux_web_app.polaris_proxy.name
@@ -221,3 +222,4 @@ resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_
     azurerm_linux_web_app.polaris_proxy
   ]
 }
+*/
