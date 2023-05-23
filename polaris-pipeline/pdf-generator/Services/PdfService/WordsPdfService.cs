@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Xml.Linq;
+using System;
 using System.IO;
 using Aspose.Words;
 using pdf_generator.Domain.Exceptions;
@@ -27,9 +28,27 @@ namespace pdf_generator.Services.PdfService
 
         public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
         {
-            var doc = _asposeItemFactory.CreateWordsDocument(inputStream, correlationId);
+            FileFormatInfo info = FileFormatUtil.DetectFileFormat(inputStream);
+
+            var doc = new Document(inputStream, new Aspose.Words.Loading.LoadOptions
+            {
+                LoadFormat = LoadFormat.Doc,
+                MswVersion = Aspose.Words.Settings.MsWordVersion.Word2000,
+                WarningCallback = new WarningCallback()
+            });
+
             doc.Save(pdfStream, SaveFormat.Pdf);
+
             pdfStream.Seek(0, SeekOrigin.Begin);
+        }
+
+        private class WarningCallback : IWarningCallback
+        {
+            public void Warning(WarningInfo info)
+            {
+                Console.WriteLine(info.WarningType);
+                Console.WriteLine(info.Description);
+            }
         }
     }
 }

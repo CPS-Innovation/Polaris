@@ -12,7 +12,7 @@
 
     <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
 
-    <PackageReference Include="Aspose.Words" Version="22.2.0" />
+    <PackageReference Include="Aspose.Words" Version="23.5.0" />
 
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
 
@@ -64,7 +64,7 @@
     <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-   </None>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
@@ -81,7 +81,7 @@
   </Target>
   <Target Name="CopyLibSkiaSharpForMac" AfterTargets="Build" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
     <ItemGroup>
-      <NativeAssetToCopy Include="$(OutputPath)runtimes\osx\native\libSkiaSharp.dylib" />
+      <NativeAssetToCopy Include="$(OutputPath)\runtimes\osx\native\libSkiaSharp.dylib" />
     </ItemGroup>
     <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(OutputPath)bin" />
   </Target>
