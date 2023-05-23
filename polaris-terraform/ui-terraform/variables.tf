@@ -74,3 +74,12 @@ variable "ui_logging" {
     proxy_scale_controller         = string
   })
 }
+
+variable "cms_details" {
+  type = object({
+    upstream_cms_ip                 = string
+    upstream_cms_modern_ip          = string
+    upstream_cms_domain_name        = string
+    upstream_cms_modern_domain_name = string
+  })
+}
