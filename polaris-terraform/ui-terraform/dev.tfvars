@@ -22,3 +22,10 @@ ui_logging = {
   auth_handover_scale_controller = "AppInsights:Verbose"
   proxy_scale_controller         = "AppInsights:Verbose"
 }
+
+cms_details = {
+  upstream_cms_ip                 = "10.2.177.14"
+  upstream_cms_modern_ip          = "10.2.177.55"
+  upstream_cms_domain_name        = "cin3.cps.gov.uk"
+  upstream_cms_modern_domain_name = "cmsmodcin3.cps.gov.uk"
+}
