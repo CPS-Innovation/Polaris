@@ -92,9 +92,9 @@ describe("redaction refresh flow", () => {
       "post"
     );
 
-    const postRequestCounter = { count: 0 };
+    const initiatePipelineRequestCounter = { count: 0 };
     cy.trackRequestCount(
-      postRequestCounter,
+      initiatePipelineRequestCounter,
       "POST",
       "/api/urns/12AB1111111/cases/13401"
     );
@@ -104,14 +104,14 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
     cy.window().then(() => {
-      expect(postRequestCounter.count).to.equal(2);
+      expect(initiatePipelineRequestCounter.count).to.equal(2);
     });
   });
 
   it("should not call again the initiate pipeline, if the previous call return 423 status  and should successfully load the documents on the initial load", () => {
-    const postRequestCounter = { count: 0 };
+    const initiatePipelineRequestCounter = { count: 0 };
     cy.trackRequestCount(
-      postRequestCounter,
+      initiatePipelineRequestCounter,
       "POST",
       "/api/urns/12AB1111111/cases/13401"
     );
@@ -135,7 +135,7 @@ describe("redaction refresh flow", () => {
       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.window().then(() => {
-      expect(postRequestCounter.count).to.equal(1);
+      expect(initiatePipelineRequestCounter.count).to.equal(1);
     });
   });
 
