@@ -85,7 +85,12 @@ export const initiateAndPoll = (
       try {
         await delay(delayMs);
         const trackerArgs = await initiatePipeline(urn, caseId);
-        if (trackerArgs.status !== LOCKED_STATUS_CODE) {
+        //if you get 423 and there are no redacted documents, quit pipeline polling
+        const shouldQuitPipelinePolling =
+          trackerArgs.status === LOCKED_STATUS_CODE
+            ? !savedDocumentDetails.length
+            : true;
+        if (shouldQuitPipelinePolling) {
           startTrackerPolling(trackerArgs);
           break;
         }
