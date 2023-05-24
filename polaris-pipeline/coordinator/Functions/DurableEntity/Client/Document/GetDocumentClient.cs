@@ -59,7 +59,6 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 log.LogMethodError(currentCorrelationId, loggingName, ex.Message, ex);
                 return new StatusCodeResult(500);
             }
-
         }
     }
 }

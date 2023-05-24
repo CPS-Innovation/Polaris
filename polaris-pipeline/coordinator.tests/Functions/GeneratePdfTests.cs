@@ -174,7 +174,7 @@ namespace pdf_generator.tests.Functions
                     It.IsAny<Stream>(), 
                     _blobName, 
                     _generatePdfRequest.CmsCaseId.ToString(), 
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
+                    _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
                     _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
                     _generatePdfRequest.CorrelationId
                 )
@@ -193,7 +193,7 @@ namespace pdf_generator.tests.Functions
                     It.IsAny<Stream>(), 
                     _blobName, 
                     _generatePdfRequest.CmsCaseId.ToString(), 
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
+                    _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
                     _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
                     _generatePdfRequest.CorrelationId
                 )

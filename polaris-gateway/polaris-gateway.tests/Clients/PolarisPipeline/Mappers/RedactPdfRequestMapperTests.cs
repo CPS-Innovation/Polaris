@@ -41,7 +41,7 @@ namespace PolarisGateway.Tests.Mappers
             using (new AssertionScope())
             {
                 result.CaseId.Should().Be(testCaseId);
-                result.DocumentId.Should().Be(testPolarisDocumentId.ToString());
+                result.PolarisDocumentId.Should().Be(testPolarisDocumentId);
                 result.FileName.Should().BeNullOrEmpty();
                 result.RedactionDefinitions.Should().NotBeNull();
                 result.RedactionDefinitions.Count.Should().Be(5);

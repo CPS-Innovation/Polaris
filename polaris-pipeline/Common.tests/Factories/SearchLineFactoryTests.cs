@@ -54,7 +54,7 @@ namespace Common.tests.Factories
             var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
 
             // SearchLineFactory => {cmsCaseId}-{polarisDocumentId}-{readResult.Page}-{index}
-            var id = $"{_caseId}-{_polarisDocumentId}-{_readResult.Page}-{_index}";
+            var id = $"{_caseId}:{_polarisDocumentId}:{_readResult.Page}:{_index}";
 			var bytes = Encoding.UTF8.GetBytes(id);
 			var base64Id = Convert.ToBase64String(bytes);
 

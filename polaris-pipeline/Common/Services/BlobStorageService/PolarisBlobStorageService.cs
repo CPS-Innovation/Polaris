@@ -11,6 +11,7 @@ using Common.Domain.BlobStorage;
 using Common.Domain.Extensions;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
+using Common.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob.Protocol;
@@ -85,7 +86,7 @@ namespace Common.Services.BlobStorageService
             return blob.Value.Content.ToStream();
         }
 
-        public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, string documentId, string versionId, Guid correlationId)
+        public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, PolarisDocumentId polarisDocumentId, string versionId, Guid correlationId)
         {
             var decodedBlobName = blobName.UrlDecodeString();
             _logger.LogMethodEntry(correlationId, nameof(UploadDocumentAsync), decodedBlobName);
@@ -102,7 +103,7 @@ namespace Common.Services.BlobStorageService
             var metadata = new Dictionary<string, string>
             {
                 {DocumentTags.CaseId, caseId},
-                {DocumentTags.DocumentId, documentId},
+                {DocumentTags.DocumentId, polarisDocumentId.Value},
                 {DocumentTags.VersionId, string.IsNullOrWhiteSpace(versionId) ? "1" : versionId}
             };
 
