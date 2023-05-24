@@ -42,6 +42,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
 
             try
             {
+                #region
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
@@ -51,6 +52,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, loggingName);
+                #endregion
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting tracker details for caseId {caseId}");
                 tracker = await _pipelineClient.GetTrackerAsync(caseUrn, caseId, currentCorrelationId);

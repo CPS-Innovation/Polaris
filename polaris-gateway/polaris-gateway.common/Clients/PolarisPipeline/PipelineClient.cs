@@ -8,6 +8,7 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Factories.Contracts;
 using Common.Logging;
+using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -108,7 +109,7 @@ namespace Gateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<TrackerDto>(stringContent, correlationId);
         }
 
-        public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        public async Task<Stream> GetDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Acquiring the PDF with Polaris Document Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
@@ -133,7 +134,7 @@ namespace Gateway.Clients.PolarisPipeline
             return streamContent;
         }
 
-        public async Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, Guid polarisDocumentId, Guid correlationId)
+        public async Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Generating PDF SAS Url for Polaris Document Id {polarisDocumentId}, urn {caseUrn} and caseId {caseId}");
 
@@ -158,7 +159,7 @@ namespace Gateway.Clients.PolarisPipeline
             return sasUrl;
         }
 
-        public async Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, string cmsAuthValues, Guid correlationId)
+        public async Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(CheckoutDocumentAsync), $"Checking out the Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
@@ -181,7 +182,7 @@ namespace Gateway.Clients.PolarisPipeline
             return new OkResult();
         }
 
-        public async Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, Guid polarisDocumentId, string cmsAuthValues, Guid correlationId)
+        public async Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Cancelling Checkout of the Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
@@ -206,7 +207,7 @@ namespace Gateway.Clients.PolarisPipeline
             return new OkResult();
         }
 
-        public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, Guid polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
+        public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Saving Redactions for Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 

@@ -11,6 +11,7 @@ using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Common.Configuration;
+using Common.ValueObjects;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -33,12 +34,13 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
         [FunctionName(nameof(PolarisPipelineGetDocument))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, Guid documentId)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             Guid currentCorrelationId = default;
 
             try
             {
+                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
@@ -48,13 +50,14 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                #endregion
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting document for urn {caseUrn}, caseId {caseId}, id {documentId}");
-                var blobStream = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, documentId, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting document for urn {caseUrn}, caseId {caseId}, id {polarisDocumentId}");
+                var blobStream = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), currentCorrelationId);
 
                 return blobStream != null
                                     ? new OkObjectResult(blobStream)
-                                    : NotFoundErrorResponse($"No document found for document id '{documentId}'.", currentCorrelationId, loggingName);
+                                    : NotFoundErrorResponse($"No document found for document id '{polarisDocumentId}'.", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {

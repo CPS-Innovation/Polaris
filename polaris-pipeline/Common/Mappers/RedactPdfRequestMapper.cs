@@ -6,6 +6,7 @@ using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Logging;
 using Common.Mappers.Contracts;
+using Common.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Common.Mappers
@@ -19,16 +20,16 @@ namespace Common.Mappers
             _logger = logger;
         }
 
-        public RedactPdfRequestDto Map(DocumentRedactionSaveRequestDto saveRequest, long caseId, Guid documentId, Guid correlationId)
+        public RedactPdfRequestDto Map(DocumentRedactionSaveRequestDto saveRequest, long caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(Map), $"SaveRequest: '{saveRequest.ToJson()}', CaseId: {caseId}, DocumentId: {documentId}");
+            _logger.LogMethodEntry(correlationId, nameof(Map), $"SaveRequest: '{saveRequest.ToJson()}', CaseId: {caseId}, PolarisDocumentId: {polarisDocumentId}");
 
             if (saveRequest == null) throw new ArgumentNullException(nameof(saveRequest));
 
             var result = new RedactPdfRequestDto
             {
                 CaseId = caseId,
-                DocumentId = documentId.ToString(),
+                DocumentId = polarisDocumentId.ToString(),
                 // FileName - not known yet, picked up later in the durable world
                 // VersionId - not passed in previous code, possibly get set as 0->1 in Bob metadata, but as not used this isn't a problem
                 RedactionDefinitions = new List<RedactionDefinitionDto>()

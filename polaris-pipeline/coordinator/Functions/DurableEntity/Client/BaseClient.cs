@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.Dto.Tracker;
+using Common.ValueObjects;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -36,7 +37,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 IDurableEntityClient client,
                 string loggingName,
                 string caseId,
-                Guid documentId,
+                PolarisDocumentId polarisDocumentId,
                 ILogger log
             )
         {
@@ -74,20 +75,20 @@ namespace coordinator.Functions.DurableEntity.Client
             }
 
             TrackerEntity entityState = stateResponse.EntityState;
-            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
+            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
             if(response.CmsDocument == null )
             {
-                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId == documentId);
+                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId.Equals(polarisDocumentId));
 
                 if (response.PcdRequest == null)
                 {
-                    if(documentId == entityState.DefendantsAndCharges.PolarisDocumentId)
+                    if(polarisDocumentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
                     {
                         response.DefendantsAndCharges = entityState.DefendantsAndCharges;
                     }
                     else
                     {
-                        var baseMessage = $"No Document found with id '{documentId}'";
+                        var baseMessage = $"No Document found with id '{polarisDocumentId}'";
                         log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
                         response.Error = new NotFoundObjectResult(baseMessage);
                         return response;

@@ -25,7 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using System.Linq.Expressions;
+using Common.ValueObjects;
 
 namespace coordinator.tests.Functions
 {
@@ -35,7 +35,7 @@ namespace coordinator.tests.Functions
         private readonly string _cmsAuthValues;
         private readonly long _cmsCaseId;
         private readonly string _cmsCaseUrn;
-        private readonly Guid _polarisDocumentId;
+        private readonly PolarisDocumentId _polarisDocumentId;
         private readonly Guid _correlationId;
         private readonly (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _caseDocuments;
         private readonly string _transactionId;
@@ -54,7 +54,7 @@ namespace coordinator.tests.Functions
             _cmsCaseUrn = fixture.Create<string>();
             _cmsCaseId = fixture.Create<long>();
             _correlationId = fixture.Create<Guid>();    
-            _polarisDocumentId = fixture.Create<Guid>();
+            _polarisDocumentId = fixture.Create<PolarisDocumentId>();
             fixture.Create<Guid>();
             var durableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk"));
             _payload = fixture.Build<CaseOrchestrationPayload>()

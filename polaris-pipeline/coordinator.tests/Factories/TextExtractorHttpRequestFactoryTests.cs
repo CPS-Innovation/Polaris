@@ -3,6 +3,7 @@ using System.Net.Http;
 using AutoFixture;
 using Common.Constants;
 using Common.Dto.Request;
+using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using coordinator.Factories;
 using FluentAssertions;
@@ -15,7 +16,7 @@ namespace coordinator.tests.Factories
 {
     public class TextExtractorHttpRequestFactoryTests
 	{
-        private readonly Guid _polarisDocumentId;
+        private readonly PolarisDocumentId _polarisDocumentId;
         private readonly long _caseId;
 		private readonly string _documentId;
 		private readonly long _versionId;
@@ -29,7 +30,7 @@ namespace coordinator.tests.Factories
 		public TextExtractorHttpRequestFactoryTests()
 		{
 			var fixture = new Fixture();
-			_polarisDocumentId = fixture.Create<Guid>();
+			_polarisDocumentId = fixture.Create<PolarisDocumentId>();
 			_caseId = fixture.Create<int>();
 			_documentId = fixture.Create<string>();
 			_versionId = fixture.Create<long>();

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Logging;
+using Common.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -29,7 +30,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Document)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            Guid documentId,
+            string polarisDocumentId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -37,7 +38,8 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, documentId, log);
+                var polarisDocumentIdValue = new PolarisDocumentId(polarisDocumentId);
+                var response = await GetTrackerDocument(req, client, loggingName, caseId, polarisDocumentIdValue, log);
 
                 if (!response.Success)
                     return response.Error;

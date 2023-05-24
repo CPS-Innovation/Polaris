@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
 using Common.Logging;
+using Common.ValueObjects;
 using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.DocumentCheckout)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            Guid documentId,
+            string polarisDocumentId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -39,7 +40,16 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, documentId, log);
+                #region Validate-Inputs
+                var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
+                if (string.IsNullOrEmpty(cmsAuthValues))
+                {
+                    log.LogMethodFlow(currentCorrelationId, loggingName, $"No authentication header values specified");
+                    throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
+                }
+                #endregion
+
+                var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
 
                 if (!response.Success)
                     return response.Error;
@@ -52,13 +62,6 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
                 currentCorrelationId = response.CorrelationId;
                 var document = response.CmsDocument;
-
-                var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
-                if (string.IsNullOrEmpty(cmsAuthValues))
-                {
-                    log.LogMethodFlow(currentCorrelationId, loggingName, $"No authentication header values specified");
-                    throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
-                }
 
                 DdeiCmsDocumentArgDto arg = new DdeiCmsDocumentArgDto
                 {

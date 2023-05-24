@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Common.Validators;
+using Common.ValueObjects;
 
 namespace Common.Dto.Request
 {
     public class ExtractTextRequestDto
     {
-        public ExtractTextRequestDto(Guid polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName)
+        public ExtractTextRequestDto(PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName)
         {
             PolarisDocumentId = polarisDocumentId;
             CmsCaseId = cmsCaseId;
@@ -16,7 +17,7 @@ namespace Common.Dto.Request
         }
 
         [Required]
-        public Guid PolarisDocumentId { get; set; }
+        public PolarisDocumentId PolarisDocumentId { get; set; }
 
         [RequiredLongGreaterThanZero]
         public long CmsCaseId { get; set; }

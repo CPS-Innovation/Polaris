@@ -1,4 +1,5 @@
 using Common.Validators;
+using Common.ValueObjects;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,7 +7,7 @@ namespace coordinator.Domain;
 
 public abstract class BasePipelinePayload
 {
-    protected BasePipelinePayload(string cmsCaseUrn, long cmsCaseId, Guid correlationId, Guid polarisDocumentId=default)
+    protected BasePipelinePayload(string cmsCaseUrn, long cmsCaseId, Guid correlationId, PolarisDocumentId polarisDocumentId=null)
     {
         PolarisDocumentId = polarisDocumentId;
         CmsCaseUrn = cmsCaseUrn;
@@ -23,6 +24,6 @@ public abstract class BasePipelinePayload
     [Required]
     public Guid CorrelationId { get; set; }
 
-    public Guid PolarisDocumentId { get; init; }
+    public PolarisDocumentId PolarisDocumentId { get; init; }
 
 }

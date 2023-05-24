@@ -10,6 +10,7 @@ using Common.Mappers;
 using Common.Mappers.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
+using Common.ValueObjects;
 
 namespace PolarisGateway.Tests.Mappers
 {
@@ -32,15 +33,15 @@ namespace PolarisGateway.Tests.Mappers
             var testRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
             testRequest.Redactions = _fixture.CreateMany<RedactionDefinitionDto>(5).ToList();
             var testCaseId = _fixture.Create<int>();
-            var testDocumentId = _fixture.Create<Guid>();
+            var testPolarisDocumentId = _fixture.Create<PolarisDocumentId>();
 
             IRedactPdfRequestMapper mapper = new RedactPdfRequestMapper(_loggerMock.Object);
-            var result = mapper.Map(testRequest, testCaseId, testDocumentId, _correlationId);
+            var result = mapper.Map(testRequest, testCaseId, testPolarisDocumentId, _correlationId);
 
             using (new AssertionScope())
             {
                 result.CaseId.Should().Be(testCaseId);
-                result.DocumentId.Should().Be(testDocumentId.ToString());
+                result.DocumentId.Should().Be(testPolarisDocumentId.ToString());
                 result.FileName.Should().BeNullOrEmpty();
                 result.RedactionDefinitions.Should().NotBeNull();
                 result.RedactionDefinitions.Count.Should().Be(5);

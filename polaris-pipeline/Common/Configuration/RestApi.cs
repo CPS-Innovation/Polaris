@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.ValueObjects;
+using System;
 
 namespace Common.Configuration
 {
@@ -15,9 +16,9 @@ namespace Common.Configuration
         public const string DocumentsSearch = "urns/{caseUrn}/cases/{caseId}/documents/search";
 
         // Document (singular)
-        public const string Document = "urns/{caseUrn}/cases/{caseId}/documents/{documentId:guid}";
-        public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId}/documents/{documentId:guid}/checkout";
-        public const string DocumentSasUrl = "urns/{caseUrn}/cases/{caseId}/documents/{documentId:guid}/sasUrl";
+        public const string Document = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
+        public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
+        public const string DocumentSasUrl = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sasUrl";
         
         // Admin
         public const string ResetDurableState = "maintenance/resetDurableState";
@@ -44,9 +45,9 @@ namespace Common.Configuration
             return url;
         }
 
-        public static string GetDocumentUrl(string caseUrn, long caseId, Guid documentId)
+        public static string GetDocumentUrl(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
-            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}";
+            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
             return url;
         }
     }

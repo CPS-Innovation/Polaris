@@ -4,6 +4,7 @@ using System.Net.Http;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Logging;
+using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using coordinator.Domain.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -26,7 +27,7 @@ namespace coordinator.Factories
             _logger = logger;
         }
 
-        public DurableHttpRequest Create(Guid polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId)
+        public DurableHttpRequest Create(PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(Create), $"PolarisId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, DocumentId: {cmsDocumentId}, BlobName: {blobName}");
 
