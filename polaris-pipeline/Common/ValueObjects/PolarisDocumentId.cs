@@ -14,13 +14,13 @@ namespace Common.ValueObjects
             Value = polarisDocumentIdValue;
         }
 
-        public PolarisDocumentId(PolarisDocumentType polarisDocumentType, string value=null)
+        public PolarisDocumentId(PolarisDocumentType polarisDocumentType, string value)
         {
             Value = polarisDocumentType switch
             {
                 PolarisDocumentType.CmsDocument => $"CMS-{value}",
                 PolarisDocumentType.PcdRequest => $"PCD-{value}",
-                PolarisDocumentType.DefendantsAndCharges => $"DAC",
+                PolarisDocumentType.DefendantsAndCharges => $"DAC-{value}",
                 _ => throw new System.NotImplementedException()
             };
         }

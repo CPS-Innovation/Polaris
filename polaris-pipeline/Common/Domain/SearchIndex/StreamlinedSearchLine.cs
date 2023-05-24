@@ -20,7 +20,7 @@ public class StreamlinedSearchLine
 
             try
             {
-                var polarisDocumentId = indexerId.Substring(0, 36);
+                var polarisDocumentId = indexerId.Split(":")[1];
                 return polarisDocumentId;
             }
             catch 

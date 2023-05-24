@@ -14,14 +14,14 @@ using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
 {
-    public class PolarisPipelineSearchCaseDocuments : BasePolarisFunction
+    public class PolarisPipelineCaseSearch : BasePolarisFunction
     {
         private readonly IPipelineClient _pipelineClient;
-        private readonly ILogger<PolarisPipelineSearchCaseDocuments> _logger;
+        private readonly ILogger<PolarisPipelineCaseSearch> _logger;
 
-        const string loggingName = $"{nameof(PolarisPipelineSearchCaseDocuments)} - {nameof(Run)}";
+        const string loggingName = $"{nameof(PolarisPipelineCaseSearch)} - {nameof(Run)}";
 
-        public PolarisPipelineSearchCaseDocuments(ILogger<PolarisPipelineSearchCaseDocuments> logger,
+        public PolarisPipelineCaseSearch(ILogger<PolarisPipelineCaseSearch> logger,
                                                IPipelineClient pipelineClient,
                                                IAuthorizationValidator tokenValidator,
                                                ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
@@ -31,13 +31,14 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
             _logger = logger;
         }
 
-        [FunctionName(nameof(PolarisPipelineSearchCaseDocuments))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentsSearch)] HttpRequest req, string caseUrn, int caseId)
+        [FunctionName(nameof(PolarisPipelineCaseSearch))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
 
             try
             {
+                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
@@ -48,13 +49,13 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                 if (caseId <= 0)
                     return BadRequestErrorResponse("A valid caseId must be supplied, one that is greater than zero", currentCorrelationId, loggingName);
 
-                string searchTerm;
                 if (!req.Query.ContainsKey("query"))
                     return BadRequestErrorResponse("Search query is not supplied.", currentCorrelationId, loggingName);
 
-                searchTerm = req.Query["query"];
+                string searchTerm = req.Query["query"];
                 if (string.IsNullOrWhiteSpace(searchTerm))
                     return BadRequestErrorResponse("Search query term is not supplied.", currentCorrelationId, loggingName);
+                #endregion
 
                 var searchResults = await _pipelineClient.SearchCase(caseUrn, caseId, searchTerm, currentCorrelationId);
 

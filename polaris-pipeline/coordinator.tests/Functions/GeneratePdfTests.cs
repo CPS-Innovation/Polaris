@@ -15,6 +15,7 @@ using Common.Dto.Tracker;
 using Common.Handlers.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.RenderHtmlService.Contract;
+using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;

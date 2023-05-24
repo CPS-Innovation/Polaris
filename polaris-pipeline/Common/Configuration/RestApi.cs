@@ -11,9 +11,7 @@ namespace Common.Configuration
         // Case (singular)
         public const string Case = "urns/{caseUrn}/cases/{caseId}";
         public const string CaseTracker = "urns/{caseUrn}/cases/{caseId}/tracker";
-
-        // Documents (plural)
-        public const string DocumentsSearch = "urns/{caseUrn}/cases/{caseId}/documents/search";
+        public const string CaseSearch = "urns/{caseUrn}/cases/{caseId}/search";
 
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";

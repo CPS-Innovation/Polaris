@@ -41,7 +41,7 @@ namespace text_extractor.Functions
             _log = logger;
         }
 
-        [FunctionName("ExtractText")]
+        [FunctionName(nameof(ExtractText))]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "extract")] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;

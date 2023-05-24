@@ -86,10 +86,13 @@ namespace Common.Clients
 
         private bool IsLiveDocumentResult(List<BaseTrackerDocumentDto> documents, SearchLine searchLine)
         {
-            // SearchLineFactory => {cmsCaseId}-{polarisDocumentId}-{readResult.Page}-{index}
+            // SearchLineFactory => {cmsCaseId}:{polarisDocumentId}:{readResult.Page}:{index}
 
             var decodedSearchLineId = Encoding.UTF8.GetString(Convert.FromBase64String(searchLine.Id));
-            var resultPolarisDocumentIdValue = decodedSearchLineId.Split("-")[1];
+            var elements = decodedSearchLineId.Split(":");
+            if (elements.Length < 2)
+                return false;
+            var resultPolarisDocumentIdValue = elements[1];
 
             return documents.Any(document => document.PolarisDocumentId.Value == resultPolarisDocumentIdValue);
         }

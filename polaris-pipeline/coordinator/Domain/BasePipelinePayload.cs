@@ -2,6 +2,7 @@ using Common.Validators;
 using Common.ValueObjects;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace coordinator.Domain;
 
@@ -9,10 +10,10 @@ public abstract class BasePipelinePayload
 {
     protected BasePipelinePayload(string cmsCaseUrn, long cmsCaseId, Guid correlationId, PolarisDocumentId polarisDocumentId=null)
     {
-        PolarisDocumentId = polarisDocumentId;
         CmsCaseUrn = cmsCaseUrn;
         CmsCaseId = cmsCaseId;
         CorrelationId = correlationId;
+        PolarisDocumentId = polarisDocumentId;
     }
 
     [Required]
@@ -24,6 +25,19 @@ public abstract class BasePipelinePayload
     [Required]
     public Guid CorrelationId { get; set; }
 
-    public PolarisDocumentId PolarisDocumentId { get; init; }
+    [JsonIgnore]
+    public PolarisDocumentId PolarisDocumentId { get; set; }
 
+    [JsonPropertyName("PolarisDocumentId")]
+    public string PolarisDocumentIdValue
+    {
+        get
+        { 
+            return PolarisDocumentId?.ToString(); 
+        }
+        set
+        {
+            PolarisDocumentId = new PolarisDocumentId(value);
+        }
+    }
 }

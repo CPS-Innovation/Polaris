@@ -293,7 +293,8 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             if(createdDefendantsAndCharges != null)
             {
-                DefendantsAndCharges = new TrackerDefendantsAndChargesDto(new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges), 1, createdDefendantsAndCharges);
+                PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, createdDefendantsAndCharges.CaseId.ToString());
+                DefendantsAndCharges = new TrackerDefendantsAndChargesDto(polarisDocumentId, 1, createdDefendantsAndCharges);
 
                 Log(t, TrackerLogType.DefendantAndChargesRetrieved, DefendantsAndCharges.DefendantsAndCharges.CaseId.ToString());
 
