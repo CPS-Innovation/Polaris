@@ -77,4 +77,22 @@ Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
     });
 });
 
+Cypress.Commands.add(
+  "trackRequestCount",
+  (requestCounter, method, pathname) => {
+    cy.window().then((win) => {
+      const worker = (window as any).msw.worker;
+      worker.events.on("request:start", (req: any) => {
+        if (!pathname && req.method === method) {
+          requestCounter.count++;
+          return;
+        }
+        if (req.method === method && req.url.pathname === pathname) {
+          requestCounter.count++;
+        }
+      });
+    });
+  }
+);
+
 export {};
