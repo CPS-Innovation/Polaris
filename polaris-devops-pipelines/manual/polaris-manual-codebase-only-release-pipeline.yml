@@ -455,19 +455,19 @@ stages:
                 -TimeoutSec $(status-check-timeout-seconds)
 
           #query proxy status endpoint
-          #- task: PowerShell@2
-          #  displayName: 'Checking QA UI status'
-          #  inputs:
-          #    failOnStderr: true
-          #    targetType: 'filePath'
-          #    filePath: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-          #    arguments: > # Use this to avoid newline characters in multi-line string
-          #      -URI $(qa-ui-status-url)
-          #      -Method $(status-check-method)
-          #      -SuccessTextContent "$(resources.pipeline.PolarisManualCodebaseOnlyBuild.runName)"
-          #      -Retries $(status-check-retries)
-          #      -SecondsDelay $(status-check-delay-seconds)
-          #      -TimeoutSec $(status-check-timeout-seconds)
+          - task: PowerShell@2
+            displayName: 'Checking QA UI status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-ui-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualCodebaseOnlyBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
           
   - stage: Apply_PROD
     displayName: Deployment > PROD
@@ -678,16 +678,16 @@ stages:
                 -TimeoutSec $(status-check-timeout-seconds)
 
           #query proxy status endpoint
-          #- task: PowerShell@2
-          #  displayName: 'Checking PROD UI status'
-          #  inputs:
-          #    failOnStderr: true
-          #    targetType: 'filePath'
-          #    filePath: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-          #    arguments: > # Use this to avoid newline characters in multi-line string
-          #      -URI $(prod-ui-status-url)
-          #      -Method $(status-check-method)
-          #      -SuccessTextContent "$(resources.pipeline.PolarisManualCodebaseOnlyBuild.runName)"
-          #      -Retries $(status-check-retries)
-          #      -SecondsDelay $(status-check-delay-seconds)
-          #      -TimeoutSec $(status-check-timeout-seconds)
+          - task: PowerShell@2
+            displayName: 'Checking PROD UI status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-ui-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualCodebaseOnlyBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
