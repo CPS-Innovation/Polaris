@@ -29,7 +29,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - deployment: Manual_Full-Terraform_Deployment
+      - deployment: Manual_Full_Terraform_Deployment
         environment: "DEV"
         strategy:
           runOnce:
@@ -438,7 +438,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - deployment: Manual_Full-Terraform_Deployment
+      - deployment: Manual_Full_Terraform_Deployment
         environment: "QA"
         strategy:
           runOnce:
@@ -847,7 +847,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - deployment: Manual_Full-Terraform_Deployment
+      - deployment: Manual_Full_Terraform_Deployment
         environment: "Prod"
         strategy:
           runOnce:
