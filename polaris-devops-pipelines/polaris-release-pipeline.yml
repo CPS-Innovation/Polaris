@@ -148,7 +148,7 @@ stages:
             displayName: Processing changes to repo
 
   - stage: Apply_DEV
-    displayName: DEV Deployment
+    displayName: Deployment > DEV
     condition: succeeded()
     dependsOn: Determine_Changes
     variables:
@@ -480,8 +480,8 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
                     
-  - stage: Run_Status_Checks
-    displayName: Run DEV Status Checks
+  - stage: Check_DEV
+    displayName: Status Checks > DEV
     dependsOn:
       - Determine_Changes
       - Apply_DEV
@@ -493,31 +493,136 @@ stages:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE']]
-    pool: server
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+    pool:
+      name: $(dev-build-agent)
     jobs:
       - job: Run_Status_Checks
         steps:
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Polaris Build > Download Pipeline Scripts
+            artifact: 'polaris-script-files'
+
+          #query coordinator status endpoint
           - task: PowerShell@2
-            displayName: 'Checking DDEI'
+            displayName: 'Checking DEV Coordinator status'
+            condition: eq(variables.runCoordinator, 'true')
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(System.DefaultWorkingDirectory)/polaris-devops-pipelines/scripts/InvokeRequestWithRetry.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
-                -URI "https://fa-polaris-ddei-dev.azurewebsites.net/api/status"
-                -Method "GET"
+                -URI $(dev-coordinator-status-url)
+                -Method $(status-check-method)
                 -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
-                -Retries 1
-                -SecondsDelay 2
-                -TimeoutSec 120
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV PDF-Generator status'
+            condition: eq(variables.runPdfGenerator, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query text-extractor status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Text-Extractor status'
+            condition: eq(variables.runTextExtractor, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-text-extractor-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query auth-handover status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Auth-Handover status'
+            condition: eq(variables.runAuthHandover, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-auth-handover-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query gateway status endpoint
+          #- task: PowerShell@2
+          #  displayName: 'Checking DEV Gateway status'
+          #  condition: eq(variables.runGateway, 'true')
+          #  inputs:
+          #    failOnStderr: true
+          #    targetType: 'filePath'
+          #    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          #    arguments: > # Use this to avoid newline characters in multi-line string
+          #      -URI $(dev-gateway-status-url)
+          #      -Method $(status-check-method)
+          #      -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+          #      -Retries $(status-check-retries)
+          #      -SecondsDelay $(status-check-delay-seconds)
+          #      -TimeoutSec $(status-check-timeout-seconds)
+
+          #query proxy status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Proxy status'
+            condition: eq(variables.runUITerraform, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-proxy-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "Polaris Proxy is online"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+                
+          #query proxy status endpoint
+          #- task: PowerShell@2
+          #  displayName: 'Checking DEV UI status'
+          #  condition: eq(variables.runUICodebase, 'true')
+          #  inputs:
+          #    failOnStderr: true
+          #    targetType: 'filePath'
+          #    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          #    arguments: > # Use this to avoid newline characters in multi-line string
+          #      -URI $(dev-ui-status-url)
+          #      -Method $(status-check-method)
+          #      -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+          #      -Retries $(status-check-retries)
+          #      -SecondsDelay $(status-check-delay-seconds)
+          #      -TimeoutSec $(status-check-timeout-seconds)
         
                     
   - stage: Run_e2e_Tests
-    displayName: Run DEV e2e Tests
+    displayName: Run e2e tests > DEV
     dependsOn: 
       - Determine_Changes
       - Apply_DEV
-      - Run_Status_Checks
+      - Check_DEV
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
@@ -545,7 +650,7 @@ stages:
               password: $(devops-pat-token)
 
   - stage: Apply_QA
-    displayName: QA Deployment
+    displayName: Deployment > QA
     dependsOn:
       - Determine_Changes
       - Run_e2e_Tests
@@ -877,12 +982,148 @@ stages:
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
+                    
+  - stage: Check_QA
+    displayName: Status Checks > QA
+    dependsOn:
+      - Determine_Changes
+      - Apply_QA
+    condition: succeeded()
+    variables:
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR']]
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
+      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
+      runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Polaris Build > Download Pipeline Scripts
+            artifact: 'polaris-script-files'
+
+          #query coordinator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Coordinator status'
+            condition: eq(variables.runCoordinator, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-coordinator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA PDF-Generator status'
+            condition: eq(variables.runPdfGenerator, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query text-extractor status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Text-Extractor status'
+            condition: eq(variables.runTextExtractor, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-text-extractor-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query auth-handover status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Auth-Handover status'
+            condition: eq(variables.runAuthHandover, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-auth-handover-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query gateway status endpoint
+          #- task: PowerShell@2
+          #  displayName: 'Checking QA Gateway status'
+          #  condition: eq(variables.runGateway, 'true')
+          #  inputs:
+          #    failOnStderr: true
+          #    targetType: 'filePath'
+          #    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          #    arguments: > # Use this to avoid newline characters in multi-line string
+          #      -URI $(qa-gateway-status-url)
+          #      -Method $(status-check-method)
+          #      -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+          #      -Retries $(status-check-retries)
+          #      -SecondsDelay $(status-check-delay-seconds)
+          #      -TimeoutSec $(status-check-timeout-seconds)
+
+          #query proxy status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Proxy status'
+            condition: eq(variables.runUITerraform, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-proxy-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "Polaris Proxy is online"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+          
+          #query proxy status endpoint
+          #- task: PowerShell@2
+          #  displayName: 'Checking QA UI status'
+          #  condition: eq(variables.runUICodebase, 'true')
+          #  inputs:
+          #    failOnStderr: true
+          #    targetType: 'filePath'
+          #    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          #    arguments: > # Use this to avoid newline characters in multi-line string
+          #      -URI $(qa-ui-status-url)
+          #      -Method $(status-check-method)
+          #      -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+          #      -Retries $(status-check-retries)
+          #      -SecondsDelay $(status-check-delay-seconds)
+          #      -TimeoutSec $(status-check-timeout-seconds)
 
   - stage: Apply_PROD
     displayName: PROD Deployment
     dependsOn:
       - Determine_Changes
-      - Run_e2e_Tests
+      - Check_QA
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
@@ -1211,3 +1452,139 @@ stages:
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
+                    
+  - stage: Check_PROD
+    displayName: Status Checks > PROD
+    dependsOn:
+      - Determine_Changes
+      - Apply_PROD
+    condition: succeeded()
+    variables:
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR']]
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
+      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
+      runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Polaris Build > Download Pipeline Scripts
+            artifact: 'polaris-script-files'
+
+          #query coordinator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Coordinator status'
+            condition: eq(variables.runCoordinator, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-coordinator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD PDF-Generator status'
+            condition: eq(variables.runPdfGenerator, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query text-extractor status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Text-Extractor status'
+            condition: eq(variables.runTextExtractor, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-text-extractor-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query auth-handover status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Auth-Handover status'
+            condition: eq(variables.runAuthHandover, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-auth-handover-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query gateway status endpoint
+          #- task: PowerShell@2
+          #  displayName: 'Checking PROD Gateway status'
+          #  condition: eq(variables.runGateway, 'true')
+          #  inputs:
+          #    failOnStderr: true
+          #    targetType: 'filePath'
+          #    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          #    arguments: > # Use this to avoid newline characters in multi-line string
+          #      -URI $(prod-gateway-status-url)
+          #      -Method $(status-check-method)
+          #      -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+          #      -Retries $(status-check-retries)
+          #      -SecondsDelay $(status-check-delay-seconds)
+          #      -TimeoutSec $(status-check-timeout-seconds)
+
+          #query proxy status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Proxy status'
+            condition: eq(variables.runUITerraform, 'true')
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-proxy-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "Polaris Proxy is online"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+          
+          #query proxy status endpoint
+          #- task: PowerShell@2
+          #  displayName: 'Checking PROD UI status'
+          #  condition: eq(variables.runUICodebase, 'true')
+          #  inputs:
+          #    failOnStderr: true
+          #    targetType: 'filePath'
+          #    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          #    arguments: > # Use this to avoid newline characters in multi-line string
+          #      -URI $(prod-ui-status-url)
+          #      -Method $(status-check-method)
+          #      -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+          #      -Retries $(status-check-retries)
+          #      -SecondsDelay $(status-check-delay-seconds)
+          #      -TimeoutSec $(status-check-timeout-seconds)
