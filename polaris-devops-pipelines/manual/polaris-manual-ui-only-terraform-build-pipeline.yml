@@ -69,6 +69,16 @@ stages:
             inputs:
               contents: |
                 polaris-ui/.env
+                
+          # Add build version
+          - task: PowerShell@2
+            displayName: "Record build version"
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-ui/public
+              script: |
+                New-Item build-version.txt
+                Set-Content build-version.txt '$(Build.BuildNumber)'
 
           - task: Npm@1
             inputs:
