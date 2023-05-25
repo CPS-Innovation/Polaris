@@ -9,13 +9,13 @@ namespace coordinator.Functions.Orchestration.Functions
 {
     public class PolarisOrchestrator
     {
-        protected ITrackerEntity CreateOrGetTracker(IDurableOrchestrationContext context, long caseId, Guid correlationId, ILogger log)
+        protected ICaseTrackerEntity CreateOrGetTracker(IDurableOrchestrationContext context, long caseId, Guid correlationId, ILogger log)
         {
             log.LogMethodEntry(correlationId, nameof(CreateOrGetTracker), $"CaseId: {caseId}");
 
-            var entityId = new EntityId(nameof(TrackerEntity), caseId.ToString());
+            var entityId = new EntityId(nameof(CaseTrackerEntity), caseId.ToString());
 
-            return context.CreateEntityProxy<ITrackerEntity>(entityId);
+            return context.CreateEntityProxy<ICaseTrackerEntity>(entityId);
         }
     }
 }

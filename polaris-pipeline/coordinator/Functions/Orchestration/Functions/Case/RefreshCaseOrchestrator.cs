@@ -82,7 +82,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ITrackerEntity tracker, CaseOrchestrationPayload payload)
+        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseTrackerEntity tracker, CaseOrchestrationPayload payload)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
@@ -109,7 +109,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private async static Task<List<Task>> GetDocumentTasks
             (
                 IDurableOrchestrationContext context,
-                ITrackerEntity tracker,
+                ICaseTrackerEntity tracker,
                 CaseOrchestrationPayload caseDocumentPayload,
                 (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
                 ILogger log
@@ -202,7 +202,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ITrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ICaseTrackerEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
 
@@ -215,7 +215,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private static async Task<TrackerDeltasDto> GetCaseDocumentChanges
             (
                 DateTime t,
-                ITrackerEntity tracker, 
+                ICaseTrackerEntity tracker, 
                 string nameToLog, 
                 ILogger safeLogger, 
                 BasePipelinePayload payload,

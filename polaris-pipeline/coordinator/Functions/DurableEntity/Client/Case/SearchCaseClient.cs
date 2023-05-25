@@ -59,8 +59,8 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
-                var entityId = new EntityId(nameof(TrackerEntity), caseId.ToString());
-                var trackerState = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
+                var entityId = new EntityId(nameof(CaseTrackerEntity), caseId.ToString());
+                var trackerState = await client.ReadEntityStateAsync<CaseTrackerEntity>(entityId);
 
                 if (!trackerState.EntityExists)
                 {
@@ -71,7 +71,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
                 log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
-                TrackerEntity entityState = trackerState.EntityState;
+                CaseTrackerEntity entityState = trackerState.EntityState;
                 var documents =
                     entityState.CmsDocuments.OfType<BaseTrackerDocumentDto>()
                         .Concat(entityState.PcdRequests)

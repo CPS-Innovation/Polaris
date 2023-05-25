@@ -17,7 +17,7 @@ namespace coordinator.Functions.DurableEntity.Entity
     // n.b. Entity proxy interface methods must define at most one argument for operation input.
     // (A single tuple is acceptable)
     [JsonObject(MemberSerialization.OptIn)]
-    public class TrackerEntity : ITrackerEntity
+    public class CaseTrackerEntity : ICaseTrackerEntity
     {
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
@@ -62,7 +62,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.CompletedTask;
         }
 
-        public Task SetValue(TrackerEntity tracker)
+        public Task SetValue(CaseTrackerEntity tracker)
         {
             Status = tracker.Status;
             ProcessingCompleted = tracker.ProcessingCompleted;
@@ -431,10 +431,10 @@ namespace coordinator.Functions.DurableEntity.Entity
             Logs.Insert(0, item);
         }
 
-        [FunctionName(nameof(TrackerEntity))]
+        [FunctionName(nameof(CaseTrackerEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
-            return context.DispatchAsync<TrackerEntity>();
+            return context.DispatchAsync<CaseTrackerEntity>();
         }
     }
 }

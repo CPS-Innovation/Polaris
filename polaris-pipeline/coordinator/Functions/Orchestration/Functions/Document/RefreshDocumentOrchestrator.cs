@@ -55,7 +55,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
         }
 
-        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITrackerEntity tracker, ILogger log)
+        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseTrackerEntity tracker, ILogger log)
         {
             GeneratePdfResponse response = null;
 
@@ -89,7 +89,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
         }
 
-        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ITrackerEntity tracker, ILogger log)
+        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseTrackerEntity tracker, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorAsync), payload.ToJson());
 

@@ -59,8 +59,8 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
 
-                var entityId = new EntityId(nameof(TrackerEntity), caseId);
-                var trackerState = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
+                var entityId = new EntityId(nameof(CaseTrackerEntity), caseId);
+                var trackerState = await client.ReadEntityStateAsync<CaseTrackerEntity>(entityId);
 
                 if (!trackerState.EntityExists)
                 {

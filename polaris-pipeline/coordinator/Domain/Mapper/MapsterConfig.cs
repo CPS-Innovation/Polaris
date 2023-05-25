@@ -13,7 +13,7 @@ namespace coordinator.Domain.Mapper
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<TrackerEntity, TrackerDto>
+            TypeAdapterConfig<CaseTrackerEntity, TrackerDto>
                 .NewConfig()
                 .Map(
                         dest => dest.Documents,

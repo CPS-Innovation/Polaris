@@ -102,7 +102,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         {
                             throw new BadRequestException("Request body cannot be null.", nameof(req));
                         }
-                        var tracker = _jsonConvertWrapper.DeserializeObject<TrackerEntity>(content);
+                        var tracker = _jsonConvertWrapper.DeserializeObject<CaseTrackerEntity>(content);
 
                         UpdateTrackerPayload updateTrackerPayload = new UpdateTrackerPayload
                         {

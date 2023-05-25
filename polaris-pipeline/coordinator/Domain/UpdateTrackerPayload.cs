@@ -6,6 +6,6 @@ namespace coordinator.Domain
     {
         public CaseOrchestrationPayload CaseOrchestrationPayload { get; set; }
 
-        public TrackerEntity Tracker { get; set; }
+        public CaseTrackerEntity Tracker { get; set; }
     }
 }

@@ -43,7 +43,7 @@ namespace coordinator.tests.Functions
         private readonly TrackerDeltasDto _deltaDocuments;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
-        private readonly Mock<ITrackerEntity> _mockTracker;
+        private readonly Mock<ICaseTrackerEntity> _mockTracker;
 
         private readonly RefreshCaseOrchestrator _coordinatorOrchestrator;
 
@@ -85,7 +85,7 @@ namespace coordinator.tests.Functions
             var mockConfiguration = new Mock<IConfiguration>();
             var mockLogger = new Mock<ILogger<RefreshCaseOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
-            _mockTracker = new Mock<ITrackerEntity>();
+            _mockTracker = new Mock<ICaseTrackerEntity>();
 
             mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]).Returns("300");
 
@@ -111,7 +111,7 @@ namespace coordinator.tests.Functions
                 .Returns(_transactionId);
 
             _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ITrackerEntity>(It.Is<EntityId>(e => e.EntityName == nameof(TrackerEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
+                .Setup(context => context.CreateEntityProxy<ICaseTrackerEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseTrackerEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
                 .Returns(_mockTracker.Object);
 
             _mockDurableOrchestrationContext
