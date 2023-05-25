@@ -15,6 +15,9 @@ using Common.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using DdeiClient.Services.Contracts;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -34,6 +37,8 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
         const string loggingName = nameof(GeneratePdf);
 
+        private readonly TelemetryClient _telemetryClient;
+
         public GeneratePdf(
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
             IHttpClientFactory httpClientFactory,
@@ -42,7 +47,8 @@ namespace coordinator.Functions.ActivityFunctions.Document
             IDdeiClient documentExtractionService,
             IPolarisBlobStorageService blobStorageService,
             IExceptionHandler exceptionHandler,
-            ILogger<GeneratePdf> logger)
+            ILogger<GeneratePdf> logger,
+            TelemetryConfiguration telemetryConfiguration)
         {
             _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
             _pdfGeneratorHttpClient = httpClientFactory.CreateClient(nameof(GeneratePdf));
@@ -52,6 +58,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
             _blobStorageService = blobStorageService;
             _exceptionHandler = exceptionHandler;
             _log = logger;
+            _telemetryClient = new TelemetryClient(telemetryConfiguration);
         }
 
         [FunctionName(nameof(GeneratePdf))]
@@ -61,6 +68,18 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             if (payload == null)
                 throw new ArgumentException($"{nameof(payload)} cannot be null.");
+
+            DateTime start = DateTime.UtcNow;
+            // Write an event to the customEvents table.
+            var evt = new EventTelemetry("Function called");
+            evt.Name = "AppInsightsTest";
+            evt.Properties["some_custom_property"] = "some value";
+            evt.Properties["cms_case_id"] = payload.CmsCaseId.ToString();
+            evt.Properties["cms_case_urn"] = payload.CmsCaseUrn;
+            evt.Metrics["some_custom_metric"] = 42;
+            _telemetryClient.TrackEvent(evt);
+
+            _telemetryClient.GetMetric("some_independent_metric").TrackValue(43);
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, string.Empty);
 
@@ -72,7 +91,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
             string blobName = null;
             FileType fileType = (FileType)(-1);
 
-            if(payload.CmsDocumentTracker != null)
+            if (payload.CmsDocumentTracker != null)
             {
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
 
@@ -88,7 +107,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                 blobName = $"{payload.CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(payload.CmsDocumentTracker.CmsDocumentId)}.pdf";
                 fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
             }
-            else if(payload.PcdRequestTracker != null) 
+            else if (payload.PcdRequestTracker != null)
             {
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting PCD request to HTML for documentId: '{payload.PcdRequestTracker.CmsDocumentId}'");
 
@@ -126,8 +145,21 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     );
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{blobName}' uploaded successfully");
+
+                // Log a custom dependency in the dependencies table.
+                var dependency = new DependencyTelemetry
+                {
+                    Name = "GET api/planets/1/",
+                    Target = "swapi.co",
+                    Data = "https://swapi.co/api/planets/1/",
+                    Timestamp = start,
+                    Duration = DateTime.UtcNow - start,
+                    Success = true
+                };
+
+                _telemetryClient.TrackDependency(dependency);
             }
-            finally 
+            finally
             {
                 documentStream?.Dispose();
                 pdfStream?.Dispose();

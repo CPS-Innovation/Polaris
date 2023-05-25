@@ -35,6 +35,7 @@ using coordinator.Domain;
 using RenderPcd;
 using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
+using Microsoft.ApplicationInsights.Extensibility;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -90,6 +91,8 @@ namespace coordinator
             {
                 client.BaseAddress = pipelineRedactPdfBaseUrl;
             });
+
+            builder.Services.AddSingleton<ITelemetryInitializer, MyTelemetryInitializer>();
 
             BuildHealthChecks(builder);
         }
