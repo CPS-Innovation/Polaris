@@ -10,7 +10,7 @@ param (
     [string]$TimeoutSec = 120
 )
 
-Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec";
+Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $SuccessTextContent";
 
 Function Req {
     Param(
@@ -37,7 +37,15 @@ Function Req {
             if ($response.StatusCode -ne 200) {
                 throw "Expecting reponse code 200, was: $($response.StatusCode)"
             }
-            $completed = $true
+
+            if($res.Content -clike "$SuccessTextContent")
+            {
+                Write-Host "Health check validation success."
+            }
+            else
+            {
+                throw "Expecting $SuccessTextContent, received $response.Content"
+            }
         } catch {
             Write-Output "$(Get-Date -Format G): Request to $url failed. $_"
             if ($retrycount -ge $Retries) {
@@ -51,17 +59,6 @@ Function Req {
         }
     }
 
-    Write-Host "OK ($($response.StatusCode))"
+    Write-Host "OK ($($response.StatusCode) - $(SuccessTextContent))"
     return $response
-}
-
-$res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method'=$Method;'Uri'=$URI;'TimeoutSec'=$TimeoutSec;'UseBasicParsing'=$true }
-
-if($res.Content -ne "$SuccessTextContent")
-{
-    Write-Error $response.Content
-}
-else
-{
-    Write-Host "Helath check validation success."
 }

@@ -340,3 +340,10 @@ stages:
               publishLocation: "Container"
             displayName: Publish UI artifact
             condition: eq(variables.runUICodebase, 'true')
+            
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline scripts'
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts'
+              artifact: 'polaris-script-files'
+              publishLocation: 'pipeline'

@@ -168,3 +168,10 @@ stages:
               ArtifactName: "polaris-ui-drop"
               publishLocation: "Container"
             displayName: Publish UI artifact
+            
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline scripts'
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts'
+              artifact: 'polaris-script-files'
+              publishLocation: 'pipeline'

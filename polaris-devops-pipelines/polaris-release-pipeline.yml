@@ -481,7 +481,7 @@ stages:
                     TF_LOG: $(dev-log-level)
                     
   - stage: Run_Status_Checks
-    displayName: Run Status Checks
+    displayName: Run DEV Status Checks
     dependsOn:
       - Determine_Changes
       - Apply_DEV
@@ -496,10 +496,24 @@ stages:
     pool: server
     jobs:
       - job: Run_Status_Checks
+        steps:
+          - task: PowerShell@2
+            displayName: 'Checking DDEI'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(System.DefaultWorkingDirectory)/polaris-devops-pipelines/scripts/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI "https://fa-polaris-ddei-dev.azurewebsites.net/api/status"
+                -Method "GET"
+                -SuccessTextContent "$(resources.pipeline.PolarisBuild.runName)"
+                -Retries 1
+                -SecondsDelay 2
+                -TimeoutSec 120
         
                     
   - stage: Run_e2e_Tests
-    displayName: Run e2e Tests
+    displayName: Run DEV e2e Tests
     dependsOn: 
       - Determine_Changes
       - Apply_DEV
