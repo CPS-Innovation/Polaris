@@ -21,6 +21,7 @@ variables:
   - group: polaris-global
   - group: pipeline-terraform
   - group: ui-terraform
+  - group: polaris-status-check-endpoints
 
 stages:
   - stage: Determine_Changes
