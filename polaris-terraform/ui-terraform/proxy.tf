@@ -85,6 +85,15 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     mount_path   = "/etc/nginx/templates"
   }
 
+  logs {
+    http_logs {
+      file_system {
+        retention_in_days = 3
+        retention_in_mb   = 35
+      }
+    }
+  }
+
   identity {
     type = "SystemAssigned"
   }
