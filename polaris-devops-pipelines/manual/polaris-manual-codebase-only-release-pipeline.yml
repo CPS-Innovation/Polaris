@@ -29,7 +29,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - deployment: Deploy_DEV
+      - deployment: Manual_Codebase_Deployment
         environment: "DEV"
         strategy:
           runOnce:
@@ -252,7 +252,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - deployment: Deploy_QA
+      - deployment: Manual_Codebase_Deployment
         environment: "QA"
         strategy:
           runOnce:
@@ -475,7 +475,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - deployment: Deploy_PROD
+      - deployment: Manual_Codebase_Deployment
         environment: "Prod"
         strategy:
           runOnce:

@@ -165,7 +165,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - deployment: Deploy_DEV
+      - deployment: CI_Deployment
         condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
         environment: "Dev"
         strategy:
@@ -669,7 +669,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - deployment: Deploy_QA
+      - deployment: CI_Deployment
         environment: "QA"
         strategy:
           runOnce:
@@ -1139,7 +1139,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - deployment: Deploy_PROD
+      - deployment: CI_Deployment
         environment: "Prod"
         strategy:
           runOnce:
