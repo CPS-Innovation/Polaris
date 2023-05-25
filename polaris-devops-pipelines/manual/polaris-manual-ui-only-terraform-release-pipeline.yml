@@ -256,19 +256,19 @@ stages:
                 -TimeoutSec $(status-check-timeout-seconds)
           
           #query gateway status endpoint
-          #- task: PowerShell@2
-          #  displayName: 'Checking DEV Gateway status'
-          #  inputs:
-          #    failOnStderr: true
-          #    targetType: 'filePath'
-          #    filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-          #    arguments: > # Use this to avoid newline characters in multi-line string
-          #      -URI $(dev-gateway-status-url)
-          #      -Method $(status-check-method)
-          #      -SuccessTextContent "$(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)"
-          #      -Retries $(status-check-retries)
-          #      -SecondsDelay $(status-check-delay-seconds)
-          #      -TimeoutSec $(status-check-timeout-seconds)
+          - task: PowerShell@2
+            displayName: 'Checking DEV Gateway status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-gateway-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
           
           #query proxy status endpoint
           - task: PowerShell@2
@@ -533,19 +533,19 @@ stages:
                 -TimeoutSec $(status-check-timeout-seconds)
 
           #query gateway status endpoint
-          #- task: PowerShell@2
-          #  displayName: 'Checking QA Gateway status'
-          #  inputs:
-          #    failOnStderr: true
-          #    targetType: 'filePath'
-          #    filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-          #    arguments: > # Use this to avoid newline characters in multi-line string
-          #      -URI $(qa-gateway-status-url)
-          #      -Method $(status-check-method)
-          #      -SuccessTextContent "$(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)"
-          #      -Retries $(status-check-retries)
-          #      -SecondsDelay $(status-check-delay-seconds)
-          #      -TimeoutSec $(status-check-timeout-seconds)
+          - task: PowerShell@2
+            displayName: 'Checking QA Gateway status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-gateway-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
 
           #query proxy status endpoint
           - task: PowerShell@2
@@ -810,19 +810,19 @@ stages:
                 -TimeoutSec $(status-check-timeout-seconds)
 
           #query gateway status endpoint
-          #- task: PowerShell@2
-          #  displayName: 'Checking PROD Gateway status'
-          #  inputs:
-          #    failOnStderr: true
-          #    targetType: 'filePath'
-          #    filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-          #    arguments: > # Use this to avoid newline characters in multi-line string
-          #      -URI $(prod-gateway-status-url)
-          #      -Method $(status-check-method)
-          #      -SuccessTextContent "$(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)"
-          #      -Retries $(status-check-retries)
-          #      -SecondsDelay $(status-check-delay-seconds)
-          #      -TimeoutSec $(status-check-timeout-seconds)
+          - task: PowerShell@2
+            displayName: 'Checking PROD Gateway status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-gateway-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
 
           #query proxy status endpoint
           - task: PowerShell@2
