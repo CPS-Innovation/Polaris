@@ -11,7 +11,14 @@ describe("usePipelineApi", () => {
     jest
       .spyOn(polling, "initiateAndPoll")
       .mockImplementation(
-        (urn, caseId, pollingDelay, lastProcessingCompleted, del) => {
+        (
+          urn,
+          caseId,
+          pollingDelay,
+          lastProcessingCompleted,
+          correlationId,
+          del
+        ) => {
           new Promise((resolve) => setTimeout(resolve, 50)).then(() =>
             del(expectedResults)
           );

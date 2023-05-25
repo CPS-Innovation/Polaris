@@ -33,6 +33,7 @@ export const initiateAndPoll = (
   caseId: number,
   delayMs: number,
   pipelineRefreshData: CombinedState["pipelineRefreshData"],
+  correlationId: string,
   del: (pipelineResults: AsyncPipelineResult<PipelineResults>) => void
 ) => {
   let keepPolling = true;
@@ -55,6 +56,7 @@ export const initiateAndPoll = (
         status: "complete",
         data: pipelineResult,
         haveData: true,
+        correlationId,
       });
       keepPolling = false;
     } else if (completionStatus === "Failed") {
@@ -66,6 +68,7 @@ export const initiateAndPoll = (
         status: "incomplete",
         data: pipelineResult,
         haveData: true,
+        correlationId,
       });
     }
   };
@@ -77,6 +80,7 @@ export const initiateAndPoll = (
       error,
       httpStatusCode: error instanceof ApiError ? error.code : undefined,
       haveData: false,
+      correlationId,
     });
   };
 
@@ -84,7 +88,7 @@ export const initiateAndPoll = (
     while (keepPolling) {
       try {
         await delay(delayMs);
-        const trackerArgs = await initiatePipeline(urn, caseId);
+        const trackerArgs = await initiatePipeline(urn, caseId, correlationId);
         //if you get 423 and there are redacted documents, keep polling initiate pipeline
         const shouldKeepPollingInitiate =
           trackerArgs.status === LOCKED_STATUS_CODE &&

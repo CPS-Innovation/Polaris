@@ -24,6 +24,9 @@ type PdfTabProps = {
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
+  handleIssueReporting: (
+    documentId: CaseDocumentViewModel["documentId"]
+  ) => void;
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -38,6 +41,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
   handleOpenPdfInNewTab,
+  handleIssueReporting,
 }) => {
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -104,6 +108,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         <HeaderReadMode
           caseDocumentViewModel={caseDocumentViewModel}
           handleOpenPdfInNewTab={handleOpenPdfInNewTab}
+          handleIssueReporting={handleIssueReporting}
         />
       )}
 

@@ -85,6 +85,23 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
+  const handleIssueReporting = (documentId: string) => {
+    const document = tabsState.items.find(
+      (item) => item.documentId === documentId
+    );
+    // trackEvent("Back To Find A Case", {
+    //   urn: urn,
+    //   caseId: caseId,
+    //   documentId: documentId,
+    //   polarisVersionId: document?.polarisDocumentVersionId,
+    // });
+    console.log("handleIssueReporting>>documentId>>> ", documentId);
+    console.log("tabsState>>>>", tabsState);
+    console.log("pipelineState>>>>", pipelineState);
+    console.log("caseId>>>", caseId);
+    console.log("urn>>>", urn);
+  };
+
   return (
     <>
       {errorModal.show && (
@@ -224,6 +241,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleSavedRedactions={handleSavedRedactions}
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
+                handleIssueReporting={handleIssueReporting}
               />
             )}
           </div>

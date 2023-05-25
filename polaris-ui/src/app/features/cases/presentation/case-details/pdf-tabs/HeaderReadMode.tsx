@@ -1,7 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
+import { Button } from "../../../../../common/presentation/components/Button";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import {
+  isAlreadyReportedDocument,
+  addToReportedDocuments,
+} from "../utils/reportDocuments";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
@@ -9,12 +14,19 @@ type Props = {
   handleOpenPdfInNewTab: (
     documentId: CaseDocumentViewModel["documentId"]
   ) => void;
+  handleIssueReporting: (
+    documentId: CaseDocumentViewModel["documentId"]
+  ) => void;
 };
 
 export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { presentationFileName, sasUrl, documentId },
   handleOpenPdfInNewTab,
+  handleIssueReporting,
 }) => {
+  const [disableReportBtn, setDisableReportBtn] = useState(
+    isAlreadyReportedDocument(documentId)
+  );
   const trackEvent = useAppInsightsTrackEvent();
   useEffect(() => {
     if (sasUrl) {
@@ -22,6 +34,7 @@ export const HeaderReadMode: React.FC<Props> = ({
     }
   }, [sasUrl]);
 
+  console.log("disabled>>>>", disableReportBtn);
   return (
     <div className={classes.content}>
       <LinkButton
@@ -36,6 +49,19 @@ export const HeaderReadMode: React.FC<Props> = ({
       >
         {presentationFileName} (opens in a new window)
       </LinkButton>
+
+      <Button
+        className={classes.btnReportIssue}
+        disabled={disableReportBtn}
+        onClick={() => {
+          setDisableReportBtn(true);
+          addToReportedDocuments(documentId);
+          handleIssueReporting(documentId);
+        }}
+        data-testid="btn-report-issue"
+      >
+        Report an issue
+      </Button>
     </div>
   );
 };

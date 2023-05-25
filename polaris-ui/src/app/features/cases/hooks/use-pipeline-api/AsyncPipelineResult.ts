@@ -9,15 +9,18 @@ export type AsyncPipelineResult<T> =
       status: "incomplete";
       haveData: true;
       data: T;
+      correlationId: string;
     }
   | {
       status: "complete";
       haveData: true;
       data: T;
+      correlationId: string;
     }
   | {
       status: "failed";
       error: any;
       httpStatusCode: number | undefined;
       haveData: false;
+      correlationId: string;
     };
