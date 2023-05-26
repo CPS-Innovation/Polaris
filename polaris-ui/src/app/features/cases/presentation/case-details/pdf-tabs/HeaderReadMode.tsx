@@ -51,7 +51,8 @@ export const HeaderReadMode: React.FC<Props> = ({
       </LinkButton>
 
       <Button
-        className={classes.btnReportIssue}
+        name="secondary"
+        className={`${classes.btnReportIssue} govuk-button--secondary`}
         disabled={disableReportBtn}
         onClick={() => {
           setDisableReportBtn(true);
