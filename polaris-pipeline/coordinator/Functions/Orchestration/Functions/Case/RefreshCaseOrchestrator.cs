@@ -90,7 +90,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting tracker for {context.InstanceId}");
-            await caseTracker.Reset((context.CurrentUtcDateTime, context.InstanceId));
+            caseTracker.Reset(context.InstanceId);
             caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Initialised, "Initialised"));
 
             var documents = await GetDocuments(context, caseTracker, loggingName, log, payload);
@@ -225,9 +225,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
 
-            var synchroniseDocumentArgs = (t, payload.CmsCaseUrn, payload.CmsCaseId, documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges, payload.CorrelationId);
-            var deltas = await caseTracker.GetCaseDocumentChanges(synchroniseDocumentArgs);
-            caseRefreshLogsEntity.LogDeltas((t, deltas));
+            var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
+            caseRefreshLogsEntity.LogDeltas((t,deltas));
 
             return deltas;
         }

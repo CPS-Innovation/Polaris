@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
 using Common.Domain.Extensions;
-using Common.Dto.Case;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Wrappers;
 using coordinator.Domain;
-using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.DurableEntity.Entity.Contract;
@@ -116,7 +114,20 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            _mockTracker.Verify(tracker => tracker.RegisterPdfBlobName(It.Is<RegisterPdfBlobNameArg>(a => a.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && a.BlobName == _pdfResponse.BlobName)));
+            _mockTracker.Verify
+                (
+                    tracker => 
+                    tracker.RegisterDocumentStatus
+                    (
+                        It.Is<(string, TrackerDocumentStatus, string)>
+                        (
+                            a => 
+                                a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId && 
+                                a.Item2 == TrackerDocumentStatus.PdfUploadedToBlob && 
+                                a.Item3 == _pdfResponse.BlobName
+                        )
+                    )
+                );
         }
 
         [Fact]
@@ -130,10 +141,22 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            var arg = (_payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed);
-            _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
+            _mockTracker.Verify
+                (
+                    tracker =>
+                    tracker.RegisterDocumentStatus
+                    (
+                        It.Is<(string, TrackerDocumentStatus, string)>
+                        (
+                            a =>
+                                a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId &&
+                                a.Item2 == TrackerDocumentStatus.Indexed &&
+                                a.Item3 == _pdfResponse.BlobName
+                        )
+                    )
+                );
         }
-        
+
         [Fact]
         public async Task Run_WhenDocumentEvaluation_EqualsAcquireDocument_AndSearchIndexUpdated_RegistersUnexpectedDocumentFailureWhenCallToGeneratePdfReturnsNonOkResponse()
         {
@@ -148,8 +171,19 @@ namespace coordinator.tests.Functions.SubOrchestrators
             }
             catch
             {
-                var arg = (_payload.CmsDocumentTracker.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure);
-                _mockTracker.Verify(tracker => tracker.RegisterStatus(arg));
+                _mockTracker.Verify
+                    (
+                        tracker =>
+                        tracker.RegisterDocumentStatus
+                        (
+                            It.Is<(string, TrackerDocumentStatus, string)>
+                            (
+                                a =>
+                                    a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId &&
+                                    a.Item2 == TrackerDocumentStatus.UnexpectedFailure
+                            )
+                        )
+                    );
             }
         }
 
@@ -170,7 +204,19 @@ namespace coordinator.tests.Functions.SubOrchestrators
             }
             catch
             {
-                _mockTracker.Verify(tracker => tracker.RegisterBlobAlreadyProcessed(It.IsAny<RegisterPdfBlobNameArg>()));
+                _mockTracker.Verify
+                    (
+                        tracker =>
+                        tracker.RegisterDocumentStatus
+                        (
+                            It.Is<(string, TrackerDocumentStatus, string)>
+                            (
+                                a =>
+                                    a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId &&
+                                    a.Item2 == TrackerDocumentStatus.DocumentAlreadyProcessed
+                            )
+                        )
+                    );
             }
         }
     }

@@ -95,7 +95,7 @@ namespace coordinator.tests.Functions
 
             //var casDocumentChangesArg = (It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<DocumentDto[]>(), It.IsAny<PcdRequestDto[]>(), It.IsAny<DefendantsAndChargesListDto>(), It.IsAny<Guid>());
             _mockTracker
-                .Setup(tracker => tracker.GetCaseDocumentChanges(((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId))It.IsAny<object>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(((DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
 
             _mockTracker
@@ -138,8 +138,7 @@ namespace coordinator.tests.Functions
         {
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            var arg = (It.IsAny<DateTime>(), _transactionId);
-            _mockTracker.Verify(tracker => tracker.Reset(arg));
+            _mockTracker.Verify(tracker => tracker.Reset(_transactionId));
         }
 
         [Fact]
@@ -150,7 +149,7 @@ namespace coordinator.tests.Functions
                 .ReturnsAsync((new DocumentDto[0], new PcdRequestDto[0], new DefendantsAndChargesListDto()));
 
             _mockTracker
-                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId)>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
                 .ReturnsAsync(new TrackerDeltasDto
                 {
                     CreatedCmsDocuments = new List<TrackerCmsDocumentDto>(),

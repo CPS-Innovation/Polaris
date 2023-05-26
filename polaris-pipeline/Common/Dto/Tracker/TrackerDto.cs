@@ -27,7 +27,7 @@ namespace Common.Dto.Tracker
         public List<TrackerCmsDocumentDto> Documents { get; set; }
 
         [JsonProperty("logs")]
-        public List<TrackerLogDto> Logs { get; set; }
+        public CaseTrackerLogsDto Logs { get; set; }
     }
 }
 

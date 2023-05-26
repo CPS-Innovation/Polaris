@@ -8,7 +8,6 @@ using Common.Dto.Tracker;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
-using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
@@ -67,15 +66,14 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 response = await context.CallActivityAsync<GeneratePdfResponse>(nameof(GeneratePdf), payload);
 
                 var t = context.CurrentUtcDateTime;
-                var registerPdfBlobNameArg = new RegisterPdfBlobNameArg(t, payload.CmsDocumentId, payload.CmsVersionId, response.BlobName);
                 if (response.AlreadyProcessed)
                 {
-                    await caseEntity.RegisterBlobAlreadyProcessed(registerPdfBlobNameArg);
+                    caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.DocumentAlreadyProcessed, response.BlobName));
                     caseRefreshLogsEntity.LogDocument((t, TrackerLogType.DocumentAlreadyProcessed, payload.PolarisDocumentId.ToString(), null));
                 }
                 else
                 {
-                    await caseEntity.RegisterPdfBlobName(registerPdfBlobNameArg);
+                    caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.PdfUploadedToBlob, response.BlobName));
                     caseRefreshLogsEntity.LogDocument((t, TrackerLogType.RegisteredPdfBlobName, payload.PolarisDocumentId.ToString(), null));
                 }
 
@@ -83,7 +81,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
             catch (Exception exception)
             {
-                await caseEntity.RegisterStatus((payload.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure));
+                caseEntity.RegisterDocumentStatus((payload.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, null));
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator),
                     $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}",
@@ -104,11 +102,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             try
             {
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
-                await tracker.RegisterStatus((payload.CmsDocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed));
+                tracker.RegisterDocumentStatus((payload.CmsDocumentId, TrackerDocumentStatus.Indexed, null));
             }
             catch (Exception exception)
             {
-                await tracker.RegisterStatus((payload.CmsDocumentId, TrackerDocumentStatus.OcrAndIndexFailure, TrackerLogType.OcrAndIndexFailure));
+                tracker.RegisterDocumentStatus((payload.CmsDocumentId, TrackerDocumentStatus.OcrAndIndexFailure, null));
 
                 log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;

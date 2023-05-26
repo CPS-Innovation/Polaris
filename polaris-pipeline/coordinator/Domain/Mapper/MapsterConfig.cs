@@ -13,16 +13,32 @@ namespace coordinator.Domain.Mapper
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<CaseEntity, TrackerDto>
+            TypeAdapterConfig<(CaseEntity CaseEntity, CaseRefreshLogsEntity RefreshLogsEntity), TrackerDto>
                 .NewConfig()
-                .Map(
-                        dest => dest.Documents,
-                        src => 
-                            src.PcdRequests
-                                .Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest))
-                                .Concat(ConvertToTrackerCmsDocumentDto(src.DefendantsAndCharges))
-                                .Concat(src.CmsDocuments)
-                    );
+                .Map
+                (
+                    dest => dest,
+                    src => src.CaseEntity
+                )
+                .Map
+                (
+                    dest => dest.VersionId,
+                    src => src.CaseEntity.Version
+                )
+                .Map
+                (
+                    dest => dest.Documents,
+                    src =>
+                        src.CaseEntity.PcdRequests
+                            .Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest))
+                            .Concat(ConvertToTrackerCmsDocumentDto(src.CaseEntity.DefendantsAndCharges))
+                            .Concat(src.CaseEntity.CmsDocuments)
+                )
+                .Map
+                (
+                    dest => dest.Logs,
+                    src => src.RefreshLogsEntity
+                );
         }
 
         private static TrackerCmsDocumentDto ConvertToTrackerCmsDocumentDto(TrackerPcdRequestDto pcdRequest)

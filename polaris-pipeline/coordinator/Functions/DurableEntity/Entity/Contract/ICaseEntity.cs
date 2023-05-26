@@ -2,7 +2,6 @@
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
-using coordinator.Domain.Tracker;
 using System;
 using System.Threading.Tasks;
 
@@ -13,16 +12,13 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
     public interface ICaseEntity
     {
         Task<int> GetVersion();
-        Task SetVersion(int value);
+        void SetVersion(int value);
 
-        Task Reset((DateTime t, string transactionId) arg);
-        Task ClearDocuments();
-        Task SetValue(CaseEntity tracker);
-        Task<TrackerDeltasDto> GetCaseDocumentChanges((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId) arg);
-        Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
-        Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
-        Task RegisterStatus((string polarisDocumentId, TrackerDocumentStatus status, TrackerLogType logType) arg);
-        void RegisterCompleted((DateTime t, bool success) arg);
+        void Reset(string TransactionId);
+        void SetValue(CaseEntity tracker);
+        Task<TrackerDeltasDto> GetCaseDocumentChanges((DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
+        void RegisterDocumentStatus((string PolarisDocumentId, TrackerDocumentStatus Status, string PdfBlobName) arg);
+        void RegisterCompleted((DateTime T, bool Success) arg);
         Task<bool> AllDocumentsFailed();
     }
 }

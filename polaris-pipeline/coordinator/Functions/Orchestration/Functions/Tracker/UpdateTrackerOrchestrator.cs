@@ -40,7 +40,7 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
 
             try
             {
-                await caseTracker.SetValue(payload.Tracker);
+                caseTracker.SetValue(payload.Tracker);
             }
             catch (Exception exception)
             {

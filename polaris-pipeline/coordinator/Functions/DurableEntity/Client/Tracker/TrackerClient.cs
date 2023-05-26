@@ -42,6 +42,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 
             try
             {
+                #region Validate-Inputs
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
@@ -56,25 +57,27 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                         log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
-
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
+                #endregion
 
-                var entityId = new EntityId(nameof(CaseEntity), caseId);
-                var trackerState = await client.ReadEntityStateAsync<CaseEntity>(entityId);
+                var caseEntityId = new EntityId(nameof(CaseEntity), caseId);
+                var caseEntity = await client.ReadEntityStateAsync<CaseEntity>(caseEntityId);
 
-                if (!trackerState.EntityExists)
+                if (!caseEntity.EntityExists)
                 {
                     var baseMessage = $"No pipeline tracker found with id '{caseId}'";
                     log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
                     return new NotFoundObjectResult(baseMessage);
                 }
 
+                var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsEntity), $"{caseId}-{caseEntity.EntityState.Version-1}");
+                var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsEntity>(caseRefreshLogsEntityId);
+
                 switch (req.Method.Method)
                 {
                     case "GET":
                         log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                        var trackerEntity = trackerState.EntityState;
-                        var trackerDto = trackerEntity.Adapt<TrackerDto>();
+                        var trackerDto = (caseEntity.EntityState, caseRefreshLogsEntity.EntityState).Adapt<TrackerDto>();
                         return new OkObjectResult(trackerDto);
 
                     default:
