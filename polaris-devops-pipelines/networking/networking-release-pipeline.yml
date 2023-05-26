@@ -73,16 +73,16 @@ stages:
                     TF_LOG: $(dev-log-level)
                 
                 # Terraform Apply
-                - bash: |
-                    terraform apply -auto-approve dev.tfplan
-                  displayName: Terraform > Apply to DEV
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-                    TF_LOG: $(dev-log-level)
+                #- bash: |
+                #    terraform apply -auto-approve dev.tfplan
+                #  displayName: Terraform > Apply to DEV
+                #  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
+                #  env:
+                #    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                #    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                #    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                #    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                #    TF_LOG: $(dev-log-level)
                     
   - stage: Apply_QA
     displayName: QA Deployment
@@ -135,16 +135,16 @@ stages:
                     TF_LOG: $(qa-log-level)
                 
                 # Terraform Apply
-                - bash: |
-                    terraform apply -auto-approve qa.tfplan
-                  displayName: Terraform > Apply to QA
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
-                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
-                    TF_LOG: $(qa-log-level)
+                #- bash: |
+                #    terraform apply -auto-approve qa.tfplan
+                #  displayName: Terraform > Apply to QA
+                #  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
+                #  env:
+                #    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                #    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                #    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                #    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                #    TF_LOG: $(qa-log-level)
 
   - stage: Apply_PROD
     displayName: PROD Deployment
@@ -197,13 +197,13 @@ stages:
                     TF_LOG: $(prod-log-level)
                 
                 # Terraform Apply
-                - bash: |
-                    terraform apply -auto-approve prod.tfplan
-                  displayName: Terraform > Apply to PROD
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
-                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
-                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
-                    TF_LOG: $(prod-log-level)
+                #- bash: |
+                #    terraform apply -auto-approve prod.tfplan
+                #  displayName: Terraform > Apply to PROD
+                #  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/networking-terraform-files
+                #  env:
+                #    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                #    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                #    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                #    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                #    TF_LOG: $(prod-log-level)
