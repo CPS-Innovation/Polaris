@@ -7,6 +7,7 @@ import {
   isAlreadyReportedDocument,
   addToReportedDocuments,
 } from "../utils/reportDocuments";
+import { REPORT_ISSUE } from "../../../../../config";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
@@ -34,7 +35,6 @@ export const HeaderReadMode: React.FC<Props> = ({
     }
   }, [sasUrl]);
 
-  console.log("disabled>>>>", disableReportBtn);
   return (
     <div className={classes.content}>
       <LinkButton
@@ -49,20 +49,21 @@ export const HeaderReadMode: React.FC<Props> = ({
       >
         {presentationFileName} (opens in a new window)
       </LinkButton>
-
-      <Button
-        name="secondary"
-        className={`${classes.btnReportIssue} govuk-button--secondary`}
-        disabled={disableReportBtn}
-        onClick={() => {
-          setDisableReportBtn(true);
-          addToReportedDocuments(documentId);
-          handleIssueReporting(documentId);
-        }}
-        data-testid="btn-report-issue"
-      >
-        Report an issue
-      </Button>
+      {REPORT_ISSUE && (
+        <Button
+          name="secondary"
+          className={`${classes.btnReportIssue} govuk-button--secondary`}
+          disabled={disableReportBtn}
+          onClick={() => {
+            setDisableReportBtn(true);
+            addToReportedDocuments(documentId);
+            handleIssueReporting(documentId);
+          }}
+          data-testid="btn-report-issue"
+        >
+          Report an issue
+        </Button>
+      )}
     </div>
   );
 };
