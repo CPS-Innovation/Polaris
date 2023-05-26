@@ -37,6 +37,7 @@ namespace pdf_generator.Functions
 
             try
             {
+                #region Validate-Inputs
                 request.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                     throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(request));
@@ -69,6 +70,7 @@ namespace pdf_generator.Functions
                 var documentId = documentIds.First();
                 if (string.IsNullOrEmpty(documentId)) 
                     throw new BadRequestException("Invalid DocumentId", documentId);
+                #endregion
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);

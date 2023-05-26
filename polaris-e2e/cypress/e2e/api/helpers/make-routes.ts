@@ -70,7 +70,7 @@ export const makeApiRoutes = (authHeaders: any) => {
     query: string,
     correlationId: CorrelationId = "BLANK"
   ) => ({
-    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/search?query=${query}`,
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/search?query=${query}`,
     headers: {
       ...authHeaders,
       "correlation-id": correlationIds[correlationId],

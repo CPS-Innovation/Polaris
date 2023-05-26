@@ -3,6 +3,7 @@ using System;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
+using Common.ValueObjects;
 
 namespace Common.Dto.Tracker
 {
@@ -13,7 +14,7 @@ namespace Common.Dto.Tracker
         { }
 
         public TrackerCmsDocumentDto(
-            Guid polarisDocumentId,
+            PolarisDocumentId polarisDocumentId,
             int polarisDocumentVersionId,
             string cmsDocumentId,
             long cmsVersionId,

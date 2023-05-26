@@ -6,6 +6,7 @@ using FluentAssertions.Execution;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
+using Common.ValueObjects;
 
 namespace pdf_generator.tests.Validators
 {
@@ -43,21 +44,23 @@ namespace pdf_generator.tests.Validators
         [InlineData(null, false)]
         [InlineData("", false)]
         [InlineData(" ", false)]
-        [InlineData("12345", true)]
-        public void Validate_DocumentId(string documentId, bool isValid)
+        [InlineData("DAC-12345", true)]
+        [InlineData("PCD-12345", true)]
+        [InlineData("CMS-12345", true)]
+        public void Validate_DocumentId(string polarisDocumentId, bool isValid)
         {
             var testRequest = _fixture.Build<RedactPdfRequestDto>()
-                .With(x => x.DocumentId, documentId)
+                .With(x => x.PolarisDocumentId, new PolarisDocumentId(polarisDocumentId))
                 .Create();
 
             var result = RedactPdfRequestValidator.TestValidate(testRequest);
             if (isValid)
             {
-                result.ShouldNotHaveValidationErrorFor(x => x.DocumentId);
+                result.ShouldNotHaveValidationErrorFor(x => x.PolarisDocumentId.Value);
             }
             else
             {
-                result.ShouldHaveValidationErrorFor(x => x.DocumentId);
+                result.ShouldHaveValidationErrorFor(x => x.PolarisDocumentId.Value);
             }
         }
 

@@ -16,6 +16,7 @@ using Common.Mappers.Contracts;
 using Gateway.Common.Extensions;
 using PolarisGateway.Wrappers;
 using Common.Dto.Request;
+using Common.ValueObjects;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -44,12 +45,13 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         }
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, Guid documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             Guid currentCorrelationId = default;
 
             try
             {
+                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
@@ -66,15 +68,16 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                     LogInformation("Invalid redaction request", currentCorrelationId, loggingName);
                     return redactions.ToBadRequest();
                 }
+                #endregion
 
-                var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value, caseId, documentId, currentCorrelationId);
-
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Saving document redactions for urn {caseUrn}, caseId {caseId}, id {documentId}");
-                var redactionResult = await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, documentId, redactPdfRequest, request.CmsAuthValues, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Saving document redactions for urn {caseUrn}, caseId {caseId}, polarisDocumentId {polarisDocumentId}");
+                var polarisDocumentIdValue = new PolarisDocumentId(polarisDocumentId);
+                var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value, caseId, polarisDocumentIdValue, currentCorrelationId);
+                var redactionResult = await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, polarisDocumentIdValue, redactPdfRequest, request.CmsAuthValues, currentCorrelationId);
 
                 if (!redactionResult.Succeeded)
                 {
-                    _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Error Saving redaction details to the document for {caseId}, documentId {documentId}");
+                    _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}");
                     return BadGatewayErrorResponse("Error Saving redaction details", currentCorrelationId, loggingName);
                 }
 

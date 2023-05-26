@@ -153,7 +153,7 @@ export const searchCase = async (
   searchTerm: string
 ) => {
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/search/?query=${searchTerm}`
+    `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
   );
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),

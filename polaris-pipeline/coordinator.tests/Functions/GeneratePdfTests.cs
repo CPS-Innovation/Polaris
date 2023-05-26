@@ -15,6 +15,7 @@ using Common.Dto.Tracker;
 using Common.Handlers.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.RenderHtmlService.Contract;
+using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
@@ -173,7 +174,7 @@ namespace pdf_generator.tests.Functions
                     It.IsAny<Stream>(), 
                     _blobName, 
                     _generatePdfRequest.CmsCaseId.ToString(), 
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
+                    _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
                     _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
                     _generatePdfRequest.CorrelationId
                 )
@@ -192,7 +193,7 @@ namespace pdf_generator.tests.Functions
                     It.IsAny<Stream>(), 
                     _blobName, 
                     _generatePdfRequest.CmsCaseId.ToString(), 
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
+                    _generatePdfRequest.CmsDocumentTracker.PolarisDocumentId,
                     _generatePdfRequest.CmsDocumentTracker.CmsVersionId.ToString(),
                     _generatePdfRequest.CorrelationId
                 )

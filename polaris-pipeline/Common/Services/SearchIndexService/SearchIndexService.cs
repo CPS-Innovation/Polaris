@@ -10,6 +10,7 @@ using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
 using Common.Logging;
 using Common.Services.SearchIndexService.Contracts;
+using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +36,7 @@ namespace Common.Services.SearchIndexService
             _logger = logger;
         }
 
-        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, Guid polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
+        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
         {
             string blobName = Path.GetFileName(blobPath);
             _logger.LogMethodEntry(correlationId, nameof(StoreResultsAsync), $"PolarisDocumentId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, Blob Name: {blobName}");
@@ -48,9 +49,9 @@ namespace Common.Services.SearchIndexService
                     (
                         (line, index) => _searchLineFactory.Create
                                             (
+                                                cmsCaseId,
+                                                cmsDocumentId,
                                                 polarisDocumentId, 
-                                                cmsCaseId, 
-                                                cmsDocumentId, 
                                                 versionId,
                                                 blobName, 
                                                 readResult, 

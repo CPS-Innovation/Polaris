@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
+using Common.ValueObjects;
 
 namespace coordinator.Functions.DurableEntity.Client.Document
 {
@@ -28,7 +29,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentSasUrl)] HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            Guid documentId,
+            string polarisDocumentId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -36,7 +37,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, documentId, log);
+                var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
 
                 if (!response.Success)
                     return response.Error;
