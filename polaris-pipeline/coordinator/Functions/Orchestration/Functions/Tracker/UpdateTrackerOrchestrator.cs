@@ -34,15 +34,15 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
             var currentCaseId = payload.CaseOrchestrationPayload.CmsCaseId;
 
             log.LogMethodFlow(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
-            var tracker = CreateOrGetTracker(context, currentCaseId, payload.CaseOrchestrationPayload.CorrelationId, log);
+            var (caseTracker, _) = await CreateOrGetCaseTrackersForEntity(context, currentCaseId, payload.CaseOrchestrationPayload.CorrelationId, log);
 
             try
             {
-                await tracker.SetValue(payload.Tracker);
+                await caseTracker.SetValue(payload.Tracker);
             }
             catch (Exception exception)
             {
-                await tracker.RegisterCompleted((context.CurrentUtcDateTime, false));
+                await caseTracker.RegisterCompleted((context.CurrentUtcDateTime, false));
                 log.LogMethodError(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Error when running {nameof(UpdateTrackerOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }

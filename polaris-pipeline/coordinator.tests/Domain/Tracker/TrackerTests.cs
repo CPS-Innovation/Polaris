@@ -40,7 +40,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
-        private readonly EntityStateResponse<CaseTrackerEntity> _entityStateResponse;
+        private readonly EntityStateResponse<CaseEntity> _entityStateResponse;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IServiceCollection _services;
 
@@ -48,7 +48,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Mock<IDurableEntityClient> _mockDurableEntityClient;
         private readonly Mock<ILogger> _mockLogger;
 
-        private readonly CaseTrackerEntity _tracker;
+        private readonly CaseEntity _tracker;
         private readonly TrackerClient _trackerStatus;
 
         public TrackerTests()
@@ -68,7 +68,7 @@ namespace coordinator.tests.Domain.Tracker
             _caseId = _fixture.Create<long>();
 
             _synchroniseDocumentsArg = new(DateTime.Now, _caseUrn, _caseId, _cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList, _correlationId);
-            _entityStateResponse = new EntityStateResponse<CaseTrackerEntity>() { EntityExists = true };
+            _entityStateResponse = new EntityStateResponse<CaseEntity>() { EntityExists = true };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
             _services = new ServiceCollection();    
 
@@ -77,12 +77,12 @@ namespace coordinator.tests.Domain.Tracker
             _mockLogger = new Mock<ILogger>();
 
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<CaseTrackerEntity>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(CaseTrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<CaseEntity>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(CaseEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(_entityStateResponse);
 
-            _tracker = new CaseTrackerEntity();
+            _tracker = new CaseEntity();
             _trackerStatus = new TrackerClient(_jsonConvertWrapper);
         }
 
@@ -256,9 +256,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task Run_Tracker_Dispatches()
         {
-            await CaseTrackerEntity.Run(_mockDurableEntityContext.Object);
+            await CaseEntity.Run(_mockDurableEntityContext.Object);
 
-            _mockDurableEntityContext.Verify(context => context.DispatchAsync<CaseTrackerEntity>());
+            _mockDurableEntityContext.Verify(context => context.DispatchAsync<CaseEntity>());
         }
 
         [Fact]
@@ -286,10 +286,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsNotFoundIfEntityNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<CaseTrackerEntity>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<CaseEntity>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<CaseTrackerEntity>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(CaseTrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
+                client => client.ReadEntityStateAsync<CaseEntity>(
+                    It.Is<EntityId>(e => e.EntityName == nameof(CaseEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                     null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -303,10 +303,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsBadRequestIfCorrelationIdNotFound()
         {
-            var entityStateResponse = new EntityStateResponse<CaseTrackerEntity>() { EntityExists = false };
+            var entityStateResponse = new EntityStateResponse<CaseEntity>() { EntityExists = false };
             _mockDurableEntityClient.Setup(
-                    client => client.ReadEntityStateAsync<CaseTrackerEntity>(
-                        It.Is<EntityId>(e => e.EntityName == nameof(CaseTrackerEntity).ToLower() && e.EntityKey == _caseId.ToString()),
+                    client => client.ReadEntityStateAsync<CaseEntity>(
+                        It.Is<EntityId>(e => e.EntityName == nameof(CaseEntity).ToLower() && e.EntityKey == _caseId.ToString()),
                         null, null))
                 .ReturnsAsync(entityStateResponse);
 
@@ -322,14 +322,14 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_CreatesNewDocumentsAndPcdRequests()
         {
             // Arrange
-            CaseTrackerEntity tracker = new CaseTrackerEntity();
+            CaseEntity tracker = new CaseEntity();
             await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
 
             // Act
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            tracker.VersionId.Should().Be(1);
+            (await tracker.GetVersion()).Should().Be(1);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -350,7 +350,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_NoChangesWithExistingDocumentAndVersionIds()
         {
             // Arrange
-            CaseTrackerEntity tracker = new CaseTrackerEntity();
+            CaseEntity tracker = new CaseEntity();
             await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
@@ -360,7 +360,7 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            tracker.VersionId.Should().Be(1);
+            tracker.GetVersion().Should().Be(1);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -376,7 +376,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_IndexedCmsDocumentAreRetained()
         {
             // Arrange
-            CaseTrackerEntity tracker = new CaseTrackerEntity();
+            CaseEntity tracker = new CaseEntity();
             await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
@@ -386,7 +386,7 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            tracker.VersionId.Should().Be(1);
+            tracker.GetVersion().Should().Be(1);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -402,7 +402,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_FailedCmsDocumentAreReprocessed()
         {
             // Arrange
-            CaseTrackerEntity tracker = new CaseTrackerEntity();
+            CaseEntity tracker = new CaseEntity();
             await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.UnexpectedFailure);
@@ -412,7 +412,7 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            tracker.VersionId.Should().Be(2);
+            tracker.GetVersion().Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(3);
@@ -428,7 +428,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_FailedPcdRequestsAreReprocessed()
         {
             // Arrange
-            CaseTrackerEntity tracker = new CaseTrackerEntity();
+            CaseEntity tracker = new CaseEntity();
             await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
@@ -438,7 +438,7 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            tracker.VersionId.Should().Be(2);
+            tracker.GetVersion().Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -457,7 +457,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_ChangesWithUpdatedDocumentAndVersionIds()
         {
             // Arrange
-            CaseTrackerEntity tracker = new CaseTrackerEntity();
+            CaseEntity tracker = new CaseEntity();
             await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
@@ -469,7 +469,7 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            tracker.VersionId.Should().Be(2);
+            tracker.GetVersion().Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(2);
@@ -486,7 +486,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task SynchroniseDocument_ChangesWithDeletedDocuments()
         {
             // Arrange
-            CaseTrackerEntity tracker = new CaseTrackerEntity();
+            CaseEntity tracker = new CaseEntity();
             await tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = TrackerDocumentStatus.Indexed);
@@ -498,7 +498,7 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(synchroniseDocumentsArg);
 
             // Assert
-            tracker.VersionId.Should().Be(2);
+            tracker.GetVersion().Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(1);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -636,7 +636,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             // Arrange
             _services.RegisterMapsterConfiguration();
-            var trackerEntity = _fixture.Create<CaseTrackerEntity>();
+            var trackerEntity = _fixture.Create<CaseEntity>();
 
             // Act
             var trackerDto = trackerEntity.Adapt<TrackerDto>();

@@ -63,8 +63,8 @@ namespace coordinator.Functions.DurableEntity.Client
             log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
             #endregion
 
-            var entityId = new EntityId(nameof(CaseTrackerEntity), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<CaseTrackerEntity>(entityId);
+            var entityId = new EntityId(nameof(CaseEntity), caseId);
+            var stateResponse = await client.ReadEntityStateAsync<CaseEntity>(entityId);
             if (!stateResponse.EntityExists)
             {
                 var baseMessage = $"No pipeline tracker found with id '{caseId}'";
@@ -73,7 +73,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
-            CaseTrackerEntity entityState = stateResponse.EntityState;
+            CaseEntity entityState = stateResponse.EntityState;
             response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId == documentId);
             if(response.CmsDocument == null )
             {

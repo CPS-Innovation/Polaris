@@ -14,7 +14,6 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
-using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions.Case;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
@@ -26,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using System.Linq.Expressions;
+using coordinator.Functions.DurableEntity.Entity.Contract;
 
 namespace coordinator.tests.Functions
 {
@@ -43,7 +43,7 @@ namespace coordinator.tests.Functions
         private readonly TrackerDeltasDto _deltaDocuments;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
-        private readonly Mock<ICaseTrackerEntity> _mockTracker;
+        private readonly Mock<ICaseEntity> _mockTracker;
 
         private readonly RefreshCaseOrchestrator _coordinatorOrchestrator;
 
@@ -85,7 +85,7 @@ namespace coordinator.tests.Functions
             var mockConfiguration = new Mock<IConfiguration>();
             var mockLogger = new Mock<ILogger<RefreshCaseOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
-            _mockTracker = new Mock<ICaseTrackerEntity>();
+            _mockTracker = new Mock<ICaseEntity>();
 
             mockConfiguration.Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]).Returns("300");
 
@@ -111,7 +111,7 @@ namespace coordinator.tests.Functions
                 .Returns(_transactionId);
 
             _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ICaseTrackerEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseTrackerEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
+                .Setup(context => context.CreateEntityProxy<ICaseEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
                 .Returns(_mockTracker.Object);
 
             _mockDurableOrchestrationContext

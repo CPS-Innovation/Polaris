@@ -31,5 +31,13 @@ namespace Common.Dto.Tracker
                    CreatedPcdRequests.Any() || UpdatedPcdRequests.Any() || DeletedPcdRequests.Any() ||
                    (CreatedDefendantsAndCharges != null) || (UpdatedDefendantsAndCharges != null) || IsDeletedDefendantsAndCharges;
         }
+
+        public string GetLogMessage()
+        {
+            return $"Refresh Documents, " +
+                                $"CMS:({CreatedCmsDocuments.Count} created, {UpdatedCmsDocuments.Count} updated, {DeletedCmsDocuments.Count} deleted), " +
+                                $"PCD :({CreatedPcdRequests.Count} created, {DeletedPcdRequests.Count} deleted), " +
+                                $"DAC :({(CreatedDefendantsAndCharges != null ? 1 : 0)} created, {(UpdatedDefendantsAndCharges != null ? 1 : 0)} deleted).";
+        }
     }
 }

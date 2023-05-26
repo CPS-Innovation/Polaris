@@ -3,6 +3,7 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Domain.Tracker;
+using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
@@ -17,13 +18,24 @@ namespace coordinator.Functions.DurableEntity.Entity
     // n.b. Entity proxy interface methods must define at most one argument for operation input.
     // (A single tuple is acceptable)
     [JsonObject(MemberSerialization.OptIn)]
-    public class CaseTrackerEntity : ICaseTrackerEntity
+    public class CaseEntity : ICaseEntity
     {
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-        [JsonProperty("versionId")]
-        public int VersionId { get; set; } = 0;
+        private int version = 0;
+
+        public Task<int> GetVersion()
+        {
+            return Task.FromResult(version);
+        }
+
+        public Task SetVersion(int value)
+        {
+            version = value;
+
+            return Task.CompletedTask;
+        }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
@@ -57,12 +69,10 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = DefendantsAndCharges ?? null;
             Logs = Logs ?? new List<TrackerLogDto>();
 
-            Log(arg.t, TrackerLogType.Initialised);
-
             return Task.CompletedTask;
         }
 
-        public Task SetValue(CaseTrackerEntity tracker)
+        public Task SetValue(CaseEntity tracker)
         {
             Status = tracker.Status;
             ProcessingCompleted = tracker.ProcessingCompleted;
@@ -75,7 +85,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.CompletedTask;
         }
 
-        public Task<TrackerDeltasDto> GetCaseDocumentChanges((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId) arg)
+        public async Task<TrackerDeltasDto> GetCaseDocumentChanges((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId) arg)
         {
             CmsDocuments = CmsDocuments ?? new List<TrackerCmsDocumentDto>();
             PcdRequests = PcdRequests ?? new List<TrackerPcdRequestDto>();
@@ -100,14 +110,9 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             Status = TrackerStatus.DocumentsRetrieved;
             DocumentsRetrieved = DateTime.Now;
-            VersionId = deltas.Any() ? VersionId+1 : Math.Max(VersionId, 1);
+            version = (deltas.Any() ? version + 1 : Math.Max(version, 1));
 
-            var logMessage = $"CMS=({deltas.CreatedCmsDocuments.Count} created, {deltas.UpdatedCmsDocuments.Count} updated, {deltas.DeletedCmsDocuments.Count} deleted), " +
-                             $"PCD=({deltas.CreatedPcdRequests.Count} created, {deltas.UpdatedPcdRequests.Count} updated, {deltas.DeletedPcdRequests.Count} deleted), " +
-                             $"DAC=({(deltas.CreatedDefendantsAndCharges != null ? 1 : 0)} created, {(deltas.UpdatedDefendantsAndCharges != null ? 1 : 0)} updated, {(deltas.IsDeletedDefendantsAndCharges ? 1 : 0)} deleted)";
-            Log(arg.CurrentUtcDateTime, TrackerLogType.DocumentsSynchronised, null, logMessage);
-
-            return Task.FromResult(deltas);
+            return await Task.FromResult(deltas);
         }
 
         private (List<DocumentDto>, List<DocumentDto>, List<string>) GetDeltaCmsDocuments(List<DocumentDto> incomingDocuments)
@@ -192,7 +197,6 @@ namespace coordinator.Functions.DurableEntity.Entity
 
                 CmsDocuments.Add(trackerDocument);
                 newDocuments.Add(trackerDocument);
-                Log(t, TrackerLogType.CmsDocumentRetrieved, trackerDocument.CmsDocumentId);
             }
 
             return newDocuments;
@@ -214,8 +218,6 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
 
                 changedDocuments.Add(trackerDocument);
-
-                Log(t, TrackerLogType.CmsDocumentUpdated, trackerDocument.CmsDocumentId);
             }
 
             return changedDocuments;
@@ -230,7 +232,6 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             foreach (var document in deleteDocuments)
             {
-                Log(t, TrackerLogType.CmsDocumentDeleted, document.CmsDocumentId);
                 CmsDocuments.Remove(document);
             }
 
@@ -246,7 +247,6 @@ namespace coordinator.Functions.DurableEntity.Entity
                 var trackerPcdRequest = new TrackerPcdRequestDto(Guid.NewGuid(), 1, newPcdRequest);
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
-                Log(t, TrackerLogType.PcdRequestRetrieved, trackerPcdRequest.PcdRequest.Id.ToString());
             }
 
             return newPcdRequests;
@@ -264,8 +264,6 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerPcdRequest.PresentationFlags = updatedPcdRequest.PresentationFlags;
 
                 changedPcdRequests.Add(trackerPcdRequest);
-
-                Log(t, TrackerLogType.PcdRequestUpdated, trackerPcdRequest.PcdRequest.Id.ToString());
             }
 
             return changedPcdRequests;
@@ -280,7 +278,6 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             foreach (var pcdRequest in deletePcdRequests)
             {
-                Log(t, TrackerLogType.PcdRequestDeleted, pcdRequest.PcdRequest.Id.ToString());
                 PcdRequests.Remove(pcdRequest);
             }
 
@@ -292,8 +289,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             if(createdDefendantsAndCharges != null)
             {
                 DefendantsAndCharges = new TrackerDefendantsAndChargesDto(Guid.NewGuid(), 1, createdDefendantsAndCharges);
-
-                Log(t, TrackerLogType.DefendantAndChargesRetrieved, DefendantsAndCharges.DefendantsAndCharges.CaseId.ToString());
 
                 return DefendantsAndCharges;
             }
@@ -308,8 +303,6 @@ namespace coordinator.Functions.DurableEntity.Entity
                 DefendantsAndCharges.DefendantsAndCharges = updatedDefendantsAndCharges;
                 DefendantsAndCharges.PolarisDocumentVersionId++;
 
-                Log(t, TrackerLogType.DefendantAndChargesUpdated, DefendantsAndCharges.DefendantsAndCharges.CaseId.ToString());
-
                 return DefendantsAndCharges;
             }
 
@@ -321,7 +314,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             if(deletedDefendantsAndCharges) 
             {
                 DefendantsAndCharges = null;
-                Log(t, TrackerLogType.DefendantAndChargesDeleted, deletedDefendantsAndCharges.ToString());
             }
 
             return deletedDefendantsAndCharges;
@@ -334,8 +326,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             document.Status = TrackerDocumentStatus.PdfUploadedToBlob;
             document.IsPdfAvailable = true;
 
-            Log(arg.CurrentUtcDateTime, TrackerLogType.RegisteredPdfBlobName, arg.DocumentId);
-
             return Task.CompletedTask;
         }
 
@@ -344,8 +334,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             var document = GetBaseTracker(arg.DocumentId);
             document.PdfBlobName = arg.BlobName;
             document.Status = TrackerDocumentStatus.DocumentAlreadyProcessed;
-
-            Log(arg.CurrentUtcDateTime, TrackerLogType.DocumentAlreadyProcessed, arg.DocumentId);
 
             return Task.CompletedTask;
         }
@@ -419,22 +407,21 @@ namespace coordinator.Functions.DurableEntity.Entity
             Logs = new List<TrackerLogDto>();
         }
 
-        private void Log(DateTime t, TrackerLogType status, string cmsDocumentId = null, string description = null)
+        public void Log(DateTime t, TrackerLogType status, string polarisDocumentId = null, string description = null)
         {
             TrackerLogDto item = new TrackerLogDto
             {
-                LogType = status.ToString(),
+                Type = status.ToString(),
                 TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),
-                Description = description,
-                CmsDocumentId = cmsDocumentId
+                Description = description
             };
             Logs.Insert(0, item);
         }
 
-        [FunctionName(nameof(CaseTrackerEntity))]
+        [FunctionName(nameof(CaseEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
-            return context.DispatchAsync<CaseTrackerEntity>();
+            return context.DispatchAsync<CaseEntity>();
         }
     }
 }
