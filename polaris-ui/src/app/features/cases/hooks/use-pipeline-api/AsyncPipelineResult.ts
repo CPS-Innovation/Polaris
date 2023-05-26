@@ -4,6 +4,7 @@ export type AsyncPipelineResult<T> =
   | {
       status: "initiating";
       haveData: false;
+      correlationId: string;
     }
   | {
       status: "incomplete";

@@ -267,6 +267,7 @@ describe("useCaseDetailsState reducer", () => {
           payload: {
             status: "initiating",
             haveData: false,
+            correlationId: "",
           },
         }
       );

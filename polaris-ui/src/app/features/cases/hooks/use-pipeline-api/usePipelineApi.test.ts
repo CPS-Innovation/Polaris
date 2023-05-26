@@ -34,7 +34,11 @@ describe("usePipelineApi", () => {
       })
     );
 
-    expect(result.current).toEqual({ status: "initiating", haveData: false });
+    expect(result.current).toEqual({
+      status: "initiating",
+      haveData: false,
+      correlationId: "",
+    });
 
     await waitForNextUpdate();
 

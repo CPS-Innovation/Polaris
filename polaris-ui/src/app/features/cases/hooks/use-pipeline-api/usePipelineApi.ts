@@ -16,6 +16,7 @@ export const usePipelineApi = (
   >({
     status: "initiating",
     haveData: false,
+    correlationId: "",
   });
 
   useEffect(() => {

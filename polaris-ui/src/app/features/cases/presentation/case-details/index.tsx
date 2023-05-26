@@ -89,17 +89,14 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     const document = tabsState.items.find(
       (item) => item.documentId === documentId
     );
-    // trackEvent("Back To Find A Case", {
-    //   urn: urn,
-    //   caseId: caseId,
-    //   documentId: documentId,
-    //   polarisVersionId: document?.polarisDocumentVersionId,
-    // });
-    console.log("handleIssueReporting>>documentId>>> ", documentId);
-    console.log("tabsState>>>>", tabsState);
-    console.log("pipelineState>>>>", pipelineState);
-    console.log("caseId>>>", caseId);
-    console.log("urn>>>", urn);
+
+    trackEvent("Report Document Issue", {
+      urn: urn,
+      caseId: caseId,
+      documentId: documentId,
+      polarisVersionId: document?.polarisDocumentVersionId,
+      correlationId: pipelineState?.correlationId,
+    });
   };
 
   return (
