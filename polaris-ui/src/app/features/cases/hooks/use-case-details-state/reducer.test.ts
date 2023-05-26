@@ -247,6 +247,7 @@ describe("useCaseDetailsState reducer", () => {
             error: ERROR,
             httpStatusCode: undefined,
             haveData: false,
+            correlationId: "corId_1",
           },
         })
       ).toThrowError(ERROR);
