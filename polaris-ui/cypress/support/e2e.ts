@@ -53,6 +53,11 @@ declare global {
           | { type?: false; body: any },
         method?: "get" | "post" | "put"
       ): Chainable<AUTWindow>;
+      trackRequestCount(
+        counter: { count: number },
+        method: "POST" | "GET" | "PUT",
+        pathname?: string
+      ): void;
     }
   }
 }
