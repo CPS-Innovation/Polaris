@@ -166,7 +166,7 @@ resource "azurerm_subnet" "sn_polaris_gateway_subnet" {
   service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault"]
 
   delegation {
-    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+    name = "Microsoft.Web/serverFarms Proxy Delegation"
 
     service_delegation {
       name    = "Microsoft.Web/serverFarms"
@@ -191,7 +191,7 @@ resource "azurerm_subnet" "sn_polaris_ui_subnet" {
   service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Web"]
 
   delegation {
-    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+    name = "Microsoft.Web/serverFarms Proxy Delegation"
 
     service_delegation {
       name    = "Microsoft.Web/serverFarms"
