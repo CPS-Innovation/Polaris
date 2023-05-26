@@ -40,6 +40,10 @@ export const initialState = {
     message: "",
     title: "",
   },
+  confirmationModal: {
+    show: false,
+    message: "",
+  },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -253,6 +257,23 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleShowConfirmationModal = useCallback(
+    (message: string) =>
+      dispatch({
+        type: "SHOW_CONFIRMATION_MODAL",
+        payload: { message },
+      }),
+    [dispatch]
+  );
+
+  const handleCloseConfirmationModal = useCallback(
+    () =>
+      dispatch({
+        type: "HIDE_CONFIRMATION_MODAL",
+      }),
+    [dispatch]
+  );
+
   const handleUnLockDocuments = useCallback(
     (documentIds: CaseDocumentViewModel["documentId"][]) =>
       dispatch({
@@ -279,5 +300,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleSavedRedactions,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleShowConfirmationModal,
+    handleCloseConfirmationModal,
   };
 };

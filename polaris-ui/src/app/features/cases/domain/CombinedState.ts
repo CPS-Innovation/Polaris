@@ -53,4 +53,8 @@ export type CombinedState = {
     message: string;
     title: string;
   };
+  confirmationModal: {
+    show: boolean;
+    message: string;
+  };
 };

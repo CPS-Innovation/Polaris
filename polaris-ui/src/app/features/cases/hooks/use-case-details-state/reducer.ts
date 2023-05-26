@@ -130,6 +130,15 @@ export const reducer = (
     | {
         type: "HIDE_ERROR_MODAL";
       }
+    | {
+        type: "SHOW_CONFIRMATION_MODAL";
+        payload: {
+          message: string;
+        };
+      }
+    | {
+        type: "HIDE_CONFIRMATION_MODAL";
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -769,6 +778,27 @@ export const reducer = (
           show: false,
           message: "",
           title: "",
+        },
+      };
+    }
+
+    case "SHOW_CONFIRMATION_MODAL": {
+      const { message } = action.payload;
+      return {
+        ...state,
+        confirmationModal: {
+          show: true,
+          message: message,
+        },
+      };
+    }
+
+    case "HIDE_CONFIRMATION_MODAL": {
+      return {
+        ...state,
+        confirmationModal: {
+          show: false,
+          message: "",
         },
       };
     }

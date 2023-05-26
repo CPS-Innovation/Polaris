@@ -28,6 +28,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
+import { ConfirmationModalContent } from "../../../../common/presentation/components/ConfirmationModalContent";
 import { SURVEY_LINK } from "../../../../config";
 export const path = "/case-details/:urn/:id";
 
@@ -48,6 +49,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     pipelineRefreshData,
     errorModal,
+    confirmationModal,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -62,6 +64,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleSavedRedactions,
     handleOpenPdfInNewTab,
     handleCloseErrorModal,
+    handleShowConfirmationModal,
+    handleCloseConfirmationModal,
     handleUnLockDocuments,
   } = useCaseDetailsState(urn, +caseId);
 
@@ -97,10 +101,25 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       polarisVersionId: document?.polarisDocumentVersionId,
       correlationId: pipelineState?.correlationId,
     });
+    handleShowConfirmationModal(
+      "Thanks for reporting an issue with this document."
+    );
   };
 
   return (
     <>
+      {
+        <Modal
+          isVisible={confirmationModal.show}
+          handleClose={handleCloseConfirmationModal}
+          type="alert"
+        >
+          <ConfirmationModalContent
+            message={confirmationModal.message}
+            handleClose={handleCloseConfirmationModal}
+          />
+        </Modal>
+      }
       {errorModal.show && (
         <Modal isVisible handleClose={handleCloseErrorModal} type="alert">
           <ErrorModalContent
