@@ -69,6 +69,16 @@ stages:
             inputs:
               contents: |
                 polaris-ui/.env
+                
+          # Add build version
+          - task: PowerShell@2
+            displayName: "Record build version"
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-ui/public
+              script: |
+                New-Item build-version.txt
+                Set-Content build-version.txt '$(Build.BuildNumber)'
 
           - task: Npm@1
             inputs:
@@ -96,3 +106,10 @@ stages:
               ArtifactName: "polaris-ui-drop"
               publishLocation: "Container"
             displayName: Publish UI artifact
+            
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline scripts'
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts'
+              artifact: 'polaris-script-files'
+              publishLocation: 'pipeline'

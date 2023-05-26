@@ -27,7 +27,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - deployment: Deploy_Terraform
+      - deployment: Networking_Terraform_Deployment
         environment: "Dev"
         strategy:
           runOnce:
@@ -89,7 +89,7 @@ stages:
     pool:
       name: $(qa-build-agent)
     jobs:
-      - deployment: Deploy_Terraform
+      - deployment: Networking_Terraform_Deployment
         environment: "QA"
         strategy:
           runOnce:
@@ -151,7 +151,7 @@ stages:
     pool:
       name: $(prod-build-agent)
     jobs:
-      - deployment: Deploy_Terraform
+      - deployment: Networking_Terraform_Deployment
         environment: "Prod"
         strategy:
           runOnce:
