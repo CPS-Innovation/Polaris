@@ -73,7 +73,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 }
                 var redactPdfRequest = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
 
-                redactPdfRequest.FileName = Path.ChangeExtension($"{caseId}/pdfs/{document.CmsOriginalFileName}", ".pdf");
+                redactPdfRequest.FileName = document.PdfBlobName;
                 var validationResult = await _requestValidator.ValidateAsync(redactPdfRequest);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
