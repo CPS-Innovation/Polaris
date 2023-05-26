@@ -11,19 +11,12 @@ using PolarisGateway.Wrappers;
 
 namespace PolarisGateway.Functions.Health
 {
-    public class Status : BasePolarisFunction
+    public class Status
     {
-        public Status(ILogger<Status> logger, IAuthorizationValidator authorizationValidator, ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
-            : base(logger, authorizationValidator, telemetryAugmentationWrapper)
-        { }
-
         [FunctionName("Status")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "status")] HttpRequest req)
+        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "status")] HttpRequest req)
         {
-            const string loggingName = "Status - Run";
-
-            var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-            return validationResult.InvalidResponseResult ?? Assembly.GetExecutingAssembly().CurrentStatus();
+            return Assembly.GetExecutingAssembly().CurrentStatus();
         }
     }
 }
