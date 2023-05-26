@@ -71,7 +71,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
             catch (Exception exception)
             {
-                await caseTracker.RegisterCompleted((context.CurrentUtcDateTime, false));
+                caseTracker.RegisterCompleted((context.CurrentUtcDateTime, false));
+                caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Failed, exception.Message));
+
                 log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }
@@ -98,7 +100,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             if (await caseTracker.AllDocumentsFailed())
                 throw new CaseOrchestrationException("Cms Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
-            await caseTracker.RegisterCompleted((context.CurrentUtcDateTime, true));
+            var t = context.CurrentUtcDateTime;
+            caseTracker.RegisterCompleted((t, true));
+            caseRefreshLogsEntity.LogCase((t, TrackerLogType.Completed, null));
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
 

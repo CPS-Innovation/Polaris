@@ -92,6 +92,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
             Documents[polarisDocumentId].Insert(0, logEntry);
         }
+
         [FunctionName(nameof(CaseRefreshLogsEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {

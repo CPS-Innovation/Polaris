@@ -21,8 +21,8 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
         Task<TrackerDeltasDto> GetCaseDocumentChanges((DateTime CurrentUtcDateTime, string CmsCaseUrn, long CmsCaseId, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges, Guid CorrelationId) arg);
         Task RegisterPdfBlobName(RegisterPdfBlobNameArg arg);
         Task RegisterBlobAlreadyProcessed(RegisterPdfBlobNameArg arg);
-        Task RegisterStatus((DateTime t, string documentId, TrackerDocumentStatus status, TrackerLogType logType) arg);
-        Task RegisterCompleted((DateTime t, bool success) arg);
+        Task RegisterStatus((string polarisDocumentId, TrackerDocumentStatus status, TrackerLogType logType) arg);
+        void RegisterCompleted((DateTime t, bool success) arg);
         Task<bool> AllDocumentsFailed();
     }
 }

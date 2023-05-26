@@ -131,7 +131,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            await _tracker.RegisterStatus((It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId, TrackerDocumentStatus.UnableToConvertToPdf, TrackerLogType.UnableToConvertDocumentToPdf));
+            await _tracker.RegisterStatus((_pdfBlobNameArg.DocumentId, TrackerDocumentStatus.UnableToConvertToPdf, TrackerLogType.UnableToConvertDocumentToPdf));
 
             var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _pdfBlobNameArg.DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.UnableToConvertToPdf);
@@ -156,7 +156,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            await _tracker.RegisterStatus((It.IsAny<DateTime>(), _pdfBlobNameArg.DocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure));
+            await _tracker.RegisterStatus((_pdfBlobNameArg.DocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure));
 
             var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.UnexpectedFailure);
@@ -169,7 +169,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            await _tracker.RegisterStatus(((It.IsAny<DateTime>(), _cmsDocuments.First().DocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed)));
+            await _tracker.RegisterStatus(((_cmsDocuments.First().DocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed)));
 
             var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.Indexed);
@@ -182,7 +182,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
             await _tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            await _tracker.RegisterStatus((It.IsAny<DateTime>(), _cmsDocuments.First().DocumentId, TrackerDocumentStatus.OcrAndIndexFailure, TrackerLogType.OcrAndIndexFailure));
+            await _tracker.RegisterStatus((_cmsDocuments.First().DocumentId, TrackerDocumentStatus.OcrAndIndexFailure, TrackerLogType.OcrAndIndexFailure));
 
             var document = _tracker.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(TrackerDocumentStatus.OcrAndIndexFailure);
@@ -194,7 +194,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task RegisterCompleted_RegistersCompleted()
         {
             await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
-            await _tracker.RegisterCompleted((It.IsAny<DateTime>(), true));
+            _tracker.RegisterCompleted((It.IsAny<DateTime>(), true));
 
             _tracker.Status.Should().Be(TrackerStatus.Completed);
             _tracker.ProcessingCompleted.Should().NotBeNull();
@@ -206,7 +206,7 @@ namespace coordinator.tests.Domain.Tracker
         public async Task RegisterFailed_RegistersFailed()
         {
             await _tracker.Reset((It.IsAny<DateTime>(), _transactionId));
-            await _tracker.RegisterCompleted((It.IsAny<DateTime>(), false));
+            _tracker.RegisterCompleted((It.IsAny<DateTime>(), false));
 
             _tracker.Status.Should().Be(TrackerStatus.Failed);
 

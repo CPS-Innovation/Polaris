@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common.Dto.Tracker;
 using Common.Logging;
 using coordinator.Domain;
+using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +36,7 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
             var currentCaseId = payload.CaseOrchestrationPayload.CmsCaseId;
 
             log.LogMethodFlow(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
-            var (caseTracker, _) = await CreateOrGetCaseTrackersForEntity(context, currentCaseId, payload.CaseOrchestrationPayload.CorrelationId, log);
+            var (caseTracker, caseRefreshLogsEntity) = await CreateOrGetCaseTrackersForEntity(context, currentCaseId, payload.CaseOrchestrationPayload.CorrelationId, log);
 
             try
             {
@@ -42,7 +44,9 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
             }
             catch (Exception exception)
             {
-                await caseTracker.RegisterCompleted((context.CurrentUtcDateTime, false));
+                caseTracker.RegisterCompleted((context.CurrentUtcDateTime, false));
+                caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Failed, exception.Message));
+
                 log.LogMethodError(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Error when running {nameof(UpdateTrackerOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }

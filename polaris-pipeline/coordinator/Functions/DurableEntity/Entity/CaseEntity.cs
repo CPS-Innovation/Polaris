@@ -97,15 +97,15 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             TrackerDeltasDto deltas = new TrackerDeltasDto
             {
-                CreatedCmsDocuments = CreateTrackerCmsDocuments(arg.CurrentUtcDateTime, createdDocuments),
-                UpdatedCmsDocuments = UpdateTrackerCmsDocuments(arg.CurrentUtcDateTime, updatedDocuments),
-                DeletedCmsDocuments = DeleteTrackerCmsDocuments(arg.CurrentUtcDateTime, deletedDocuments),
-                CreatedPcdRequests = CreateTrackerPcdRequests(arg.CurrentUtcDateTime, createdPcdRequests),
-                UpdatedPcdRequests = UpdateTrackerPcdRequests(arg.CurrentUtcDateTime, updatedPcdRequests),
-                DeletedPcdRequests = DeleteTrackerPcdRequests(arg.CurrentUtcDateTime, deletedPcdRequests),
-                CreatedDefendantsAndCharges = CreateTrackerDefendantsAndCharges(arg.CurrentUtcDateTime, createdDefendantsAndCharges),
-                UpdatedDefendantsAndCharges = UpdateTrackerDefendantsAndCharges(arg.CurrentUtcDateTime, updatedDefendantsAndCharges),
-                IsDeletedDefendantsAndCharges = DeleteTrackerDefendantsAndCharges(arg.CurrentUtcDateTime, deletedDefendantsAndCharges),
+                CreatedCmsDocuments = CreateTrackerCmsDocuments(createdDocuments),
+                UpdatedCmsDocuments = UpdateTrackerCmsDocuments(updatedDocuments),
+                DeletedCmsDocuments = DeleteTrackerCmsDocuments(deletedDocuments),
+                CreatedPcdRequests = CreateTrackerPcdRequests(createdPcdRequests),
+                UpdatedPcdRequests = UpdateTrackerPcdRequests(updatedPcdRequests),
+                DeletedPcdRequests = DeleteTrackerPcdRequests(deletedPcdRequests),
+                CreatedDefendantsAndCharges = CreateTrackerDefendantsAndCharges(createdDefendantsAndCharges),
+                UpdatedDefendantsAndCharges = UpdateTrackerDefendantsAndCharges(updatedDefendantsAndCharges),
+                IsDeletedDefendantsAndCharges = DeleteTrackerDefendantsAndCharges(deletedDefendantsAndCharges),
             };
 
             Status = TrackerStatus.DocumentsRetrieved;
@@ -176,7 +176,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<TrackerCmsDocumentDto> CreateTrackerCmsDocuments(DateTime t, List<DocumentDto> createdDocuments)
+        private List<TrackerCmsDocumentDto> CreateTrackerCmsDocuments(List<DocumentDto> createdDocuments)
         {
             var newDocuments = new List<TrackerCmsDocumentDto>();
 
@@ -202,7 +202,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newDocuments;
         }
 
-        private List<TrackerCmsDocumentDto> UpdateTrackerCmsDocuments(DateTime t, List<DocumentDto> updatedDocuments)
+        private List<TrackerCmsDocumentDto> UpdateTrackerCmsDocuments(List<DocumentDto> updatedDocuments)
         {
             var changedDocuments = new List<TrackerCmsDocumentDto>();
 
@@ -223,7 +223,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return changedDocuments;
         }
 
-        private List<TrackerCmsDocumentDto> DeleteTrackerCmsDocuments(DateTime t, List<string> documentIdsToDelete)
+        private List<TrackerCmsDocumentDto> DeleteTrackerCmsDocuments(List<string> documentIdsToDelete)
         {
             var deleteDocuments 
                 = CmsDocuments
@@ -238,7 +238,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deleteDocuments;
         }
 
-        private List<TrackerPcdRequestDto> CreateTrackerPcdRequests(DateTime t, List<PcdRequestDto> createdPcdRequests)
+        private List<TrackerPcdRequestDto> CreateTrackerPcdRequests(List<PcdRequestDto> createdPcdRequests)
         {
             var newPcdRequests = new List<TrackerPcdRequestDto>();
 
@@ -252,7 +252,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newPcdRequests;
         }
 
-        private List<TrackerPcdRequestDto> UpdateTrackerPcdRequests(DateTime t, List<PcdRequestDto> updatedPcdRequests)
+        private List<TrackerPcdRequestDto> UpdateTrackerPcdRequests(List<PcdRequestDto> updatedPcdRequests)
         {
             var changedPcdRequests = new List<TrackerPcdRequestDto>();
 
@@ -269,7 +269,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return changedPcdRequests;
         }
 
-        private List<TrackerPcdRequestDto> DeleteTrackerPcdRequests(DateTime t, List<int> deletedPcdRequestIds)
+        private List<TrackerPcdRequestDto> DeleteTrackerPcdRequests(List<int> deletedPcdRequestIds)
         {
             var deletePcdRequests
                 = PcdRequests
@@ -284,7 +284,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deletePcdRequests;
         }
 
-        private TrackerDefendantsAndChargesDto CreateTrackerDefendantsAndCharges(DateTime t, DefendantsAndChargesListDto createdDefendantsAndCharges)
+        private TrackerDefendantsAndChargesDto CreateTrackerDefendantsAndCharges(DefendantsAndChargesListDto createdDefendantsAndCharges)
         {
             if(createdDefendantsAndCharges != null)
             {
@@ -296,7 +296,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return null;
         }
 
-        private TrackerDefendantsAndChargesDto UpdateTrackerDefendantsAndCharges(DateTime t, DefendantsAndChargesListDto updatedDefendantsAndCharges)
+        private TrackerDefendantsAndChargesDto UpdateTrackerDefendantsAndCharges(DefendantsAndChargesListDto updatedDefendantsAndCharges)
         {
             if(updatedDefendantsAndCharges != null)
             {
@@ -309,7 +309,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return null;
         }
 
-        private bool DeleteTrackerDefendantsAndCharges(DateTime t, bool deletedDefendantsAndCharges)
+        private bool DeleteTrackerDefendantsAndCharges(bool deletedDefendantsAndCharges)
         {
             if(deletedDefendantsAndCharges) 
             {
@@ -338,23 +338,22 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.CompletedTask;
         }
 
-        public Task RegisterStatus((DateTime t, string documentId, TrackerDocumentStatus status, TrackerLogType logType) arg)
+        public Task RegisterStatus((string polarisDocumentId, TrackerDocumentStatus status, TrackerLogType logType) arg)
         {
-            var document = GetBaseTracker(arg.documentId);
-            document.Status = arg.status;
+            var (polarisDocumentId, status, logType) = arg;
 
-            Log(arg.t, arg.logType, arg.documentId);
+            var document = GetBaseTracker(polarisDocumentId);
+            document.Status = status;
+
+            //Log(t, logType, polarisDocumentId);
 
             return Task.CompletedTask;
         }
 
-        public Task RegisterCompleted((DateTime t, bool success) arg)
+        public void RegisterCompleted((DateTime t, bool success) arg)
         {
             Status = arg.success ? TrackerStatus.Completed : TrackerStatus.Failed;
             ProcessingCompleted = arg.t;
-            Log(arg.t, arg.success ? TrackerLogType.Completed : TrackerLogType.Failed);
-
-            return Task.CompletedTask;
         }
 
         public Task ClearDocuments()
