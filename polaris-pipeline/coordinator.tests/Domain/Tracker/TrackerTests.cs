@@ -61,6 +61,7 @@ namespace coordinator.tests.Domain.Tracker
             _trackerCmsDocuments = _fixture.Create<List<TrackerCmsDocumentDto>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
+            _caseEntity = _fixture.Create<CaseEntity>();
             _pdfBlobName = _fixture.Create<string>();
 
             _synchroniseDocumentsArg = new (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
@@ -85,7 +86,6 @@ namespace coordinator.tests.Domain.Tracker
                 )
                 .ReturnsAsync(_entityStateResponse);
 
-            _caseEntity = _fixture.Create<CaseEntity>();
             _trackerStatus = new TrackerClient(_jsonConvertWrapper);
         }
 
