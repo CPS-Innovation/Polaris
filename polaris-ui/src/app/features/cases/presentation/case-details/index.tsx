@@ -64,8 +64,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleSavedRedactions,
     handleOpenPdfInNewTab,
     handleCloseErrorModal,
-    handleShowConfirmationModal,
-    handleCloseConfirmationModal,
     handleUnLockDocuments,
   } = useCaseDetailsState(urn, +caseId);
 
@@ -89,37 +87,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
-  const handleIssueReporting = (documentId: string) => {
-    const document = tabsState.items.find(
-      (item) => item.documentId === documentId
-    );
-
-    trackEvent("Report Document Issue", {
-      urn: urn,
-      caseId: caseId,
-      documentId: documentId,
-      polarisVersionId: document?.polarisDocumentVersionId,
-      correlationId: pipelineState?.correlationId,
-    });
-    handleShowConfirmationModal(
-      "Thanks for reporting an issue with this document."
-    );
-  };
-
   return (
     <>
-      {
-        <Modal
-          isVisible={confirmationModal.show}
-          handleClose={handleCloseConfirmationModal}
-          type="alert"
-        >
-          <ConfirmationModalContent
-            message={confirmationModal.message}
-            handleClose={handleCloseConfirmationModal}
-          />
-        </Modal>
-      }
       {errorModal.show && (
         <Modal isVisible handleClose={handleCloseErrorModal} type="alert">
           <ErrorModalContent
@@ -257,7 +226,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleSavedRedactions={handleSavedRedactions}
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
-                handleIssueReporting={handleIssueReporting}
+                feedbackData={{
+                  correlationId: pipelineState?.correlationId,
+                  urn: urn,
+                  caseId: caseId,
+                }}
               />
             )}
           </div>

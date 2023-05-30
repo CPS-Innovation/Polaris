@@ -83,8 +83,6 @@ describe("useCaseDetailsState", () => {
         handleTabSelection,
         handleCloseErrorModal,
         handleUnLockDocuments,
-        handleCloseConfirmationModal,
-        handleShowConfirmationModal,
         ...stateProperties
       } = result.current;
 
