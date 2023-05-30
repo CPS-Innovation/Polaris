@@ -16,7 +16,8 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
             MimeType = ddeiResponse.MimeType,
             FileExtension = ddeiResponse.FileExtension,
             CmsDocType = new DocumentTypeDto(ddeiResponse.DocumentType, ddeiResponse.DocumentTypeId, ddeiResponse.CmsDocCategory),
-            DocumentDate = ddeiResponse.DocumentDate
+            DocumentDate = ddeiResponse.DocumentDate,
+            IsOcrProcessed = ddeiResponse.IsOcrProcessed == true
         };
     }
 }
