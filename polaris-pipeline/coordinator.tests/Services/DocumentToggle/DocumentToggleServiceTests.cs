@@ -146,11 +146,11 @@ namespace coordinator.tests.Services.DocumentToggle
         [InlineData(
           @"FileType  ReadWrite *
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         [InlineData(
           @"FileType  ReadWrite .pdf
             DocType   ReadWrite MG1",
-          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         [InlineData(
           @"FileType  ReadWrite .doc
             DocType   ReadWrite MG2",
@@ -169,7 +169,7 @@ namespace coordinator.tests.Services.DocumentToggle
           @"FileType  ReadWrite *
             #FileType  Read      .pdf
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         public void SetDocumentPresentationFlags_ShouldObeyTheRules(string configContent,
                                                                        string inputDocumentExtension,
                                                                        string inputDocumentCmsType,
