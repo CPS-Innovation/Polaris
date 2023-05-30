@@ -14,13 +14,13 @@ type Props = {
   handleOpenPdfInNewTab: (
     documentId: CaseDocumentViewModel["documentId"]
   ) => void;
-  feedbackData: FeedbackButtonProps;
+  contextData: FeedbackButtonProps;
 };
 
 export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { presentationFileName, sasUrl, documentId },
   handleOpenPdfInNewTab,
-  feedbackData,
+  contextData,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   useEffect(() => {
@@ -43,7 +43,7 @@ export const HeaderReadMode: React.FC<Props> = ({
       >
         {presentationFileName} (opens in a new window)
       </LinkButton>
-      {REPORT_ISSUE && <FeedbackButton {...feedbackData} />}
+      {REPORT_ISSUE && <FeedbackButton {...contextData} />}
     </div>
   );
 };

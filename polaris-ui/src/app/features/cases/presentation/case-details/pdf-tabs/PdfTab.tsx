@@ -18,17 +18,17 @@ type PdfTabProps = {
     documentId: string;
     polarisDocumentVersionId: number;
   }[];
+  contextData: {
+    correlationId: string;
+    urn: string;
+    caseId: string;
+  };
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
-  feedbackData: {
-    correlationId: string;
-    urn: string;
-    caseId: string;
-  };
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -37,7 +37,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   headers,
   redactStatus,
   savedDocumentDetails,
-  feedbackData,
+  contextData,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -111,10 +111,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         <HeaderReadMode
           caseDocumentViewModel={caseDocumentViewModel}
           handleOpenPdfInNewTab={handleOpenPdfInNewTab}
-          feedbackData={{
-            correlationId: feedbackData.correlationId,
-            urn: feedbackData.urn,
-            caseId: feedbackData.caseId,
+          contextData={{
+            correlationId: contextData.correlationId,
+            urn: contextData.urn,
+            caseId: contextData.caseId,
             documentId: documentId,
             polarisDocumentVersionId: polarisDocumentVersionId,
           }}

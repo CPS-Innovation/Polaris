@@ -54,7 +54,7 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
           }}
           data-testid="btn-report-issue"
         >
-          Report an issue
+          {disableReportBtn ? "Issue reported" : "Report an issue"}
         </Button>
       </div>
       <Modal

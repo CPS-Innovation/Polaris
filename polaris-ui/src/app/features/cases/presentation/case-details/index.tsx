@@ -224,7 +224,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleSavedRedactions={handleSavedRedactions}
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
-                feedbackData={{
+                contextData={{
                   correlationId: pipelineState?.correlationId,
                   urn: urn,
                   caseId: caseId,

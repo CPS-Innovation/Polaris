@@ -14,7 +14,7 @@ type PdfTabsProps = {
     documentId: string;
     polarisDocumentVersionId: number;
   }[];
-  feedbackData: {
+  contextData: {
     correlationId: string;
     urn: string;
     caseId: string;
@@ -32,7 +32,7 @@ type PdfTabsProps = {
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
   tabsState: { items, headers, activeTabId },
-  feedbackData,
+  contextData,
   savedDocumentDetails,
   handleTabSelection,
   pipelineState,
@@ -66,7 +66,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleRemoveAllRedactions={handleRemoveAllRedactions}
               handleSavedRedactions={handleSavedRedactions}
               handleOpenPdfInNewTab={handleOpenPdfInNewTab}
-              feedbackData={feedbackData}
+              contextData={contextData}
             />
           ),
         },
