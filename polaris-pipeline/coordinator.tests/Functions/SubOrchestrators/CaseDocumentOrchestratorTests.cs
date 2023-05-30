@@ -31,7 +31,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
         private readonly EvaluateDocumentResponse _evaluateDocumentResponse;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
-        private readonly Mock<ICaseEntity> _mockTracker;
+        private readonly Mock<ICaseEntity> _mockCaseEntity;
+        private readonly Mock<ICaseRefreshLogsEntity> _mockCaseRefreshLogsEntity;
 
         private readonly RefreshDocumentOrchestrator _caseDocumentOrchestrator;
 
@@ -61,32 +62,53 @@ namespace coordinator.tests.Functions.SubOrchestrators
             
             var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
-            _mockTracker = new Mock<ICaseEntity>();
-            
+            _mockCaseEntity = new Mock<ICaseEntity>();
+            _mockCaseRefreshLogsEntity = new Mock<ICaseRefreshLogsEntity>();
+
             _evaluateDocumentResponse = fixture.Create<EvaluateDocumentResponse>();
 
-            _mockDurableOrchestrationContext.Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>()).Returns(_payload);
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<DurableHttpRequest>(
-                nameof(CreateGeneratePdfHttpRequest),
-                It.Is<GeneratePdfHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && p.FileName == _payload.CmsDocumentTracker.CmsOriginalFileName)))
-                    .ReturnsAsync(_generatePdfDurableRequest);
-            _mockDurableOrchestrationContext.Setup(context => context.CallActivityAsync<DurableHttpRequest>(
-                nameof(CreateTextExtractorHttpRequest),
-                It.Is<TextExtractorHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && p.BlobName == _pdfResponse.BlobName)))
-                    .ReturnsAsync(textExtractorDurableRequest);
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest)).ReturnsAsync(durableResponse);
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(textExtractorDurableRequest)).ReturnsAsync(durableResponse);
+            _mockDurableOrchestrationContext
+                .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())
+                .Returns(_payload);
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<DurableHttpRequest>(
+                        nameof(CreateGeneratePdfHttpRequest),
+                        It.Is<GeneratePdfHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && p.FileName == _payload.CmsDocumentTracker.CmsOriginalFileName)))
+                .ReturnsAsync(_generatePdfDurableRequest);
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallActivityAsync<DurableHttpRequest>(
+                        nameof(CreateTextExtractorHttpRequest),
+                        It.Is<TextExtractorHttpRequestActivityPayload>(p => p.CmsCaseId == _payload.CmsCaseId && p.DocumentId == _payload.CmsDocumentTracker.CmsDocumentId && p.BlobName == _pdfResponse.BlobName)))
+                .ReturnsAsync(textExtractorDurableRequest);
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))
+                .ReturnsAsync(durableResponse);
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallHttpAsync(textExtractorDurableRequest))
+                .ReturnsAsync(durableResponse);
             
             //set default activity responses
             _evaluateDocumentResponse.EvaluationResult = DocumentEvaluationResult.AcquireDocument;
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_evaluateDocumentDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _evaluateDocumentResponse.ToJson()));
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(updateSearchIndexDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(_generatePdfDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _pdfResponse.ToJson()));
-            _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(textExtractorDurableRequest)).ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallHttpAsync(_evaluateDocumentDurableRequest))
+                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _evaluateDocumentResponse.ToJson()));
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallHttpAsync(updateSearchIndexDurableRequest))
+                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallHttpAsync(_generatePdfDurableRequest))
+                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _pdfResponse.ToJson()));
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CallHttpAsync(textExtractorDurableRequest))
+                .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
 
-            _mockDurableOrchestrationContext.Setup(context => context.CreateEntityProxy<ICaseEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
-                .Returns(_mockTracker.Object);
-            
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CreateEntityProxy<ICaseEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
+                .Returns(_mockCaseEntity.Object);
+            _mockDurableOrchestrationContext
+                .Setup(context => context.CreateEntityProxy<ICaseRefreshLogsEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsEntity).ToLower() && e.EntityKey.StartsWith(_payload.CmsCaseId.ToString()))))
+                .Returns(_mockCaseRefreshLogsEntity.Object);
+
             _caseDocumentOrchestrator = new RefreshDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);
         }
 
@@ -114,7 +136,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            _mockTracker.Verify
+            _mockCaseEntity.Verify
                 (
                     tracker => 
                     tracker.RegisterDocumentStatus
@@ -122,7 +144,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                         It.Is<(string, TrackerDocumentStatus, string)>
                         (
                             a => 
-                                a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId && 
+                                a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() && 
                                 a.Item2 == TrackerDocumentStatus.PdfUploadedToBlob && 
                                 a.Item3 == _pdfResponse.BlobName
                         )
@@ -141,7 +163,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
 
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            _mockTracker.Verify
+            _mockCaseEntity.Verify
                 (
                     tracker =>
                     tracker.RegisterDocumentStatus
@@ -171,7 +193,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             }
             catch
             {
-                _mockTracker.Verify
+                _mockCaseEntity.Verify
                     (
                         tracker =>
                         tracker.RegisterDocumentStatus
@@ -204,7 +226,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             }
             catch
             {
-                _mockTracker.Verify
+                _mockCaseEntity.Verify
                     (
                         tracker =>
                         tracker.RegisterDocumentStatus

@@ -23,14 +23,5 @@ namespace coordinator.Functions.Orchestration.Functions
 
             return (caseEntity, caseRefreshLogsEntity);
         }
-        //protected ICaseRefreshLogsEntity CreateOrGetCaseRefreshLogsEntity(IDurableOrchestrationContext context, long caseId, int version, Guid correlationId, ILogger log)
-        //{
-        //    log.LogMethodEntry(correlationId, nameof(CreateOrGetCaseRefreshLogsEntity), $"CaseId: {caseId}, version: {version}");
-
-        //    var entityId = new EntityId(nameof(CaseRefreshLogsEntity), $"{caseId}-{version}");
-        //    var entity = context.CreateEntityProxy<ICaseRefreshLogsEntity>(entityId);
-
-        //    return entity;
-        //}
     }
 }
