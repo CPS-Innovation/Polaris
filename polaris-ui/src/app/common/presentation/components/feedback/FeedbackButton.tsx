@@ -1,11 +1,11 @@
-import { Button } from "../components/Button";
+import { Button } from "../Button";
 import {
   isAlreadyReportedDocument,
   addToReportedDocuments,
-} from "../../utils/reportDocuments";
-import { useAppInsightsTrackEvent } from "../../../common/hooks/useAppInsightsTracks";
-import { Modal } from "../../../common/presentation/components/Modal";
-import { ConfirmationModalContent } from "../../../common/presentation/components/ConfirmationModalContent";
+} from "../../../utils/reportDocuments";
+import { useAppInsightsTrackEvent } from "../../../hooks/useAppInsightsTracks";
+import { Modal } from "../Modal";
+import { ConfirmationModalContent } from "./ConfirmationModalContent";
 import { useState } from "react";
 import classes from "./FeedbackButton.module.scss";
 export type FeedbackButtonProps = {
@@ -30,13 +30,13 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const handleIssueReporting = (documentId: string) => {
-    // trackEvent("Report Document Issue", {
-    //   urn: urn,
-    //   caseId: caseId,
-    //   documentId: documentId,
-    //   polarisVersionId: polarisDocumentVersionId,
-    //   correlationId: correlationId,
-    // });
+    trackEvent("Report Document Issue", {
+      urn: urn,
+      caseId: caseId,
+      documentId: documentId,
+      polarisVersionId: polarisDocumentVersionId,
+      correlationId: correlationId,
+    });
 
     setShowConfirmationModal(true);
   };

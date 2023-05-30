@@ -5,7 +5,7 @@ import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsi
 import {
   FeedbackButton,
   FeedbackButtonProps,
-} from "../../../../../common/presentation/components/FeedbackButton";
+} from "../../../../../common/presentation/components/feedback/FeedbackButton";
 import { REPORT_ISSUE } from "../../../../../config";
 import classes from "./HeaderReadMode.module.scss";
 

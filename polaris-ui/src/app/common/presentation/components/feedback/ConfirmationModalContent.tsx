@@ -1,4 +1,4 @@
-import { Button } from "../../../common/presentation/components/Button";
+import { Button } from "../Button";
 import classes from "./ConfirmationModalContent.module.scss";
 
 type ConfirmationModalContentProps = {
@@ -15,7 +15,7 @@ export const ConfirmationModalContent: React.FC<
         <Button
           className={classes.confirmationOkBtn}
           onClick={handleClose}
-          data-testid="btn-confirmation-modal-ok"
+          data-testid="btn-feeedback-modal-ok"
         >
           Ok
         </Button>

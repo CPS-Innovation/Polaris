@@ -28,7 +28,6 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
-import { ConfirmationModalContent } from "../../../../common/presentation/components/ConfirmationModalContent";
 import { SURVEY_LINK } from "../../../../config";
 export const path = "/case-details/:urn/:id";
 
