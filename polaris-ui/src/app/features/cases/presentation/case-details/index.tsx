@@ -48,7 +48,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     pipelineRefreshData,
     errorModal,
-    confirmationModal,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
