@@ -8,7 +8,7 @@ import fs from "fs";
 import * as csv from "fast-csv";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
-type Row = { docType: string; category: string };
+type Row = { docTypeId: string; category: string };
 
 describe("documentCategoryDefinitions", () => {
   let rows: Row[] = [];
@@ -20,7 +20,7 @@ describe("documentCategoryDefinitions", () => {
       .pipe(
         csv.parse<Row, Row>({
           renameHeaders: true,
-          headers: ["docType", "category"],
+          headers: ["docTypeId", "category"],
         })
       )
       .on("data", (row) => rows.push(row))
@@ -28,16 +28,24 @@ describe("documentCategoryDefinitions", () => {
   });
 
   it("every doctype in the csv file maps to the expected category", () => {
-    rows.forEach(({ docType, category }) => {
+    rows.forEach(({ docTypeId, category }) => {
       const categoryResult = getCategory({
-        cmsDocType: { documentType: docType },
+        cmsDocType: { documentTypeId: parseInt(docTypeId, 10) },
       } as PresentationDocumentProperties);
 
-      expect({ docType, category: categoryResult }).toEqual({
-        docType,
+      expect({ docTypeId, category: categoryResult }).toEqual({
+        docTypeId,
         category,
       });
     });
+  });
+
+  it("can resolve a PCD document to Reviews", () => {
+    const result = getCategory({
+      cmsDocType: { documentType: "PCD" },
+    } as PresentationDocumentProperties);
+
+    expect(result).toBe("Reviews");
   });
 
   it("can resolve a documents category to Uncategorised if no prior categories match", () => {
