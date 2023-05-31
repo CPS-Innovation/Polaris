@@ -42,7 +42,6 @@ namespace coordinator.tests.Domain.Tracker
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
-        private readonly EntityStateResponse<CaseEntity> _entityStateResponse;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IServiceCollection _services;
 
@@ -51,6 +50,9 @@ namespace coordinator.tests.Domain.Tracker
         private readonly Mock<ILogger> _mockLogger;
 
         private readonly CaseEntity _caseEntity;
+        private readonly EntityStateResponse<CaseEntity> _entityStateResponse;
+        private readonly CaseRefreshLogsEntity _caseRefreshLogsEntity;
+        private readonly EntityStateResponse<CaseRefreshLogsEntity> _caseRefreshLogsEntityStateResponse;
         private readonly TrackerClient _trackerStatus;
 
         public TrackerTests()
@@ -66,10 +68,13 @@ namespace coordinator.tests.Domain.Tracker
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
             _caseEntity = _fixture.Create<CaseEntity>();
+            _caseRefreshLogsEntity = _fixture.Create<CaseRefreshLogsEntity>();
+
             _pdfBlobName = _fixture.Create<string>();
 
             _synchroniseDocumentsArg = new (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
             _entityStateResponse = new EntityStateResponse<CaseEntity>() { EntityExists = true, EntityState=_caseEntity };
+            _caseRefreshLogsEntityStateResponse = new EntityStateResponse<CaseRefreshLogsEntity>() { EntityExists = true, EntityState = _caseRefreshLogsEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
             _services = new ServiceCollection();    
 
@@ -90,10 +95,23 @@ namespace coordinator.tests.Domain.Tracker
                 )
                 .ReturnsAsync(_entityStateResponse);
 
-            _tracker = new TrackerEntity();
-            _tracker.TransactionId = _transactionId;
-            _tracker.CmsDocuments = _trackerCmsDocuments;
-            _tracker.PcdRequests = _trackerPcdRequests;
+            _mockDurableEntityClient
+                .Setup
+                (
+                    client =>
+                        client.ReadEntityStateAsync<CaseRefreshLogsEntity>
+                        (
+                            It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsEntity).ToLower() && e.EntityKey.StartsWith(_caseId.ToString())),
+                            null,
+                            null
+                        )
+                )
+                .ReturnsAsync(_caseRefreshLogsEntityStateResponse);
+
+            _caseEntity = new CaseEntity();
+            _caseEntity.TransactionId = _transactionId;
+            _caseEntity.CmsDocuments = _trackerCmsDocuments;
+            _caseEntity.PcdRequests = _trackerPcdRequests;
             _trackerStatus = new TrackerClient(_jsonConvertWrapper);
         }
 
@@ -110,11 +128,11 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public void Tracker_Serialised_And_Deserialises()
         {
-            var serialisedTracker = JsonConvert.SerializeObject(_tracker);
-            var deserialisedTracker = JsonConvert.DeserializeObject<TrackerEntity>(serialisedTracker);
+            var serialisedTracker = JsonConvert.SerializeObject(_caseEntity);
+            var deserialisedTracker = JsonConvert.DeserializeObject<CaseEntity>(serialisedTracker);
 
-            _tracker.CmsDocuments[0].PolarisDocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].PolarisDocumentId);
-            _tracker.PcdRequests[0].PolarisDocumentId.Should().Be(deserialisedTracker.PcdRequests[0].PolarisDocumentId);
+            _caseEntity.CmsDocuments[0].PolarisDocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].PolarisDocumentId);
+            _caseEntity.PcdRequests[0].PolarisDocumentId.Should().Be(deserialisedTracker.PcdRequests[0].PolarisDocumentId);
             deserialisedTracker.TransactionId.Should().Be(_transactionId);
         }
 
@@ -226,7 +244,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
-            _tracker.CmsDocuments = new List<TrackerCmsDocumentDto> {
+            _caseEntity.CmsDocuments = new List<TrackerCmsDocumentDto> {
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure}
             };
@@ -241,7 +259,7 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
-            _tracker.CmsDocuments = new List<TrackerCmsDocumentDto> {
+            _caseEntity.CmsDocuments = new List<TrackerCmsDocumentDto> {
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure},
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.PdfUploadedToBlob},
@@ -273,7 +291,7 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         [Fact]
-        public async Task HttpStart_TrackerStatus_ReturnsEntityState()
+        public async Task HttpStart_TrackerStatus_ReturnsTrackerDto()
         {
             var message = new HttpRequestMessage();
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
@@ -281,7 +299,7 @@ namespace coordinator.tests.Domain.Tracker
 
             var okObjectResult = response as OkObjectResult;
 
-            okObjectResult?.Value.Should().Be(_entityStateResponse.EntityState);
+            okObjectResult?.Value.Should().BeOfType<TrackerDto>();
         }
 
         [Fact]

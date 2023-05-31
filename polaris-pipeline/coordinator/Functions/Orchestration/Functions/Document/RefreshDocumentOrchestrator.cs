@@ -81,7 +81,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
             catch (Exception exception)
             {
-                caseEntity.RegisterDocumentStatus((payload.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, null));
+                caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.UnexpectedFailure, null));
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator),
                     $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}",
@@ -102,11 +102,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             try
             {
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
-                tracker.RegisterDocumentStatus((payload.CmsDocumentId, TrackerDocumentStatus.Indexed, null));
+                tracker.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.Indexed, blobName));
             }
             catch (Exception exception)
             {
-                tracker.RegisterDocumentStatus((payload.CmsDocumentId, TrackerDocumentStatus.OcrAndIndexFailure, null));
+                tracker.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.OcrAndIndexFailure, null));
 
                 log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;

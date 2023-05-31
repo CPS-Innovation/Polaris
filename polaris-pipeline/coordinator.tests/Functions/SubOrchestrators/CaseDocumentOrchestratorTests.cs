@@ -8,7 +8,6 @@ using Common.Constants;
 using Common.Domain.Extensions;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
-using Common.ValueObjects;
 using Common.Wrappers;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
@@ -172,7 +171,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                         It.Is<(string, TrackerDocumentStatus, string)>
                         (
                             a =>
-                                a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId &&
+                                a.Item1 == _payload.PolarisDocumentId.ToString() &&
                                 a.Item2 == TrackerDocumentStatus.Indexed &&
                                 a.Item3 == _pdfResponse.BlobName
                         )
@@ -202,7 +201,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                             It.Is<(string, TrackerDocumentStatus, string)>
                             (
                                 a =>
-                                    a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId &&
+                                    a.Item1 == _payload.PolarisDocumentId.ToString() &&
                                     a.Item2 == TrackerDocumentStatus.UnexpectedFailure
                             )
                         )
@@ -235,7 +234,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                             It.Is<(string, TrackerDocumentStatus, string)>
                             (
                                 a =>
-                                    a.Item1 == _payload.CmsDocumentTracker.CmsDocumentId &&
+                                    a.Item1 == _payload.PolarisDocumentId.ToString() &&
                                     a.Item2 == TrackerDocumentStatus.DocumentAlreadyProcessed
                             )
                         )
