@@ -5,6 +5,7 @@ namespace Common.Dto.FeatureFlags
         Ok,
         OnlyAvailableInCms,
         DocTypeNotAllowed,
-        OriginalFileTypeNotAllowed
+        OriginalFileTypeNotAllowed,
+        IsNotOcrProcessed
     }
 }

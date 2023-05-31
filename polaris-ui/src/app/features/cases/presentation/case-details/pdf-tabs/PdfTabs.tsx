@@ -14,6 +14,11 @@ type PdfTabsProps = {
     documentId: string;
     polarisDocumentVersionId: number;
   }[];
+  contextData: {
+    correlationId: string;
+    urn: string;
+    caseId: string;
+  };
   handleTabSelection: (documentId: string) => void;
   handleClosePdf: (caseDocument: { documentId: string }) => void;
   handleLaunchSearchResults: () => void;
@@ -27,6 +32,7 @@ type PdfTabsProps = {
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
   tabsState: { items, headers, activeTabId },
+  contextData,
   savedDocumentDetails,
   handleTabSelection,
   pipelineState,
@@ -60,6 +66,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleRemoveAllRedactions={handleRemoveAllRedactions}
               handleSavedRedactions={handleSavedRedactions}
               handleOpenPdfInNewTab={handleOpenPdfInNewTab}
+              contextData={contextData}
             />
           ),
         },

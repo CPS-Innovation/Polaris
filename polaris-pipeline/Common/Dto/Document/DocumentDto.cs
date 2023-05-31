@@ -18,6 +18,8 @@ namespace Common.Dto.Document
 
         public string DocumentDate { get; set; }
 
+        public bool IsOcrProcessed { get; set; }
+
         public PresentationFlagsDto PresentationFlags { get; set; }
     }
 }
