@@ -1,62 +1,327 @@
 Doc Type in CMS,Category in Polaris
-MG1,Unused material
-MG4,Case overview
-MG4B,Court preparation
-MG5,Case overview
-MG6,Case overview
-MG6B,Unused material
-MG6C,Unused material
-MG6D,Unused material
-MG6E,Unused material
-MG7,Court preparation
-MG8,Court preparation
-MG9,Statements
-MG10,Court preparation
-MG11,Statements
-MG12,Exhibits
-MG15(ROTI),Defendant
+MG 1,Case overview
+MG 4,Case overview
+MG 4A,Case overview
+MG 4B,Case overview
+MG 4C,Case overview
+MG 5,Case overview
+MG 4F,Case overview
+MG 4(Post),Case overview
+MG 5(SP),Case overview
+MG 4D,Case overview
+MG 4E,Case overview
+AD01,Communications
+CCA01,Communications
+CCCP05,Communications
+CCCP08,Communications
+CCCP09,Communications
+CCCP12,Communications
+CCCP15,Communications
+CCCP17,Communications
+CCCP24,Communications
+CCCP25,Communications
+CFS02,Communications
+CMS01,Communications
+CMS10,Communications
+CMS11,Communications
+CMS12,Communications
+CMS13,Communications
+CMS21,Communications
+CMS22,Communications
+CFS01,Communications
+CMS25,Communications
+CMS26,Communications
+CMS27,Communications
+CMS28,Communications
+CMS30,Communications
+CMS33,Communications
+CMS39,Communications
+CMS40,Communications
+CMS41,Communications
+CMS42,Communications
+CMS43,Communications
+CCCP01,Communications
+CMS45,Communications
+CMS46,Communications
+CMS47,Communications
+CMS48,Communications
+CMS49,Communications
+CMS50,Communications
+CMS51,Communications
+CMS52,Communications
+CMS53,Communications
+CMS54,Communications
+CNATV01,Communications
+CNAV01,Communications
+CPIA01,Communications
+CPIA02,Communications
+CPIA03,Communications
+CPIA04,Communications
+CPIA05,Communications
+CPIA06,Communications
+CPIA07,Communications
+CTL01,Communications
+CTL02,Communications
+CTL03,Communications
+CVT01,Communications
+DN01,Communications
+DN02,Communications
+DN03,Communications
+DN04,Communications
+DP01,Communications
+DVM1,Communications
+DWR01,Communications
+POL1,Communications
+MIC01,Communications
+NEA01,Communications
+NFE01,Communications
+NFE02,Communications
+NFE03,Communications
+NFE04,Communications
+NT01,Communications
+NT02,Communications
+NT03,Communications
+PSR,Communications
+RID1,Communications
+S9,Communications
+SC01,Communications
+WEF04,Communications
+CCCP23A,Communications
+CCCP23B,Communications
+CCCP23C,Communications
+VIW03,Communications
+VIW04,Communications
+VIW05,Communications
+CMS34P,Communications
+CMS36P,Communications
+CMS37L,Communications
+CMS38L,Communications
+CD1,Communications
+CPSLogo,Communications
+CMS55,Communications
+VIW07,Communications
+VIW08,Communications
+CVR02,Communications
+CTL04,Communications
+POL2,Communications
+CMS56,Communications
+CMS57,Communications
+CMS58,Communications
+CMS59,Communications
+CMS60,Communications
+DVM4,Communications
+AR01,Communications
+AR02,Communications
+AR03,Communications
+AR04,Communications
+AR05,Communications
+AR06,Communications
+AR07,Communications
+AR08,Communications
+AR09,Communications
+AR10,Communications
+AR11,Communications
+AR12,Communications
+AR13,Communications
+AR14,Communications
+AR15,Communications
+AR16,Communications
+AR17,Communications
+AR18,Communications
+WEF04(Cont),Communications
+CMS41b,Communications
+DRS,Communications
+CPIA1 (MC),Communications
+CPIA2 (MC),Communications
+CPIA3,Communications
+CPIA4,Communications
+CPIA4a,Communications
+CPIA5,Communications
+CPIA6,Communications
+CPIA01 (pre Apr05),Communications
+CPIA02 (pre Apr05),Communications
+CPIA03 (pre Apr05),Communications
+CPIA04 (pre Apr05),Communications
+CPIA05 (pre Apr05),Communications
+CPIA06 (pre Apr05),Communications
+CPIA07 (pre Apr05),Communications
+BCE01,Communications
+BCE02,Communications
+BCE04,Communications
+BCE05,Communications
+BCE07,Communications
+BCE08,Communications
+NFR-HE1,Communications
+NFR-HE2,Communications
+POL3,Communications
+ASW,Communications
+CMP,Communications
+FIST2,Communications
+HFCC1,Communications
+VHCC1,Communications
+VHCC2,Communications
+VHCC3,Communications
+VHCC4,Communications
+VHCC5,Communications
+VHCC6,Communications
+VHCC7,Communications
+VHCC8,Communications
+VHCC9,Communications
+CMS61,Communications
+NFR-CCF1,Communications
+NFR-CCF2,Communications
+NFR-CCF3,Communications
+CP1-Def,Communications
+WEFLabel,Communications
+VFS1,Communications
+RP1,Communications
+RP2,Communications
+PSR02,Communications
+CBO1,Communications
+CBO2,Communications
+CPR3,Communications
+VIW11,Communications
+CMS01a,Communications
+REV1,Communications
+KDAR01,Communications
+CHS01,Communications
+s51(Ct),Communications
+s51(Def),Communications
+s51(Pol),Communications
+BCE03,Communications
+NFR-HE3,Communications
+DGCC,Communications
+DGYCC,Communications
+MCTP,Communications
+LLA,Communications
+CMPSCR,Communications
+DN09,Communications
+PRMB,Communications
+CP2-Def,Communications
+CP3-Crt,Communications
+DEFRAINF,Communications
+DEFRALIC,Communications
+DEFRAREP,Communications
+DEFRAS9,Communications
+DEFRASUM,Communications
+DEFRALET,Communications
+REVIEW,Communications
+DWPDISC1,Communications
+DWPDISC2,Communications
+DWPCPR,Communications
+DWPCPO,Communications
+DWPPR,Communications
+PCREng,Communications
+PCRWel,Communications
+CPIA1 (CC),Communications
+CPIA2 (CC),Communications
+DIRCT,Communications
+DIRDEF,Communications
+HRS-MC,Communications
+HRS-CC,Communications
+WIH01,Communications
+HR,Communications
+DCF_FH_D,Communications
+DCF_FH_N,Communications
+DCF_BB_D,Communications
+DCF_BB_N,Communications
+CMS27a,Communications
+RRA01,Communications
+RRA02,Communications
+VIW01,Communications
+VIW02,Communications
+NFR-PS1,Communications
+MG6,Communications
+MG 20,Communications
+UNKNOWN,Communications
+HTE,Communications
+DREP,Communications
+DCS-R,Communications
+OTHER MATERIAL,Communications
+DDE1,Communications
+STWAC01,Communications
+CPIA8,Communications
+PFD04,Communications
+PFD02-,Communications
+PFD01,Communications
+PFD03,Communications
+SMOKE0502,Communications
+SMOKEe0502,Communications
+FEES01,Communications
+FEE202,Communications
+POC01,Communications
+Proceeds of Crime,Communications
+POL02,Communications
+Local Template01,Communications
+TEST-LOCAL_doc,Communications
+LOC03,Communications
+LOC4-test,Communications
+SMOKE 04MAR,Communications
+temp,Communications
+POC02-new,Communications
+COA BT Inactive,Communications
+COA BT TEST,Communications
+PFD03,Communications
+PFD04,Communications
+PFD01,Communications
+PFD02-,Communications
+CPIA8,Communications
+MG 7,Court preparation
+MG 8,Court preparation
+MG 9,Court preparation
+MG 10,Court preparation
+MG 18,Court preparation
 MG19,Court preparation
-MG20,Unused material
-MG2,Court preparation
+MG 2,Court preparation
+MG 13,Court preparation
+MG 16(DBCI),Court preparation
+MG 16(DDOI),Court preparation
+MG 16,Court preparation
+MG/FSS A,Defendant
+MG 14,Defendant
+PCN 1,Defendant
+PCN 2,Defendant
+PCN 3,Defendant
+MG 12,Exhibits
+MG 15(ROTI),Exhibits
+MG 15(CONT),Exhibits
+MG 15(T),Exhibits
+MG 15(T)(CONT),Exhibits
+MG/FSS B,Exhibits
+OTHER EXHIBIT,Exhibits
+MG 15(SDN),Exhibits
+MG 15(ROVI),Exhibits
+MGDD,Exhibits
+MG 15(CNOI),Exhibits
+MG 00,Exhibits
+ABE,Exhibits
+EG3,Exhibits
+EG3,Exhibits
+MG 21,Forensics
+MG 21A,Forensics
+MG22 SFR,Forensics
 MG3,Reviews
 MG3A,Reviews
-MG6A,Unused material
-MG13,Court preparation
-MG15(SDN),Defendant
-MG15(ROVI),Defendant
-MG16(DBCI),Defendant
-MG16(DDOI),Defendant
-MG21,Unused material
-MG21A,Unused material
-PE1,Statements
-PE2,Defendant
-PE3,Uncategorised
-PE4,Uncategorised
-DREP,Defendant
-PCN1,Defendant
-PCN2,Defendant
-PCN3,Unused material
-MG11(R),Unused material
-MG15(CNOI),Defendant
-MG16,Defendant
-MG22 SFR,Forensics
-MG11,Statements
-MG11,Statements
-MG11,Statements
-PCN3,Unused material
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-PCN1,Defendant
-PCN2,Defendant
-PCN1,Defendant
-DREP,Defendant
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-MG11,Statements
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-MG6,Case overview
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-Other Comm (In),Communications
+MG3S,Reviews
+MG3AS,Reviews
+CAP01,Reviews
+MG17,Reviews
+MG 3,Reviews
+MG 3A,Reviews
+MG 17,Reviews
+DCF,Reviews
+MG 11(CONT),Statements
+MG 11(T),Statements
+MG 11T(CONT),Statements
+MG 11,Statements
+MG 11(R),Statements
+PE 1,Uncategorised
+PE 2,Uncategorised
+PE 3,Uncategorised
+PE 4,Uncategorised
+MG 6B,Unused material
+MG 6C,Unused material
+MG 6D,Unused material
+MG 6E,Unused material
+MG 6A,Unused material
+SDC,Unused material
