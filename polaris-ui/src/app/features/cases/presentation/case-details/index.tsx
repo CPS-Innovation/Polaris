@@ -77,6 +77,20 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {
+      const categorisedData = accordionState.data.reduce(
+        (acc: { [key: string]: number }, curr) => {
+          acc[`${curr.sectionId}`] = curr.docs.length;
+          return acc;
+        },
+        {}
+      );
+
+      trackEvent("Categorised Documents Count", {
+        urn,
+        caseId,
+        ...categorisedData,
+      });
+
       const unCategorisedDocs = accordionState.data.find(
         (accordionState) => accordionState.sectionId === "Uncategorised"
       );
