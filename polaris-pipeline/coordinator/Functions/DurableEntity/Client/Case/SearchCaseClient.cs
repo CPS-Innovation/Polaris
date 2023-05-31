@@ -30,7 +30,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
         [FunctionName(nameof(SearchCaseClient))]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.DocumentsSearch)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.CaseSearch)] HttpRequestMessage req,
             string caseUrn,
             int caseId,
             [DurableClient] IDurableEntityClient client,

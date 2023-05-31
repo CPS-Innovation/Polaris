@@ -3,6 +3,7 @@ using System;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
+using Common.ValueObjects;
 
 namespace Common.Dto.Tracker
 {
@@ -13,19 +14,21 @@ namespace Common.Dto.Tracker
         { }
 
         public TrackerCmsDocumentDto(
-            Guid polarisDocumentId,
+            PolarisDocumentId polarisDocumentId,
             int polarisDocumentVersionId,
             string cmsDocumentId,
             long cmsVersionId,
             DocumentTypeDto cmsDocType,
             string cmsFileCreatedDate,
             string cmsOriginalFileName,
+            bool isOcrProcessed,
             PresentationFlagsDto presentationFlags)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
+            IsOcrProcessed = isOcrProcessed;
             Status = TrackerDocumentStatus.New;
         }
 
@@ -39,5 +42,8 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
+
+        [JsonProperty("isOcrProcessed")]
+        public bool IsOcrProcessed { get; set; }
     }
 }

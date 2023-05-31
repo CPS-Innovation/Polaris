@@ -19,6 +19,7 @@ using FluentValidation;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Request;
 using DdeiClient.Services.Contracts;
+using Common.ValueObjects;
 
 namespace coordinator.Functions.DurableEntity.Client.Document
 {
@@ -51,7 +52,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
             HttpRequestMessage req,
             string caseUrn,
             string caseId,
-            Guid documentId,
+            string polarisDocumentId,
             [DurableClient] IDurableEntityClient client,
             ILogger log)
         {
@@ -59,7 +60,8 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                var response = await GetTrackerDocument(req, client, loggingName, caseId, documentId, log);
+                #region Validate-Inputs
+                var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
 
                 if (!response.Success)
                     return response.Error;
@@ -77,11 +79,12 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 var validationResult = await _requestValidator.ValidateAsync(redactPdfRequest);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
+                #endregion
 
                 var redactionResult = await _redactionClient.RedactPdfAsync(redactPdfRequest, currentCorrelationId);
                 if (!redactionResult.Succeeded)
                 {
-                    string error = $"Error Saving redaction details to the document for {caseId}, documentId {documentId}";
+                    string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
                     log.LogMethodFlow(currentCorrelationId, loggingName, error);
                     throw new ArgumentException(error);
                 }

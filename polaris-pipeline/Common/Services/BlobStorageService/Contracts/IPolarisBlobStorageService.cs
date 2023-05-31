@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Common.Domain.BlobStorage;
+using Common.ValueObjects;
 
 namespace Common.Services.BlobStorageService.Contracts
 {
@@ -14,7 +15,7 @@ namespace Common.Services.BlobStorageService.Contracts
         
         Task<Stream> GetDocumentAsync(string blobName, Guid correlationId);
 
-        Task UploadDocumentAsync(Stream stream, string blobName, string caseId, string documentId, string versionId, Guid correlationId);
+        Task UploadDocumentAsync(Stream stream, string blobName, string caseId, PolarisDocumentId polarisDocumentId, string versionId, Guid correlationId);
 
         Task<bool> RemoveDocumentAsync(string blobName, Guid correlationId);
     }

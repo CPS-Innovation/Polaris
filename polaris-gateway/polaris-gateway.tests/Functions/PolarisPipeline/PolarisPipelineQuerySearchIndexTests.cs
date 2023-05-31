@@ -30,7 +30,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         private readonly IList<StreamlinedSearchLine> _searchResults;
         private readonly Mock<IAuthorizationValidator> _mockTokenValidator;
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
-        private readonly PolarisPipelineSearchCaseDocuments _polarisPipelineQuerySearchIndex;
+        private readonly PolarisPipelineCaseSearch _polarisPipelineQuerySearchIndex;
 
         public PolarisPipelineQuerySearchIndexTests()
         {
@@ -42,7 +42,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _searchResults = fixture.Create<IList<StreamlinedSearchLine>>();
             _correlationId = fixture.Create<Guid>();
 
-            var mockLogger = new Mock<ILogger<PolarisPipelineSearchCaseDocuments>>();
+            var mockLogger = new Mock<ILogger<PolarisPipelineCaseSearch>>();
 
             _mockPipelineClient = new Mock<IPipelineClient>();
             _mockPipelineClient.Setup(x => x.SearchCase(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(_searchResults);
@@ -52,7 +52,7 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
 
-            _polarisPipelineQuerySearchIndex = new PolarisPipelineSearchCaseDocuments(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
+            _polarisPipelineQuerySearchIndex = new PolarisPipelineCaseSearch(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]

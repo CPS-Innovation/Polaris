@@ -78,7 +78,8 @@ namespace pdf_generator.tests.Functions
         public async Task Run_ReturnsBadRequestWhenContentIsInvalid()
         {
             var errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+            _mockExceptionHandler
+                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
@@ -91,7 +92,8 @@ namespace pdf_generator.tests.Functions
 		public async Task Run_ReturnsBadRequestWhenContentIsNull()
 		{
 			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+			_mockExceptionHandler
+                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
 				.Returns(_errorHttpResponseMessage);
 			_httpRequestMessage.Content = null;
 			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
@@ -105,7 +107,8 @@ namespace pdf_generator.tests.Functions
 		public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
 		{
 			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+			_mockExceptionHandler
+                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
 				.Returns(_errorHttpResponseMessage);
 			_httpRequestMessage.Headers.Clear();
 			_httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
@@ -119,7 +122,8 @@ namespace pdf_generator.tests.Functions
 		public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
 		{
 			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+			_mockExceptionHandler
+                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
 				.Returns(_errorHttpResponseMessage);
 			_httpRequestMessage.Headers.Clear();
 			_httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
@@ -135,7 +139,8 @@ namespace pdf_generator.tests.Functions
 			var testFailures = _fixture.CreateMany<ValidationFailure>(2);
 			
 			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+			_mockExceptionHandler
+                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
 				.Returns(_errorHttpResponseMessage);
 			_mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestDto>(),
 					It.IsAny<CancellationToken>()))
@@ -154,9 +159,11 @@ namespace pdf_generator.tests.Functions
 	        
             var errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             var exception = new Exception();
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<RedactPdfResponse>()))
+            _mockJsonConvertWrapper
+                .Setup(wrapper => wrapper.SerializeObject(It.IsAny<RedactPdfResponse>()))
                 .Throws(exception);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(exception, It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+            _mockExceptionHandler
+                .Setup(handler => handler.HandleException(exception, It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
 
             var response = await _redactPdf.Run(_httpRequestMessage);
@@ -185,7 +192,8 @@ namespace pdf_generator.tests.Functions
         public async Task Run_ReturnsBadRequest_WhenValidationFailed()
         {
             var errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+            _mockExceptionHandler
+                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
 
             var request = _fixture.Create<RedactPdfRequestDto>();

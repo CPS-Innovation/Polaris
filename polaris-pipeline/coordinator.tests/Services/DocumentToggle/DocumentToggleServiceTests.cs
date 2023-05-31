@@ -4,6 +4,7 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Common.Dto.Tracker;
 using Common.Services.DocumentToggle;
+using Common.ValueObjects;
 using FluentAssertions;
 using Xunit;
 
@@ -72,7 +73,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", true, new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
             // Assert
@@ -85,7 +86,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", true, new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.Ok;
 
             // Assert
@@ -98,7 +99,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", true, new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
 
@@ -112,7 +113,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(Guid.NewGuid(), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", new PresentationFlagsDto());
+            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", true, new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.Ok;
 
             // Assert
@@ -145,11 +146,11 @@ namespace coordinator.tests.Services.DocumentToggle
         [InlineData(
           @"FileType  ReadWrite *
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         [InlineData(
           @"FileType  ReadWrite .pdf
             DocType   ReadWrite MG1",
-          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         [InlineData(
           @"FileType  ReadWrite .doc
             DocType   ReadWrite MG2",
@@ -168,7 +169,7 @@ namespace coordinator.tests.Services.DocumentToggle
           @"FileType  ReadWrite *
             #FileType  Read      .pdf
             DocType   ReadWrite *",
-          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.Ok)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         public void SetDocumentPresentationFlags_ShouldObeyTheRules(string configContent,
                                                                        string inputDocumentExtension,
                                                                        string inputDocumentCmsType,

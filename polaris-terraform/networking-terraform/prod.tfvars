@@ -4,6 +4,7 @@ environment = {
 }
 
 vnetAddressSpace = "10.7.204.0/23"
+vnetDnsServer    = "10.7.204.164"
 
 cmsServicesSubnet                  = "10.7.204.0/28"
 ddeiServicesSubnet                 = "10.7.204.32/27"

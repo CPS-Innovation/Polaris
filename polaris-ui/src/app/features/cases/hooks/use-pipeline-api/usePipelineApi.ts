@@ -4,6 +4,7 @@ import { PipelineResults } from "../../domain/gateway/PipelineResults";
 import { initiateAndPoll } from "./initiate-and-poll";
 import { PIPELINE_POLLING_DELAY } from "../../../../config";
 import { CombinedState } from "../../domain/CombinedState";
+import { generateGuid } from "../../../cases/api/generate-guid";
 
 export const usePipelineApi = (
   urn: string,
@@ -15,15 +16,19 @@ export const usePipelineApi = (
   >({
     status: "initiating",
     haveData: false,
+    correlationId: "",
   });
 
   useEffect(() => {
     if (pipelineRefreshData.startRefresh) {
+      const correlationId = generateGuid();
+      //get correlationID here and add it ot the setPipelineResults and remove it from gateway
       initiateAndPoll(
         urn,
         caseId,
         PIPELINE_POLLING_DELAY,
         pipelineRefreshData,
+        correlationId,
         (results) => setPipelineResults(results)
       );
     }

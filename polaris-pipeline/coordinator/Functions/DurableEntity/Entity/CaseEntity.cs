@@ -2,6 +2,8 @@
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
+using Common.ValueObjects;
+using coordinator.Domain.Tracker;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -161,8 +163,15 @@ namespace coordinator.Functions.DurableEntity.Entity
             var updatedDocuments =
                 (from incomingDocument in incomingDocuments
                 let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.CmsDocumentId == incomingDocument.DocumentId)
-                where cmsDocument != null 
-                where cmsDocument.Status != TrackerDocumentStatus.Indexed || cmsDocument.CmsVersionId != incomingDocument.VersionId
+                where 
+                (
+                    cmsDocument != null &&
+                    (
+                        cmsDocument.Status != TrackerDocumentStatus.Indexed || 
+                        cmsDocument.CmsVersionId != incomingDocument.VersionId ||
+                        cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed 
+                    )
+                )
                 select incomingDocument).ToList();
 
             var deletedCmsDocumentIdsToRemove
@@ -220,13 +229,14 @@ namespace coordinator.Functions.DurableEntity.Entity
                 var trackerDocument 
                     = new TrackerCmsDocumentDto
                     (
-                        Guid.NewGuid(),
+                        new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
                         1,
                         newDocument.DocumentId,
                         newDocument.VersionId,
                         newDocument.CmsDocType,
                         newDocument.DocumentDate,
                         newDocument.FileName,
+                        newDocument.IsOcrProcessed,
                         newDocument.PresentationFlags
                     );
 
@@ -279,7 +289,8 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             foreach (var newPcdRequest in createdPcdRequests)
             {
-                var trackerPcdRequest = new TrackerPcdRequestDto(Guid.NewGuid(), 1, newPcdRequest);
+                var polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.PcdRequest, newPcdRequest.Id.ToString());
+                var trackerPcdRequest = new TrackerPcdRequestDto(polarisDocumentId, 1, newPcdRequest);
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
             }
@@ -323,7 +334,8 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             if(createdDefendantsAndCharges != null)
             {
-                DefendantsAndCharges = new TrackerDefendantsAndChargesDto(Guid.NewGuid(), 1, createdDefendantsAndCharges);
+                PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, createdDefendantsAndCharges.CaseId.ToString());
+                DefendantsAndCharges = new TrackerDefendantsAndChargesDto(polarisDocumentId, 1, createdDefendantsAndCharges);
 
                 return DefendantsAndCharges;
             }

@@ -40,8 +40,7 @@ namespace pdf_generator.Functions
         }
 
         [FunctionName("redact-pdf")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "redactPdf")]
-            HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "redactPdf")] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "RedactPdf - Run";
@@ -49,6 +48,7 @@ namespace pdf_generator.Functions
 
             try
             {
+                #region Vaidate-Inputs
                 request.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                     throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(request));
@@ -67,13 +67,14 @@ namespace pdf_generator.Functions
                 {
                     throw new BadRequestException("Request body cannot be null.", nameof(request));
                 }
+                #endregion
 
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
                 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for documentId: '{redactions.DocumentId}'");
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{redactions.PolarisDocumentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {

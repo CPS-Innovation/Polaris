@@ -14,7 +14,7 @@ export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 export const initialState = {
   caseState: { status: "loading" },
   documentsState: { status: "loading" },
-  pipelineState: { status: "initiating", haveData: false },
+  pipelineState: { status: "initiating", haveData: false, correlationId: "" },
   pipelineRefreshData: {
     startRefresh: true,
     savedDocumentDetails: [],
@@ -39,6 +39,10 @@ export const initialState = {
     show: false,
     message: "",
     title: "",
+  },
+  confirmationModal: {
+    show: false,
+    message: "",
   },
 } as Omit<CombinedState, "caseId" | "urn">;
 

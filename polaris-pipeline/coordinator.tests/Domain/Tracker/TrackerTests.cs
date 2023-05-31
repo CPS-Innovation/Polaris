@@ -23,6 +23,8 @@ using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
+using Common.ValueObjects;
+using Newtonsoft.Json;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -36,6 +38,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly string _pdfBlobName;
         private readonly (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _synchroniseDocumentsArg;
         private readonly List<TrackerCmsDocumentDto> _trackerCmsDocuments;
+        private readonly List<TrackerPcdRequestDto> _trackerPcdRequests;
         private readonly string _caseUrn;
         private readonly long _caseId;
         private readonly Guid _correlationId;
@@ -59,6 +62,7 @@ namespace coordinator.tests.Domain.Tracker
             _defendantsAndChargesList = _fixture.Create<DefendantsAndChargesListDto>();
             _correlationId = _fixture.Create<Guid>();
             _trackerCmsDocuments = _fixture.Create<List<TrackerCmsDocumentDto>>();
+            _trackerPcdRequests = _fixture.Create<List<TrackerPcdRequestDto>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
             _caseEntity = _fixture.Create<CaseEntity>();
@@ -86,6 +90,10 @@ namespace coordinator.tests.Domain.Tracker
                 )
                 .ReturnsAsync(_entityStateResponse);
 
+            _tracker = new TrackerEntity();
+            _tracker.TransactionId = _transactionId;
+            _tracker.CmsDocuments = _trackerCmsDocuments;
+            _tracker.PcdRequests = _trackerPcdRequests;
             _trackerStatus = new TrackerClient(_jsonConvertWrapper);
         }
 
@@ -97,6 +105,17 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.TransactionId.Should().Be(_transactionId);
             _caseEntity.CmsDocuments.Should().NotBeNull();
             _caseEntity.Status.Should().Be(TrackerStatus.Running);
+        }
+
+        [Fact]
+        public void Tracker_Serialised_And_Deserialises()
+        {
+            var serialisedTracker = JsonConvert.SerializeObject(_tracker);
+            var deserialisedTracker = JsonConvert.DeserializeObject<TrackerEntity>(serialisedTracker);
+
+            _tracker.CmsDocuments[0].PolarisDocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].PolarisDocumentId);
+            _tracker.PcdRequests[0].PolarisDocumentId.Should().Be(deserialisedTracker.PcdRequests[0].PolarisDocumentId);
+            deserialisedTracker.TransactionId.Should().Be(_transactionId);
         }
 
         [Fact]
@@ -207,9 +226,9 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
-            _caseEntity.CmsDocuments = new List<TrackerCmsDocumentDto> {
-                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure}
+            _tracker.CmsDocuments = new List<TrackerCmsDocumentDto> {
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure}
             };
             _caseEntity.PcdRequests = new List<TrackerPcdRequestDto>();
             _caseEntity.DefendantsAndCharges = new TrackerDefendantsAndChargesDto { Status = TrackerDocumentStatus.UnableToConvertToPdf };
@@ -222,10 +241,10 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
-            _caseEntity.CmsDocuments = new List<TrackerCmsDocumentDto> {
-                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure},
-                new(_fixture.Create<Guid>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.PdfUploadedToBlob},
+            _tracker.CmsDocuments = new List<TrackerCmsDocumentDto> {
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.UnexpectedFailure},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = TrackerDocumentStatus.PdfUploadedToBlob},
             };
             _caseEntity.PcdRequests = new List<TrackerPcdRequestDto>();
             _caseEntity.DefendantsAndCharges = new TrackerDefendantsAndChargesDto { Status = TrackerDocumentStatus.Indexed };

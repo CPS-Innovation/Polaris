@@ -28,7 +28,7 @@ describe("initiateAndPoll", () => {
         savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
-
+      "corId_1",
       mockCallback
     );
     clock.tick(1000);
@@ -41,6 +41,7 @@ describe("initiateAndPoll", () => {
         error: expectedError,
         httpStatusCode: 100,
         haveData: false,
+        correlationId: "corId_1",
       } as AsyncPipelineResult<PipelineResults>)
     );
 
@@ -74,6 +75,7 @@ describe("initiateAndPoll", () => {
         savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
+      "corId_1",
       mockCallback
     );
     clock.tick(1000);
@@ -90,6 +92,7 @@ describe("initiateAndPoll", () => {
         error: expectedError,
         httpStatusCode: 100,
         haveData: false,
+        correlationId: "corId_1",
       } as ApiResult<PipelineResults>)
     );
 
@@ -127,6 +130,7 @@ describe("initiateAndPoll", () => {
         savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
+      "corId_1",
       mockCallback
     );
     clock.tick(1000);
@@ -145,6 +149,7 @@ describe("initiateAndPoll", () => {
         error: expect.any(Error),
         httpStatusCode: undefined,
         haveData: false,
+        correlationId: "corId_1",
       } as ApiResult<PipelineResults>)
     );
 
@@ -182,6 +187,7 @@ describe("initiateAndPoll", () => {
         savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
+      "corId_1",
       mockCallback
     );
 
@@ -202,6 +208,7 @@ describe("initiateAndPoll", () => {
       expect(mockCallback).toHaveBeenCalledWith({
         status: "complete",
         haveData: true,
+        correlationId: "corId_1",
         data: expectedResults,
       })
     );
@@ -260,6 +267,7 @@ describe("initiateAndPoll", () => {
         savedDocumentDetails: [],
         lastProcessingCompleted: "",
       },
+      "corId_1",
       mockCallback
     );
     clock.tick(1000);
@@ -277,6 +285,7 @@ describe("initiateAndPoll", () => {
       expect(mockCallback).toHaveBeenNthCalledWith(1, {
         status: "incomplete",
         haveData: true,
+        correlationId: "corId_1",
         data: expectedInterimResults,
       })
     );
@@ -287,6 +296,7 @@ describe("initiateAndPoll", () => {
       expect(mockCallback).toHaveBeenNthCalledWith(2, {
         status: "complete",
         haveData: true,
+        correlationId: "corId_1",
         data: expectedFinalResults,
       })
     );
