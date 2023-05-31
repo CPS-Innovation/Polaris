@@ -94,14 +94,15 @@ namespace Ddei.Services
 
         public async Task<DocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
         {
-            var ddeiResults =  await CallDdei<List<DdeiCaseDocumentResponse>>(
-                _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(new DdeiCmsCaseArgDto{
-                    Urn= caseUrn, 
-                    CaseId = long.Parse(caseId), 
-                    CmsAuthValues = cmsAuthValues, 
-                    CorrelationId =  correlationId
-                })
-            );
+            DdeiCmsCaseArgDto caseArg = new DdeiCmsCaseArgDto
+            {
+                Urn = caseUrn,
+                CaseId = long.Parse(caseId),
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId
+            };
+            HttpRequestMessage request = _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg);
+            var ddeiResults =  await CallDdei<List<DdeiCaseDocumentResponse>>(request);
 
             return ddeiResults
                 .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
