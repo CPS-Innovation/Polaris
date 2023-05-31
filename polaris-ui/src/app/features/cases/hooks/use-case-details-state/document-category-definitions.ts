@@ -385,16 +385,15 @@ const documentCategoryDefinitions: {
         "CPIA8",
       ]),
   },
+  // have Uncategorised last so it can scoop up any unmatched documents
   {
     category: "Uncategorised",
     showIfEmpty: false,
-    test: (doc) => docTypeTest(doc, ["PE 1", "PE 2", "PE 3", "PE 4"]),
-  },
-  // have unknown last so it can scoop up any unmatched documents
-  {
-    category: "Uncategorised",
-    showIfEmpty: false,
-    test: () => true,
+    test: (doc) =>
+      docTypeTest(doc, ["PE 1", "PE 2", "PE 3", "PE 4"]) ||
+      // match to Uncategorised if we have got this far
+      // todo: add AppInsights logging for every time we find ourselves here
+      true,
   },
 ];
 
