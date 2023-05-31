@@ -23,7 +23,8 @@ type AppInsightsTrackEventNames =
   | "Remove Redact Content"
   | "Remove All Redactions"
   | "Save All Redactions"
-  | "Report Document Issue";
+  | "Report Document Issue"
+  | "Uncategorised Document";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -69,6 +70,7 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Save All Redactions":
     "User has clicked the 'Save All Redactions' green button in the document tab",
   "Report Document Issue": "User reporting issues with a document",
+  "Uncategorised Document": "Uncategorised document",
 };
 const useAppInsightsTrackEvent = () => {
   const appInsights = useAppInsightsContext();
