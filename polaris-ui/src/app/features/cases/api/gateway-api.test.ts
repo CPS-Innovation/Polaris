@@ -15,6 +15,9 @@ import * as HEADERS from "./header-factory";
 
 jest.mock("./reauthentication-filter");
 jest.mock("./header-factory");
+jest.mock("../../../config", () => ({
+  GATEWAY_BASE_URL: "https:gateway-url",
+}));
 describe.only("gateway-apis", () => {
   beforeEach(() => {
     (HEADERS.correlationId as jest.Mock).mockReturnValue({
@@ -42,7 +45,7 @@ describe.only("gateway-apis", () => {
       const response = await searchUrn("urn_abc");
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_abc/cases",
+        "https://gateway-url/api/urns/urn_abc/cases",
         expect.anything()
       );
       expect(reauthenticationFilter).toHaveBeenCalledTimes(1);
@@ -63,7 +66,7 @@ describe.only("gateway-apis", () => {
       const response = await searchUrn("urn_abc");
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_abc/cases",
+        "https://gateway-url/api/urns/urn_abc/cases",
         expect.anything()
       );
       expect(reauthenticationFilter).toHaveBeenCalledTimes(1);
@@ -85,7 +88,7 @@ describe.only("gateway-apis", () => {
       expect(async () => {
         await searchUrn("urn_abc");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_abc/cases: Search URN failed; status - OK (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_abc/cases: Search URN failed; status - OK (500)"
       );
     });
   });
@@ -110,7 +113,7 @@ describe.only("gateway-apis", () => {
       const response = await getCaseDetails("abc", 123);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/abc/cases/123",
+        "https://gateway-url/api/urns/abc/cases/123",
         expect.anything()
       );
       expect(reauthenticationFilter).toHaveBeenCalledTimes(1);
@@ -131,7 +134,7 @@ describe.only("gateway-apis", () => {
       expect(async () => {
         await getCaseDetails("abc", 122);
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/abc/cases/122: Get Case Details failed; status - OK (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/122: Get Case Details failed; status - OK (500)"
       );
     });
   });
@@ -147,7 +150,7 @@ describe.only("gateway-apis", () => {
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/abc/cases/123/documents/ABC/sasUrl",
+        "https://gateway-url/api/urns/abc/cases/123/documents/ABC/sasUrl",
         expect.anything()
       );
       expect(response).toEqual("mocked response");
@@ -159,7 +162,7 @@ describe.only("gateway-apis", () => {
       expect(async () => {
         await getPdfSasUrl("abc", 123, "ABC");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/abc/cases/123/documents/ABC/sasUrl: Get Pdf SasUrl failed; status - Internal Server Error (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123/documents/ABC/sasUrl: Get Pdf SasUrl failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -179,7 +182,7 @@ describe.only("gateway-apis", () => {
       const response = await initiatePipeline("abc", 123);
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/abc/cases/123",
+        "https://gateway-url/api/urns/abc/cases/123",
         expect.anything()
       );
       expect(response).toEqual({
@@ -200,7 +203,7 @@ describe.only("gateway-apis", () => {
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/abc/cases/123",
+        "https://gateway-url/api/urns/abc/cases/123",
         expect.anything()
       );
       expect(response).toEqual({
@@ -220,7 +223,7 @@ describe.only("gateway-apis", () => {
       expect(async () => {
         await initiatePipeline("abc", 123);
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/abc/cases/123: Initiate pipeline failed; status - Internal Server Error (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123: Initiate pipeline failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -277,7 +280,7 @@ describe.only("gateway-apis", () => {
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/search/?query=test",
+        "https://gateway-url/api/urns/urn_123/cases/123/search/?query=test",
         expect.anything()
       );
       expect(response).toEqual([]);
@@ -290,7 +293,7 @@ describe.only("gateway-apis", () => {
       expect(async () => {
         await searchCase("urn_123", 123, "test");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/search/?query=test: Search Case Text failed; status - Internal Server Error (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/search/?query=test: Search Case Text failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -308,7 +311,7 @@ describe.only("gateway-apis", () => {
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/documents/documentID_1/checkout",
+        "https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout",
         expect.anything()
       );
       expect(response).toEqual(true);
@@ -321,7 +324,7 @@ describe.only("gateway-apis", () => {
       expect(async () => {
         await checkoutDocument("urn_123", 123, "documentID_1");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkout document failed; status - Internal Server Error (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkout document failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -343,7 +346,7 @@ describe.only("gateway-apis", () => {
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/documents/documentID_1/checkout",
+        "https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout",
         expect.anything()
       );
       expect(response).toEqual(true);
@@ -356,7 +359,7 @@ describe.only("gateway-apis", () => {
       expect(async () => {
         await cancelCheckoutDocument("urn_123", 123, "documentID_1");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkin document failed; status - Internal Server Error (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1/checkout: Checkin document failed; status - Internal Server Error (500)"
       );
     });
   });
@@ -376,7 +379,7 @@ describe.only("gateway-apis", () => {
       });
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/documents/documentID_1",
+        "https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1",
         expect.anything()
       );
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
@@ -393,7 +396,7 @@ describe.only("gateway-apis", () => {
           redactions: [],
         });
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://polaris-dev-cmsproxy.azurewebsites.net/api/urns/urn_123/cases/123/documents/documentID_1: Save redactions failed; status - Internal Server Error (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/urn_123/cases/123/documents/documentID_1: Save redactions failed; status - Internal Server Error (500)"
       );
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
     });
