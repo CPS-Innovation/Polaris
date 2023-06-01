@@ -355,7 +355,7 @@ describe("gateway-apis", () => {
         }
       );
       console.log("initiatePipeline >>11", initiatePipeline.toString());
-      const response = await initiatePipeline("abc", 123);
+      const response = await initiatePipeline("abc", 123, "correlationId_1");
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledWith(
         "https://gateway-url/api/urns/abc/cases/123",
@@ -375,7 +375,7 @@ describe("gateway-apis", () => {
           status: 423,
         }
       );
-      const response = await initiatePipeline("abc", 123);
+      const response = await initiatePipeline("abc", 123, "correlationId_1");
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
@@ -397,7 +397,7 @@ describe("gateway-apis", () => {
         }
       );
       expect(async () => {
-        await initiatePipeline("abc", 123);
+        await initiatePipeline("abc", 123, "correlationId_1");
       }).rejects.toThrow(
         "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123: Initiate pipeline failed; status - Internal Server Error (500)"
       );
