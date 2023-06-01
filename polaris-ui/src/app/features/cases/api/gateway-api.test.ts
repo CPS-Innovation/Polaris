@@ -1,3 +1,6 @@
+import fetchMock from "jest-fetch-mock";
+import { reauthenticationFilter } from "./reauthentication-filter";
+import * as HEADERS from "./header-factory";
 import {
   searchUrn,
   getCaseDetails,
@@ -9,9 +12,6 @@ import {
   cancelCheckoutDocument,
   saveRedactions,
 } from "./gateway-api";
-import fetchMock from "jest-fetch-mock";
-import { reauthenticationFilter } from "./reauthentication-filter";
-import * as HEADERS from "./header-factory";
 
 jest.mock("./reauthentication-filter");
 jest.mock("./header-factory");
@@ -19,6 +19,7 @@ jest.mock("../../../config", () => ({
   GATEWAY_BASE_URL: "https:gateway-url",
 }));
 describe("gateway-apis", () => {
+  console.log("initiatePipeline >>00", initiatePipeline.toString());
   beforeEach(() => {
     (HEADERS.correlationId as jest.Mock).mockReturnValue({
       "Correlation-Id": "correlationId_1",
@@ -346,25 +347,26 @@ describe("gateway-apis", () => {
       fetchMock.resetMocks();
     });
 
-    // it("initiatePipeline should call fetch and should not call reauthentication", async () => {
-    //   fetchMock.mockResponseOnce(
-    //     JSON.stringify({ trackerUrl: "tracker_url" }),
-    //     {
-    //       status: 200,
-    //     }
-    //   );
-    //   const response = await initiatePipeline("abc", 123);
-    //   expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
-    //   expect(fetchMock).toHaveBeenCalledWith(
-    //     "https://gateway-url/api/urns/abc/cases/123",
-    //     expect.anything()
-    //   );
-    //   expect(response).toEqual({
-    //     correlationId: "correlationId_1",
-    //     status: 200,
-    //     trackerUrl: "tracker_url",
-    //   });
-    // });
+    it("initiatePipeline should call fetch and should not call reauthentication", async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({ trackerUrl: "tracker_url" }),
+        {
+          status: 200,
+        }
+      );
+      console.log("initiatePipeline >>11", initiatePipeline.toString());
+      const response = await initiatePipeline("abc", 123);
+      expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://gateway-url/api/urns/abc/cases/123",
+        expect.anything()
+      );
+      expect(response).toEqual({
+        correlationId: "correlationId_1",
+        status: 200,
+        trackerUrl: "tracker_url",
+      });
+    });
 
     it("initiatePipeline should not throw error if response status is 423", async () => {
       fetchMock.mockResponseOnce(
