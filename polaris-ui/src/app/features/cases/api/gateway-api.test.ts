@@ -2,7 +2,7 @@ import {
   searchUrn,
   getCaseDetails,
   getPdfSasUrl,
-  initiatePipeline,
+  initiatePipeline as testInitiatePipeline,
   getPipelinePdfResults,
   searchCase,
   checkoutDocument,
@@ -353,7 +353,7 @@ describe("gateway-apis", () => {
           status: 200,
         }
       );
-      const response = await initiatePipeline("abc", 123);
+      const response = await testInitiatePipeline("abc", 123);
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledWith(
         "https://gateway-url/api/urns/abc/cases/123",
@@ -366,14 +366,14 @@ describe("gateway-apis", () => {
       });
     });
 
-    it("getPdfSasUrl should throw error if response status is 423", async () => {
+    it("initiatePipeline should not throw error if response status is 423", async () => {
       fetchMock.mockResponseOnce(
         JSON.stringify({ trackerUrl: "tracker_url" }),
         {
           status: 423,
         }
       );
-      const response = await initiatePipeline("abc", 123);
+      const response = await testInitiatePipeline("abc", 123);
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
@@ -387,7 +387,7 @@ describe("gateway-apis", () => {
       });
     });
 
-    it("getPdfSasUrl should throw error if for any other failed response status", async () => {
+    it("initiatePipeline should throw error if for any other failed response status", async () => {
       fetchMock.mockResponseOnce(
         JSON.stringify({ trackerUrl: "tracker_url" }),
         {
@@ -395,7 +395,7 @@ describe("gateway-apis", () => {
         }
       );
       expect(async () => {
-        await initiatePipeline("abc", 123);
+        await testInitiatePipeline("abc", 123);
       }).rejects.toThrow(
         "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123: Initiate pipeline failed; status - Internal Server Error (500)"
       );
