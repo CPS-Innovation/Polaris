@@ -14,7 +14,7 @@ public class DdeiCaseDocumentResponse
     public string PresentationTitle { get; set; }
 
     [JsonProperty("originalFileName")]
-    public string OriginalFilename { get; set; }
+    public string OriginalFileName { get; set; }
 
     [JsonProperty("mimeType")]
     public string MimeType { get; set; }

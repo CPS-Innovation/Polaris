@@ -12,7 +12,7 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
         {
             DocumentId = ddeiResponse.Id.ToString(),
             VersionId = ddeiResponse.VersionId,
-            FileName = ddeiResponse.OriginalFilename,
+            FileName = ddeiResponse.OriginalFileName,
             PresentationTitle = ddeiResponse.PresentationTitle,
             MimeType = ddeiResponse.MimeType,
             FileExtension = ddeiResponse.FileExtension,
