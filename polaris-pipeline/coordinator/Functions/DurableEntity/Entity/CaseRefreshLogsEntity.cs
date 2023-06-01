@@ -31,11 +31,11 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
             foreach (TrackerCmsDocumentDto trackerCmsDocumentDto in deltas.UpdatedCmsDocuments)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentRetrieved, trackerCmsDocumentDto.PolarisDocumentId.ToString(), "Updated"));
+                LogDocument((t, TrackerLogType.CmsDocumentUpdated, trackerCmsDocumentDto.PolarisDocumentId.ToString(), "Updated"));
             }
             foreach (TrackerCmsDocumentDto trackerCmsDocumentDto in deltas.DeletedCmsDocuments)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentRetrieved, trackerCmsDocumentDto.PolarisDocumentId.ToString(), "Deleted"));
+                LogDocument((t, TrackerLogType.CmsDocumentDeleted, trackerCmsDocumentDto.PolarisDocumentId.ToString(), "Deleted"));
             }
 
             if(deltas.CreatedDefendantsAndCharges != null)
@@ -44,20 +44,20 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
             if (deltas.UpdatedDefendantsAndCharges != null)
             {
-                LogDocument((t, TrackerLogType.DefendantAndChargesRetrieved, deltas.UpdatedDefendantsAndCharges.PolarisDocumentId.ToString(), "Updated"));
+                LogDocument((t, TrackerLogType.DefendantAndChargesUpdated, deltas.UpdatedDefendantsAndCharges.PolarisDocumentId.ToString(), "Updated"));
             }
 
             foreach (TrackerPcdRequestDto trackerPcdRequestDto in deltas.CreatedPcdRequests)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentRetrieved, trackerPcdRequestDto.PolarisDocumentId.ToString(), "Created"));
+                LogDocument((t, TrackerLogType.PcdRequestRetrieved, trackerPcdRequestDto.PolarisDocumentId.ToString(), "Created"));
             }
             foreach (TrackerPcdRequestDto trackerPcdRequestDto in deltas.UpdatedPcdRequests)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentRetrieved, trackerPcdRequestDto.PolarisDocumentId.ToString(), "Updated"));
+                LogDocument((t, TrackerLogType.PcdRequestUpdated, trackerPcdRequestDto.PolarisDocumentId.ToString(), "Updated"));
             }
             foreach (TrackerPcdRequestDto trackerPcdRequestDto in deltas.DeletedPcdRequests)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentRetrieved, trackerPcdRequestDto.PolarisDocumentId.ToString(), "Deleted"));
+                LogDocument((t, TrackerLogType.PcdRequestDeleted, trackerPcdRequestDto.PolarisDocumentId.ToString(), "Deleted"));
             }
         }
 

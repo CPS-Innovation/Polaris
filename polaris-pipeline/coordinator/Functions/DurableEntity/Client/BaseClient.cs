@@ -10,6 +10,7 @@ using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.Dto.Tracker;
 using Common.ValueObjects;
+using coordinator.Functions.DurableEntity.Entity.Contract;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -31,6 +32,39 @@ namespace coordinator.Functions.DurableEntity.Client
     public class BaseClient
     {
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
+
+        protected async Task<(CaseEntity CaseEntity, CaseRefreshLogsEntity CaseRefreshLogsEntity, string errorMessage)> GetCaseTrackersForEntity
+            (
+                IDurableEntityClient client,
+                string caseId,
+                Guid correlationId, 
+                string loggingName,
+                ILogger log
+            )
+        {
+            var caseEntityId = new EntityId(nameof(CaseEntity), caseId);
+            var caseEntity = await client.ReadEntityStateAsync<CaseEntity>(caseEntityId);
+
+            if (!caseEntity.EntityExists)
+            {
+                var errorMessage = $"No Case Entity found with id '{caseId}'";
+                log.LogMethodFlow(correlationId, loggingName, errorMessage);
+                return (null, null, errorMessage);
+            }
+
+            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsEntity), $"{caseId}-{caseEntity.EntityState.Version}");
+            var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsEntity>(caseRefreshLogsEntityId);
+
+            if (!caseRefreshLogsEntity.EntityExists)
+            {
+                var errorMessage = $"No Case Refresh Logs Entity found with id '{caseId}' and version {caseEntity.EntityState.Version}.";
+                log.LogMethodFlow(correlationId, loggingName, errorMessage);
+                return (null, null, errorMessage);
+            }
+
+            return (caseEntity.EntityState, caseRefreshLogsEntity.EntityState, null);
+        }
+
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
                 HttpRequestMessage req,

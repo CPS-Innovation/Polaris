@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.DurableEntity.Client.Tracker
 {
-    public class TrackerClient
+    public class TrackerClient : BaseClient
     {
         const string loggingName = $"{nameof(TrackerClient)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
@@ -60,24 +60,19 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
                 #endregion
 
-                var caseEntityId = new EntityId(nameof(CaseEntity), caseId);
-                var caseEntity = await client.ReadEntityStateAsync<CaseEntity>(caseEntityId);
+                var (caseEntity, caseRefreshLogsEntity, errorMessage) = await GetCaseTrackersForEntity(client, caseId, currentCorrelationId, loggingName, log);
 
-                if (!caseEntity.EntityExists)
+                if(errorMessage != null)
                 {
-                    var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                    log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
-                    return new NotFoundObjectResult(baseMessage);
+                    log.LogMethodFlow(currentCorrelationId, loggingName, errorMessage);
+                    return new NotFoundObjectResult(errorMessage);
                 }
-
-                var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsEntity), $"{caseId}-{caseEntity.EntityState.Version-1}");
-                var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsEntity>(caseRefreshLogsEntityId);
 
                 switch (req.Method.Method)
                 {
                     case "GET":
                         log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                        var trackerDto = (caseEntity.EntityState, caseRefreshLogsEntity.EntityState).Adapt<TrackerDto>();
+                        var trackerDto = (caseEntity, caseRefreshLogsEntity).Adapt<TrackerDto>();
                         return new OkObjectResult(trackerDto);
 
                     default:

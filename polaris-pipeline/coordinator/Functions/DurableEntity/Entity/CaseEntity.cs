@@ -23,16 +23,16 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
-        private int version = 0;
+        private int? version = null;
 
         [JsonProperty("versionId")]
-        public int Version 
+        public int? Version 
         { 
             get { return version; } 
             set { version = value;  } 
         }
 
-        public Task<int> GetVersion()
+        public Task<int?> GetVersion()
         {
             return Task.FromResult(version);
         }
@@ -98,7 +98,6 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             Status = TrackerStatus.DocumentsRetrieved;
             DocumentsRetrieved = DateTime.Now;
-            version = (deltas.Any() ? version + 1 : Math.Max(version, 1));
 
             return await Task.FromResult(deltas);
         }

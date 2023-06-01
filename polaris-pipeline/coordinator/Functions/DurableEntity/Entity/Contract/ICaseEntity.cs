@@ -11,9 +11,8 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
     // (A single tuple is acceptable)
     public interface ICaseEntity
     {
-        Task<int> GetVersion();
+        Task<int?> GetVersion();
         void SetVersion(int value);
-
         void Reset(string TransactionId);
         void SetValue(CaseEntity tracker);
         Task<TrackerDeltasDto> GetCaseDocumentChanges((DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);

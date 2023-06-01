@@ -10,7 +10,7 @@ namespace coordinator.Functions.Orchestration.Functions
 {
     public class PolarisOrchestrator
     {
-        protected async Task<(ICaseEntity, ICaseRefreshLogsEntity)> CreateOrGetCaseTrackersForEntity(IDurableOrchestrationContext context, long caseId, Guid correlationId, ILogger log)
+        protected async Task<(ICaseEntity, ICaseRefreshLogsEntity)> CreateOrGetCaseTrackersForEntity(IDurableOrchestrationContext context, long caseId, bool newVersion, Guid correlationId, ILogger log)
         {
             log.LogMethodEntry(correlationId, nameof(CreateOrGetCaseTrackersForEntity), $"CaseId: {caseId}");
 
@@ -18,6 +18,12 @@ namespace coordinator.Functions.Orchestration.Functions
             var caseEntity = context.CreateEntityProxy<ICaseEntity>(caseEntityId);
 
             var version = await caseEntity.GetVersion();
+
+            if(newVersion)
+            {
+                version = version == null ? 1 : version + 1;
+                caseEntity.SetVersion(version.Value);
+            }
             var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsEntity), $"{caseId}-{version}");
             var caseRefreshLogsEntity = context.CreateEntityProxy<ICaseRefreshLogsEntity>(caseRefreshLogsEntityId);
 

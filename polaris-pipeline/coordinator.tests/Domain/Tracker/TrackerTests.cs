@@ -348,7 +348,6 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            (await tracker.GetVersion()).Should().Be(1);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -378,7 +377,6 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            (await tracker.GetVersion()).Should().Be(1);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -403,7 +401,6 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            (await tracker.GetVersion()).Should().Be(1);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -428,7 +425,6 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            (await tracker.GetVersion()).Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(3);
@@ -453,7 +449,6 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            (await tracker.GetVersion()).Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -482,7 +477,6 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
 
             // Assert
-            (await tracker.GetVersion()).Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(2);
@@ -509,7 +503,6 @@ namespace coordinator.tests.Domain.Tracker
             var deltas = await tracker.GetCaseDocumentChanges(synchroniseDocumentsArg);
 
             // Assert
-            (await tracker.GetVersion()).Should().Be(2);
             tracker.CmsDocuments.Count.Should().Be(1);
             deltas.CreatedCmsDocuments.Count.Should().Be(0);
             deltas.UpdatedCmsDocuments.Count.Should().Be(0);
@@ -654,6 +647,7 @@ namespace coordinator.tests.Domain.Tracker
 
             // Assert
             trackerDto.Documents.Count.Should().Be(caseEntity.CmsDocuments.Count + caseEntity.PcdRequests.Count + 1);
+            trackerDto.Logs.Invoking(x => x.Should().BeEquivalentTo(caseRefreshLogsEntity));
         }
     }
 }
