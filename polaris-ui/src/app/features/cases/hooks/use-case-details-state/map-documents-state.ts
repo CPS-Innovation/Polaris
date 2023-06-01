@@ -1,7 +1,6 @@
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
-import { getFileNameWithoutExtension } from "../../logic/get-file-name-without-extension";
 import { getCategory } from "./document-category-definitions";
 
 export const mapDocumentsState = (
@@ -10,7 +9,7 @@ export const mapDocumentsState = (
   status: "succeeded",
   data: result.map((item) => ({
     ...item,
-    presentationFileName: getFileNameWithoutExtension(item.cmsOriginalFileName),
+    presentationFileName: item.presentationTitle,
     presentationCategory: getCategory(item),
   })),
 });
