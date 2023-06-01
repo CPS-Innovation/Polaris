@@ -18,7 +18,7 @@ jest.mock("./header-factory");
 jest.mock("../../../config", () => ({
   GATEWAY_BASE_URL: "https:gateway-url",
 }));
-describe.only("gateway-apis", () => {
+describe("gateway-apis", () => {
   beforeEach(() => {
     (HEADERS.correlationId as jest.Mock).mockReturnValue({
       "Correlation-Id": "correlationId_1",
