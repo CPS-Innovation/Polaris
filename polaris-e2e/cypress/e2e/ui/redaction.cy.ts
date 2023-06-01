@@ -21,13 +21,13 @@ describe("Redactions", () => {
     // open case details page
     cy.findByTestId("btn-accordion-open-close-all").click()
 
+    // this document has ocrProcessed = "Y" in the mock
     cy.findByText(TARGET_DOCUMENT_NAME).click()
-
     cy.selectPDFTextElement("Procedure")
     cy.findByTestId("btn-redact")
 
+    // this document has ocrProcessed = null in the mock
     cy.findByText(TARGET_NOT_OCR_PROCESSED_DOCUMENT_NAME).click()
-
     cy.selectPDFTextElement("Dummy")
     cy.findByTestId("redaction-warning")
   })
