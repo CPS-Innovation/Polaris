@@ -35,7 +35,7 @@ public class DocumentEvaluationServiceTests
 
         _mockBlobStorageService.Setup(s => s.RemoveDocumentAsync(It.IsAny<string>(), _correlationId)).ReturnsAsync(true);
 
-        var convertedBlob = new BlobSearchResult {BlobName = incomingDocument.Title, VersionId = incomingDocument.VersionId};
+        var convertedBlob = new BlobSearchResult {BlobName = incomingDocument.PresentationTitle, VersionId = incomingDocument.VersionId};
         
         _mockBlobStorageService.Setup(x => x.FindBlobsByPrefixAsync(It.IsAny<string>(), It.IsAny<Guid>()))
             .ReturnsAsync(new List<BlobSearchResult> { convertedBlob });

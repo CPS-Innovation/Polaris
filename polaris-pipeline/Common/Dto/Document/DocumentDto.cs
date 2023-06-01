@@ -8,7 +8,9 @@ namespace Common.Dto.Document
 
         public long VersionId { get; set; }
 
-        public string Title { get; set; }
+        public string FileName { get; set; }
+
+        public string PresentationTitle { get; set; }
 
         public string MimeType { get; set; }
 

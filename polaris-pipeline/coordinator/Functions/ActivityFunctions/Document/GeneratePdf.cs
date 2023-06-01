@@ -86,7 +86,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CorrelationId
                     );
                 blobName = $"{payload.CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(payload.CmsDocumentTracker.CmsDocumentId)}.pdf";
-                fileType = Path.GetExtension(payload.CmsDocumentTracker.Title).ToFileType();
+                fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
             }
             else if(payload.PcdRequestTracker != null) 
             {

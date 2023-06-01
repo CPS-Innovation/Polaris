@@ -209,9 +209,9 @@ public class DdeiDocumentExtractionServiceTests
         {
             result.Should().NotBeNull();
             result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
-            result[0].Title.Should().Be(searchResults[0].PresentationTitle);
+            result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
             result[3].DocumentId.Should().Be(searchResults[3].Id.ToString());
-            result[3].Title.Should().Be(searchResults[3].PresentationTitle);
+            result[3].PresentationTitle.Should().Be(searchResults[3].PresentationTitle);
         }
     }
 
@@ -231,7 +231,7 @@ public class DdeiDocumentExtractionServiceTests
         {
             result.Should().NotBeNull();
             result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
-            result[0].Title.Should().Be(searchResults[0].PresentationTitle);
+            result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
         }
     }
 

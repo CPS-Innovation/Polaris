@@ -29,7 +29,7 @@ public class DdeiCaseDocumentMapperTests
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.Title.Should().Be(_documentResponse.PresentationTitle);
+            result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().Be(_documentResponse.DocumentType);
@@ -47,7 +47,7 @@ public class DdeiCaseDocumentMapperTests
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.Title.Should().Be(_documentResponse.PresentationTitle);
+            result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().Be(_documentResponse.DocumentType);
@@ -65,7 +65,7 @@ public class DdeiCaseDocumentMapperTests
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.Title.Should().Be(_documentResponse.PresentationTitle);
+            result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().BeNull();
@@ -83,7 +83,7 @@ public class DdeiCaseDocumentMapperTests
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.Title.Should().Be(_documentResponse.PresentationTitle);
+            result.PresentationTitle.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().Be(_documentResponse.DocumentType);

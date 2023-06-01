@@ -13,9 +13,8 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("presentationTitle")]
     public string PresentationTitle { get; set; }
 
-    // No longer required, now using PresentationTitle
-    //[JsonProperty("originalFileName")]
-    //public string OriginalFilename { get; set; }
+    [JsonProperty("originalFileName")]
+    public string OriginalFilename { get; set; }
 
     [JsonProperty("mimeType")]
     public string MimeType { get; set; }
