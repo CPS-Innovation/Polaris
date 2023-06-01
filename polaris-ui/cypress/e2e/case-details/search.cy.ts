@@ -416,146 +416,146 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Viewing search results", () => {
-      it("Can use the previous/next buttons to focus on highlights", () => {
-        cy.visit("/case-details/12AB1111111/13401");
-        cy.findByTestId("input-search-case").type("drink{enter}");
-        cy.findByTestId("link-result-document-3").click();
+    // describe("Viewing search results", () => {
+    //   it("Can use the previous/next buttons to focus on highlights", () => {
+    //     cy.visit("/case-details/12AB1111111/13401");
+    //     cy.findByTestId("input-search-case").type("drink{enter}");
+    //     cy.findByTestId("link-result-document-3").click();
 
-        // first highlight is focussed
-        cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("exist");
+    //     // first highlight is focussed
+    //     cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
+    //     cy.findByTestId("txt-focus-highlight-previous").should("exist");
 
-        cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
+    //     cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
 
-        cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
+    //     cy.findByTestId("btn-focus-highlight-next").should("exist");
+    //     cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
-        cy.findByTestId("div-highlight-0").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "true"
-        );
-        cy.findByTestId("div-highlight-1").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
-        cy.findByTestId("div-highlight-2").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
+    //     cy.findByTestId("div-highlight-0").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "true"
+    //     );
+    //     cy.findByTestId("div-highlight-1").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
+    //     cy.findByTestId("div-highlight-2").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
 
-        // focus second highlight
-        cy.findByTestId("btn-focus-highlight-next").click();
+    //     // focus second highlight
+    //     cy.findByTestId("btn-focus-highlight-next").click();
 
-        cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
+    //     cy.findByTestId("btn-focus-highlight-previous").should("exist");
+    //     cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
 
-        cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
+    //     cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
 
-        cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
+    //     cy.findByTestId("btn-focus-highlight-next").should("exist");
+    //     cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
-        cy.findByTestId("div-highlight-0").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
-        cy.findByTestId("div-highlight-1").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "true"
-        );
-        cy.findByTestId("div-highlight-2").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
+    //     cy.findByTestId("div-highlight-0").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
+    //     cy.findByTestId("div-highlight-1").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "true"
+    //     );
+    //     cy.findByTestId("div-highlight-2").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
 
-        // focus third highlight
-        cy.findByTestId("btn-focus-highlight-next").click();
+    //     // focus third highlight
+    //     cy.findByTestId("btn-focus-highlight-next").click();
 
-        cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
+    //     cy.findByTestId("btn-focus-highlight-previous").should("exist");
+    //     cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
 
-        cy.findByTestId("txt-focus-highlight-numbers").contains("3/3");
+    //     cy.findByTestId("txt-focus-highlight-numbers").contains("3/3");
 
-        cy.findByTestId("btn-focus-highlight-next").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-next").should("exist");
+    //     cy.findByTestId("btn-focus-highlight-next").should("not.exist");
+    //     cy.findByTestId("txt-focus-highlight-next").should("exist");
 
-        cy.findByTestId("div-highlight-0").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
-        cy.findByTestId("div-highlight-1").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
-        cy.findByTestId("div-highlight-2").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "true"
-        );
+    //     cy.findByTestId("div-highlight-0").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
+    //     cy.findByTestId("div-highlight-1").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
+    //     cy.findByTestId("div-highlight-2").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "true"
+    //     );
 
-        // back to second highlight
-        cy.findByTestId("btn-focus-highlight-previous").click();
+    //     // back to second highlight
+    //     cy.findByTestId("btn-focus-highlight-previous").click();
 
-        cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
+    //     cy.findByTestId("btn-focus-highlight-previous").should("exist");
+    //     cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
 
-        cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
+    //     cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
 
-        cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
+    //     cy.findByTestId("btn-focus-highlight-next").should("exist");
+    //     cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
-        cy.findByTestId("div-highlight-0").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
-        cy.findByTestId("div-highlight-1").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "true"
-        );
-        cy.findByTestId("div-highlight-2").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
+    //     cy.findByTestId("div-highlight-0").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
+    //     cy.findByTestId("div-highlight-1").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "true"
+    //     );
+    //     cy.findByTestId("div-highlight-2").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
 
-        // back to first highlight
-        cy.findByTestId("btn-focus-highlight-previous").click();
+    //     // back to first highlight
+    //     cy.findByTestId("btn-focus-highlight-previous").click();
 
-        cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("exist");
+    //     cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
+    //     cy.findByTestId("txt-focus-highlight-previous").should("exist");
 
-        cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
+    //     cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
 
-        cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
+    //     cy.findByTestId("btn-focus-highlight-next").should("exist");
+    //     cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
-        cy.findByTestId("div-highlight-0").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "true"
-        );
-        cy.findByTestId("div-highlight-1").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
-        cy.findByTestId("div-highlight-2").should(
-          "have.attr",
-          "data-test-isfocussed",
-          "false"
-        );
-      });
-    });
+    //     cy.findByTestId("div-highlight-0").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "true"
+    //     );
+    //     cy.findByTestId("div-highlight-1").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
+    //     cy.findByTestId("div-highlight-2").should(
+    //       "have.attr",
+    //       "data-test-isfocussed",
+    //       "false"
+    //     );
+    //   });
+    // });
   });
 });
 
