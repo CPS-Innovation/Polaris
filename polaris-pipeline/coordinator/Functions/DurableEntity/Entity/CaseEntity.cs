@@ -97,6 +97,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             };
 
             Status = TrackerStatus.DocumentsRetrieved;
+            // TODO : make explicit
             DocumentsRetrieved = DateTime.Now;
 
             return await Task.FromResult(deltas);

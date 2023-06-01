@@ -121,7 +121,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 ILogger log
             )
         {
-            var deltas = await GetCaseDocumentChanges(context.CurrentUtcDateTime, caseTracker, caseRefreshLogsEntity, loggingName, log, caseDocumentPayload, documents);
+            var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
+            caseRefreshLogsEntity.LogDeltas((context.CurrentUtcDateTime, deltas));
             var logMessage = deltas.GetLogMessage();
             log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, logMessage);
 
@@ -211,25 +212,6 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var documents = await context.CallActivityAsync<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
 
             return documents;
-        }
-
-        private static async Task<TrackerDeltasDto> GetCaseDocumentChanges
-            (
-                DateTime t,
-                ICaseEntity caseTracker,
-                ICaseRefreshLogsEntity caseRefreshLogsEntity,
-                string nameToLog, 
-                ILogger safeLogger, 
-                BasePipelinePayload payload,
-                (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents
-            )
-        {
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Documents found, register document Ids in tracker for case {payload.CmsCaseId}");
-
-            var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
-            caseRefreshLogsEntity.LogDeltas((t,deltas));
-
-            return deltas;
         }
     }
 }
