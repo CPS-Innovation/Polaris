@@ -141,6 +141,9 @@ export const getPipelinePdfResults = async (
   if (response.status === 404) {
     return false;
   }
+  if (!response.ok) {
+    throw new ApiError("Get Pipeline pdf results failed", trackerUrl, response);
+  }
   const rawResponse: { documents: any[] } = await response.json();
   const { documents } = rawResponse;
   temporaryApiModelMapping(documents);
