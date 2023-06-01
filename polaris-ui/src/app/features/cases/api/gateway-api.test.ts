@@ -19,7 +19,6 @@ jest.mock("../../../config", () => ({
   GATEWAY_BASE_URL: "https:gateway-url",
 }));
 describe("gateway-apis", () => {
-  console.log("initiatePipeline >>00", initiatePipeline.toString());
   beforeEach(() => {
     (HEADERS.correlationId as jest.Mock).mockReturnValue({
       "Correlation-Id": "correlationId_1",
@@ -354,7 +353,6 @@ describe("gateway-apis", () => {
           status: 200,
         }
       );
-      console.log("initiatePipeline >>11", initiatePipeline.toString());
       const response = await initiatePipeline("abc", 123, "correlationId_1");
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledWith(
