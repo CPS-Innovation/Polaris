@@ -20,14 +20,14 @@ namespace Common.Dto.Tracker
             long cmsVersionId,
             DocumentTypeDto cmsDocType,
             string cmsFileCreatedDate,
-            string cmsOriginalFileName,
+            string title,
             bool isOcrProcessed,
             PresentationFlagsDto presentationFlags)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             CmsFileCreatedDate = cmsFileCreatedDate;
-            CmsOriginalFileName = cmsOriginalFileName;
+            Title = title;
             IsOcrProcessed = isOcrProcessed;
             Status = TrackerDocumentStatus.New;
         }
@@ -35,10 +35,10 @@ namespace Common.Dto.Tracker
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
 
-        [JsonProperty("cmsOriginalFileName")]
+        [JsonProperty("presentationFileName")]
         [Required]
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
-        public string CmsOriginalFileName { get; set; }
+        public string Title { get; set; }
 
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }

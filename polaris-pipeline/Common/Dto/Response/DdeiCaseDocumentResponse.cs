@@ -10,8 +10,12 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("versionId")]
     public long VersionId { get; set; }
 
-    [JsonProperty("originalFileName")]
-    public string OriginalFileName { get; set; }
+    [JsonProperty("presentationTitle")]
+    public string PresentationTitle { get; set; }
+
+    // No longer required, now using PresentationTitle
+    //[JsonProperty("originalFileName")]
+    //public string OriginalFilename { get; set; }
 
     [JsonProperty("mimeType")]
     public string MimeType { get; set; }

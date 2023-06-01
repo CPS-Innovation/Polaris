@@ -194,7 +194,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.VersionId,
                         newDocument.CmsDocType,
                         newDocument.DocumentDate,
-                        newDocument.FileName,
+                        newDocument.Title,
                         newDocument.IsOcrProcessed,
                         newDocument.PresentationFlags
                     );
@@ -219,7 +219,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
-                trackerDocument.CmsOriginalFileName = updatedDocument.FileName;
+                trackerDocument.Title = updatedDocument.Title;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
 
                 changedDocuments.Add(trackerDocument);

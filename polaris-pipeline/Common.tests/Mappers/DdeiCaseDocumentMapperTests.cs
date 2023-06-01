@@ -29,7 +29,7 @@ public class DdeiCaseDocumentMapperTests
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.FileName.Should().Be(_documentResponse.OriginalFileName);
+            result.Title.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().Be(_documentResponse.DocumentType);
@@ -40,14 +40,14 @@ public class DdeiCaseDocumentMapperTests
     [Fact]
     public void When_OriginalFileNameIsNullInResponse_ReturnsCorrectValues()
     {
-        _documentResponse.OriginalFileName = null;
+        _documentResponse.PresentationTitle = null;
         
         var result = _mapper.Map(_documentResponse);
 
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.FileName.Should().Be(_documentResponse.OriginalFileName);
+            result.Title.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().Be(_documentResponse.DocumentType);
@@ -65,7 +65,7 @@ public class DdeiCaseDocumentMapperTests
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.FileName.Should().Be(_documentResponse.OriginalFileName);
+            result.Title.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().BeNull();
@@ -83,7 +83,7 @@ public class DdeiCaseDocumentMapperTests
         using (new AssertionScope())
         {
             result.DocumentId.Should().Be(_documentResponse.Id.ToString());
-            result.FileName.Should().Be(_documentResponse.OriginalFileName);
+            result.Title.Should().Be(_documentResponse.PresentationTitle);
             result.VersionId.Should().Be(_documentResponse.VersionId);
             result.CmsDocType.DocumentCategory.Should().Be(_documentResponse.CmsDocCategory);
             result.CmsDocType.DocumentType.Should().Be(_documentResponse.DocumentType);
