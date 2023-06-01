@@ -106,9 +106,9 @@ export const getPdfSasUrl = async (
 export const initiatePipeline = async (urn: string, caseId: number) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
-  const correlationIdHeader = HEADERS.correlationId();
+  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
   const response = await internalFetch(path, {
-    headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
+    headers: headers,
     method: "POST",
   });
 
@@ -120,7 +120,7 @@ export const initiatePipeline = async (urn: string, caseId: number) => {
 
   return {
     trackerUrl,
-    correlationId: Object.values(correlationIdHeader)[0],
+    correlationId: headers["Correlation-Id"],
     status: response.status,
   };
 };
