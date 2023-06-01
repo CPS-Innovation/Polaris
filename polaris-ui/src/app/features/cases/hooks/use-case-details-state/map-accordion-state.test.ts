@@ -39,9 +39,8 @@ describe("mapAccordionState", () => {
           documentId: "1",
           cmsDocumentId: "1",
           presentationCategory: "category-a",
-          cmsOriginalFileName: "foo",
           cmsMimeType: "application/pdf",
-          presentationFileName: "foo!",
+          presentationFileName: "foo",
           polarisDocumentVersionId: 1,
           cmsDocType: {
             documentTypeId: 1,
@@ -58,9 +57,9 @@ describe("mapAccordionState", () => {
           documentId: "2",
           cmsDocumentId: "2",
           presentationCategory: "category-b",
-          cmsOriginalFileName: "bar",
+
           cmsMimeType: "application/pdf",
-          presentationFileName: "bar!",
+          presentationFileName: "bar",
           polarisDocumentVersionId: 1,
           cmsDocType: {
             documentTypeId: 2,
@@ -89,9 +88,9 @@ describe("mapAccordionState", () => {
               documentId: "1",
               cmsDocumentId: "1",
               presentationCategory: "category-a",
-              cmsOriginalFileName: "foo",
+
               cmsMimeType: "application/pdf",
-              presentationFileName: "foo!",
+              presentationFileName: "foo",
               polarisDocumentVersionId: 1,
               cmsDocType: {
                 documentTypeId: 1,
@@ -114,9 +113,8 @@ describe("mapAccordionState", () => {
               documentId: "2",
               cmsDocumentId: "2",
               presentationCategory: "category-b",
-              cmsOriginalFileName: "bar",
               cmsMimeType: "application/pdf",
-              presentationFileName: "bar!",
+              presentationFileName: "bar",
               polarisDocumentVersionId: 1,
               cmsDocType: {
                 documentTypeId: 2,
@@ -142,9 +140,8 @@ describe("mapAccordionState", () => {
           documentId: "1",
           cmsDocumentId: "1",
           presentationCategory: "category-a",
-          cmsOriginalFileName: "foo",
           cmsMimeType: "application/pdf",
-          presentationFileName: "foo!",
+          presentationFileName: "foo",
           polarisDocumentVersionId: 1,
           cmsDocType: {
             documentTypeId: 1,
@@ -161,9 +158,8 @@ describe("mapAccordionState", () => {
           documentId: "2",
           cmsDocumentId: "2",
           presentationCategory: "category-b",
-          cmsOriginalFileName: "bar",
           cmsMimeType: "application/pdf",
-          presentationFileName: "bar!",
+          presentationFileName: "bar",
           polarisDocumentVersionId: 1,
           cmsDocType: {
             documentTypeId: 2,
@@ -197,9 +193,8 @@ describe("mapAccordionState", () => {
               documentId: "2",
               cmsDocumentId: "2",
               presentationCategory: "category-b",
-              cmsOriginalFileName: "bar",
               cmsMimeType: "application/pdf",
-              presentationFileName: "bar!",
+              presentationFileName: "bar",
               polarisDocumentVersionId: 1,
               cmsDocType: {
                 documentTypeId: 2,

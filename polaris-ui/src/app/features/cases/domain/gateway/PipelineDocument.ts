@@ -25,7 +25,7 @@ export type PresentationFlags = {
 export type PresentationDocumentProperties = {
   documentId: string;
   cmsDocumentId: string;
-  cmsOriginalFileName: string;
+  presentationFileName: string;
   polarisDocumentVersionId: number;
   cmsMimeType: string;
   cmsFileCreatedDate: string;
