@@ -340,4 +340,65 @@ describe("gateway-apis", () => {
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
     });
   });
+
+  describe("initiatePipeline", () => {
+    beforeEach(() => {
+      fetchMock.resetMocks();
+    });
+
+    it("initiatePipeline should call fetch and should not call reauthentication", async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({ trackerUrl: "tracker_url" }),
+        {
+          status: 200,
+        }
+      );
+      const response = await initiatePipeline("abc", 123);
+      expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://gateway-url/api/urns/abc/cases/123",
+        expect.anything()
+      );
+      expect(response).toEqual({
+        correlationId: "correlationId_1",
+        status: 200,
+        trackerUrl: "tracker_url",
+      });
+    });
+
+    it("getPdfSasUrl should throw error if response status is 423", async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({ trackerUrl: "tracker_url" }),
+        {
+          status: 423,
+        }
+      );
+      const response = await initiatePipeline("abc", 123);
+      expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://gateway-url/api/urns/abc/cases/123",
+        expect.anything()
+      );
+      expect(response).toEqual({
+        correlationId: "correlationId_1",
+        status: 423,
+        trackerUrl: "tracker_url",
+      });
+    });
+
+    it("getPdfSasUrl should throw error if for any other failed response status", async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({ trackerUrl: "tracker_url" }),
+        {
+          status: 500,
+        }
+      );
+      expect(async () => {
+        await initiatePipeline("abc", 123);
+      }).rejects.toThrow(
+        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123: Initiate pipeline failed; status - Internal Server Error (500)"
+      );
+    });
+  });
 });
