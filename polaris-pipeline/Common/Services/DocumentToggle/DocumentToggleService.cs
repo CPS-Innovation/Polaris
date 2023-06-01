@@ -71,13 +71,17 @@ namespace Common.Services.DocumentToggle
             {
                 write = WriteFlag.OnlyAvailableInCms;
             }
-            else if (levelForDocType != DefinitionLevel.ReadWrite)
+            else if(levelForDocType != DefinitionLevel.ReadWrite)
             {
                 write = WriteFlag.DocTypeNotAllowed;
             }
-            else if (levelForFileType != DefinitionLevel.ReadWrite)
+            else if(levelForFileType != DefinitionLevel.ReadWrite)
             {
                 write = WriteFlag.OriginalFileTypeNotAllowed;
+            }
+            else if(!document.IsOcrProcessed)
+            {
+                write = WriteFlag.IsNotOcrProcessed;
             }
             else
             {

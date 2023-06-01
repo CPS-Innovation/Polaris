@@ -122,8 +122,15 @@ namespace coordinator.Functions.DurableEntity.Entity
             var updatedDocuments =
                 (from incomingDocument in incomingDocuments
                 let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.CmsDocumentId == incomingDocument.DocumentId)
-                where cmsDocument != null 
-                where cmsDocument.Status != TrackerDocumentStatus.Indexed || cmsDocument.CmsVersionId != incomingDocument.VersionId
+                where 
+                (
+                    cmsDocument != null &&
+                    (
+                        cmsDocument.Status != TrackerDocumentStatus.Indexed || 
+                        cmsDocument.CmsVersionId != incomingDocument.VersionId ||
+                        cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed 
+                    )
+                )
                 select incomingDocument).ToList();
 
             var deletedCmsDocumentIdsToRemove
@@ -188,6 +195,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.CmsDocType,
                         newDocument.DocumentDate,
                         newDocument.FileName,
+                        newDocument.IsOcrProcessed,
                         newDocument.PresentationFlags
                     );
 

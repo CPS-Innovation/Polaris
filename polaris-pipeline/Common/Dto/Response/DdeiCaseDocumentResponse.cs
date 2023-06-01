@@ -30,4 +30,7 @@ public class DdeiCaseDocumentResponse
 
     [JsonProperty("date")]
     public string DocumentDate { get; set; }
+
+    [JsonProperty("isOcrProcessed")]
+    public bool? IsOcrProcessed { get; set; }
 }

@@ -6,7 +6,10 @@
       "default": "Warning",
       "Function": "Information",
       "Host.Aggregator": "Error",
-      "Host.Results": "Information"
+      "Host.Results": "Information",
+      "Host.Triggers.DurableTask": "Warning",
+      "DurableTask.AzureStorage": "Warning",
+      "DurableTask.Core": "Warning"
     },
     "applicationInsights": {
       "samplingSettings": {
@@ -27,7 +30,11 @@
   "extensions": {
     "durableTask": {
       "maxConcurrentActivityFunctions": 10,
-      "maxConcurrentOrchestratorFunctions": 10
+      "maxConcurrentOrchestratorFunctions": 10,
+      "tracing": {
+        "traceInputsAndOutputs": false,
+        "traceReplayEvents": false
+      }
     }
   }
 }
