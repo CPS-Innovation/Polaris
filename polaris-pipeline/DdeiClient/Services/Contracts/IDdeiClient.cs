@@ -11,7 +11,7 @@ namespace DdeiClient.Services.Contracts
         Task<CaseDto> GetCase(DdeiCmsCaseArgDto arg);
         Task<DocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId);
         Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string cmsAuthValues, Guid correlationId);
-        Task CheckoutDocument(DdeiCmsDocumentArgDto arg);
+        Task<HttpResponseMessage> CheckoutDocument(DdeiCmsDocumentArgDto arg);
         Task CancelCheckoutDocument(DdeiCmsDocumentArgDto arg);
         Task UploadPdf(DdeiCmsDocumentArgDto arg, Stream stream);
     }
