@@ -55,9 +55,9 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                 #endregion
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Checking out document for urn {caseUrn}, caseId {caseId}, polarisDocumentId  {polarisDocumentId}");
-                await _pipelineClient.CheckoutDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), request.CmsAuthValues, currentCorrelationId);
+                var response = await _pipelineClient.CheckoutDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), request.CmsAuthValues, currentCorrelationId);
 
-                return new OkResult();
+                return response;
             }
             catch (Exception exception)
             {

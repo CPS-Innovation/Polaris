@@ -73,9 +73,20 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                await _gatewayDdeiService.CheckoutDocument(arg);
+                var result = await _gatewayDdeiService.CheckoutDocument(arg);
 
-                return new OkResult();
+                switch (result.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.OK:
+                        return new OkResult();
+
+                    case System.Net.HttpStatusCode.Conflict:
+                        var lockingUser = await result.Content.ReadAsStringAsync();
+                        return new ConflictObjectResult(lockingUser);
+
+                    default:
+                        return new StatusCodeResult(500);
+                };
             }
             catch (Exception ex)
             {

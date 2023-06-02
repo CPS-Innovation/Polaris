@@ -26,8 +26,9 @@ namespace Gateway.Clients.PolarisPipeline
         private readonly ILogger<PipelineClient> _logger;
 
         private static readonly HttpStatusCode[] ExpectedRefreshErrorStatusCodes = { HttpStatusCode.Locked };
+        private static readonly HttpStatusCode[] ExpectedCheckoutErrorStatusCodes = { HttpStatusCode.Conflict };
 
-    public PipelineClient(
+        public PipelineClient(
             IPipelineClientRequestFactory pipelineClientRequestFactory,
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
@@ -167,7 +168,7 @@ namespace Gateway.Clients.PolarisPipeline
             try
             {
                 var url = $"{RestApi.GetDocumentUrl(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId);
+                response = await SendRequestAsync(HttpMethod.Post, url, cmsAuthValues, correlationId, null, ExpectedCheckoutErrorStatusCodes);
             }
             catch (HttpRequestException exception)
             {
@@ -179,7 +180,18 @@ namespace Gateway.Clients.PolarisPipeline
                 throw;
             }
 
-            return new OkResult();
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    return new OkResult();
+
+                case HttpStatusCode.Conflict:
+                    var lockingUser = await response.Content.ReadAsStringAsync();
+                    return new ConflictObjectResult(lockingUser);
+
+                default:
+                    return new StatusCodeResult(500);
+            };
         }
 
         public async Task<IActionResult> CancelCheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
