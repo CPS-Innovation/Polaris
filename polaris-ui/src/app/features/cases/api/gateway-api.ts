@@ -37,6 +37,12 @@ const temporaryApiModelMapping = (arr: any[]) =>
   arr.forEach((item) => {
     if (item.polarisDocumentId) {
       item.documentId = item.polarisDocumentId;
+      if (item.cmsDocType?.documentTypeId) {
+        item.cmsDocType.documentTypeId = parseInt(
+          item.cmsDocType.documentTypeId,
+          10
+        );
+      }
     }
   });
 

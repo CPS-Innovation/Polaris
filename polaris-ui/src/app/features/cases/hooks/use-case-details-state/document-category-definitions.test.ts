@@ -8,7 +8,7 @@ import fs from "fs";
 import * as csv from "fast-csv";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
-type Row = { docType: string; category: string };
+type Row = { docTypeId: string; category: string; docTypeCategory: string };
 
 describe("documentCategoryDefinitions", () => {
   let rows: Row[] = [];
@@ -20,7 +20,7 @@ describe("documentCategoryDefinitions", () => {
       .pipe(
         csv.parse<Row, Row>({
           renameHeaders: true,
-          headers: ["docType", "category"],
+          headers: ["docTypeId", "category", "docTypeCategory"],
         })
       )
       .on("data", (row) => rows.push(row))
@@ -28,16 +28,51 @@ describe("documentCategoryDefinitions", () => {
   });
 
   it("every doctype in the csv file maps to the expected category", () => {
-    rows.forEach(({ docType, category }) => {
+    rows.forEach(({ docTypeId, category, docTypeCategory }) => {
       const categoryResult = getCategory({
-        cmsDocType: { documentType: docType },
+        cmsDocType: {
+          documentTypeId: parseInt(docTypeId, 10),
+          documentCategory: docTypeCategory,
+        },
       } as PresentationDocumentProperties);
 
-      expect({ docType, category: categoryResult }).toEqual({
-        docType,
+      expect({ docTypeId, category: categoryResult }).toEqual({
+        docTypeId,
         category,
       });
     });
+  });
+
+  it("can resolve a PCD document to Reviews", () => {
+    const result = getCategory({
+      cmsDocType: { documentType: "PCD" },
+    } as PresentationDocumentProperties);
+
+    expect(result).toBe("Reviews");
+  });
+
+  it("can resolve any document with docTypeCategory as 'Unused' into 'Unused material' accordion category", () => {
+    const result = getCategory({
+      cmsDocType: { documentCategory: "Unused" },
+    } as PresentationDocumentProperties);
+
+    expect(result).toBe("Unused material");
+  });
+
+  it("can resolve any document with docTypeCategory as 'UnusedStatement' into 'Unused material' accordion category", () => {
+    const result = getCategory({
+      cmsDocType: { documentCategory: "UnusedStatement" },
+    } as PresentationDocumentProperties);
+
+    expect(result).toBe("Unused material");
+  });
+
+  it("will only resolve document with correct statement documentTypeId and docTypeCategory as 'UsedStatement' into 'Statements' accordion category", () => {
+    const result = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: "UsedStatement" },
+    } as PresentationDocumentProperties);
+
+    expect(result).toBe("Statements");
   });
 
   it("can resolve a documents category to Uncategorised if no prior categories match", () => {
