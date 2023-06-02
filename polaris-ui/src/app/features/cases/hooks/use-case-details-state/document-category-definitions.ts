@@ -33,7 +33,9 @@ const documentCategoryDefinitions: {
   {
     category: "Statements",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1016, 1017, 1018, 1031, 1059]),
+    test: (doc) =>
+      doc.cmsDocType.documentCategory === "UsedStatement" &&
+      docTypeTest(doc, [1016, 1017, 1018, 1031, 1059]),
   },
   {
     category: "Exhibits",
@@ -55,7 +57,10 @@ const documentCategoryDefinitions: {
   {
     category: "Unused material",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1008, 1009, 1010, 1011, 1039, 1202]),
+    test: (doc) =>
+      doc.cmsDocType.documentCategory === "UnusedStatement" ||
+      doc.cmsDocType.documentCategory === "Unused" ||
+      docTypeTest(doc, [1008, 1009, 1010, 1011, 1039, 1202]),
   },
   {
     category: "Defendant",
