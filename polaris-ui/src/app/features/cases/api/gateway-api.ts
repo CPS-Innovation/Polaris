@@ -197,7 +197,9 @@ export const checkoutDocument = async (
   });
 
   if (!response.ok) {
-    throw new ApiError("Checkout document failed", url, response);
+    throw new ApiError("Checkout document failed", url, response, {
+      username: await response.text(),
+    });
   }
 
   return true; // unhappy path not known yet
