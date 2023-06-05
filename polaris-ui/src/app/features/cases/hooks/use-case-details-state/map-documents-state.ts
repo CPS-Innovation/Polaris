@@ -6,11 +6,15 @@ import { getCategory } from "./document-category-definitions";
 
 export const mapDocumentsState = (
   result: PresentationDocumentProperties[]
-): AsyncResult<MappedCaseDocument[]> => ({
-  status: "succeeded",
-  data: result.map((item) => ({
+): AsyncResult<MappedCaseDocument[]> => {
+  const data = result.map((item) => ({
     ...item,
     presentationFileName: getFileNameWithoutExtension(item.cmsOriginalFileName),
     presentationCategory: getCategory(item),
-  })),
-});
+  }));
+
+  return {
+    status: "succeeded",
+    data,
+  };
+};

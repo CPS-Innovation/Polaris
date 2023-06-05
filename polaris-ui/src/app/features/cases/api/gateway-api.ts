@@ -37,6 +37,12 @@ const temporaryApiModelMapping = (arr: any[]) =>
   arr.forEach((item) => {
     if (item.polarisDocumentId) {
       item.documentId = item.polarisDocumentId;
+      if (item.cmsDocType?.documentTypeId) {
+        item.cmsDocType.documentTypeId = parseInt(
+          item.cmsDocType.documentTypeId,
+          10
+        );
+      }
     }
   });
 
@@ -54,7 +60,7 @@ export const resolvePdfUrl = (
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
-  const response = await internalFetch(url, {
+  const response = await internalReauthenticatingFetch(url, {
     headers,
   });
 
@@ -73,7 +79,7 @@ export const searchUrn = async (urn: string) => {
 export const getCaseDetails = async (urn: string, caseId: number) => {
   const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
-  const response = await internalFetch(url, {
+  const response = await internalReauthenticatingFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -144,6 +150,9 @@ export const getPipelinePdfResults = async (
   // we are ignoring the tracker status 404 as it is an expected one and continue polling
   if (response.status === 404) {
     return false;
+  }
+  if (!response.ok) {
+    throw new ApiError("Get Pipeline pdf results failed", trackerUrl, response);
   }
   const rawResponse: { documents: any[] } = await response.json();
   const { documents } = rawResponse;
@@ -237,12 +246,18 @@ export const saveRedactions = async (
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {
-  const response = await fetch(args[0], {
+  return await fetch(args[0], {
     ...args[1],
     // We need cookies to be sent to the gateway, which is a third-party domain,
     //  so need to set `credentials: "include"`
     credentials: "include",
   });
+};
+
+const internalReauthenticatingFetch = async (
+  ...args: Parameters<typeof fetch>
+) => {
+  const response = await internalFetch(...args);
 
   return reauthenticationFilter(response, window);
 };

@@ -1,4 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
+import { useEffect } from "react";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import {
@@ -28,6 +29,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
+import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { SURVEY_LINK } from "../../../../config";
 export const path = "/case-details/:urn/:id";
 
@@ -72,6 +74,41 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     navigationUnblockHandle,
     unSavedRedactionDocs,
   } = useNavigationAlert(tabsState.items);
+
+  useEffect(() => {
+    if (accordionState.status === "succeeded") {
+      const categorisedData = accordionState.data.reduce(
+        (acc: { [key: string]: number }, curr) => {
+          acc[`${curr.sectionId}`] = curr.docs.length;
+          return acc;
+        },
+        {}
+      );
+
+      trackEvent("Categorised Documents Count", {
+        urn,
+        caseId,
+        ...categorisedData,
+      });
+
+      const unCategorisedDocs = accordionState.data.find(
+        (accordionState) => accordionState.sectionId === "Uncategorised"
+      );
+      if (unCategorisedDocs) {
+        unCategorisedDocs.docs.forEach((doc: MappedCaseDocument) => {
+          trackEvent("Uncategorised Document", {
+            urn,
+            caseId,
+            documentId: doc.cmsDocumentId,
+            documentTypeId: doc.cmsDocType.documentTypeId,
+            documentDocumentType: doc.cmsDocType.documentType,
+            fileName: doc.presentationFileName,
+          });
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accordionState.status]);
 
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message

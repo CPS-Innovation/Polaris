@@ -1,62 +1,326 @@
-Doc Type in CMS,Category in Polaris
-MG1,Unused material
-MG4,Case overview
-MG4B,Court preparation
-MG5,Case overview
-MG6,Case overview
-MG6B,Unused material
-MG6C,Unused material
-MG6D,Unused material
-MG6E,Unused material
-MG7,Court preparation
-MG8,Court preparation
-MG9,Statements
-MG10,Court preparation
-MG11,Statements
-MG12,Exhibits
-MG15(ROTI),Defendant
-MG19,Court preparation
-MG20,Unused material
-MG2,Court preparation
-MG3,Reviews
-MG3A,Reviews
-MG6A,Unused material
-MG13,Court preparation
-MG15(SDN),Defendant
-MG15(ROVI),Defendant
-MG16(DBCI),Defendant
-MG16(DDOI),Defendant
-MG21,Unused material
-MG21A,Unused material
-PE1,Statements
-PE2,Defendant
-PE3,Uncategorised
-PE4,Uncategorised
-DREP,Defendant
-PCN1,Defendant
-PCN2,Defendant
-PCN3,Unused material
-MG11(R),Unused material
-MG15(CNOI),Defendant
-MG16,Defendant
-MG22 SFR,Forensics
-MG11,Statements
-MG11,Statements
-MG11,Statements
-PCN3,Unused material
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-PCN1,Defendant
-PCN2,Defendant
-PCN1,Defendant
-DREP,Defendant
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-MG11,Statements
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-MG6,Case overview
-Other Exhibit,Exhibits
-Other Exhibit,Exhibits
-Other Comm (In),Communications
+1001,Case overview
+1002,Case overview
+1003,Case overview
+1004,Case overview
+1005,Case overview
+1006,Case overview
+1036,Case overview
+1037,Case overview
+1038,Case overview
+1060,Case overview
+1061,Case overview
+1,Communications
+2,Communications
+3,Communications
+4,Communications
+5,Communications
+6,Communications
+7,Communications
+8,Communications
+10,Communications
+11,Communications
+12,Communications
+13,Communications
+14,Communications
+15,Communications
+16,Communications
+17,Communications
+18,Communications
+19,Communications
+20,Communications
+21,Communications
+22,Communications
+23,Communications
+24,Communications
+25,Communications
+26,Communications
+32,Communications
+33,Communications
+34,Communications
+35,Communications
+36,Communications
+37,Communications
+38,Communications
+39,Communications
+40,Communications
+41,Communications
+42,Communications
+43,Communications
+44,Communications
+45,Communications
+46,Communications
+47,Communications
+48,Communications
+49,Communications
+50,Communications
+51,Communications
+52,Communications
+53,Communications
+54,Communications
+55,Communications
+56,Communications
+57,Communications
+58,Communications
+59,Communications
+60,Communications
+61,Communications
+62,Communications
+63,Communications
+64,Communications
+65,Communications
+66,Communications
+67,Communications
+68,Communications
+69,Communications
+70,Communications
+71,Communications
+72,Communications
+73,Communications
+74,Communications
+75,Communications
+76,Communications
+77,Communications
+78,Communications
+79,Communications
+80,Communications
+81,Communications
+82,Communications
+83,Communications
+84,Communications
+85,Communications
+86,Communications
+87,Communications
+88,Communications
+89,Communications
+91,Communications
+97,Communications
+98,Communications
+99,Communications
+100,Communications
+105,Communications
+106,Communications
+107,Communications
+108,Communications
+109,Communications
+110,Communications
+111,Communications
+112,Communications
+113,Communications
+114,Communications
+115,Communications
+116,Communications
+117,Communications
+118,Communications
+119,Communications
+120,Communications
+121,Communications
+122,Communications
+123,Communications
+124,Communications
+125,Communications
+126,Communications
+127,Communications
+128,Communications
+129,Communications
+130,Communications
+131,Communications
+132,Communications
+133,Communications
+134,Communications
+135,Communications
+136,Communications
+137,Communications
+138,Communications
+139,Communications
+140,Communications
+141,Communications
+142,Communications
+143,Communications
+144,Communications
+145,Communications
+146,Communications
+147,Communications
+148,Communications
+149,Communications
+150,Communications
+151,Communications
+152,Communications
+153,Communications
+154,Communications
+155,Communications
+156,Communications
+157,Communications
+158,Communications
+159,Communications
+160,Communications
+161,Communications
+162,Communications
+163,Communications
+164,Communications
+165,Communications
+166,Communications
+167,Communications
+168,Communications
+169,Communications
+170,Communications
+171,Communications
+172,Communications
+173,Communications
+174,Communications
+175,Communications
+176,Communications
+177,Communications
+178,Communications
+179,Communications
+180,Communications
+181,Communications
+182,Communications
+183,Communications
+184,Communications
+185,Communications
+186,Communications
+187,Communications
+188,Communications
+189,Communications
+190,Communications
+191,Communications
+192,Communications
+193,Communications
+194,Communications
+195,Communications
+196,Communications
+197,Communications
+198,Communications
+199,Communications
+200,Communications
+201,Communications
+202,Communications
+203,Communications
+204,Communications
+205,Communications
+206,Communications
+207,Communications
+208,Communications
+209,Communications
+210,Communications
+211,Communications
+212,Communications
+213,Communications
+214,Communications
+215,Communications
+216,Communications
+217,Communications
+218,Communications
+219,Communications
+220,Communications
+221,Communications
+222,Communications
+223,Communications
+224,Communications
+225,Communications
+226,Communications
+228,Communications
+229,Communications
+230,Communications
+231,Communications
+232,Communications
+511,Communications
+512,Communications
+513,Communications
+514,Communications
+515,Communications
+517,Communications
+1007,Communications
+1026,Communications
+1029,Communications
+1032,Communications
+1055,Communications
+1065,Communications
+1200,Communications
+100230,Communications
+100231,Communications
+100232,Communications
+100233,Communications
+100234,Communications
+100235,Communications
+100236,Communications
+100237,Communications
+100238,Communications
+100240,Communications
+100241,Communications
+100242,Communications
+100243,Communications
+100244,Communications
+100245,Communications
+100246,Communications
+100247,Communications
+100248,Communications
+100249,Communications
+100250,Communications
+100251,Communications
+100252,Communications
+100253,Communications
+225581,Communications
+225582,Communications
+225583,Communications
+225584,Communications
+226015,Communications
+1012,Court preparation
+1013,Court preparation
+1014,Court preparation
+1015,Court preparation
+1024,Court preparation
+1025,Court preparation
+1033,Court preparation
+1040,Court preparation
+1045,Court preparation
+1046,Court preparation
+1063,Court preparation
+1027,Defendant
+1041,Defendant
+1056,Defendant
+1057,Defendant
+1058,Defendant
+1019,Exhibits
+1020,Exhibits
+1021,Exhibits
+1022,Exhibits
+1023,Exhibits
+1028,Exhibits
+1030,Exhibits
+1042,Exhibits
+1044,Exhibits
+1050,Exhibits
+1062,Exhibits
+1066,Exhibits
+1201,Exhibits
+100239,Exhibits
+226148,Exhibits
+1048,Forensics
+1049,Forensics
+1203,Forensics
+101,Reviews
+102,Reviews
+103,Reviews
+104,Reviews
+227,Reviews
+516,Reviews
+1034,Reviews
+1035,Reviews
+1047,Reviews
+1064,Reviews
+1016,Statements,UsedStatement
+1017,Statements,UsedStatement
+1018,Statements,UsedStatement
+1031,Statements,UsedStatement
+1059,Statements,UsedStatement
+1051,Uncategorised
+1052,Uncategorised
+1053,Uncategorised
+1054,Uncategorised
+1008,Unused material
+1009,Unused material
+1010,Unused material
+1011,Unused material
+1039,Unused material
+1202,Unused material
