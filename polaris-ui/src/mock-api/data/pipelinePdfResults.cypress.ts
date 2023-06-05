@@ -42,7 +42,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        documentTypeId: 2,
+        documentTypeId: 1019,
         documentType: "MG12",
         documentCategory: "MGForm",
       },
@@ -62,7 +62,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       cmsDocType: {
-        documentTypeId: 3,
+        documentTypeId: 1012,
         documentType: "MG13",
         documentCategory: "MGForm",
       },

@@ -84,10 +84,10 @@ describe("redaction refresh flow", () => {
       {
         type: "break",
         httpStatusCode: 423,
-        body: {
+        body: JSON.stringify({
           trackerUrl:
             "https://mocked-out-api/api/urns/12AB1111111/cases/13401/tracker",
-        },
+        }),
       },
       "post"
     );
@@ -120,10 +120,10 @@ describe("redaction refresh flow", () => {
       {
         type: "break",
         httpStatusCode: 423,
-        body: {
+        body: JSON.stringify({
           trackerUrl:
             "https://mocked-out-api/api/urns/12AB1111111/cases/13401/tracker",
-        },
+        }),
       },
       "post"
     );
@@ -203,6 +203,7 @@ describe("redaction refresh flow", () => {
       {
         type: "break",
         httpStatusCode: 409,
+        body: "test_user_name",
       },
       "post"
     );
@@ -218,7 +219,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-modal")
       .should("exist")
       .contains(
-        "It is not possible to redact as the document is already checked out by another user. Please try again later."
+        `It is not possible to redact as the document is already checked out by test_user_name. Please try again later.`
       );
     cy.findByTestId("btn-save-redaction-0").should("have.length", 0);
   });

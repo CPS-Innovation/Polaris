@@ -44,7 +44,7 @@ Cypress.Commands.add("overrideRoute", (apiRoute, response, method = "get") => {
             case "break":
               return res.once(
                 ctx.status(response.httpStatusCode),
-                ctx.json(response.body)
+                ctx.body(response.body)
               );
             case "delay":
               return res.once(ctx.delay(response.timeMs));
