@@ -38,7 +38,7 @@ namespace coordinator.tests.Functions
         private readonly string _cmsCaseUrn;
         private readonly PolarisDocumentId _polarisDocumentId;
         private readonly Guid _correlationId;
-        private readonly (Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _caseDocuments;
+        private readonly (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _caseDocuments;
         private readonly string _transactionId;
         private readonly List<CmsDocumentEntity> _trackerCmsDocuments;
         private readonly CaseDeltasEntity _deltaDocuments;
@@ -66,7 +66,7 @@ namespace coordinator.tests.Functions
                         .With(p => p.CorrelationId, _correlationId)
                         .With(p => p.PolarisDocumentId, _polarisDocumentId)
                         .Create();
-            _caseDocuments = fixture.Create<(Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
+            _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
 
             _transactionId = fixture.Create<string>();
             _trackerCmsDocuments = fixture.CreateMany<CmsDocumentEntity>(11).ToList();

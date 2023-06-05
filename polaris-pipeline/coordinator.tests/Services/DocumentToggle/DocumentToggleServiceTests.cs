@@ -177,10 +177,10 @@ namespace coordinator.tests.Services.DocumentToggle
                                                                        ReadFlag expectedReadFlag,
                                                                        WriteFlag expectWriteFlag)
         {
-            // Arrage
+            // Arrange
             var documentToggleService = new DocumentToggleService(configContent);
 
-            var document = new Common.Dto.Document.CmsDocumentDto();
+            var document = new CmsDocumentDto();
             document.FileExtension = inputDocumentExtension;
             document.CmsDocType = new DocumentTypeDto();
             document.CmsDocType.DocumentTypeId = inputDocumentCmsType;

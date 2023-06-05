@@ -33,11 +33,11 @@ namespace coordinator.tests.Domain.Tracker
     {
         private readonly Fixture _fixture;
         private readonly string _transactionId;
-        private readonly List<Common.Dto.Document.CmsDocumentDto> _cmsDocuments;
+        private readonly List<CmsDocumentDto> _cmsDocuments;
         private readonly List<PcdRequestDto> _pcdRequests;
         private readonly DefendantsAndChargesListDto _defendantsAndChargesList;
         private readonly string _pdfBlobName;
-        private readonly (DateTime t, Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _synchroniseDocumentsArg;
+        private readonly (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _synchroniseDocumentsArg;
         private readonly List<CmsDocumentEntity> _trackerCmsDocuments;
         private readonly List<PcdRequestEntity> _trackerPcdRequests;
         private readonly string _caseUrn;
@@ -497,7 +497,7 @@ namespace coordinator.tests.Domain.Tracker
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
             tracker.PcdRequests.ForEach(doc => doc.Status = DocumentStatus.Indexed);
-            (DateTime t, Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) synchroniseDocumentsArg
+            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) synchroniseDocumentsArg
                 = new(DateTime.UtcNow, _cmsDocuments.Take(1).ToArray(), _pcdRequests.Take(1).ToArray(), null);
 
             // Act 
@@ -523,7 +523,7 @@ namespace coordinator.tests.Domain.Tracker
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
 
-            var newDaysDocuments = new Common.Dto.Document.CmsDocumentDto[3];
+            var newDaysDocuments = new CmsDocumentDto[3];
             _cmsDocuments.CopyTo(newDaysDocuments);
 
             _caseEntity.Reset(_transactionId);
@@ -544,10 +544,10 @@ namespace coordinator.tests.Domain.Tracker
             _caseEntity.PcdRequests.Count.Should().Be(_pcdRequests.Count);
             _caseEntity.DefendantsAndCharges.Should().NotBeNull();
 
-            var newDaysDocuments = new List<Common.Dto.Document.CmsDocumentDto> { _cmsDocuments.First() };
+            var newDaysDocuments = new List<CmsDocumentDto> { _cmsDocuments.First() };
             ////only one document in today's run, the next two should be removed from the tracker and in the evaluation results
 
-            (DateTime t, Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
+            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
                 new(DateTime.UtcNow, newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
 
             _caseEntity.Reset(_transactionId);
@@ -566,13 +566,13 @@ namespace coordinator.tests.Domain.Tracker
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
 
-            var newDaysDocuments = new Common.Dto.Document.CmsDocumentDto[3];
+            var newDaysDocuments = new CmsDocumentDto[3];
             _cmsDocuments.CopyTo(newDaysDocuments);
             var originalVersionId = newDaysDocuments[1].VersionId;
             var newVersionId = originalVersionId + 1;
             newDaysDocuments[1].VersionId = newVersionId;
             var modifiedDocumentId = newDaysDocuments[1].DocumentId;
-            (DateTime t, Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
+            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
                 new(DateTime.UtcNow, newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
 
             _caseEntity.Reset(_transactionId);
@@ -595,7 +595,7 @@ namespace coordinator.tests.Domain.Tracker
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             _caseEntity.CmsDocuments.Count.Should().Be(_cmsDocuments.Count);
 
-            var newDaysDocuments = new List<Common.Dto.Document.CmsDocumentDto>
+            var newDaysDocuments = new List<CmsDocumentDto>
             {
                 _cmsDocuments[1],
                 _cmsDocuments[2]
@@ -610,7 +610,7 @@ namespace coordinator.tests.Domain.Tracker
             var unmodifiedDocumentId = newDaysDocuments[1].DocumentId;
             var unmodifiedDocumentVersionId = newDaysDocuments[1].VersionId;
 
-            (DateTime t, Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg
+            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg
                 = new(DateTime.UtcNow, newDaysDocuments.ToArray(), _pcdRequests.ToArray(), null);
 
             _caseEntity.Reset(_transactionId);

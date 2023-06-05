@@ -72,7 +72,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = DefendantsAndCharges ?? null;
         }
 
-        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((DateTime t, Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
         {
             var (t, cmsDocuments, pcdRequests, defendantsAndCharges) = args;
 
@@ -151,7 +151,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = tracker.DefendantsAndCharges;
         }
 
-        private (List<Common.Dto.Document.CmsDocumentDto>, List<Common.Dto.Document.CmsDocumentDto>, List<string>) GetDeltaCmsDocuments(List<Common.Dto.Document.CmsDocumentDto> incomingDocuments)
+        private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<string>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
         {
             var newDocuments =
                 (from incomingDocument in incomingDocuments
@@ -219,7 +219,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<CmsDocumentEntity> CreateTrackerCmsDocuments(List<Common.Dto.Document.CmsDocumentDto> createdDocuments)
+        private List<CmsDocumentEntity> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
         {
             var newDocuments = new List<CmsDocumentEntity>();
 
@@ -246,7 +246,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newDocuments;
         }
 
-        private List<CmsDocumentEntity> UpdateTrackerCmsDocuments(List<Common.Dto.Document.CmsDocumentDto> updatedDocuments)
+        private List<CmsDocumentEntity> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
         {
             var changedDocuments = new List<CmsDocumentEntity>();
 
