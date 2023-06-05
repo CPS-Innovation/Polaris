@@ -2,7 +2,7 @@
 
 namespace Common.Dto.Tracker
 {
-    public class TrackerLogDto
+    public class TrackerCaseLogDto
     {
         [JsonProperty("type")]
         public string Type { get; set; }

@@ -29,14 +29,14 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
         {
             var log = context.CreateReplaySafeLogger(_log);
 
-            var payload = context.GetInput<UpdateTrackerPayload>();
+            var payload = context.GetInput<UpdateCaseDurableEntityPayload>();
             if (payload == null)
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var currentCaseId = payload.CaseOrchestrationPayload.CmsCaseId;
 
             log.LogMethodFlow(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Retrieve trackers for case {currentCaseId}");
-            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseTrackersForEntity(context, currentCaseId, false, payload.CaseOrchestrationPayload.CorrelationId, log);
+            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, currentCaseId, false, payload.CaseOrchestrationPayload.CorrelationId, log);
 
             try
             {

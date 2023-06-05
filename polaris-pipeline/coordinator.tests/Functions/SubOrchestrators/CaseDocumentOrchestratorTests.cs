@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Constants;
+using Common.Domain.Entity;
 using Common.Domain.Extensions;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
@@ -31,17 +32,17 @@ namespace coordinator.tests.Functions.SubOrchestrators
         private readonly EvaluateDocumentResponse _evaluateDocumentResponse;
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
-        private readonly Mock<ICaseEntity> _mockCaseEntity;
-        private readonly Mock<ICaseRefreshLogsEntity> _mockCaseRefreshLogsEntity;
+        private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
+        private readonly Mock<ICaseRefreshLogsDurableEntity> _mockCaseRefreshLogsEntity;
 
         private readonly RefreshDocumentOrchestrator _caseDocumentOrchestrator;
 
         public CaseDocumentOrchestratorTests()
         {
             var fixture = new Fixture();
-            var trackerCmsDocumentDto = fixture.Create<TrackerCmsDocumentDto>();
-            var trackerPcdRequestDto = fixture.Create<TrackerPcdRequestDto>();
-            var defendantsAndChargesListDto = fixture.Create<TrackerDefendantsAndChargesDto>();
+            var trackerCmsDocumentDto = fixture.Create<TrackerDocumentDto>();
+            var trackerPcdRequestDto = fixture.Create<PcdRequestEntity>();
+            var defendantsAndChargesListDto = fixture.Create<DefendantsAndChargesEntity>();
             _payload = new CaseDocumentOrchestrationPayload
                 (
                     fixture.Create<string>(),
@@ -62,8 +63,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
             
             var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
-            _mockCaseEntity = new Mock<ICaseEntity>();
-            _mockCaseRefreshLogsEntity = new Mock<ICaseRefreshLogsEntity>();
+            _mockCaseEntity = new Mock<ICaseDurableEntity>();
+            _mockCaseRefreshLogsEntity = new Mock<ICaseRefreshLogsDurableEntity>();
 
             _evaluateDocumentResponse = fixture.Create<EvaluateDocumentResponse>();
 
@@ -103,10 +104,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
                 .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
 
             _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ICaseEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
+                .Setup(context => context.CreateEntityProxy<ICaseDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
                 .Returns(_mockCaseEntity.Object);
             _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ICaseRefreshLogsEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsEntity).ToLower() && e.EntityKey.StartsWith(_payload.CmsCaseId.ToString()))))
+                .Setup(context => context.CreateEntityProxy<ICaseRefreshLogsDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsDurableEntity).ToLower() && e.EntityKey.StartsWith(_payload.CmsCaseId.ToString()))))
                 .Returns(_mockCaseRefreshLogsEntity.Object);
 
             _caseDocumentOrchestrator = new RefreshDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);

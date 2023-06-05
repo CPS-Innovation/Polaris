@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Search.Documents;
 using Common.Clients.Contracts;
+using Common.Domain.Entity;
 using Common.Domain.SearchIndex;
-using Common.Dto.Tracker;
 using Common.Factories.Contracts;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,7 @@ namespace Common.Clients
 			_logger = logger;
 		}
 
-		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<BaseTrackerDocumentDto> documents, string searchTerm, Guid correlationId)
+		public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<BaseDocumentEntity> documents, string searchTerm, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(Query), $"CaseId '{caseId}', searchTerm '{searchTerm}'");
 
@@ -52,7 +52,7 @@ namespace Common.Clients
             return results;
 		}
 
-        private string GetSearchQuery(int caseId, List<BaseTrackerDocumentDto> documents)
+        private string GetSearchQuery(int caseId, List<BaseDocumentEntity> documents)
         {
             var stringBuilder = new StringBuilder($"caseId eq {caseId}");
 
@@ -84,7 +84,7 @@ namespace Common.Clients
             return streamlinedResults;
         }
 
-        private bool IsLiveDocumentResult(List<BaseTrackerDocumentDto> documents, SearchLine searchLine)
+        private bool IsLiveDocumentResult(List<BaseDocumentEntity> documents, SearchLine searchLine)
         {
             // SearchLineFactory => {cmsCaseId}:{polarisDocumentId}:{readResult.Page}:{index}
 

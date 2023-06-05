@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
+using Common.Domain.Entity;
 using Common.Dto.Tracker;
 using Common.Logging;
 using coordinator.Functions.DurableEntity.Entity;
@@ -59,8 +60,8 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
-                var entityId = new EntityId(nameof(CaseEntity), caseId.ToString());
-                var trackerState = await client.ReadEntityStateAsync<CaseEntity>(entityId);
+                var entityId = new EntityId(nameof(CaseDurableEntity), caseId.ToString());
+                var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
                 if (!trackerState.EntityExists)
                 {
@@ -71,9 +72,9 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
                 log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
-                CaseEntity entityState = trackerState.EntityState;
+                CaseDurableEntity entityState = trackerState.EntityState;
                 var documents =
-                    entityState.CmsDocuments.OfType<BaseTrackerDocumentDto>()
+                    entityState.CmsDocuments.OfType<BaseDocumentEntity>()
                         .Concat(entityState.PcdRequests)
                         .Append(entityState.DefendantsAndCharges)
                         .ToList();

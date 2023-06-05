@@ -4,6 +4,7 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Common.Clients;
 using Common.Clients.Contracts;
+using Common.Domain.Entity;
 using Common.Domain.SearchIndex;
 using Common.Dto.Tracker;
 using Common.Factories;
@@ -22,7 +23,7 @@ namespace Common.Tests.Clients
         private readonly int _caseId;
         private readonly string _searchTerm;
         private readonly Guid _correlationId;
-        private readonly List<BaseTrackerDocumentDto> _documents;
+        private readonly List<BaseDocumentEntity> _documents;
 
         private readonly Mock<SearchClient> _mockSearchClient;
         private readonly ISearchIndexClient _searchIndexClient;
@@ -33,7 +34,7 @@ namespace Common.Tests.Clients
             _caseId = _fixture.Create<int>();
             _searchTerm = _fixture.Create<string>();
             _correlationId = _fixture.Create<Guid>();
-            _documents = new List<BaseTrackerDocumentDto>();
+            _documents = new List<BaseDocumentEntity>();
 
             var mockSearchClientFactory = new Mock<ISearchClientFactory>();
             _mockSearchClient = new Mock<SearchClient>();

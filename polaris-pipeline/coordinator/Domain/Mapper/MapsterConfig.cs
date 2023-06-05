@@ -1,4 +1,5 @@
-﻿using Common.Dto.Document;
+﻿using Common.Domain.Entity;
+using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
 using Mapster;
@@ -13,7 +14,7 @@ namespace coordinator.Domain.Mapper
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<(CaseEntity CaseEntity, CaseRefreshLogsEntity RefreshLogsEntity), TrackerDto>
+            TypeAdapterConfig<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity RefreshLogsEntity), TrackerDto>
                 .NewConfig()
                 .Map
                 (
@@ -41,9 +42,9 @@ namespace coordinator.Domain.Mapper
                 );
         }
 
-        private static TrackerCmsDocumentDto ConvertToTrackerCmsDocumentDto(TrackerPcdRequestDto pcdRequest)
+        private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
         {
-            return new TrackerCmsDocumentDto
+            return new CmsDocumentEntity
             {
                 PolarisDocumentId = pcdRequest.PolarisDocumentId,
                 PolarisDocumentVersionId = pcdRequest.PolarisDocumentVersionId,
@@ -59,14 +60,14 @@ namespace coordinator.Domain.Mapper
             };
         }
 
-        private static TrackerCmsDocumentDto[] ConvertToTrackerCmsDocumentDto(TrackerDefendantsAndChargesDto defendantsAndCharges)
+        private static CmsDocumentEntity[] ConvertToTrackerCmsDocumentDto(DefendantsAndChargesEntity defendantsAndCharges)
         {
             if(defendantsAndCharges == null) 
-                return new TrackerCmsDocumentDto[0];
+                return new CmsDocumentEntity[0];
 
-            return new TrackerCmsDocumentDto[1] 
+            return new CmsDocumentEntity[1] 
             {
-                new TrackerCmsDocumentDto
+                new CmsDocumentEntity
                 {
                     PolarisDocumentId = defendantsAndCharges.PolarisDocumentId,
                     PolarisDocumentVersionId = defendantsAndCharges.PolarisDocumentVersionId,

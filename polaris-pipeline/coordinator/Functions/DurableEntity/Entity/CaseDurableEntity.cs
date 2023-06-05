@@ -1,4 +1,5 @@
-﻿using Common.Dto.Case;
+﻿using Common.Domain.Entity;
+using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
@@ -18,7 +19,7 @@ namespace coordinator.Functions.DurableEntity.Entity
     // n.b. Entity proxy interface methods must define at most one argument for operation input.
     // (A single tuple is acceptable)
     [JsonObject(MemberSerialization.OptIn)]
-    public class CaseEntity : ICaseEntity
+    public class CaseDurableEntity : ICaseDurableEntity
     {
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
@@ -53,37 +54,37 @@ namespace coordinator.Functions.DurableEntity.Entity
         public DateTime? ProcessingCompleted { get; set; }
 
         [JsonProperty("documents")]
-        public List<TrackerCmsDocumentDto> CmsDocuments { get; set; }
+        public List<CmsDocumentEntity> CmsDocuments { get; set; }
 
         [JsonProperty("pcdRequests")]
-        public List<TrackerPcdRequestDto> PcdRequests { get; set; }
+        public List<PcdRequestEntity> PcdRequests { get; set; }
 
         [JsonProperty("defendantsAndCharges")]
-        public TrackerDefendantsAndChargesDto DefendantsAndCharges { get; set; }
+        public DefendantsAndChargesEntity DefendantsAndCharges { get; set; }
 
         public void Reset(string transactionId)
         {
             TransactionId = transactionId;
             ProcessingCompleted = null;
             Status = TrackerStatus.Running;
-            CmsDocuments = CmsDocuments ?? new List<TrackerCmsDocumentDto>();
-            PcdRequests = PcdRequests ?? new List<TrackerPcdRequestDto>();
+            CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
+            PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
         }
 
-        public async Task<TrackerDeltasDto> GetCaseDocumentChanges((DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((DateTime t, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
         {
-            var (cmsDocuments, pcdRequests, defendantsAndCharges) = args;
+            var (t, cmsDocuments, pcdRequests, defendantsAndCharges) = args;
 
-            CmsDocuments = CmsDocuments ?? new List<TrackerCmsDocumentDto>();
-            PcdRequests = PcdRequests ?? new List<TrackerPcdRequestDto>();
+            CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
+            PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
 
             var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(cmsDocuments.ToList());
             var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
             var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges) = GetDeltaDefendantsAndCharges(defendantsAndCharges);
 
-            TrackerDeltasDto deltas = new TrackerDeltasDto
+            CaseDeltasEntity deltas = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = CreateTrackerCmsDocuments(createdDocuments),
                 UpdatedCmsDocuments = UpdateTrackerCmsDocuments(updatedDocuments),
@@ -97,8 +98,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             };
 
             Status = TrackerStatus.DocumentsRetrieved;
-            // TODO : make explicit
-            DocumentsRetrieved = DateTime.Now;
+            DocumentsRetrieved = t;
 
             return await Task.FromResult(deltas);
         }
@@ -142,7 +142,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         }
 
         // Only required when debugging to manually set the Tracker state
-        public void SetValue(CaseEntity tracker)
+        public void SetValue(CaseDurableEntity tracker)
         {
             Status = tracker.Status;
             ProcessingCompleted = tracker.ProcessingCompleted;
@@ -219,14 +219,14 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<TrackerCmsDocumentDto> CreateTrackerCmsDocuments(List<DocumentDto> createdDocuments)
+        private List<CmsDocumentEntity> CreateTrackerCmsDocuments(List<DocumentDto> createdDocuments)
         {
-            var newDocuments = new List<TrackerCmsDocumentDto>();
+            var newDocuments = new List<CmsDocumentEntity>();
 
             foreach (var newDocument in createdDocuments)
             {
                 var trackerDocument 
-                    = new TrackerCmsDocumentDto
+                    = new CmsDocumentEntity
                     (
                         new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
                         1,
@@ -246,9 +246,9 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newDocuments;
         }
 
-        private List<TrackerCmsDocumentDto> UpdateTrackerCmsDocuments(List<DocumentDto> updatedDocuments)
+        private List<CmsDocumentEntity> UpdateTrackerCmsDocuments(List<DocumentDto> updatedDocuments)
         {
-            var changedDocuments = new List<TrackerCmsDocumentDto>();
+            var changedDocuments = new List<CmsDocumentEntity>();
 
             foreach (var updatedDocument in updatedDocuments)
             {
@@ -267,7 +267,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return changedDocuments;
         }
 
-        private List<TrackerCmsDocumentDto> DeleteTrackerCmsDocuments(List<string> documentIdsToDelete)
+        private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<string> documentIdsToDelete)
         {
             var deleteDocuments 
                 = CmsDocuments
@@ -282,14 +282,14 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deleteDocuments;
         }
 
-        private List<TrackerPcdRequestDto> CreateTrackerPcdRequests(List<PcdRequestDto> createdPcdRequests)
+        private List<PcdRequestEntity> CreateTrackerPcdRequests(List<PcdRequestDto> createdPcdRequests)
         {
-            var newPcdRequests = new List<TrackerPcdRequestDto>();
+            var newPcdRequests = new List<PcdRequestEntity>();
 
             foreach (var newPcdRequest in createdPcdRequests)
             {
                 var polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.PcdRequest, newPcdRequest.Id.ToString());
-                var trackerPcdRequest = new TrackerPcdRequestDto(polarisDocumentId, 1, newPcdRequest);
+                var trackerPcdRequest = new PcdRequestEntity(polarisDocumentId, 1, newPcdRequest);
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
             }
@@ -297,9 +297,9 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newPcdRequests;
         }
 
-        private List<TrackerPcdRequestDto> UpdateTrackerPcdRequests(List<PcdRequestDto> updatedPcdRequests)
+        private List<PcdRequestEntity> UpdateTrackerPcdRequests(List<PcdRequestDto> updatedPcdRequests)
         {
-            var changedPcdRequests = new List<TrackerPcdRequestDto>();
+            var changedPcdRequests = new List<PcdRequestEntity>();
 
             foreach (var updatedPcdRequest in updatedPcdRequests)
             {
@@ -314,7 +314,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return changedPcdRequests;
         }
 
-        private List<TrackerPcdRequestDto> DeleteTrackerPcdRequests(List<int> deletedPcdRequestIds)
+        private List<PcdRequestEntity> DeleteTrackerPcdRequests(List<int> deletedPcdRequestIds)
         {
             var deletePcdRequests
                 = PcdRequests
@@ -329,12 +329,12 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deletePcdRequests;
         }
 
-        private TrackerDefendantsAndChargesDto CreateTrackerDefendantsAndCharges(DefendantsAndChargesListDto createdDefendantsAndCharges)
+        private DefendantsAndChargesEntity CreateTrackerDefendantsAndCharges(DefendantsAndChargesListDto createdDefendantsAndCharges)
         {
             if(createdDefendantsAndCharges != null)
             {
                 PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, createdDefendantsAndCharges.CaseId.ToString());
-                DefendantsAndCharges = new TrackerDefendantsAndChargesDto(polarisDocumentId, 1, createdDefendantsAndCharges);
+                DefendantsAndCharges = new DefendantsAndChargesEntity(polarisDocumentId, 1, createdDefendantsAndCharges);
 
                 return DefendantsAndCharges;
             }
@@ -342,7 +342,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return null;
         }
 
-        private TrackerDefendantsAndChargesDto UpdateTrackerDefendantsAndCharges(DefendantsAndChargesListDto updatedDefendantsAndCharges)
+        private DefendantsAndChargesEntity UpdateTrackerDefendantsAndCharges(DefendantsAndChargesListDto updatedDefendantsAndCharges)
         {
             if(updatedDefendantsAndCharges != null)
             {
@@ -365,7 +365,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deletedDefendantsAndCharges;
         }
 
-        private BaseTrackerDocumentDto GetBaseTracker(string documentId)
+        private BaseDocumentEntity GetBaseTracker(string documentId)
         {
             var cmsDocument = CmsDocuments.Find(doc => doc.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (cmsDocument != null)
@@ -388,16 +388,16 @@ namespace coordinator.Functions.DurableEntity.Entity
         private void ClearState(TrackerStatus status)
         {
             Status = status;
-            CmsDocuments = new List<TrackerCmsDocumentDto>();
-            PcdRequests = new List<TrackerPcdRequestDto>();
+            CmsDocuments = new List<CmsDocumentEntity>();
+            PcdRequests = new List<PcdRequestEntity>();
             DocumentsRetrieved = null;
             ProcessingCompleted = null;
         }
 
-        [FunctionName(nameof(CaseEntity))]
+        [FunctionName(nameof(CaseDurableEntity))]
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
-            return context.DispatchAsync<CaseEntity>();
+            return context.DispatchAsync<CaseDurableEntity>();
         }
     }
 }

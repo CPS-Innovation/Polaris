@@ -41,7 +41,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get trackers for CaseId: '{payload.CmsCaseId}'");
-            var (caseEntityTracker, caseRefreshLogsEntity) = await CreateOrGetCaseTrackersForEntity(context, payload.CmsCaseId, false, payload.CorrelationId, log);
+            var (caseEntityTracker, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, payload.CmsCaseId, false, payload.CorrelationId, log);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for PolarisDocumentId: '{payload.PolarisDocumentId}'");
             var pdfGeneratorResponse = await CallPdfGeneratorAsync(context, payload, caseEntityTracker, caseRefreshLogsEntity, log);
@@ -55,7 +55,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
         }
 
-        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseEntity caseEntity, ICaseRefreshLogsEntity caseRefreshLogsEntity, ILogger log)
+        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, ILogger log)
         {
             GeneratePdfResponse response = null;
 
@@ -69,12 +69,12 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 if (response.AlreadyProcessed)
                 {
                     caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.DocumentAlreadyProcessed, response.BlobName));
-                    caseRefreshLogsEntity.LogDocument((t, TrackerLogType.DocumentAlreadyProcessed, payload.PolarisDocumentId.ToString(), null));
+                    caseRefreshLogsEntity.LogDocument((t, TrackerLogType.DocumentAlreadyProcessed, payload.PolarisDocumentId.ToString()));
                 }
                 else
                 {
                     caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.PdfUploadedToBlob, response.BlobName));
-                    caseRefreshLogsEntity.LogDocument((t, TrackerLogType.RegisteredPdfBlobName, payload.PolarisDocumentId.ToString(), null));
+                    caseRefreshLogsEntity.LogDocument((t, TrackerLogType.RegisteredPdfBlobName, payload.PolarisDocumentId.ToString()));
                 }
 
                 return response;
@@ -95,7 +95,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
         }
 
-        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseEntity caseEntity, ICaseRefreshLogsEntity caseRefreshLogsEntity, ILogger log)
+        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorAsync), payload.ToJson());
 
@@ -104,7 +104,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
                 caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), TrackerDocumentStatus.Indexed, blobName));
                 var t = context.CurrentUtcDateTime;
-                caseRefreshLogsEntity.LogDocument((t, TrackerLogType.Indexed, payload.PolarisDocumentId.ToString(), null));
+                caseRefreshLogsEntity.LogDocument((t, TrackerLogType.Indexed, payload.PolarisDocumentId.ToString()));
             }
             catch (Exception exception)
             {

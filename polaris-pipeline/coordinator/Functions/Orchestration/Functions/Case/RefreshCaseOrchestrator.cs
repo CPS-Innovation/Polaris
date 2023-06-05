@@ -48,7 +48,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             var log = context.CreateReplaySafeLogger(_log);
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve case trackers for case {payload.CmsCaseId}");
-            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseTrackersForEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
+            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, payload.CmsCaseId, true, payload.CorrelationId, log);
 
             try
             {
@@ -83,7 +83,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseEntity caseEntity, ICaseRefreshLogsEntity caseRefreshLogsEntity, CaseOrchestrationPayload payload)
+        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, CaseOrchestrationPayload payload)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
             var log = context.CreateReplaySafeLogger(_log);
@@ -114,15 +114,17 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private async static Task<List<Task>> GetDocumentTasks
             (
                 IDurableOrchestrationContext context,
-                ICaseEntity caseTracker,
-                ICaseRefreshLogsEntity caseRefreshLogsEntity,
+                ICaseDurableEntity caseTracker,
+                ICaseRefreshLogsDurableEntity caseRefreshLogsEntity,
                 CaseOrchestrationPayload caseDocumentPayload,
                 (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
                 ILogger log
             )
         {
-            var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
-            caseRefreshLogsEntity.LogDeltas((context.CurrentUtcDateTime, deltas));
+            var now = context.CurrentUtcDateTime;
+
+            var deltas = await caseTracker.GetCaseDocumentChanges((now, documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
+            caseRefreshLogsEntity.LogDeltas((now, deltas));
             var logMessage = deltas.GetLogMessage();
             log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, logMessage);
 
@@ -204,7 +206,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ICaseEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ICaseDurableEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
 

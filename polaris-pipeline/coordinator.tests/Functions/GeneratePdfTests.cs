@@ -56,7 +56,7 @@ namespace pdf_generator.tests.Functions
         {
             _serializedGeneratePdfRequest = _fixture.Create<string>();
             var cmsAuthValues = _fixture.Create<string>();
-            var trackerCmsDocumentDto = _fixture.Create<TrackerCmsDocumentDto>();
+            var trackerCmsDocumentDto = _fixture.Create<TrackerDocumentDto>();
             _generatePdfRequest = new CaseDocumentOrchestrationPayload
                 (
                     _fixture.Create<string>(),

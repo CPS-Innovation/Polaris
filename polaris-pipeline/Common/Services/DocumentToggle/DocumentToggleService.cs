@@ -4,13 +4,13 @@ using System.Linq;
 using System;
 using System.Reflection;
 using System.Text;
-using Common.Dto.Tracker;
 using Common.Dto.FeatureFlags;
 using Common.Services.DocumentToggle.Domain;
 using Common.Services.DocumentToggle.Exceptions;
 using Common.Dto.Document;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
+using Common.Domain.Entity;
 
 namespace Common.Services.DocumentToggle
 {
@@ -47,12 +47,12 @@ namespace Common.Services.DocumentToggle
             _definitions = CreateDefinitions(lines);
         }
 
-        public bool CanReadDocument(TrackerCmsDocumentDto document)
+        public bool CanReadDocument(BaseDocumentEntity document)
         {
             return document.PresentationFlags.Read == ReadFlag.Ok;
         }
 
-        public bool CanWriteDocument(TrackerCmsDocumentDto document)
+        public bool CanWriteDocument(BaseDocumentEntity document)
         {
             return document.PresentationFlags.Write == WriteFlag.Ok;
         }
