@@ -81,7 +81,7 @@ describe("Refresh", () => {
 
         expect(documents.every(({ status }) => status === "Indexed")).to.be.true
         expect(
-          documents.some(({ cmsDocType }) => cmsDocType.documentType === "MG 3")
+          documents.some(({ cmsDocType }) => cmsDocType.documentType === "MG 5")
         ).to.be.true
         expect(
           documents.some(({ cmsDocType }) => cmsDocType.documentType === "PCD")
@@ -193,7 +193,7 @@ describe("Refresh", () => {
               .true
             expect(
               documents.some(
-                ({ cmsDocType }) => cmsDocType.documentType === "MG 3"
+                ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
               )
             ).to.be.true
             expect(

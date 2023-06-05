@@ -182,7 +182,7 @@ namespace coordinator.tests.Services.DocumentToggle
             var document = new DocumentDto();
             document.FileExtension = inputDocumentExtension;
             document.CmsDocType = new DocumentTypeDto();
-            document.CmsDocType.DocumentType = inputDocumentCmsType;
+            document.CmsDocType.DocumentTypeId = inputDocumentCmsType;
 
             // Act
             var presentationFlags = documentToggleService.GetDocumentPresentationFlags(document);

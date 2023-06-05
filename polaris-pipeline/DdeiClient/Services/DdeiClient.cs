@@ -12,6 +12,7 @@ using Common.Dto.Response;
 using Common.Mappers.Contracts;
 using Microsoft.Extensions.Logging;
 using Common.Exceptions;
+using System.Net;
 
 namespace Ddei.Services
 {
@@ -126,11 +127,14 @@ namespace Ddei.Services
             return await response.Content.ReadAsStreamAsync();
         }
 
-        public async Task CheckoutDocument(DdeiCmsDocumentArgDto arg)
+        public async Task<HttpResponseMessage> CheckoutDocument(DdeiCmsDocumentArgDto arg)
         {
             try
             {
-                await CallDdei(_ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg));
+                HttpRequestMessage request = _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg);
+                HttpResponseMessage response = await CallDdei(request, new List<HttpStatusCode> { HttpStatusCode.Conflict } );
+
+                return response;
             }
             catch (Exception exception)
             {
@@ -174,17 +178,16 @@ namespace Ddei.Services
             return _jsonConvertWrapper.DeserializeObject<T>(content);
         }
 
-        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request)
+        private async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, List<HttpStatusCode> expectedStatusCodes=null)
         {
             var response = await _httpClient.SendAsync(request);
             try
             {
+                if (response.IsSuccessStatusCode || (expectedStatusCodes?.Contains(response.StatusCode) == true))
+                    return response;
+
                 var content = await response.Content.ReadAsStringAsync();
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException(content);
-                }
-                return response;
+                throw new HttpRequestException(content);
             }
             catch (HttpRequestException exception)
             {
