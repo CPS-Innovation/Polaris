@@ -2,7 +2,7 @@
 
 namespace Common.Dto.Document
 {
-    public class DocumentDto
+    public class CmsDocumentDto
     {
         public string DocumentId { get; set; }
 

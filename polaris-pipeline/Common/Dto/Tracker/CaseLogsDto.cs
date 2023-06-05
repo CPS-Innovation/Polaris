@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace Common.Dto.Tracker
 {
-    public class CaseTrackerLogsDto
+    public class CaseLogsDto
     {
         [JsonProperty("case")]
-        public List<TrackerCaseLogDto> Case { get; set; }
+        public List<CaseLogDto> Case { get; set; }
 
         [JsonProperty("documents")]
         public Dictionary<string, List<TrackerDocumentLogDto>> Documents { get; set; }

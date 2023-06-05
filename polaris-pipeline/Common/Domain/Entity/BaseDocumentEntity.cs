@@ -24,7 +24,7 @@ namespace Common.Domain.Entity
             CmsDocumentId = cmsDocumentId;
             CmsVersionId = cmsVersionId;
             PresentationFlags = presentationFlags;
-            Status = TrackerDocumentStatus.New;
+            Status = DocumentStatus.New;
         }
 
         [JsonProperty("cmsDocumentId")]
@@ -57,13 +57,13 @@ namespace Common.Domain.Entity
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
-        public TrackerDocumentStatus Status { get; set; }
-
-        [JsonProperty("pdfBlobName")]
-        public string PdfBlobName { get; set; }
+        public DocumentStatus Status { get; set; }
 
         [JsonProperty("isPdfAvailable")]
         public bool IsPdfAvailable { get; set; }
+
+        [JsonProperty("pdfBlobName")]
+        public string PdfBlobName { get; set; }
 
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }

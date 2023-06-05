@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Domain.Exceptions;
+using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Handlers.Contracts;
@@ -56,7 +57,7 @@ namespace pdf_generator.tests.Functions
         {
             _serializedGeneratePdfRequest = _fixture.Create<string>();
             var cmsAuthValues = _fixture.Create<string>();
-            var trackerCmsDocumentDto = _fixture.Create<TrackerDocumentDto>();
+            var trackerCmsDocumentDto = _fixture.Create<DocumentDto>();
             _generatePdfRequest = new CaseDocumentOrchestrationPayload
                 (
                     _fixture.Create<string>(),

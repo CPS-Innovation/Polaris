@@ -8,7 +8,7 @@ namespace Common.Services.DocumentToggle
 {
     public interface IDocumentToggleService
     {
-        PresentationFlagsDto GetDocumentPresentationFlags(DocumentDto document);
+        PresentationFlagsDto GetDocumentPresentationFlags(CmsDocumentDto document);
         PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestDto pcdRequest);
         PresentationFlagsDto GetDefendantAndChargesPresentationFlags(DefendantsAndChargesListDto defendantAndCharges);
 

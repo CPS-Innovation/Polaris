@@ -8,9 +8,9 @@ using Newtonsoft.Json.Converters;
 
 namespace Common.Dto.Tracker
 {
-    public class TrackerDocumentDto 
+    public class DocumentDto 
     {
-        public TrackerDocumentDto()
+        public DocumentDto()
         { }
 
         [JsonIgnore]
@@ -49,13 +49,13 @@ namespace Common.Dto.Tracker
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
-        public TrackerDocumentStatus Status { get; set; }
-
-        [JsonProperty("pdfBlobName")]
-        public string PdfBlobName { get; set; }
+        public DocumentStatus Status { get; set; }
 
         [JsonProperty("isPdfAvailable")]
         public bool IsPdfAvailable { get; set; }
+
+        [JsonProperty("pdfBlobName")]
+        public string PdfBlobName { get; set; }
 
         [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }

@@ -14,10 +14,10 @@ namespace coordinator.Functions.DurableEntity.Entity
     public class CaseRefreshLogsDurableEntity : ICaseRefreshLogsDurableEntity
     {
         [JsonProperty("case")]
-        public List<TrackerCaseLogDto> Case { get; set; } = new List<TrackerCaseLogDto>();
+        public List<CaseEntityLog> Case { get; set; } = new List<CaseEntityLog>();
 
         [JsonProperty("documents")]
-        public Dictionary<string, List<TrackerDocumentLogDto>> Documents { get; set; } = new Dictionary<string, List<TrackerDocumentLogDto>>();
+        public Dictionary<string, List<DocumentLogEntity>> Documents { get; set; } = new Dictionary<string, List<DocumentLogEntity>>();
 
         public void LogDeltas((DateTime t, CaseDeltasEntity deltas) args)
         {
@@ -66,8 +66,8 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var (t, status, description) = args;
 
-            TrackerCaseLogDto logEntry = new TrackerCaseLogDto
-            {
+             var logEntry = new CaseEntityLog
+             {
                 Type = status.ToString(),
                 TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),
                 Description = description
@@ -80,7 +80,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var (t, status, polarisDocumentId) = args;
 
-            var logEntry = new TrackerDocumentLogDto
+            var logEntry = new DocumentLogEntity
             {
                 Type = status.ToString(),
                 TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz")
@@ -88,7 +88,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             if (!Documents.ContainsKey(args.polarisDocumentId))
             {
-                Documents.Add(polarisDocumentId, new List<TrackerDocumentLogDto>());
+                Documents.Add(polarisDocumentId, new List<DocumentLogEntity>());
             }
             Documents[polarisDocumentId].Insert(0, logEntry);
         }

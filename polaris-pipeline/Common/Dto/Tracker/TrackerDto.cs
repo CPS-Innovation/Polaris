@@ -24,10 +24,10 @@ namespace Common.Dto.Tracker
         public DateTime? ProcessingCompleted { get; set; }
 
         [JsonProperty("documents")]
-        public List<TrackerDocumentDto> Documents { get; set; }
+        public List<DocumentDto> Documents { get; set; }
 
         [JsonProperty("logs")]
-        public CaseTrackerLogsDto Logs { get; set; }
+        public CaseLogsDto Logs { get; set; }
     }
 }
 

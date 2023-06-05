@@ -14,7 +14,7 @@ namespace coordinator.Domain.Mapper
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity RefreshLogsEntity), TrackerDto>
+            TypeAdapterConfig<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity CaseRefreshLogsEntity), TrackerDto>
                 .NewConfig()
                 .Map
                 (
@@ -37,8 +37,13 @@ namespace coordinator.Domain.Mapper
                 )
                 .Map
                 (
-                    dest => dest.Logs,
-                    src => src.RefreshLogsEntity
+                    dest => dest.Logs.Case,
+                    src => src.CaseRefreshLogsEntity.Case
+                )
+                .Map
+                (
+                    dest => dest.Logs.Documents,
+                    src => src.CaseRefreshLogsEntity.Documents
                 );
         }
 

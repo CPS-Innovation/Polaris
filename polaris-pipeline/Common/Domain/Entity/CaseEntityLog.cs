@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace Common.Dto.Tracker
+namespace Common.Domain.Entity
 {
-    public class TrackerCaseLogDto
+    public class CaseEntityLog
     {
         [JsonProperty("type")]
         public string Type { get; set; }

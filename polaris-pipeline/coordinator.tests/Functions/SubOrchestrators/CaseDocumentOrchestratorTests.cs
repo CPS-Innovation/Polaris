@@ -40,7 +40,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
         public CaseDocumentOrchestratorTests()
         {
             var fixture = new Fixture();
-            var trackerCmsDocumentDto = fixture.Create<TrackerDocumentDto>();
+            var trackerCmsDocumentDto = fixture.Create<DocumentDto>();
             var trackerPcdRequestDto = fixture.Create<PcdRequestEntity>();
             var defendantsAndChargesListDto = fixture.Create<DefendantsAndChargesEntity>();
             _payload = new CaseDocumentOrchestrationPayload
@@ -142,11 +142,11 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     tracker => 
                     tracker.RegisterDocumentStatus
                     (
-                        It.Is<(string, TrackerDocumentStatus, string)>
+                        It.Is<(string, DocumentStatus, string)>
                         (
                             a => 
                                 a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() && 
-                                a.Item2 == TrackerDocumentStatus.PdfUploadedToBlob && 
+                                a.Item2 == DocumentStatus.PdfUploadedToBlob && 
                                 a.Item3 == _pdfResponse.BlobName
                         )
                     )
@@ -169,11 +169,11 @@ namespace coordinator.tests.Functions.SubOrchestrators
                     tracker =>
                     tracker.RegisterDocumentStatus
                     (
-                        It.Is<(string, TrackerDocumentStatus, string)>
+                        It.Is<(string, DocumentStatus, string)>
                         (
                             a =>
                                 a.Item1 == _payload.PolarisDocumentId.ToString() &&
-                                a.Item2 == TrackerDocumentStatus.Indexed &&
+                                a.Item2 == DocumentStatus.Indexed &&
                                 a.Item3 == _pdfResponse.BlobName
                         )
                     )
@@ -199,11 +199,11 @@ namespace coordinator.tests.Functions.SubOrchestrators
                         tracker =>
                         tracker.RegisterDocumentStatus
                         (
-                            It.Is<(string, TrackerDocumentStatus, string)>
+                            It.Is<(string, DocumentStatus, string)>
                             (
                                 a =>
                                     a.Item1 == _payload.PolarisDocumentId.ToString() &&
-                                    a.Item2 == TrackerDocumentStatus.UnexpectedFailure
+                                    a.Item2 == DocumentStatus.UnexpectedFailure
                             )
                         )
                     );
@@ -232,11 +232,11 @@ namespace coordinator.tests.Functions.SubOrchestrators
                         tracker =>
                         tracker.RegisterDocumentStatus
                         (
-                            It.Is<(string, TrackerDocumentStatus, string)>
+                            It.Is<(string, DocumentStatus, string)>
                             (
                                 a =>
                                     a.Item1 == _payload.PolarisDocumentId.ToString() &&
-                                    a.Item2 == TrackerDocumentStatus.DocumentAlreadyProcessed
+                                    a.Item2 == DocumentStatus.DocumentAlreadyProcessed
                             )
                         )
                     );

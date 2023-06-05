@@ -72,7 +72,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = DefendantsAndCharges ?? null;
         }
 
-        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((DateTime t, DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((DateTime t, Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
         {
             var (t, cmsDocuments, pcdRequests, defendantsAndCharges) = args;
 
@@ -103,18 +103,18 @@ namespace coordinator.Functions.DurableEntity.Entity
             return await Task.FromResult(deltas);
         }
 
-        public void RegisterDocumentStatus((string PolarisDocumentId, TrackerDocumentStatus Status, string PdfBlobName) args)
+        public void RegisterDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
         {
             var (polarisDocumentId, status, pdfBlobName) = args;
 
             var document = GetBaseTracker(polarisDocumentId);
             document.Status = status;
 
-            if (status == TrackerDocumentStatus.PdfUploadedToBlob)
+            if (status == DocumentStatus.PdfUploadedToBlob)
             {
                 document.IsPdfAvailable = true;
             }
-            if (status == TrackerDocumentStatus.PdfUploadedToBlob || status == TrackerDocumentStatus.DocumentAlreadyProcessed)
+            if (status == DocumentStatus.PdfUploadedToBlob || status == DocumentStatus.DocumentAlreadyProcessed)
             {
                 document.PdfBlobName = pdfBlobName;
             }
@@ -138,7 +138,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                     .ToList();
 
             return Task.FromResult(
-                statuses.All(s => s is TrackerDocumentStatus.UnableToConvertToPdf or TrackerDocumentStatus.UnexpectedFailure));
+                statuses.All(s => s is DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
         }
 
         // Only required when debugging to manually set the Tracker state
@@ -151,7 +151,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = tracker.DefendantsAndCharges;
         }
 
-        private (List<DocumentDto>, List<DocumentDto>, List<string>) GetDeltaCmsDocuments(List<DocumentDto> incomingDocuments)
+        private (List<Common.Dto.Document.CmsDocumentDto>, List<Common.Dto.Document.CmsDocumentDto>, List<string>) GetDeltaCmsDocuments(List<Common.Dto.Document.CmsDocumentDto> incomingDocuments)
         {
             var newDocuments =
                 (from incomingDocument in incomingDocuments
@@ -166,7 +166,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 (
                     cmsDocument != null &&
                     (
-                        cmsDocument.Status != TrackerDocumentStatus.Indexed || 
+                        cmsDocument.Status != DocumentStatus.Indexed || 
                         cmsDocument.CmsVersionId != incomingDocument.VersionId ||
                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed 
                     )
@@ -190,7 +190,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             var updatedPcdRequests =
                 incomingPcdRequests
-                    .Where(incomingPcd => PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id && pcd.Status != TrackerDocumentStatus.Indexed))
+                    .Where(incomingPcd => PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id && pcd.Status != DocumentStatus.Indexed))
                     .ToList();
 
             var deletedPcdRequestIds
@@ -219,7 +219,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<CmsDocumentEntity> CreateTrackerCmsDocuments(List<DocumentDto> createdDocuments)
+        private List<CmsDocumentEntity> CreateTrackerCmsDocuments(List<Common.Dto.Document.CmsDocumentDto> createdDocuments)
         {
             var newDocuments = new List<CmsDocumentEntity>();
 
@@ -246,7 +246,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return newDocuments;
         }
 
-        private List<CmsDocumentEntity> UpdateTrackerCmsDocuments(List<DocumentDto> updatedDocuments)
+        private List<CmsDocumentEntity> UpdateTrackerCmsDocuments(List<Common.Dto.Document.CmsDocumentDto> updatedDocuments)
         {
             var changedDocuments = new List<CmsDocumentEntity>();
 

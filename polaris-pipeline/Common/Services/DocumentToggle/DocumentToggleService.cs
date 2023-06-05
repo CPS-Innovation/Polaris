@@ -57,7 +57,7 @@ namespace Common.Services.DocumentToggle
             return document.PresentationFlags.Write == WriteFlag.Ok;
         }
 
-        public PresentationFlagsDto GetDocumentPresentationFlags(DocumentDto document)
+        public PresentationFlagsDto GetDocumentPresentationFlags(CmsDocumentDto document)
         {
             var levelForFileType = GetLevelForFileType(document);
             var levelForDocType = GetLevelForDocType(document);
@@ -181,7 +181,7 @@ namespace Common.Services.DocumentToggle
             return definitions;
         }
 
-        private DefinitionLevel GetLevelForFileType(DocumentDto document)
+        private DefinitionLevel GetLevelForFileType(CmsDocumentDto document)
         {
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.FileType
@@ -192,7 +192,7 @@ namespace Common.Services.DocumentToggle
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
         }
 
-        private DefinitionLevel GetLevelForDocType(DocumentDto document)
+        private DefinitionLevel GetLevelForDocType(CmsDocumentDto document)
         {
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.DocType

@@ -29,7 +29,7 @@ namespace Common.Domain.Entity
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
             IsOcrProcessed = isOcrProcessed;
-            Status = TrackerDocumentStatus.New;
+            Status = DocumentStatus.New;
         }
 
         [JsonProperty("cmsDocType")]

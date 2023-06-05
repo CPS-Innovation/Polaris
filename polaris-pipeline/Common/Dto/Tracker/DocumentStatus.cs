@@ -1,6 +1,6 @@
 ﻿namespace Common.Dto.Tracker
 {
-    public enum TrackerDocumentStatus
+    public enum DocumentStatus
     {
         New,
         Indexed,

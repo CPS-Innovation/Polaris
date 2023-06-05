@@ -117,7 +117,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 ICaseDurableEntity caseTracker,
                 ICaseRefreshLogsDurableEntity caseRefreshLogsEntity,
                 CaseOrchestrationPayload caseDocumentPayload,
-                (DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
+                (Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
                 ILogger log
             )
         {
@@ -206,12 +206,12 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ICaseDurableEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<(Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ICaseDurableEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
         {
             safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
 
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
-            var documents = await context.CallActivityAsync<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
+            var documents = await context.CallActivityAsync<(Common.Dto.Document.CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(ActivityFunctions.Case.GetCaseDocuments), getCaseEntitiesActivityPayload);
 
             return documents;
         }
