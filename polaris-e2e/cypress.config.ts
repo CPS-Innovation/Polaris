@@ -31,6 +31,7 @@ export default defineConfig({
     },
     baseUrl: "http://example.org",
     video: true,
+    screenshotOnRunFailure: true,
     // reporter: "junit",
     // reporterOptions: {
     //     mochaFile: "report/test-results-[hash].xml",
