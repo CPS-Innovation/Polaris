@@ -68,6 +68,7 @@ namespace pdf_generator.tests.Functions
                     null
                 );
             _generatePdfRequest.CmsCaseId = 123456;
+            _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test document";
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
             _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
 
@@ -152,7 +153,7 @@ namespace pdf_generator.tests.Functions
         [Fact]
         public async Task Run_UploadsDocumentStreamWhenFileTypeIsPdf()
         {
-            _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.pdf";
+            _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test.pdf";
             _mockDocumentExtractionService
                 .Setup(service => service.GetDocumentAsync
                 (
