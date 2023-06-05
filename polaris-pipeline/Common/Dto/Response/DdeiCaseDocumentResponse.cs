@@ -10,6 +10,9 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("versionId")]
     public long VersionId { get; set; }
 
+    [JsonProperty("presentationTitle")]
+    public string PresentationTitle { get; set; }
+
     [JsonProperty("originalFileName")]
     public string OriginalFileName { get; set; }
 
