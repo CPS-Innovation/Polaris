@@ -1,11 +1,10 @@
 ﻿namespace Common.Dto.Tracker
 {
-    public enum TrackerStatus
+    public enum CaseRefreshStatus
     {
         Running,
         DocumentsRetrieved,
-        Completed,
-        Failed,
-        Deleted
+        ProcessingCompleted,
+        Failed
     }
 }

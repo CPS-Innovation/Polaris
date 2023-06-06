@@ -16,9 +16,9 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
         void SetVersion(int value);
         void Reset(string TransactionId);
         void SetValue(CaseDurableEntity tracker);
-        Task<CaseDeltasEntity> GetCaseDocumentChanges((DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
-        void RegisterDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) arg);
-        void RegisterCompleted((DateTime T, bool Success) arg);
+        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
+        void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
+        void SetCaseStatus((DateTime T, CaseRefreshStatus Status) args);
         Task<bool> AllDocumentsFailed();
     }
 }

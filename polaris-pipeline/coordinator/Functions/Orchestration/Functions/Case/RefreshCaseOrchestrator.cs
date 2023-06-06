@@ -49,6 +49,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var log = context.CreateReplaySafeLogger(_log);
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve case trackers for case {payload.CmsCaseId}");
             var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, payload.CmsCaseId, true, payload.CorrelationId, log);
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running));
 
             try
             {
@@ -71,8 +72,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
             catch (Exception exception)
             {
-                caseEntity.RegisterCompleted((context.CurrentUtcDateTime, false));
-                caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Failed, exception.Message));
+                var t = context.CurrentUtcDateTime;
+                caseEntity.SetCaseStatus((t, CaseRefreshStatus.Failed));
+                caseRefreshLogsEntity.LogCase((t, TrackerLogType.Failed, exception.Message));
 
                 log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
@@ -91,9 +93,11 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
             caseEntity.Reset(context.InstanceId);
-            caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Initialised, "Initialised"));
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running));
+            caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Initialised, null));
 
             var documents = await GetDocuments(context, caseEntity, loggingName, log, payload);
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved));
             var documentTasks = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
 
             await Task.WhenAll(documentTasks.Select(BufferCall));
@@ -101,9 +105,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             if (await caseEntity.AllDocumentsFailed())
                 throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
-            var t = context.CurrentUtcDateTime;
-            caseEntity.RegisterCompleted((t, true));
-            caseRefreshLogsEntity.LogCase((t, TrackerLogType.Completed, null));
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.ProcessingCompleted));
+            caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Completed, null));
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
 
@@ -123,7 +126,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         {
             var now = context.CurrentUtcDateTime;
 
-            var deltas = await caseTracker.GetCaseDocumentChanges((now, documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
+            var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
             caseRefreshLogsEntity.LogDeltas((now, deltas));
             var logMessage = deltas.GetLogMessage();
             log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, logMessage);

@@ -32,6 +32,10 @@ namespace Common.Dto.Tracker
         [JsonProperty("polarisDocumentVersionId")]
         public int PolarisDocumentVersionId { get; set; }
 
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("status")]
+        public DocumentStatus Status { get; set; }
+
         [JsonProperty("cmsDocumentId")]
         [AdaptIgnore]
         public string CmsDocumentId { get; set; }
@@ -46,10 +50,6 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
-
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("status")]
-        public DocumentStatus Status { get; set; }
 
         [JsonProperty("isPdfAvailable")]
         public bool IsPdfAvailable { get; set; }

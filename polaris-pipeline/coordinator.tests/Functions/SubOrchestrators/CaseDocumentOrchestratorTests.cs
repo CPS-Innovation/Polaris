@@ -140,7 +140,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockCaseEntity.Verify
                 (
                     tracker => 
-                    tracker.RegisterDocumentStatus
+                    tracker.SetDocumentStatus
                     (
                         It.Is<(string, DocumentStatus, string)>
                         (
@@ -167,7 +167,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockCaseEntity.Verify
                 (
                     tracker =>
-                    tracker.RegisterDocumentStatus
+                    tracker.SetDocumentStatus
                     (
                         It.Is<(string, DocumentStatus, string)>
                         (
@@ -197,7 +197,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                 _mockCaseEntity.Verify
                     (
                         tracker =>
-                        tracker.RegisterDocumentStatus
+                        tracker.SetDocumentStatus
                         (
                             It.Is<(string, DocumentStatus, string)>
                             (
@@ -230,7 +230,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                 _mockCaseEntity.Verify
                     (
                         tracker =>
-                        tracker.RegisterDocumentStatus
+                        tracker.SetDocumentStatus
                         (
                             It.Is<(string, DocumentStatus, string)>
                             (

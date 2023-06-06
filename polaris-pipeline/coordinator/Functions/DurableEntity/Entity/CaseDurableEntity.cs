@@ -45,13 +45,19 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
-        public TrackerStatus Status { get; set; }
+        public CaseRefreshStatus Status { get; set; }
 
-        [JsonProperty("documentsRetrieved")]
-        public DateTime? DocumentsRetrieved { get; set; }
+        [JsonProperty("running")]
+        public DateTime? Running { get; set; }
 
-        [JsonProperty("processingCompleted")]
-        public DateTime? ProcessingCompleted { get; set; }
+        [JsonProperty("documentsRetrievedSeconds")]
+        public float? DocumentsRetrievedSeconds { get; set; }
+
+        [JsonProperty("processingCompletedSeconds")]
+        public float? ProcessingCompletedSeconds { get; set; }
+
+        [JsonProperty("failedSeconds")]
+        public float? FailedSeconds { get; set; }
 
         [JsonProperty("documents")]
         public List<CmsDocumentEntity> CmsDocuments { get; set; }
@@ -65,16 +71,18 @@ namespace coordinator.Functions.DurableEntity.Entity
         public void Reset(string transactionId)
         {
             TransactionId = transactionId;
-            ProcessingCompleted = null;
-            Status = TrackerStatus.Running;
+            Running = null;
+            DocumentsRetrievedSeconds = null;
+            ProcessingCompletedSeconds = null;
+            FailedSeconds = null;
             CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
             PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
         }
 
-        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
         {
-            var (t, cmsDocuments, pcdRequests, defendantsAndCharges) = args;
+            var (cmsDocuments, pcdRequests, defendantsAndCharges) = args;
 
             CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
             PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
@@ -97,35 +105,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 IsDeletedDefendantsAndCharges = DeleteTrackerDefendantsAndCharges(deletedDefendantsAndCharges),
             };
 
-            Status = TrackerStatus.DocumentsRetrieved;
-            DocumentsRetrieved = t;
-
             return await Task.FromResult(deltas);
-        }
-
-        public void RegisterDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
-        {
-            var (polarisDocumentId, status, pdfBlobName) = args;
-
-            var document = GetBaseTracker(polarisDocumentId);
-            document.Status = status;
-
-            if (status == DocumentStatus.PdfUploadedToBlob)
-            {
-                document.IsPdfAvailable = true;
-            }
-            if (status == DocumentStatus.PdfUploadedToBlob || status == DocumentStatus.DocumentAlreadyProcessed)
-            {
-                document.PdfBlobName = pdfBlobName;
-            }
-        }
-
-        public void RegisterCompleted((DateTime T, bool Success) args)
-        {
-            var (t, success) = args;
-
-            Status = success ? TrackerStatus.Completed : TrackerStatus.Failed;
-            ProcessingCompleted = t;
         }
 
         public Task<bool> AllDocumentsFailed()
@@ -139,16 +119,6 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             return Task.FromResult(
                 statuses.All(s => s is DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
-        }
-
-        // Only required when debugging to manually set the Tracker state
-        public void SetValue(CaseDurableEntity tracker)
-        {
-            Status = tracker.Status;
-            ProcessingCompleted = tracker.ProcessingCompleted;
-            CmsDocuments = tracker.CmsDocuments;
-            PcdRequests = tracker.PcdRequests;
-            DefendantsAndCharges = tracker.DefendantsAndCharges;
         }
 
         private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<string>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
@@ -365,7 +335,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deletedDefendantsAndCharges;
         }
 
-        private BaseDocumentEntity GetBaseTracker(string documentId)
+        private BaseDocumentEntity GetDocument(string documentId)
         {
             var cmsDocument = CmsDocuments.Find(doc => doc.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
             if (cmsDocument != null)
@@ -385,13 +355,60 @@ namespace coordinator.Functions.DurableEntity.Entity
             return null;
         }
 
-        private void ClearState(TrackerStatus status)
+        public void SetCaseStatus((DateTime T, CaseRefreshStatus Status) args)
         {
+            var (t, status) = args;
+
             Status = status;
-            CmsDocuments = new List<CmsDocumentEntity>();
-            PcdRequests = new List<PcdRequestEntity>();
-            DocumentsRetrieved = null;
-            ProcessingCompleted = null;
+
+            switch(status)
+            {
+                case CaseRefreshStatus.Running:
+                    Running = t; 
+                    break;
+
+                case CaseRefreshStatus.DocumentsRetrieved:
+                    DocumentsRetrievedSeconds = (float)((t-Running).Value.TotalMilliseconds/1000.0);
+                    break;
+
+                case CaseRefreshStatus.ProcessingCompleted:
+                    ProcessingCompletedSeconds = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                    break;
+
+                case CaseRefreshStatus.Failed:
+                    FailedSeconds = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                    break;
+            }
+        }
+
+        public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
+        {
+            var (polarisDocumentId, status, pdfBlobName) = args;
+
+            var document = GetDocument(polarisDocumentId);
+            document.Status = status;
+
+            if (status == DocumentStatus.PdfUploadedToBlob)
+            {
+                document.IsPdfAvailable = true;
+            }
+            if (status == DocumentStatus.PdfUploadedToBlob || status == DocumentStatus.DocumentAlreadyProcessed)
+            {
+                document.PdfBlobName = pdfBlobName;
+            }
+        }
+
+        // Only required when debugging to manually set the Tracker state
+        public void SetValue(CaseDurableEntity tracker)
+        {
+            Status = tracker.Status;
+            Running = tracker.Running;
+            DocumentsRetrievedSeconds = tracker.DocumentsRetrievedSeconds;
+            ProcessingCompletedSeconds = tracker.ProcessingCompletedSeconds;
+            FailedSeconds = tracker.FailedSeconds;
+            CmsDocuments = tracker.CmsDocuments;
+            PcdRequests = tracker.PcdRequests;
+            DefendantsAndCharges = tracker.DefendantsAndCharges;
         }
 
         [FunctionName(nameof(CaseDurableEntity))]

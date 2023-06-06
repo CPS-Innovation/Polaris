@@ -95,7 +95,7 @@ namespace coordinator.tests.Functions
                 .Returns("300");
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(((DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
 
             _mockCaseEntity
@@ -153,7 +153,7 @@ namespace coordinator.tests.Functions
                 .ReturnsAsync((new CmsDocumentDto[0], new PcdRequestDto[0], new DefendantsAndChargesListDto()));
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
                 .ReturnsAsync(new CaseDeltasEntity
                 {
                     CreatedCmsDocuments = new List<CmsDocumentEntity>(),
@@ -224,8 +224,8 @@ namespace coordinator.tests.Functions
         {
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            var arg = (It.IsAny<DateTime>(), true);
-            _mockCaseEntity.Verify(tracker => tracker.RegisterCompleted(arg));
+            var arg = (It.IsAny<DateTime>(), CaseRefreshStatus.ProcessingCompleted);
+            _mockCaseEntity.Verify(tracker => tracker.SetCaseStatus(arg));
         }
 
         [Fact]
@@ -252,8 +252,8 @@ namespace coordinator.tests.Functions
             }
             catch
             {
-                var arg = (It.IsAny<DateTime>(), false);
-                _mockCaseEntity.Verify(tracker => tracker.RegisterCompleted(arg));
+                var arg = (It.IsAny<DateTime>(), CaseRefreshStatus.Failed);
+                _mockCaseEntity.Verify(tracker => tracker.SetCaseStatus(arg));
             }
         }
     }

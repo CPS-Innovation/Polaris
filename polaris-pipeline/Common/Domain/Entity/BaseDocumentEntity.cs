@@ -27,6 +27,9 @@ namespace Common.Domain.Entity
             Status = DocumentStatus.New;
         }
 
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("status")]
+        public DocumentStatus Status { get; set; }
         [JsonProperty("cmsDocumentId")]
         [AdaptIgnore]
         public string CmsDocumentId { get; set; }
@@ -54,10 +57,6 @@ namespace Common.Domain.Entity
 
         [JsonProperty("polarisDocumentVersionId")]
         public int PolarisDocumentVersionId { get; set; }
-
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("status")]
-        public DocumentStatus Status { get; set; }
 
         [JsonProperty("isPdfAvailable")]
         public bool IsPdfAvailable { get; set; }

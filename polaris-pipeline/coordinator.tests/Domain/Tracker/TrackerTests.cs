@@ -37,7 +37,7 @@ namespace coordinator.tests.Domain.Tracker
         private readonly List<PcdRequestDto> _pcdRequests;
         private readonly DefendantsAndChargesListDto _defendantsAndChargesList;
         private readonly string _pdfBlobName;
-        private readonly (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _synchroniseDocumentsArg;
+        private readonly (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _synchroniseDocumentsArg;
         private readonly List<CmsDocumentEntity> _trackerCmsDocuments;
         private readonly List<PcdRequestEntity> _trackerPcdRequests;
         private readonly string _caseUrn;
@@ -73,7 +73,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _pdfBlobName = _fixture.Create<string>();
 
-            _synchroniseDocumentsArg = new (DateTime.UtcNow, _cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
+            _synchroniseDocumentsArg = new (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
             _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState=_caseEntity };
             _caseRefreshLogsEntityStateResponse = new EntityStateResponse<CaseRefreshLogsDurableEntity>() { EntityExists = true, EntityState = _caseRefreshLogsEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
@@ -123,7 +123,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _caseEntity.TransactionId.Should().Be(_transactionId);
             _caseEntity.CmsDocuments.Should().NotBeNull();
-            _caseEntity.Status.Should().Be(TrackerStatus.Running);
+            _caseEntity.Status.Should().Be(CaseRefreshStatus.Running);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.RegisterDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.PdfUploadedToBlob, _pdfBlobName));
+            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.PdfUploadedToBlob, _pdfBlobName));
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.PdfBlobName.Should().Be(_pdfBlobName);
@@ -154,7 +154,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.RegisterDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.DocumentAlreadyProcessed, _pdfBlobName));
+            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.DocumentAlreadyProcessed, _pdfBlobName));
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.DocumentAlreadyProcessed);
@@ -165,7 +165,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.RegisterDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnableToConvertToPdf, null));
+            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnableToConvertToPdf, null));
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
@@ -186,7 +186,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.RegisterDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnexpectedFailure, null));
+            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnexpectedFailure, null));
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.UnexpectedFailure);
@@ -197,7 +197,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.RegisterDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.Indexed, null));
+            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.Indexed, null));
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.Indexed);
@@ -208,7 +208,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.RegisterDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.OcrAndIndexFailure, null));
+            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.OcrAndIndexFailure, null));
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
             document?.Status.Should().Be(DocumentStatus.OcrAndIndexFailure);
@@ -218,19 +218,19 @@ namespace coordinator.tests.Domain.Tracker
         public void RegisterCompleted_RegistersCompleted()
         {
             _caseEntity.Reset(_transactionId);
-            _caseEntity.RegisterCompleted((It.IsAny<DateTime>(), true));
+            _caseEntity.SetCaseStatus((It.IsAny<DateTime>(), CaseRefreshStatus.ProcessingCompleted));
 
-            _caseEntity.Status.Should().Be(TrackerStatus.Completed);
-            _caseEntity.ProcessingCompleted.Should().NotBeNull();
+            _caseEntity.Status.Should().Be(CaseRefreshStatus.ProcessingCompleted);
+            _caseEntity.ProcessingCompletedSeconds.Should().NotBeNull();
         }
 
         [Fact]
         public void RegisterFailed_RegistersFailed()
         {
             _caseEntity.Reset(_transactionId);
-            _caseEntity.RegisterCompleted((It.IsAny<DateTime>(), false));
+            _caseEntity.SetCaseStatus((It.IsAny<DateTime>(), CaseRefreshStatus.Failed));
 
-            _caseEntity.Status.Should().Be(TrackerStatus.Failed);
+            _caseEntity.Status.Should().Be(CaseRefreshStatus.Failed);
         }
 
         //[Fact]
@@ -497,8 +497,8 @@ namespace coordinator.tests.Domain.Tracker
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
             tracker.PcdRequests.ForEach(doc => doc.Status = DocumentStatus.Indexed);
-            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) synchroniseDocumentsArg
-                = new(DateTime.UtcNow, _cmsDocuments.Take(1).ToArray(), _pcdRequests.Take(1).ToArray(), null);
+            (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) synchroniseDocumentsArg
+                = new(_cmsDocuments.Take(1).ToArray(), _pcdRequests.Take(1).ToArray(), null);
 
             // Act 
             var deltas = await tracker.GetCaseDocumentChanges(synchroniseDocumentsArg);
@@ -547,8 +547,8 @@ namespace coordinator.tests.Domain.Tracker
             var newDaysDocuments = new List<CmsDocumentDto> { _cmsDocuments.First() };
             ////only one document in today's run, the next two should be removed from the tracker and in the evaluation results
 
-            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
-                new(DateTime.UtcNow, newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
+            (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
+                new(newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
 
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);
@@ -572,8 +572,8 @@ namespace coordinator.tests.Domain.Tracker
             var newVersionId = originalVersionId + 1;
             newDaysDocuments[1].VersionId = newVersionId;
             var modifiedDocumentId = newDaysDocuments[1].DocumentId;
-            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
-                new(DateTime.UtcNow, newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
+            (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg =
+                new(newDaysDocuments.ToArray(), Array.Empty<PcdRequestDto>(), null);
 
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);
@@ -610,8 +610,8 @@ namespace coordinator.tests.Domain.Tracker
             var unmodifiedDocumentId = newDaysDocuments[1].DocumentId;
             var unmodifiedDocumentVersionId = newDaysDocuments[1].VersionId;
 
-            (DateTime t, CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg
-                = new(DateTime.UtcNow, newDaysDocuments.ToArray(), _pcdRequests.ToArray(), null);
+            (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) newDaysDocumentIdsArg
+                = new(newDaysDocuments.ToArray(), _pcdRequests.ToArray(), null);
 
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(newDaysDocumentIdsArg);

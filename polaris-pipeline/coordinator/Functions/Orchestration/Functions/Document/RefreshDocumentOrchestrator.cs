@@ -68,12 +68,12 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 var t = context.CurrentUtcDateTime;
                 if (response.AlreadyProcessed)
                 {
-                    caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.DocumentAlreadyProcessed, response.BlobName));
+                    caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.DocumentAlreadyProcessed, response.BlobName));
                     caseRefreshLogsEntity.LogDocument((t, TrackerLogType.DocumentAlreadyProcessed, payload.PolarisDocumentId.ToString()));
                 }
                 else
                 {
-                    caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, response.BlobName));
+                    caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, response.BlobName));
                     caseRefreshLogsEntity.LogDocument((t, TrackerLogType.RegisteredPdfBlobName, payload.PolarisDocumentId.ToString()));
                 }
 
@@ -81,7 +81,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
             catch (Exception exception)
             {
-                caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnexpectedFailure, null));
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnexpectedFailure, null));
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator),
                     $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}",
@@ -102,13 +102,13 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             try
             {
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
-                caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, blobName));
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, blobName));
                 var t = context.CurrentUtcDateTime;
                 caseRefreshLogsEntity.LogDocument((t, TrackerLogType.Indexed, payload.PolarisDocumentId.ToString()));
             }
             catch (Exception exception)
             {
-                caseEntity.RegisterDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.OcrAndIndexFailure, null));
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.OcrAndIndexFailure, null));
 
                 log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;

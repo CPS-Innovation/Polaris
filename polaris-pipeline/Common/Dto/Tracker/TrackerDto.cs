@@ -15,19 +15,25 @@ namespace Common.Dto.Tracker
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
-        public TrackerStatus Status { get; set; }
+        public CaseRefreshStatus Status { get; set; }
 
-        [JsonProperty("documentsRetrieved")]
-        public DateTime? DocumentsRetrieved { get; set; }
+        [JsonProperty("running")]
+        public DateTime? Running { get; set; }
 
-        [JsonProperty("processingCompleted")]
-        public DateTime? ProcessingCompleted { get; set; }
+        [JsonProperty("documentsRetrievedSeconds")]
+        public float? DocumentsRetrievedSeconds { get; set; }
 
-        [JsonProperty("documents")]
-        public List<DocumentDto> Documents { get; set; }
+        [JsonProperty("processingCompletedSeconds")]
+        public float? ProcessingCompletedSeconds { get; set; }
+
+        [JsonProperty("failedSeconds")]
+        public float? FailedSeconds { get; set; }
 
         [JsonProperty("logs")]
         public CaseLogsDto Logs { get; set; }
+
+        [JsonProperty("documents")]
+        public List<DocumentDto> Documents { get; set; }
     }
 }
 
