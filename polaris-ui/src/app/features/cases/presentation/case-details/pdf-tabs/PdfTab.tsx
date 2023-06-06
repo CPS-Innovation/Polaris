@@ -128,7 +128,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           redactStatus={redactStatus}
-          documentType={documentType}
+          contextData={{
+            documentId,
+            documentType,
+          }}
           redactionHighlights={redactionHighlights}
           focussedHighlightIndex={focussedHighlightIndex}
           handleAddRedaction={localHandleAddRedaction}

@@ -8,6 +8,7 @@ import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
+import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -48,6 +49,7 @@ export const initialState = {
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
   const caseState = useApi(getCaseDetails, [urn, caseId]);
+  const trackEvent = useAppInsightsTrackEvent();
 
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
@@ -142,6 +144,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           pdfId: documentId,
         },
       });
+      trackEvent("View Document Tab", { documentId: documentId });
     },
     [dispatch]
   );
@@ -154,6 +157,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           pdfId: caseDocument.documentId,
         },
       });
+      trackEvent("Close Document", { documentId: caseDocument.documentId });
     },
     [dispatch]
   );

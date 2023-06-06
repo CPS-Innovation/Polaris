@@ -1,5 +1,6 @@
 import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 type AppInsightsTrackEventNames =
   | "Search URN"
@@ -75,6 +76,7 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Categorised Documents Count": "Documents count under particular category",
 };
 const useAppInsightsTrackEvent = () => {
+  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
   const appInsights = useAppInsightsContext();
 
   const trackEvent = (
@@ -87,10 +89,15 @@ const useAppInsightsTrackEvent = () => {
     const description: string = eventDescription[name]
       ? eventDescription[name]
       : "";
-
+    const generalProperties = urn
+      ? {
+          urn: urn,
+          caseId: caseId,
+        }
+      : {};
     appInsights.trackEvent({
       name,
-      properties: { ...properties, description },
+      properties: { ...properties, description, ...generalProperties },
     });
   };
 

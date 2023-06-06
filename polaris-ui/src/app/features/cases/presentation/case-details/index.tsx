@@ -86,8 +86,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       );
 
       trackEvent("Categorised Documents Count", {
-        urn,
-        caseId,
         ...categorisedData,
       });
 
@@ -97,8 +95,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       if (unCategorisedDocs) {
         unCategorisedDocs.docs.forEach((doc: MappedCaseDocument) => {
           trackEvent("Uncategorised Document", {
-            urn,
-            caseId,
             documentId: doc.cmsDocumentId,
             documentTypeId: doc.cmsDocType.documentTypeId,
             documentDocumentType: doc.cmsDocType.documentType,
