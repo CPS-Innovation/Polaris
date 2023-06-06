@@ -72,9 +72,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
             catch (Exception exception)
             {
-                var t = context.CurrentUtcDateTime;
-                caseEntity.SetCaseStatus((t, CaseRefreshStatus.Failed));
-                caseRefreshLogsEntity.LogCase((t, TrackerLogType.Failed, exception.Message));
+                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed));
 
                 log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
@@ -94,22 +92,19 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
             caseEntity.Reset(context.InstanceId);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running));
-            caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Initialised, null));
 
             var documents = await GetDocuments(context, caseEntity, loggingName, log, payload);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved));
-            var documentTasks = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
 
+            var documentTasks = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
             await Task.WhenAll(documentTasks.Select(BufferCall));
 
             if (await caseEntity.AllDocumentsFailed())
                 throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.ProcessingCompleted));
-            caseRefreshLogsEntity.LogCase((context.CurrentUtcDateTime, TrackerLogType.Completed, null));
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
-
             var trackerDto = caseEntity.Adapt<TrackerDto>();
             return trackerDto;
         }

@@ -69,12 +69,12 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 if (response.AlreadyProcessed)
                 {
                     caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.DocumentAlreadyProcessed, response.BlobName));
-                    caseRefreshLogsEntity.LogDocument((t, TrackerLogType.DocumentAlreadyProcessed, payload.PolarisDocumentId.ToString()));
+                    caseRefreshLogsEntity.LogDocument((t, DocumentLogType.DocumentAlreadyProcessed, payload.PolarisDocumentId.ToString()));
                 }
                 else
                 {
                     caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, response.BlobName));
-                    caseRefreshLogsEntity.LogDocument((t, TrackerLogType.RegisteredPdfBlobName, payload.PolarisDocumentId.ToString()));
+                    caseRefreshLogsEntity.LogDocument((t, DocumentLogType.RegisteredPdfBlobName, payload.PolarisDocumentId.ToString()));
                 }
 
                 return response;
@@ -104,7 +104,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, blobName));
                 var t = context.CurrentUtcDateTime;
-                caseRefreshLogsEntity.LogDocument((t, TrackerLogType.Indexed, payload.PolarisDocumentId.ToString()));
+                caseRefreshLogsEntity.LogDocument((t, DocumentLogType.Indexed, payload.PolarisDocumentId.ToString()));
             }
             catch (Exception exception)
             {

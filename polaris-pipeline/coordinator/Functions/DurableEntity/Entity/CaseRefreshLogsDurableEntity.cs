@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Domain.Entity;
+using Google.Protobuf.WellKnownTypes;
+using System.Linq;
 
 namespace coordinator.Functions.DurableEntity.Entity
 {
@@ -24,45 +26,45 @@ namespace coordinator.Functions.DurableEntity.Entity
             var (t, deltas) = args;
 
             var logMessage = deltas.GetLogMessage();
-            LogCase((t, TrackerLogType.DocumentsSynchronised, logMessage));
+            LogCase((t, CaseRefreshStatus.DocumentsRetrieved, logMessage));
 
             foreach(CmsDocumentEntity trackerCmsDocumentDto in deltas.CreatedCmsDocuments)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentCreated, trackerCmsDocumentDto.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Created, trackerCmsDocumentDto.PolarisDocumentId.ToString()));
             }
             foreach (CmsDocumentEntity trackerCmsDocumentDto in deltas.UpdatedCmsDocuments)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentUpdated, trackerCmsDocumentDto.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Updated, trackerCmsDocumentDto.PolarisDocumentId.ToString()));
             }
             foreach (CmsDocumentEntity trackerCmsDocumentDto in deltas.DeletedCmsDocuments)
             {
-                LogDocument((t, TrackerLogType.CmsDocumentDeleted, trackerCmsDocumentDto.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Deleted, trackerCmsDocumentDto.PolarisDocumentId.ToString()));
             }
 
             if(deltas.CreatedDefendantsAndCharges != null)
             {
-                LogDocument((t, TrackerLogType.DefendantAndChargesCreated, deltas.CreatedDefendantsAndCharges.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Created, deltas.CreatedDefendantsAndCharges.PolarisDocumentId.ToString()));
             }
             if (deltas.UpdatedDefendantsAndCharges != null)
             {
-                LogDocument((t, TrackerLogType.DefendantAndChargesUpdated, deltas.UpdatedDefendantsAndCharges.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Updated, deltas.UpdatedDefendantsAndCharges.PolarisDocumentId.ToString()));
             }
 
             foreach (PcdRequestEntity trackerPcdRequestDto in deltas.CreatedPcdRequests)
             {
-                LogDocument((t, TrackerLogType.PcdRequestCreated, trackerPcdRequestDto.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Created, trackerPcdRequestDto.PolarisDocumentId.ToString()));
             }
             foreach (PcdRequestEntity trackerPcdRequestDto in deltas.UpdatedPcdRequests)
             {
-                LogDocument((t, TrackerLogType.PcdRequestUpdated, trackerPcdRequestDto.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Updated, trackerPcdRequestDto.PolarisDocumentId.ToString()));
             }
             foreach (PcdRequestEntity trackerPcdRequestDto in deltas.DeletedPcdRequests)
             {
-                LogDocument((t, TrackerLogType.PcdRequestDeleted, trackerPcdRequestDto.PolarisDocumentId.ToString()));
+                LogDocument((t, DocumentLogType.Deleted, trackerPcdRequestDto.PolarisDocumentId.ToString()));
             }
         }
 
-        public void LogCase((DateTime t, TrackerLogType status, string description) args)
+        public void LogCase((DateTime t, CaseRefreshStatus status, string description) args)
         {
             var (t, status, description) = args;
 
@@ -76,21 +78,24 @@ namespace coordinator.Functions.DurableEntity.Entity
             Case.Insert(0, logEntry);
         }
 
-        public void LogDocument((DateTime t, TrackerLogType status, string polarisDocumentId) args)
+        public void LogDocument((DateTime t, DocumentLogType status, string polarisDocumentId) args)
         {
             var (t, status, polarisDocumentId) = args;
+            float? timespanSeconds = null;
+
+            if (Documents.ContainsKey(args.polarisDocumentId))
+                timespanSeconds = (float)(t - DateTime.Parse(Documents[args.polarisDocumentId].First().TimeStamp).ToUniversalTime()).TotalSeconds;
+            else
+                Documents.Add(polarisDocumentId, new List<DocumentLogEntity>());
 
             var logEntry = new DocumentLogEntity
             {
                 Type = status.ToString(),
-                TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz")
+                TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),
+                TimespanSeconds = timespanSeconds
             };
 
-            if (!Documents.ContainsKey(args.polarisDocumentId))
-            {
-                Documents.Add(polarisDocumentId, new List<DocumentLogEntity>());
-            }
-            Documents[polarisDocumentId].Insert(0, logEntry);
+            Documents[polarisDocumentId].Add(logEntry);
         }
 
         [FunctionName(nameof(CaseRefreshLogsDurableEntity))]

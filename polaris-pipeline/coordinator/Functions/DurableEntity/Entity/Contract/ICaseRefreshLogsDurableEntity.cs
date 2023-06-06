@@ -9,7 +9,7 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
     public interface ICaseRefreshLogsDurableEntity
     {
         void LogDeltas((DateTime t, CaseDeltasEntity deltas) args);
-        void LogCase((DateTime t, TrackerLogType status, string description) args);
-        void LogDocument((DateTime t, TrackerLogType status, string polarisDocumentId) args);
+        void LogCase((DateTime t, CaseRefreshStatus status, string description) args);
+        void LogDocument((DateTime t, DocumentLogType status, string polarisDocumentId) args);
     }
 }
