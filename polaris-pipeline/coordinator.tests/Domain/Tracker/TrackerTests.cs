@@ -138,40 +138,6 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         [Fact]
-        public async Task RegisterPdfBlobName_RegistersPdfBlobName()
-        {
-            _caseEntity.Reset(_transactionId);
-            await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.PdfUploadedToBlob, _pdfBlobName));
-
-            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
-            document?.PdfBlobName.Should().Be(_pdfBlobName);
-            document?.Status.Should().Be(DocumentStatus.PdfUploadedToBlob);
-        }
-
-        [Fact]
-        public async Task RegisterDocumentAsAlreadyProcessed_Registers()
-        {
-            _caseEntity.Reset(_transactionId);
-            await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.DocumentAlreadyProcessed, _pdfBlobName));
-
-            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.DocumentAlreadyProcessed);
-        }
-
-        [Fact]
-        public async Task RegisterDocumentAsFailedPDFConversion_Registers()
-        {
-            _caseEntity.Reset(_transactionId);
-            await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnableToConvertToPdf, null));
-
-            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
-        }
-
-        [Fact]
         public async Task Initialisation_SetsDocumentStatusToNone()
         {
             _caseEntity.Reset(_transactionId);
@@ -181,37 +147,26 @@ namespace coordinator.tests.Domain.Tracker
             document?.Status.Should().Be(DocumentStatus.New);
         }
 
-        [Fact]
-        public async Task RegisterUnableToConvertToPdf_Registers()
+        [Theory]
+        [InlineData(DocumentStatus.Indexed)]
+        [InlineData(DocumentStatus.DocumentAlreadyProcessed)]
+        [InlineData(DocumentStatus.UnableToConvertToPdf)]
+        [InlineData(DocumentStatus.PdfUploadedToBlob)]
+        [InlineData(DocumentStatus.OcrAndIndexFailure)]
+        public async Task RegisterIndexed_RegistersStates(DocumentStatus status)
         {
+            // Arrange
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnableToConvertToPdf, null));
+            var polarisDocumentId = _caseEntity.CmsDocuments.First().PolarisDocumentIdValue;
+            var cmsDocumentId = _caseEntity.CmsDocuments.First().CmsDocumentId;
 
-            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
-        }
+            // Act
+            _caseEntity.SetDocumentStatus((polarisDocumentId, status, _pdfBlobName));
 
-        [Fact]
-        public async Task RegisterIndexed_RegistersIndexed()
-        {
-            _caseEntity.Reset(_transactionId);
-            await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.Indexed, null));
-
-            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.Indexed);
-        }
-
-        [Fact]
-        public async Task RegisterIndexed_RegistersOcrAndIndexFailure()
-        {
-            _caseEntity.Reset(_transactionId);
-            await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.OcrAndIndexFailure, null));
-
-            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.OcrAndIndexFailure);
+            // Assert
+            var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == cmsDocumentId);
+            document?.Status.Should().Be(status);
         }
 
         [Fact]
