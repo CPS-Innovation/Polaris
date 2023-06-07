@@ -191,7 +191,14 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
 
             var allPayloads = cmsDocumentPayloads.Concat(pcdRequestsPayloads).Concat(defendantsAndChargesPayloads);
-            var allTasks = allPayloads.Select(payload => context.CallSubOrchestratorAsync(nameof(RefreshDocumentOrchestrator), payload));
+            var allTasks = allPayloads.Select
+                    (
+                        payload => context.CallSubOrchestratorAsync
+                        (
+                            nameof(RefreshDocumentOrchestrator), 
+                            $"{payload.CmsCaseId}-{payload.PolarisDocumentId}", 
+                            payload)
+                        );
 
             return allTasks.ToList();
         }
