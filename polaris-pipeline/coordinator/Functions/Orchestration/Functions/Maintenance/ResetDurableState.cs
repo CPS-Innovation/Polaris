@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
+using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ public class ResetDurableState
     private readonly ILogger<ResetDurableState> _logger;
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
     private const int DefaultPageSize = 100;
-    private const string TrackerEntityName = "trackerentity";
+    private static string[] DurableEntityNames = new string[] {nameof(CaseDurableEntity), nameof(CaseRefreshLogsDurableEntity) };
 
     // {second} {minute} {hour} {day} {month} {day-of-week}
     private const string TimerStartTime = "0 0 3 * * *";
@@ -25,7 +26,7 @@ public class ResetDurableState
         _logger = logger;
     }
     
-    [FunctionName("ResetDurableState")]
+    [FunctionName(nameof(ResetDurableState))]
     public async Task RunAsync(
         [TimerTrigger(TimerStartTime)] TimerInfo myTimer, 
         [DurableClient] IDurableOrchestrationClient client)
@@ -110,9 +111,12 @@ public class ResetDurableState
         }
 
         _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - third, purge durable entity instance history for {purgedInstances.Count} entities");
-        
-        await Task.WhenAll(purgedInstances.Select(async instanceId => await client.PurgeInstanceHistoryAsync($"@{TrackerEntityName}@{instanceId}")));
-        
+
+        foreach(var durableEntityName in DurableEntityNames)
+        {
+            await Task.WhenAll(purgedInstances.Select(async instanceId => await client.PurgeInstanceHistoryAsync($"@{durableEntityName.ToLower()}@{instanceId}")));
+        }
+
         _logger.LogMethodFlow(correlationId, LoggingName, $"Durable entity history for {purgedInstances.Count} entities purged - clear-down complete");
     }
 

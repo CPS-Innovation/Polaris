@@ -79,7 +79,7 @@ namespace Gateway.Clients.PolarisPipeline
 
         private async Task<string> DeleteCaseTrackerEntity(int caseId, string cmsAuthValues, Guid correlationId)
         {
-            string url = $"{RestApi.GetCaseOrchestrationInstanceUrl($"@trackerentity@{caseId}")}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}";
+            string url = $"{RestApi.GetCaseOrchestrationInstanceUrl($"@casedurableentity@{caseId}")}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}";
             await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId, null, new HttpStatusCode[] { HttpStatusCode.NotFound });
             return url;
         }

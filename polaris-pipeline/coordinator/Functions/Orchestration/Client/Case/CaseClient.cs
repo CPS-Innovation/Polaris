@@ -50,6 +50,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
             try
             {
+                #region Validate-Inputs
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                     throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(req));
@@ -76,6 +77,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
                 if (req.RequestUri == null)
                     throw new BadRequestException("Expected querystring value", nameof(req));
+                #endregion
 
                 CaseOrchestrationPayload casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId);
 
