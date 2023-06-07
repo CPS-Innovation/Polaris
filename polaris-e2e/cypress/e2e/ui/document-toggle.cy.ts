@@ -7,6 +7,7 @@ const {
   TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME,
   TARGET_NOT_CORRECT_FILE_TYPE_DOCUMENT_NAME,
   TARGET_CAN_REDACT_DOCUMENT_NAME,
+  TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME,
 } = Cypress.env()
 
 describe("Document toggle", () => {
@@ -42,6 +43,12 @@ describe("Document toggle", () => {
     cy.selectPDFTextElement("12345")
     cy.findByTestId("redaction-warning")
     cy.findByTestId("tab-remove").click()
+
+    cy.findByText(TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME).click()
+    cy.selectPDFTextElement("12345")
+    cy.findByTestId("btn-redact").click()
+    cy.findByTestId("btn-error-modal-ok")
+    cy.contains("Mock OtherUser")
   })
 })
 

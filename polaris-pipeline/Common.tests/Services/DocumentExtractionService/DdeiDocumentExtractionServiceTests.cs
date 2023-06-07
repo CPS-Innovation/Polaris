@@ -210,8 +210,10 @@ public class DdeiDocumentExtractionServiceTests
             result.Should().NotBeNull();
             result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
             result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
+            result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
             result[3].DocumentId.Should().Be(searchResults[3].Id.ToString());
             result[3].FileName.Should().Be(searchResults[3].OriginalFileName);
+            result[3].PresentationTitle.Should().Be(searchResults[3].PresentationTitle);
         }
     }
 
@@ -221,6 +223,7 @@ public class DdeiDocumentExtractionServiceTests
         var searchResults = BuildRandomResults();
         searchResults[2].Id = 1;
         searchResults[2].OriginalFileName = null;
+        searchResults[2].PresentationTitle = null;
 
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
@@ -232,6 +235,7 @@ public class DdeiDocumentExtractionServiceTests
             result.Should().NotBeNull();
             result[0].DocumentId.Should().Be(searchResults[0].Id.ToString());
             result[0].FileName.Should().Be(searchResults[0].OriginalFileName);
+            result[0].PresentationTitle.Should().Be(searchResults[0].PresentationTitle);
         }
     }
 

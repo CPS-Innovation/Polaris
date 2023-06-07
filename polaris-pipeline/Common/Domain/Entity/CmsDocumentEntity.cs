@@ -21,6 +21,7 @@ namespace Common.Domain.Entity
             DocumentTypeDto cmsDocType,
             string cmsFileCreatedDate,
             string cmsOriginalFileName,
+            string presentationTitle,
             bool isOcrProcessed,
             PresentationFlagsDto presentationFlags)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
@@ -28,6 +29,7 @@ namespace Common.Domain.Entity
             CmsDocType = cmsDocType;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
+            PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
             Status = DocumentStatus.New;
         }
@@ -39,6 +41,9 @@ namespace Common.Domain.Entity
         [Required]
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
+
+        [JsonProperty("presentationTitle")]
+        public string PresentationTitle { get; set; }
 
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }

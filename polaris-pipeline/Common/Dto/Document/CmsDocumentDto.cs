@@ -10,6 +10,8 @@ namespace Common.Dto.Document
 
         public string FileName { get; set; }
 
+        public string PresentationTitle { get; set; }
+
         public string MimeType { get; set; }
 
         public string FileExtension { get; set; }

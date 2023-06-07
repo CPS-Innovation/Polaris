@@ -46,6 +46,13 @@ steps:
       ArtifactName: "Cypress failure vidoes"
       publishLocation: "Container"
 
+  - task: PublishBuildArtifacts@1
+    condition: always() # this step will always run, helpful to diagnose failing cypress tests
+    inputs:
+      PathtoPublish: "polaris-e2e/cypress/screenshots"
+      ArtifactName: "Cypress failure screenshots"
+      publishLocation: "Container"
+
   # - task: Npm@1
   #   inputs:
   #       command: "custom"

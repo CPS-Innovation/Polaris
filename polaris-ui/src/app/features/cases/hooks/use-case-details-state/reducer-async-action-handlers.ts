@@ -146,7 +146,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       } catch (error: unknown) {
-        const { code } = error as ApiError;
+        const { code, customProperties: { username } = {} } = error as ApiError;
+
         if (code === CHECKOUT_BLOCKED_STATUS_CODE) {
           dispatch({
             type: "UPDATE_DOCUMENT_LOCK_STATE",
@@ -159,8 +160,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             type: "SHOW_ERROR_MODAL",
             payload: {
               title: "Failed to redact document",
-              message:
-                "It is not possible to redact as the document is already checked out by another user. Please try again later.",
+              message: `It is not possible to redact as the document is already checked out by ${username}. Please try again later.`,
             },
           });
           return;

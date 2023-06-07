@@ -13,6 +13,7 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
             DocumentId = ddeiResponse.Id.ToString(),
             VersionId = ddeiResponse.VersionId,
             FileName = ddeiResponse.OriginalFileName,
+            PresentationTitle = ddeiResponse.PresentationTitle,
             MimeType = ddeiResponse.MimeType,
             FileExtension = ddeiResponse.FileExtension,
             CmsDocType = new DocumentTypeDto(ddeiResponse.DocumentType, ddeiResponse.DocumentTypeId, ddeiResponse.CmsDocCategory),

@@ -1,4 +1,5 @@
-const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID } = Cypress.env()
+const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, TARGET_NUMBERS_DOC_NAME } =
+  Cypress.env()
 
 describe("Refresh via guid-controlled ", () => {
   it("can update a document", () => {
@@ -12,7 +13,7 @@ describe("Refresh via guid-controlled ", () => {
     cy.findByTestId(`link-${REFRESH_TARGET_URN}`).click()
 
     cy.findByTestId("btn-accordion-open-close-all").click()
-    cy.findByText("e2e-numbers-pre").click()
+    cy.findByText(TARGET_NUMBERS_DOC_NAME).click()
 
     cy.selectPDFTextElement("Three")
 
