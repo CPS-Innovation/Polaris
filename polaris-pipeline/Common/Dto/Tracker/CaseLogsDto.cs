@@ -9,6 +9,6 @@ namespace Common.Dto.Tracker
         public List<CaseLogDto> Case { get; set; }
 
         [JsonProperty("documents")]
-        public Dictionary<string, List<TrackerDocumentLogDto>> Documents { get; set; }
+        public Dictionary<string, TrackerDocumentLogDto> Documents { get; set; }
     }
 }

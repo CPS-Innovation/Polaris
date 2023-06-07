@@ -17,9 +17,9 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("case")]
         public List<CaseLogEntity> Case { get; set; } = new List<CaseLogEntity>();
 
-        // PolarisDocumentId -> DocumentLogEntity[]
+        // PolarisDocumentId -> DocumentLogEntity
         [JsonProperty("documents")]
-        public Dictionary<string, List<DocumentLogEntity>> Documents { get; set; } = new Dictionary<string, List<DocumentLogEntity>>();
+        public Dictionary<string, DocumentLogEntity> Documents { get; set; } = new Dictionary<string, DocumentLogEntity>();
 
         public void LogDeltas((DateTime t, CaseDeltasEntity deltas) args)
         {
@@ -81,30 +81,54 @@ namespace coordinator.Functions.DurableEntity.Entity
         public void LogDocument((DateTime t, DocumentLogType status, string polarisDocumentId) args)
         {
             var (t, status, polarisDocumentId) = args;
-            float? timespan = null;
-
-            if (Documents.ContainsKey(args.polarisDocumentId))
-                timespan = (float)(t - DateTime.Parse(Documents[args.polarisDocumentId].First().TimeStamp).ToUniversalTime()).TotalSeconds;
-            else
-                Documents.Add(polarisDocumentId, new List<DocumentLogEntity>());
-
-            var logEntry = new DocumentLogEntity
+            
+            if (Documents.TryGetValue(args.polarisDocumentId, out var documentLogEntity))
             {
-                Type = status.ToString(),
-                TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),
-                Timespan = timespan
-            };
+                var timestamp = DateTime.Parse(documentLogEntity.Timestamp).ToUniversalTime();
+                float timespan = (float)(t - timestamp).TotalSeconds;
 
-            Documents[polarisDocumentId].Add(logEntry);
+                switch(status)
+                {
+                    case DocumentLogType.PdfGenerated:
+                        documentLogEntity.PdfGenerated = timespan;
+                        break;
+
+                    case DocumentLogType.PdfAlreadyGenerated:
+                        documentLogEntity.PdfAlreadyGenerated = timespan;
+                        break;
+
+                    case DocumentLogType.Indexed:
+                        documentLogEntity.Indexed = timespan;
+                        break;
+                }
+            }
+            else
+            {
+                documentLogEntity = new DocumentLogEntity();
+                var timestamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz");
+
+                switch (status)
+                {
+                    case DocumentLogType.Created:
+                        documentLogEntity.Created = timestamp;
+                        break;
+
+                    case DocumentLogType.Updated:
+                        documentLogEntity.Updated = timestamp;
+                        break;
+
+                    case DocumentLogType.Deleted:
+                        documentLogEntity.Deleted = timestamp;
+                        break;
+                }
+
+                Documents.Add(polarisDocumentId, documentLogEntity);
+            }
         }
 
         public Task<float?> GetMaxTimespan(DocumentLogType status)
         {
-            var maxTimespan 
-                = Documents
-                    .Values
-                    .SelectMany(x => x.Where(x => x.Type == status.ToString()))
-                    .Max(v => v.Timespan);
+            var maxTimespan = Documents.Values.Max(x => x.GetStatusTime(status));
 
             return Task.FromResult(maxTimespan);
         }
