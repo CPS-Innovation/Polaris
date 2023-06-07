@@ -152,7 +152,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                     <Link
                       onClick={() => {
                         trackEvent("Open Case", {
-                          linkName: item.uniqueReferenceNumber,
+                          linkClicked: item.uniqueReferenceNumber,
                         });
                       }}
                       to={{

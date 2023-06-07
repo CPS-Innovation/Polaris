@@ -10,7 +10,6 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import { ContextText } from "./ContextText";
 import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./ListItem.module.scss";
-
 type Props = {
   documentResult: MappedDocumentResult;
   handleOpenPdf: CaseDetailsState["handleOpenPdf"];
@@ -35,7 +34,6 @@ export const ListItem: React.FC<Props> = ({
           onClick={() => {
             trackEvent("Open Document From Document Search", {
               documentId: documentId,
-              presentationFileName: presentationFileName,
             });
             handleOpenPdf({ documentId, mode: "search" });
           }}
@@ -65,7 +63,7 @@ export const ListItem: React.FC<Props> = ({
           isDefaultLeftBorderHidden
           onClick={() => {
             trackEvent("View 'x' More", {
-              count:
+              viewMoreCount:
                 occurrencesInDocumentCount -
                 firstOcurrence.occurrencesInLine.length,
             });

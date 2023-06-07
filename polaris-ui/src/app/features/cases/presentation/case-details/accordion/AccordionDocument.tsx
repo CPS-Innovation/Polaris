@@ -30,7 +30,6 @@ export const AccordionDocument: React.FC<Props> = ({
             onClick={() => {
               trackEvent("Open Document From Case File", {
                 documentId: caseDocument.documentId,
-                presentationFileName: caseDocument.presentationFileName,
               });
               handleOpenPdf({ documentId: caseDocument.documentId });
             }}
