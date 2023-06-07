@@ -15,9 +15,9 @@ namespace coordinator.Functions.DurableEntity.Entity
     public class CaseRefreshLogsDurableEntity : ICaseRefreshLogsDurableEntity
     {
         [JsonProperty("case")]
-        public List<CaseEntityLog> Case { get; set; } = new List<CaseEntityLog>();
+        public List<CaseLogEntity> Case { get; set; } = new List<CaseLogEntity>();
 
-        // PolarisDocumentId -> DocumentLogEntry[]
+        // PolarisDocumentId -> DocumentLogEntity[]
         [JsonProperty("documents")]
         public Dictionary<string, List<DocumentLogEntity>> Documents { get; set; } = new Dictionary<string, List<DocumentLogEntity>>();
 
@@ -68,7 +68,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var (t, status, description) = args;
 
-             var logEntry = new CaseEntityLog
+             var logEntry = new CaseLogEntity
              {
                 Type = status.ToString(),
                 TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),

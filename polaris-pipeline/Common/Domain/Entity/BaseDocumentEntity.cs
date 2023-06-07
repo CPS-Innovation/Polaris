@@ -30,6 +30,7 @@ namespace Common.Domain.Entity
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
+
         [JsonProperty("cmsDocumentId")]
         [AdaptIgnore]
         public string CmsDocumentId { get; set; }

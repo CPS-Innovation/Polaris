@@ -341,15 +341,15 @@ namespace coordinator.Functions.DurableEntity.Entity
             return deletedDefendantsAndCharges;
         }
 
-        private BaseDocumentEntity GetDocument(string documentId)
+        private BaseDocumentEntity GetDocument(string polarisDocumentId)
         {
-            var cmsDocument = CmsDocuments.Find(doc => doc.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var cmsDocument = CmsDocuments.Find(doc => doc.PolarisDocumentId.ToString().Equals(polarisDocumentId, StringComparison.OrdinalIgnoreCase));
             if (cmsDocument != null)
             {
                 return cmsDocument;
             }
 
-            var pcdRequest = PcdRequests.Find(pcd => pcd.CmsDocumentId.Equals(documentId, StringComparison.OrdinalIgnoreCase));
+            var pcdRequest = PcdRequests.Find(pcd => pcd.PolarisDocumentId.ToString().Equals(polarisDocumentId, StringComparison.OrdinalIgnoreCase));
             if (pcdRequest != null)
             {
                 return pcdRequest;

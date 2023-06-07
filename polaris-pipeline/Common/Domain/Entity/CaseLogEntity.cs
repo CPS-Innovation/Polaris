@@ -2,7 +2,7 @@
 
 namespace Common.Domain.Entity
 {
-    public class CaseEntityLog
+    public class CaseLogEntity
     {
         [JsonProperty("type")]
         public string Type { get; set; }

@@ -2,15 +2,15 @@
 
 namespace Common.Dto.Tracker
 {
-    public class DocumentLogEntity
+    public class TrackerDocumentLogDto
     {
         [JsonProperty("type")]
         public string Type { get; set; }
 
-        [JsonProperty("timestamp")]
-        public string TimeStamp { get; set; }
-
         [JsonProperty("timespan")]
         public float? Timespan { get; set; }
+
+        [JsonProperty("timestamp")]
+        public string TimeStamp { get; set; }
     }
 }

@@ -51,7 +51,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.DocumentAlreadyProcessed, pdfGeneratorResponse.BlobName));
                 caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.PdfAlreadyGenerated, payload.PolarisDocumentId.ToString()));
             }
-            else 
+            else
             {
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, pdfGeneratorResponse.BlobName));
                 caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.PdfGenerated, payload.PolarisDocumentId.ToString()));
