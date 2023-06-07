@@ -259,8 +259,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleUnLockDocuments={handleUnLockDocuments}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
-                  urn: urn,
-                  caseId: caseId,
                 }}
               />
             )}

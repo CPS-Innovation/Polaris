@@ -28,7 +28,7 @@ const Page: React.FC = () => {
     useSearchInputLogic({ urnFromSearchParams, setParams });
 
   const handleSearch = () => {
-    trackEvent("Search URN");
+    trackEvent("Search URN", { page: "case-search", searchParameter: urn });
     handleSubmit();
   };
 

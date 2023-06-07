@@ -64,7 +64,11 @@ export const ListItem: React.FC<Props> = ({
           data-testid="details-expand-search-results"
           isDefaultLeftBorderHidden
           onClick={() => {
-            trackEvent("View 'x' More");
+            trackEvent("View 'x' More", {
+              count:
+                occurrencesInDocumentCount -
+                firstOcurrence.occurrencesInLine.length,
+            });
           }}
           summaryChildren={`View ${
             occurrencesInDocumentCount - firstOcurrence.occurrencesInLine.length

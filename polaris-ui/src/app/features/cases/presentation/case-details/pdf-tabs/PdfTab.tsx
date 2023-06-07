@@ -20,8 +20,6 @@ type PdfTabProps = {
   }[];
   contextData: {
     correlationId: string;
-    urn: string;
-    caseId: string;
   };
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
@@ -113,8 +111,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleOpenPdfInNewTab={handleOpenPdfInNewTab}
           contextData={{
             correlationId: contextData.correlationId,
-            urn: contextData.urn,
-            caseId: contextData.caseId,
             documentId: documentId,
             polarisDocumentVersionId: polarisDocumentVersionId,
           }}

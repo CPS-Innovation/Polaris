@@ -28,7 +28,7 @@ export const SearchBox: React.FC<Props> = ({
   const trackEvent = useAppInsightsTrackEvent();
 
   const handleSearch = () => {
-    trackEvent(trackEventKey, { searchKey: value });
+    trackEvent(trackEventKey, { searchParameter: value });
     handleSubmit();
   };
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
