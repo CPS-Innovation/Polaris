@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Domain.Entity;
-using Google.Protobuf.WellKnownTypes;
 using System.Linq;
 
 namespace coordinator.Functions.DurableEntity.Entity
@@ -18,6 +17,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("case")]
         public List<CaseEntityLog> Case { get; set; } = new List<CaseEntityLog>();
 
+        // PolarisDocumentId -> DocumentLogEntry[]
         [JsonProperty("documents")]
         public Dictionary<string, List<DocumentLogEntity>> Documents { get; set; } = new Dictionary<string, List<DocumentLogEntity>>();
 
@@ -81,10 +81,10 @@ namespace coordinator.Functions.DurableEntity.Entity
         public void LogDocument((DateTime t, DocumentLogType status, string polarisDocumentId) args)
         {
             var (t, status, polarisDocumentId) = args;
-            float? timespanSeconds = null;
+            float? timespan = null;
 
             if (Documents.ContainsKey(args.polarisDocumentId))
-                timespanSeconds = (float)(t - DateTime.Parse(Documents[args.polarisDocumentId].First().TimeStamp).ToUniversalTime()).TotalSeconds;
+                timespan = (float)(t - DateTime.Parse(Documents[args.polarisDocumentId].First().TimeStamp).ToUniversalTime()).TotalSeconds;
             else
                 Documents.Add(polarisDocumentId, new List<DocumentLogEntity>());
 
@@ -92,10 +92,21 @@ namespace coordinator.Functions.DurableEntity.Entity
             {
                 Type = status.ToString(),
                 TimeStamp = t.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz"),
-                TimespanSeconds = timespanSeconds
+                Timespan = timespan
             };
 
             Documents[polarisDocumentId].Add(logEntry);
+        }
+
+        public Task<float?> GetMaxTimespan(DocumentLogType status)
+        {
+            var maxTimespan 
+                = Documents
+                    .Values
+                    .SelectMany(x => x.Where(x => x.Type == status.ToString()))
+                    .Max(v => v.Timespan);
+
+            return Task.FromResult(maxTimespan);
         }
 
         [FunctionName(nameof(CaseRefreshLogsDurableEntity))]

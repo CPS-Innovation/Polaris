@@ -20,20 +20,25 @@ namespace Common.Dto.Tracker
         [JsonProperty("running")]
         public DateTime? Running { get; set; }
 
-        [JsonProperty("documentsRetrievedSeconds")]
-        public float? DocumentsRetrievedSeconds { get; set; }
+        [JsonProperty("documentsRetrieved")]
+        public float? DocumentsRetrieved { get; set; }
 
-        [JsonProperty("processingCompletedSeconds")]
-        public float? ProcessingCompletedSeconds { get; set; }
+        [JsonProperty("pdfsGenerated")]
+        public float? PdfsGenerated { get; set; }
 
-        [JsonProperty("failedSeconds")]
-        public float? FailedSeconds { get; set; }
+        [JsonProperty("indexed")]
+        public float? Indexed { get; set; }
+
+        [JsonProperty("completed")]
+        public float? Completed { get; set; }
+
+        [JsonProperty("failed")]
+        public float? Failed{ get; set; }
+        [JsonProperty("documents")]
+        public List<DocumentDto> Documents { get; set; }
 
         [JsonProperty("logs")]
         public CaseLogsDto Logs { get; set; }
-
-        [JsonProperty("documents")]
-        public List<DocumentDto> Documents { get; set; }
     }
 }
 

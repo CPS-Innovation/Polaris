@@ -5,8 +5,8 @@
         Created,
         Updated,
         Deleted,
-        RegisteredPdfBlobName,
-        DocumentAlreadyProcessed,
+        PdfGenerated,
+        PdfAlreadyGenerated,
         Indexed,
     }
 }

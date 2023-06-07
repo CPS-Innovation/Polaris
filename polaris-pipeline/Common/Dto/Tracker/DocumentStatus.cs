@@ -6,7 +6,6 @@
         Indexed,
         PdfUploadedToBlob,
         UnableToConvertToPdf,
-        UnexpectedFailure,
         OcrAndIndexFailure,
         DocumentAlreadyProcessed,
     }

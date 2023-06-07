@@ -4,7 +4,7 @@
     {
         Running,
         DocumentsRetrieved,
-        ProcessingCompleted,
+        Completed,
         Failed
     }
 }

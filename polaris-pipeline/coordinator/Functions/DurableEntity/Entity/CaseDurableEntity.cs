@@ -50,14 +50,20 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("running")]
         public DateTime? Running { get; set; }
 
-        [JsonProperty("documentsRetrievedSeconds")]
-        public float? DocumentsRetrievedSeconds { get; set; }
+        [JsonProperty("documentsRetrieved")]
+        public float? DocumentsRetrieved { get; set; }
 
-        [JsonProperty("processingCompletedSeconds")]
-        public float? ProcessingCompletedSeconds { get; set; }
+        [JsonProperty("pdfsGenerated")]
+        public float? PdfsGenerated { get; set; }
 
-        [JsonProperty("failedSeconds")]
-        public float? FailedSeconds { get; set; }
+        [JsonProperty("indexed")]
+        public float? Indexed { get; set; }
+
+        [JsonProperty("completed")]
+        public float? Completed{ get; set; }
+
+        [JsonProperty("failed")]
+        public float? Failed { get; set; }
 
         [JsonProperty("documents")]
         public List<CmsDocumentEntity> CmsDocuments { get; set; }
@@ -72,9 +78,9 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             TransactionId = transactionId;
             Running = null;
-            DocumentsRetrievedSeconds = null;
-            ProcessingCompletedSeconds = null;
-            FailedSeconds = null;
+            DocumentsRetrieved = null;
+            Completed = null;
+            Failed = null;
             CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
             PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
@@ -118,7 +124,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                     .ToList();
 
             return Task.FromResult(
-                statuses.All(s => s is DocumentStatus.UnableToConvertToPdf or DocumentStatus.UnexpectedFailure));
+                statuses.All(s => s is DocumentStatus.UnableToConvertToPdf));
         }
 
         private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<string>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
@@ -368,15 +374,15 @@ namespace coordinator.Functions.DurableEntity.Entity
                     break;
 
                 case CaseRefreshStatus.DocumentsRetrieved:
-                    DocumentsRetrievedSeconds = (float)((t-Running).Value.TotalMilliseconds/1000.0);
+                    DocumentsRetrieved = (float)((t-Running).Value.TotalMilliseconds/1000.0);
                     break;
 
-                case CaseRefreshStatus.ProcessingCompleted:
-                    ProcessingCompletedSeconds = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                case CaseRefreshStatus.Completed:
+                    Completed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Failed:
-                    FailedSeconds = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                    Failed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                     break;
             }
         }
@@ -398,14 +404,31 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
         }
 
+        public void SetCaseTiming((DocumentLogType LogType, float? T) args)
+        {
+            var (logType, t) = args;
+
+            switch(logType)
+            {
+                case DocumentLogType.PdfGenerated:
+                    PdfsGenerated = t;
+                    break;
+
+                case DocumentLogType.Indexed:
+                    Indexed = t;
+                    break;
+            }
+        }
+
+
         // Only required when debugging to manually set the Tracker state
         public void SetValue(CaseDurableEntity tracker)
         {
             Status = tracker.Status;
             Running = tracker.Running;
-            DocumentsRetrievedSeconds = tracker.DocumentsRetrievedSeconds;
-            ProcessingCompletedSeconds = tracker.ProcessingCompletedSeconds;
-            FailedSeconds = tracker.FailedSeconds;
+            DocumentsRetrieved = tracker.DocumentsRetrieved;
+            Completed = tracker.Completed;
+            Failed = tracker.Failed;
             CmsDocuments = tracker.CmsDocuments;
             PcdRequests = tracker.PcdRequests;
             DefendantsAndCharges = tracker.DefendantsAndCharges;

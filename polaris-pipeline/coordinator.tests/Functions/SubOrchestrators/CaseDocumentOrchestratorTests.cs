@@ -184,8 +184,8 @@ namespace coordinator.tests.Functions.SubOrchestrators
         public async Task Run_WhenDocumentEvaluation_EqualsAcquireDocument_AndSearchIndexUpdated_RegistersUnexpectedDocumentFailureWhenCallToGeneratePdfReturnsNonOkResponse()
         {
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), null))
-                .ReturnsAsync(_pdfResponse);
+                .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<CaseDocumentOrchestrationPayload>()))
+                .ReturnsAsync((GeneratePdfResponse)null);
 
             try
             {
@@ -203,7 +203,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
                             (
                                 a =>
                                     a.Item1 == _payload.PolarisDocumentId.ToString() &&
-                                    a.Item2 == DocumentStatus.UnexpectedFailure
+                                    a.Item2 == DocumentStatus.UnableToConvertToPdf
                             )
                         )
                     );

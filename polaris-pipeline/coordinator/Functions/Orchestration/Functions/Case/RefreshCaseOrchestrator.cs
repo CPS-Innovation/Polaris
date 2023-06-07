@@ -102,7 +102,11 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             if (await caseEntity.AllDocumentsFailed())
                 throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.ProcessingCompleted));
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed));
+            var maxPdfGenerated = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.PdfGenerated);
+            caseEntity.SetCaseTiming((DocumentLogType.PdfGenerated, maxPdfGenerated));
+            var maxIndexed = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.Indexed);
+            caseEntity.SetCaseTiming((DocumentLogType.Indexed, maxIndexed));
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
             var trackerDto = caseEntity.Adapt<TrackerDto>();

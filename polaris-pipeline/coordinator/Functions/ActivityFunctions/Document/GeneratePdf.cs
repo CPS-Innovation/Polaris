@@ -57,6 +57,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
         [FunctionName(nameof(GeneratePdf))]
         public async Task<GeneratePdfResponse> Run([ActivityTrigger] IDurableActivityContext context)
         {
+            #region Validate-Inputs
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
             if (payload == null)
@@ -67,6 +68,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
             var results = _validatorWrapper.Validate(payload);
             if (results?.Any() == true)
                 throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
+            #endregion
 
             Stream documentStream = null;
             string blobName = null;

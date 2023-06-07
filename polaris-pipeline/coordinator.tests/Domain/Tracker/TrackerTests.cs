@@ -182,14 +182,14 @@ namespace coordinator.tests.Domain.Tracker
         }
 
         [Fact]
-        public async Task RegisterUnexpectedDocumentFailure_Registers()
+        public async Task RegisterUnableToConvertToPdf_Registers()
         {
             _caseEntity.Reset(_transactionId);
             await _caseEntity.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnexpectedFailure, null));
+            _caseEntity.SetDocumentStatus((_cmsDocuments.First().DocumentId, DocumentStatus.UnableToConvertToPdf, null));
 
             var document = _caseEntity.CmsDocuments.Find(document => document.CmsDocumentId == _cmsDocuments.First().DocumentId);
-            document?.Status.Should().Be(DocumentStatus.UnexpectedFailure);
+            document?.Status.Should().Be(DocumentStatus.UnableToConvertToPdf);
         }
 
         [Fact]
@@ -218,16 +218,18 @@ namespace coordinator.tests.Domain.Tracker
         public void RegisterCompleted_RegistersCompleted()
         {
             _caseEntity.Reset(_transactionId);
-            _caseEntity.SetCaseStatus((It.IsAny<DateTime>(), CaseRefreshStatus.ProcessingCompleted));
+            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running));
+            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Completed));
 
-            _caseEntity.Status.Should().Be(CaseRefreshStatus.ProcessingCompleted);
-            _caseEntity.ProcessingCompletedSeconds.Should().NotBeNull();
+            _caseEntity.Status.Should().Be(CaseRefreshStatus.Completed);
+            _caseEntity.Completed.Should().NotBeNull();
         }
 
         [Fact]
         public void RegisterFailed_RegistersFailed()
         {
             _caseEntity.Reset(_transactionId);
+            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running));
             _caseEntity.SetCaseStatus((It.IsAny<DateTime>(), CaseRefreshStatus.Failed));
 
             _caseEntity.Status.Should().Be(CaseRefreshStatus.Failed);
@@ -247,7 +249,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnexpectedFailure}
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf}
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.UnableToConvertToPdf };
@@ -262,7 +264,7 @@ namespace coordinator.tests.Domain.Tracker
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnexpectedFailure},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
                 new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.PdfUploadedToBlob},
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
@@ -419,7 +421,7 @@ namespace coordinator.tests.Domain.Tracker
             CaseDurableEntity tracker = new CaseDurableEntity();
             tracker.Reset(_transactionId);
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
-            tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.UnexpectedFailure);
+            tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.UnableToConvertToPdf);
             tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.Indexed);
 
             // Act 
@@ -444,7 +446,7 @@ namespace coordinator.tests.Domain.Tracker
             tracker.Reset(_transactionId);
             await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);
             tracker.CmsDocuments.ForEach(doc => doc.Status = DocumentStatus.Indexed);
-            tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.UnexpectedFailure);
+            tracker.PcdRequests.ForEach(pcd => pcd.Status = DocumentStatus.UnableToConvertToPdf);
 
             // Act 
             var deltas = await tracker.GetCaseDocumentChanges(_synchroniseDocumentsArg);

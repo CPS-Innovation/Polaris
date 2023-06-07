@@ -7,8 +7,8 @@ namespace Common.Dto.Tracker
         [JsonProperty("type")]
         public string Type { get; set; }
 
-        [JsonProperty("timespanSeconds")]
-        public float? TimespanSeconds { get; set; }
+        [JsonProperty("timespan")]
+        public float? Timespan { get; set; }
 
         [JsonProperty("timestamp")]
         public string TimeStamp { get; set; }

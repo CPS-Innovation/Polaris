@@ -224,7 +224,7 @@ namespace coordinator.tests.Functions
         {
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            var arg = (It.IsAny<DateTime>(), CaseRefreshStatus.ProcessingCompleted);
+            var arg = (It.IsAny<DateTime>(), CaseRefreshStatus.Completed);
             _mockCaseEntity.Verify(tracker => tracker.SetCaseStatus(arg));
         }
 
