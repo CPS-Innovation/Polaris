@@ -93,7 +93,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             caseEntity.Reset(context.InstanceId);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running));
 
-            var documents = await GetDocuments(context, caseEntity, loggingName, log, payload);
+            var documents = await GetDocuments(context, loggingName, log, payload);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved));
 
             var documentTasks = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
@@ -215,9 +215,10 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> GetDocuments(IDurableOrchestrationContext context, ICaseDurableEntity tracker, string nameToLog, ILogger safeLogger, CaseOrchestrationPayload payload)
+        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> 
+            GetDocuments(IDurableOrchestrationContext context, string nameToLog, ILogger logger, CaseOrchestrationPayload payload)
         {
-            safeLogger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
+            logger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
 
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
             var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);

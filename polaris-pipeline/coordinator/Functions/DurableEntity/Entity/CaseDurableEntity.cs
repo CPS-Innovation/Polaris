@@ -388,6 +388,17 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
         }
 
+        public Task<string[]> GetPolarisDocumentIds()
+        {
+            var polarisDocumentIds = 
+                CmsDocuments?.Select(doc => doc.PolarisDocumentId.ToString())
+                    .Union(PcdRequests?.Select(pcd => pcd.PolarisDocumentId.ToString())
+                    .Union(new string[]{DefendantsAndCharges?.PolarisDocumentId.ToString()}))
+                    .ToArray();
+
+            return Task.FromResult(polarisDocumentIds);
+        }
+
         public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
         {
             var (polarisDocumentId, status, pdfBlobName) = args;

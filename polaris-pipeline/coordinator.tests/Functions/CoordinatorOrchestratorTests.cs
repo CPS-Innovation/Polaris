@@ -70,6 +70,8 @@ namespace coordinator.tests.Functions
 
             _transactionId = fixture.Create<string>();
             _trackerCmsDocuments = fixture.CreateMany<CmsDocumentEntity>(11).ToList();
+            for (int i = 0; i < _trackerCmsDocuments.Count; i++)
+                _trackerCmsDocuments[i].CmsDocumentId = $"CMS-{i+1}";
             _deltaDocuments = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = _trackerCmsDocuments.Where(d => d.Status == DocumentStatus.New).ToList(),
@@ -175,21 +177,23 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_CallsSubOrchestratorForEachNewOrChangedDocument()
         {
+            List<CmsDocumentEntity> newCmsDocuments = _trackerCmsDocuments.Where(t => t.Status == DocumentStatus.New).ToList();
             await _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
-            foreach (var document in _trackerCmsDocuments.Where(t => t.Status == DocumentStatus.New))
+            foreach (var document in newCmsDocuments)
             {
                 _mockDurableOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync
                 (
                     nameof(RefreshDocumentOrchestrator),
+                    It.IsAny<string>(),
                     It.Is<CaseDocumentOrchestrationPayload>
                     (
-                        payload =>
+                        payload => 
                             payload.CmsCaseId == _payload.CmsCaseId &&
                             (
-                                (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.CmsDocumentId)) ||
+                                (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.CmsDocumentId) ||
                                 (payload.DefendantAndChargesTracker != null && payload.DefendantAndChargesTracker.CmsDocumentId == document.CmsDocumentId)
-                            )
+                            ))
                 ));
             }
         }

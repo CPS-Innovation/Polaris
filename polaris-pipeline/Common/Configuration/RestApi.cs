@@ -24,28 +24,33 @@ namespace Common.Configuration
         // Other
         public const string Health = "health";
 
-        public static string GetCaseUrl(string caseUrn, long caseId)
+        public static string GetCasePath(string caseUrn, long caseId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}";
             return url;
         }
 
-        public static string GetCaseOrchestrationInstanceUrl(string instanceId)
-        {
-            var url = $"runtime/webhooks/durabletask/instances/{instanceId}";
-            return url;
-        }
-
-
-        public static string GetDocumentsUrl(string caseUrn, long caseId)
+        public static string GetDocumentsPath(string caseUrn, long caseId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}/documents";
             return url;
         }
 
-        public static string GetDocumentUrl(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
+            return url;
+        }
+
+        public static string GetInstancePath(string instanceId)
+        {
+            var url = $"runtime/webhooks/durabletask/instances/{instanceId}";
+            return url;
+        }
+
+        public static string GetDurableEntityPath(string durableEntityType, string instanceId)
+        {
+            var url = $"runtime/webhooks/durabletask/entities/{durableEntityType}/{instanceId}";
             return url;
         }
     }

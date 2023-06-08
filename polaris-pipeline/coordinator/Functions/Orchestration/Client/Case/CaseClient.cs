@@ -12,6 +12,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Linq;
 using System.Net;
@@ -19,6 +20,7 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace coordinator.Functions.Orchestration.Client.Case
 {
@@ -39,7 +41,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)] 
         public async Task<HttpResponseMessage> Run
             (
-                [HttpTrigger(AuthorizationLevel.Anonymous, "put", "post", Route = RestApi.Case)] HttpRequestMessage req,
+                [HttpTrigger(AuthorizationLevel.Anonymous, "put", "delete", "post", Route = RestApi.Case)] HttpRequestMessage req,
                 string caseUrn,
                 string caseId,
                 [DurableClient] IDurableOrchestrationClient orchestrationClient
@@ -47,6 +49,8 @@ namespace coordinator.Functions.Orchestration.Client.Case
         {
             Guid currentCorrelationId = default;
             const string loggingName = $"{nameof(CaseClient)} - {nameof(Run)}";
+            var baseUrl = req.RequestUri.GetLeftPart(UriPartial.Authority);
+            var extensionCode = HttpUtility.ParseQueryString(req.RequestUri.Query).Get("code");
 
             try
             {
@@ -79,7 +83,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                     throw new BadRequestException("Expected querystring value", nameof(req));
                 #endregion
 
-                CaseOrchestrationPayload casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, cmsAuthValues, currentCorrelationId);
+                CaseOrchestrationPayload casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, baseUrl, extensionCode, cmsAuthValues, currentCorrelationId);
 
                 switch (req.Method.Method)
                 {
@@ -96,7 +100,16 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), caseId, casePayload);
 
                         _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(CaseClient)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
-                        return orchestrationClient.CreateCheckStatusResponse(req, caseId); 
+                        return orchestrationClient.CreateCheckStatusResponse(req, caseId);
+
+                    case "DELETE":
+                        var instance = await orchestrationClient.GetStatusAsync(caseId);
+
+                        if(instance != null)
+                        {
+                            await orchestrationClient.StartNewAsync(nameof(DeleteCaseOrchestrator), $"{caseId}-{Guid.NewGuid()}", casePayload);
+                        }
+                        return new HttpResponseMessage(HttpStatusCode.Accepted);
 
                     case "PUT":
                         var content = await req.Content.ReadAsStringAsync();
