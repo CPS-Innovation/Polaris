@@ -1,7 +1,7 @@
 import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-
+import { useUserDetails } from "../../../app/auth/msal/useUserDetails";
 type AppInsightsTrackEventNames =
   | "Search URN"
   | "Back To Search URN"
@@ -78,6 +78,7 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
   const appInsights = useAppInsightsContext();
+  const userDetails = useUserDetails();
 
   const trackEvent = (
     name: AppInsightsTrackEventNames,
@@ -97,7 +98,12 @@ const useAppInsightsTrackEvent = () => {
       : {};
     appInsights.trackEvent({
       name,
-      properties: { ...properties, description, ...generalProperties },
+      properties: {
+        ...properties,
+        description,
+        ...generalProperties,
+        ...userDetails,
+      },
     });
   };
 
@@ -106,12 +112,13 @@ const useAppInsightsTrackEvent = () => {
 
 const useAppInsightsTrackPageView = (name: string) => {
   const appInsights = useAppInsightsContext();
+  const userDetails = useUserDetails();
 
   const trackPageView = (name: string) => {
     if (!name || !appInsights?.trackPageView) {
       return;
     }
-    appInsights.trackPageView({ name });
+    appInsights.trackPageView({ name, properties: { ...userDetails } });
   };
 
   useEffect(() => {

@@ -14,6 +14,9 @@ import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { CaseDetails } from "../../domain/gateway/CaseDetails";
 import { MemoryRouter } from "react-router-dom";
 
+jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
+  useAppInsightsTrackEvent: () => jest.fn(),
+}));
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;
 
