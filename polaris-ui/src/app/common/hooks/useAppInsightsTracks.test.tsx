@@ -30,7 +30,7 @@ describe("useAppInsightsTracks hook", () => {
       name: "Search URN",
       properties: {
         description:
-          "User has clicked the 'Search' button on the 'Find a case' screen.",
+          "User has clicked the 'Search' button on the 'Case Search' screen.",
       },
     });
   });

@@ -193,7 +193,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </PhaseBanner>
       <BackLink
         to={backLinkProps.to}
-        onClick={() => trackEvent("Back To Find A Case")}
+        onClick={() => trackEvent("Back to Case Search Results")}
       >
         {backLinkProps.label}
       </BackLink>
@@ -222,7 +222,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 value={searchTerm}
                 handleChange={handleSearchTermChange}
                 handleSubmit={handleLaunchSearchResults}
-                trackEventKey="Search Case Documents From Case File"
+                trackEventKey="Search Case Documents From Case Details"
               />
 
               {accordionState.status === "loading" ? (
