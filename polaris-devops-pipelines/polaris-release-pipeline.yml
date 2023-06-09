@@ -876,7 +876,7 @@ stages:
                 git push origin --tags
             displayName: Updating the dev tag        
                     
-  - stage: Run_e2e_Tests
+  - stage: Run_e2e_Tests_DEV
     displayName: Run e2e tests > DEV
     dependsOn: 
       - Determine_Changes
@@ -896,12 +896,12 @@ stages:
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_DEV']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_DEV']]
     jobs:
-      - job: Run_e2e_Tests
+      - job: Run_e2e_Tests_DEV
         pool:
           vmImage: windows-latest
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
-            displayName: 'Run the e2e tests'
+            displayName: 'Run the e2e tests: DEV'
             condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
             inputs:
               buildDefinition: 129
@@ -914,7 +914,7 @@ stages:
     dependsOn:
       - Determine_Changes
       - Update_DEV_Tag
-      - Run_e2e_Tests
+      - Run_e2e_Tests_DEV
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_QA']]
@@ -1417,13 +1417,46 @@ stages:
                 git tag -f $(resources.pipeline.PolarisBuild.runName)
                 git push origin --tags 
             displayName: Updating the qa tag
+            
+  - stage: Run_e2e_Tests_QA
+    displayName: Run e2e tests > QA
+    dependsOn:
+      - Determine_Changes
+      - Apply_QA
+      - Check_QA
+      - Update_QA_Tag
+    condition: succeeded()
+    variables:
+      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_QA']]
+      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM_QA']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_QA']]
+      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM_QA']]
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR_QA']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR_QA']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR_QA']]
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_QA']]
+      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_QA']]
+      runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
+    jobs:
+      - job: Run_e2e_Tests_QA
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: QA'
+            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
+            inputs:
+              buildDefinition: 210
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
 
   - stage: Apply_PROD
     displayName: PROD Deployment
     dependsOn:
       - Determine_Changes
-      - Check_QA
       - Update_QA_Tag
+      - Run_e2e_Tests_QA
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_PROD']]
