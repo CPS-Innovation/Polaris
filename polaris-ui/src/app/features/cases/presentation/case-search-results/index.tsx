@@ -71,7 +71,10 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
   const { data } = state;
 
   const handleSearch = () => {
-    trackEvent("Search URN");
+    trackEvent("Search URN", {
+      page: "case-search-results",
+      searchParameter: urn,
+    });
     handleSubmit();
   };
 
@@ -148,7 +151,9 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                   <h2 className="govuk-heading-m ">
                     <Link
                       onClick={() => {
-                        trackEvent("Open Case");
+                        trackEvent("Open Case", {
+                          linkClicked: item.uniqueReferenceNumber,
+                        });
                       }}
                       to={{
                         pathname: generatePath(casePath, {

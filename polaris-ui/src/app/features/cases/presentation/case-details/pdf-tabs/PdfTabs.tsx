@@ -16,8 +16,6 @@ type PdfTabsProps = {
   }[];
   contextData: {
     correlationId: string;
-    urn: string;
-    caseId: string;
   };
   handleTabSelection: (documentId: string) => void;
   handleClosePdf: (caseDocument: { documentId: string }) => void;
