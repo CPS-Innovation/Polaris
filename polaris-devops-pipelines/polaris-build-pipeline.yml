@@ -36,7 +36,7 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                $files = $(git diff --name-only --relative --diff-filter AMR HEAD^ HEAD)
+                $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "Total changed $count files"
@@ -48,102 +48,324 @@ stages:
                   if ($name -like 'polaris-terraform/pipeline-terraform/*')
                   {
                     echo "run pipeline terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
                     echo "run pipeline events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/ui-terraform/*')
                   {
                     echo "run ui terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"                    
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_DEV;isOutput=true]true"                    
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
                     echo "run ui events terraform..."
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/*')
                   {
                     echo "run pipeline codebase..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*')
                   {
                     echo "run coordinator..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/pdf-generator/*')
                   {
                     echo "run pdf generator..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/text-extractor/*')
                   {
                     echo "run text extractor..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/*')
                   {
                     echo "run gateway codebase..."
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway/*')
                   {
                     echo "run gateway..."
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-auth-handover/*')
                   {
                     echo "run auth handover..."
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-ui/*')
                   {
                     echo "run ui codebase..."
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*')
                   {
                     echo "changes to DdeiClient detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/Common/*')
                   {
                     echo "changes to the Pipeline's Common library detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway.common/*')
                   {
                     echo "changes to the Gateway's Common library detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
+                  }
+                }
+                
+                $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_QA;isOutput=true]true"                    
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/coordinator/*')
+                  {
+                    echo "run coordinator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/pdf-generator/*')
+                  {
+                    echo "run pdf generator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/text-extractor/*')
+                  {
+                    echo "run text extractor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-gateway/*')
+                  {
+                    echo "run gateway..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-auth-handover/*')
+                  {
+                    echo "run auth handover..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/DdeiClient/*')
+                  {
+                    echo "changes to DdeiClient detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/Common/*')
+                  {
+                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-gateway.common/*')
+                  {
+                    echo "changes to the Gateway's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
+                  }
+                }
+                
+                $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
+                $temp=$files -split ' '
+                $count=$temp.Length
+                echo "Total changed $count files"
+
+                For ($i=0; $i -lt $temp.Length; $i++)
+                {
+                  $name=$temp[$i]
+                  echo "this is $name file"
+                  if ($name -like 'polaris-terraform/pipeline-terraform/*')
+                  {
+                    echo "run pipeline terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
+                  {
+                    echo "run pipeline events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-terraform/ui-terraform/*')
+                  {
+                    echo "run ui terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_PROD;isOutput=true]true"                    
+                  }
+                  if ($name -like 'polaris-terraform/ui-events-terraform/*')
+                  {
+                    echo "run ui events terraform..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/*')
+                  {
+                    echo "run pipeline codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/coordinator/*')
+                  {
+                    echo "run coordinator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/pdf-generator/*')
+                  {
+                    echo "run pdf generator..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/text-extractor/*')
+                  {
+                    echo "run text extractor..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/*')
+                  {
+                    echo "run gateway codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-gateway/*')
+                  {
+                    echo "run gateway..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-auth-handover/*')
+                  {
+                    echo "run auth handover..."
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-ui/*')
+                  {
+                    echo "run ui codebase..."
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/DdeiClient/*')
+                  {
+                    echo "changes to DdeiClient detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-pipeline/Common/*')
+                  {
+                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-gateway/polaris-gateway.common/*')
+                  {
+                    echo "changes to the Gateway's Common library detected run dependent code-bases..."
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
+                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
                   }
                 }
             name: Change_Results
@@ -152,53 +374,92 @@ stages:
   - stage: Publish_Artifacts
     displayName: Publish artifacts
     dependsOn: Determine_Changes
-    condition: and(succeeded(), or(eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_EVENTS_TERRAFORM'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_CODEBASE'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_GATEWAY_CODEBASE'], 'true'),eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_UI_CODEBASE'], 'true')))
+    condition: succeeded()
     variables:
-      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM']]
-      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM']]
-      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM']]
-      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM']]
-      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR']]
-      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR']]
-      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR']]
-      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY']]
-      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER']]
-      runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE']]
+      runPipelineTerraformDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_DEV']]
+      runPipelineEventsTerraformDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM_DEV']]
+      runUITerraformDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_DEV']]
+      runUIEventsTerraformDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM_DEV']]
+      runCoordinatorDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR_DEV']]
+      runPdfGeneratorDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR_DEV']]
+      runTextExtractorDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR_DEV']]
+      runGatewayDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_DEV']]
+      runAuthHandoverDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_DEV']]
+      runUICodebaseDEV: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_DEV']]
+      
+      runPipelineTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_QA']]
+      runPipelineEventsTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM_QA']]
+      runUITerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_QA']]
+      runUIEventsTerraformQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM_QA']]
+      runCoordinatorQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR_QA']]
+      runPdfGeneratorQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR_QA']]
+      runTextExtractorQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR_QA']]
+      runGatewayQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_QA']]
+      runAuthHandoverQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_QA']]
+      runUICodebaseQA: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
+      
+      runPipelineTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_PROD']]
+      runPipelineEventsTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM_PROD']]
+      runUITerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_PROD']]
+      runUIEventsTerraformPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM_PROD']]
+      runCoordinatorPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR_PROD']]
+      runPdfGeneratorPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR_PROD']]
+      runTextExtractorPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR_PROD']]
+      runGatewayPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_PROD']]
+      runAuthHandoverPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_PROD']]
+      runUICodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
     jobs:
-      - job:
+      - job: Build_GLOBAL_Artifacts
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish pipeline scripts"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-ddei-devops-pipelines/scripts"
+              artifact: "ddei-script-files"
+              publishLocation: "pipeline"
+              
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+              
+      - job: Build_DEV_Artifacts
         pool:
           vmImage: ubuntu-latest
         steps:
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline terraform artifact'
-            condition: eq(variables.runPipelineTerraform, 'true')
+            condition: eq(variables.runPipelineTerraformDEV, 'true')
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files"
+              artifact: "pipeline-terraform-files-dev"
               publishLocation: "pipeline"
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline events terraform artifact'
-            condition: eq(variables.runPipelineEventsTerraform, 'true')
+            condition: eq(variables.runPipelineEventsTerraformDEV, 'true')
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
-              artifact: "pipeline-events-terraform-files"
+              artifact: "pipeline-events-terraform-files-dev"
               publishLocation: "pipeline"
               
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI terraform artifact'
-            condition: eq(variables.runUITerraform, 'true')
+            condition: eq(variables.runUITerraformDEV, 'true')
             inputs:
               targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
-              artifact: 'ui-terraform-files'
+              artifact: 'ui-terraform-files-dev'
               publishLocation: 'pipeline'
               
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI events terraform artifact'
-            condition: eq(variables.runUIEventsTerraform, 'true')
+            condition: eq(variables.runUIEventsTerraformDEV, 'true')
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
-              artifact: "ui-events-terraform-files"
+              artifact: "ui-events-terraform-files-dev"
               publishLocation: "pipeline"
   
           - task: DotNetCoreCLI@2
@@ -206,49 +467,43 @@ stages:
               command: publish
               publishWebProjects: false
               projects: "polaris-pipeline/coordinator/coordinator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Coordinator package to publish"
-            condition: eq(variables.runCoordinator, 'true')
+            condition: eq(variables.runCoordinatorDEV, 'true')
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
-              artifact: "polaris-coordinator-drop"
+              artifact: "polaris-coordinator-dev-drop"
             displayName: "Publish Coordinator codebase artifact"
-            condition: eq(variables.runCoordinator, 'true')
+            condition: eq(variables.runCoordinatorDEV, 'true')
             
-          - task: DownloadSecureFile@1
-            name: licence
-            inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
-            condition: eq(variables.runPdfGenerator, 'true')
-
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
               contents: Aspose.Total.NET.lic
               targetFolder: 'polaris-pipeline/pdf-generator'
+              OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-            condition: eq(variables.runPdfGenerator, 'true')
+            condition: eq(variables.runPdfGeneratorDEV, 'true')
             
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
               publishWebProjects: false
               projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create PDF-Generator package to publish"
-            condition: eq(variables.runPdfGenerator, 'true')
+            condition: eq(variables.runPdfGeneratorDEV, 'true')
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
-              artifact: "polaris-pdf-generator-drop"
+              artifact: "polaris-pdf-generator-dev-drop"
             displayName: "Publish PDF-Generator codebase artifact"
-            condition: eq(variables.runPdfGenerator, 'true')
+            condition: eq(variables.runPdfGeneratorDEV, 'true')
             
           - task: DotNetCoreCLI@2
             inputs:
@@ -258,54 +513,54 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
               zipAfterPublish: false
             displayName: "Create Text-Extractor package to publish"
-            condition: eq(variables.runTextExtractor, 'true')
+            condition: eq(variables.runTextExtractorDEV, 'true')
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
-              artifact: "polaris-text-extractor-drop"
+              artifact: "polaris-text-extractor-dev-drop"
             displayName: "Publish Text-Extractor codebase artifact"
-            condition: eq(variables.runTextExtractor, 'true')
+            condition: eq(variables.runTextExtractorDEV, 'true')
 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
               publishWebProjects: false
               projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Auth Handover package to publish"
-            condition: eq(variables.runAuthHandover, 'true')
+            condition: eq(variables.runAuthHandoverDEV, 'true')
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
-              artifact: "polaris-auth-handover-drop"
+              artifact: "polaris-auth-handover-dev-drop"
             displayName: "Publish Auth Handover codebase artifact"
-            condition: eq(variables.runAuthHandover, 'true')
+            condition: eq(variables.runAuthHandoverDEV, 'true')
             
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
               publishWebProjects: false
               projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Gateway package to publish"
-            condition: eq(variables.runGateway, 'true')
+            condition: eq(variables.runGatewayDEV, 'true')
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
-              artifact: "polaris-gateway-drop"
+              artifact: "polaris-gateway-dev-drop"
             displayName: "Publish Gateway codebase artifact"
-            condition: eq(variables.runGateway, 'true')
+            condition: eq(variables.runGatewayDEV, 'true')
             
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
             displayName: "Remove .env file"
-            condition: eq(variables.runUICodebase, 'true')
+            condition: eq(variables.runUICodebaseDEV, 'true')
             inputs:
               contents: |
                 polaris-ui/.env
@@ -313,19 +568,20 @@ stages:
           # Add build version
           - task: PowerShell@2
             displayName: "Record build version"
+            condition: eq(variables.runUICodebaseDEV, 'true')
             inputs:
               targetType: 'inline'
               workingDirectory: polaris-ui/public
               script: |
                 New-Item build-version.txt
-                Set-Content build-version.txt '$(Build.BuildNumber)'
+                Set-Content -NoNewline build-version.txt '$(Build.BuildNumber) `n$(Build.SourceVersion)'
 
           - task: Npm@1
             inputs:
               command: "install"
               workingDir: "polaris-ui"
             displayName: "npm install"
-            condition: eq(variables.runUICodebase, 'true')
+            condition: eq(variables.runUICodebaseDEV, 'true')
 
           - task: Npm@1
             inputs:
@@ -333,7 +589,7 @@ stages:
               workingDir: "polaris-ui"
               customCommand: "run prettier"
             displayName: "npm prettier"
-            condition: eq(variables.runUICodebase, 'true')
+            condition: eq(variables.runUICodebaseDEV, 'true')
 
           - task: Npm@1
             inputs:
@@ -341,19 +597,374 @@ stages:
               workingDir: "polaris-ui"
               customCommand: "run build"
             displayName: "npm build"
-            condition: eq(variables.runUICodebase, 'true')
+            condition: eq(variables.runUICodebaseDEV, 'true')
 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/build"
-              ArtifactName: "polaris-ui-drop"
+              ArtifactName: "polaris-ui-dev-drop"
               publishLocation: "Container"
             displayName: Publish UI artifact
-            condition: eq(variables.runUICodebase, 'true')
+            condition: eq(variables.runUICodebaseDEV, 'true')
             
+      - job: Build_QA_Artifacts
+        pool:
+          vmImage: ubuntu-latest
+        steps:
           - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline scripts'
+            displayName: 'Publish pipeline terraform artifact'
+            condition: eq(variables.runPipelineTerraformQA, 'true')
             inputs:
-              targetPath: '$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts'
-              artifact: 'polaris-script-files'
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+              artifact: "pipeline-terraform-files-qa"
+              publishLocation: "pipeline"
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline events terraform artifact'
+            condition: eq(variables.runPipelineEventsTerraformQA, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
+              artifact: "pipeline-events-terraform-files-qa"
+              publishLocation: "pipeline"
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI terraform artifact'
+            condition: eq(variables.runUITerraformQA, 'true')
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
+              artifact: 'ui-terraform-files-qa'
               publishLocation: 'pipeline'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI events terraform artifact'
+            condition: eq(variables.runUIEventsTerraformQA, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
+              artifact: "ui-events-terraform-files-qa"
+              publishLocation: "pipeline"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/coordinator/coordinator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Coordinator package to publish"
+            condition: eq(variables.runCoordinatorQA, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
+              artifact: "polaris-coordinator-qa-drop"
+            displayName: "Publish Coordinator codebase artifact"
+            condition: eq(variables.runCoordinatorQA, 'true')
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-generator'
+              OverWrite: true
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+            condition: eq(variables.runPdfGeneratorQA, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create PDF-Generator package to publish"
+            condition: eq(variables.runPdfGeneratorQA, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
+              artifact: "polaris-pdf-generator-qa-drop"
+            displayName: "Publish PDF-Generator codebase artifact"
+            condition: eq(variables.runPdfGeneratorQA, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Text-Extractor package to publish"
+            condition: eq(variables.runTextExtractorQA, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
+              artifact: "polaris-text-extractor-qa-drop"
+            displayName: "Publish Text-Extractor codebase artifact"
+            condition: eq(variables.runTextExtractorQA, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Auth Handover package to publish"
+            condition: eq(variables.runAuthHandoverQA, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
+              artifact: "polaris-auth-handover-qa-drop"
+            displayName: "Publish Auth Handover codebase artifact"
+            condition: eq(variables.runAuthHandoverQA, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Gateway package to publish"
+            condition: eq(variables.runGatewayQA, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
+              artifact: "polaris-gateway-qa-drop"
+            displayName: "Publish Gateway codebase artifact"
+            condition: eq(variables.runGatewayQA, 'true')
+          
+          # We want to rely only on the .env.production file, anything in .env is still included
+          #  if not overwritten by .env.production.  For safety, just delete .env
+          - task: DeleteFiles@1
+            displayName: "Remove .env file"
+            condition: eq(variables.runUICodebaseQA, 'true')
+            inputs:
+              contents: |
+                polaris-ui/.env
+          
+          # Add build version
+          - task: PowerShell@2
+            displayName: "Record build version"
+            condition: eq(variables.runUICodebaseQA, 'true')
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-ui/public
+              script: |
+                New-Item build-version.txt
+                Set-Content -NoNewline build-version.txt '$(Build.BuildNumber) `n$(Build.SourceVersion)' 
+
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-ui"
+            displayName: "npm install"
+            condition: eq(variables.runUICodebaseQA, 'true')
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run prettier"
+            displayName: "npm prettier"
+            condition: eq(variables.runUICodebaseQA, 'true')
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run build"
+            displayName: "npm build"
+            condition: eq(variables.runUICodebaseQA, 'true')
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/build"
+              ArtifactName: "polaris-ui-qa-drop"
+              publishLocation: "Container"
+            displayName: Publish UI artifact
+            condition: eq(variables.runUICodebaseQA, 'true')
+            
+      - job: Build_PROD_Artifacts
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline terraform artifact'
+            condition: eq(variables.runPipelineTerraformPROD, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
+              artifact: "pipeline-terraform-files-prod"
+              publishLocation: "pipeline"
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline events terraform artifact'
+            condition: eq(variables.runPipelineEventsTerraformPROD, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
+              artifact: "pipeline-events-terraform-files-prod"
+              publishLocation: "pipeline"
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI terraform artifact'
+            condition: eq(variables.runUITerraformPROD, 'true')
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
+              artifact: 'ui-terraform-files-prod'
+              publishLocation: 'pipeline'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish UI events terraform artifact'
+            condition: eq(variables.runUIEventsTerraformPROD, 'true')
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
+              artifact: "ui-events-terraform-files-prod"
+              publishLocation: "pipeline"
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/coordinator/coordinator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Coordinator package to publish"
+            condition: eq(variables.runCoordinatorPROD, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
+              artifact: "polaris-coordinator-prod-drop"
+            displayName: "Publish Coordinator codebase artifact"
+            condition: eq(variables.runCoordinatorPROD, 'true')
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-generator'
+              OverWrite: true
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+            condition: eq(variables.runPdfGeneratorPROD, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create PDF-Generator package to publish"
+            condition: eq(variables.runPdfGeneratorPROD, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
+              artifact: "polaris-pdf-generator-prod-drop"
+            displayName: "Publish PDF-Generator codebase artifact"
+            condition: eq(variables.runPdfGeneratorPROD, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Text-Extractor package to publish"
+            condition: eq(variables.runTextExtractorPROD, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
+              artifact: "polaris-text-extractor-prod-drop"
+            displayName: "Publish Text-Extractor codebase artifact"
+            condition: eq(variables.runTextExtractorPROD, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Auth Handover package to publish"
+            condition: eq(variables.runAuthHandoverPROD, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
+              artifact: "polaris-auth-handover-prod-drop"
+            displayName: "Publish Auth Handover codebase artifact"
+            condition: eq(variables.runAuthHandoverPROD, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
+              zipAfterPublish: false
+            displayName: "Create Gateway package to publish"
+            condition: eq(variables.runGatewayPROD, 'true')
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
+              artifact: "polaris-gateway-prod-drop"
+            displayName: "Publish Gateway codebase artifact"
+            condition: eq(variables.runGatewayPROD, 'true')
+          
+          # We want to rely only on the .env.production file, anything in .env is still included
+          #  if not overwritten by .env.production.  For safety, just delete .env
+          - task: DeleteFiles@1
+            displayName: "Remove .env file"
+            condition: eq(variables.runUICodebasePROD, 'true')
+            inputs:
+              contents: |
+                polaris-ui/.env
+          
+          # Add build version
+          - task: PowerShell@2
+            displayName: "Record build version"
+            condition: eq(variables.runUICodebasePROD, 'true')
+            inputs:
+              targetType: 'inline'
+              workingDirectory: polaris-ui/public
+              script: |
+                New-Item build-version.txt
+                Set-Content -NoNewline build-version.txt '$(Build.BuildNumber) `n$(Build.SourceVersion)' 
+
+          - task: Npm@1
+            inputs:
+              command: "install"
+              workingDir: "polaris-ui"
+            displayName: "npm install"
+            condition: eq(variables.runUICodebasePROD, 'true')
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run prettier"
+            displayName: "npm prettier"
+            condition: eq(variables.runUICodebasePROD, 'true')
+
+          - task: Npm@1
+            inputs:
+              command: "custom"
+              workingDir: "polaris-ui"
+              customCommand: "run build"
+            displayName: "npm build"
+            condition: eq(variables.runUICodebasePROD, 'true')
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "polaris-ui/build"
+              ArtifactName: "polaris-ui-prod-drop"
+              publishLocation: "Container"
+            displayName: Publish UI artifact
+            condition: eq(variables.runUICodebasePROD, 'true')
