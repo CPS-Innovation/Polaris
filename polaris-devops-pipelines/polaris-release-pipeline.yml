@@ -1455,8 +1455,8 @@ stages:
     displayName: PROD Deployment
     dependsOn:
       - Determine_Changes
-      - Update_QA_Tag
-      - Run_e2e_Tests_QA
+      - Update_DEV_Tag
+      - Run_e2e_Tests_DEV
     condition: succeeded()
     variables:
       runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_PROD']]

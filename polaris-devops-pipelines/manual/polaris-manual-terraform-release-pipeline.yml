@@ -468,10 +468,32 @@ stages:
                 git tag -f $(resources.pipeline.PolarisManualTerraformBuild.runName)
                 git push origin --tags 
             displayName: Updating the dev tag
+            
+  - stage: Run_e2e_Tests_DEV
+    displayName: Run e2e tests > DEV
+    dependsOn:
+      - Apply_DEV
+      - Check_DEV
+      - Update_DEV_Tag
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_DEV
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: DEV'
+            inputs:
+              buildDefinition: 129
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
                     
   - stage: Apply_QA
     displayName: Deployment > QA
-    dependsOn: Update_DEV_Tag
+    dependsOn: 
+      - Update_DEV_Tag
+      - Run_e2e_Tests_DEV
     pool:
       name: $(qa-build-agent)
     jobs:
@@ -914,10 +936,32 @@ stages:
                 git tag -f $(resources.pipeline.PolarisManualTerraformBuild.runName)
                 git push origin --tags 
             displayName: Updating the qa tag
+            
+  - stage: Run_e2e_Tests_QA
+    displayName: Run e2e tests > QA
+    dependsOn:
+      - Apply_QA
+      - Check_QA
+      - Update_QA_Tag
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_QA
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: QA'
+            inputs:
+              buildDefinition: 210
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
                     
   - stage: Apply_PROD
     displayName: Deployment > PROD
-    dependsOn: Update_QA_Tag
+    dependsOn:
+      - Update_DEV_Tag
+      - Run_e2e_Tests_DEV
     pool:
       name: $(prod-build-agent)
     jobs:
