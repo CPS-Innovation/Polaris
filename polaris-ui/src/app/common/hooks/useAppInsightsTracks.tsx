@@ -1,7 +1,7 @@
 import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useUserDetails } from "../../../app/auth/msal/useUserDetails";
+import { useUserDetails } from "../../../app/auth";
 type AppInsightsTrackEventNames =
   | "Search URN"
   | "Back To Search URN"
