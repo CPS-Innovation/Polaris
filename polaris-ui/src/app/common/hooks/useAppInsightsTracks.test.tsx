@@ -53,7 +53,7 @@ describe("useAppInsightsTracks hook", () => {
       name: "Search URN",
       properties: {
         description:
-          "User has clicked the 'Search' button on the 'Find a case' screen.",
+          "User has clicked the 'Search' button on the 'Case Search' screen.",
         name: "test_name",
         username: "test_username",
         cmsUserID: "test_cmsUserID",
@@ -74,7 +74,7 @@ describe("useAppInsightsTracks hook", () => {
       name: "Search URN",
       properties: {
         description:
-          "User has clicked the 'Search' button on the 'Find a case' screen.",
+          "User has clicked the 'Search' button on the 'Case Search' screen.",
         name: "test_name",
         username: "test_username",
         cmsUserID: "test_cmsUserID",
@@ -112,7 +112,7 @@ describe("useAppInsightsTracks hook", () => {
     expect(mockTrackPageView).toHaveBeenCalledTimes(0);
   });
 
-  test("Should not throw error if appInsight is not initialized properly, when tracking PageView", () => {
+  test("Should not throw an error if appInsight is not initialized properly, when tracking PageView", () => {
     mockUseAppInsightsContext = undefined as any;
     expect(() =>
       renderHook(() => useAppInsightsTrackPageView("abc"), {
@@ -122,7 +122,7 @@ describe("useAppInsightsTracks hook", () => {
     expect(mockTrackPageView).toHaveBeenCalledTimes(0);
   });
 
-  test("Should not throw error if appInsight is not initialized properly, when tracking Event", () => {
+  test("Should not throw error if appInsight is not initialized properly, when tracking an event", () => {
     mockUseAppInsightsContext = {
       trackEvent: undefined,
       trackPageView: undefined,
