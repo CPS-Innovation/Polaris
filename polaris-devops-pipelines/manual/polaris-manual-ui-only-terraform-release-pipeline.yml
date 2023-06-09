@@ -308,6 +308,9 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          - checkout: self
+            persistCredentials: true
+            
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
@@ -317,7 +320,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: "$(System.SourcesDirectory)/commit-report-dev.csv"
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
               artifact: "Commit Report - DEV"
             displayName: "Publish Commit report for DEV"
 
@@ -619,6 +622,9 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          - checkout: self
+            persistCredentials: true
+            
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
@@ -628,7 +634,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: "$(System.SourcesDirectory)/commit-report-qa.csv"
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
               artifact: "Commit Report - QA"
             displayName: "Publish Commit report for QA"
 
@@ -930,6 +936,9 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          - checkout: self
+            persistCredentials: true
+            
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
@@ -939,7 +948,7 @@ stages:
 
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: "$(System.SourcesDirectory)/commit-report-prod.csv"
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
               artifact: "Commit Report - PROD"
             displayName: "Publish Commit report for PROD"
 
