@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -23,7 +23,7 @@ public static class AssemblyExtensions
         {
             Name = assemblyName.Name,
             BuildVersion = assemblyName.Version?.ToString(),
-            SourceVersion = GetShortHash(infoVerAttr), 
+            SourceVersion = GetShortHash(infoVerAttr),
             LastBuilt = GetBuildDate(currentAssembly)
         };
         return new JsonResult(response) {StatusCode = (int) HttpStatusCode.OK};
@@ -31,20 +31,11 @@ public static class AssemblyExtensions
     
     private static DateTime GetBuildDate(Assembly assembly)
     {
-        const string buildVersionMetadataPrefix = "+build";
-
-        var attribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-        if (attribute?.InformationalVersion == null) return default;
-        
-        var value = attribute.InformationalVersion;
-        var index = value.IndexOf(buildVersionMetadataPrefix, StringComparison.Ordinal);
-        if (index <= 0) return default;
-        
-        value = value[(index + buildVersionMetadataPrefix.Length)..];
-        return DateTime.TryParseExact(value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result) 
-            ? result : default;
+        var creationDate = new FileInfo(assembly.Location).CreationTimeUtc;
+        var britishZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+        return TimeZoneInfo.ConvertTime(creationDate, TimeZoneInfo.Utc, britishZone);
     }
-    
+
     private static string GetShortHash(AssemblyInformationalVersionAttribute infoVerAttr)
     {
         var version = "1.0.0+LOCALBUILD"; // Dummy version for local dev
