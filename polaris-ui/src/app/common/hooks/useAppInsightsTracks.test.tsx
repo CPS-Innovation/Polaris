@@ -60,7 +60,7 @@ describe("useAppInsightsTracks hook", () => {
     expect(mockTrackPageView).toHaveBeenCalledTimes(0);
   });
 
-  test("Should not throw error if appInsight is not initialized properly, when tracking PageView", () => {
+  test("Should not throw an error if appInsight is not initialized properly, when tracking PageView", () => {
     mockUseAppInsightsContext = undefined as any;
     expect(() =>
       renderHook(() => useAppInsightsTrackPageView("abc"), {
