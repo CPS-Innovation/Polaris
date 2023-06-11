@@ -44,6 +44,6 @@ public static class AssemblyExtensions
         // Hash is embedded in the version after a '+' symbol, e.g. 1.0.0+a34a913742f8845d3da5309b7b17242222d41a21
         version = infoVerAttr.InformationalVersion;
         var longHash = version[(version.IndexOf('+') + 1)..];
-        return longHash.Substring(longHash.Length - 6, 6);
+        return longHash[..8];
     }
 }

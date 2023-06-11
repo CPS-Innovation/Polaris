@@ -5,9 +5,6 @@
     <RootNamespace>pdf_generator</RootNamespace>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
   </PropertyGroup>
-  <PropertyGroup>
-    <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</SourceRevisionId>
-  </PropertyGroup>
   <ItemGroup>
 
     <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
