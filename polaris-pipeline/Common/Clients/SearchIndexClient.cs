@@ -35,8 +35,9 @@ namespace Common.Clients
 			{
 				Filter = filter
             };
-			
-			var searchResults = await _searchClient.SearchAsync<SearchLine>(searchTerm, searchOptions);
+
+            // => e.g. search=carol&filter=caseId eq 2146928 and (versionId eq 7921776 or versionId eq7921775 or versionId eq 7921740 or versionId eq 7921733 or versionId eq 7921732 or versionId eq 7921731 or versionId eq 7921730 or versionId eq 1 or versionId eq 1)
+            var searchResults = await _searchClient.SearchAsync<SearchLine>(searchTerm, searchOptions);
 			var searchLines = new List<SearchLine>();
 			await foreach (var searchResult in searchResults.Value.GetResultsAsync())
 			{
@@ -59,10 +60,10 @@ namespace Common.Clients
 			if(documents.Any())
 			{
 				stringBuilder.Append(" and (");
-				stringBuilder.Append($"versionId eq {documents[0].CmsVersionId}");
+				stringBuilder.Append($@"(documentId eq '{documents[0].CmsDocumentId}' and versionId eq {documents[0].CmsVersionId})");
 				for( var i = 1;  i < documents.Count; i++ )
 				{
-                    stringBuilder.Append($" or versionId eq {documents[i].CmsVersionId}");
+                    stringBuilder.Append(@$" or (documentId eq '{documents[i].CmsDocumentId}' and versionId eq {documents[i].CmsVersionId})");
                 }
                 stringBuilder.Append(")");
             }
