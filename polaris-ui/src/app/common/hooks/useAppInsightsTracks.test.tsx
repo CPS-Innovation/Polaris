@@ -3,18 +3,41 @@ import {
   useAppInsightsTrackPageView,
 } from "./useAppInsightsTracks";
 import { renderHook } from "@testing-library/react-hooks";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useParams } from "react-router-dom";
+
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useParams: jest.fn(),
+}));
 const mockTrackEvent = jest.fn();
 const mockTrackPageView = jest.fn();
 let mockUseAppInsightsContext = {
   trackEvent: mockTrackEvent,
   trackPageView: mockTrackPageView,
 };
+
+jest.mock("@microsoft/applicationinsights-react-js", () => ({
+  useAppInsightsContext: () => mockUseAppInsightsContext,
+}));
 jest.mock("@microsoft/applicationinsights-react-js", () => ({
   useAppInsightsContext: () => mockUseAppInsightsContext,
 }));
 
+jest.mock("../../../app/auth/msal/useUserDetails", () => ({
+  useUserDetails: () => ({
+    name: "test_name",
+    username: "test_username",
+    cmsUserID: "test_cmsUserID",
+  }),
+}));
+
 describe("useAppInsightsTracks hook", () => {
+  beforeEach(() => {
+    (useParams as jest.Mock).mockReturnValue({
+      id: "testCaseId_1234",
+      urn: "test-urn",
+    });
+  });
   afterEach(() => {
     mockTrackEvent.mockClear();
     mockTrackPageView.mockClear();
@@ -31,6 +54,30 @@ describe("useAppInsightsTracks hook", () => {
       properties: {
         description:
           "User has clicked the 'Search' button on the 'Case Search' screen.",
+        name: "test_name",
+        username: "test_username",
+        cmsUserID: "test_cmsUserID",
+        caseId: "testCaseId_1234",
+        urn: "test-urn",
+      },
+    });
+  });
+
+  test("Should not add the urn and caseId to rackEvent  properties if urn is not present through useParams", () => {
+    (useParams as jest.Mock).mockReturnValue({});
+    const { result } = renderHook(() => useAppInsightsTrackEvent(), {
+      wrapper: MemoryRouter,
+    });
+    result.current("Search URN");
+    expect(mockTrackEvent).toHaveBeenCalledTimes(1);
+    expect(mockTrackEvent).toHaveBeenCalledWith({
+      name: "Search URN",
+      properties: {
+        description:
+          "User has clicked the 'Search' button on the 'Case Search' screen.",
+        name: "test_name",
+        username: "test_username",
+        cmsUserID: "test_cmsUserID",
       },
     });
   });
@@ -50,6 +97,11 @@ describe("useAppInsightsTracks hook", () => {
     expect(mockTrackPageView).toHaveBeenCalledTimes(1);
     expect(mockTrackPageView).toHaveBeenCalledWith({
       name: "Search Page View",
+      properties: {
+        name: "test_name",
+        username: "test_username",
+        cmsUserID: "test_cmsUserID",
+      },
     });
   });
 
