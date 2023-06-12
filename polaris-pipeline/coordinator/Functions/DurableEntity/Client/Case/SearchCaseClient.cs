@@ -59,7 +59,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
-                var entityId = new EntityId(nameof(CaseDurableEntity), caseId.ToString());
+                var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId.ToString()));
                 var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
                 if (!trackerState.EntityExists)

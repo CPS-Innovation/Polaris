@@ -34,6 +34,10 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("failed")]
         public float? Failed{ get; set; }
+
+        [JsonProperty("failedReason")]
+        public string FailedReason { get; set; }
+
         [JsonProperty("documents")]
         public List<DocumentDto> Documents { get; set; }
 

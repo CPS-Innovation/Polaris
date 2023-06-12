@@ -64,6 +64,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
+            _mockCaseEntity.Setup(entity => entity.GetVersion()).ReturnsAsync(1);
             _mockCaseRefreshLogsEntity = new Mock<ICaseRefreshLogsDurableEntity>();
 
             _evaluateDocumentResponse = fixture.Create<EvaluateDocumentResponse>();
@@ -104,10 +105,10 @@ namespace coordinator.tests.Functions.SubOrchestrators
                 .ReturnsAsync(new DurableHttpResponse(HttpStatusCode.OK, content: _content));
 
             _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ICaseDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == _payload.CmsCaseId.ToString())))
+                .Setup(context => context.CreateEntityProxy<ICaseDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_payload.CmsCaseId}]")))
                 .Returns(_mockCaseEntity.Object);
             _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ICaseRefreshLogsDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsDurableEntity).ToLower() && e.EntityKey.StartsWith(_payload.CmsCaseId.ToString()))))
+                .Setup(context => context.CreateEntityProxy<ICaseRefreshLogsDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsDurableEntity).ToLower() && e.EntityKey.Contains(_payload.CmsCaseId.ToString()))))
                 .Returns(_mockCaseRefreshLogsEntity.Object);
 
             _caseDocumentOrchestrator = new RefreshDocumentOrchestrator(new JsonConvertWrapper(), mockLogger.Object);
@@ -130,13 +131,16 @@ namespace coordinator.tests.Functions.SubOrchestrators
         [Fact]
         public async Task Run_Tracker_RegistersPdfBlobName()
         {
+            // Arrange
             _pdfResponse.AlreadyProcessed = false;
             _mockDurableOrchestrationContext
                 .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<object>()))
                 .ReturnsAsync(_pdfResponse);
 
+            // Act
             await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
 
+            // Assert
             _mockCaseEntity.Verify
                 (
                     tracker => 
@@ -183,17 +187,20 @@ namespace coordinator.tests.Functions.SubOrchestrators
         [Fact]
         public async Task Run_WhenDocumentEvaluation_EqualsAcquireDocument_AndSearchIndexUpdated_RegistersUnexpectedDocumentFailureWhenCallToGeneratePdfReturnsNonOkResponse()
         {
+            // Arrange
             _mockDurableOrchestrationContext
                 .Setup(context => context.CallActivityAsync<GeneratePdfResponse>(It.IsAny<string>(), It.IsAny<CaseDocumentOrchestrationPayload>()))
                 .ReturnsAsync((GeneratePdfResponse)null);
 
             try
             {
+                // Act
                 await _caseDocumentOrchestrator.Run(_mockDurableOrchestrationContext.Object);
                 Assert.False(true);
             }
             catch
             {
+                // Assert
                 _mockCaseEntity.Verify
                     (
                         tracker =>

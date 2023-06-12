@@ -21,6 +21,17 @@ namespace coordinator.Functions.DurableEntity.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
+        public static string GetOrchestrationKey(string caseId)
+        {
+            // Avoid ambiguity of name collisions between e.g "123" and "1234", as delete operation uses a prefix, e.g. "123..."
+            return $"[{caseId}]";
+        }
+
+        public static string GetInstanceId(string caseId)
+        {
+            return $"@{nameof(CaseDurableEntity).ToLower()}@{GetOrchestrationKey(caseId)}";
+        }
+
         [JsonProperty("transactionId")]
         public string TransactionId { get; set; }
 
@@ -65,6 +76,9 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("failed")]
         public float? Failed { get; set; }
 
+        [JsonProperty("failedReason")]
+        public string FailedReason { get; set; }
+
         [JsonProperty("documents")]
         public List<CmsDocumentEntity> CmsDocuments { get; set; }
 
@@ -81,6 +95,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             DocumentsRetrieved = null;
             Completed = null;
             Failed = null;
+            FailedReason = null;
             CmsDocuments = CmsDocuments ?? new List<CmsDocumentEntity>();
             PcdRequests = PcdRequests ?? new List<PcdRequestEntity>();
             DefendantsAndCharges = DefendantsAndCharges ?? null;
@@ -362,9 +377,9 @@ namespace coordinator.Functions.DurableEntity.Entity
             return null;
         }
 
-        public void SetCaseStatus((DateTime T, CaseRefreshStatus Status) args)
+        public void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args)
         {
-            var (t, status) = args;
+            var (t, status, info) = args;
 
             Status = status;
 
@@ -375,15 +390,21 @@ namespace coordinator.Functions.DurableEntity.Entity
                     break;
 
                 case CaseRefreshStatus.DocumentsRetrieved:
-                    DocumentsRetrieved = (float)((t-Running).Value.TotalMilliseconds/1000.0);
+                    if(Running != null)
+                        DocumentsRetrieved = (float)((t-Running).Value.TotalMilliseconds/1000.0);
                     break;
 
                 case CaseRefreshStatus.Completed:
-                    Completed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                    if(Running != null)
+                        Completed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Failed:
-                    Failed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                    if(Running != null)
+                    {
+                        Failed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                        FailedReason = info;
+                    }
                     break;
             }
         }
@@ -441,6 +462,7 @@ namespace coordinator.Functions.DurableEntity.Entity
             DocumentsRetrieved = tracker.DocumentsRetrieved;
             Completed = tracker.Completed;
             Failed = tracker.Failed;
+            FailedReason = tracker.FailedReason;
             CmsDocuments = tracker.CmsDocuments;
             PcdRequests = tracker.PcdRequests;
             DefendantsAndCharges = tracker.DefendantsAndCharges;

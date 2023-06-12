@@ -89,7 +89,7 @@ namespace coordinator.tests.Domain.Tracker
                     client => 
                         client.ReadEntityStateAsync<CaseDurableEntity>
                         (
-                            It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == _caseId.ToString()),
+                            It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_caseId}]"),
                             null, 
                             null
                         )
@@ -173,8 +173,8 @@ namespace coordinator.tests.Domain.Tracker
         public void RegisterCompleted_RegistersCompleted()
         {
             _caseEntity.Reset(_transactionId);
-            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running));
-            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Completed));
+            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running, null));
+            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Completed, null));
 
             _caseEntity.Status.Should().Be(CaseRefreshStatus.Completed);
             _caseEntity.Completed.Should().NotBeNull();
@@ -183,11 +183,16 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public void RegisterFailed_RegistersFailed()
         {
+            // Arrange
             _caseEntity.Reset(_transactionId);
-            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running));
-            _caseEntity.SetCaseStatus((It.IsAny<DateTime>(), CaseRefreshStatus.Failed));
 
+            // Act
+            _caseEntity.SetCaseStatus((DateTime.Now, CaseRefreshStatus.Running, null));
+            _caseEntity.SetCaseStatus((It.IsAny<DateTime>(), CaseRefreshStatus.Failed, "exceptionMessage"));
+
+            // Assert
             _caseEntity.Status.Should().Be(CaseRefreshStatus.Failed);
+            _caseEntity.FailedReason.Should().Be("exceptionMessage");
         }
 
         //[Fact]
@@ -241,10 +246,14 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsOK()
         {
+            // Arrange
             var message = new HttpRequestMessage();
             message.Headers.Add("Correlation-Id", _correlationId.ToString());
+
+            // Act
             var response = await _trackerStatus.HttpStart(message, _caseUrn, _caseId.ToString(), _mockDurableEntityClient.Object, _mockLogger.Object);
 
+            // Assert
             response.Should().BeOfType<OkObjectResult>();
         }
 
@@ -263,11 +272,18 @@ namespace coordinator.tests.Domain.Tracker
         [Fact]
         public async Task HttpStart_TrackerStatus_ReturnsNotFoundIfEntityNotFound()
         {
+            // Arrange
             var entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = false };
-            _mockDurableEntityClient.Setup(
-                client => client.ReadEntityStateAsync<CaseDurableEntity>(
-                    It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == _caseId.ToString()),
-                    null, null))
+            _mockDurableEntityClient
+                .Setup
+                    (
+                        client => client.ReadEntityStateAsync<CaseDurableEntity>
+                        (
+                            It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_caseId}]"),
+                            null, 
+                            null
+                        )
+                    )
                 .ReturnsAsync(entityStateResponse);
 
             var message = new HttpRequestMessage();

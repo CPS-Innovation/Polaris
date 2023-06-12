@@ -43,7 +43,7 @@ namespace coordinator.tests.Functions
             _caseId = _caseIdNum.ToString();
             var cmsAuthValues = _fixture.Create<string>();
             var correlationId = _fixture.Create<Guid>();
-            _instanceId = _caseId;
+            _instanceId = RefreshCaseOrchestrator.GetKey(_caseId);
             _httpRequestMessage = new HttpRequestMessage();
             _jsonConvertWrapper = new JsonConvertWrapper();
 
@@ -107,10 +107,15 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_StartsOrchestratorWhenOrchestrationStatusIsNull()
         {
-            _mockDurableOrchestrationClient.Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
-               .ReturnsAsync(default(DurableOrchestrationStatus));
+            // Arrange
+            _mockDurableOrchestrationClient
+                .Setup(client => client.GetStatusAsync(_instanceId, false, false, true))
+                .ReturnsAsync(default(DurableOrchestrationStatus));
+
+            // Act
             await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
+            // Assert
             _mockDurableOrchestrationClient.Verify(
                 client => client.StartNewAsync(
                     nameof(RefreshCaseOrchestrator),
@@ -175,8 +180,10 @@ namespace coordinator.tests.Functions
         [Fact]
         public async Task Run_ReturnsExpectedHttpResponseMessage()
         {
+            // Act
             var httpResponseMessage = await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
 
+            // Assert
             httpResponseMessage.Should().Be(_httpResponseMessage);
         }
     }

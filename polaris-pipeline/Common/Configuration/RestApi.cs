@@ -30,6 +30,18 @@ namespace Common.Configuration
             return url;
         }
 
+        public static string GetCaseTrackerPath(string caseUrn, long caseId)
+        {
+            var url = $"urns/{caseUrn}/cases/{caseId}/tracker";
+            return url;
+        }
+
+        public static string GetCaseSearchPath(string caseUrn, long caseId)
+        {
+            var url = $"urns/{caseUrn}/cases/{caseId}/search";
+            return url;
+        }
+
         public static string GetDocumentsPath(string caseUrn, long caseId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}/documents";

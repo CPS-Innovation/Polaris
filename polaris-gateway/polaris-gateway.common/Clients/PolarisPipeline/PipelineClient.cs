@@ -75,7 +75,7 @@ namespace Gateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                var url = $"{RestApi.GetCasePath(caseUrn, caseId)}/tracker?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+                var url = $"{RestApi.GetCaseTrackerPath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
                 response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
@@ -223,7 +223,7 @@ namespace Gateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                var url = $"{RestApi.GetCasePath(caseUrn, caseId)}/search?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}&query={searchTerm}";
+                var url = $"{RestApi.GetCaseSearchPath(caseUrn, caseId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}&query={searchTerm}";
                 response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)

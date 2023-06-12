@@ -14,6 +14,26 @@ namespace coordinator.Functions.DurableEntity.Entity
     [JsonObject(MemberSerialization.OptIn)]
     public class CaseRefreshLogsDurableEntity : ICaseRefreshLogsDurableEntity
     {
+        public static string GetOrchestrationKey(string caseId, int? version)
+        {
+            if (version == null)
+            {
+                throw new ArgumentNullException(nameof(version));
+            }
+
+            return $"[{caseId}]-{version.Value}";
+        }
+
+        public static string GetInstanceId(string caseId, int? version)
+        {
+            if(version == null)
+            {
+                throw new ArgumentNullException(nameof(version));
+            }
+
+            return $"@{nameof(CaseRefreshLogsDurableEntity).ToLower()}@{GetOrchestrationKey(caseId, version)}";
+        }
+
         [JsonProperty("case")]
         public List<CaseLogEntity> Case { get; set; } = new List<CaseLogEntity>();
 

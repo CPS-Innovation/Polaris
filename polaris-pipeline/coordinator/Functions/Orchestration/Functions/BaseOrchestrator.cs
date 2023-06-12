@@ -14,7 +14,8 @@ namespace coordinator.Functions.Orchestration.Functions
         {
             log.LogMethodEntry(correlationId, nameof(CreateOrGetCaseDurableEntities), $"CaseId: {caseId}");
 
-            var caseEntityId = new EntityId(nameof(CaseDurableEntity), $"{caseId}");
+            var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId.ToString());
+            var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
             var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(caseEntityId);
 
             var version = await caseEntity.GetVersion();
@@ -24,7 +25,9 @@ namespace coordinator.Functions.Orchestration.Functions
                 version = version == null ? 1 : version + 1;
                 caseEntity.SetVersion(version.Value);
             }
-            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), $"{caseId}-{version}");
+
+            var caseRefreshLogsEntityKey = CaseRefreshLogsDurableEntity.GetOrchestrationKey(caseId.ToString(), version);
+            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), caseRefreshLogsEntityKey);
             var caseRefreshLogsEntity = context.CreateEntityProxy<ICaseRefreshLogsDurableEntity>(caseRefreshLogsEntityId);
 
             return (caseEntity, caseRefreshLogsEntity);

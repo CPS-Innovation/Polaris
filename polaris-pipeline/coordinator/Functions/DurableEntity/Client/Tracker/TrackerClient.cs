@@ -8,7 +8,6 @@ using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Wrappers.Contracts;
 using Common.Dto.Tracker;
-using coordinator.Functions.DurableEntity.Entity;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;

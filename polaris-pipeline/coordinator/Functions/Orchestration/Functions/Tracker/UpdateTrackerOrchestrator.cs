@@ -44,7 +44,7 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
             }
             catch (Exception exception)
             {
-                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed));
+                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed, exception.Message));
                 log.LogMethodError(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Error when running {nameof(UpdateTrackerOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }

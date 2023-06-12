@@ -41,7 +41,8 @@ namespace coordinator.Functions.DurableEntity.Client
                 ILogger log
             )
         {
-            var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseId);
+            var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId);
+            var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
             var caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
 
             if (!caseEntity.EntityExists)
@@ -51,15 +52,12 @@ namespace coordinator.Functions.DurableEntity.Client
                 return (null, null, errorMessage);
             }
 
-            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), $"{caseId}-{caseEntity.EntityState.Version}");
+            var caseRefreshLogsEntityKey = CaseRefreshLogsDurableEntity.GetOrchestrationKey(caseId, caseEntity.EntityState.Version);
+            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), caseRefreshLogsEntityKey);
             var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsDurableEntity>(caseRefreshLogsEntityId);
 
-            if (!caseRefreshLogsEntity.EntityExists)
-            {
-                var errorMessage = $"No Case Refresh Logs Entity found with id '{caseId}' and version {caseEntity.EntityState.Version}.";
-                log.LogMethodFlow(correlationId, loggingName, errorMessage);
-                return (null, null, errorMessage);
-            }
+            if(!caseRefreshLogsEntity.EntityExists)
+                return (caseEntity.EntityState, new CaseRefreshLogsDurableEntity(), null);
 
             return (caseEntity.EntityState, caseRefreshLogsEntity.EntityState, null);
         }
@@ -97,7 +95,7 @@ namespace coordinator.Functions.DurableEntity.Client
             log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
             #endregion
 
-            var entityId = new EntityId(nameof(CaseDurableEntity), caseId);
+            var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
             if (!stateResponse.EntityExists)
             {

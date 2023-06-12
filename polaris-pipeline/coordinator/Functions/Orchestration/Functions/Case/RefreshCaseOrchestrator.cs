@@ -32,6 +32,11 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
         const string loggingName = $"{nameof(RefreshCaseOrchestrator)} - {nameof(Run)}";
 
+        public static string GetKey(string caseId)
+        {
+            return $"[{caseId}]";
+        }
+
         public RefreshCaseOrchestrator(ILogger<RefreshCaseOrchestrator> log, IConfiguration configuration)
         {
             _log = log;
@@ -49,7 +54,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var log = context.CreateReplaySafeLogger(_log);
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve case trackers for case {payload.CmsCaseId}");
             var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, payload.CmsCaseId, true, payload.CorrelationId, log);
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running));
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             try
             {
@@ -72,7 +77,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
             catch (Exception exception)
             {
-                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed));
+                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed, exception.Message));
 
                 log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
@@ -91,10 +96,10 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
             caseEntity.Reset(context.InstanceId);
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running));
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             var documents = await GetDocuments(context, loggingName, log, payload);
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved));
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
 
             var documentTasks = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
             await Task.WhenAll(documentTasks.Select(BufferCall));
@@ -102,7 +107,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             if (await caseEntity.AllDocumentsFailed())
                 throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed));
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
             var maxPdfGenerated = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.PdfGenerated);
             caseEntity.SetCaseTiming((DocumentLogType.PdfGenerated, maxPdfGenerated));
             var maxIndexed = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.Indexed);
@@ -195,8 +200,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                     (
                         payload => context.CallSubOrchestratorAsync
                         (
-                            nameof(RefreshDocumentOrchestrator), 
-                            $"{payload.CmsCaseId}-{payload.PolarisDocumentId}", 
+                            nameof(RefreshDocumentOrchestrator),
+                            RefreshDocumentOrchestrator.GetKey(payload.CmsCaseId, payload.PolarisDocumentId),
                             payload)
                         );
 
