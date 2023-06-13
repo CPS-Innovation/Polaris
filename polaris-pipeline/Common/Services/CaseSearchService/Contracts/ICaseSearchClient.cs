@@ -12,13 +12,14 @@ namespace Common.Services.CaseSearchService.Contracts
 	{
 		Task StoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId);
 
-        Task<IList<StreamlinedSearchLine>> Query(int caseId, List<BaseDocumentEntity> documents, string searchTerm, Guid correlationId);
+        Task<IList<StreamlinedSearchLine>> QueryAsync(int caseId, List<BaseDocumentEntity> documents, string searchTerm, Guid correlationId);
 
         IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm, Guid correlationId);
 
-        Task RemoveDocument(long caseId, string documentId, long versionId, Guid correlationId);
+        Task RemoveCaseIndexEntriesAsync(long caseId, Guid correlationId);
+
+        Task RemoveDocumentIndexEntriesAsync(long caseId, string documentId, long versionId, Guid correlationId);
 
         Task RemoveResultsByBlobNameAsync(long cmsCaseId, string blobName, Guid correlationId);
 	}
 }
-

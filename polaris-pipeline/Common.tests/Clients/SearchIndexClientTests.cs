@@ -77,7 +77,7 @@ namespace Common.Tests.Clients
         [Fact]
         public async Task Query_ReturnsSearchLines()
         {
-            var results = await _searchIndexClient.Query(_caseId, _documents, _searchTerm, _correlationId);
+            var results = await _searchIndexClient.QueryAsync(_caseId, _documents, _searchTerm, _correlationId);
 
             results.Should().NotBeNull();
         }

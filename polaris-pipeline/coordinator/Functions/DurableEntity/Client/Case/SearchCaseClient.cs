@@ -77,7 +77,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         .Concat(entityState.PcdRequests)
                         .Append(entityState.DefendantsAndCharges)
                         .ToList();
-                var searchResults = await _searchIndexClient.Query(caseId, documents, searchTerm, currentCorrelationId);
+                var searchResults = await _searchIndexClient.QueryAsync(caseId, documents, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }

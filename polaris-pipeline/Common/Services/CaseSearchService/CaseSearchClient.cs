@@ -32,7 +32,6 @@ namespace Common.Services.CaseSearchService
             IStreamlinedSearchResultFactory streamlinedSearchResultFactory, 
             ILogger<CaseSearchClient> logger)
         {
-
             _azureSearchClient = searchClientFactory.Create();
             _searchLineFactory = searchLineFactory;
             _searchIndexingBufferedSenderFactory = searchIndexingBufferedSenderFactory;
@@ -45,7 +44,7 @@ namespace Common.Services.CaseSearchService
             string blobName = Path.GetFileName(blobPath);
             _logger.LogMethodEntry(correlationId, nameof(StoreResultsAsync), $"PolarisDocumentId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, Blob Name: {blobName}");
 
-            await RemoveDocument(cmsCaseId, cmsDocumentId, versionId, correlationId);
+            //await RemoveDocumentIndexEntriesAsync(cmsCaseId, cmsDocumentId, versionId, correlationId);
 
             _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "Building search line results");
             var lines = new List<SearchLine>();
@@ -109,8 +108,8 @@ namespace Common.Services.CaseSearchService
 
                 await indexer.UploadDocumentsAsync(lines);
                 await indexer.FlushAsync();
-                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync),
-                    $"Updating the search index completed - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
+
+                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), $"Updating the search index completed - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
 
                 if (!await indexTaskCompletionSource.Task)
                 {
@@ -119,16 +118,15 @@ namespace Common.Services.CaseSearchService
             }
             else
             {
-                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync),
-                    "No OCR results generated for this document, therefore no need to update the search index... returning...");
+                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "No OCR results generated for this document, therefore no need to update the search index... returning...");
             }
         }
 
-        public async Task<IList<StreamlinedSearchLine>> Query(int caseId, List<BaseDocumentEntity> documents, string searchTerm, Guid correlationId)
+        public async Task<IList<StreamlinedSearchLine>> QueryAsync(int caseId, List<BaseDocumentEntity> documents, string searchTerm, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(Query), $"CaseId '{caseId}', searchTerm '{searchTerm}'");
+            _logger.LogMethodEntry(correlationId, nameof(QueryAsync), $"CaseId '{caseId}', searchTerm '{searchTerm}'");
 
-            var filter = GetSearchQuery(caseId, documents);
+            var filter = GetCaseDocumentsSearchQuery(caseId, documents);
             var searchOptions = new SearchOptions
             {
                 Filter = filter
@@ -145,27 +143,10 @@ namespace Common.Services.CaseSearchService
                 }
             }
 
-            _logger.LogMethodFlow(correlationId, nameof(Query), $"Found {searchLines.Count} results, building streamlined search results");
+            _logger.LogMethodFlow(correlationId, nameof(QueryAsync), $"Found {searchLines.Count} results, building streamlined search results");
             var results = BuildStreamlinedResults(searchLines, searchTerm, correlationId);
-            _logger.LogMethodExit(correlationId, nameof(Query), string.Empty);
+            _logger.LogMethodExit(correlationId, nameof(QueryAsync), string.Empty);
             return results;
-        }
-
-        private string GetSearchQuery(int caseId, List<BaseDocumentEntity> documents)
-        {
-            var stringBuilder = new StringBuilder($"caseId eq {caseId}");
-
-            if (documents.Any())
-            {
-                stringBuilder.Append(" and (");
-                stringBuilder.Append($@"(documentId eq '{documents[0].CmsDocumentId}' and versionId eq {documents[0].CmsVersionId})");
-                for (var i = 1; i < documents.Count; i++)
-                {
-                    stringBuilder.Append(@$" or (documentId eq '{documents[i].CmsDocumentId}' and versionId eq {documents[i].CmsVersionId})");
-                }
-                stringBuilder.Append(")");
-            }
-            return stringBuilder.ToString();
         }
 
         public IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm, Guid correlationId)
@@ -182,11 +163,32 @@ namespace Common.Services.CaseSearchService
             return streamlinedResults;
         }
 
-        public async Task RemoveDocument(long caseId, string documentId, long versionId, Guid correlationId)
+        public async Task RemoveCaseIndexEntriesAsync(long caseId, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(RemoveDocument), $"CaseId: {caseId}, DoocumentId: {documentId}, Versionid {versionId}");
+            _logger.LogMethodEntry(correlationId, nameof(RemoveCaseIndexEntriesAsync), $"CaseId: {caseId}");
 
-            #region Vaidate-Inputs
+            #region Validate-Inputs
+            if (caseId == 0)
+                throw new ArgumentException("Invalid caseId", nameof(caseId));
+            #endregion
+
+            string filter = $"caseId eq {caseId}";
+
+            await RemoveIndexEntries(filter, correlationId);
+
+            _logger.LogMethodFlow
+                (
+                    correlationId,
+                    nameof(RemoveCaseIndexEntriesAsync),
+                    $"Updating the search index completed following a deletion request for caseId '{caseId}'"
+                );
+        }
+
+        public async Task RemoveDocumentIndexEntriesAsync(long caseId, string documentId, long versionId, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(RemoveDocumentIndexEntriesAsync), $"CaseId: {caseId}, DoocumentId: {documentId}, Versionid {versionId}");
+
+            #region Validate-Inputs
             if (caseId == 0)
                 throw new ArgumentException("Invalid caseId", nameof(caseId));
 
@@ -194,63 +196,16 @@ namespace Common.Services.CaseSearchService
                 throw new ArgumentException("Invalid Document ID", nameof(documentId));
             #endregion
 
-            var searchOptions = new SearchOptions
-            {
-                Filter = $"caseId eq {caseId} and documentId eq '{documentId}' and versionId eq {versionId}"
-            };
+            string filter = $"caseId eq {caseId} and documentId eq '{documentId}' and versionId eq {versionId}";
 
-            var results = await _azureSearchClient.SearchAsync<SearchLine>("*", searchOptions);
-            var searchLines = new List<SearchLine>();
-            await foreach (var searchResult in results.Value.GetResultsAsync())
-            {
-                searchLines.Add(searchResult.Document);
-            }
+            await RemoveIndexEntries(filter, correlationId);
 
-            if (searchLines.Count == 0)
-            {
-                _logger.LogMethodFlow(correlationId, nameof(RemoveDocument), "No results found - this document has been previously removed");
-            }
-            else
-            {
-                await using var indexer = _searchIndexingBufferedSenderFactory.Create(_azureSearchClient);
-                var indexTaskCompletionSource = new TaskCompletionSource<bool>();
-
-                var failureCount = 0;
-                indexer.ActionFailed += _ =>
-                {
-                    failureCount++;
-                    if (!indexTaskCompletionSource.Task.IsCompleted)
-                    {
-                        indexTaskCompletionSource.SetResult(false);
-                    }
-
-                    return Task.CompletedTask;
-                };
-
-                var successCount = 0;
-                indexer.ActionCompleted += _ =>
-                {
-                    successCount++;
-                    if (successCount == searchLines.Count)
-                    {
-                        indexTaskCompletionSource.SetResult(true);
-                    }
-
-                    return Task.CompletedTask;
-                };
-
-                await indexer.DeleteDocumentsAsync(searchLines);
-                await indexer.FlushAsync();
-                _logger.LogMethodFlow(correlationId, nameof(RemoveResultsByBlobNameAsync),
-                $"Updating the search index completed following a deletion request for caseId '{caseId}', documentId '{documentId}', versionid '{versionId}' " +
-                            $"- number of lines: {searchLines.Count}, successes: {successCount}, failures: {failureCount}");
-
-                if (!await indexTaskCompletionSource.Task)
-                {
-                    throw new RequestFailedException("At least one indexing action failed.");
-                }
-            }
-
+            _logger.LogMethodFlow
+                (
+                    correlationId, 
+                    nameof(RemoveDocumentIndexEntriesAsync),
+                    $"Updating the search index completed following a deletion request for caseId '{caseId}', documentId '{documentId}', versionid '{versionId}'"
+                );
         }
 
         public async Task RemoveResultsByBlobNameAsync(long caseId, string blobName, Guid correlationId)
@@ -263,11 +218,22 @@ namespace Common.Services.CaseSearchService
             if (string.IsNullOrWhiteSpace(blobName))
                 throw new ArgumentException("Invalid Blob Name", nameof(blobName));
 
-            var searchOptions = new SearchOptions
-                {
-                    Filter = $"caseId eq {caseId} and blobName eq '{blobName}'"
-                };
-            
+            string filter = $"caseId eq {caseId} and blobName eq '{blobName}'";
+
+            await RemoveIndexEntries(filter, correlationId);
+
+            _logger.LogMethodFlow
+                (
+                    correlationId,
+                    nameof(RemoveResultsByBlobNameAsync),
+                    $"Updating the search index completed following a deletion request for caseId '{caseId}' and blobName '{blobName}'"
+                );
+        }
+
+        private async Task RemoveIndexEntries(string filter, Guid correlationId)
+        {
+            var searchOptions = new SearchOptions { Filter = filter };
+
             var results = await _azureSearchClient.SearchAsync<SearchLine>("*", searchOptions);
             var searchLines = new List<SearchLine>();
             await foreach (var searchResult in results.Value.GetResultsAsync())
@@ -277,8 +243,7 @@ namespace Common.Services.CaseSearchService
 
             if (searchLines.Count == 0)
             {
-                _logger.LogMethodFlow(correlationId, nameof(RemoveResultsByBlobNameAsync), 
-                    "No results found - all documents for this case have been previously removed");
+                _logger.LogMethodFlow(correlationId, nameof(RemoveDocumentIndexEntriesAsync), "No results found - this document has been previously removed");
             }
             else
             {
@@ -305,21 +270,41 @@ namespace Common.Services.CaseSearchService
                     {
                         indexTaskCompletionSource.SetResult(true);
                     }
-                
+
                     return Task.CompletedTask;
                 };
 
                 await indexer.DeleteDocumentsAsync(searchLines);
                 await indexer.FlushAsync();
-                _logger.LogMethodFlow(correlationId, nameof(RemoveResultsByBlobNameAsync),
-                $"Updating the search index completed following a deletion request for caseId '{caseId}' and blobName '{blobName}' " +
-                            $"- number of lines: {searchLines.Count}, successes: {successCount}, failures: {failureCount}");
+                _logger.LogMethodFlow
+                    (
+                        correlationId, 
+                        nameof(RemoveIndexEntries),
+                        $"number of lines: {searchLines.Count}, successes: {successCount}, failures: {failureCount}"
+                    );
 
                 if (!await indexTaskCompletionSource.Task)
                 {
                     throw new RequestFailedException("At least one indexing action failed.");
                 }
             }
+        }
+
+        private string GetCaseDocumentsSearchQuery(int caseId, List<BaseDocumentEntity> documents)
+        {
+            var stringBuilder = new StringBuilder($"caseId eq {caseId}");
+
+            if (documents.Any())
+            {
+                stringBuilder.Append(" and (");
+                stringBuilder.Append($@"(documentId eq '{documents[0].CmsDocumentId}' and versionId eq {documents[0].CmsVersionId})");
+                for (var i = 1; i < documents.Count; i++)
+                {
+                    stringBuilder.Append(@$" or (documentId eq '{documents[i].CmsDocumentId}' and versionId eq {documents[i].CmsVersionId})");
+                }
+                stringBuilder.Append(")");
+            }
+            return stringBuilder.ToString();
         }
 
         private bool IsLiveDocumentResult(List<BaseDocumentEntity> documents, SearchLine searchLine)

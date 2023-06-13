@@ -2,6 +2,7 @@
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
+using Common.Services.CaseSearchService.Contracts;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
@@ -27,6 +28,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
 {
     public class CaseClient
     {
+        private readonly ICaseSearchClient _caseSearchClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<CaseClient> _logger;
         private const string LoggingName = $"{nameof(CaseClient)} - {nameof(Run)}";
@@ -48,8 +50,9 @@ namespace coordinator.Functions.Orchestration.Client.Case
             OrchestrationRuntimeStatus.Terminated
         };
 
-        public CaseClient(IJsonConvertWrapper jsonConvertWrapper, ILogger<CaseClient> logger)
+        public CaseClient(ICaseSearchClient caseSearchClient, IJsonConvertWrapper jsonConvertWrapper, ILogger<CaseClient> logger)
         {
+            _caseSearchClient = caseSearchClient;
             _jsonConvertWrapper = jsonConvertWrapper;
             _logger = logger;
         }
@@ -124,6 +127,8 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         return orchestrationClient.CreateCheckStatusResponse(req, instanceId);
 
                     case "DELETE":
+                        await _caseSearchClient.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
+
                         var terminateConditions = GetOrchestrationQueries(terminateStatuses, caseId);
                         var instanceIds = await TerminateOrchestrationsAndDurableEntities(orchestrationClient, terminateConditions, currentCorrelationId);
 

@@ -81,6 +81,8 @@ namespace Common.Services.Extensions
             services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
             services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
             services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
+            services.AddTransient<ISearchLineFactory, SearchLineFactory>();
+            services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
         }
     }
 }

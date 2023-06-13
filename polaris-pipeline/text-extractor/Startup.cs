@@ -19,7 +19,6 @@ using System.IO;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Handlers;
-using Common.Services.CaseSearchService.Contracts;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -39,7 +38,7 @@ namespace text_extractor
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
             BuildOcrService(builder, configuration);
-            BuildSearchIndexService(builder, configuration);
+            builder.Services.AddSearchClient(configuration);
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
             BuildAzureClients(builder, configuration);
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
@@ -47,11 +46,7 @@ namespace text_extractor
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
             builder.Services.AddBlobSasGenerator();
-
-            builder.Services.AddTransient<ISearchLineFactory, SearchLineFactory>();
-            builder.Services.AddTransient<IAzureSearchClientFactory, AzureSearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
-            builder.Services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
 
             BuildHealthChecks(builder);
         }
@@ -80,11 +75,6 @@ namespace text_extractor
 #else
             builder.Services.AddSingleton<IOcrService, OcrService>();
 #endif
-        }
-
-        private static void BuildSearchIndexService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
-        {
-            builder.Services.AddSingleton<ICaseSearchClient, CaseSearchClient>();
         }
 
         /// <summary>
