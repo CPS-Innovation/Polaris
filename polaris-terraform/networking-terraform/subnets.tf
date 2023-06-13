@@ -355,7 +355,8 @@ resource "azurerm_subnet" "sn_polaris_ampls_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
   address_prefixes     = [var.polarisAmplsSubnet]
 
-  enforce_private_link_endpoint_network_policies = true # DISABLE the policy - setting deprecated in upcoming version 4 of the provider
+  enforce_private_link_endpoint_network_policies = true
+  enforce_private_link_service_network_policies  = true
 
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
