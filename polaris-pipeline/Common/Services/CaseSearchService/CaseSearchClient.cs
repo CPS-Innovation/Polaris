@@ -44,8 +44,6 @@ namespace Common.Services.CaseSearchService
             string blobName = Path.GetFileName(blobPath);
             _logger.LogMethodEntry(correlationId, nameof(StoreResultsAsync), $"PolarisDocumentId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, Blob Name: {blobName}");
 
-            //await RemoveDocumentIndexEntriesAsync(cmsCaseId, cmsDocumentId, versionId, correlationId);
-
             _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "Building search line results");
             var lines = new List<SearchLine>();
             foreach (var readResult in analyzeResults.ReadResults)
