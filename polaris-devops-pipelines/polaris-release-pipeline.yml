@@ -609,7 +609,7 @@ stages:
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
                     appType: webAppLinux
-                    WebAppName: "as-web-polaris"
+                    WebAppName: "as-web-polaris-dev"
                     packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
                                 
                 #download gateway build artifact
@@ -651,7 +651,7 @@ stages:
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
                     Action: 'Restart Azure App Service'
-                    WebAppName: "as-web-polaris"
+                    WebAppName: "as-web-polaris-dev"
                     
                 #download ui events terraform build artifact
                 - download: PolarisBuild
@@ -1151,7 +1151,7 @@ stages:
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
                     appType: webAppLinux
-                    WebAppName: "as-web-polaris"
+                    WebAppName: "as-web-polaris-qa"
                     packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
                 
                 #download gateway build artifact
@@ -1193,7 +1193,7 @@ stages:
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
                     Action: 'Restart Azure App Service'
-                    WebAppName: "as-web-polaris"
+                    WebAppName: "as-web-polaris-qa"
                         
                 #download ui events terraform build artifact
                 - download: PolarisBuild
