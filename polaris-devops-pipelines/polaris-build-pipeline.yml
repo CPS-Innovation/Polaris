@@ -147,7 +147,7 @@ stages:
                   }
                 }
                 
-                $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
+                $files = $(git diff --name-only --relative --diff-filter AMRD qa HEAD)
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "******** Total changed $count files for QA ********"
@@ -258,7 +258,7 @@ stages:
                   }
                 }
                 
-                $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
+                $files = $(git diff --name-only --relative --diff-filter AMRD prod HEAD)
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "******** Total changed $count files for PROD ********"
