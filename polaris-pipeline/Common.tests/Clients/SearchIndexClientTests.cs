@@ -2,14 +2,13 @@
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
-using Common.Clients;
-using Common.Clients.Contracts;
 using Common.Domain.Entity;
 using Common.Domain.SearchIndex;
-using Common.Dto.Tracker;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
+using Common.Services.CaseSearchService;
+using Common.Services.CaseSearchService.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -26,7 +25,9 @@ namespace Common.Tests.Clients
         private readonly List<BaseDocumentEntity> _documents;
 
         private readonly Mock<SearchClient> _mockSearchClient;
-        private readonly ISearchIndexClient _searchIndexClient;
+        private readonly Mock<ISearchLineFactory> _mockSearchLineFactory;
+        private readonly Mock<ISearchIndexingBufferedSenderFactory> _mockSearchIndexingBufferedSenderFactory;
+        private readonly ICaseSearchClient _searchIndexClient;
 
         public SearchIndexClientTests()
         {
@@ -36,23 +37,41 @@ namespace Common.Tests.Clients
             _correlationId = _fixture.Create<Guid>();
             _documents = new List<BaseDocumentEntity>();
 
-            var mockSearchClientFactory = new Mock<ISearchClientFactory>();
+            var mockSearchClientFactory = new Mock<IAzureSearchClientFactory>();
             _mockSearchClient = new Mock<SearchClient>();
+            _mockSearchLineFactory = new Mock<ISearchLineFactory>();
+            _mockSearchIndexingBufferedSenderFactory = new Mock<ISearchIndexingBufferedSenderFactory>();
             var mockResponse = new Mock<Response<SearchResults<SearchLine>>>();
             var mockSearchResults = new Mock<SearchResults<SearchLine>>();
 
-            var mockSearchIndexLogger = new Mock<ILogger<SearchIndexClient>>();
+            var mockSearchIndexLogger = new Mock<ILogger<CaseSearchClient>>();
             var mockSearchLineMapperLogger = new Mock<ILogger<StreamlinedSearchLineMapper>>();
             var mockSearchWordMapperLogger = new Mock<ILogger<StreamlinedSearchWordMapper>>();
             var mockSearchResultFactoryLogger = new Mock<ILogger<StreamlinedSearchResultFactory>>();
 
-            mockSearchClientFactory.Setup(factory => factory.Create()).Returns(_mockSearchClient.Object);
-            _mockSearchClient.Setup(client => client.SearchAsync<SearchLine>(_searchTerm, It.Is<SearchOptions>(o => o.Filter == $"caseId eq {_caseId}"), It.IsAny<CancellationToken>()))
+            mockSearchClientFactory
+                .Setup(factory => factory.Create())
+                .Returns(_mockSearchClient.Object);
+            _mockSearchClient
+                .Setup(client => client.SearchAsync<SearchLine>(_searchTerm, It.Is<SearchOptions>(o => o.Filter == $"caseId eq {_caseId}"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(mockResponse.Object);
-            mockResponse.Setup(response => response.Value).Returns(mockSearchResults.Object);
+            mockResponse
+                .Setup(response => response.Value)
+                .Returns(mockSearchResults.Object);
 
-            _searchIndexClient = new SearchIndexClient(mockSearchClientFactory.Object, new StreamlinedSearchResultFactory(new StreamlinedSearchLineMapper(mockSearchLineMapperLogger.Object),
-                new StreamlinedSearchWordMapper(mockSearchWordMapperLogger.Object), mockSearchResultFactoryLogger.Object), mockSearchIndexLogger.Object);
+            _searchIndexClient = new CaseSearchClient
+                (
+                    mockSearchClientFactory.Object,
+                    _mockSearchLineFactory.Object,
+                    _mockSearchIndexingBufferedSenderFactory.Object,
+                    new StreamlinedSearchResultFactory
+                    (
+                        new StreamlinedSearchLineMapper(mockSearchLineMapperLogger.Object), 
+                        new StreamlinedSearchWordMapper(mockSearchWordMapperLogger.Object),  
+                        mockSearchResultFactoryLogger.Object
+                    ), 
+                    mockSearchIndexLogger.Object
+                );
         }
 
         [Fact]

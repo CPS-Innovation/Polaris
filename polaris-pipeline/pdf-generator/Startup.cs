@@ -4,8 +4,6 @@ using Azure.Storage.Blobs;
 using Common.Constants;
 using Common.Domain.Validators;
 using Common.Dto.Request;
-using Common.Factories;
-using Common.Factories.Contracts;
 using Common.Handlers;
 using Common.Handlers.Contracts;
 using Common.Health;
@@ -57,7 +55,6 @@ namespace pdf_generator
             builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
-            builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             BuildHealthChecks(builder);
         }

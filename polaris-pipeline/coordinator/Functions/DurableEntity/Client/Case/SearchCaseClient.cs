@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Entity;
 using Common.Logging;
+using Common.Services.CaseSearchService.Contracts;
 using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -18,9 +18,9 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 {
     public class SearchCaseClient
     {
-        private readonly ISearchIndexClient _searchIndexClient;
+        private readonly ICaseSearchClient _searchIndexClient;
 
-        public SearchCaseClient(ISearchIndexClient searchIndexClient)
+        public SearchCaseClient(ICaseSearchClient searchIndexClient)
         {
             _searchIndexClient = searchIndexClient;
         }

@@ -10,8 +10,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
 using Common.Factories.Contracts;
-using Common.Services.SearchIndexService;
-using Common.Services.SearchIndexService.Contracts;
+using Common.Services.CaseSearchService;
 using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
@@ -20,6 +19,7 @@ using System.IO;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Handlers;
+using Common.Services.CaseSearchService.Contracts;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -49,7 +49,7 @@ namespace text_extractor
             builder.Services.AddBlobSasGenerator();
 
             builder.Services.AddTransient<ISearchLineFactory, SearchLineFactory>();
-            builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
+            builder.Services.AddTransient<IAzureSearchClientFactory, AzureSearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
 
@@ -84,18 +84,7 @@ namespace text_extractor
 
         private static void BuildSearchIndexService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
         {
-#if DEBUG
-            if (configuration.IsSettingEnabled(DebugSettings.MockSearchIndexService))
-            {
-                builder.Services.AddSingleton<ISearchIndexService, MockSearchIndexService>();
-            }
-            else
-            {
-                builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
-            }
-#else
-            builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
-#endif
+            builder.Services.AddSingleton<ICaseSearchClient, CaseSearchClient>();
         }
 
         /// <summary>

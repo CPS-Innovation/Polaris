@@ -7,7 +7,7 @@ using Azure.Messaging.EventGrid;
 using Azure.Messaging.EventGrid.SystemEvents;
 using Common.Constants;
 using Common.Logging;
-using Common.Services.SearchIndexService.Contracts;
+using Common.Services.CaseSearchService.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
@@ -17,9 +17,9 @@ namespace text_extractor.Functions;
 public class HandleDocumentDeletedEvent
 {
     private readonly ILogger<HandleDocumentDeletedEvent> _logger;
-    private readonly ISearchIndexService _searchIndexService;
+    private readonly ICaseSearchClient _searchIndexService;
     
-    public HandleDocumentDeletedEvent(ILogger<HandleDocumentDeletedEvent> logger, ISearchIndexService searchIndexService)
+    public HandleDocumentDeletedEvent(ILogger<HandleDocumentDeletedEvent> logger, ICaseSearchClient searchIndexService)
     {
         _logger = logger;
         _searchIndexService = searchIndexService;

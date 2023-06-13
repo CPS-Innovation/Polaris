@@ -15,7 +15,7 @@ namespace Common.tests.Factories
 		private readonly string _searchEndpointUrl;
 		private readonly string _searchIndexName;
 
-		private readonly ISearchClientFactory _searchClientFactory;
+		private readonly IAzureSearchClientFactory _searchClientFactory;
 
 		public SearchClientFactoryTests()
 		{
@@ -28,7 +28,7 @@ namespace Common.tests.Factories
 			configuration.Setup(x => x[ConfigKeys.SharedKeys.SearchClientIndexName]).Returns(_searchIndexName);
 			configuration.Setup(x => x[ConfigKeys.SharedKeys.SearchClientAuthorizationKey]).Returns(fixture.Create<string>());
 			
-			_searchClientFactory = new SearchClientFactory(configuration.Object);
+			_searchClientFactory = new AzureSearchClientFactory(configuration.Object);
 		}
 
 		[Fact]

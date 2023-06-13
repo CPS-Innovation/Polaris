@@ -25,9 +25,6 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
     "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_pipeline_storage_connection_string.id})"
-    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
   }
   https_only = true
 
