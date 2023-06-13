@@ -420,12 +420,6 @@ stages:
               artifact: "ddei-script-files"
               publishLocation: "pipeline"
               
-          - task: DownloadSecureFile@1
-            name: licence
-            inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
-              
       - job: Build_DEV_Artifacts
         dependsOn: Build_GLOBAL_Artifacts
         pool:
@@ -479,6 +473,12 @@ stages:
               artifact: "polaris-coordinator-dev-drop"
             displayName: "Publish Coordinator codebase artifact"
             condition: eq(variables.runCoordinatorDEV, 'true')
+            
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
             
           - task: CopyFiles@2
             inputs:
@@ -661,6 +661,12 @@ stages:
               artifact: "polaris-coordinator-qa-drop"
             displayName: "Publish Coordinator codebase artifact"
             condition: eq(variables.runCoordinatorQA, 'true')
+            
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
 
           - task: CopyFiles@2
             inputs:
@@ -843,6 +849,12 @@ stages:
               artifact: "polaris-coordinator-prod-drop"
             displayName: "Publish Coordinator codebase artifact"
             condition: eq(variables.runCoordinatorPROD, 'true')
+            
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
 
           - task: CopyFiles@2
             inputs:
