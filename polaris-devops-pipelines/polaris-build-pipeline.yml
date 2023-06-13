@@ -409,7 +409,7 @@ stages:
       runAuthHandoverPROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_PROD']]
       runUICodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
     jobs:
-      - job: Build_GLOBAL_Artifacts
+      - job: Build_Artifacts
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -420,41 +420,36 @@ stages:
               artifact: "ddei-script-files"
               publishLocation: "pipeline"
               
-      - job: Build_DEV_Artifacts
-        dependsOn: Build_GLOBAL_Artifacts
-        pool:
-          vmImage: ubuntu-latest
-        steps:
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline terraform artifact'
-            condition: eq(variables.runPipelineTerraformDEV, 'true')
+            condition: or(eq(variables.runPipelineTerraformDEV, 'true'),eq(variables.runPipelineTerraformQA, 'true'),eq(variables.runPipelineTerraformPROD, 'true'))
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files-dev"
+              artifact: "pipeline-terraform-files"
               publishLocation: "pipeline"
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline events terraform artifact'
-            condition: eq(variables.runPipelineEventsTerraformDEV, 'true')
+            condition: or(eq(variables.runPipelineEventsTerraformDEV, 'true'),eq(variables.runPipelineEventsTerraformQA, 'true'),eq(variables.runPipelineEventsTerraformPROD, 'true'))
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
-              artifact: "pipeline-events-terraform-files-dev"
+              artifact: "pipeline-events-terraform-files"
               publishLocation: "pipeline"
               
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI terraform artifact'
-            condition: eq(variables.runUITerraformDEV, 'true')
+            condition: or(eq(variables.runUITerraformDEV, 'true'),eq(variables.runUITerraformQA, 'true'),eq(variables.runUITerraformPROD, 'true'))
             inputs:
               targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
-              artifact: 'ui-terraform-files-dev'
+              artifact: 'ui-terraform-files'
               publishLocation: 'pipeline'
               
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI events terraform artifact'
-            condition: eq(variables.runUIEventsTerraformDEV, 'true')
+            condition: or(eq(variables.runUIEventsTerraformDEV, 'true'),eq(variables.runUIEventsTerraformQA, 'true'),eq(variables.runUIEventsTerraformPROD, 'true'))
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
-              artifact: "ui-events-terraform-files-dev"
+              artifact: "ui-events-terraform-files"
               publishLocation: "pipeline"
   
           - task: DotNetCoreCLI@2
@@ -465,14 +460,14 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Coordinator package to publish"
-            condition: eq(variables.runCoordinatorDEV, 'true')
+            condition: or(eq(variables.runCoordinatorDEV, 'true'),eq(variables.runCoordinatorQA, 'true'),eq(variables.runCoordinatorPROD, 'true'))
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
-              artifact: "polaris-coordinator-dev-drop"
+              artifact: "polaris-coordinator-drop"
             displayName: "Publish Coordinator codebase artifact"
-            condition: eq(variables.runCoordinatorDEV, 'true')
+            condition: or(eq(variables.runCoordinatorDEV, 'true'),eq(variables.runCoordinatorQA, 'true'),eq(variables.runCoordinatorPROD, 'true'))
             
           - task: DownloadSecureFile@1
             name: licence
@@ -487,7 +482,7 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-            condition: eq(variables.runPdfGeneratorDEV, 'true')
+            condition: or(eq(variables.runPdfGeneratorDEV, 'true'),eq(variables.runPdfGeneratorQA, 'true'),eq(variables.runPdfGeneratorPROD, 'true'))
             
           - task: DotNetCoreCLI@2
             inputs:
@@ -497,14 +492,14 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create PDF-Generator package to publish"
-            condition: eq(variables.runPdfGeneratorDEV, 'true')
+            condition: or(eq(variables.runPdfGeneratorDEV, 'true'),eq(variables.runPdfGeneratorQA, 'true'),eq(variables.runPdfGeneratorPROD, 'true'))
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
-              artifact: "polaris-pdf-generator-dev-drop"
+              artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
-            condition: eq(variables.runPdfGeneratorDEV, 'true')
+            condition: or(eq(variables.runPdfGeneratorDEV, 'true'),eq(variables.runPdfGeneratorQA, 'true'),eq(variables.runPdfGeneratorPROD, 'true'))
             
           - task: DotNetCoreCLI@2
             inputs:
@@ -514,14 +509,14 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
               zipAfterPublish: false
             displayName: "Create Text-Extractor package to publish"
-            condition: eq(variables.runTextExtractorDEV, 'true')
+            condition: or(eq(variables.runTextExtractorDEV, 'true'),eq(variables.runTextExtractorQA, 'true'),eq(variables.runTextExtractorPROD, 'true'))
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
-              artifact: "polaris-text-extractor-dev-drop"
+              artifact: "polaris-text-extractor-drop"
             displayName: "Publish Text-Extractor codebase artifact"
-            condition: eq(variables.runTextExtractorDEV, 'true')
+            condition: or(eq(variables.runTextExtractorDEV, 'true'),eq(variables.runTextExtractorQA, 'true'),eq(variables.runTextExtractorPROD, 'true'))
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -531,14 +526,14 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Auth Handover package to publish"
-            condition: eq(variables.runAuthHandoverDEV, 'true')
+            condition: or(eq(variables.runAuthHandoverDEV, 'true'),eq(variables.runAuthHandoverQA, 'true'),eq(variables.runAuthHandoverPROD, 'true'))
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
-              artifact: "polaris-auth-handover-dev-drop"
+              artifact: "polaris-auth-handover-drop"
             displayName: "Publish Auth Handover codebase artifact"
-            condition: eq(variables.runAuthHandoverDEV, 'true')
+            condition: or(eq(variables.runAuthHandoverDEV, 'true'),eq(variables.runAuthHandoverQA, 'true'),eq(variables.runAuthHandoverPROD, 'true'))
             
           - task: DotNetCoreCLI@2
             inputs:
@@ -548,20 +543,20 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Gateway package to publish"
-            condition: eq(variables.runGatewayDEV, 'true')
+            condition: or(eq(variables.runGatewayDEV, 'true'),eq(variables.runGatewayQA, 'true'),eq(variables.runGatewayPROD, 'true'))
 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
-              artifact: "polaris-gateway-dev-drop"
+              artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
-            condition: eq(variables.runGatewayDEV, 'true')
+            condition: or(eq(variables.runGatewayDEV, 'true'),eq(variables.runGatewayQA, 'true'),eq(variables.runGatewayPROD, 'true'))
             
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
             displayName: "Remove .env file"
-            condition: eq(variables.runUICodebaseDEV, 'true')
+            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
             inputs:
               contents: |
                 polaris-ui/.env
@@ -569,7 +564,7 @@ stages:
           # Add build version
           - task: PowerShell@2
             displayName: "Record build version"
-            condition: eq(variables.runUICodebaseDEV, 'true')
+            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
             inputs:
               targetType: 'inline'
               workingDirectory: polaris-ui/public
@@ -582,7 +577,7 @@ stages:
               command: "install"
               workingDir: "polaris-ui"
             displayName: "npm install"
-            condition: eq(variables.runUICodebaseDEV, 'true')
+            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
 
           - task: Npm@1
             inputs:
@@ -590,7 +585,7 @@ stages:
               workingDir: "polaris-ui"
               customCommand: "run prettier"
             displayName: "npm prettier"
-            condition: eq(variables.runUICodebaseDEV, 'true')
+            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
 
           - task: Npm@1
             inputs:
@@ -598,388 +593,12 @@ stages:
               workingDir: "polaris-ui"
               customCommand: "run build"
             displayName: "npm build"
-            condition: eq(variables.runUICodebaseDEV, 'true')
+            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/build"
-              ArtifactName: "polaris-ui-dev-drop"
+              ArtifactName: "polaris-ui-drop"
               publishLocation: "Container"
             displayName: Publish UI artifact
-            condition: eq(variables.runUICodebaseDEV, 'true')
-            
-      - job: Build_QA_Artifacts
-        dependsOn: Build_GLOBAL_Artifacts
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline terraform artifact'
-            condition: eq(variables.runPipelineTerraformQA, 'true')
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files-qa"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline events terraform artifact'
-            condition: eq(variables.runPipelineEventsTerraformQA, 'true')
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
-              artifact: "pipeline-events-terraform-files-qa"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish UI terraform artifact'
-            condition: eq(variables.runUITerraformQA, 'true')
-            inputs:
-              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
-              artifact: 'ui-terraform-files-qa'
-              publishLocation: 'pipeline'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish UI events terraform artifact'
-            condition: eq(variables.runUIEventsTerraformQA, 'true')
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
-              artifact: "ui-events-terraform-files-qa"
-              publishLocation: "pipeline"
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-pipeline/coordinator/coordinator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Coordinator package to publish"
-            condition: eq(variables.runCoordinatorQA, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
-              artifact: "polaris-coordinator-qa-drop"
-            displayName: "Publish Coordinator codebase artifact"
-            condition: eq(variables.runCoordinatorQA, 'true')
-            
-          - task: DownloadSecureFile@1
-            name: licence
-            inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
-
-          - task: CopyFiles@2
-            inputs:
-              sourceFolder: $(Agent.TempDirectory)
-              contents: Aspose.Total.NET.lic
-              targetFolder: 'polaris-pipeline/pdf-generator'
-              OverWrite: true
-            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-            condition: eq(variables.runPdfGeneratorQA, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create PDF-Generator package to publish"
-            condition: eq(variables.runPdfGeneratorQA, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
-              artifact: "polaris-pdf-generator-qa-drop"
-            displayName: "Publish PDF-Generator codebase artifact"
-            condition: eq(variables.runPdfGeneratorQA, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Text-Extractor package to publish"
-            condition: eq(variables.runTextExtractorQA, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
-              artifact: "polaris-text-extractor-qa-drop"
-            displayName: "Publish Text-Extractor codebase artifact"
-            condition: eq(variables.runTextExtractorQA, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Auth Handover package to publish"
-            condition: eq(variables.runAuthHandoverQA, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
-              artifact: "polaris-auth-handover-qa-drop"
-            displayName: "Publish Auth Handover codebase artifact"
-            condition: eq(variables.runAuthHandoverQA, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Gateway package to publish"
-            condition: eq(variables.runGatewayQA, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
-              artifact: "polaris-gateway-qa-drop"
-            displayName: "Publish Gateway codebase artifact"
-            condition: eq(variables.runGatewayQA, 'true')
-          
-          # We want to rely only on the .env.production file, anything in .env is still included
-          #  if not overwritten by .env.production.  For safety, just delete .env
-          - task: DeleteFiles@1
-            displayName: "Remove .env file"
-            condition: eq(variables.runUICodebaseQA, 'true')
-            inputs:
-              contents: |
-                polaris-ui/.env
-          
-          # Add build version
-          - task: PowerShell@2
-            displayName: "Record build version"
-            condition: eq(variables.runUICodebaseQA, 'true')
-            inputs:
-              targetType: 'inline'
-              workingDirectory: polaris-ui/public
-              script: |
-                New-Item build-version.txt
-                Set-Content -NoNewline build-version.txt '$(Build.BuildNumber) `n$(Build.SourceVersion)' 
-
-          - task: Npm@1
-            inputs:
-              command: "install"
-              workingDir: "polaris-ui"
-            displayName: "npm install"
-            condition: eq(variables.runUICodebaseQA, 'true')
-
-          - task: Npm@1
-            inputs:
-              command: "custom"
-              workingDir: "polaris-ui"
-              customCommand: "run prettier"
-            displayName: "npm prettier"
-            condition: eq(variables.runUICodebaseQA, 'true')
-
-          - task: Npm@1
-            inputs:
-              command: "custom"
-              workingDir: "polaris-ui"
-              customCommand: "run build"
-            displayName: "npm build"
-            condition: eq(variables.runUICodebaseQA, 'true')
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              PathtoPublish: "polaris-ui/build"
-              ArtifactName: "polaris-ui-qa-drop"
-              publishLocation: "Container"
-            displayName: Publish UI artifact
-            condition: eq(variables.runUICodebaseQA, 'true')
-            
-      - job: Build_PROD_Artifacts
-        dependsOn: Build_GLOBAL_Artifacts
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline terraform artifact'
-            condition: eq(variables.runPipelineTerraformPROD, 'true')
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-terraform/"
-              artifact: "pipeline-terraform-files-prod"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline events terraform artifact'
-            condition: eq(variables.runPipelineEventsTerraformPROD, 'true')
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
-              artifact: "pipeline-events-terraform-files-prod"
-              publishLocation: "pipeline"
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish UI terraform artifact'
-            condition: eq(variables.runUITerraformPROD, 'true')
-            inputs:
-              targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
-              artifact: 'ui-terraform-files-prod'
-              publishLocation: 'pipeline'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish UI events terraform artifact'
-            condition: eq(variables.runUIEventsTerraformPROD, 'true')
-            inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
-              artifact: "ui-events-terraform-files-prod"
-              publishLocation: "pipeline"
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-pipeline/coordinator/coordinator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Coordinator package to publish"
-            condition: eq(variables.runCoordinatorPROD, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
-              artifact: "polaris-coordinator-prod-drop"
-            displayName: "Publish Coordinator codebase artifact"
-            condition: eq(variables.runCoordinatorPROD, 'true')
-            
-          - task: DownloadSecureFile@1
-            name: licence
-            inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
-
-          - task: CopyFiles@2
-            inputs:
-              sourceFolder: $(Agent.TempDirectory)
-              contents: Aspose.Total.NET.lic
-              targetFolder: 'polaris-pipeline/pdf-generator'
-              OverWrite: true
-            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-            condition: eq(variables.runPdfGeneratorPROD, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create PDF-Generator package to publish"
-            condition: eq(variables.runPdfGeneratorPROD, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
-              artifact: "polaris-pdf-generator-prod-drop"
-            displayName: "Publish PDF-Generator codebase artifact"
-            condition: eq(variables.runPdfGeneratorPROD, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Text-Extractor package to publish"
-            condition: eq(variables.runTextExtractorPROD, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
-              artifact: "polaris-text-extractor-prod-drop"
-            displayName: "Publish Text-Extractor codebase artifact"
-            condition: eq(variables.runTextExtractorPROD, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Auth Handover package to publish"
-            condition: eq(variables.runAuthHandoverPROD, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
-              artifact: "polaris-auth-handover-prod-drop"
-            displayName: "Publish Auth Handover codebase artifact"
-            condition: eq(variables.runAuthHandoverPROD, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: publish
-              publishWebProjects: false
-              projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
-              zipAfterPublish: false
-            displayName: "Create Gateway package to publish"
-            condition: eq(variables.runGatewayPROD, 'true')
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
-              artifact: "polaris-gateway-prod-drop"
-            displayName: "Publish Gateway codebase artifact"
-            condition: eq(variables.runGatewayPROD, 'true')
-          
-          # We want to rely only on the .env.production file, anything in .env is still included
-          #  if not overwritten by .env.production.  For safety, just delete .env
-          - task: DeleteFiles@1
-            displayName: "Remove .env file"
-            condition: eq(variables.runUICodebasePROD, 'true')
-            inputs:
-              contents: |
-                polaris-ui/.env
-          
-          # Add build version
-          - task: PowerShell@2
-            displayName: "Record build version"
-            condition: eq(variables.runUICodebasePROD, 'true')
-            inputs:
-              targetType: 'inline'
-              workingDirectory: polaris-ui/public
-              script: |
-                New-Item build-version.txt
-                Set-Content -NoNewline build-version.txt '$(Build.BuildNumber) `n$(Build.SourceVersion)' 
-
-          - task: Npm@1
-            inputs:
-              command: "install"
-              workingDir: "polaris-ui"
-            displayName: "npm install"
-            condition: eq(variables.runUICodebasePROD, 'true')
-
-          - task: Npm@1
-            inputs:
-              command: "custom"
-              workingDir: "polaris-ui"
-              customCommand: "run prettier"
-            displayName: "npm prettier"
-            condition: eq(variables.runUICodebasePROD, 'true')
-
-          - task: Npm@1
-            inputs:
-              command: "custom"
-              workingDir: "polaris-ui"
-              customCommand: "run build"
-            displayName: "npm build"
-            condition: eq(variables.runUICodebasePROD, 'true')
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              PathtoPublish: "polaris-ui/build"
-              ArtifactName: "polaris-ui-prod-drop"
-              publishLocation: "Container"
-            displayName: Publish UI artifact
-            condition: eq(variables.runUICodebasePROD, 'true')
+            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
