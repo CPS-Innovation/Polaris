@@ -417,7 +417,7 @@ stages:
             displayName: "Publish pipeline scripts"
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
-              artifact: "ddei-script-files"
+              artifact: "polaris-script-files"
               publishLocation: "pipeline"
               
           - task: PublishPipelineArtifact@1
