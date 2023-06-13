@@ -279,7 +279,6 @@ stages:
 
                 git push origin :refs/tags/dev
                 git tag -f dev
-                git tag -f $(resources.pipeline.PolarisManualCodebaseOnlyBuild.runName)
                 git push origin --tags 
             displayName: Updating the dev tag
             
@@ -540,7 +539,6 @@ stages:
                 
                 git push origin :refs/tags/qa
                 git tag -f qa
-                git tag -f $(resources.pipeline.PolarisManualCodebaseOnlyBuild.runName)
                 git push origin --tags 
             displayName: Updating the qa tag
             
@@ -801,6 +799,5 @@ stages:
                 
                 git push origin :refs/tags/prod
                 git tag -f prod
-                git tag -f $(resources.pipeline.PolarisManualCodebaseOnlyBuild.runName)
                 git push origin --tags 
             displayName: Updating the prod tag
