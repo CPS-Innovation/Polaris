@@ -39,7 +39,7 @@ stages:
                 $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
                 $temp=$files -split ' '
                 $count=$temp.Length
-                echo "Total changed $count files"
+                echo "******** Total changed $count files for DEV ********"
                 
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
@@ -63,12 +63,12 @@ stages:
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
-                    echo "run pipeline events terraform..."
+                    echo "DEV: run pipeline events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/ui-terraform/*')
                   {
-                    echo "run ui terraform..."
+                    echo "DEV: run ui terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
@@ -78,59 +78,59 @@ stages:
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
-                    echo "run ui events terraform..."
+                    echo "DEV: run ui events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/*')
                   {
-                    echo "run pipeline codebase..."
+                    echo "DEV: run pipeline codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*')
                   {
-                    echo "run coordinator..."
+                    echo "DEV: run coordinator..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/pdf-generator/*')
                   {
-                    echo "run pdf generator..."
+                    echo "DEV: run pdf generator..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/text-extractor/*')
                   {
-                    echo "run text extractor..."
+                    echo "DEV: run text extractor..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/*')
                   {
-                    echo "run gateway codebase..."
+                    echo "DEV: run gateway codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway/*')
                   {
-                    echo "run gateway..."
+                    echo "DEV: run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-auth-handover/*')
                   {
-                    echo "run auth handover..."
+                    echo "DEV: run auth handover..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-ui/*')
                   {
-                    echo "run ui codebase..."
+                    echo "DEV: run ui codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*')
                   {
-                    echo "changes to DdeiClient detected run dependent code-bases..."
+                    echo "DEV: changes to DdeiClient detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/Common/*')
                   {
-                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
+                    echo "DEV: changes to the Pipeline's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_DEV;isOutput=true]true"
@@ -139,7 +139,7 @@ stages:
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway.common/*')
                   {
-                    echo "changes to the Gateway's Common library detected run dependent code-bases..."
+                    echo "DEV: changes to the Gateway's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
@@ -150,7 +150,7 @@ stages:
                 $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
                 $temp=$files -split ' '
                 $count=$temp.Length
-                echo "Total changed $count files"
+                echo "******** Total changed $count files for QA ********"
 
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
@@ -158,7 +158,7 @@ stages:
                   echo "this is $name file"
                   if ($name -like 'polaris-terraform/pipeline-terraform/*')
                   {
-                    echo "run pipeline terraform..."
+                    echo "QA: run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_QA;isOutput=true]true"
@@ -174,12 +174,12 @@ stages:
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
-                    echo "run pipeline events terraform..."
+                    echo "QA: run pipeline events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/ui-terraform/*')
                   {
-                    echo "run ui terraform..."
+                    echo "QA: run ui terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
@@ -189,59 +189,59 @@ stages:
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
-                    echo "run ui events terraform..."
+                    echo "QA: run ui events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/*')
                   {
-                    echo "run pipeline codebase..."
+                    echo "QA: run pipeline codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*')
                   {
-                    echo "run coordinator..."
+                    echo "QA: run coordinator..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/pdf-generator/*')
                   {
-                    echo "run pdf generator..."
+                    echo "QA: run pdf generator..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/text-extractor/*')
                   {
-                    echo "run text extractor..."
+                    echo "QA: run text extractor..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/*')
                   {
-                    echo "run gateway codebase..."
+                    echo "QA: run gateway codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway/*')
                   {
-                    echo "run gateway..."
+                    echo "QA: run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-auth-handover/*')
                   {
-                    echo "run auth handover..."
+                    echo "QA: run auth handover..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-ui/*')
                   {
-                    echo "run ui codebase..."
+                    echo "QA: run ui codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*')
                   {
-                    echo "changes to DdeiClient detected run dependent code-bases..."
+                    echo "QA: changes to DdeiClient detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/Common/*')
                   {
-                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
+                    echo "QA: changes to the Pipeline's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_QA;isOutput=true]true"
@@ -250,7 +250,7 @@ stages:
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway.common/*')
                   {
-                    echo "changes to the Gateway's Common library detected run dependent code-bases..."
+                    echo "QA: changes to the Gateway's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
@@ -261,7 +261,7 @@ stages:
                 $files = $(git diff --name-only --relative --diff-filter AMRD dev HEAD)
                 $temp=$files -split ' '
                 $count=$temp.Length
-                echo "Total changed $count files"
+                echo "******** Total changed $count files for PROD ********"
 
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
@@ -269,7 +269,7 @@ stages:
                   echo "this is $name file"
                   if ($name -like 'polaris-terraform/pipeline-terraform/*')
                   {
-                    echo "run pipeline terraform..."
+                    echo "PROD: run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_PROD;isOutput=true]true"
@@ -285,12 +285,12 @@ stages:
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
-                    echo "run pipeline events terraform..."
+                    echo "PROD: run pipeline events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/ui-terraform/*')
                   {
-                    echo "run ui terraform..."
+                    echo "PROD: run ui terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
@@ -300,59 +300,59 @@ stages:
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
-                    echo "run ui events terraform..."
+                    echo "PROD: run ui events terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/*')
                   {
-                    echo "run pipeline codebase..."
+                    echo "PROD: run pipeline codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/coordinator/*')
                   {
-                    echo "run coordinator..."
+                    echo "PROD: run coordinator..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/pdf-generator/*')
                   {
-                    echo "run pdf generator..."
+                    echo "PROD: run pdf generator..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/text-extractor/*')
                   {
-                    echo "run text extractor..."
+                    echo "PROD: run text extractor..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/*')
                   {
-                    echo "run gateway codebase..."
+                    echo "PROD: run gateway codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway/*')
                   {
-                    echo "run gateway..."
+                    echo "PROD: run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-gateway/polaris-auth-handover/*')
                   {
-                    echo "run auth handover..."
+                    echo "PROD: run auth handover..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-ui/*')
                   {
-                    echo "run ui codebase..."
+                    echo "PROD: run ui codebase..."
                     Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/DdeiClient/*')
                   {
-                    echo "changes to DdeiClient detected run dependent code-bases..."
+                    echo "PROD: changes to DdeiClient detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-pipeline/Common/*')
                   {
-                    echo "changes to the Pipeline's Common library detected run dependent code-bases..."
+                    echo "PROD: changes to the Pipeline's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_PROD;isOutput=true]true"
@@ -361,7 +361,7 @@ stages:
                   }
                   if ($name -like 'polaris-gateway/polaris-gateway.common/*')
                   {
-                    echo "changes to the Gateway's Common library detected run dependent code-bases..."
+                    echo "PROD: changes to the Gateway's Common library detected run dependent code-bases..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
@@ -416,7 +416,7 @@ stages:
           - task: PublishPipelineArtifact@1
             displayName: "Publish pipeline scripts"
             inputs:
-              targetPath: "$(Pipeline.Workspace)/s/polaris-ddei-devops-pipelines/scripts"
+              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
               artifact: "ddei-script-files"
               publishLocation: "pipeline"
               
