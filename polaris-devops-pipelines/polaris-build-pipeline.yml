@@ -427,6 +427,7 @@ stages:
             displayName: 'Download Aspose Licence'
               
       - job: Build_DEV_Artifacts
+        dependsOn: Build_GLOBAL_Artifacts
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -608,6 +609,7 @@ stages:
             condition: eq(variables.runUICodebaseDEV, 'true')
             
       - job: Build_QA_Artifacts
+        dependsOn: Build_GLOBAL_Artifacts
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -789,6 +791,7 @@ stages:
             condition: eq(variables.runUICodebaseQA, 'true')
             
       - job: Build_PROD_Artifacts
+        dependsOn: Build_GLOBAL_Artifacts
         pool:
           vmImage: ubuntu-latest
         steps:
