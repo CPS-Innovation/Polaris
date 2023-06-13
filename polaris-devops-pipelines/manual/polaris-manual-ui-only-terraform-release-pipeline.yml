@@ -29,7 +29,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - deployment: Manual_UI_Only_Terraform_Deployment
+      - deployment: Manual_Deploy_Polaris_UITerraform
         environment: "DEV"
         strategy:
           runOnce:
@@ -130,6 +130,20 @@ stages:
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
+                    
+                #download UI build artifact
+                - download: PolarisManualUIOnlyTerraformBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy UI App Service to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris-dev"
+                    packageForLinux: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-ui-drop
                 
                 #download gateway build artifact
                 - download: PolarisManualUIOnlyTerraformBuild
@@ -158,20 +172,6 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-auth-handover-drop
-                
-                #download UI build artifact
-                - download: PolarisManualUIOnlyTerraformBuild
-                  displayName: Deploy > Download SPA Codebase Build
-                  artifact: "polaris-ui-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureRmWebAppDeployment@4
-                  displayName: 'Deploy UI App Service to DEV'
-                  inputs:
-                    azureSubscription: $(dev-azure-subscription)
-                    appType: webAppLinux
-                    WebAppName: "as-web-polaris-dev"
-                    packageForLinux: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-ui-drop
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -299,14 +299,52 @@ stages:
                 -Retries $(status-check-retries)
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
-                    
+                
+  - stage: Update_DEV_Tag
+    displayName: Update Tag > DEV
+    dependsOn: Check_DEV
+    jobs:
+      - job: Update_DEV_Tag
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
+            
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git log dev...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-dev.csv
+            displayName: Generate commit report for DEV
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
+              artifact: "Commit Report - DEV"
+            displayName: "Publish Commit report for DEV"
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git config user.name "$BUILD_REQUESTEDFOR"
+                git config user.email "$BUILD_REQUESTEDFOREMAIL"
+                
+                git push origin :refs/tags/dev
+                git tag -f dev
+                git tag -f $(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)
+                git push origin --tags 
+            displayName: Updating the dev tag
+            
   - stage: Apply_QA
     displayName: Deployment > QA
-    dependsOn: Check_DEV
+    dependsOn: 
+      - Update_DEV_Tag
     pool:
       name: $(qa-build-agent)
     jobs:
-      - deployment: Manual_UI_Only_Terraform_Deployment
+      - deployment: Manual_Deploy_Polaris_UITerraform
         environment: "QA"
         strategy:
           runOnce:
@@ -407,6 +445,20 @@ stages:
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
+                    
+                #download UI build artifact
+                - download: PolarisManualUIOnlyTerraformBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy UI App Service to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris-qa"
+                    packageForLinux: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-ui-drop
                 
                 #download gateway build artifact
                 - download: PolarisManualUIOnlyTerraformBuild
@@ -435,20 +487,6 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-qa-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-auth-handover-drop
-                
-                #download UI build artifact
-                - download: PolarisManualUIOnlyTerraformBuild
-                  displayName: Deploy > Download SPA Codebase Build
-                  artifact: "polaris-ui-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureRmWebAppDeployment@4
-                  displayName: 'Deploy UI App Service to QA'
-                  inputs:
-                    azureSubscription: $(qa-azure-subscription)
-                    appType: webAppLinux
-                    WebAppName: "as-web-polaris-qa"
-                    packageForLinux: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-ui-drop
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -576,14 +614,52 @@ stages:
                 -Retries $(status-check-retries)
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
+                
+  - stage: Update_QA_Tag
+    displayName: Update Tag > QA
+    dependsOn: Check_QA
+    jobs:
+      - job: Update_QA_Tag
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
+            
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git log qa...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-qa.csv
+            displayName: Generate commit report for QA
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
+              artifact: "Commit Report - QA"
+            displayName: "Publish Commit report for QA"
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git config user.name "$BUILD_REQUESTEDFOR"
+                git config user.email "$BUILD_REQUESTEDFOREMAIL"
+                
+                git push origin :refs/tags/qa
+                git tag -f qa
+                git tag -f $(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)
+                git push origin --tags 
+            displayName: Updating the qa tag
                     
   - stage: Apply_PROD
     displayName: Deployment > PROD
-    dependsOn: Check_QA
+    dependsOn:
+      - Update_DEV_Tag
     pool:
       name: $(prod-build-agent)
     jobs:
-      - deployment: Manual_UI_Only_Terraform_Deployment
+      - deployment: Manual_Deploy_Polaris_UITerraform
         environment: "Prod"
         strategy:
           runOnce:
@@ -684,6 +760,20 @@ stages:
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
+                    
+                #download UI build artifact
+                - download: PolarisManualUIOnlyTerraformBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy UI App Service to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris"
+                    packageForLinux: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-ui-drop
                 
                 #download gateway build artifact
                 - download: PolarisManualUIOnlyTerraformBuild
@@ -712,20 +802,6 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-auth-handover-drop
-                
-                #download UI build artifact
-                - download: PolarisManualUIOnlyTerraformBuild
-                  displayName: Deploy > Download SPA Codebase Build
-                  artifact: "polaris-ui-drop"
-                
-                # Deploy Related Codebase to Env
-                - task: AzureRmWebAppDeployment@4
-                  displayName: 'Deploy UI App Service to PROD'
-                  inputs:
-                    azureSubscription: $(prod-azure-subscription)
-                    appType: webAppLinux
-                    WebAppName: "as-web-polaris"
-                    packageForLinux: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-ui-drop
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -853,3 +929,40 @@ stages:
                 -Retries $(status-check-retries)
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
+                
+  - stage: Update_PROD_Tag
+    displayName: Update Tag > PROD
+    dependsOn: Check_PROD
+    jobs:
+      - job: Update_PROD_Tag
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
+            
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git log prod...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-prod.csv
+            displayName: Generate commit report for PROD
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
+              artifact: "Commit Report - PROD"
+            displayName: "Publish Commit report for PROD"
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git config user.name "$BUILD_REQUESTEDFOR"
+                git config user.email "$BUILD_REQUESTEDFOREMAIL"
+                
+                git push origin :refs/tags/prod
+                git tag -f prod
+                git tag -f $(resources.pipeline.PolarisManualUIOnlyTerraformBuild.runName)
+                git push origin --tags 
+            displayName: Updating the prod tag
