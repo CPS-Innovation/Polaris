@@ -19,8 +19,6 @@ steps:
     clean: true
     persistCredentials: true
     fetchDepth: 1
-    lfs: true
-    submodules: true
     displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
 
   - task: Bash@3
