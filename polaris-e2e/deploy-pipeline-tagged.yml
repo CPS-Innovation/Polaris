@@ -10,7 +10,6 @@ resources:
   repositories:
     - repository: PolarisTagged
       type: github
-      name: Polaris
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
       ref: $(cypress_environment)
