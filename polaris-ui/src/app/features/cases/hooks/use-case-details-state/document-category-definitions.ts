@@ -19,7 +19,7 @@ const documentCategoryDefinitions: {
     test: (doc) =>
       // todo: PCD are artificial documents, write a unit test for this
       doc.cmsDocType.documentType === "PCD" ||
-      docTypeTest(doc, [101, 102, 103, 104, 227, 516, 1034, 1035, 1047, 1064]),
+      docTypeTest(doc, [101, 102, 103, 104, 227, 1034, 1035, 1064]),
   },
   {
     category: "Case overview",
@@ -27,7 +27,7 @@ const documentCategoryDefinitions: {
     test: (doc) =>
       docTypeTest(
         doc,
-        [1001, 1002, 1003, 1004, 1005, 1006, 1036, 1037, 1038, 1060, 1061]
+        [1002, 1003, 1004, 1005, 1006, 1036, 1037, 1038, 1060, 1061]
       ),
   },
   {
@@ -35,7 +35,7 @@ const documentCategoryDefinitions: {
     showIfEmpty: true,
     test: (doc) =>
       doc.cmsDocType.documentCategory === "UsedStatement" &&
-      docTypeTest(doc, [1016, 1017, 1018, 1031, 1059]),
+      docTypeTest(doc, [1031, 1059]),
   },
   {
     category: "Exhibits",
@@ -44,15 +44,15 @@ const documentCategoryDefinitions: {
       docTypeTest(
         doc,
         [
-          1019, 1020, 1021, 1022, 1023, 1028, 1030, 1042, 1044, 1050, 1062,
-          1066, 1201, 100239, 226148,
+          1019, 1020, 1028, 1030, 1042, 1044, 1050, 1062, 1066, 1201, 100239,
+          226148,
         ]
       ),
   },
   {
     category: "Forensics",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1048, 1049, 1203]),
+    test: (doc) => docTypeTest(doc, [1027, 1048, 1049, 1203]),
   },
   {
     category: "Unused material",
@@ -60,12 +60,12 @@ const documentCategoryDefinitions: {
     test: (doc) =>
       doc.cmsDocType.documentCategory === "UnusedStatement" ||
       doc.cmsDocType.documentCategory === "Unused" ||
-      docTypeTest(doc, [1008, 1009, 1010, 1011, 1039, 1202]),
+      docTypeTest(doc, [1001, 1008, 1009, 1010, 1011, 1039, 1202]),
   },
   {
     category: "Defendant",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1027, 1041, 1056, 1057, 1058]),
+    test: (doc) => docTypeTest(doc, [1056, 1057, 1058]),
   },
   {
     category: "Court preparation",
@@ -73,7 +73,10 @@ const documentCategoryDefinitions: {
     test: (doc) =>
       docTypeTest(
         doc,
-        [1012, 1013, 1014, 1015, 1024, 1025, 1033, 1040, 1045, 1046, 1063]
+        [
+          516, 1012, 1013, 1014, 1015, 1024, 1025, 1033, 1040, 1041, 1045, 1046,
+          1047, 1063,
+        ]
       ),
   },
   {
