@@ -8,9 +8,9 @@ schedules:
 
 resources:
   repositories:
-    - repository: Polaris
+    - repository: PolarisTagged
       type: git
-      name: PolarisTagged
+      name: Polaris
       ref: $(cypress_environment)
 
 steps:
