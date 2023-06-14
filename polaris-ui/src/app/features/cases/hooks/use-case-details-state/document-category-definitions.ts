@@ -1,4 +1,10 @@
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import { AccordionDocumentSection } from "../../presentation/case-details/accordion/types";
+import {
+  sortDocumentsByCreatedDate,
+  sortAscendingByDocumentTypeAndCreationDate,
+  sortAscendingByListOrderAndId,
+} from "../utils/sortUtils";
 
 const docTypeTest = (
   caseDocument: PresentationDocumentProperties,
@@ -11,6 +17,9 @@ const documentCategoryDefinitions: {
   category: string;
   showIfEmpty: boolean;
   test: (caseDocument: PresentationDocumentProperties) => boolean;
+  sort: (
+    caseDocuments: PresentationDocumentProperties[]
+  ) => PresentationDocumentProperties[];
 }[] = [
   // todo: when we know, write the `test` logic to identify which document goes in which section
   {
@@ -20,6 +29,9 @@ const documentCategoryDefinitions: {
       // todo: PCD are artificial documents, write a unit test for this
       doc.cmsDocType.documentType === "PCD" ||
       docTypeTest(doc, [101, 102, 103, 104, 227, 1034, 1035, 1064]),
+    sort: (caseDocuments) => {
+      return sortDocumentsByCreatedDate(caseDocuments);
+    },
   },
   {
     category: "Case overview",
@@ -29,6 +41,9 @@ const documentCategoryDefinitions: {
         doc,
         [1002, 1003, 1004, 1005, 1006, 1036, 1037, 1038, 1060, 1061]
       ),
+    sort: (caseDocuments) => {
+      return sortAscendingByDocumentTypeAndCreationDate(caseDocuments);
+    },
   },
   {
     category: "Statements",
@@ -36,6 +51,9 @@ const documentCategoryDefinitions: {
     test: (doc) =>
       doc.cmsDocType.documentCategory === "UsedStatement" &&
       docTypeTest(doc, [1031, 1059]),
+    sort: (caseDocuments) => {
+      return sortAscendingByListOrderAndId(caseDocuments);
+    },
   },
   {
     category: "Exhibits",
@@ -48,11 +66,17 @@ const documentCategoryDefinitions: {
           226148,
         ]
       ),
+    sort: (caseDocuments) => {
+      return sortAscendingByListOrderAndId(caseDocuments);
+    },
   },
   {
     category: "Forensics",
     showIfEmpty: true,
     test: (doc) => docTypeTest(doc, [1027, 1048, 1049, 1203]),
+    sort: (caseDocuments) => {
+      return sortDocumentsByCreatedDate(caseDocuments);
+    },
   },
   {
     category: "Unused material",
@@ -61,11 +85,17 @@ const documentCategoryDefinitions: {
       doc.cmsDocType.documentCategory === "UnusedStatement" ||
       doc.cmsDocType.documentCategory === "Unused" ||
       docTypeTest(doc, [1001, 1008, 1009, 1010, 1011, 1039, 1202]),
+    sort: (caseDocuments) => {
+      return sortAscendingByDocumentTypeAndCreationDate(caseDocuments);
+    },
   },
   {
     category: "Defendant",
     showIfEmpty: true,
     test: (doc) => docTypeTest(doc, [1056, 1057, 1058]),
+    sort: (caseDocuments) => {
+      return sortDocumentsByCreatedDate(caseDocuments);
+    },
   },
   {
     category: "Court preparation",
@@ -78,6 +108,9 @@ const documentCategoryDefinitions: {
           1047, 1063,
         ]
       ),
+    sort: (caseDocuments) => {
+      return sortAscendingByDocumentTypeAndCreationDate(caseDocuments);
+    },
   },
   {
     category: "Communications",
@@ -107,6 +140,9 @@ const documentCategoryDefinitions: {
           225581, 225582, 225583, 225584, 226015,
         ]
       ),
+    sort: (caseDocuments) => {
+      return sortDocumentsByCreatedDate(caseDocuments);
+    },
   },
   // have Uncategorised last so it can scoop up any unmatched documents
   {
@@ -117,6 +153,9 @@ const documentCategoryDefinitions: {
       // match to Uncategorised if we have got this far
       // todo: add AppInsights logging for every time we find ourselves here
       true,
+    sort: (caseDocuments) => {
+      return sortDocumentsByCreatedDate(caseDocuments);
+    },
   },
 ];
 
@@ -126,3 +165,8 @@ export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
 
 export const getCategory = (item: PresentationDocumentProperties) =>
   documentCategoryDefinitions.find(({ test }) => test(item))!.category;
+
+export const getCategorySort = (item: AccordionDocumentSection) =>
+  documentCategoryDefinitions.find(
+    ({ category }) => category === item.sectionId
+  )!.sort;

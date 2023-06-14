@@ -4,9 +4,9 @@ import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
-jest.mock("./document-category-definitions", () => ({
-  categoryNamesInPresentationOrder: ["category-a", "category-b"],
-}));
+// jest.mock("./document-category-definitions", () => ({
+//   categoryNamesInPresentationOrder: ["category-a", "category-b"],
+// }));
 
 describe("mapAccordionState", () => {
   it("can return a loading status when the api result is  'loading'", () => {
@@ -38,7 +38,7 @@ describe("mapAccordionState", () => {
         {
           documentId: "1",
           cmsDocumentId: "1",
-          presentationCategory: "category-a",
+          presentationCategory: "Reviews",
           cmsOriginalFileName: "foo",
           presentationTitle: "foo!",
           cmsMimeType: "application/pdf",
@@ -58,7 +58,7 @@ describe("mapAccordionState", () => {
         {
           documentId: "2",
           cmsDocumentId: "2",
-          presentationCategory: "category-b",
+          presentationCategory: "Reviews",
           cmsOriginalFileName: "bar",
           presentationTitle: "bar!",
           cmsMimeType: "application/pdf",
@@ -84,13 +84,13 @@ describe("mapAccordionState", () => {
       status: "succeeded",
       data: [
         {
-          sectionId: "category-a",
-          sectionLabel: "category-a",
+          sectionId: "Reviews",
+          sectionLabel: "Reviews",
           docs: [
             {
               documentId: "1",
               cmsDocumentId: "1",
-              presentationCategory: "category-a",
+              presentationCategory: "Reviews",
               cmsOriginalFileName: "foo",
               presentationTitle: "foo!",
               cmsMimeType: "application/pdf",
@@ -107,16 +107,10 @@ describe("mapAccordionState", () => {
                 write: "Ok",
               },
             },
-          ],
-        },
-        {
-          sectionId: "category-b",
-          sectionLabel: "category-b",
-          docs: [
             {
               documentId: "2",
               cmsDocumentId: "2",
-              presentationCategory: "category-b",
+              presentationCategory: "Reviews",
               cmsOriginalFileName: "bar",
               presentationTitle: "bar!",
               cmsMimeType: "application/pdf",
@@ -135,6 +129,51 @@ describe("mapAccordionState", () => {
             },
           ],
         },
+        {
+          sectionId: "Case overview",
+          sectionLabel: "Case overview",
+          docs: [],
+        },
+        {
+          sectionId: "Statements",
+          sectionLabel: "Statements",
+          docs: [],
+        },
+        {
+          sectionId: "Exhibits",
+          sectionLabel: "Exhibits",
+          docs: [],
+        },
+        {
+          sectionId: "Forensics",
+          sectionLabel: "Forensics",
+          docs: [],
+        },
+        {
+          sectionId: "Unused material",
+          sectionLabel: "Unused material",
+          docs: [],
+        },
+        {
+          sectionId: "Defendant",
+          sectionLabel: "Defendant",
+          docs: [],
+        },
+        {
+          sectionId: "Court preparation",
+          sectionLabel: "Court preparation",
+          docs: [],
+        },
+        {
+          sectionId: "Communications",
+          sectionLabel: "Communications",
+          docs: [],
+        },
+        {
+          sectionId: "Uncategorised",
+          sectionLabel: "Uncategorised",
+          docs: [],
+        },
       ],
     } as ReturnType<typeof mapAccordionState>);
   });
@@ -145,7 +184,7 @@ describe("mapAccordionState", () => {
         {
           documentId: "1",
           cmsDocumentId: "1",
-          presentationCategory: "category-a",
+          presentationCategory: "Reviews",
           cmsOriginalFileName: "foo",
           presentationTitle: "foo!",
           cmsMimeType: "application/pdf",
@@ -165,7 +204,7 @@ describe("mapAccordionState", () => {
         {
           documentId: "2",
           cmsDocumentId: "2",
-          presentationCategory: "category-b",
+          presentationCategory: "Reviews",
           cmsOriginalFileName: "bar",
           presentationTitle: "bar!",
           cmsMimeType: "application/pdf",
@@ -191,18 +230,13 @@ describe("mapAccordionState", () => {
       status: "succeeded",
       data: [
         {
-          sectionId: "category-a",
-          sectionLabel: "category-a",
-          docs: [],
-        },
-        {
-          sectionId: "category-b",
-          sectionLabel: "category-b",
+          sectionId: "Reviews",
+          sectionLabel: "Reviews",
           docs: [
             {
               documentId: "2",
               cmsDocumentId: "2",
-              presentationCategory: "category-b",
+              presentationCategory: "Reviews",
               cmsOriginalFileName: "bar",
               presentationTitle: "bar!",
               cmsMimeType: "application/pdf",
@@ -220,6 +254,51 @@ describe("mapAccordionState", () => {
               },
             },
           ],
+        },
+        {
+          sectionId: "Case overview",
+          sectionLabel: "Case overview",
+          docs: [],
+        },
+        {
+          sectionId: "Statements",
+          sectionLabel: "Statements",
+          docs: [],
+        },
+        {
+          sectionId: "Exhibits",
+          sectionLabel: "Exhibits",
+          docs: [],
+        },
+        {
+          sectionId: "Forensics",
+          sectionLabel: "Forensics",
+          docs: [],
+        },
+        {
+          sectionId: "Unused material",
+          sectionLabel: "Unused material",
+          docs: [],
+        },
+        {
+          sectionId: "Defendant",
+          sectionLabel: "Defendant",
+          docs: [],
+        },
+        {
+          sectionId: "Court preparation",
+          sectionLabel: "Court preparation",
+          docs: [],
+        },
+        {
+          sectionId: "Communications",
+          sectionLabel: "Communications",
+          docs: [],
+        },
+        {
+          sectionId: "Uncategorised",
+          sectionLabel: "Uncategorised",
+          docs: [],
         },
       ],
     } as ReturnType<typeof mapAccordionState>);
