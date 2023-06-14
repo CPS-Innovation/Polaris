@@ -3,6 +3,7 @@ import "cypress-wait-until"
 import { PipelineResults } from "../../../gateway/PipelineResults"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
+import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
 
 const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
 
@@ -15,7 +16,7 @@ describe("Simple Tracker", () => {
     })
   })
 
-  it("run a trackerthrough to all documents being indexed", () => {
+  it("run a tracker through to all documents being indexed", () => {
     cy.api(routes.TRACKER_CLEAR(TARGET_URN, TARGET_CASE_ID))
       .waitUntil(
         () =>
@@ -55,5 +56,12 @@ describe("Simple Tracker", () => {
             }),
         WAIT_UNTIL_OPTIONS
       )
+      .api<ApiTextSearchResult[]>(
+        routes.GET_SEARCH(TARGET_URN, TARGET_CASE_ID, "aspose")
+      )
+      .its("body")
+      .then((results) => {
+        expect(results.length).to.equal(0)
+      })
   })
 })
