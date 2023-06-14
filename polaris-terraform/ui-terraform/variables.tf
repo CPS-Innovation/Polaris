@@ -67,6 +67,10 @@ variable "custom_domain_name" {
   type = string
 }
 
+variable "react_app_ai_connection_string" {
+  type = string
+}
+
 variable "ui_logging" {
   type = object({
     gateway_scale_controller       = string
