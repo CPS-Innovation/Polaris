@@ -12,7 +12,7 @@ resources:
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/tags/dev
+      ref: refs/tags/prod
 
 steps:
   - checkout: PolarisTagged
