@@ -21,7 +21,7 @@ steps:
     fetchDepth: 1
     lfs: true
     submodules: true
-    displayName: "checkout polaris-e2e"
+    displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
 
   - task: Bash@3
     inputs:
