@@ -6,8 +6,15 @@ schedules:
         - main
     always: true
 
+resources:
+  repositories:
+    - repository: Polaris
+      type: git
+      name: PolarisTagged
+      ref: $(cypress_environment)
+
 steps:
-  - checkout: git://Information%20Management/Polaris/@refs/tags/$(cypress_environment)
+  - checkout: PolarisTagged
     clean: true
     persistCredentials: true
     fetchDepth: 1
