@@ -101,7 +101,7 @@ describe("Refresh", () => {
 
     // todo: #21848 - early warning that the Aspose licence has expired (in which case a watermark is added to the document
     //  that the OCR process will read and add to the index - the watermark includes the word "Aspose").
-    //  todo: move this test in a better and dedicated test suite (e.g. pdf service integration test)
+    //  todo: move this test to a better and dedicated test suite (e.g. pdf service integration test)
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "aspose",
