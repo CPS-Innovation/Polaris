@@ -434,7 +434,7 @@ const assertSearchExpectation = (arg: SearchAssertionArg) => {
           )
           expect(results[0].polarisDocumentId).to.equal(
             phase1Vars[arg.docId],
-            `Doc id check`
+            `Doc id check in phase ${arg.phase}`
           )
         }
       })
