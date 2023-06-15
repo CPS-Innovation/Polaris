@@ -36,7 +36,6 @@ export const HeaderReadMode: React.FC<Props> = ({
         onClick={() => {
           trackEvent("Open Document In Tab", {
             documentId: documentId,
-            presentationFileName: presentationFileName,
           });
           handleOpenPdfInNewTab(documentId);
         }}

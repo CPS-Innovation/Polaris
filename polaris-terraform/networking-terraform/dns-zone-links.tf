@@ -77,3 +77,43 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_cognitive_acc
 
   depends_on = [azurerm_virtual_network.vnet_networking, azurerm_private_dns_zone.dns_zone_cognitive_account]
 }
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_monitor_link" {
+  name                  = "dnszonelink-monitor"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_monitor.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+  tags                  = local.common_tags
+
+  depends_on = [azurerm_virtual_network.vnet_networking, azurerm_private_dns_zone.dns_zone_monitor]
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_oms_link" {
+  name                  = "dnszonelink-oms"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_oms.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+  tags                  = local.common_tags
+
+  depends_on = [azurerm_virtual_network.vnet_networking, azurerm_private_dns_zone.dns_zone_oms]
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_ods_link" {
+  name                  = "dnszonelink-ods"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_ods.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+  tags                  = local.common_tags
+
+  depends_on = [azurerm_virtual_network.vnet_networking, azurerm_private_dns_zone.dns_zone_ods]
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_agentsvc_link" {
+  name                  = "dnszonelink-agentsvc"
+  resource_group_name   = azurerm_resource_group.rg_networking.name
+  private_dns_zone_name = azurerm_private_dns_zone.dns_zone_agentsvc.name
+  virtual_network_id    = azurerm_virtual_network.vnet_networking.id
+  tags                  = local.common_tags
+
+  depends_on = [azurerm_virtual_network.vnet_networking, azurerm_private_dns_zone.dns_zone_agentsvc]
+}

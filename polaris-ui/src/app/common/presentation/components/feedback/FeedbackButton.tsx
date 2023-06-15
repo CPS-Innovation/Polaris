@@ -9,15 +9,11 @@ import { ConfirmationModalContent } from "./ConfirmationModalContent";
 import { useState } from "react";
 import classes from "./FeedbackButton.module.scss";
 export type FeedbackButtonProps = {
-  urn: string;
-  caseId: string;
   documentId: string;
   correlationId: string;
   polarisDocumentVersionId: number;
 };
 export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
-  urn,
-  caseId,
   documentId,
   correlationId,
   polarisDocumentVersionId,
@@ -31,8 +27,6 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
 
   const handleIssueReporting = (documentId: string) => {
     trackEvent("Report Document Issue", {
-      urn: urn,
-      caseId: caseId,
       documentId: documentId,
       polarisVersionId: polarisDocumentVersionId,
       correlationId: correlationId,

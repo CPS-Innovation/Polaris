@@ -86,8 +86,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       );
 
       trackEvent("Categorised Documents Count", {
-        urn,
-        caseId,
         ...categorisedData,
       });
 
@@ -97,8 +95,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       if (unCategorisedDocs) {
         unCategorisedDocs.docs.forEach((doc: MappedCaseDocument) => {
           trackEvent("Uncategorised Document", {
-            urn,
-            caseId,
             documentId: doc.cmsDocumentId,
             documentTypeId: doc.cmsDocType.documentTypeId,
             documentDocumentType: doc.cmsDocType.documentType,
@@ -197,7 +193,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </PhaseBanner>
       <BackLink
         to={backLinkProps.to}
-        onClick={() => trackEvent("Back To Find A Case")}
+        onClick={() => trackEvent("Back to Case Search Results")}
       >
         {backLinkProps.label}
       </BackLink>
@@ -226,7 +222,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 value={searchTerm}
                 handleChange={handleSearchTermChange}
                 handleSubmit={handleLaunchSearchResults}
-                trackEventKey="Search Case Documents From Case File"
+                trackEventKey="Search Case Documents From Case Details"
               />
 
               {accordionState.status === "loading" ? (
@@ -263,8 +259,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleUnLockDocuments={handleUnLockDocuments}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
-                  urn: urn,
-                  caseId: caseId,
                 }}
               />
             )}

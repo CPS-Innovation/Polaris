@@ -37,7 +37,7 @@ stages:
               command: publish
               publishWebProjects: false
               projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Auth Handover package to publish"
 
@@ -52,7 +52,7 @@ stages:
               command: publish
               publishWebProjects: false
               projects: "polaris-gateway/polaris-gateway/polaris-gateway.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Gateway package to publish"
 
@@ -78,7 +78,7 @@ stages:
               workingDirectory: polaris-ui/public
               script: |
                 New-Item build-version.txt
-                Set-Content build-version.txt '$(Build.BuildNumber)'
+                Set-Content -NoNewline build-version.txt '$(Build.BuildNumber) `n$(Build.SourceVersion)'
 
           - task: Npm@1
             inputs:

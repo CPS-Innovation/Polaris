@@ -348,3 +348,21 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_mock_service_subne
   subnet_id      = azurerm_subnet.sn_polaris_mock_service_subnet.id
   depends_on     = [azurerm_subnet.sn_polaris_mock_service_subnet]
 }
+
+resource "azurerm_subnet" "sn_polaris_ampls_subnet" {
+  name                 = "polaris-ampls-subnet"
+  resource_group_name  = azurerm_resource_group.rg_networking.name
+  virtual_network_name = azurerm_virtual_network.vnet_networking.name
+  address_prefixes     = [var.polarisAmplsSubnet]
+
+  enforce_private_link_endpoint_network_policies = true
+  enforce_private_link_service_network_policies  = true
+
+  depends_on = [azurerm_virtual_network.vnet_networking]
+}
+
+resource "azurerm_subnet_route_table_association" "sn_polaris_ampls_subnet_rt_association" {
+  route_table_id = data.azurerm_route_table.env_route_table.id
+  subnet_id      = azurerm_subnet.sn_polaris_ampls_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_ampls_subnet]
+}

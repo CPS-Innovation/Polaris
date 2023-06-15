@@ -4,7 +4,6 @@ import { useLastFocus } from "../../../hooks/useLastFocus";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "../../../../features/cases/presentation/case-details/navigation-alerts/NavigationAwayAlertContent";
 import { ReactComponent as CloseIcon } from "../../svgs/closeIconBold.svg";
-import { useAppInsightsTrackEvent } from "../../../hooks/useAppInsightsTracks";
 import classes from "./Tabs.module.scss";
 
 const ARROW_KEY_SHIFTS = {
@@ -33,7 +32,6 @@ export const Tabs: React.FC<TabsProps> = ({
   handleUnLockDocuments,
   ...attributes
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
   const activeTabRef = useRef<HTMLButtonElement>(null);
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 
@@ -64,7 +62,6 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabIndex = activeTabIndex + ARROW_KEY_SHIFTS[typedKeyCode];
     const nextTabId = items[nextTabIndex].id;
-    trackEvent("View Document Tab");
     handleTabSelection(nextTabId);
 
     // prevent awkward vertical scroll on up/down key press
@@ -77,7 +74,6 @@ export const Tabs: React.FC<TabsProps> = ({
       setShowDocumentNavAlert(true);
       return;
     }
-    trackEvent("Close Document");
     localHandleClosePdf();
   };
 
@@ -92,7 +88,6 @@ export const Tabs: React.FC<TabsProps> = ({
 
     const nextTabId = nextTabIndex === undefined ? "" : items[nextTabIndex].id;
     handleTabSelection(nextTabId);
-    trackEvent("Close Document");
     handleClosePdf({ documentId: items[activeTabIndex].id });
   };
 
@@ -136,8 +131,9 @@ export const Tabs: React.FC<TabsProps> = ({
                     index === activeTabIndex ? "tab-active" : `btn-tab-${index}`
                   }
                   onClick={() => {
-                    trackEvent("View Document Tab");
-                    handleTabSelection(itemId);
+                    if (itemId !== items[activeTabIndex].id) {
+                      handleTabSelection(itemId);
+                    }
                   }}
                   onKeyDown={handleKeyPressOnTab}
                   ref={index === activeTabIndex ? activeTabRef : undefined}
