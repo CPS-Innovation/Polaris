@@ -109,7 +109,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                 redactedDocument.Save(redactedDocumentStream);
             }
             
-            await _polarisBlobStorageService.UploadDocumentAsync(redactedDocumentStream, newFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.DocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
+            await _polarisBlobStorageService.UploadDocumentAsync(redactedDocumentStream, newFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.PolarisDocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
 
             saveResult.Succeeded = true;
             saveResult.RedactedDocumentName = newFileName;

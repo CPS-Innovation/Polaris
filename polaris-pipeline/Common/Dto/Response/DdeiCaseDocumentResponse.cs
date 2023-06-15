@@ -10,6 +10,9 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("versionId")]
     public long VersionId { get; set; }
 
+    [JsonProperty("presentationTitle")]
+    public string PresentationTitle { get; set; }
+
     [JsonProperty("originalFileName")]
     public string OriginalFileName { get; set; }
 
@@ -30,4 +33,7 @@ public class DdeiCaseDocumentResponse
 
     [JsonProperty("date")]
     public string DocumentDate { get; set; }
+
+    [JsonProperty("isOcrProcessed")]
+    public bool? IsOcrProcessed { get; set; }
 }

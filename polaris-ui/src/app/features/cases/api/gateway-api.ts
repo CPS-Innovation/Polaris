@@ -37,6 +37,12 @@ const temporaryApiModelMapping = (arr: any[]) =>
   arr.forEach((item) => {
     if (item.polarisDocumentId) {
       item.documentId = item.polarisDocumentId;
+      if (item.cmsDocType?.documentTypeId) {
+        item.cmsDocType.documentTypeId = parseInt(
+          item.cmsDocType.documentTypeId,
+          10
+        );
+      }
     }
   });
 
@@ -54,7 +60,7 @@ export const resolvePdfUrl = (
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
-  const response = await internalFetch(url, {
+  const response = await internalReauthenticatingFetch(url, {
     headers,
   });
 
@@ -73,7 +79,7 @@ export const searchUrn = async (urn: string) => {
 export const getCaseDetails = async (urn: string, caseId: number) => {
   const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
-  const response = await internalFetch(url, {
+  const response = await internalReauthenticatingFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
   });
 
@@ -103,10 +109,14 @@ export const getPdfSasUrl = async (
   return await response.text();
 };
 
-export const initiatePipeline = async (urn: string, caseId: number) => {
+export const initiatePipeline = async (
+  urn: string,
+  caseId: number,
+  correlationId: string
+) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
-  const correlationIdHeader = HEADERS.correlationId();
+  const correlationIdHeader = HEADERS.correlationId(correlationId);
   const response = await internalFetch(path, {
     headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
     method: "POST",
@@ -141,6 +151,9 @@ export const getPipelinePdfResults = async (
   if (response.status === 404) {
     return false;
   }
+  if (!response.ok) {
+    throw new ApiError("Get Pipeline pdf results failed", trackerUrl, response);
+  }
   const rawResponse: { documents: any[] } = await response.json();
   const { documents } = rawResponse;
   temporaryApiModelMapping(documents);
@@ -153,7 +166,7 @@ export const searchCase = async (
   searchTerm: string
 ) => {
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/search/?query=${searchTerm}`
+    `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
   );
   const response = await internalFetch(path, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
@@ -184,7 +197,9 @@ export const checkoutDocument = async (
   });
 
   if (!response.ok) {
-    throw new ApiError("Checkout document failed", url, response);
+    throw new ApiError("Checkout document failed", url, response, {
+      username: await response.text(),
+    });
   }
 
   return true; // unhappy path not known yet
@@ -233,12 +248,18 @@ export const saveRedactions = async (
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {
-  const response = await fetch(args[0], {
+  return await fetch(args[0], {
     ...args[1],
     // We need cookies to be sent to the gateway, which is a third-party domain,
     //  so need to set `credentials: "include"`
     credentials: "include",
   });
+};
+
+const internalReauthenticatingFetch = async (
+  ...args: Parameters<typeof fetch>
+) => {
+  const response = await internalFetch(...args);
 
   return reauthenticationFilter(response, window);
 };

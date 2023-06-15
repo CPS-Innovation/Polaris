@@ -4,6 +4,7 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import { Filters } from "./Filters";
 import { Header } from "./Header";
 import { List } from "./List";
+import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
   submittedSearchTerm: string;
@@ -28,12 +29,26 @@ export const Results: React.FC<Props> = ({
   handleUpdateFilter,
   handleOpenPdf,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
+  const updateFilterHandler = (payload: {
+    filter: "docType" | "category";
+    id: string;
+    isSelected: boolean;
+  }) => {
+    trackEvent("Filter Doc Search Results", {
+      filterCategory: payload.filter,
+      filterId: payload.id,
+      filterChecked: payload.isSelected,
+      searchParameter: submittedSearchTerm,
+    });
+    handleUpdateFilter(payload);
+  };
   return (
     <>
       <div className="govuk-grid-column-one-quarter">
         <Filters
           filterOptions={filterOptions}
-          handleUpdateFilter={handleUpdateFilter}
+          handleUpdateFilter={updateFilterHandler}
         />
       </div>
       <div className="govuk-grid-column-three-quarters">

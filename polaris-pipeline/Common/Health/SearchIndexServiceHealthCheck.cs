@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Services.SearchIndexService;
 using Common.Services.SearchIndexService.Contracts;
+using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -86,7 +87,7 @@ namespace Common.Health
                     await _searchIndexService.StoreResultsAsync
                     (
                         analyzeResult,
-                        default(Guid),
+                        default(PolarisDocumentId),
                         default(long),
                         nameof(SearchIndexServiceHealthCheck),
                         default(long),

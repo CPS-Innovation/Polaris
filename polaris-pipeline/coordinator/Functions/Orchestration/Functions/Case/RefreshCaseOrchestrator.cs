@@ -96,7 +96,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             await Task.WhenAll(documentTasks.Select(BufferCall));
 
             if (await tracker.AllDocumentsFailed())
-                throw new CaseOrchestrationException("Cms Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
+                throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
             await tracker.RegisterCompleted((context.CurrentUtcDateTime, true));
 

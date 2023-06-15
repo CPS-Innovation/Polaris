@@ -10,6 +10,8 @@ namespace Common.Dto.Document
 
         public string FileName { get; set; }
 
+        public string PresentationTitle { get; set; }
+
         public string MimeType { get; set; }
 
         public string FileExtension { get; set; }
@@ -17,6 +19,8 @@ namespace Common.Dto.Document
         public DocumentTypeDto CmsDocType { get; set; }
 
         public string DocumentDate { get; set; }
+
+        public bool IsOcrProcessed { get; set; }
 
         public PresentationFlagsDto PresentationFlags { get; set; }
     }

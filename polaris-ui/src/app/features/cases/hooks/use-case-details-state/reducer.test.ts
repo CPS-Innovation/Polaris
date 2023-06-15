@@ -81,6 +81,7 @@ describe("useCaseDetailsState reducer", () => {
               documentsRetrieved: "",
               documents: [],
             },
+            correlationId: "corId_1",
           } as AsyncPipelineResult<PipelineResults>,
         });
 
@@ -111,6 +112,7 @@ describe("useCaseDetailsState reducer", () => {
               documentsRetrieved: new Date().toISOString(),
               documents: [],
             },
+            correlationId: "corId_1",
           } as AsyncPipelineResult<PipelineResults>,
         });
 
@@ -245,6 +247,7 @@ describe("useCaseDetailsState reducer", () => {
             error: ERROR,
             httpStatusCode: undefined,
             haveData: false,
+            correlationId: "corId_1",
           },
         })
       ).toThrowError(ERROR);
@@ -264,6 +267,7 @@ describe("useCaseDetailsState reducer", () => {
           payload: {
             status: "initiating",
             haveData: false,
+            correlationId: "",
           },
         }
       );

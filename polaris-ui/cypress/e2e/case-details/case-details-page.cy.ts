@@ -385,6 +385,39 @@ describe("case details page", () => {
       );
     });
   });
+
+  describe("Report an Issue", () => {
+    it("Should show the `Report an issue` button with correct text and show the confirmation modal when user has reported an issue", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+
+      cy.findByTestId("div-pdfviewer-0").should("not.exist");
+
+      cy.findByTestId("link-document-1").click();
+
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("btn-report-issue").should("exist");
+      cy.findByTestId("btn-report-issue").contains("Report an issue");
+      cy.findByTestId("btn-report-issue").click();
+      cy.findByTestId("btn-report-issue").contains("Issue reported");
+      cy.findByTestId("btn-report-issue").should("be.disabled");
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("Thanks for reporting an issue with this document.");
+      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("btn-report-issue").contains("Issue reported");
+      cy.findByTestId("btn-report-issue").should("be.disabled");
+    });
+  });
 });
 
 export {};

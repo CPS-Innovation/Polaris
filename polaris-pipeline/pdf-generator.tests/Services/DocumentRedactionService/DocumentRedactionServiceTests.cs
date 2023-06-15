@@ -7,6 +7,7 @@ using AutoFixture;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Services.BlobStorageService.Contracts;
+using Common.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,7 @@ public class DocumentRedactionServiceTests
             .ReturnsAsync(pdfStream);
 
         _mockBlobStorageService.Setup(s => s.UploadDocumentAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(),
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.CompletedTask);
+            It.IsAny<PolarisDocumentId>(), It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.CompletedTask);
     }
 
     [Fact]

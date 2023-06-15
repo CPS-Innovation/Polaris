@@ -277,7 +277,10 @@ describe("reducerAsyncActionHandlers", () => {
         const checkoutSpy = jest
           .spyOn(api, "checkoutDocument")
           .mockImplementation(() =>
-            Promise.reject({ code: CHECKOUT_BLOCKED_STATUS_CODE })
+            Promise.reject({
+              code: CHECKOUT_BLOCKED_STATUS_CODE,
+              customProperties: { username: "test_username" },
+            })
           );
 
         const handler =
@@ -316,7 +319,7 @@ describe("reducerAsyncActionHandlers", () => {
           payload: {
             title: "Failed to redact document",
             message:
-              "It is not possible to redact as the document is already checked out by another user. Please try again later.",
+              "It is not possible to redact as the document is already checked out by test_username. Please try again later.",
           },
         });
       }

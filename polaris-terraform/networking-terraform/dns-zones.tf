@@ -45,3 +45,27 @@ resource "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
   resource_group_name = azurerm_resource_group.rg_networking.name
   tags                = local.common_tags
 }
+
+resource "azurerm_private_dns_zone" "dns_zone_monitor" {
+  name                = "privatelink.monitor.azure.com"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+  tags                = local.common_tags
+}
+
+resource "azurerm_private_dns_zone" "dns_zone_oms" {
+  name                = "privatelink.oms.opinsights.azure.com"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+  tags                = local.common_tags
+}
+
+resource "azurerm_private_dns_zone" "dns_zone_ods" {
+  name                = "privatelink.ods.opinsights.azure.com"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+  tags                = local.common_tags
+}
+
+resource "azurerm_private_dns_zone" "dns_zone_agentsvc" {
+  name                = "privatelink.agentsvc.azure-automation.net"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+  tags                = local.common_tags
+}

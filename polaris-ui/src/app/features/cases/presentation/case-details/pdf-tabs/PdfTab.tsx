@@ -18,6 +18,9 @@ type PdfTabProps = {
     documentId: string;
     polarisDocumentVersionId: number;
   }[];
+  contextData: {
+    correlationId: string;
+  };
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -32,6 +35,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   headers,
   redactStatus,
   savedDocumentDetails,
+  contextData,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -49,6 +53,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     documentId,
     isDeleted,
     cmsDocType: { documentType },
+    polarisDocumentVersionId,
   } = caseDocumentViewModel;
 
   const searchHighlights =
@@ -104,6 +109,11 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         <HeaderReadMode
           caseDocumentViewModel={caseDocumentViewModel}
           handleOpenPdfInNewTab={handleOpenPdfInNewTab}
+          contextData={{
+            correlationId: contextData.correlationId,
+            documentId: documentId,
+            polarisDocumentVersionId: polarisDocumentVersionId,
+          }}
         />
       )}
 
@@ -114,7 +124,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           headers={headers}
           searchHighlights={searchHighlights}
           redactStatus={redactStatus}
-          documentType={documentType}
+          contextData={{
+            documentId,
+            documentType,
+          }}
           redactionHighlights={redactionHighlights}
           focussedHighlightIndex={focussedHighlightIndex}
           handleAddRedaction={localHandleAddRedaction}

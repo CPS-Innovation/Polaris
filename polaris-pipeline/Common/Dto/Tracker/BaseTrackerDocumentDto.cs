@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
 using Common.Dto.FeatureFlags;
 using Mapster;
+using Common.ValueObjects;
 
 namespace Common.Dto.Tracker
 {
@@ -12,7 +12,7 @@ namespace Common.Dto.Tracker
         { }
 
         public BaseTrackerDocumentDto(
-            Guid polarisDocumentId,
+            PolarisDocumentId polarisDocumentId,
             int polarisDocumentVersionId,
             string cmsDocumentId,
             long cmsVersionId,
@@ -26,8 +26,21 @@ namespace Common.Dto.Tracker
             Status = TrackerDocumentStatus.New;
         }
 
+        [JsonIgnore]
+        public PolarisDocumentId PolarisDocumentId { get; set; }
+
         [JsonProperty("polarisDocumentId")]
-        public Guid PolarisDocumentId { get; set; }
+        public string PolarisDocumentIdValue
+        {
+            get
+            { 
+                return PolarisDocumentId.ToString(); 
+            }
+            set
+            {
+                PolarisDocumentId = new PolarisDocumentId(value);
+            }
+        }
 
         [JsonProperty("polarisDocumentVersionId")]
         public int PolarisDocumentVersionId { get; set; }

@@ -1,17 +1,17 @@
 
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
+// using Microsoft.ApplicationInsights;
+// using Microsoft.ApplicationInsights.Extensibility;
 
 namespace Common.Services.TelemetryService;
 
 public class TelemetryService
 {
-    private readonly TelemetryClient _telemetryClient;
+    // private readonly TelemetryClient _telemetryClient;
 
-    public TelemetryService(TelemetryConfiguration telemetryConfiguration)
-    {
-        _telemetryClient = new TelemetryClient(telemetryConfiguration);
-    }
+    // public TelemetryService(TelemetryConfiguration telemetryConfiguration)
+    // {
+    //     _telemetryClient = new TelemetryClient(telemetryConfiguration);
+    // }
 
     public void TrackDocumentDocumentConversion()
     {

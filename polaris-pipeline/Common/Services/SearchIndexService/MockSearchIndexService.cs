@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Common.Logging;
 using Common.Services.SearchIndexService.Contracts;
+using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +21,7 @@ namespace Common.Services.SearchIndexService
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, Guid polarisDocumentId, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
+        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, $"{nameof(MockSearchIndexService)}.{nameof(StoreResultsAsync)}", $"PolarisDocumentId: {polarisDocumentId}, CaseId: {caseId}, Blob Name: {blobName}");
         }

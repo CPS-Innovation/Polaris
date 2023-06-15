@@ -11,6 +11,7 @@ using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Wrappers;
+using Common.ValueObjects;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -32,12 +33,13 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         }
 
         [FunctionName(nameof(PolarisPipelineGetDocumentSasUrl))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentSasUrl)] HttpRequest req, string caseUrn, int caseId, Guid documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentSasUrl)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             Guid currentCorrelationId = default;
 
             try
             {
+                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
@@ -47,13 +49,14 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                #endregion
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating document SAS Url for urn {caseUrn}, caseId {caseId}, id {documentId}");
-                var sasUrl = await _pipelineClient.GenerateDocumentSasUrlAsync(caseUrn, caseId, documentId, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating document SAS Url for urn {caseUrn}, caseId {caseId}, polarisDocumentId {polarisDocumentId}");
+                var sasUrl = await _pipelineClient.GenerateDocumentSasUrlAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), currentCorrelationId);
 
                 return !string.IsNullOrWhiteSpace(sasUrl)
                     ? new OkObjectResult(sasUrl)
-                    : NotFoundErrorResponse($"No document SAS URL found for urn {caseUrn}, caseId {caseId}, id {documentId}\".", currentCorrelationId, loggingName);
+                    : NotFoundErrorResponse($"No document SAS URL found for urn {caseUrn}, caseId {caseId}, polarisDocumentId {polarisDocumentId}\".", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
             {

@@ -29,3 +29,5 @@ cms_details = {
   upstream_cms_domain_name        = "cin3.cps.gov.uk"
   upstream_cms_modern_domain_name = "cmsmodcin3.cps.gov.uk"
 }
+
+react_app_ai_connection_string = "IngestionEndpoint=https://polaris-dev-notprod.cps.gov.uk/;LiveEndpoint=https://polaris-dev-notprod.cps.gov.uk/"

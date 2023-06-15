@@ -82,7 +82,7 @@ export const Modal: React.FC<Props> = ({
           )}
           {type === "alert" && (
             <header
-              className="govuk-header"
+              className={`govuk-header ${classes.modalHeader}`}
               role="banner"
               data-module="govuk-header"
             >

@@ -124,7 +124,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         pdfStream,
                         blobName,
                         payload.CmsCaseId.ToString(),
-                        payload.CmsDocumentId,
+                        payload.PolarisDocumentId,
                         payload.CmsVersionId.ToString(),
                         payload.CorrelationId
                     );

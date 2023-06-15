@@ -4,6 +4,7 @@ environment = {
 }
 
 vnetAddressSpace = "10.7.204.0/23"
+vnetDnsServer    = "10.7.204.164"
 
 cmsServicesSubnet                  = "10.7.204.0/28"
 ddeiServicesSubnet                 = "10.7.204.32/27"
@@ -21,5 +22,6 @@ polarisDnsResolveSubnet            = "10.7.204.160/28"
 gatewaySubnet                      = "10.7.204.128/27"
 polarisAuthHandoverSubnet          = "10.7.205.16/28"
 mockCmsServiceSubnet               = "10.7.205.48/28"
+polarisAmplsSubnet                 = "10.7.205.64/27"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"

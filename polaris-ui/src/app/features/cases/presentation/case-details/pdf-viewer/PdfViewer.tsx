@@ -23,7 +23,10 @@ const SCROLL_TO_OFFSET = 120;
 type Props = {
   url: string;
   tabIndex: number;
-  documentType: string;
+  contextData: {
+    documentType: string;
+    documentId: string;
+  };
   headers: HeadersInit;
   redactStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
@@ -44,7 +47,7 @@ export const PdfViewer: React.FC<Props> = ({
   tabIndex,
   headers,
   redactStatus,
-  documentType,
+  contextData,
   searchHighlights = [],
   redactionHighlights,
   handleAddRedaction,
@@ -86,7 +89,8 @@ export const PdfViewer: React.FC<Props> = ({
 
   const removeRedaction = (id: string) => {
     trackEvent("Remove Redact Content", {
-      documentType: documentType,
+      documentType: contextData.documentType,
+      documentId: contextData.documentId,
       redactionsCount: 1,
     });
     handleRemoveRedaction(id);
@@ -124,7 +128,8 @@ export const PdfViewer: React.FC<Props> = ({
                   <RedactButton
                     onConfirm={() => {
                       trackEvent("Redact Content", {
-                        documentType: documentType,
+                        documentType: contextData.documentType,
+                        documentId: contextData.documentId,
                       });
                       addRedaction(position, !!content.image);
                       hideTipAndSelection();
@@ -158,7 +163,7 @@ export const PdfViewer: React.FC<Props> = ({
         </PdfLoader>
         {!!redactionHighlights.length && (
           <Footer
-            documentType={documentType}
+            contextData={contextData}
             tabIndex={tabIndex}
             redactionHighlights={redactionHighlights}
             handleRemoveAllRedactions={handleRemoveAllRedactions}

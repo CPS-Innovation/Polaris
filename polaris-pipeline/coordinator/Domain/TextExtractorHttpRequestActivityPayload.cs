@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Common.ValueObjects;
+using System;
 
 namespace coordinator.Domain
 {
     public class TextExtractorHttpRequestActivityPayload : BasePipelinePayload
     {
-        public TextExtractorHttpRequestActivityPayload(Guid polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long cmsVersionId, string blobName, Guid correlationId)
+        public TextExtractorHttpRequestActivityPayload(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long cmsVersionId, string blobName, Guid correlationId)
             : base(cmsCaseUrn, cmsCaseId, correlationId, polarisDocumentId)
         {
             DocumentId = cmsDocumentId;

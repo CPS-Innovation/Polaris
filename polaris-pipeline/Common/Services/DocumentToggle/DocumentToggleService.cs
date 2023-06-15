@@ -79,6 +79,10 @@ namespace Common.Services.DocumentToggle
             {
                 write = WriteFlag.OriginalFileTypeNotAllowed;
             }
+            else if (!document.IsOcrProcessed)
+            {
+                write = WriteFlag.IsNotOcrProcessed;
+            }
             else
             {
                 write = WriteFlag.Ok;
@@ -194,7 +198,7 @@ namespace Common.Services.DocumentToggle
                       .LastOrDefault(def => def.Type == DefinitionType.DocType
                         && (
                           (def.Identifier == Domain.Constants.Wildcard ||
-                            def.Identifier.Equals(document.CmsDocType.DocumentType, StringComparison.InvariantCultureIgnoreCase))));
+                            def.Identifier.Equals(document.CmsDocType.DocumentTypeId, StringComparison.InvariantCultureIgnoreCase))));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
         }
