@@ -246,19 +246,19 @@ describe("Refresh", () => {
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "one",
       docId: "numbersDocId",
-      phase: "PHASE_2"
+      phase: "PHASE_2",
     })
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "two",
       docId: "numbersDocId",
-      phase: "PHASE_2"
+      phase: "PHASE_2",
     })
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "carol",
       docId: "peopleDocId",
-      phase: "PHASE_2"
+      phase: "PHASE_2",
     })
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
@@ -270,30 +270,30 @@ describe("Refresh", () => {
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "one",
       docId: "numbersDocId",
-      phase: "PHASE_2"
+      phase: "PHASE_2",
     })
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "alice",
-        docId: "peopleDocId",
-        phase: "PHASE_2"
+      docId: "peopleDocId",
+      phase: "PHASE_2",
     })
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "bob",
-        docId: "peopleDocId",
-        phase: "PHASE_2"
+      docId: "peopleDocId",
+      phase: "PHASE_2",
     })
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "carol",
-        docId: "peopleDocId",
-        phase: "PHASE_2"
+      docId: "peopleDocId",
+      phase: "PHASE_2",
     })
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
-        term: "dave",
-        phase: "PHASE_2"
+      term: "dave",
+      phase: "PHASE_2",
     })
 
     cy.get<SavedVariables>("@phase2Vars").then(
