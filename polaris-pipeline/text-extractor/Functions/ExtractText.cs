@@ -79,7 +79,7 @@ namespace text_extractor.Functions
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
                 var ocrResults = await _ocrService.GetOcrResultsAsync(extractTextRequest.BlobName, currentCorrelationId);
-                
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
                 await _searchIndexService.StoreResultsAsync
                     (
@@ -91,7 +91,7 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName, 
                         currentCorrelationId
                     );
-                
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
                 return new HttpResponseMessage(HttpStatusCode.OK);

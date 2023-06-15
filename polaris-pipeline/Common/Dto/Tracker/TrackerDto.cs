@@ -11,7 +11,7 @@ namespace Common.Dto.Tracker
         public string TransactionId { get; set; }
 
         [JsonProperty("versionId")]
-        public string VersionId { get; set; }
+        public int? VersionId { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]

@@ -228,7 +228,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
             {
                 var statuses = await client.GetStatusAsync(instanceIds);
 
-                if(statuses.All(statuses => statuses.RuntimeStatus == OrchestrationRuntimeStatus.Terminated))
+                if(statuses == null || statuses.All(statuses => statuses.RuntimeStatus == OrchestrationRuntimeStatus.Terminated))
                     return true;
 
                 await Task.Delay(retryDelayMilliseconds);
