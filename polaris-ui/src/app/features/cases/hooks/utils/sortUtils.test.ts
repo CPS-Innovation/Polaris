@@ -2,6 +2,7 @@ import {
   sortDocumentsByCreatedDate,
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
+  customSortByDocumentType,
 } from "./sortUtils";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
@@ -69,25 +70,21 @@ describe("sortUtils", () => {
         {
           documentId: "5",
           cmsFileCreatedDate: "2020-01-01",
-          cmsDocType: { documentType: "Abc" },
+          cmsDocType: { documentType: "MG2" },
         },
       ];
       const expectedSortedDocs = [
         {
           documentId: "5",
           cmsFileCreatedDate: "2020-01-01",
-          cmsDocType: { documentType: "Abc" },
-        },
-        {
-          documentId: "4",
-          cmsFileCreatedDate: "2020-01-10",
-          cmsDocType: { documentType: "MG 16" },
+          cmsDocType: { documentType: "MG2" },
         },
         {
           documentId: "1",
           cmsFileCreatedDate: "2020-01-10",
           cmsDocType: { documentType: "MG 3" },
         },
+
         {
           documentId: "2",
           cmsFileCreatedDate: "2020-01-01",
@@ -97,6 +94,11 @@ describe("sortUtils", () => {
           documentId: "3",
           cmsFileCreatedDate: "2020-01-15",
           cmsDocType: { documentType: "MG 7" },
+        },
+        {
+          documentId: "4",
+          cmsFileCreatedDate: "2020-01-10",
+          cmsDocType: { documentType: "MG 16" },
         },
       ];
       const sortedDocs = sortAscendingByDocumentTypeAndCreationDate(
@@ -106,37 +108,37 @@ describe("sortUtils", () => {
     });
   });
   describe("sortAscendingByListOrderAndId", () => {
-    it("Should sort documents in the ascending order of listOrder and then based on documentId", () => {
+    it("Should sort documents in the ascending order of categoryListOrder and then based on documentId", () => {
       const unsortedDocs = [
         {
           documentId: "4",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: 1,
+          categoryListOrder: 1,
           cmsDocType: { documentType: "MG 16" },
         },
         {
           documentId: "1",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: 1,
+          categoryListOrder: 1,
           cmsDocType: { documentType: "MG 3" },
         },
 
         {
           documentId: "3",
           cmsFileCreatedDate: "2020-01-15",
-          listOrder: 3,
+          categoryListOrder: 3,
           cmsDocType: { documentType: "MG 7" },
         },
         {
           documentId: "2",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: 4,
+          categoryListOrder: 4,
           cmsDocType: { documentType: "MG 7" },
         },
         {
           documentId: "5",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: 2,
+          categoryListOrder: 2,
           cmsDocType: { documentType: "Abc" },
         },
       ];
@@ -144,32 +146,32 @@ describe("sortUtils", () => {
         {
           documentId: "1",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: 1,
+          categoryListOrder: 1,
           cmsDocType: { documentType: "MG 3" },
         },
         {
           documentId: "4",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: 1,
+          categoryListOrder: 1,
           cmsDocType: { documentType: "MG 16" },
         },
         {
           documentId: "5",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: 2,
+          categoryListOrder: 2,
           cmsDocType: { documentType: "Abc" },
         },
 
         {
           documentId: "3",
           cmsFileCreatedDate: "2020-01-15",
-          listOrder: 3,
+          categoryListOrder: 3,
           cmsDocType: { documentType: "MG 7" },
         },
         {
           documentId: "2",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: 4,
+          categoryListOrder: 4,
           cmsDocType: { documentType: "MG 7" },
         },
       ];
@@ -179,69 +181,69 @@ describe("sortUtils", () => {
       expect(sortedDocs).toEqual(expectedSortedDocs);
     });
 
-    it("Should handle even if the listOrder is null and sort by documentId", () => {
+    it("Should handle even if the categoryListOrder is null and sort by documentId", () => {
       const unsortedDocs = [
         {
           documentId: "4",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: null,
+          categoryListOrder: null,
           cmsDocType: { documentType: "MG 16" },
         },
         {
-          documentId: "1",
+          documentId: "2",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: null,
+          categoryListOrder: 1,
           cmsDocType: { documentType: "MG 3" },
         },
 
         {
           documentId: "3",
           cmsFileCreatedDate: "2020-01-15",
-          listOrder: null,
+          categoryListOrder: null,
           cmsDocType: { documentType: "MG 7" },
         },
         {
-          documentId: "2",
+          documentId: "1",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: null,
+          categoryListOrder: 2,
           cmsDocType: { documentType: "MG 7" },
         },
         {
           documentId: "5",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: null,
+          categoryListOrder: null,
           cmsDocType: { documentType: "Abc" },
         },
       ];
       const expectedSortedDocs = [
         {
-          documentId: "1",
+          documentId: "2",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: null,
+          categoryListOrder: 1,
           cmsDocType: { documentType: "MG 3" },
         },
         {
-          documentId: "2",
+          documentId: "1",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: null,
+          categoryListOrder: 2,
           cmsDocType: { documentType: "MG 7" },
         },
         {
           documentId: "3",
           cmsFileCreatedDate: "2020-01-15",
-          listOrder: null,
+          categoryListOrder: null,
           cmsDocType: { documentType: "MG 7" },
         },
         {
           documentId: "4",
           cmsFileCreatedDate: "2020-01-10",
-          listOrder: null,
+          categoryListOrder: null,
           cmsDocType: { documentType: "MG 16" },
         },
         {
           documentId: "5",
           cmsFileCreatedDate: "2020-01-01",
-          listOrder: null,
+          categoryListOrder: null,
           cmsDocType: { documentType: "Abc" },
         },
       ];
@@ -249,6 +251,79 @@ describe("sortUtils", () => {
         unsortedDocs as PresentationDocumentProperties[]
       );
       expect(sortedDocs).toEqual(expectedSortedDocs);
+    });
+  });
+  describe("customSortByDocumentType", () => {
+    it("Should successfully do the custom sort by splitting the doctype into three parts prefix, mid and postfix", () => {
+      const unsortedList = [
+        "MG 12",
+        "MG6",
+        "MG 6",
+        "MG 6A",
+        "MG 6B",
+        "MG 6C",
+        "MG7A",
+        "MG 7",
+      ];
+      const sortedList = unsortedList.sort(customSortByDocumentType);
+      expect(sortedList).toEqual([
+        "MG6",
+        "MG 6",
+        "MG 6A",
+        "MG 6B",
+        "MG 6C",
+        "MG 7",
+        "MG7A",
+        "MG 12",
+      ]);
+    });
+    it("Should successfully do the custom sort without breaking even if some values are null or undefined", () => {
+      const unsortedList = [
+        null,
+        "MG6",
+        "MG 6",
+        null,
+        undefined,
+        "MG 6C",
+        "MG7A",
+        "MG 7",
+      ] as any;
+      const sortedList = unsortedList.sort(customSortByDocumentType);
+      expect(sortedList).toEqual([
+        "MG6",
+        "MG 6",
+        "MG 6C",
+        "MG 7",
+        "MG7A",
+        null,
+        null,
+        undefined,
+      ]);
+    });
+    it("Should successfully do the custom sort without breaking even if some values are null or undefined", () => {
+      const unsortedList = [
+        null,
+        null,
+        "MG 6",
+        null,
+        "MG 3",
+        "MG 6C",
+        "MG7A",
+        "MG",
+        null,
+      ] as any;
+      const sortedList = unsortedList.sort(customSortByDocumentType);
+      expect(sortedList).toEqual([
+        "MG",
+        "MG 3",
+        "MG 6",
+        "MG 6C",
+        "MG7A",
+        null,
+        null,
+        null,
+        null,
+      ]);
     });
   });
 });

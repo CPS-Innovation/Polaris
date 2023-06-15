@@ -191,7 +191,7 @@ describe("mapAccordionState", () => {
         documentId: "1",
         cmsDocType: {
           documentTypeId: 1,
-          documentType: "MG 12",
+          documentType: "MG 12A",
         },
         cmsFileCreatedDate: "2020-01-03",
       },
@@ -199,7 +199,7 @@ describe("mapAccordionState", () => {
         documentId: "2",
         cmsDocType: {
           documentTypeId: 2,
-          documentType: "MG 12",
+          documentType: "MG12",
         },
         cmsFileCreatedDate: "2020-01-01",
       },
@@ -207,17 +207,25 @@ describe("mapAccordionState", () => {
         documentId: "3",
         cmsDocType: {
           documentTypeId: 2,
-          documentType: "MG 7",
+          documentType: "MG 7A",
         },
         cmsFileCreatedDate: "2020-01-02",
       },
     ];
     const sortedDocuments = [
       {
+        documentId: "3",
+        cmsDocType: {
+          documentTypeId: 2,
+          documentType: "MG 7A",
+        },
+        cmsFileCreatedDate: "2020-01-02",
+      },
+      {
         documentId: "2",
         cmsDocType: {
           documentTypeId: 2,
-          documentType: "MG 12",
+          documentType: "MG12",
         },
         cmsFileCreatedDate: "2020-01-01",
       },
@@ -225,17 +233,9 @@ describe("mapAccordionState", () => {
         documentId: "1",
         cmsDocType: {
           documentTypeId: 1,
-          documentType: "MG 12",
+          documentType: "MG 12A",
         },
         cmsFileCreatedDate: "2020-01-03",
-      },
-      {
-        documentId: "3",
-        cmsDocType: {
-          documentTypeId: 2,
-          documentType: "MG 7",
-        },
-        cmsFileCreatedDate: "2020-01-02",
       },
     ];
 
@@ -306,12 +306,12 @@ describe("mapAccordionState", () => {
     } as ReturnType<typeof mapAccordionState>);
   });
 
-  it("can map from an api result to accordion input shape and sort it correctly based on listOrder and documentId ascending ", () => {
+  it("can map from an api result to accordion input shape and sort it correctly based on categoryListOrder and documentId ascending ", () => {
     const sortCategories: string[] = ["Statements", "Exhibits"];
     const rawUnSortedDocuments = [
       {
         documentId: "1",
-        listOrder: 2,
+        categoryListOrder: 2,
         cmsDocType: {
           documentTypeId: 1,
           documentType: "MG 12",
@@ -320,7 +320,7 @@ describe("mapAccordionState", () => {
       },
       {
         documentId: "2",
-        listOrder: 2,
+        categoryListOrder: 2,
         cmsDocType: {
           documentTypeId: 2,
           documentType: "MG 12",
@@ -329,7 +329,7 @@ describe("mapAccordionState", () => {
       },
       {
         documentId: "3",
-        listOrder: 1,
+        categoryListOrder: 1,
         cmsDocType: {
           documentTypeId: 2,
           documentType: "MG 7",
@@ -340,7 +340,7 @@ describe("mapAccordionState", () => {
     const sortedDocuments = [
       {
         documentId: "3",
-        listOrder: 1,
+        categoryListOrder: 1,
         cmsDocType: {
           documentTypeId: 2,
           documentType: "MG 7",
@@ -349,7 +349,7 @@ describe("mapAccordionState", () => {
       },
       {
         documentId: "1",
-        listOrder: 2,
+        categoryListOrder: 2,
         cmsDocType: {
           documentTypeId: 1,
           documentType: "MG 12",
@@ -358,7 +358,7 @@ describe("mapAccordionState", () => {
       },
       {
         documentId: "2",
-        listOrder: 2,
+        categoryListOrder: 2,
         cmsDocType: {
           documentTypeId: 2,
           documentType: "MG 12",
