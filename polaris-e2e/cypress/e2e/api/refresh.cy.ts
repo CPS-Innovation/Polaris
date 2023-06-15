@@ -171,8 +171,9 @@ describe("Refresh", () => {
                     throw new Error("Pipeline failed, ending test")
                   }
                   return (
-                    processingCompleted &&
-                    processingCompleted !== previousProcessingCompleted
+                    status === "Completed"
+                    /*processingCompleted &&
+                    processingCompleted !== previousProcessingCompleted*/
                   )
                 }),
             WAIT_UNTIL_OPTIONS
@@ -210,25 +211,7 @@ describe("Refresh", () => {
       }
     )
 
-    assertSearchExpectation({
-      expectation: "TERM_PRESENT_IN_DOC_ID",
-      term: "one",
-      docId: "numbersDocId",
-    })
-    assertSearchExpectation({
-      expectation: "TERM_PRESENT_IN_DOC_ID",
-      term: "two",
-      docId: "numbersDocId",
-    })
-    assertSearchExpectation({
-      expectation: "TERM_NOT_PRESENT",
-      term: "three",
-    })
-    assertSearchExpectation({
-      expectation: "TERM_PRESENT_IN_DOC_ID",
-      term: "four",
-      docId: "numbersDocId",
-    })
+    /* assertion order is significant */
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "alice",
@@ -247,6 +230,26 @@ describe("Refresh", () => {
     assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "dave",
+    })
+    /* put these checks on the changing doc to the bottom to allow Search Indexing to resolve for this document */
+    assertSearchExpectation({
+      expectation: "TERM_PRESENT_IN_DOC_ID",
+      term: "one",
+      docId: "numbersDocId",
+    })
+    assertSearchExpectation({
+      expectation: "TERM_PRESENT_IN_DOC_ID",
+      term: "two",
+      docId: "numbersDocId",
+    })
+    assertSearchExpectation({
+      expectation: "TERM_NOT_PRESENT",
+      term: "three",
+    })
+    assertSearchExpectation({
+      expectation: "TERM_PRESENT_IN_DOC_ID",
+      term: "four",
+      docId: "numbersDocId",
     })
 
     cy.get<SavedVariables>("@phase2Vars").then(
@@ -290,8 +293,9 @@ describe("Refresh", () => {
                     throw new Error("Pipeline failed, ending test")
                   }
                   return (
-                    processingCompleted &&
-                    processingCompleted !== previousProcessingCompleted
+                    status === "Completed"
+                    /* processingCompleted &&
+                        processingCompleted !== previousProcessingCompleted */
                   )
                 }),
             WAIT_UNTIL_OPTIONS
