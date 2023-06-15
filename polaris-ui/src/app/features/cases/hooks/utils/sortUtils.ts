@@ -49,10 +49,11 @@ export const sortAscendingByListOrderAndId = (
     a: PresentationDocumentProperties,
     b: PresentationDocumentProperties
   ) => {
-    // if (a.documentId !== b.documentId) {
-    //   return a.documentId.localeCompare(b.documentId);
-    // } else {
-    return a.documentId < b.documentId ? -1 : 1;
+    if (a.listOrder !== b.listOrder && a.listOrder && b.listOrder) {
+      return a.listOrder < b.listOrder ? -1 : 1;
+    } else {
+      return a.documentId < b.documentId ? -1 : 1;
+    }
   };
   return cmsDocuments.sort(compareFunction);
 };

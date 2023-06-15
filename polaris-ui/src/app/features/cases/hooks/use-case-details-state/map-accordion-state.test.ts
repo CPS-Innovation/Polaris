@@ -305,6 +305,134 @@ describe("mapAccordionState", () => {
       ],
     } as ReturnType<typeof mapAccordionState>);
   });
+
+  it("can map from an api result to accordion input shape and sort it correctly based on listOrder and documentId ascending ", () => {
+    const sortCategories: string[] = ["Statements", "Exhibits"];
+    const rawUnSortedDocuments = [
+      {
+        documentId: "1",
+        listOrder: 2,
+        cmsDocType: {
+          documentTypeId: 1,
+          documentType: "MG 12",
+        },
+        cmsFileCreatedDate: "2020-01-03",
+      },
+      {
+        documentId: "2",
+        listOrder: 2,
+        cmsDocType: {
+          documentTypeId: 2,
+          documentType: "MG 12",
+        },
+        cmsFileCreatedDate: "2020-01-01",
+      },
+      {
+        documentId: "3",
+        listOrder: 1,
+        cmsDocType: {
+          documentTypeId: 2,
+          documentType: "MG 7",
+        },
+        cmsFileCreatedDate: "2020-01-02",
+      },
+    ];
+    const sortedDocuments = [
+      {
+        documentId: "3",
+        listOrder: 1,
+        cmsDocType: {
+          documentTypeId: 2,
+          documentType: "MG 7",
+        },
+        cmsFileCreatedDate: "2020-01-02",
+      },
+      {
+        documentId: "1",
+        listOrder: 2,
+        cmsDocType: {
+          documentTypeId: 1,
+          documentType: "MG 12",
+        },
+        cmsFileCreatedDate: "2020-01-03",
+      },
+      {
+        documentId: "2",
+        listOrder: 2,
+        cmsDocType: {
+          documentTypeId: 2,
+          documentType: "MG 12",
+        },
+        cmsFileCreatedDate: "2020-01-01",
+      },
+    ];
+
+    const apiResult: ApiResult<MappedCaseDocument[]> = {
+      status: "succeeded",
+      data: mapUnSortedDocsToCategory(
+        sortCategories,
+        rawUnSortedDocuments
+      ) as MappedCaseDocument[],
+    };
+
+    const result = mapAccordionState(apiResult);
+
+    expect(result).toEqual({
+      status: "succeeded",
+      data: [
+        {
+          sectionId: "Reviews",
+          sectionLabel: "Reviews",
+          docs: [],
+        },
+        {
+          sectionId: "Case overview",
+          sectionLabel: "Case overview",
+          docs: [],
+        },
+        {
+          sectionId: "Statements",
+          sectionLabel: "Statements",
+          docs: mapSortedDocToCategory(sortedDocuments, "Statements"),
+        },
+        {
+          sectionId: "Exhibits",
+          sectionLabel: "Exhibits",
+          docs: mapSortedDocToCategory(sortedDocuments, "Exhibits"),
+        },
+        {
+          sectionId: "Forensics",
+          sectionLabel: "Forensics",
+          docs: [],
+        },
+        {
+          sectionId: "Unused material",
+          sectionLabel: "Unused material",
+          docs: [],
+        },
+        {
+          sectionId: "Defendant",
+          sectionLabel: "Defendant",
+          docs: [],
+        },
+        {
+          sectionId: "Court preparation",
+          sectionLabel: "Court preparation",
+          docs: [],
+        },
+        {
+          sectionId: "Communications",
+          sectionLabel: "Communications",
+          docs: [],
+        },
+        {
+          sectionId: "Uncategorised",
+          sectionLabel: "Uncategorised",
+          docs: [],
+        },
+      ],
+    } as ReturnType<typeof mapAccordionState>);
+  });
   it("can filter out the DAC doc type, from any accordion category", () => {
     const apiResult: ApiResult<MappedCaseDocument[]> = {
       status: "succeeded",
