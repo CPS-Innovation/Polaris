@@ -71,7 +71,7 @@ public class ResetDurableState
             await Task.WhenAll(instancesToTerminate.Select(async instanceId => await client.TerminateAsync(instanceId, "Forcibly terminated by overnight clear-down")));
         } while (terminateCondition.ContinuationToken != null);
         
-        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {runningInstances.Count} active orchestrations anddurable instances forcibly terminated");
+        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {runningInstances.Count} active orchestrations and durable instances forcibly terminated");
     }
 
     private async Task<HashSet<string>> PurgeOrchestrationsAndDurableEntitiesHistory(IDurableOrchestrationClient client, Guid correlationId)
