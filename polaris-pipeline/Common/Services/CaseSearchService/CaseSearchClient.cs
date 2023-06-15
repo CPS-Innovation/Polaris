@@ -135,10 +135,7 @@ namespace Common.Services.CaseSearchService
             var searchLines = new List<SearchLine>();
             await foreach (var searchResult in searchResults.Value.GetResultsAsync())
             {
-                if (IsLiveDocumentResult(documents, searchResult.Document))
-                {
-                    searchLines.Add(searchResult.Document);
-                }
+                searchLines.Add(searchResult.Document);
             }
 
             _logger.LogMethodFlow(correlationId, nameof(QueryAsync), $"Found {searchLines.Count} results, building streamlined search results");
@@ -154,8 +151,11 @@ namespace Common.Services.CaseSearchService
             var streamlinedResults = new List<StreamlinedSearchLine>();
             if (searchResults.Count == 0)
                 return streamlinedResults;
-            streamlinedResults.AddRange(searchResults
-                .Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm, correlationId)));
+
+            IEnumerable<StreamlinedSearchLine> seachResultsValues 
+                = searchResults.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm, correlationId));
+
+            streamlinedResults.AddRange(seachResultsValues);
 
             _logger.LogMethodExit(correlationId, nameof(BuildStreamlinedResults), string.Empty);
             return streamlinedResults;
@@ -305,7 +305,7 @@ namespace Common.Services.CaseSearchService
             return stringBuilder.ToString();
         }
 
-        private bool IsLiveDocumentResult(List<BaseDocumentEntity> documents, SearchLine searchLine)
+        /*private bool IsLiveDocumentResult(List<BaseDocumentEntity> documents, SearchLine searchLine)
         {
             // SearchLineFactory => {cmsCaseId}:{polarisDocumentId}:{readResult.Page}:{index}
 
@@ -316,6 +316,6 @@ namespace Common.Services.CaseSearchService
             var resultPolarisDocumentIdValue = elements[1];
 
             return documents.Any(document => document.PolarisDocumentId.Value == resultPolarisDocumentIdValue);
-        }
+        }*/
     }
 }
