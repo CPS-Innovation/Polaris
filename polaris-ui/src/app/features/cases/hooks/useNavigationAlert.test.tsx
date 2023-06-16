@@ -26,6 +26,7 @@ describe("useNavigationAlert hook", () => {
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG3  very long",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -59,6 +60,7 @@ describe("useNavigationAlert hook", () => {
       presentationCategory: "Reviews",
       presentationFileName: "MCLOVEMG4 test",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",

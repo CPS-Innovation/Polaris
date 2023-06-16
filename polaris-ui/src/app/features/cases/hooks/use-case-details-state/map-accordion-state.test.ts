@@ -446,6 +446,7 @@ describe("mapAccordionState", () => {
           cmsMimeType: "application/pdf",
           presentationFileName: "foo!",
           polarisDocumentVersionId: 1,
+          categoryListOrder: null,
           cmsDocType: {
             documentTypeId: 1,
             documentType: "DAC",
@@ -466,6 +467,7 @@ describe("mapAccordionState", () => {
           cmsMimeType: "application/pdf",
           presentationFileName: "bar!",
           polarisDocumentVersionId: 1,
+          categoryListOrder: null,
           cmsDocType: {
             documentTypeId: 2,
             documentType: "MG12",
@@ -498,6 +500,7 @@ describe("mapAccordionState", () => {
               cmsMimeType: "application/pdf",
               presentationFileName: "bar!",
               polarisDocumentVersionId: 1,
+              categoryListOrder: null,
               cmsDocType: {
                 documentTypeId: 2,
                 documentType: "MG12",

@@ -280,24 +280,24 @@ describe("sortUtils", () => {
     it("Should successfully do the custom sort without breaking even if some values are null or undefined", () => {
       const unsortedList = [
         null,
+        "MG(6)",
         "MG6",
-        "MG 6",
         null,
-        undefined,
         "MG 6C",
-        "MG7A",
-        "MG 7",
+        "MG7D",
+        "MG 7A",
+        "ABC",
       ] as any;
       const sortedList = unsortedList.sort(customSortByDocumentType);
       expect(sortedList).toEqual([
+        "ABC",
+        "MG(6)",
         "MG6",
-        "MG 6",
         "MG 6C",
-        "MG 7",
-        "MG7A",
+        "MG 7A",
+        "MG7D",
         null,
         null,
-        undefined,
       ]);
     });
     it("Should successfully do the custom sort without breaking even if some values are null or undefined", () => {

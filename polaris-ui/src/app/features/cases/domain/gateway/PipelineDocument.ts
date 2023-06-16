@@ -30,7 +30,7 @@ export type PresentationDocumentProperties = {
   polarisDocumentVersionId: number;
   cmsMimeType: string;
   cmsFileCreatedDate: string;
-  categoryListOrder?: number | null;
+  categoryListOrder: number | null;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
