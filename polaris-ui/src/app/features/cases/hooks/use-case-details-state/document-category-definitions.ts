@@ -4,7 +4,7 @@ import {
   sortDocumentsByCreatedDate,
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
-} from "../utils/sortUtils";
+} from "./document-category-sort-helpers";
 
 const docTypeTest = (
   caseDocument: PresentationDocumentProperties,
@@ -16,8 +16,8 @@ const docTypeTest = (
 const documentCategoryDefinitions: {
   category: string;
   showIfEmpty: boolean;
-  test: (caseDocument: PresentationDocumentProperties) => boolean;
-  sort: (
+  testFn: (caseDocument: PresentationDocumentProperties) => boolean;
+  sortFn: (
     caseDocuments: PresentationDocumentProperties[]
   ) => PresentationDocumentProperties[];
 }[] = [
@@ -25,40 +25,34 @@ const documentCategoryDefinitions: {
   {
     category: "Reviews",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       // todo: PCD are artificial documents, write a unit test for this
       doc.cmsDocType.documentType === "PCD" ||
       docTypeTest(doc, [101, 102, 103, 104, 227, 1034, 1035, 1064]),
-    sort: (caseDocuments) => {
-      return sortDocumentsByCreatedDate(caseDocuments);
-    },
+    sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Case overview",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
         [1002, 1003, 1004, 1005, 1006, 1036, 1037, 1038, 1060, 1061]
       ),
-    sort: (caseDocuments) => {
-      return sortAscendingByDocumentTypeAndCreationDate(caseDocuments);
-    },
+    sortFn: sortAscendingByDocumentTypeAndCreationDate,
   },
   {
     category: "Statements",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       doc.cmsDocType.documentCategory === "UsedStatement" &&
       docTypeTest(doc, [1031, 1059]),
-    sort: (caseDocuments) => {
-      return sortAscendingByListOrderAndId(caseDocuments);
-    },
+    sortFn: sortAscendingByListOrderAndId,
   },
   {
     category: "Exhibits",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
         [
@@ -66,41 +60,33 @@ const documentCategoryDefinitions: {
           226148,
         ]
       ),
-    sort: (caseDocuments) => {
-      return sortAscendingByListOrderAndId(caseDocuments);
-    },
+    sortFn: sortAscendingByListOrderAndId,
   },
   {
     category: "Forensics",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1027, 1048, 1049, 1203]),
-    sort: (caseDocuments) => {
-      return sortDocumentsByCreatedDate(caseDocuments);
-    },
+    testFn: (doc) => docTypeTest(doc, [1027, 1048, 1049, 1203]),
+    sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Unused material",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       doc.cmsDocType.documentCategory === "UnusedStatement" ||
       doc.cmsDocType.documentCategory === "Unused" ||
       docTypeTest(doc, [1001, 1008, 1009, 1010, 1011, 1039, 1202]),
-    sort: (caseDocuments) => {
-      return sortAscendingByDocumentTypeAndCreationDate(caseDocuments);
-    },
+    sortFn: sortAscendingByDocumentTypeAndCreationDate,
   },
   {
     category: "Defendant",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1056, 1057, 1058]),
-    sort: (caseDocuments) => {
-      return sortDocumentsByCreatedDate(caseDocuments);
-    },
+    testFn: (doc) => docTypeTest(doc, [1056, 1057, 1058]),
+    sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Court preparation",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
         [
@@ -108,14 +94,12 @@ const documentCategoryDefinitions: {
           1047, 1063,
         ]
       ),
-    sort: (caseDocuments) => {
-      return sortAscendingByDocumentTypeAndCreationDate(caseDocuments);
-    },
+    sortFn: sortAscendingByDocumentTypeAndCreationDate,
   },
   {
     category: "Communications",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
         [
@@ -140,22 +124,18 @@ const documentCategoryDefinitions: {
           225581, 225582, 225583, 225584, 226015,
         ]
       ),
-    sort: (caseDocuments) => {
-      return sortDocumentsByCreatedDate(caseDocuments);
-    },
+    sortFn: sortDocumentsByCreatedDate,
   },
   // have Uncategorised last so it can scoop up any unmatched documents
   {
     category: "Uncategorised",
     showIfEmpty: false,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(doc, [1051, 1052, 1053, 1054]) ||
       // match to Uncategorised if we have got this far
       // todo: add AppInsights logging for every time we find ourselves here
       true,
-    sort: (caseDocuments) => {
-      return sortDocumentsByCreatedDate(caseDocuments);
-    },
+    sortFn: sortDocumentsByCreatedDate,
   },
 ];
 
@@ -164,9 +144,9 @@ export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
 );
 
 export const getCategory = (item: PresentationDocumentProperties) =>
-  documentCategoryDefinitions.find(({ test }) => test(item))!.category;
+  documentCategoryDefinitions.find(({ testFn: test }) => test(item))!.category;
 
 export const getCategorySort = (item: AccordionDocumentSection) =>
   documentCategoryDefinitions.find(
     ({ category }) => category === item.sectionId
-  )!.sort;
+  )!.sortFn;

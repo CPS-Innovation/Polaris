@@ -3,7 +3,7 @@ import {
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
   customSortByDocumentType,
-} from "./sortUtils";
+} from "./document-category-sort-helpers";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
 describe("sortUtils", () => {
