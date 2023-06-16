@@ -1,6 +1,7 @@
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Mappers.Contracts;
+using System;
 
 namespace Common.Mappers;
 
@@ -18,6 +19,7 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
             FileExtension = ddeiResponse.FileExtension,
             CmsDocType = new DocumentTypeDto(ddeiResponse.DocumentType, ddeiResponse.DocumentTypeId, ddeiResponse.CmsDocCategory),
             DocumentDate = ddeiResponse.DocumentDate,
+            CategoryListOrder = ddeiResponse.CategoryListOrder,
             IsOcrProcessed = ddeiResponse.IsOcrProcessed == true
         };
     }

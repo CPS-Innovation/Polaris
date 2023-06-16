@@ -132,12 +132,24 @@ Cypress.Commands.add(
 )
 
 Cypress.Commands.add("loginToAD", () => {
+  // Intermittent failures have been observed on the first UI test of the day
+  //  whereby the very first UI interaction (this login process visit to the UI)
+  //  times out.  A working assumption is that the UI deployment is not warmed up
+  //  and so may take longer than the default 60 seconds to respond.  So rather than
+  //  increase the default timeout for all UI tests, we'll just increase the timeout
+  //  for this one type of visit (which will always be the first in any UI test run).
+  const timeoutMs = 2 * 60 * 1000
+
   let getToken =
     cachedTokenResponse && cachedTokenExpiryTime > new Date().getTime()
-      ? cy.visit(AUTOMATION_LANDING_PAGE_PATH).then(() => ({
-          body: cachedTokenResponse,
-        }))
-      : cy.visit(AUTOMATION_LANDING_PAGE_PATH).requestToken()
+      ? cy
+          .visit(AUTOMATION_LANDING_PAGE_PATH, { timeout: timeoutMs })
+          .then(() => ({
+            body: cachedTokenResponse,
+          }))
+      : cy
+          .visit(AUTOMATION_LANDING_PAGE_PATH, { timeout: timeoutMs })
+          .requestToken()
 
   return getToken
     .then((response) => {
