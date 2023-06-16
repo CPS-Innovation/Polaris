@@ -1,5 +1,9 @@
-const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, TARGET_NUMBERS_DOC_NAME } =
-  Cypress.env()
+const {
+  REFRESH_TARGET_URN,
+  REFRESH_TARGET_CASE_ID,
+  TARGET_NUMBERS_DOC_NAME,
+  SEARCH_RACE_CONDITION_WAIT_MS,
+} = Cypress.env()
 
 describe("Refresh via guid-controlled ", () => {
   it("can update a document", () => {
