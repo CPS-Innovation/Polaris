@@ -15,6 +15,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace coordinator.Functions.DurableEntity.Client.Tracker
 {
@@ -75,6 +76,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                         log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
                         var trackerEntity = trackerState.EntityState;
                         var trackerDto = trackerEntity.Adapt<TrackerDto>();
+
                         return new OkObjectResult(trackerDto);
 
                     default:

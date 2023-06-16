@@ -197,6 +197,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.FileName,
                         newDocument.PresentationTitle,
                         newDocument.IsOcrProcessed,
+                        newDocument.CategoryListOrder,
                         newDocument.PresentationFlags
                     );
 
