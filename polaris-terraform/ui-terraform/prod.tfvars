@@ -24,10 +24,11 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip                 = "10.2.177.2"
-  upstream_cms_modern_ip          = "10.2.177.50"
-  upstream_cms_domain_name        = "cms.cps.gov.uk"
-  upstream_cms_modern_domain_name = "cmsmodern.cps.gov.uk"
+  upstream_cms_ip                   = "10.2.177.2"
+  upstream_cms_modern_ip            = "10.2.177.50"
+  upstream_cms_domain_name          = "cms.cps.gov.uk"
+  upstream_cms_modern_domain_name   = "cmsmodern.cps.gov.uk"
+  upstream_cms_services_domain_name = "cms-services.cps.gov.uk"
 }
 
 react_app_ai_connection_string = "IngestionEndpoint=https://polaris.cps.gov.uk/;LiveEndpoint=https://polaris.cps.gov.uk/"

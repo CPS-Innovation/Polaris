@@ -28,6 +28,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "UPSTREAM_CMS_IP"                                 = var.cms_details.upstream_cms_ip
     "UPSTREAM_CMS_MODERN_IP"                          = var.cms_details.upstream_cms_modern_ip
     "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
+    "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"               = var.cms_details.upstream_cms_services_domain_name
     "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
