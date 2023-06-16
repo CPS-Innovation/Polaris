@@ -60,6 +60,9 @@ namespace Common.Dto.Tracker
         [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
 
+        [JsonProperty("categoryListOrder")]
+        public int? CategoryListOrder { get; set; }
+
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
     }
