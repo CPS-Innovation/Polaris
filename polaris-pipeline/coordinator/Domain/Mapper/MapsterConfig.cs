@@ -12,9 +12,6 @@ namespace coordinator.Domain.Mapper
 {
     public static class MapsterConfig
     {
-        // dd/mm/yyyy
-        private static Regex dateRegex = new Regex(@"^([0-2]\d|3[01])\/((0[1-9])|(1[0-2]))\/\d{4}$", RegexOptions.Compiled);
-
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
             TypeAdapterConfig<TrackerEntity, TrackerDto>
@@ -38,7 +35,7 @@ namespace coordinator.Domain.Mapper
                 CmsDocumentId = pcdRequest.CmsDocumentId,
                 CmsVersionId = pcdRequest.CmsVersionId,
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
-                CmsFileCreatedDate = StandardiseDayMonthYearDateFormat(pcdRequest.PcdRequest.DecisionRequested),
+                CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
                 CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? "(Pending) PCD.pdf",
                 PresentationTitle = Path.GetFileNameWithoutExtension(pcdRequest.PdfBlobName) ?? "(Pending) PCD",
                 PresentationFlags = pcdRequest.PresentationFlags,
@@ -46,24 +43,6 @@ namespace coordinator.Domain.Mapper
                 IsPdfAvailable = pcdRequest.IsPdfAvailable,
                 Status = pcdRequest.Status
             };
-        }
-
-        // dd/mm/yyyy -> yyyy-mm-dd
-        private static string StandardiseDayMonthYearDateFormat(string decisionRequested)
-        {
-            if(!IsDdYyMmmmDate(decisionRequested))
-                return decisionRequested;
-
-            var dateParts = decisionRequested.Split('/');
-            var year = dateParts[2];
-            var month = $"{int.Parse(dateParts[1]):D2}";
-            var day = $"{int.Parse(dateParts[0]):D2}";
-            return $"{year}-{month}-{day}";
-        }
-
-        private static bool IsDdYyMmmmDate(string input)
-        {
-            return dateRegex.IsMatch(input);
         }
 
         private static TrackerCmsDocumentDto[] ConvertToTrackerCmsDocumentDto(TrackerDefendantsAndChargesDto defendantsAndCharges)
