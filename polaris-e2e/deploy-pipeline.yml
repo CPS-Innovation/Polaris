@@ -1,12 +1,3 @@
-trigger:
-  branches:
-    include:
-      - main
-
-  paths:
-    include:
-      - "polaris-e2e"
-
 schedules:
   - cron: "0 7 * * *"
     displayName: Daily pre-working-day run
@@ -15,7 +6,21 @@ schedules:
         - main
     always: true
 
+resources:
+  repositories:
+    - repository: PolarisTagged
+      type: github
+      endpoint: CPS-Innovation
+      name: CPS-Innovation/Polaris
+      ref: refs/tags/$(cypress_environment)
+
 steps:
+  - checkout: PolarisTagged
+    clean: true
+    persistCredentials: true
+    fetchDepth: 1
+    displayName: "Checkout polaris-e2e at $(cypress_environment) tag"
+
   - task: Bash@3
     inputs:
       targetType: "inline"
@@ -52,15 +57,3 @@ steps:
       PathtoPublish: "polaris-e2e/cypress/screenshots"
       ArtifactName: "Cypress failure screenshots"
       publishLocation: "Container"
-
-  # - task: Npm@1
-  #   inputs:
-  #       command: "custom"
-  #       customCommand: "run cy:report"
-  #   displayName: "generate cypress html report"
-
-  # - task: PublishBuildArtifacts@1
-  #   inputs:
-  #       PathtoPublish: "report"
-  #       ArtifactName: "report"
-  #       publishLocation: "Container"
