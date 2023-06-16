@@ -5,7 +5,11 @@ import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 
-const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID } = Cypress.env()
+const {
+  REFRESH_TARGET_URN,
+  REFRESH_TARGET_CASE_ID,
+  SEARCH_RACE_CONDITION_WAIT_MS,
+} = Cypress.env()
 
 let routes: ApiRoutes
 
@@ -98,6 +102,8 @@ describe("Refresh", () => {
           "DAC is present in PHASE_1"
         ).to.be.true
       })
+
+    cy.wait(SEARCH_RACE_CONDITION_WAIT_MS)
 
     // todo: #21848 - early warning that the Aspose licence has expired (in which case a watermark is added to the document
     //  that the OCR process will read and add to the index - the watermark includes the word "Aspose").
@@ -240,6 +246,8 @@ describe("Refresh", () => {
       }
     )
 
+    cy.wait(SEARCH_RACE_CONDITION_WAIT_MS)
+
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "one",
@@ -336,6 +344,8 @@ describe("Refresh", () => {
           )
       }
     )
+
+    cy.wait(SEARCH_RACE_CONDITION_WAIT_MS)
 
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
