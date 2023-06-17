@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace coordinator.Domain.Mapper
 {
@@ -34,7 +35,7 @@ namespace coordinator.Domain.Mapper
                 CmsDocumentId = pcdRequest.CmsDocumentId,
                 CmsVersionId = pcdRequest.CmsVersionId,
                 CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
-                CmsFileCreatedDate = DateTime.Today.ToString("yyyy-MM-dd"),
+                CmsFileCreatedDate = pcdRequest.PcdRequest.DecisionRequested,
                 CmsOriginalFileName = Path.GetFileName(pcdRequest.PdfBlobName) ?? "(Pending) PCD.pdf",
                 PresentationTitle = Path.GetFileNameWithoutExtension(pcdRequest.PdfBlobName) ?? "(Pending) PCD",
                 PresentationFlags = pcdRequest.PresentationFlags,

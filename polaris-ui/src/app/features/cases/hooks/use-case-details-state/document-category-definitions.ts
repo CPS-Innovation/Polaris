@@ -1,4 +1,10 @@
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import { AccordionDocumentSection } from "../../presentation/case-details/accordion/types";
+import {
+  sortDocumentsByCreatedDate,
+  sortAscendingByDocumentTypeAndCreationDate,
+  sortAscendingByListOrderAndId,
+} from "./document-category-sort-helpers";
 
 const docTypeTest = (
   caseDocument: PresentationDocumentProperties,
@@ -10,76 +16,90 @@ const docTypeTest = (
 const documentCategoryDefinitions: {
   category: string;
   showIfEmpty: boolean;
-  test: (caseDocument: PresentationDocumentProperties) => boolean;
+  testFn: (caseDocument: PresentationDocumentProperties) => boolean;
+  sortFn: (
+    caseDocuments: PresentationDocumentProperties[]
+  ) => PresentationDocumentProperties[];
 }[] = [
   // todo: when we know, write the `test` logic to identify which document goes in which section
   {
     category: "Reviews",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       // todo: PCD are artificial documents, write a unit test for this
       doc.cmsDocType.documentType === "PCD" ||
-      docTypeTest(doc, [101, 102, 103, 104, 227, 516, 1034, 1035, 1047, 1064]),
+      docTypeTest(doc, [101, 102, 103, 104, 227, 1034, 1035, 1064]),
+    sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Case overview",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
-        [1001, 1002, 1003, 1004, 1005, 1006, 1036, 1037, 1038, 1060, 1061]
+        [1002, 1003, 1004, 1005, 1006, 1036, 1037, 1038, 1060, 1061]
       ),
+    sortFn: sortAscendingByDocumentTypeAndCreationDate,
   },
   {
     category: "Statements",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       doc.cmsDocType.documentCategory === "UsedStatement" &&
-      docTypeTest(doc, [1016, 1017, 1018, 1031, 1059]),
+      docTypeTest(doc, [1031, 1059]),
+    sortFn: sortAscendingByListOrderAndId,
   },
   {
     category: "Exhibits",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
         [
-          1019, 1020, 1021, 1022, 1023, 1028, 1030, 1042, 1044, 1050, 1062,
-          1066, 1201, 100239, 226148,
+          1019, 1020, 1028, 1030, 1042, 1044, 1050, 1062, 1066, 1201, 100239,
+          226148,
         ]
       ),
+    sortFn: sortAscendingByListOrderAndId,
   },
   {
     category: "Forensics",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1048, 1049, 1203]),
+    testFn: (doc) => docTypeTest(doc, [1027, 1048, 1049, 1203]),
+    sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Unused material",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       doc.cmsDocType.documentCategory === "UnusedStatement" ||
       doc.cmsDocType.documentCategory === "Unused" ||
-      docTypeTest(doc, [1008, 1009, 1010, 1011, 1039, 1202]),
+      docTypeTest(doc, [1001, 1008, 1009, 1010, 1011, 1039, 1202]),
+    sortFn: sortAscendingByDocumentTypeAndCreationDate,
   },
   {
     category: "Defendant",
     showIfEmpty: true,
-    test: (doc) => docTypeTest(doc, [1027, 1041, 1056, 1057, 1058]),
+    testFn: (doc) => docTypeTest(doc, [1056, 1057, 1058]),
+    sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Court preparation",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
-        [1012, 1013, 1014, 1015, 1024, 1025, 1033, 1040, 1045, 1046, 1063]
+        [
+          516, 1012, 1013, 1014, 1015, 1024, 1025, 1033, 1040, 1041, 1045, 1046,
+          1047, 1063,
+        ]
       ),
+    sortFn: sortAscendingByDocumentTypeAndCreationDate,
   },
   {
     category: "Communications",
     showIfEmpty: true,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(
         doc,
         [
@@ -104,16 +124,18 @@ const documentCategoryDefinitions: {
           225581, 225582, 225583, 225584, 226015,
         ]
       ),
+    sortFn: sortDocumentsByCreatedDate,
   },
   // have Uncategorised last so it can scoop up any unmatched documents
   {
     category: "Uncategorised",
     showIfEmpty: false,
-    test: (doc) =>
+    testFn: (doc) =>
       docTypeTest(doc, [1051, 1052, 1053, 1054]) ||
       // match to Uncategorised if we have got this far
       // todo: add AppInsights logging for every time we find ourselves here
       true,
+    sortFn: sortDocumentsByCreatedDate,
   },
 ];
 
@@ -122,4 +144,9 @@ export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
 );
 
 export const getCategory = (item: PresentationDocumentProperties) =>
-  documentCategoryDefinitions.find(({ test }) => test(item))!.category;
+  documentCategoryDefinitions.find(({ testFn: test }) => test(item))!.category;
+
+export const getCategorySort = (item: AccordionDocumentSection) =>
+  documentCategoryDefinitions.find(
+    ({ category }) => category === item.sectionId
+  )!.sortFn;

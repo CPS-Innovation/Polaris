@@ -23,5 +23,7 @@
   "TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-doc-type",
   "TARGET_NOT_CORRECT_FILE_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-file-type",
   "TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-checked-out",
-  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable"
+  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable",
+
+  "SEARCH_RACE_CONDITION_WAIT_MS": 10000
 }
