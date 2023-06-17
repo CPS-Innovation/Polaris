@@ -1,5 +1,5 @@
 schedules:
-  - cron: "0 7 * * *"
+  - cron: "*/30 * * * *"
     displayName: Daily pre-working-day run
     branches:
       include:
