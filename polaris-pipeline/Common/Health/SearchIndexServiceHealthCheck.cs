@@ -84,7 +84,7 @@ namespace Common.Health
                 if( !mockService )
                 {
                     AnalyzeResults analyzeResult = JsonSerializer.Deserialize<AnalyzeResults>(_ocrResult);
-                    await _searchIndexService.StoreResultsAsync
+                    await _searchIndexService.SendStoreResultsAsync
                     (
                         analyzeResult,
                         default(PolarisDocumentId),

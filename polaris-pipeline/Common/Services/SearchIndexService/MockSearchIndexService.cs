@@ -21,14 +21,24 @@ namespace Common.Services.SearchIndexService
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
+        public async Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long caseId, string documentId, long versionId, string blobName, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, $"{nameof(MockSearchIndexService)}.{nameof(StoreResultsAsync)}", $"PolarisDocumentId: {polarisDocumentId}, CaseId: {caseId}, Blob Name: {blobName}");
+            _logger.LogMethodEntry(correlationId, $"{nameof(MockSearchIndexService)}.{nameof(SendStoreResultsAsync)}", $"PolarisDocumentId: {polarisDocumentId}, CaseId: {caseId}, Blob Name: {blobName}");
         }
 
         public async Task RemoveResultsByBlobNameAsync(long caseId, string blobName, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, $"{nameof(MockSearchIndexService)}.{nameof(RemoveResultsByBlobNameAsync)}", $"CaseId: {caseId}, BlobName: {blobName}");
+        }
+
+        public Task WaitForStoreResultsAsync(AnalyzeResults analyzeResults, long cmsCaseId, string cmsDocumentId, long versionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<bool> ISearchIndexService.WaitForStoreResultsAsync(AnalyzeResults analyzeResults, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId)
+        {
+            throw new NotImplementedException();
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
