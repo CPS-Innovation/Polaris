@@ -13,6 +13,14 @@ export default defineConfig({
       if (!config.env.ENVIRONMENT) {
         throw new Error("Please provide an ENVIRONMENT variable")
       }
+      on("task", {
+        logToTerminal(message) {
+          console.log(message)
+
+          return null
+        },
+      })
+
       const baseEnvFromFile = getConfigurationByFile("base")
       const environmentEnvFromFile = getConfigurationByFile(
         "env." + config.env.ENVIRONMENT
