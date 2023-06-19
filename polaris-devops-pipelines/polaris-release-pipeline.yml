@@ -1450,7 +1450,7 @@ stages:
               password: $(devops-pat-token)
 
   - stage: Apply_PROD
-    displayName: PROD Deployment
+    displayName: Deployment > PROD
     dependsOn:
       - Determine_Changes
       - Update_DEV_Tag
