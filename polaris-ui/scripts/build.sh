@@ -20,7 +20,3 @@ rm -rf build
 PUBLIC_URL=/polaris-ui BUILD_PATH=build/polaris-ui react-scripts build
 mv build/polaris-ui/index.html build/index.html
 mv build/polaris-ui/run-substitution.sh build/run-substitution.sh
-
-# We keep a build-version.txt in public so that locally running cypress e2e tests 
-# have something to pick up when running locally
-rm build/polaris-ui/build-version.txt
