@@ -37,20 +37,11 @@ Function Req {
             if ($response.StatusCode -ne 200) {
                 throw "Expecting reponse code 200, was: $($response.StatusCode)"
             }
-
-            if($res.Content -clike "$SuccessTextContent")
-            {
-                Write-Host "Health check validation success."
-            }
-            else
-            {
-                throw "Expecting $SuccessTextContent, received $response.Content"
-            }
+            $completed = $true
         } catch {
             Write-Output "$(Get-Date -Format G): Request to $url failed. $_"
             if ($retrycount -ge $Retries) {
-                Write-Error "Request to $url failed the maximum number of $retryCount times."
-                throw
+                throw "Request to $url failed the maximum number of $retryCount times."
             } else {
                 Write-Warning "Request to $url failed. Retrying in $SecondsDelay seconds."
                 Start-Sleep $SecondsDelay
@@ -59,6 +50,17 @@ Function Req {
         }
     }
 
-    Write-Host "OK ($($response.StatusCode) - $(SuccessTextContent))"
+    Write-Host "OK ($($response.StatusCode))"
     return $response
+}
+
+$res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method'=$Method;'Uri'=$URI;'TimeoutSec'=$TimeoutSec;'UseBasicParsing'=$true }
+
+if($res.Content -like "*$SuccessTextContent*")
+{
+    Write-Host "Health check validation success - '$SuccessTextContent' found."    
+}
+else
+{
+    throw "Health check validation failed."
 }
