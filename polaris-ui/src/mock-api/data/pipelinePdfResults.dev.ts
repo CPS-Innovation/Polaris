@@ -215,7 +215,7 @@ const pipelinePdfResult: PipelineResults = {
       categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 6,
-        documentType: "MG6",
+        documentType: "DAC",
         documentCategory: "MGForm",
       },
 
