@@ -1956,3 +1956,36 @@ stages:
                 git tag -f prod
                 git push origin --tags 
             displayName: Updating the prod tag
+            
+  - stage: Run_e2e_Tests_PROD
+    displayName: Run e2e tests > PROD
+    dependsOn:
+      - Determine_Changes
+      - Apply_PROD
+      - Check_PROD
+      - Update_PROD_Tag
+    condition: succeeded()
+    variables:
+      runPipelineTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TERRAFORM_PROD']]
+      runPipelineEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_EVENTS_TERRAFORM_PROD']]
+      runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_PROD']]
+      runUIEventsTerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_EVENTS_TERRAFORM_PROD']]
+      runCoordinator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_COORDINATOR_PROD']]
+      runPdfGenerator: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_PDF_GENERATOR_PROD']]
+      runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR_PROD']]
+      runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_PROD']]
+      runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_PROD']]
+      runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
+    jobs:
+      - job: Run_e2e_Tests_PROD
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: PROD'
+            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
+            inputs:
+              buildDefinition: 240
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
