@@ -397,8 +397,8 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   setTip(position: Position, inner: JSX.Element | null) {
     /*
       The "isCollapsed: true" is added to fix issue of remove redaction tip is not displaying intermittently after redaction.
-      This is because, for some reason the isCollapsed is false(please see `showTip()`). So we set isCollapsed to true, 
-      when setting the tip.
+      This is because, for some text selection for redact, the isCollapsed is set to false and failed to revert to true after redaction.
+      (please see `onSelectionChange()`, `showTip()`). So we set isCollapsed to true, when setting the tip.
     */
     this.setState({
       tipPosition: position,
