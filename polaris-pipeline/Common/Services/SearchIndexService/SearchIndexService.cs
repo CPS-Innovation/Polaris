@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
@@ -36,12 +37,12 @@ namespace Common.Services.SearchIndexService
             _logger = logger;
         }
 
-        public async Task StoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
+        public async Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
         {
             string blobName = Path.GetFileName(blobPath);
-            _logger.LogMethodEntry(correlationId, nameof(StoreResultsAsync), $"PolarisDocumentId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, Blob Name: {blobName}");
+            _logger.LogMethodEntry(correlationId, nameof(SendStoreResultsAsync), $"PolarisDocumentId: {polarisDocumentId}, CmsCaseId: {cmsCaseId}, Blob Name: {blobName}");
             
-            _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "Building search line results");
+            _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), "Building search line results");
             var lines = new List<SearchLine>();
             foreach (var readResult in analyzeResults.ReadResults)
             {
@@ -64,7 +65,7 @@ namespace Common.Services.SearchIndexService
 
             if (lines.Count > 0)
             {
-                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync), "Beginning search index update");
+                _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), "Beginning search index update");
                 await using var indexer = _searchIndexingBufferedSenderFactory.Create(_searchClient);
 
                 var indexTaskCompletionSource = new TaskCompletionSource<bool>();
@@ -103,7 +104,7 @@ namespace Common.Services.SearchIndexService
 
                 await indexer.UploadDocumentsAsync(lines);
                 await indexer.FlushAsync();
-                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync),
+                _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync),
                     $"Updating the search index completed - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
 
                 if (!await indexTaskCompletionSource.Task)
@@ -113,11 +114,62 @@ namespace Common.Services.SearchIndexService
             }
             else
             {
-                _logger.LogMethodFlow(correlationId, nameof(StoreResultsAsync),
+                _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync),
                     "No OCR results generated for this document, therefore no need to update the search index... returning...");
             }
         }
-        
+
+        public async Task<bool> WaitForStoreResultsAsync(AnalyzeResults analyzeResults, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(WaitForStoreResultsAsync), $"Wait for Search Indexation, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}");
+
+            var sentLines = analyzeResults.ReadResults.SelectMany(r => r.Lines.Select(l => l.Text)).ToHashSet();
+
+            var options = new SearchOptions
+            {
+                Filter = $"caseId eq {cmsCaseId} and documentId eq '{cmsDocumentId}' and versionId eq {versionId}",
+            };
+
+            const int baseDelayMs = 250;
+
+            foreach(var timeoutBase in Fibonacci(10))
+            {
+                var searchResults = await _searchClient.SearchAsync<SearchLine>("*", options);
+                var receivedLines = new HashSet<string>();
+
+                await foreach (var searchResult in searchResults.Value.GetResultsAsync())
+                    receivedLines.Add(searchResult.Document.Text);
+
+                if (sentLines.SetEquals(receivedLines))
+                {
+                    _logger.LogMethodExit(correlationId, nameof(WaitForStoreResultsAsync), $"Consistent Search Index, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}");
+                    return true;
+                }
+
+                var timeout = baseDelayMs * timeoutBase;
+
+                _logger.LogMethodFlow(correlationId, nameof(WaitForStoreResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}, sent {sentLines.Count} lines, received {receivedLines.Count} lines");
+
+                await Task.Delay(timeout);
+            }
+
+            _logger.LogMethodExit(correlationId, nameof(WaitForStoreResultsAsync), $"Inconsistent Search Index, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}");
+
+            return false;
+        }
+
+        private IEnumerable<int> Fibonacci(int n)
+        {
+            int prev = 0, current = 1;
+            for (int i = 0; i < n; i++)
+            {
+                yield return current;
+                int temp = prev;
+                prev = current;
+                current = temp + current;
+            }
+        }
+
         public async Task RemoveResultsByBlobNameAsync(long caseId, string blobName, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(RemoveResultsByBlobNameAsync), $"CaseId: {caseId}, BlobName: {blobName}");

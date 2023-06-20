@@ -3,7 +3,10 @@ import { AsyncResult } from "../../../../common/types/AsyncResult";
 
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { AccordionDocumentSection } from "../../presentation/case-details/accordion/types";
-import { categoryNamesInPresentationOrder } from "./document-category-definitions";
+import {
+  categoryNamesInPresentationOrder,
+  getCategorySort,
+} from "./document-category-definitions";
 
 export const mapAccordionState = (
   documentsState: ApiResult<MappedCaseDocument[]>
@@ -38,6 +41,13 @@ export const mapAccordionState = (
       ...caseDocument,
     });
   }
+  results.map((result) => {
+    const sortedResult = getCategorySort(result)(result.docs);
+    return {
+      ...result,
+      docs: sortedResult,
+    };
+  });
 
   return { status: "succeeded", data: results };
 };

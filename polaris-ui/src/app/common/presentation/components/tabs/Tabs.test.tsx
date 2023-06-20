@@ -7,6 +7,13 @@ jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
 }));
 
 describe("Tabs", () => {
+  const scrollIntoView = Element.prototype.scrollIntoView;
+  beforeAll(() => {
+    Element.prototype.scrollIntoView = jest.fn();
+  });
+  afterAll(() => {
+    Element.prototype.scrollIntoView = scrollIntoView;
+  });
   it("can render empty tabs", async () => {
     const props: TabsProps = {
       idPrefix: "foo",

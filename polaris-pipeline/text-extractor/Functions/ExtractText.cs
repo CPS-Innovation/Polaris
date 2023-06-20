@@ -81,7 +81,7 @@ namespace text_extractor.Functions
                 var ocrResults = await _ocrService.GetOcrResultsAsync(extractTextRequest.BlobName, currentCorrelationId);
                 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
-                await _searchIndexService.StoreResultsAsync
+                await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
                         extractTextRequest.PolarisDocumentId,
@@ -94,7 +94,10 @@ namespace text_extractor.Functions
                 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
-                return new HttpResponseMessage(HttpStatusCode.OK);
+                if(await _searchIndexService.WaitForStoreResultsAsync(ocrResults, extractTextRequest.CmsCaseId, extractTextRequest.CmsDocumentId, extractTextRequest.VersionId, currentCorrelationId))
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+
+                throw new Exception("Search index update failed, timeout waiting for indexation validation");
             }
             catch (Exception exception)
             {

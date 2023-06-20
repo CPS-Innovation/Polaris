@@ -13,7 +13,7 @@ import classes from "./index.module.scss";
 export const KeyDetails: React.FC<{
   caseDetails: CaseDetails;
   isMultipleDefendantsOrCharges: boolean;
-  handleOpenPdf: (caseDocument: { documentId: string; mode: "read" }) => void;
+  handleOpenPdf: () => void;
   dacDocumentId: string;
 }> = ({
   caseDetails,
@@ -63,9 +63,7 @@ export const KeyDetails: React.FC<{
             <LinkButton
               dataTestId="link-defendant-details"
               className={classes.defendantDetailsLink}
-              onClick={() =>
-                handleOpenPdf({ documentId: dacDocumentId, mode: "read" })
-              }
+              onClick={handleOpenPdf}
             >
               {`View ${defendantsList.length} ${
                 defendantsList.length > 1 ? "defendants" : "defendant"

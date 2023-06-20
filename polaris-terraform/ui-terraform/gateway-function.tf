@@ -68,7 +68,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     require_authentication = true
     default_provider       = "AzureActiveDirectory"
     unauthenticated_action = "RedirectToLoginPage"
-    excluded_paths         = ["/status"]
+    excluded_paths         = ["/api/status"]
 
     # our default_provider:
     active_directory_v2 {

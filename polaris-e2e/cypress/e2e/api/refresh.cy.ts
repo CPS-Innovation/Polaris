@@ -5,7 +5,10 @@ import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 
-const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID } = Cypress.env()
+const {
+  REFRESH_TARGET_URN,
+  REFRESH_TARGET_CASE_ID
+} = Cypress.env()
 
 let routes: ApiRoutes
 

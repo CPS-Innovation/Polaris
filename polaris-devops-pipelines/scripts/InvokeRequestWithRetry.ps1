@@ -10,7 +10,9 @@ param (
     [string]$TimeoutSec = 120
 )
 
-Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $SuccessTextContent";
+$AdjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
+
+Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $AdjustedSuccessTextContent";
 
 Function Req {
     Param(
@@ -34,23 +36,38 @@ Function Req {
     while (-not $completed) {
         try {
             $response = Invoke-Command $cmd -ArgumentList $Params
-            if ($response.StatusCode -ne 200) {
-                throw "Expecting reponse code 200, was: $($response.StatusCode)"
-            }
-
-            if($res.Content -clike "$SuccessTextContent")
+            Write-Information "Result: '$response.StatusCode'"            
+            if ($response.StatusCode -ne 200) 
             {
-                Write-Host "Health check validation success."
+                Write-Warning "Expecting reponse code 200, code received was: $($response.StatusCode)"
             }
-            else
+            else 
             {
-                throw "Expecting $SuccessTextContent, received $response.Content"
+                if($response.Content -like "*$AdjustedSuccessTextContent*")
+                {
+                    Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
+                    $completed = $true
+                }
+                else
+                {
+                    Write-Warning "Invalid version found - expecting content to contain '$AdjustedSuccessTextContent', received '$response.Content'"
+                }
+            }
+            
+            if (-not $completed)
+            {
+                if ($retrycount -ge $Retries) {
+                    throw "Request to $url failed the maximum number of $retryCount times."
+                } else {
+                    Write-Warning "Retrying in $SecondsDelay seconds."
+                    Start-Sleep $SecondsDelay
+                    $retrycount++
+                }   
             }
         } catch {
-            Write-Output "$(Get-Date -Format G): Request to $url failed. $_"
+            Write-Host "$(Get-Date -Format G): Request to $url failed. $_"
             if ($retrycount -ge $Retries) {
-                Write-Error "Request to $url failed the maximum number of $retryCount times."
-                throw
+                throw "Request to $url failed the maximum number of $retryCount times."
             } else {
                 Write-Warning "Request to $url failed. Retrying in $SecondsDelay seconds."
                 Start-Sleep $SecondsDelay
@@ -59,6 +76,23 @@ Function Req {
         }
     }
 
-    Write-Host "OK ($($response.StatusCode) - $(SuccessTextContent))"
-    return $response
+    Write-Host "OK ($($response.StatusCode))"
+    return $completed
+}
+
+try
+{
+    $res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method' = $Method; 'Uri' = $URI; 'TimeoutSec' = $TimeoutSec; 'UseBasicParsing' = $true }
+    if($res -eq $true)
+    {
+        Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
+    }
+    else
+    {
+        Write-Error "Health check validation failed - '$AdjustedSuccessTextContent' was never found."
+    }
+}
+catch 
+{
+    Write-Host $PSItem.Exception.Message -ForegroundColor RED    
 }

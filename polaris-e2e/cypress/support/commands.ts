@@ -22,6 +22,7 @@ declare global {
       ): Chainable<AUTWindow>
       selectPDFTextElement(matchString: string): void
       // roll our own typing to help cast the body returned from the api call
+      checkDependencies(): Chainable<any>
       api<T>(url: string, body?: RequestBody): Chainable<ApiResponseBody<T>>
       api<T>(
         method: HttpMethod,
@@ -54,6 +55,7 @@ const {
   CMS_SUBMIT_BUTTON_LOCATOR,
   CMS_LOGGED_IN_CONFIRMATION_LOCATOR,
   COOKIE_REDIRECT_URL,
+  DEPENDENCIES,
 } = Cypress.env()
 
 const AUTOMATION_LANDING_PAGE_PATH =
@@ -132,12 +134,24 @@ Cypress.Commands.add(
 )
 
 Cypress.Commands.add("loginToAD", () => {
+  // Intermittent failures have been observed on the first UI test of the day
+  //  whereby the very first UI interaction (this login process visit to the UI)
+  //  times out.  A working assumption is that the UI deployment is not warmed up
+  //  and so may take longer than the default 60 seconds to respond.  So rather than
+  //  increase the default timeout for all UI tests, we'll just increase the timeout
+  //  for this one type of visit (which will always be the first in any UI test run).
+  const timeoutMs = 2 * 60 * 1000
+
   let getToken =
     cachedTokenResponse && cachedTokenExpiryTime > new Date().getTime()
-      ? cy.visit(AUTOMATION_LANDING_PAGE_PATH).then(() => ({
-          body: cachedTokenResponse,
-        }))
-      : cy.visit(AUTOMATION_LANDING_PAGE_PATH).requestToken()
+      ? cy
+          .visit(AUTOMATION_LANDING_PAGE_PATH, { timeout: timeoutMs })
+          .then(() => ({
+            body: cachedTokenResponse,
+          }))
+      : cy
+          .visit(AUTOMATION_LANDING_PAGE_PATH, { timeout: timeoutMs })
+          .requestToken()
 
   return getToken
     .then((response) => {
@@ -234,6 +248,28 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
   )
 })
 
+Cypress.Commands.add("checkDependencies", () => {
+  cy.requestToken().then((response) => {
+    const headers = {
+      Authorization: `Bearer ${response.body.access_token}`,
+    }
+    for (var dependency of DEPENDENCIES) {
+      const url = dependency
+      const t0 = performance.now()
+      cy.request({ url, headers }).then(({ status, body }) => {
+        var t1 = performance.now()
+        cy.task(
+          "logToTerminal",
+          `${url} returned ${status}: ${JSON.stringify(body)} in ${(
+            (t1 - t0) /
+            1000
+          ).toFixed(2)}s`
+        )
+      })
+    }
+  })
+})
+
 declare global {
   var __POLARIS_INSTRUMENTATION_GUID__: string
 }
@@ -271,3 +307,5 @@ Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
 })
 
 const isFullUrl = (url: string) => url.startsWith("http")
+
+beforeEach(() => cy.checkDependencies())

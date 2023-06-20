@@ -70,6 +70,10 @@ namespace text_extractor.tests.Functions
 
 			_mockLogger = new Mock<ILogger<ExtractText>>();
 
+			_mockSearchIndexService
+				.Setup(service => service.WaitForStoreResultsAsync(It.IsAny<AnalyzeResults>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
+                .Returns(Task.FromResult(true));
+
 			_extractText = new ExtractText(_mockJsonConvertWrapper.Object,
 								_mockValidatorWrapper.Object,
 								mockOcrService.Object,
@@ -167,16 +171,20 @@ namespace text_extractor.tests.Functions
 			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
 			await _extractText.Run(_httpRequestMessage);
 
-			_mockSearchIndexService.Verify(service => service.StoreResultsAsync(_mockAnalyzeResults.Object, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CmsCaseId, _extractTextRequest.CmsDocumentId,
+			_mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults.Object, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CmsCaseId, _extractTextRequest.CmsDocumentId,
 				_extractTextRequest.VersionId, _extractTextRequest.BlobName, _correlationId));
 		}
 
 		[Fact]
 		public async Task Run_ReturnsOk()
 		{
+			// Arrange
 			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
+
+			// Act
 			var response = await _extractText.Run(_httpRequestMessage);
 
+			// Assert
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 		}
 

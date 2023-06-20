@@ -21,6 +21,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-01",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1,
         documentType: "MG11",
@@ -41,6 +42,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1019,
         documentType: "MG12",
@@ -61,6 +63,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1012,
         documentType: "MG13",
@@ -81,6 +84,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-04",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 4,
         documentType: "MG14",
@@ -101,6 +105,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 5,
         documentType: "MG15",
@@ -121,6 +126,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2023-05-11",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 1029,
         documentType: "DAC",
@@ -183,6 +189,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
         documentType: "MG3",
@@ -203,6 +210,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 11,
         documentType: "MG11",
@@ -223,6 +231,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 5,
         documentType: "MG5",
@@ -243,6 +252,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 6,
         documentType: "MG6",
@@ -263,6 +273,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
         documentType: "MG3",
@@ -292,6 +303,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
         documentType: "MG3",
@@ -312,6 +324,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 11,
         documentType: "MG11",
@@ -332,6 +345,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 5,
         documentType: "MG5",
@@ -352,6 +366,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 6,
         documentType: "MG6",
@@ -372,6 +387,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       cmsMimeType: "application/pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
+      categoryListOrder: null,
       cmsDocType: {
         documentTypeId: 3,
         documentType: "MG3",
