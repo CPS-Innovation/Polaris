@@ -205,7 +205,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           >
             <div>
               <KeyDetails
-                handleOpenPdf={handleOpenPdf}
+                handleOpenPdf={() => {
+                  handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
+                  handleTabSelection(dacDocumentId);
+                }}
                 caseDetails={caseState.data}
                 isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
                 dacDocumentId={dacDocumentId}

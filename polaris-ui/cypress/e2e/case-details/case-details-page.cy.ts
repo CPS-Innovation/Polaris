@@ -139,11 +139,18 @@ describe("case details page", () => {
       cy.findByTestId("link-defendant-details").contains(
         "View 1 defendant and charges"
       );
-      cy.findByTestId("link-defendant-details").click();
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-2").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("CASE OUTLINE");
+      cy.findByTestId("tab-active").contains("CM01");
+      cy.findByTestId("link-defendant-details").click();
       cy.findByTestId("tab-active").contains("Test DAC");
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("CASE OUTLINE");
+
       cy.selectPDFTextElement("This is a DV case.");
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-warning").should("have.length", 1);

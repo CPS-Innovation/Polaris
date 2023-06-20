@@ -77,7 +77,7 @@ namespace Common.Health
             try
             {
                 AnalyzeResults analyzeResult = JsonSerializer.Deserialize<AnalyzeResults>(_ocrResult);
-                await _searchIndexService.StoreResultsAsync
+                await _searchIndexService.SendStoreResultsAsync
                 (
                     analyzeResult,
                     default(PolarisDocumentId),
