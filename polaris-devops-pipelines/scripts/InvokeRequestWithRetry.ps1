@@ -10,7 +10,9 @@ param (
     [string]$TimeoutSec = 120
 )
 
-Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $SuccessTextContent";
+$AdjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
+
+Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $AdjustedSuccessTextContent";
 
 Function Req {
     Param(
@@ -41,14 +43,14 @@ Function Req {
             }
             else 
             {
-                if($response.Content -like "*$SuccessTextContent*")
+                if($response.Content -like "*$AdjustedSuccessTextContent*")
                 {
-                    Write-Host "Health check validation success - '$SuccessTextContent' found."
+                    Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
                     $completed = $true
                 }
                 else
                 {
-                    Write-Warning "Invalid version found - expecting content to contain '$SuccessTextContent', received '$response.Content'"
+                    Write-Warning "Invalid version found - expecting content to contain '$AdjustedSuccessTextContent', received '$response.Content'"
                 }
             }
             
@@ -83,11 +85,11 @@ try
     $res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method' = $Method; 'Uri' = $URI; 'TimeoutSec' = $TimeoutSec; 'UseBasicParsing' = $true }
     if($res -eq $true)
     {
-        Write-Host "Health check validation success - '$SuccessTextContent' found."
+        Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
     }
     else
     {
-        Write-Error "Health check validation failed - '$SuccessTextContent' was never found."
+        Write-Error "Health check validation failed - '$AdjustedSuccessTextContent' was never found."
     }
 }
 catch 
