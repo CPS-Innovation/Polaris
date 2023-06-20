@@ -1,4 +1,4 @@
-pr: none
+trigger: none
 
 schedules:
   # run every 15 minutes between 7pm and 11:45pm
