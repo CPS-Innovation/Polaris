@@ -148,7 +148,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
       if (observer) observer.observe(ref);
 
-      ref.addEventListener("wheel", this.handleWheel, {passive: true})
+      ref.addEventListener("wheel", this.handleWheel, { passive: true });
 
       this.unsubscribe = () => {
         eventBus.off("pagesinit", this.onDocumentReady);
@@ -162,18 +162,16 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         if (observer) observer.disconnect();
 
         ref.removeEventListener("wheel", this.handleWheel);
-        
       };
     }
   };
 
   handleWheel = (ev: WheelEvent) => {
     if (this.props.onWheelDownwards && ev.deltaY > 0) {
-      
       //ev.preventDefault();
       this.props.onWheelDownwards();
     }
-  }
+  };
 
   componentDidUpdate(prevProps: Props<T_HT>) {
     if (prevProps.pdfDocument !== this.props.pdfDocument) {
@@ -397,9 +395,15 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   };
 
   setTip(position: Position, inner: JSX.Element | null) {
+    /*
+      The "isCollapsed: true" is added to fix issue of remove redaction tip is not displaying intermittently after redaction.
+      This is because, for some reason the isCollapsed is false(please see `showTip()`). So we set isCollapsed to true, 
+      when setting the tip.
+    */
     this.setState({
       tipPosition: position,
       tipChildren: inner,
+      isCollapsed: true,
     });
   }
 
