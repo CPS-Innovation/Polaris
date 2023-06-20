@@ -1,6 +1,6 @@
 schedules:
-  - cron: "*/15 * * * *"
-    displayName: Daily pre-working-day run
+  - cron: "$(cron)"
+    displayName: Cron Schedule
     branches:
       include:
         - main
