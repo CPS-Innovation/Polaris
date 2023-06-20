@@ -34,12 +34,36 @@ Function Req {
     while (-not $completed) {
         try {
             $response = Invoke-Command $cmd -ArgumentList $Params
-            if ($response.StatusCode -ne 200) {
-                throw "Expecting reponse code 200, was: $($response.StatusCode)"
+            Write-Information "Result: '$response.StatusCode'"            
+            if ($response.StatusCode -ne 200) 
+            {
+                Write-Warning "Expecting reponse code 200, code received was: $($response.StatusCode)"
             }
-            $completed = $true
+            else 
+            {
+                if($response.Content -like "*$SuccessTextContent*")
+                {
+                    Write-Host "Health check validation success - '$SuccessTextContent' found."
+                    $completed = $true
+                }
+                else
+                {
+                    Write-Warning "Invalid version found - expecting content to contain '$SuccessTextContent', received '$response.Content'"
+                }
+            }
+            
+            if (-not $completed)
+            {
+                if ($retrycount -ge $Retries) {
+                    throw "Request to $url failed the maximum number of $retryCount times."
+                } else {
+                    Write-Warning "Retrying in $SecondsDelay seconds."
+                    Start-Sleep $SecondsDelay
+                    $retrycount++
+                }   
+            }
         } catch {
-            Write-Output "$(Get-Date -Format G): Request to $url failed. $_"
+            Write-Host "$(Get-Date -Format G): Request to $url failed. $_"
             if ($retrycount -ge $Retries) {
                 throw "Request to $url failed the maximum number of $retryCount times."
             } else {
@@ -51,16 +75,22 @@ Function Req {
     }
 
     Write-Host "OK ($($response.StatusCode))"
-    return $response
+    return $completed
 }
 
-$res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method'=$Method;'Uri'=$URI;'TimeoutSec'=$TimeoutSec;'UseBasicParsing'=$true }
-
-if($res.Content -like "*$SuccessTextContent*")
+try
 {
-    Write-Host "Health check validation success - '$SuccessTextContent' found."    
+    $res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method' = $Method; 'Uri' = $URI; 'TimeoutSec' = $TimeoutSec; 'UseBasicParsing' = $true }
+    if($res -eq $true)
+    {
+        Write-Host "Health check validation success - '$SuccessTextContent' found."
+    }
+    else
+    {
+        Write-Error "Health check validation failed - '$SuccessTextContent' was never found."
+    }
 }
-else
+catch 
 {
-    throw "Health check validation failed."
+    Write-Host $PSItem.Exception.Message -ForegroundColor RED    
 }
