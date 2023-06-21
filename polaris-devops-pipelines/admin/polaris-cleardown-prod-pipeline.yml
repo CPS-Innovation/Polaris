@@ -100,19 +100,19 @@ stages:
               inlineScript: |
                 az storage blob delete-batch --account-name $(prod-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
                 
-  - stage: Shutdown_Prod_Build_Agent
-    displayName: Shutdown PROD Build Agent
-    dependsOn: Clear_down_BlobStorage
-    condition: succeeded()
-    jobs:
-      - job: Shutdown_Prod_Build_Agent
-        pool:
-          vmImage: windows-latest
-        steps:
-          - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
-            displayName: 'Shutdown PROD Build Agent'
-            inputs:
-              serviceConnection: $(build-release-connector)
-              project: $(project-id)
-              Pipeline: Build
-              buildDefinition: 147
+  #- stage: Shutdown_Prod_Build_Agent
+  #  displayName: Shutdown PROD Build Agent
+  #  dependsOn: Clear_down_BlobStorage
+  #  condition: succeeded()
+  #  jobs:
+  #    - job: Shutdown_Prod_Build_Agent
+  #      pool:
+  #        vmImage: windows-latest
+  #      steps:
+  #        - task: maikvandergaag.maikvandergaag-trigger-pipeline.TriggerPipeline.TriggerPipeline@2
+  #          displayName: 'Shutdown PROD Build Agent'
+  #          inputs:
+  #            serviceConnection: $(build-release-connector)
+  #            project: $(project-id)
+  #            Pipeline: Build
+  #            buildDefinition: 147

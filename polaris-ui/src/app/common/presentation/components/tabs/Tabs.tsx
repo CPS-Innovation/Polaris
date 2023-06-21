@@ -37,6 +37,10 @@ export const Tabs: React.FC<TabsProps> = ({
 
   useEffect(() => {
     activeTabRef.current?.focus();
+    activeTabRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
   }, [activeTabId, items.length]);
   useLastFocus(document.querySelector("#case-details-search") as HTMLElement);
 
