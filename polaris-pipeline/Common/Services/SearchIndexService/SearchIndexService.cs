@@ -128,7 +128,8 @@ namespace Common.Services.SearchIndexService
             var options = new SearchOptions
             {
                 Filter = $"caseId eq {cmsCaseId} and documentId eq '{cmsDocumentId}' and versionId eq {versionId}",
-                IncludeTotalCount = true
+                Size = 0,
+                IncludeTotalCount = true,
             };
 
             // Provide a field (any field, but use the key field) so there is something to search for
