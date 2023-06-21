@@ -23,5 +23,10 @@
   "TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-doc-type",
   "TARGET_NOT_CORRECT_FILE_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-file-type",
   "TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-checked-out",
-  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable"
+  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable",
+
+  "SEARCH_INTEGRITY_TARGET_URN": "42MZ1020922",
+  "SEARCH_INTEGRITY_TARGET_CASE_ID": "2148353",
+  "SEARCH_INTEGRITY_TARGET_TERM": "SYRACUSE",
+  "SEARCH_INTEGRITY_TARGET_TERM_COUNT": 228
 }
