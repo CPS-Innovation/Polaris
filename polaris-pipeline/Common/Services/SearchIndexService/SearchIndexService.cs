@@ -132,10 +132,6 @@ namespace Common.Services.SearchIndexService
                 IncludeTotalCount = true,
             };
 
-            // Provide a field (any field, but use the key field) so there is something to search for
-            // Only the resultant count is required
-            options.Select.Add("id");
-
             var baseDelayMs = 250;
 
             foreach(var timeoutBase in Fibonacci(10))
