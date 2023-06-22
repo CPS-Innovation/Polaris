@@ -21,7 +21,13 @@ namespace Common.Dto.Tracker
         public DateTime? Running { get; set; }
 
         [JsonProperty("documentsRetrieved")]
-        public float? DocumentsRetrieved { get; set; }
+        public DateTime? DocumentsRetrieved { get; set; }
+
+        [JsonProperty("processingCompleted")]
+        public DateTime? ProcessingCompleted { get; set; }
+
+        [JsonProperty("retrieved")]
+        public float? Retrieved { get; set; }
 
         [JsonProperty("pdfsGenerated")]
         public float? PdfsGenerated { get; set; }
