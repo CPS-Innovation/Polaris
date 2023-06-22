@@ -1,15 +1,14 @@
 ﻿using Common.Dto.Case.PreCharge;
 using Common.ValueObjects;
-using System;
 
-namespace Common.Dto.Tracker
+namespace Common.Domain.Entity
 {
-    public class TrackerPcdRequestDto : BaseTrackerDocumentDto
+    public class PcdRequestEntity : BaseDocumentEntity
     {
-        public TrackerPcdRequestDto() 
+        public PcdRequestEntity()
         { }
 
-        public TrackerPcdRequestDto(PolarisDocumentId polarisDocumentId, int polarisDocumentVersionId, PcdRequestDto pcdRequest)
+        public PcdRequestEntity(PolarisDocumentId polarisDocumentId, int polarisDocumentVersionId, PcdRequestDto pcdRequest)
             : base(polarisDocumentId, polarisDocumentVersionId, $"PCD-{pcdRequest.Id}", 1, pcdRequest.PresentationFlags)
         {
             PcdRequest = pcdRequest;

@@ -93,7 +93,7 @@ namespace Ddei.Services
             }
         }
 
-        public async Task<DocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
+        public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
         {
             DdeiCmsCaseArgDto caseArg = new DdeiCmsCaseArgDto
             {

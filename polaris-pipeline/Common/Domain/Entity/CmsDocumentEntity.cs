@@ -1,19 +1,19 @@
 ﻿using Newtonsoft.Json;
-using System;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
+using Common.Dto.Tracker;
 
-namespace Common.Dto.Tracker
+namespace Common.Domain.Entity
 {
-    public class TrackerCmsDocumentDto : BaseTrackerDocumentDto
+    public class CmsDocumentEntity : BaseDocumentEntity
     {
-        public TrackerCmsDocumentDto()
+        public CmsDocumentEntity()
             : base()
         { }
 
-        public TrackerCmsDocumentDto(
+        public CmsDocumentEntity(
             PolarisDocumentId polarisDocumentId,
             int polarisDocumentVersionId,
             string cmsDocumentId,
@@ -33,7 +33,7 @@ namespace Common.Dto.Tracker
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
             CategoryListOrder = categoryListOrder;
-            Status = TrackerDocumentStatus.New;
+            Status = DocumentStatus.New;
         }
 
         [JsonProperty("cmsDocType")]

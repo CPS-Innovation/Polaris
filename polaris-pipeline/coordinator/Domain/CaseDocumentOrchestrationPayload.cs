@@ -1,5 +1,4 @@
-﻿using Common.Dto.Tracker;
-using Common.ValueObjects;
+﻿using Common.Domain.Entity;
 using System;
 using System.Text.Json;
 
@@ -21,17 +20,17 @@ namespace coordinator.Domain
         {
             if(serializedTrackerCmsDocumentDto != null)
             {
-                CmsDocumentTracker = JsonSerializer.Deserialize<TrackerCmsDocumentDto>(serializedTrackerCmsDocumentDto);
+                CmsDocumentTracker = JsonSerializer.Deserialize<CmsDocumentEntity>(serializedTrackerCmsDocumentDto);
                 base.PolarisDocumentId = CmsDocumentTracker.PolarisDocumentId;
             }
             else if(serializedTrackerPcdRequestDto != null)
             {
-                PcdRequestTracker = JsonSerializer.Deserialize<TrackerPcdRequestDto>(serializedTrackerPcdRequestDto);
+                PcdRequestTracker = JsonSerializer.Deserialize<PcdRequestEntity>(serializedTrackerPcdRequestDto);
                 base.PolarisDocumentId = PcdRequestTracker.PolarisDocumentId;
             }
             else if (serializedTrackerDefendantAndChargesDto != null)
             {
-                DefendantAndChargesTracker = JsonSerializer.Deserialize<TrackerDefendantsAndChargesDto>(serializedTrackerDefendantAndChargesDto);
+                DefendantAndChargesTracker = JsonSerializer.Deserialize<DefendantsAndChargesEntity>(serializedTrackerDefendantAndChargesDto);
                 base.PolarisDocumentId = DefendantAndChargesTracker.PolarisDocumentId;
             }
             CmsAuthValues = cmsAuthValues;
@@ -64,8 +63,8 @@ namespace coordinator.Domain
             }
         }
 
-        public TrackerCmsDocumentDto CmsDocumentTracker { get; set; }
-        public TrackerPcdRequestDto PcdRequestTracker { get; set; }
-        public TrackerDefendantsAndChargesDto DefendantAndChargesTracker { get; set; }
+        public CmsDocumentEntity CmsDocumentTracker { get; set; }
+        public PcdRequestEntity PcdRequestTracker { get; set; }
+        public DefendantsAndChargesEntity DefendantAndChargesTracker { get; set; }
     }
 }

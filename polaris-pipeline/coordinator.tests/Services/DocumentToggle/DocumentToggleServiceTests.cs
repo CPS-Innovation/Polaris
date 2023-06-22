@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Common.Domain.Entity;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using Common.Dto.Tracker;
@@ -73,7 +74,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
             // Assert
@@ -86,7 +87,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.Ok;
 
             // Assert
@@ -99,7 +100,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
 
@@ -113,7 +114,7 @@ namespace coordinator.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new TrackerCmsDocumentDto(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.Ok;
 
             // Assert
@@ -176,10 +177,10 @@ namespace coordinator.tests.Services.DocumentToggle
                                                                        ReadFlag expectedReadFlag,
                                                                        WriteFlag expectWriteFlag)
         {
-            // Arrage
+            // Arrange
             var documentToggleService = new DocumentToggleService(configContent);
 
-            var document = new DocumentDto();
+            var document = new CmsDocumentDto();
             document.FileExtension = inputDocumentExtension;
             document.CmsDocType = new DocumentTypeDto();
             document.CmsDocType.DocumentTypeId = inputDocumentCmsType;

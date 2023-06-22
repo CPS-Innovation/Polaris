@@ -20,7 +20,7 @@ namespace coordinator.tests.Functions.ActivityFunctions
     public class GetCaseDocumentsTests
     {
         private readonly CaseDto _case;
-        private readonly DocumentDto[] _caseDocuments;
+        private readonly CmsDocumentDto[] _caseDocuments;
         private readonly PresentationFlagsDto[] _presentationFlags;
         private readonly GetCaseDocumentsActivityPayload _payload;
         private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
@@ -32,8 +32,8 @@ namespace coordinator.tests.Functions.ActivityFunctions
             _payload = fixture.Create<GetCaseDocumentsActivityPayload>();
             _case = fixture.Create<CaseDto>();
             _caseDocuments = new[] {
-              fixture.Create<DocumentDto>(),
-              fixture.Create<DocumentDto>()
+              fixture.Create<CmsDocumentDto>(),
+              fixture.Create<CmsDocumentDto>()
             };
 
             _presentationFlags = new[] {

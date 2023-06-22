@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Common.Domain.Exceptions;
-using Common.Services.SearchIndexService.Contracts;
+using Common.Services.CaseSearchService.Contracts;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
@@ -31,7 +31,7 @@ namespace text_extractor.tests.Functions
 		private HttpResponseMessage _errorHttpResponseMessage;
 		
 		private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<ISearchIndexService> _mockSearchIndexService;
+        private readonly Mock<ICaseSearchClient> _mockSearchIndexService;
 		private readonly Mock<IExceptionHandler> _mockExceptionHandler;
 		private readonly Mock<AnalyzeResults> _mockAnalyzeResults;
 		private readonly Mock<IValidatorWrapper<ExtractTextRequestDto>> _mockValidatorWrapper;
@@ -56,7 +56,7 @@ namespace text_extractor.tests.Functions
 			_mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
 			_mockValidatorWrapper = new Mock<IValidatorWrapper<ExtractTextRequestDto>>();
 			var mockOcrService = new Mock<IOcrService>();
-			_mockSearchIndexService = new Mock<ISearchIndexService>();
+			_mockSearchIndexService = new Mock<ICaseSearchClient>();
 			_mockExceptionHandler = new Mock<IExceptionHandler>();
 			_mockAnalyzeResults = new Mock<AnalyzeResults>();
 

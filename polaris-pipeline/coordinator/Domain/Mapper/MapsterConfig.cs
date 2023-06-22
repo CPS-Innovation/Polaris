@@ -1,4 +1,5 @@
-﻿using Common.Dto.Document;
+﻿using Common.Domain.Entity;
+using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
 using Mapster;
@@ -14,21 +15,42 @@ namespace coordinator.Domain.Mapper
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<TrackerEntity, TrackerDto>
+            TypeAdapterConfig<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity CaseRefreshLogsEntity), TrackerDto>
                 .NewConfig()
-                .Map(
-                        dest => dest.Documents,
-                        src => 
-                            src.PcdRequests
-                                .Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest))
-                                .Concat(ConvertToTrackerCmsDocumentDto(src.DefendantsAndCharges))
-                                .Concat(src.CmsDocuments)
-                    );
+                .Map
+                (
+                    dest => dest,
+                    src => src.CaseEntity
+                )
+                .Map
+                (
+                    dest => dest.VersionId,
+                    src => src.CaseEntity.Version
+                )
+                .Map
+                (
+                    dest => dest.Documents,
+                    src =>
+                        src.CaseEntity.PcdRequests
+                            .Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest))
+                            .Concat(ConvertToTrackerCmsDocumentDto(src.CaseEntity.DefendantsAndCharges))
+                            .Concat(src.CaseEntity.CmsDocuments)
+                )
+                .Map
+                (
+                    dest => dest.Logs.Case,
+                    src => src.CaseRefreshLogsEntity.Case
+                )
+                .Map
+                (
+                    dest => dest.Logs.Documents,
+                    src => src.CaseRefreshLogsEntity.Documents
+                );
         }
 
-        private static TrackerCmsDocumentDto ConvertToTrackerCmsDocumentDto(TrackerPcdRequestDto pcdRequest)
+        private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
         {
-            return new TrackerCmsDocumentDto
+            return new CmsDocumentEntity
             {
                 PolarisDocumentId = pcdRequest.PolarisDocumentId,
                 PolarisDocumentVersionId = pcdRequest.PolarisDocumentVersionId,
@@ -45,14 +67,14 @@ namespace coordinator.Domain.Mapper
             };
         }
 
-        private static TrackerCmsDocumentDto[] ConvertToTrackerCmsDocumentDto(TrackerDefendantsAndChargesDto defendantsAndCharges)
+        private static CmsDocumentEntity[] ConvertToTrackerCmsDocumentDto(DefendantsAndChargesEntity defendantsAndCharges)
         {
             if(defendantsAndCharges == null) 
-                return new TrackerCmsDocumentDto[0];
+                return new CmsDocumentEntity[0];
 
-            return new TrackerCmsDocumentDto[1] 
+            return new CmsDocumentEntity[1] 
             {
-                new TrackerCmsDocumentDto
+                new CmsDocumentEntity
                 {
                     PolarisDocumentId = defendantsAndCharges.PolarisDocumentId,
                     PolarisDocumentVersionId = defendantsAndCharges.PolarisDocumentVersionId,

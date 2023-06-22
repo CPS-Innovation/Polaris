@@ -35,7 +35,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<(DocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
@@ -53,7 +53,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
             #endregion
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            DocumentDto[] documents = await _ddeiService.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
+            CmsDocumentDto[] documents = await _ddeiService.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
             var cmsDocuments = 
                 documents
@@ -80,7 +80,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
             return (cmsDocuments, pcdRequests, defendantsAndCharges);
         }
 
-        private DocumentDto MapPresentationFlags(DocumentDto document)
+        private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)
         {
             document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common.Dto.Tracker;
 using Common.Logging;
 using coordinator.Domain;
+using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -27,22 +29,22 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
         {
             var log = context.CreateReplaySafeLogger(_log);
 
-            var payload = context.GetInput<UpdateTrackerPayload>();
+            var payload = context.GetInput<UpdateCaseDurableEntityPayload>();
             if (payload == null)
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var currentCaseId = payload.CaseOrchestrationPayload.CmsCaseId;
 
-            log.LogMethodFlow(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Retrieve tracker for case {currentCaseId}");
-            var tracker = CreateOrGetTracker(context, currentCaseId, payload.CaseOrchestrationPayload.CorrelationId, log);
+            log.LogMethodFlow(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Retrieve trackers for case {currentCaseId}");
+            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, currentCaseId, false, payload.CaseOrchestrationPayload.CorrelationId, log);
 
             try
             {
-                await tracker.SetValue(payload.Tracker);
+                caseEntity.SetValue(payload.Tracker);
             }
             catch (Exception exception)
             {
-                await tracker.RegisterCompleted((context.CurrentUtcDateTime, false));
+                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed, exception.Message));
                 log.LogMethodError(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Error when running {nameof(UpdateTrackerOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 throw;
             }

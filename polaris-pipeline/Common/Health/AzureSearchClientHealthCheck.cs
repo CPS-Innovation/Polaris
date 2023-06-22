@@ -11,7 +11,7 @@ namespace Common.Health
     {
         private readonly SearchClient _searchClient;
 
-        public AzureSearchClientHealthCheck(ISearchClientFactory searchClientFactory)
+        public AzureSearchClientHealthCheck(IAzureSearchClientFactory searchClientFactory)
         {
             _searchClient = searchClientFactory.Create();
         }

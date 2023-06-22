@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Azure.Messaging.EventGrid;
 using Common.Constants;
-using Common.Services.SearchIndexService.Contracts;
+using Common.Services.CaseSearchService.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Azure.WebJobs;
@@ -17,14 +17,14 @@ namespace text_extractor.tests.Functions;
 public class HandleDocumentDeletedEventTests
 {
     private readonly Fixture _fixture;
-    private readonly Mock<ISearchIndexService> _searchIndexServiceMock;
+    private readonly Mock<ICaseSearchClient> _searchIndexServiceMock;
 
     private readonly HandleDocumentDeletedEvent _handleDocumentDeletedEvent;
     
     public HandleDocumentDeletedEventTests()
     {
         _fixture = new Fixture();
-        _searchIndexServiceMock = new Mock<ISearchIndexService>();
+        _searchIndexServiceMock = new Mock<ICaseSearchClient>();
 
         var logger = new Mock<ILogger<HandleDocumentDeletedEvent>>();
         
