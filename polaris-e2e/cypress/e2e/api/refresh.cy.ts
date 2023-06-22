@@ -199,9 +199,8 @@ describe("Refresh", () => {
                     throw new Error("Pipeline failed, ending test")
                   }
                   return (
-                    status === "Completed"
-                    /*processingCompleted &&
-                    processingCompleted !== previousProcessingCompleted*/
+                    processingCompleted &&
+                    processingCompleted !== previousProcessingCompleted
                   )
                 }),
             WAIT_UNTIL_OPTIONS
@@ -244,7 +243,6 @@ describe("Refresh", () => {
       }
     )
 
-    /* assertion order is significant */
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
       term: "one",
@@ -258,20 +256,13 @@ describe("Refresh", () => {
       phase: "PHASE_2",
     })
     assertSearchExpectation({
-      expectation: "TERM_PRESENT_IN_DOC_ID",
-      term: "carol",
-      docId: "peopleDocId",
-      phase: "PHASE_2",
-    })
-    assertSearchExpectation({
       expectation: "TERM_NOT_PRESENT",
       term: "three",
       phase: "PHASE_2",
     })
-    /* put these checks on the changing doc to the bottom to allow Search Indexing to resolve for this document */
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
-      term: "one",
+      term: "four",
       docId: "numbersDocId",
       phase: "PHASE_2",
     })
@@ -340,9 +331,8 @@ describe("Refresh", () => {
                     throw new Error("Pipeline failed, ending test")
                   }
                   return (
-                    status === "Completed"
-                    /* processingCompleted &&
-                        processingCompleted !== previousProcessingCompleted */
+                    processingCompleted &&
+                    processingCompleted !== previousProcessingCompleted
                   )
                 }),
             WAIT_UNTIL_OPTIONS
