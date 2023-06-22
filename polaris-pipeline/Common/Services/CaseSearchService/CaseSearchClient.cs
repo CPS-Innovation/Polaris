@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
@@ -105,9 +104,10 @@ namespace Common.Services.CaseSearchService
                 };
 
                 await indexer.UploadDocumentsAsync(lines);
+
+                _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), $"Updating the search index - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
                 await indexer.FlushAsync();
-                _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync),
-                    $"Updating the search index completed - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
+                _logger.LogMethodFlow(correlationId, nameof(SendStoreResultsAsync), $"Updated the search index - number of lines: {lines.Count}, successes: {successCount}, failures: {failureCount}");
 
                 if (!await indexTaskCompletionSource.Task)
                 {
@@ -125,24 +125,23 @@ namespace Common.Services.CaseSearchService
         {
             _logger.LogMethodEntry(correlationId, nameof(WaitForStoreResultsAsync), $"Wait for Search Indexation, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}");
 
-            var sentLines = analyzeResults.ReadResults.SelectMany(r => r.Lines.Select(l => l.Text)).ToHashSet();
+            var sentLinesCount = analyzeResults.ReadResults.Sum(r => r.Lines.Count);
 
             var options = new SearchOptions
             {
                 Filter = $"caseId eq {cmsCaseId} and documentId eq '{cmsDocumentId}' and versionId eq {versionId}",
+                Size = 0,
+                IncludeTotalCount = true,
             };
 
-            const int baseDelayMs = 250;
+            var baseDelayMs = 250;
 
             foreach (var timeoutBase in Fibonacci(10))
             {
-                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
-                var receivedLines = new HashSet<string>();
+                var searchResults = await _searchClient.SearchAsync<SearchLine>("*", options);
+                var recievedLinesCount = searchResults.Value.TotalCount; 
 
-                await foreach (var searchResult in searchResults.Value.GetResultsAsync())
-                    receivedLines.Add(searchResult.Document.Text);
-
-                if (sentLines.SetEquals(receivedLines))
+                if (recievedLinesCount == sentLinesCount)
                 {
                     _logger.LogMethodExit(correlationId, nameof(WaitForStoreResultsAsync), $"Consistent Search Index, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}");
                     return true;
@@ -150,7 +149,7 @@ namespace Common.Services.CaseSearchService
 
                 var timeout = baseDelayMs * timeoutBase;
 
-                _logger.LogMethodFlow(correlationId, nameof(WaitForStoreResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}, sent {sentLines.Count} lines, received {receivedLines.Count} lines");
+                _logger.LogMethodFlow(correlationId, nameof(WaitForStoreResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}, sent {sentLinesCount} lines, received {recievedLinesCount} lines");
 
                 await Task.Delay(timeout);
             }
