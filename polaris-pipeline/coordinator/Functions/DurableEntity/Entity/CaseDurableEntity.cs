@@ -61,8 +61,8 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("running")]
         public DateTime? Running { get; set; }
 
-        [JsonProperty("documentsRetrieved")]
-        public float? DocumentsRetrieved { get; set; }
+        [JsonProperty("Retrieved")]
+        public float? Retrieved { get; set; }
 
         [JsonProperty("pdfsGenerated")]
         public float? PdfsGenerated { get; set; }
@@ -92,7 +92,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             TransactionId = transactionId;
             Running = null;
-            DocumentsRetrieved = null;
+            Retrieved = null;
             Completed = null;
             Failed = null;
             FailedReason = null;
@@ -392,7 +392,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
                 case CaseRefreshStatus.DocumentsRetrieved:
                     if(Running != null)
-                        DocumentsRetrieved = (float)((t-Running).Value.TotalMilliseconds/1000.0);
+                        Retrieved = (float)((t-Running).Value.TotalMilliseconds/1000.0);
                     break;
 
                 case CaseRefreshStatus.Completed:
@@ -460,7 +460,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             Status = tracker.Status;
             Running = tracker.Running;
-            DocumentsRetrieved = tracker.DocumentsRetrieved;
+            Retrieved = tracker.Retrieved;
             Completed = tracker.Completed;
             Failed = tracker.Failed;
             FailedReason = tracker.FailedReason;
