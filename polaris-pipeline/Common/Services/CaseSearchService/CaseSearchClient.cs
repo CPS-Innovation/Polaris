@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
@@ -138,7 +139,7 @@ namespace Common.Services.CaseSearchService
 
             foreach (var timeoutBase in Fibonacci(10))
             {
-                var searchResults = await _searchClient.SearchAsync<SearchLine>("*", options);
+                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
                 var recievedLinesCount = searchResults.Value.TotalCount; 
 
                 if (recievedLinesCount == sentLinesCount)
