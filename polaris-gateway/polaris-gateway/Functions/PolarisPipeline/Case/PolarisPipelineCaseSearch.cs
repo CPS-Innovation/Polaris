@@ -11,8 +11,6 @@ using Gateway.Clients.PolarisPipeline.Contracts;
 using System;
 using System.Threading.Tasks;
 using PolarisGateway.Wrappers;
-using Microsoft.Extensions.Primitives;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
@@ -23,14 +21,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
         private readonly ILogger<PolarisPipelineCaseSearch> _logger;
 
         const string loggingName = $"{nameof(PolarisPipelineCaseSearch)} - {nameof(Run)}";
-
-        static HashSet<string> e2eCorrelationIds = new HashSet<string>
-            {
-                "E2E00000-0000-0000-0000-000000000000",
-                "E2E00000-0000-0000-0000-000000000001",
-                "E2E00000-0000-0000-0000-000000000002",
-                "E2E00000-0000-0000-0000-000000000003"
-            };
 
         public PolarisPipelineCaseSearch(ILogger<PolarisPipelineCaseSearch> logger,
                                                IPipelineClient pipelineClient,
@@ -49,18 +39,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
 
             try
             {
-                // Try to mitigate the fact that immediately querying Azure Search after updating it is not guaranteed to work
-                // This is a temporary workaround until we can implement a better solution
-                // If running e2e tests put in a 5s delay to allow the Azure Search index to update
-                // This is based on the timings / results from below... 
-                //
-                // e2e / pipeline delays versus test results 
-                //  e2e timeout 2500ms, GET delay 5000ms : (10/10) 100% 
-                //  e2e timeout 2500ms, GET delay 2000m  : (9/10)  90% 
-                //  e2e timeout 2500ms, GET delay 0ms    : (8/10)  80% 
-                if(IsEndToEndTest(req))
-                    Task.Delay(5000).Wait();
-
                 #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
@@ -96,21 +74,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
             {
                 _logger.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             }
-        }
-
-        private bool IsEndToEndTest(HttpRequest req)
-        {
-            if(req.Headers.TryGetValue("correlation-id", out StringValues correlationIds))
-            {
-                var correlationId = correlationIds.First();
-
-                if(!string.IsNullOrWhiteSpace(correlationId))
-                {
-                    return e2eCorrelationIds.Contains(correlationId);
-                }
-            }
-
-            return false;
         }
     }
 }
