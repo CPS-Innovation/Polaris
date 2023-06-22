@@ -48,6 +48,9 @@ namespace Common.Dto.Tracker
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
 
+        [JsonProperty("presentationTitle")]
+        public string PresentationTitle { get; set; }
+
         [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
 
