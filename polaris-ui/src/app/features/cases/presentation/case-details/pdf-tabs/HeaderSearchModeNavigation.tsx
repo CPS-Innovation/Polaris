@@ -17,17 +17,15 @@ export const HeaderSearchModeNavigation: React.FC<Props> = ({
   return (
     <div className={classes.container}>
       {focussedHighlightIndex > 0 && (
-        <div className={classes.previous}>
-          <LinkButton
-            className={classes.previousBtn}
-            dataTestId="btn-focus-highlight-previous"
-            onClick={() =>
-              handleSetFocussedHighlightIndex(focussedHighlightIndex - 1)
-            }
-          >
-            Previous
-          </LinkButton>
-        </div>
+        <LinkButton
+          className={classes.previousBtn}
+          dataTestId="btn-focus-highlight-previous"
+          onClick={() =>
+            handleSetFocussedHighlightIndex(focussedHighlightIndex - 1)
+          }
+        >
+          Previous
+        </LinkButton>
       )}
       <span
         className={classes.numbers}
@@ -37,17 +35,15 @@ export const HeaderSearchModeNavigation: React.FC<Props> = ({
       </span>
 
       {focussedHighlightIndex < occurrencesInDocumentCount - 1 && (
-        <div className={classes.next}>
-          <LinkButton
-            className={classes.nextBtn}
-            dataTestId="btn-focus-highlight-next"
-            onClick={() =>
-              handleSetFocussedHighlightIndex(focussedHighlightIndex + 1)
-            }
-          >
-            Next
-          </LinkButton>
-        </div>
+        <LinkButton
+          className={classes.nextBtn}
+          dataTestId="btn-focus-highlight-next"
+          onClick={() =>
+            handleSetFocussedHighlightIndex(focussedHighlightIndex + 1)
+          }
+        >
+          Next
+        </LinkButton>
       )}
     </div>
   );
