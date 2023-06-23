@@ -5,6 +5,7 @@ using coordinator.Functions.DurableEntity.Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -39,11 +40,7 @@ namespace coordinator.Domain.Mapper
                 .Map
                 (
                     dest => dest.Documents,
-                    src =>
-                        src.CaseEntity.PcdRequests
-                            .Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest))
-                            .Concat(ConvertToTrackerCmsDocumentDto(src.CaseEntity.DefendantsAndCharges))
-                            .Concat(src.CaseEntity.CmsDocuments)
+                    src => GetDocumentEntities(src.CaseEntity)
                 )
                 .Map
                 (
@@ -55,6 +52,28 @@ namespace coordinator.Domain.Mapper
                     dest => dest.Logs.Documents,
                     src => src.CaseRefreshLogsEntity.Documents
                 );
+        }
+
+        private static List<CmsDocumentEntity> GetDocumentEntities(CaseDurableEntity caseEntity)
+        {
+            var documents = new List<CmsDocumentEntity>();
+
+            if(caseEntity.CmsDocuments?.Any() == true)
+                documents.AddRange(caseEntity.CmsDocuments);
+
+            if(caseEntity.DefendantsAndCharges != null)
+            {
+                var defendantsAndChargesDocument = ConvertToTrackerCmsDocumentDto(caseEntity.DefendantsAndCharges);
+                documents.AddRange(defendantsAndChargesDocument);
+            }
+
+            if(caseEntity.PcdRequests?.Any() == true)
+            {
+                var pcdRequestDocuments = caseEntity.PcdRequests.Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest));
+                documents.AddRange(pcdRequestDocuments);
+            }
+
+            return documents;
         }
 
         private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity)

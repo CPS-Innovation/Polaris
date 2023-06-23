@@ -2,6 +2,7 @@
 {
     public enum CaseRefreshStatus
     {
+        NotStarted,
         Running,
         DocumentsRetrieved,
         Completed,

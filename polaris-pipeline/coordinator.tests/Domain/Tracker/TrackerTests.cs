@@ -19,13 +19,13 @@ using coordinator.Functions.DurableEntity.Client.Tracker;
 using Common.Dto.Tracker;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.ValueObjects;
 using Newtonsoft.Json;
 using Common.Domain.Entity;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
 
 namespace coordinator.tests.Domain.Tracker
 {
@@ -123,7 +123,7 @@ namespace coordinator.tests.Domain.Tracker
 
             _caseEntity.TransactionId.Should().Be(_transactionId);
             _caseEntity.CmsDocuments.Should().NotBeNull();
-            _caseEntity.Status.Should().Be(CaseRefreshStatus.Running);
+            _caseEntity.Status.Should().Be(CaseRefreshStatus.NotStarted);
         }
 
         [Fact]
@@ -609,7 +609,7 @@ namespace coordinator.tests.Domain.Tracker
         #endregion
 
         [Fact]
-        public void TrackerEntityMapsToTrackerDto()
+        public void Populated_TrackerEntity_MapsTo_TrackerDto()
         {
             // Arrange
             _services.RegisterMapsterConfiguration();
@@ -619,12 +619,50 @@ namespace coordinator.tests.Domain.Tracker
 
 
             // Act
-            var trackerDto = (caseEntity, caseRefreshLogsEntity).Adapt<TrackerDto>();
+            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
 
 
             // Assert
             trackerDto.Documents.Count.Should().Be(caseEntity.CmsDocuments.Count + caseEntity.PcdRequests.Count + 1);
             trackerDto.Documents.Count(d => d.CategoryListOrder != null).Should().BeGreaterThan(0);
+        }
+
+        [Fact]
+        public void Empty_TrackerEntity_MapsTo_TrackerDto()
+        {
+            // Arrange
+            _services.RegisterMapsterConfiguration();
+            var caseEntity = new CaseDurableEntity();
+            var caseRefreshLogsEntity = new CaseRefreshLogsDurableEntity();
+
+
+            // Act
+            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
+
+            // Assert
+            trackerDto.Documents.Count.Should().Be(0);
+            trackerDto.Logs.Case.Count.Should().Be(0);
+            trackerDto.Logs.Documents.Count.Should().Be(0);
+            trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
+        }
+
+        [Fact]
+        public void Null_TrackerEntity_MapsTo_TrackerDto()
+        {
+            // Arrange
+            _services.RegisterMapsterConfiguration();
+            CaseDurableEntity caseEntity = null;
+            CaseRefreshLogsDurableEntity caseRefreshLogsEntity = null;
+
+
+            // Act
+            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
+
+            // Assert
+            trackerDto.Documents.Count.Should().Be(0);
+            trackerDto.Logs.Case.Count.Should().Be(0);
+            trackerDto.Logs.Documents.Count.Should().Be(0);
+            trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
         }
     }
 }

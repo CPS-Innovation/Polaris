@@ -7,13 +7,12 @@ using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Wrappers.Contracts;
-using Common.Dto.Tracker;
-using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
 
 namespace coordinator.Functions.DurableEntity.Client.Tracker
 {
@@ -71,7 +70,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 {
                     case "GET":
                         log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                        var trackerDto = (caseEntity, caseRefreshLogsEntity).Adapt<TrackerDto>();
+                        var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
                         return new OkObjectResult(trackerDto);
 
                     default:
