@@ -6,5 +6,5 @@ export type PipelineResults = {
   documents: PipelineDocument[];
   processingCompleted: string;
   documentsRetrieved: string;
-  status: InProgressPipelineStatus; //
+  status: InProgressPipelineStatus;
 };
