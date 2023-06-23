@@ -189,20 +189,18 @@ const searchResults: ApiTextSearchResult[] = [
 
   {
     id: "MTg4NDYtVU5VU0VEIDEgLSBTVE9STSBMT0cgMTg4MSAwMS42LjIwIC0gRURJVEVEIDIwMjAtMTEtMjMgTUNMT1ZFLTMtNDQ=",
-    caseId: 17428,
+    caseId: 18846,
     documentId: "3",
     pageIndex: 3,
     lineIndex: 44,
     pageHeight: 11.6806,
     pageWidth: 8.2639,
-    text: "DRINK THE SCENE IN HER CAR IN DRINK DRINK",
+    text: "LEFT THE SCENE IN HER CAR IN DRINK",
     words: [
       {
-        boundingBox: [
-          1.0272, 4.494, 1.2966, 4.494, 1.2966, 4.5798, 1.0272, 4.5798,
-        ],
-        text: "DRINK",
-        matchType: "Exact",
+        boundingBox: null,
+        text: "LEFT",
+        matchType: "None",
         confidence: 0.0,
       },
       {
@@ -244,14 +242,6 @@ const searchResults: ApiTextSearchResult[] = [
       {
         boundingBox: [
           3.0021, 4.494, 3.3822, 4.494, 3.3822, 4.5798, 3.0021, 4.5798,
-        ],
-        text: "DRINK",
-        matchType: "Exact",
-        confidence: 0.0,
-      },
-      {
-        boundingBox: [
-          4.0021, 5.494, 4.3822, 5.494, 4.3822, 5.5798, 4.0021, 5.5798,
         ],
         text: "DRINK",
         matchType: "Exact",
