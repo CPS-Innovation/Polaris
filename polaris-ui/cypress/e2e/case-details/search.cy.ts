@@ -424,12 +424,8 @@ describe("Case Details Search", () => {
 
         // first highlight is focussed
         cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -449,14 +445,9 @@ describe("Case Details Search", () => {
 
         // focus second highlight
         cy.findByTestId("btn-focus-highlight-next").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -476,14 +467,9 @@ describe("Case Details Search", () => {
 
         // focus third highlight
         cy.findByTestId("btn-focus-highlight-next").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("3/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-next").should("exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -500,17 +486,11 @@ describe("Case Details Search", () => {
           "data-test-isfocussed",
           "true"
         );
-
         // back to second highlight
         cy.findByTestId("btn-focus-highlight-previous").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -530,14 +510,9 @@ describe("Case Details Search", () => {
 
         // back to first highlight
         cy.findByTestId("btn-focus-highlight-previous").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",

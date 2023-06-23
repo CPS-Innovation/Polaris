@@ -1,20 +1,18 @@
 .container {
   display: flex;
-}
+  align-items: flex-end;
 
-.next,
-.previous {
-  text-align: center;
-  user-select: none;
-}
-.next {
-  width: 50px;
-}
+  .numbers {
+    width: 48px;
+    text-align: center;
+    user-select: none;
+    font-weight: bold;
+  }
 
-.numbers {
-  margin: 0 10px 0 5px;
-  width: 48px;
-  text-align: right;
-  user-select: none;
-  font-weight: bold;
+  .nextBtn,
+  .previousBtn {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+  }
 }

@@ -16,40 +16,35 @@ export const HeaderSearchModeNavigation: React.FC<Props> = ({
 
   return (
     <div className={classes.container}>
-      <span className={classes.previous}>
-        {focussedHighlightIndex > 0 ? (
-          <LinkButton
-            dataTestId="btn-focus-highlight-previous"
-            onClick={() =>
-              handleSetFocussedHighlightIndex(focussedHighlightIndex - 1)
-            }
-          >
-            Previous
-          </LinkButton>
-        ) : (
-          <span data-testid="txt-focus-highlight-previous">Previous</span>
-        )}
-      </span>
+      {focussedHighlightIndex > 0 && (
+        <LinkButton
+          className={classes.previousBtn}
+          dataTestId="btn-focus-highlight-previous"
+          onClick={() =>
+            handleSetFocussedHighlightIndex(focussedHighlightIndex - 1)
+          }
+        >
+          Previous
+        </LinkButton>
+      )}
       <span
         className={classes.numbers}
         data-testid="txt-focus-highlight-numbers"
       >
         {oneBasedFocussedHighlightIndex}/{occurrencesInDocumentCount}
       </span>
-      <span className={classes.next}>
-        {focussedHighlightIndex < occurrencesInDocumentCount - 1 ? (
-          <LinkButton
-            dataTestId="btn-focus-highlight-next"
-            onClick={() =>
-              handleSetFocussedHighlightIndex(focussedHighlightIndex + 1)
-            }
-          >
-            Next
-          </LinkButton>
-        ) : (
-          <span data-testid="txt-focus-highlight-next">Next</span>
-        )}
-      </span>
+
+      {focussedHighlightIndex < occurrencesInDocumentCount - 1 && (
+        <LinkButton
+          className={classes.nextBtn}
+          dataTestId="btn-focus-highlight-next"
+          onClick={() =>
+            handleSetFocussedHighlightIndex(focussedHighlightIndex + 1)
+          }
+        >
+          Next
+        </LinkButton>
+      )}
     </div>
   );
 };
