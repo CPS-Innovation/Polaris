@@ -53,11 +53,14 @@ namespace coordinator.Functions.DurableEntity.Client
             }
 
             var caseRefreshLogsEntityKey = CaseRefreshLogsDurableEntity.GetOrchestrationKey(caseId, caseEntity.EntityState.Version);
+            if (caseRefreshLogsEntityKey == null)
+                return (caseEntity.EntityState, null, null);
+
             var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), caseRefreshLogsEntityKey);
             var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsDurableEntity>(caseRefreshLogsEntityId);
 
             if(!caseRefreshLogsEntity.EntityExists)
-                return (caseEntity.EntityState, new CaseRefreshLogsDurableEntity(), null);
+                return (caseEntity.EntityState, null, null);
 
             return (caseEntity.EntityState, caseRefreshLogsEntity.EntityState, null);
         }

@@ -1,9 +1,9 @@
 const InProgressPipelineStatusesArray = [
+  "NotStarted",
   "Running",
   "DocumentsRetrieved",
   "Completed",
   "Failed",
-  "Deleted",
 ] as const;
 
 const SummaryPipelineStatusesArray = [
@@ -14,12 +14,15 @@ const SummaryPipelineStatusesArray = [
 
 const pipelineSucceededStatuses: InProgressPipelineStatus[] = ["Completed"];
 
-const pipelineFailedStatuses: InProgressPipelineStatus[] = [
+const pipelineFailedStatuses: InProgressPipelineStatus[] = ["Failed"];
+
+const pipelineDocumentsPresentStatuses: InProgressPipelineStatus[] = [
+  "DocumentsRetrieved",
+  "Completed",
   "Failed",
-  "Deleted",
 ];
 
-export const getPipelinpipelineCompletionStatus = (
+export const getPipelineCompletionStatus = (
   status: InProgressPipelineStatus
 ): SummaryPipelineStatus => {
   if (pipelineSucceededStatuses.includes(status)) {
@@ -30,6 +33,9 @@ export const getPipelinpipelineCompletionStatus = (
   }
   return "NotCompleted";
 };
+
+export const isDocumentsPresentStatus = (status: InProgressPipelineStatus) =>
+  pipelineDocumentsPresentStatuses.includes(status);
 
 type PipelineStatusesTuple = typeof InProgressPipelineStatusesArray;
 
