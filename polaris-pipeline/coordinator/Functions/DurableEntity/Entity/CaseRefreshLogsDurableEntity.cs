@@ -17,9 +17,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         public static string GetOrchestrationKey(string caseId, int? version)
         {
             if (version == null)
-            {
-                throw new ArgumentNullException(nameof(version));
-            }
+                return null;
 
             return $"[{caseId}]-{version.Value}";
         }

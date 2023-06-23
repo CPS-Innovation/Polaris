@@ -91,6 +91,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         public void Reset(string transactionId)
         {
             TransactionId = transactionId;
+            Status = CaseRefreshStatus.NotStarted;
             Running = null;
             Retrieved = null;
             Completed = null;

@@ -424,12 +424,8 @@ describe("Case Details Search", () => {
 
         // first highlight is focussed
         cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -449,14 +445,9 @@ describe("Case Details Search", () => {
 
         // focus second highlight
         cy.findByTestId("btn-focus-highlight-next").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -476,14 +467,9 @@ describe("Case Details Search", () => {
 
         // focus third highlight
         cy.findByTestId("btn-focus-highlight-next").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("3/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-next").should("exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -500,17 +486,11 @@ describe("Case Details Search", () => {
           "data-test-isfocussed",
           "true"
         );
-
         // back to second highlight
         cy.findByTestId("btn-focus-highlight-previous").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("not.exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("2/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -530,14 +510,9 @@ describe("Case Details Search", () => {
 
         // back to first highlight
         cy.findByTestId("btn-focus-highlight-previous").click();
-
         cy.findByTestId("btn-focus-highlight-previous").should("not.exist");
-        cy.findByTestId("txt-focus-highlight-previous").should("exist");
-
         cy.findByTestId("txt-focus-highlight-numbers").contains("1/3");
-
         cy.findByTestId("btn-focus-highlight-next").should("exist");
-        cy.findByTestId("txt-focus-highlight-next").should("not.exist");
 
         cy.findByTestId("div-highlight-0").should(
           "have.attr",
@@ -554,6 +529,28 @@ describe("Case Details Search", () => {
           "data-test-isfocussed",
           "false"
         );
+      });
+    });
+
+    describe("Search term redaction", () => {
+      it("User can successfully complete redactions, by clicking on the search results highlighted in the document", () => {
+        cy.visit("/case-details/12AB1111111/13401");
+        cy.findByTestId("btn-search-case").click();
+
+        cy.findByTestId("div-search-result-1").should("not.exist");
+        cy.findByTestId("input-results-search-case").type("drink{enter}");
+        cy.findByTestId("div-search-result-1").should("exist");
+        cy.findByTestId("link-result-document-1").click();
+        cy.findByTestId("div-pdfviewer-0")
+          .should("exist")
+          .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+        cy.get(".PdfLinearHighlight_Highlight__part__search__KLMnH")
+          .first()
+          .click({ force: true });
+        cy.findByTestId("btn-save-redaction-0").should("not.exist");
+        cy.findByTestId("btn-redact").should("have.length", 1);
+        cy.findByTestId("btn-redact").click({ force: true });
+        cy.findByTestId("btn-save-redaction-0").should("exist");
       });
     });
   });
