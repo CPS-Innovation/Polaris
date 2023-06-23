@@ -4,37 +4,34 @@ const InProgressPipelineStatusesArray = [
   "Completed",
   "Failed",
   "Deleted",
-] as const;
+] as const
 
 const SummaryPipelineStatusesArray = [
   "NotCompleted",
   "Completed",
   "Failed",
-] as const;
+] as const
 
-const pipelineSucceededStatuses: InProgressPipelineStatus[] = ["Completed"];
+const pipelineSucceededStatuses: InProgressPipelineStatus[] = ["Completed"]
 
-const pipelineFailedStatuses: InProgressPipelineStatus[] = [
-  "Failed",
-  "Deleted",
-];
+const pipelineFailedStatuses: InProgressPipelineStatus[] = ["Failed", "Deleted"]
 
 export const getPipelinpipelineCompletionStatus = (
   status: InProgressPipelineStatus
 ): SummaryPipelineStatus => {
   if (pipelineSucceededStatuses.includes(status)) {
-    return "Completed";
+    return "Completed"
   }
   if (pipelineFailedStatuses.includes(status)) {
-    return "Failed";
+    return "Failed"
   }
-  return "NotCompleted";
-};
+  return "NotCompleted"
+}
 
-type PipelineStatusesTuple = typeof InProgressPipelineStatusesArray;
+type PipelineStatusesTuple = typeof InProgressPipelineStatusesArray
 
-export type InProgressPipelineStatus = PipelineStatusesTuple[number];
+export type InProgressPipelineStatus = PipelineStatusesTuple[number]
 
-type SummaryPipelineStatusesTuple = typeof SummaryPipelineStatusesArray;
+type SummaryPipelineStatusesTuple = typeof SummaryPipelineStatusesArray
 
-export type SummaryPipelineStatus = SummaryPipelineStatusesTuple[number];
+export type SummaryPipelineStatus = SummaryPipelineStatusesTuple[number]
