@@ -531,6 +531,28 @@ describe("Case Details Search", () => {
         );
       });
     });
+
+    describe("Search term redaction", () => {
+      it("User can successfully complete redactions, by clicking on the search results highlighted in the document", () => {
+        cy.visit("/case-details/12AB1111111/13401");
+        cy.findByTestId("btn-search-case").click();
+
+        cy.findByTestId("div-search-result-1").should("not.exist");
+        cy.findByTestId("input-results-search-case").type("drink{enter}");
+        cy.findByTestId("div-search-result-1").should("exist");
+        cy.findByTestId("link-result-document-1").click();
+        cy.findByTestId("div-pdfviewer-0")
+          .should("exist")
+          .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+        cy.get(".PdfLinearHighlight_Highlight__part__search__KLMnH")
+          .first()
+          .click({ force: true });
+        cy.findByTestId("btn-save-redaction-0").should("not.exist");
+        cy.findByTestId("btn-redact").should("have.length", 1);
+        cy.findByTestId("btn-redact").click({ force: true });
+        cy.findByTestId("btn-save-redaction-0").should("exist");
+      });
+    });
   });
 });
 

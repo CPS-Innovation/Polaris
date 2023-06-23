@@ -8,9 +8,27 @@
 :global(.govuk-body .govuk-skip-link:focus) {
   margin-bottom: 0 !important;
 }
+:global(.govuk-body) {
+  margin-bottom: 0 !important;
+}
+:global(.govuk-footer) {
+  padding: 10px !important;
+}
 
 .cps-width-container-wide {
   margin-left: auto;
   margin-right: auto;
   max-width: 1400px;
+}
+.cps-main-container {
+  min-height: 90vh;
+}
+.cps-footer-container {
+  display: flex;
+  :global(.govuk-footer__inline-list) {
+    margin-bottom: 0;
+  }
+  :global(.govuk-footer__inline-list-item) {
+    margin-bottom: 0;
+  }
 }
