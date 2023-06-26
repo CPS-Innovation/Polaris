@@ -220,10 +220,6 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
 
-data "azurerm_monitor_diagnostic_categories" "example" {
-  resource_id = azurerm_linux_web_app.polaris_proxy.id
-}
-
 resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
   name                           = "proxy-diagnostic-settings"
   target_resource_id             = azurerm_linux_web_app.polaris_proxy.id
