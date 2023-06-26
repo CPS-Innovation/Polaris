@@ -244,7 +244,7 @@ resource "null_resource" "log_analytics_table_retention" {
     total_retention_days = var.app_service_log_total_retention
     resource_group_name  = "rg-${local.analytics_group_name}"
     workspace_name       = data.azurerm_log_analytics_workspace.global_la.name
-    subscription_id      = data.azurerm_subscription.current.id
+    subscription_id      = data.azurerm_subscription.current.subscription_id
   }
 
   # Put the name of all the tables you want to change here:
