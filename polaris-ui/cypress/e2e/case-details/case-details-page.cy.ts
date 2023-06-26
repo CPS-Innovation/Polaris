@@ -358,6 +358,17 @@ describe("case details page", () => {
   });
 
   describe("Document Presentation Flags", () => {
+    const openAndRedactDocument = (linkId: string) => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId(linkId).click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Not Disclosable");
+      cy.selectPDFTextElement("Not Disclosable");
+      cy.findByTestId("btn-redact").should("have.length", 0);
+      cy.findByTestId("redaction-warning").should("have.length", 1);
+    };
     it("Redaction shouldn't be allowed and User should show warning message when selecting a text, if presentationFlags write status is 'DocTypeNotAllowed'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -374,44 +385,20 @@ describe("case details page", () => {
     });
 
     it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `OnlyAvailableInCms`", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-8").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("Not Disclosable");
-      cy.selectPDFTextElement("Not Disclosable");
-      cy.findByTestId("btn-redact").should("have.length", 0);
-      cy.findByTestId("redaction-warning").should("have.length", 1);
+      openAndRedactDocument("link-document-8");
       cy.findByTestId("redaction-warning").contains(
         "This document can only be redacted in CMS."
       );
     });
     it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `OriginalFileTypeNotAllowed`", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-5").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("Not Disclosable");
-      cy.selectPDFTextElement("Not Disclosable");
-      cy.findByTestId("btn-redact").should("have.length", 0);
-      cy.findByTestId("redaction-warning").should("have.length", 1);
+      openAndRedactDocument("link-document-5");
       cy.findByTestId("redaction-warning").contains(
         "Redaction is not supported for this file type."
       );
     });
 
     it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsNotOcrProcessed`", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-7").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("Not Disclosable");
-      cy.selectPDFTextElement("Not Disclosable");
-      cy.findByTestId("btn-redact").should("have.length", 0);
-      cy.findByTestId("redaction-warning").should("have.length", 1);
+      openAndRedactDocument("link-document-7");
       cy.findByTestId("redaction-warning").contains(
         "Awaiting OCR processing in CMS. Please try again later for redaction."
       );
