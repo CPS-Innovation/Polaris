@@ -56,5 +56,6 @@ export default defineConfig({
     viewportHeight: 1000,
     viewportWidth: 1500,
     defaultCommandTimeout: 60000,
+    trashAssetsBeforeRuns: false,
   },
 })
