@@ -236,3 +236,25 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
 
   depends_on = [azurerm_linux_web_app.polaris_proxy]
 }
+
+resource "null_resource" "log_analytics_table_retention" {
+  # when changed, will force the null resource to be replaced
+  triggers = {
+    retention_days       = var.app_service_log_retention
+    total_retention_days = var.app_service_log_total_retention
+    resource_group_name  = "rg-${local.analytics_group_name}"
+    workspace_name       = data.azurerm_log_analytics_workspace.global_la.name
+    subscription_id      = data.azurerm_subscription.current.id
+  }
+
+  # Put the name of all the tables you want to change here:
+  for_each = toset([
+    "AppServiceConsoleLogs"
+  ])
+
+  provisioner "local-exec" {
+    command = "az monitor log-analytics workspace table update --resource-group ${self.triggers.resource_group_name} --workspace-name ${self.triggers.workspace_name} --name ${each.key} --retention-time ${self.triggers.retention_days} --total-retention-time ${self.triggers.total_retention_days} --subscription ${self.triggers.subscription_id}"
+  }
+
+  depends_on = [azurerm_monitor_diagnostic_setting.proxy_diagnostic_settings]
+}

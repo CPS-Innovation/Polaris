@@ -33,4 +33,5 @@ cms_details = {
 
 react_app_ai_connection_string = "IngestionEndpoint=https://polaris-dev-notprod.cps.gov.uk/;LiveEndpoint=https://polaris-dev-notprod.cps.gov.uk/"
 
-app_service_log_retention = "30"
+app_service_log_retention       = 90
+app_service_log_total_retention = 2555
