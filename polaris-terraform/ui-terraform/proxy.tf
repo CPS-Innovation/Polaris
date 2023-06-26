@@ -220,16 +220,23 @@ resource "azurerm_private_dns_a_record" "polaris_proxy_scm_dns_a" {
   depends_on          = [azurerm_private_endpoint.polaris_proxy_pe]
 }
 
-/*
-resource "azurerm_app_service_custom_hostname_binding" "proxy_app_hostname_bind_1" {
-  hostname            = var.custom_domain_name
-  app_service_name    = azurerm_linux_web_app.polaris_proxy.name
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  ssl_state           = "SniEnabled"
-  thumbprint          = lookup(data.azurerm_key_vault_secret.proxy_cert_ref.tags, "Thumbprint", null)
-
-  depends_on = [
-    azurerm_linux_web_app.polaris_proxy
-  ]
+data "azurerm_monitor_diagnostic_categories" "example" {
+  resource_id = azurerm_linux_web_app.polaris_proxy.id
 }
-*/
+
+resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
+  name                           = "proxy-diagnostic-settings"
+  target_resource_id             = azurerm_linux_web_app.polaris_proxy.id
+  log_analytics_workspace_id     = data.azurerm_log_analytics_workspace.global_la.id
+  log_analytics_destination_type = "AzureDiagnostics"
+
+  enabled_log {
+    category = "AppServiceConsoleLogs"
+    retention_policy {
+      enabled = true
+      days    = 90 
+    }
+  }
+  
+  depends_on                 = [azurerm_linux_web_app.polaris_proxy]
+}
