@@ -91,5 +91,4 @@ variable "cms_details" {
 
 variable "app_service_log_retention" {
   type    = string
-  default = "90"
 }
