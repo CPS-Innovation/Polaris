@@ -230,7 +230,7 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
     category = "AppServiceConsoleLogs"
     retention_policy {
       enabled = true
-      days    = 90
+      days    = var.app_service_log_retention
     }
   }
 
