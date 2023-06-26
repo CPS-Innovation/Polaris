@@ -19,7 +19,8 @@ export type PresentationFlags = {
     | "Ok"
     | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
-    | "OriginalFileTypeNotAllowed";
+    | "OriginalFileTypeNotAllowed"
+    | "IsNotOcrProcessed";
 };
 
 export type PresentationDocumentProperties = {

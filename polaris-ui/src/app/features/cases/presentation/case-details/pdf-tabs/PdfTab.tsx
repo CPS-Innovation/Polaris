@@ -13,7 +13,7 @@ type PdfTabProps = {
   tabIndex: number;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
-  redactStatus: PresentationFlags["write"];
+  documentWriteStatus: PresentationFlags["write"];
   savedDocumentDetails: {
     documentId: string;
     polarisDocumentVersionId: number;
@@ -33,7 +33,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   tabIndex,
   caseDocumentViewModel,
   headers,
-  redactStatus,
+  documentWriteStatus,
   savedDocumentDetails,
   contextData,
   handleLaunchSearchResults,
@@ -123,7 +123,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           tabIndex={tabIndex}
           headers={headers}
           searchHighlights={searchHighlights}
-          redactStatus={redactStatus}
+          documentWriteStatus={documentWriteStatus}
           contextData={{
             documentId,
             documentType,

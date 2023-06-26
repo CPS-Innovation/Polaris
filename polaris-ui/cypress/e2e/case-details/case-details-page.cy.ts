@@ -155,7 +155,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-warning").should("have.length", 1);
       cy.findByTestId("redaction-warning").contains(
-        "This document can only be redacted in CMS."
+        "Redaction is not supported for this document type."
       );
     });
   });
@@ -357,8 +357,8 @@ describe("case details page", () => {
     });
   });
 
-  describe("feature toggle", () => {
-    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentation redact status is not 'Ok'", () => {
+  describe("Document Presentation Flags", () => {
+    it("Redaction shouldn't be allowed and User should show warning message when selecting a text, if presentationFlags write status is 'DocTypeNotAllowed'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-2").click();
@@ -369,11 +369,55 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-warning").should("have.length", 1);
       cy.findByTestId("redaction-warning").contains(
-        "This document can only be redacted in CMS."
+        "Redaction is not supported for this document type."
       );
     });
 
-    it("User shouldn't be allowed to view document and there should be document view warnings, if presentation view status is not 'Ok'", () => {
+    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `OnlyAvailableInCms`", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-8").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Not Disclosable");
+      cy.selectPDFTextElement("Not Disclosable");
+      cy.findByTestId("btn-redact").should("have.length", 0);
+      cy.findByTestId("redaction-warning").should("have.length", 1);
+      cy.findByTestId("redaction-warning").contains(
+        "This document can only be redacted in CMS."
+      );
+    });
+    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `OriginalFileTypeNotAllowed`", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-5").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Not Disclosable");
+      cy.selectPDFTextElement("Not Disclosable");
+      cy.findByTestId("btn-redact").should("have.length", 0);
+      cy.findByTestId("redaction-warning").should("have.length", 1);
+      cy.findByTestId("redaction-warning").contains(
+        "Redaction is not supported for this file type."
+      );
+    });
+
+    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsNotOcrProcessed`", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-7").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("Not Disclosable");
+      cy.selectPDFTextElement("Not Disclosable");
+      cy.findByTestId("btn-redact").should("have.length", 0);
+      cy.findByTestId("redaction-warning").should("have.length", 1);
+      cy.findByTestId("redaction-warning").contains(
+        "Awaiting OCR processing in CMS. Please try again later for redaction."
+      );
+    });
+
+    it("User shouldn't be allowed to view document and there should be document view warnings, if presentationFlags read status is not 'Ok'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-3").should("have.length", 0);
@@ -385,7 +429,7 @@ describe("case details page", () => {
         "Some documents for this case are only available in CMS"
       );
       cy.findByTestId("name-text-document-3").should("have.length", 1);
-      cy.findByTestId("name-text-document-3").contains("MG05MCLOVE");
+      cy.findByTestId("name-text-document-3").contains("Doc_3");
       cy.findByTestId("view-warning-document-3").should("have.length", 1);
       cy.findByTestId("view-warning-document-3").contains(
         "Document only available on CMS"
