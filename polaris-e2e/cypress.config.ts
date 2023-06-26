@@ -15,6 +15,7 @@ export default defineConfig({
       if (!config.env.ENVIRONMENT) {
         throw new Error("Please provide an ENVIRONMENT variable")
       }
+      require("cypress-timestamps/plugin")(on)
       require("cypress-terminal-report/src/installLogsPrinter")(on, {
         printLogsToConsole: "always",
       })
