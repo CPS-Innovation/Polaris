@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { Layout } from "./common/presentation/layout/Layout";
 import { Redirect, Route, Switch, useLocation } from "react-router-dom";
 
@@ -13,9 +13,24 @@ import CaseSearchResults, {
 import Case, {
   path as casePath,
 } from "./features/cases/presentation/case-details";
+import { testAppInsightsConnection } from "../app/common/utils/appInsightsUtils";
 
 export const Routes: FC = () => {
   const { state } = useLocation();
+  const [isAppInsightActive, setIsAppInsightActive] = useState(true);
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") {
+      setTimeout(async () => {
+        if (!(await testAppInsightsConnection())) {
+          setIsAppInsightActive(false);
+        }
+      }, 1000);
+    }
+  }, []);
+
+  if (!isAppInsightActive) {
+    throw Error("Failed to connect to App Insights");
+  }
 
   return (
     <Switch>
