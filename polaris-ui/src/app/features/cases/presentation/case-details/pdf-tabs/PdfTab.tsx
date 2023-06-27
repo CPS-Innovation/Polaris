@@ -21,6 +21,7 @@ type PdfTabProps = {
   contextData: {
     correlationId: string;
   };
+  isOkToSave: boolean;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -36,6 +37,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   documentWriteStatus,
   savedDocumentDetails,
   contextData,
+  isOkToSave,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -128,6 +130,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentId,
             documentType,
           }}
+          isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}
           focussedHighlightIndex={focussedHighlightIndex}
           handleAddRedaction={localHandleAddRedaction}

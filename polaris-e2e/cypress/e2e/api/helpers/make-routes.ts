@@ -26,18 +26,18 @@ export const makeApiRoutes = (authHeaders: any) => {
     },
   })
 
-  const TRACKER_CLEAR = (
-    urn: string,
-    caseId: number,
-    correlationId: CorrelationId = "BLANK"
-  ) => ({
-    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
-    headers: {
-      ...authHeaders,
-      "correlation-id": correlationIds[correlationId],
-    },
-    method: "DELETE",
-  })
+  // const TRACKER_CLEAR = (
+  //   urn: string,
+  //   caseId: number,
+  //   correlationId: CorrelationId = "BLANK"
+  // ) => ({
+  //   url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
+  //   headers: {
+  //     ...authHeaders,
+  //     "correlation-id": correlationIds[correlationId],
+  //   },
+  //   method: "DELETE",
+  // })
 
   const TRACKER_START = (
     urn: string,
@@ -119,7 +119,7 @@ export const makeApiRoutes = (authHeaders: any) => {
   return {
     LIST_CASES,
     GET_CASE,
-    TRACKER_CLEAR,
+    //TRACKER_CLEAR,
     TRACKER_START,
     GET_TRACKER,
     GET_SEARCH,

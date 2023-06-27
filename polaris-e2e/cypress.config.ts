@@ -16,9 +16,7 @@ export default defineConfig({
         throw new Error("Please provide an ENVIRONMENT variable")
       }
       require("cypress-timestamps/plugin")(on)
-      require("cypress-terminal-report/src/installLogsPrinter")(on, {
-        printLogsToConsole: "always",
-      })
+      require("cypress-terminal-report/src/installLogsPrinter")(on)
 
       on("task", {
         storeTokenResponseInNode: (tokenResponse: any) => {

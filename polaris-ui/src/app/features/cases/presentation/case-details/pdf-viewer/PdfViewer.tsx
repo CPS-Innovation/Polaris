@@ -32,6 +32,7 @@ type Props = {
   searchHighlights: undefined | IPdfHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
+  isOkToSave: boolean;
   handleAddRedaction: (newRedaction: NewPdfHighlight) => void;
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
@@ -50,6 +51,7 @@ export const PdfViewer: React.FC<Props> = ({
   contextData,
   searchHighlights = [],
   redactionHighlights,
+  isOkToSave,
   handleAddRedaction,
   handleRemoveRedaction,
   handleRemoveAllRedactions,
@@ -170,6 +172,7 @@ export const PdfViewer: React.FC<Props> = ({
             contextData={contextData}
             tabIndex={tabIndex}
             redactionHighlights={redactionHighlights}
+            isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
           />
