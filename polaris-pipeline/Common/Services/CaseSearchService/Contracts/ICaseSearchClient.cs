@@ -14,6 +14,8 @@ namespace Common.Services.CaseSearchService.Contracts
 
         Task<bool> WaitForStoreResultsAsync(AnalyzeResults analyzeResults, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId);
 
+        Task<bool> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId);
+
         Task<IList<StreamlinedSearchLine>> QueryAsync(int caseId, List<BaseDocumentEntity> documents, string searchTerm, Guid correlationId);
 
         IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm, Guid correlationId);

@@ -160,6 +160,42 @@ namespace Common.Services.CaseSearchService
             return false;
         }
 
+        public async Task<bool> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Wait for Search Indexation, CaseId={cmsCaseId}");
+
+            var options = new SearchOptions
+            {
+                Filter = $"caseId eq {cmsCaseId}",
+                Size = 0,
+                IncludeTotalCount = true,
+            };
+
+            var baseDelayMs = 250;
+
+            foreach (var timeoutBase in Fibonacci(10))
+            {
+                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
+                var recievedLinesCount = searchResults.Value.TotalCount;
+
+                if (recievedLinesCount == 0)
+                {
+                    _logger.LogMethodExit(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Consistent Search Index, CaseId={cmsCaseId}");
+                    return true;
+                }
+
+                var timeout = baseDelayMs * timeoutBase;
+
+                _logger.LogMethodFlow(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId},  expectedLineCount 0 lines, received {recievedLinesCount} lines");
+
+                await Task.Delay(timeout);
+            }
+
+            _logger.LogMethodExit(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Inconsistent Search Index, CaseId={cmsCaseId}");
+
+            return false;
+        }
+
         private IEnumerable<int> Fibonacci(int n)
         {
             int prev = 0, current = 1;
