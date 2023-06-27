@@ -64,7 +64,7 @@ namespace pdf_generator.Functions
                 if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
                     throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
 
-                request.Headers.TryGetValues(HttpHeaderKeys.Filetype, out var documentIds);
+                request.Headers.TryGetValues(HttpHeaderKeys.DocumentId, out var documentIds);
                 if (documentIds == null)
                     throw new BadRequestException("Missing DocumentIds", nameof(request));
                 var documentId = documentIds.First();

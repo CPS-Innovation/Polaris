@@ -11,11 +11,14 @@ namespace Common.Dto.Tracker
         public string TransactionId { get; set; }
 
         [JsonProperty("versionId")]
-        public string VersionId { get; set; }
+        public int? VersionId { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("status")]
-        public TrackerStatus Status { get; set; }
+        public CaseRefreshStatus Status { get; set; }
+
+        [JsonProperty("running")]
+        public DateTime? Running { get; set; }
 
         [JsonProperty("documentsRetrieved")]
         public DateTime? DocumentsRetrieved { get; set; }
@@ -23,11 +26,29 @@ namespace Common.Dto.Tracker
         [JsonProperty("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
 
+        [JsonProperty("retrieved")]
+        public float? Retrieved { get; set; }
+
+        [JsonProperty("pdfsGenerated")]
+        public float? PdfsGenerated { get; set; }
+
+        [JsonProperty("indexed")]
+        public float? Indexed { get; set; }
+
+        [JsonProperty("completed")]
+        public float? Completed { get; set; }
+
+        [JsonProperty("failed")]
+        public float? Failed{ get; set; }
+
+        [JsonProperty("failedReason")]
+        public string FailedReason { get; set; }
+
         [JsonProperty("documents")]
-        public List<TrackerCmsDocumentDto> Documents { get; set; }
+        public List<DocumentDto> Documents { get; set; }
 
         [JsonProperty("logs")]
-        public List<TrackerLogDto> Logs { get; set; }
+        public CaseLogsDto Logs { get; set; }
     }
 }
 

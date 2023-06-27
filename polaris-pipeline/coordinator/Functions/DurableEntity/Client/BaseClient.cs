@@ -8,8 +8,8 @@ using Common.Logging;
 using System.Threading.Tasks;
 using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
-using Common.Dto.Tracker;
 using Common.ValueObjects;
+using Common.Domain.Entity;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -18,9 +18,9 @@ namespace coordinator.Functions.DurableEntity.Client
         internal bool Success;
         internal IActionResult Error;
         internal Guid CorrelationId;
-        internal TrackerCmsDocumentDto CmsDocument;
-        internal TrackerPcdRequestDto PcdRequest;
-        internal TrackerDefendantsAndChargesDto DefendantsAndCharges;
+        internal CmsDocumentEntity CmsDocument;
+        internal PcdRequestEntity PcdRequest;
+        internal DefendantsAndChargesEntity DefendantsAndCharges;
 
         public string GetBlobName()
         {
@@ -31,6 +31,40 @@ namespace coordinator.Functions.DurableEntity.Client
     public class BaseClient
     {
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
+
+        protected async Task<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity CaseRefreshLogsEntity, string errorMessage)> GetCaseTrackersForEntity
+            (
+                IDurableEntityClient client,
+                string caseId,
+                Guid correlationId, 
+                string loggingName,
+                ILogger log
+            )
+        {
+            var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId);
+            var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
+            var caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
+
+            if (!caseEntity.EntityExists)
+            {
+                var errorMessage = $"No Case Entity found with id '{caseId}'";
+                log.LogMethodFlow(correlationId, loggingName, errorMessage);
+                return (null, null, errorMessage);
+            }
+
+            var caseRefreshLogsEntityKey = CaseRefreshLogsDurableEntity.GetOrchestrationKey(caseId, caseEntity.EntityState.Version);
+            if (caseRefreshLogsEntityKey == null)
+                return (caseEntity.EntityState, null, null);
+
+            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), caseRefreshLogsEntityKey);
+            var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsDurableEntity>(caseRefreshLogsEntityId);
+
+            if(!caseRefreshLogsEntity.EntityExists)
+                return (caseEntity.EntityState, null, null);
+
+            return (caseEntity.EntityState, caseRefreshLogsEntity.EntityState, null);
+        }
+
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
         (
                 HttpRequestMessage req,
@@ -64,8 +98,8 @@ namespace coordinator.Functions.DurableEntity.Client
             log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
             #endregion
 
-            var entityId = new EntityId(nameof(TrackerEntity), caseId);
-            var stateResponse = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
+            var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId));
+            var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
             if (!stateResponse.EntityExists)
             {
                 var baseMessage = $"No pipeline tracker found with id '{caseId}'";
@@ -74,7 +108,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
-            TrackerEntity entityState = stateResponse.EntityState;
+            CaseDurableEntity entityState = stateResponse.EntityState;
             response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
             if(response.CmsDocument == null )
             {

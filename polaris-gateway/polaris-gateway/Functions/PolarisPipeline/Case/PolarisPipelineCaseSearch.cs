@@ -11,6 +11,7 @@ using Gateway.Clients.PolarisPipeline.Contracts;
 using System;
 using System.Threading.Tasks;
 using PolarisGateway.Wrappers;
+using System.Collections.Generic;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Case
 {

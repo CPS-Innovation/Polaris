@@ -7,7 +7,7 @@ const {
   TARGET_DOCUMENT_TEXT_FRAGMENT,
   TARGET_SEARCH_TEXT,
   TARGET_CASE_ID,
-  SEARCH_RACE_CONDITION_WAIT_MS,
+  PRE_SEARCH_DELAY_MS,
 } = Cypress.env()
 
 describe("Happy Path", () => {
@@ -35,7 +35,7 @@ describe("Happy Path", () => {
     cy.findByTestId("btn-open-pdf").contains(TARGET_DOCUMENT_NAME)
     cy.get("span").contains(TARGET_DOCUMENT_TEXT_FRAGMENT)
 
-    cy.wait(SEARCH_RACE_CONDITION_WAIT_MS)
+    cy.wait(PRE_SEARCH_DELAY_MS)
 
     // search for our target text
     cy.findByTestId("input-search-case").type(`${TARGET_SEARCH_TEXT}{enter}`)

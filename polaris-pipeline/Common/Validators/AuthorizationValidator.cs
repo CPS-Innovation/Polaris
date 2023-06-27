@@ -1,6 +1,4 @@
-﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,18 +13,21 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Common.Validators
 {
     [ExcludeFromCodeCoverage]
     public class AuthorizationValidator : IAuthorizationValidator
     {
+        private readonly ConfigurationManager<OpenIdConnectConfiguration> _configurationManager;
         private readonly ILogger<AuthorizationValidator> _log;
         private const string ScopeType = @"http://schemas.microsoft.com/identity/claims/scope";
-        private Guid _correlationId;
 
-        public AuthorizationValidator(ILogger<AuthorizationValidator> log)
+        public AuthorizationValidator(ConfigurationManager<OpenIdConnectConfiguration> configurationManager, ILogger<AuthorizationValidator> log)
         {
+            _configurationManager = configurationManager;
             _log = log;
         }
 
@@ -34,28 +35,21 @@ namespace Common.Validators
         {
             _log.LogMethodEntry(correlationId, nameof(ValidateTokenAsync), string.Empty);
             if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
-            _correlationId = correlationId;
             try
             {
-                // TODO - inject configuration
-                var issuer = $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/";
                 var audience = Environment.GetEnvironmentVariable(OAuthSettings.ValidAudience);
-                var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(issuer + "/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever(),
-                    new HttpDocumentRetriever());
-
-                var discoveryDocument = await configurationManager.GetConfigurationAsync(default);
-                var signingKeys = discoveryDocument.SigningKeys;
+                var discoveryDocument = await _configurationManager.GetConfigurationAsync(default);
 
                 var validationParameters = new TokenValidationParameters
                 {
                     RequireExpirationTime = true,
                     RequireSignedTokens = true,
                     ValidateIssuer = true,
-                    ValidIssuer = issuer,
+                    ValidIssuer = discoveryDocument.Issuer,
                     ValidateAudience = true,
                     ValidAudience = audience,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKeys = signingKeys,
+                    IssuerSigningKeys = discoveryDocument.SigningKeys,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.FromMinutes(2),
                 };
@@ -63,7 +57,7 @@ namespace Common.Validators
                 var tokenValidator = new JwtSecurityTokenHandler();
                 var claimsPrincipal = tokenValidator.ValidateToken(token.ToJwtString(), validationParameters, out _);
 
-                var isValid = IsValid(claimsPrincipal, requiredScopes, requiredRoles);
+                var isValid = IsValid(claimsPrincipal, correlationId, requiredScopes, requiredRoles);
                 var userName = claimsPrincipal.Identity.Name;
 
                 return new ValidateTokenResult
@@ -105,12 +99,12 @@ namespace Common.Validators
             }
         }
 
-        private bool IsValid(ClaimsPrincipal claimsPrincipal, string scopes = null, string roles = null)
+        private bool IsValid(ClaimsPrincipal claimsPrincipal, Guid correlationId, string scopes = null, string roles = null)
         {
-            _log.LogMethodEntry(_correlationId, nameof(IsValid), string.Empty);
+            _log.LogMethodEntry(correlationId, nameof(IsValid), string.Empty);
             if (claimsPrincipal == null)
             {
-                _log.LogMethodFlow(_correlationId, nameof(IsValid), "Claims Principal not found - returning 'false' indicating an authorization failure");
+                _log.LogMethodFlow(correlationId, nameof(IsValid), "Claims Principal not found - returning 'false' indicating an authorization failure");
                 return false;
             }
 
@@ -119,7 +113,7 @@ namespace Common.Validators
 
             if (!requiredScopes.Any() && !requiredRoles.Any())
             {
-                _log.LogMethodFlow(_correlationId, nameof(IsValid), "No required scopes or roles found - allowing access - returning");
+                _log.LogMethodFlow(correlationId, nameof(IsValid), "No required scopes or roles found - allowing access - returning");
                 return true;
             }
 
@@ -131,7 +125,7 @@ namespace Common.Validators
             var tokenScopes = scopeClaim.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).ToList();
             var hasAccessToScopes = !requiredScopes.Any() || requiredScopes.All(x => tokenScopes.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase)));
 
-            _log.LogMethodExit(_correlationId, nameof(IsValid), $"Outcome role and scope checks - hasAccessToRoles: {hasAccessToRoles}, hasAccessToScopes: {hasAccessToScopes}");
+            _log.LogMethodExit(correlationId, nameof(IsValid), $"Outcome role and scope checks - hasAccessToRoles: {hasAccessToRoles}, hasAccessToScopes: {hasAccessToScopes}");
             return hasAccessToRoles && hasAccessToScopes;
         }
 

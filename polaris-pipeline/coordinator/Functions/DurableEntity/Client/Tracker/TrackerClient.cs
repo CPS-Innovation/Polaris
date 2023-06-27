@@ -7,18 +7,16 @@ using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Wrappers.Contracts;
-using Common.Dto.Tracker;
-using coordinator.Functions.DurableEntity.Entity;
-using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
 
 namespace coordinator.Functions.DurableEntity.Client.Tracker
 {
-    public class TrackerClient
+    public class TrackerClient : BaseClient
     {
         const string loggingName = $"{nameof(TrackerClient)} - {nameof(HttpStart)}";
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
@@ -42,6 +40,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 
             try
             {
+                #region Validate-Inputs
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
@@ -56,26 +55,22 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                         log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
-
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
+                #endregion
 
-                var entityId = new EntityId(nameof(TrackerEntity), caseId);
-                var trackerState = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
+                var (caseEntity, caseRefreshLogsEntity, errorMessage) = await GetCaseTrackersForEntity(client, caseId, currentCorrelationId, loggingName, log);
 
-                if (!trackerState.EntityExists)
+                if(errorMessage != null)
                 {
-                    var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                    log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
-                    return new NotFoundObjectResult(baseMessage);
+                    log.LogMethodFlow(currentCorrelationId, loggingName, errorMessage);
+                    return new NotFoundObjectResult(errorMessage);
                 }
 
                 switch (req.Method.Method)
                 {
                     case "GET":
                         log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                        var trackerEntity = trackerState.EntityState;
-                        var trackerDto = trackerEntity.Adapt<TrackerDto>();
-
+                        var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
                         return new OkObjectResult(trackerDto);
 
                     default:

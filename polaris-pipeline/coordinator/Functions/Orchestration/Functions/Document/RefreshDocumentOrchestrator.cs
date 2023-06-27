@@ -6,10 +6,11 @@ using Common.Domain.Extensions;
 using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Logging;
+using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
-using coordinator.Domain.Tracker;
 using coordinator.Functions.ActivityFunctions.Document;
+using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
 
         const string loggingName = $"{nameof(RefreshDocumentOrchestrator)} - {nameof(Run)}";
+
+        public static string GetKey(long caseId, PolarisDocumentId polarisDocumentId)
+        {
+            return $"[{caseId}]-{polarisDocumentId}";
+        }
 
         public RefreshDocumentOrchestrator(IJsonConvertWrapper jsonConvertWrapper, ILogger<RefreshDocumentOrchestrator> log)
         {
@@ -40,22 +46,37 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get the pipeline tracker for CaseId: '{payload.CmsCaseId}'");
-            var tracker = CreateOrGetTracker(context, payload.CmsCaseId, payload.CorrelationId, log);
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get trackers for CaseId: '{payload.CmsCaseId}'");
+            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, payload.CmsCaseId, false, payload.CorrelationId, log);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for PolarisDocumentId: '{payload.PolarisDocumentId}'");
-            var pdfGeneratorResponse = await CallPdfGeneratorAsync(context, payload, tracker, log);
+            var pdfGeneratorResponse = await CallPdfGeneratorAsync(context, payload, caseEntity, caseRefreshLogsEntity, log);
 
-            if (!pdfGeneratorResponse.AlreadyProcessed)
+            if (payload.CmsDocumentTracker != null) {
+                caseEntity.SetOcrProcessed((payload.PolarisDocumentId.ToString(), payload.CmsDocumentTracker.IsOcrProcessed));
+            }
+
+            if (pdfGeneratorResponse.AlreadyProcessed)
             {
-                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for DocumentId: '{payload.CmsDocumentId}', BlobName: '{pdfGeneratorResponse.BlobName}'");
-                await CallTextExtractorAsync(context, payload, pdfGeneratorResponse.BlobName, tracker, log);
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.DocumentAlreadyProcessed, pdfGeneratorResponse.BlobName));
+                caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.PdfAlreadyGenerated, payload.PolarisDocumentId.ToString()));
+            }
+            else
+            {
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, pdfGeneratorResponse.BlobName));
+                caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.PdfGenerated, payload.PolarisDocumentId.ToString()));
+
+                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for PolarisDocumentId: '{payload.PolarisDocumentId}', BlobName: '{pdfGeneratorResponse.BlobName}'");
+                await CallTextExtractorAsync(context, payload, pdfGeneratorResponse.BlobName, caseEntity, caseRefreshLogsEntity, log);
+
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, pdfGeneratorResponse.BlobName));
+                caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.Indexed, payload.PolarisDocumentId.ToString()));
             }
 
             log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
         }
 
-        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ITrackerEntity tracker, ILogger log)
+        private async Task<GeneratePdfResponse> CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, ILogger log)
         {
             GeneratePdfResponse response = null;
 
@@ -64,22 +85,15 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 log.LogMethodEntry(payload.CorrelationId, nameof(CallPdfGeneratorAsync), payload.ToJson());
 
                 response = await context.CallActivityAsync<GeneratePdfResponse>(nameof(GeneratePdf), payload);
-
-                var registerPdfBlobNameArg = new RegisterPdfBlobNameArg(context.CurrentUtcDateTime, payload.CmsDocumentId, payload.CmsVersionId, response.BlobName);
-                if (response.AlreadyProcessed)
-                    await tracker.RegisterBlobAlreadyProcessed(registerPdfBlobNameArg);
-                else
-                    await tracker.RegisterPdfBlobName(registerPdfBlobNameArg);
+                if(response == null)
+                    throw new ArgumentNullException(nameof(response));  
 
                 return response;
             }
             catch (Exception exception)
             {
-                await tracker.RegisterStatus((context.CurrentUtcDateTime, payload.CmsDocumentId, TrackerDocumentStatus.UnexpectedFailure, TrackerLogType.UnexpectedDocumentFailure));
-
-                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator),
-                    $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}",
-                    exception);
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
 
                 throw;
             }
@@ -89,18 +103,17 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
         }
 
-        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ITrackerEntity tracker, ILogger log)
+        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorAsync), payload.ToJson());
 
             try
             {
                 await CallTextExtractorHttpAsync(context, payload, blobName, log);
-                await tracker.RegisterStatus((context.CurrentUtcDateTime, payload.CmsDocumentId, TrackerDocumentStatus.Indexed, TrackerLogType.Indexed));
             }
             catch (Exception exception)
             {
-                await tracker.RegisterStatus((context.CurrentUtcDateTime, payload.CmsDocumentId, TrackerDocumentStatus.OcrAndIndexFailure, TrackerLogType.OcrAndIndexFailure));
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.OcrAndIndexFailure, null));
 
                 log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 throw;

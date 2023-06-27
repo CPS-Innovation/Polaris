@@ -48,6 +48,7 @@ namespace PolarisGateway.Functions.CaseData
 
             try
             {
+                #region Validate-Inputs
                 var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
@@ -59,6 +60,7 @@ namespace PolarisGateway.Functions.CaseData
 
                 if (string.IsNullOrEmpty(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                #endregion
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{caseUrn}'");
                 var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, caseUrn);

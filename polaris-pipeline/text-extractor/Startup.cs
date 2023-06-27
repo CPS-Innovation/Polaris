@@ -10,8 +10,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
 using Common.Factories.Contracts;
-using Common.Services.SearchIndexService;
-using Common.Services.SearchIndexService.Contracts;
+using Common.Services.CaseSearchService;
 using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
@@ -39,7 +38,7 @@ namespace text_extractor
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
             BuildOcrService(builder, configuration);
-            BuildSearchIndexService(builder, configuration);
+            builder.Services.AddSearchClient(configuration);
             builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
             BuildAzureClients(builder, configuration);
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
@@ -47,11 +46,7 @@ namespace text_extractor
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
             builder.Services.AddBlobSasGenerator();
-
-            builder.Services.AddTransient<ISearchLineFactory, SearchLineFactory>();
-            builder.Services.AddTransient<ISearchClientFactory, SearchClientFactory>();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
-            builder.Services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
 
             BuildHealthChecks(builder);
         }
@@ -79,22 +74,6 @@ namespace text_extractor
             }
 #else
             builder.Services.AddSingleton<IOcrService, OcrService>();
-#endif
-        }
-
-        private static void BuildSearchIndexService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
-        {
-#if DEBUG
-            if (configuration.IsSettingEnabled(DebugSettings.MockSearchIndexService))
-            {
-                builder.Services.AddSingleton<ISearchIndexService, MockSearchIndexService>();
-            }
-            else
-            {
-                builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
-            }
-#else
-            builder.Services.AddSingleton<ISearchIndexService, SearchIndexService>();
 #endif
         }
 

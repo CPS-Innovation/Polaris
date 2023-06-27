@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Common.Factories;
 
-public class SearchClientFactory : ISearchClientFactory
+public class AzureSearchClientFactory : IAzureSearchClientFactory
 {
     private readonly IConfiguration _configuration;
     
-    public SearchClientFactory(IConfiguration configuration)
+    public AzureSearchClientFactory(IConfiguration configuration)
     {
         _configuration = configuration;
     }

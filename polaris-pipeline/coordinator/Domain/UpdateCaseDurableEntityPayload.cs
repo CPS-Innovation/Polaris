@@ -2,10 +2,10 @@
 
 namespace coordinator.Domain
 {
-    internal class UpdateTrackerPayload
+    internal class UpdateCaseDurableEntityPayload
     {
         public CaseOrchestrationPayload CaseOrchestrationPayload { get; set; }
 
-        public TrackerEntity Tracker { get; set; }
+        public CaseDurableEntity Tracker { get; set; }
     }
 }

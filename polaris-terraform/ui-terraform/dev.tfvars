@@ -14,8 +14,8 @@ polaris_webapp_details = {
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Development"
 
-certificate_name    = "polaris-dev-notprod3536a9f3-a9a0-48b4-9b40-8c76083cad2e"
-custom_domain_name  = "polaris-dev-notprod.cps.gov.uk"
+certificate_name   = "polaris-dev-notprod3536a9f3-a9a0-48b4-9b40-8c76083cad2e"
+custom_domain_name = "polaris-dev-notprod.cps.gov.uk"
 
 ui_logging = {
   gateway_scale_controller       = "AppInsights:Verbose"
@@ -32,3 +32,6 @@ cms_details = {
 }
 
 react_app_ai_connection_string = "IngestionEndpoint=https://polaris-dev-notprod.cps.gov.uk/;LiveEndpoint=https://polaris-dev-notprod.cps.gov.uk/"
+
+app_service_log_retention       = 90
+app_service_log_total_retention = 2555

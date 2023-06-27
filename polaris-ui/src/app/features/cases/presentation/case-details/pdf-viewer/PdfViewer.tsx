@@ -28,7 +28,7 @@ type Props = {
     documentId: string;
   };
   headers: HeadersInit;
-  redactStatus: PresentationFlags["write"];
+  documentWriteStatus: PresentationFlags["write"];
   searchHighlights: undefined | IPdfHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
@@ -46,7 +46,7 @@ export const PdfViewer: React.FC<Props> = ({
   url,
   tabIndex,
   headers,
-  redactStatus,
+  documentWriteStatus,
   contextData,
   searchHighlights = [],
   redactionHighlights,
@@ -121,8 +121,12 @@ export const PdfViewer: React.FC<Props> = ({
                 }
               }}
               onSelectionFinished={(position, content, hideTipAndSelection) => {
-                if (redactStatus !== "Ok") {
-                  return <RedactionWarning />;
+                if (documentWriteStatus !== "Ok") {
+                  return (
+                    <RedactionWarning
+                      documentWriteStatus={documentWriteStatus}
+                    />
+                  );
                 }
                 return (
                   <RedactButton

@@ -2,6 +2,8 @@ import { defineConfig } from "cypress"
 import fs from "fs-extra"
 import path from "path"
 
+const globalAny: any = global
+
 const getConfigurationByFile = (file: string) => {
   const pathToConfigFile = path.resolve("config", `${file}.json`)
   return fs.readJsonSync(pathToConfigFile)
@@ -13,11 +15,18 @@ export default defineConfig({
       if (!config.env.ENVIRONMENT) {
         throw new Error("Please provide an ENVIRONMENT variable")
       }
-      on("task", {
-        logToTerminal(message) {
-          console.log(message)
+      require("cypress-timestamps/plugin")(on)
+      require("cypress-terminal-report/src/installLogsPrinter")(on, {
+        printLogsToConsole: "always",
+      })
 
+      on("task", {
+        storeTokenResponseInNode: (tokenResponse: any) => {
+          globalAny.tokenResponse = tokenResponse
           return null
+        },
+        retrieveTokenResponseFromNode: () => {
+          return globalAny.tokenResponse
         },
       })
 
@@ -48,5 +57,6 @@ export default defineConfig({
     viewportHeight: 1000,
     viewportWidth: 1500,
     defaultCommandTimeout: 60000,
+    trashAssetsBeforeRuns: false,
   },
 })

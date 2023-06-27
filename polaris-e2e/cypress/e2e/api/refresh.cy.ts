@@ -5,11 +5,8 @@ import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 
-const {
-  REFRESH_TARGET_URN,
-  REFRESH_TARGET_CASE_ID,
-  SEARCH_RACE_CONDITION_WAIT_MS,
-} = Cypress.env()
+const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, PRE_SEARCH_DELAY_MS } =
+  Cypress.env()
 
 let routes: ApiRoutes
 
@@ -103,8 +100,7 @@ describe("Refresh", () => {
         ).to.be.true
       })
 
-    cy.wait(SEARCH_RACE_CONDITION_WAIT_MS)
-
+    cy.wait(PRE_SEARCH_DELAY_MS)
     // todo: #21848 - early warning that the Aspose licence has expired (in which case a watermark is added to the document
     //  that the OCR process will read and add to the index - the watermark includes the word "Aspose").
     //  todo: move this test to a better and dedicated test suite (e.g. pdf service integration test)
@@ -246,7 +242,7 @@ describe("Refresh", () => {
       }
     )
 
-    cy.wait(SEARCH_RACE_CONDITION_WAIT_MS)
+    cy.wait(PRE_SEARCH_DELAY_MS)
 
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",
@@ -345,7 +341,7 @@ describe("Refresh", () => {
       }
     )
 
-    cy.wait(SEARCH_RACE_CONDITION_WAIT_MS)
+    cy.wait(PRE_SEARCH_DELAY_MS)
 
     assertSearchExpectation({
       expectation: "TERM_PRESENT_IN_DOC_ID",

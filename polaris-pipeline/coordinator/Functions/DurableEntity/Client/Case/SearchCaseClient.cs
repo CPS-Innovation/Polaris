@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
-using Common.Dto.Tracker;
+using Common.Domain.Entity;
 using Common.Logging;
+using Common.Services.CaseSearchService.Contracts;
 using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -18,9 +18,9 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 {
     public class SearchCaseClient
     {
-        private readonly ISearchIndexClient _searchIndexClient;
+        private readonly ICaseSearchClient _searchIndexClient;
 
-        public SearchCaseClient(ISearchIndexClient searchIndexClient)
+        public SearchCaseClient(ICaseSearchClient searchIndexClient)
         {
             _searchIndexClient = searchIndexClient;
         }
@@ -59,8 +59,8 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
-                var entityId = new EntityId(nameof(TrackerEntity), caseId.ToString());
-                var trackerState = await client.ReadEntityStateAsync<TrackerEntity>(entityId);
+                var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId.ToString()));
+                var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
                 if (!trackerState.EntityExists)
                 {
@@ -71,13 +71,13 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 
                 log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
-                TrackerEntity entityState = trackerState.EntityState;
+                CaseDurableEntity entityState = trackerState.EntityState;
                 var documents =
-                    entityState.CmsDocuments.OfType<BaseTrackerDocumentDto>()
+                    entityState.CmsDocuments.OfType<BaseDocumentEntity>()
                         .Concat(entityState.PcdRequests)
                         .Append(entityState.DefendantsAndCharges)
                         .ToList();
-                var searchResults = await _searchIndexClient.Query(caseId, documents, searchTerm, currentCorrelationId);
+                var searchResults = await _searchIndexClient.QueryAsync(caseId, documents, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }

@@ -20,6 +20,7 @@ import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
 import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
+import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
 
 export const reducer = (
   state: CombinedState,
@@ -168,7 +169,7 @@ export const reducer = (
       }
 
       let shouldBuildDocumentsState = false;
-      if (action.payload.data.status !== "Running") {
+      if (isDocumentsPresentStatus(action.payload.data.status)) {
         const currentDocumentsRetrieved = !state.pipelineState.haveData
           ? ""
           : state.pipelineState.data.documentsRetrieved;

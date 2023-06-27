@@ -54,7 +54,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     }
     vnet_route_all_enabled           = true
     runtime_scale_monitoring_enabled = true
-    elastic_instance_minimum         = 3 
+    elastic_instance_minimum         = 3
   }
 
   tags = local.common_tags
@@ -68,7 +68,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     require_authentication = true
     default_provider       = "AzureActiveDirectory"
     unauthenticated_action = "RedirectToLoginPage"
-    excluded_paths         = ["/status"]
+    excluded_paths         = ["/api/status"]
 
     # our default_provider:
     active_directory_v2 {

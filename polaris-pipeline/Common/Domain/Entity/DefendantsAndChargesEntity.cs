@@ -1,15 +1,14 @@
 ﻿using Common.Dto.Case;
 using Common.ValueObjects;
-using System;
 
-namespace Common.Dto.Tracker
+namespace Common.Domain.Entity
 {
-    public class TrackerDefendantsAndChargesDto : BaseTrackerDocumentDto
+    public class DefendantsAndChargesEntity : BaseDocumentEntity
     {
-        public TrackerDefendantsAndChargesDto() 
+        public DefendantsAndChargesEntity()
         { }
 
-        public TrackerDefendantsAndChargesDto(PolarisDocumentId polarisDocumentId, int polarisDocumentVersionId, DefendantsAndChargesListDto defendantsAndCharges)
+        public DefendantsAndChargesEntity(PolarisDocumentId polarisDocumentId, int polarisDocumentVersionId, DefendantsAndChargesListDto defendantsAndCharges)
             : base(polarisDocumentId, polarisDocumentVersionId, $"DAC", 1, defendantsAndCharges.PresentationFlags)
         {
             DefendantsAndCharges = defendantsAndCharges;

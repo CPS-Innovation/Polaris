@@ -7,9 +7,9 @@ namespace Common.Mappers;
 
 public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
 {
-    public DocumentDto Map(DdeiCaseDocumentResponse ddeiResponse)
+    public CmsDocumentDto Map(DdeiCaseDocumentResponse ddeiResponse)
     {
-        return new DocumentDto
+        return new CmsDocumentDto
         {
             DocumentId = ddeiResponse.Id.ToString(),
             VersionId = ddeiResponse.VersionId,

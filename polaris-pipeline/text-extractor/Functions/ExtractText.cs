@@ -8,8 +8,8 @@ using Common.Domain.Exceptions;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Logging;
+using Common.Services.CaseSearchService.Contracts;
 using Common.Services.OcrService;
-using Common.Services.SearchIndexService.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -22,14 +22,14 @@ namespace text_extractor.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<ExtractTextRequestDto> _validatorWrapper;
         private readonly IOcrService _ocrService;
-        private readonly ISearchIndexService _searchIndexService;
+        private readonly ICaseSearchClient _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<ExtractText> _log;
 
         public ExtractText(IJsonConvertWrapper jsonConvertWrapper,
                            IValidatorWrapper<ExtractTextRequestDto> validatorWrapper, 
                            IOcrService ocrService,
-                           ISearchIndexService searchIndexService, 
+                           ICaseSearchClient searchIndexService, 
                            IExceptionHandler exceptionHandler, 
                            ILogger<ExtractText> logger)
         {
@@ -79,9 +79,9 @@ namespace text_extractor.Functions
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
                 var ocrResults = await _ocrService.GetOcrResultsAsync(extractTextRequest.BlobName, currentCorrelationId);
-                
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
-                await _searchIndexService.StoreResultsAsync
+                await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
                         extractTextRequest.PolarisDocumentId,
@@ -91,10 +91,13 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName, 
                         currentCorrelationId
                     );
-                
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
-                return new HttpResponseMessage(HttpStatusCode.OK);
+                if(await _searchIndexService.WaitForStoreResultsAsync(ocrResults, extractTextRequest.CmsCaseId, extractTextRequest.CmsDocumentId, extractTextRequest.VersionId, currentCorrelationId))
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+
+                throw new Exception("Search index update failed, timeout waiting for indexation validation");
             }
             catch (Exception exception)
             {

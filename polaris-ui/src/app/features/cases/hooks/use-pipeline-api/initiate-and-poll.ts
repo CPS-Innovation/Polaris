@@ -2,7 +2,7 @@ import { ApiError } from "../../../../common/errors/ApiError";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import { getPipelinePdfResults, initiatePipeline } from "../../api/gateway-api";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
-import { getPipelinpipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
+import { getPipelineCompletionStatus } from "../../domain/gateway/PipelineStatus";
 import { CombinedState } from "../../domain/CombinedState";
 import {
   isNewTime,
@@ -44,9 +44,7 @@ export const initiateAndPoll = (
   const handleApiCallSuccess = (pipelineResult: PipelineResults) => {
     trackingCallCount += 1;
 
-    const completionStatus = getPipelinpipelineCompletionStatus(
-      pipelineResult.status
-    );
+    const completionStatus = getPipelineCompletionStatus(pipelineResult.status);
     if (
       completionStatus === "Completed" &&
       isNewTime(pipelineResult.processingCompleted, lastProcessingCompleted) &&

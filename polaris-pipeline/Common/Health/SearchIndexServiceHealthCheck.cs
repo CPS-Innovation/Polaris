@@ -2,8 +2,7 @@
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Services.SearchIndexService;
-using Common.Services.SearchIndexService.Contracts;
+using Common.Services.CaseSearchService.Contracts;
 using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -12,7 +11,7 @@ namespace Common.Health
 {
     public class SearchIndexServiceHealthCheck : IHealthCheck
     {
-        private readonly ISearchIndexService _searchIndexService;
+        private readonly ICaseSearchClient _searchIndexService;
 
         #region OcrResults
         readonly string _ocrResult =
@@ -64,7 +63,7 @@ namespace Common.Health
         #endregion
 
 
-        public SearchIndexServiceHealthCheck(ISearchIndexService searchIndexService)
+        public SearchIndexServiceHealthCheck(ICaseSearchClient searchIndexService)
         {
             _searchIndexService = searchIndexService;
         }
@@ -77,26 +76,19 @@ namespace Common.Health
         {
             try
             {
-                bool mockService = false;
-#if DEBUG
-                mockService = _searchIndexService.GetType() == typeof(MockSearchIndexService);
-#endif
-                if( !mockService )
-                {
-                    AnalyzeResults analyzeResult = JsonSerializer.Deserialize<AnalyzeResults>(_ocrResult);
-                    await _searchIndexService.StoreResultsAsync
-                    (
-                        analyzeResult,
-                        default(PolarisDocumentId),
-                        default(long),
-                        nameof(SearchIndexServiceHealthCheck),
-                        default(long),
-                        nameof(SearchIndexServiceHealthCheck),
-                        default(Guid)
-                    );
-                }
+                AnalyzeResults analyzeResult = JsonSerializer.Deserialize<AnalyzeResults>(_ocrResult);
+                await _searchIndexService.SendStoreResultsAsync
+                (
+                    analyzeResult,
+                    default(PolarisDocumentId),
+                    default(long),
+                    nameof(SearchIndexServiceHealthCheck),
+                    default(long),
+                    nameof(SearchIndexServiceHealthCheck),
+                    default(Guid)
+                );
 
-                return HealthCheckResult.Healthy(mockService ? "(MOCKED SERVICE)" : string.Empty);
+                return HealthCheckResult.Healthy(string.Empty);
             }
             catch (Exception e)
             {

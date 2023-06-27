@@ -1,12 +1,13 @@
-﻿using Common.Dto.Document;
+﻿using Common.Domain.Entity;
+using Common.Dto.Document;
 using Common.Dto.Tracker;
 using coordinator.Functions.DurableEntity.Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace coordinator.Domain.Mapper
 {
@@ -14,21 +15,86 @@ namespace coordinator.Domain.Mapper
     {
         public static void RegisterMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<TrackerEntity, TrackerDto>
+            TypeAdapterConfig<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity CaseRefreshLogsEntity), TrackerDto>
                 .NewConfig()
-                .Map(
-                        dest => dest.Documents,
-                        src => 
-                            src.PcdRequests
-                                .Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest))
-                                .Concat(ConvertToTrackerCmsDocumentDto(src.DefendantsAndCharges))
-                                .Concat(src.CmsDocuments)
-                    );
+                .Map
+                (
+                    dest => dest,
+                    src => src.CaseEntity
+                )
+                .Map
+                (
+                    dest => dest.VersionId,
+                    src => src.CaseEntity.Version
+                )
+                .Map
+                (
+                    dest => dest.DocumentsRetrieved,
+                    src => GetDocumentsRetrieved(src.CaseEntity)
+                )
+                .Map
+                (
+                    dest => dest.ProcessingCompleted,
+                    src => GetProcessingCompleted(src.CaseEntity)
+                )
+                .Map
+                (
+                    dest => dest.Documents,
+                    src => GetDocumentEntities(src.CaseEntity)
+                )
+                .Map
+                (
+                    dest => dest.Logs.Case,
+                    src => src.CaseRefreshLogsEntity.Case
+                )
+                .Map
+                (
+                    dest => dest.Logs.Documents,
+                    src => src.CaseRefreshLogsEntity.Documents
+                );
         }
 
-        private static TrackerCmsDocumentDto ConvertToTrackerCmsDocumentDto(TrackerPcdRequestDto pcdRequest)
+        private static List<CmsDocumentEntity> GetDocumentEntities(CaseDurableEntity caseEntity)
         {
-            return new TrackerCmsDocumentDto
+            var documents = new List<CmsDocumentEntity>();
+
+            if(caseEntity.CmsDocuments?.Any() == true)
+                documents.AddRange(caseEntity.CmsDocuments);
+
+            if(caseEntity.DefendantsAndCharges != null)
+            {
+                var defendantsAndChargesDocument = ConvertToTrackerCmsDocumentDto(caseEntity.DefendantsAndCharges);
+                documents.AddRange(defendantsAndChargesDocument);
+            }
+
+            if(caseEntity.PcdRequests?.Any() == true)
+            {
+                var pcdRequestDocuments = caseEntity.PcdRequests.Select(pcdRequest => ConvertToTrackerCmsDocumentDto(pcdRequest));
+                documents.AddRange(pcdRequestDocuments);
+            }
+
+            return documents;
+        }
+
+        private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity)
+        {
+            if(caseEntity.Running != null && caseEntity.Retrieved.HasValue)
+                return caseEntity.Running?.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime();
+
+            return null;
+        }
+
+        private static DateTime? GetProcessingCompleted(CaseDurableEntity caseEntity)
+        {
+            if (caseEntity.Running != null && caseEntity.Completed.HasValue)
+                return caseEntity.Running?.AddSeconds(caseEntity.Completed.Value).ToUniversalTime();
+
+            return null;
+        }
+
+        private static CmsDocumentEntity ConvertToTrackerCmsDocumentDto(PcdRequestEntity pcdRequest)
+        {
+            return new CmsDocumentEntity
             {
                 PolarisDocumentId = pcdRequest.PolarisDocumentId,
                 PolarisDocumentVersionId = pcdRequest.PolarisDocumentVersionId,
@@ -45,14 +111,14 @@ namespace coordinator.Domain.Mapper
             };
         }
 
-        private static TrackerCmsDocumentDto[] ConvertToTrackerCmsDocumentDto(TrackerDefendantsAndChargesDto defendantsAndCharges)
+        private static CmsDocumentEntity[] ConvertToTrackerCmsDocumentDto(DefendantsAndChargesEntity defendantsAndCharges)
         {
             if(defendantsAndCharges == null) 
-                return new TrackerCmsDocumentDto[0];
+                return new CmsDocumentEntity[0];
 
-            return new TrackerCmsDocumentDto[1] 
+            return new CmsDocumentEntity[1] 
             {
-                new TrackerCmsDocumentDto
+                new CmsDocumentEntity
                 {
                     PolarisDocumentId = defendantsAndCharges.PolarisDocumentId,
                     PolarisDocumentVersionId = defendantsAndCharges.PolarisDocumentVersionId,

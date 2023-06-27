@@ -16,6 +16,12 @@
 // Import commands.js using ES2015 syntax:
 import "cypress-plugin-api"
 import "./commands"
+require("cypress-timestamps/support")({
+  terminal: true,
+  error: true,
+  commandLog: true,
+})
+require("cypress-terminal-report/src/installLogsCollector")()
 before(() => {
   cy.safeLogEnvVars()
 })

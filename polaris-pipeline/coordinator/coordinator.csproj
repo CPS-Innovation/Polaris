@@ -9,6 +9,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Domain\Tracker\**" />
+    <EmbeddedResource Remove="Domain\Tracker\**" />
+    <None Remove="Domain\Tracker\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Azure.Search.Documents" Version="11.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.15.0" />
     <PackageReference Include="Mapster" Version="7.3.0" />
