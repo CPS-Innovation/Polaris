@@ -422,6 +422,14 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.FromResult(polarisDocumentIds);
         }
 
+        public void SetOcrProcessed((string PolarisDocumentId, bool IsOcrProcessed) args)
+        {
+            var (polarisDocumentId, isOcrProcessed) = args;
+
+            var document = GetDocument(polarisDocumentId) as CmsDocumentEntity;
+            document.IsOcrProcessed = isOcrProcessed;
+        }
+
         public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
         {
             var (polarisDocumentId, status, pdfBlobName) = args;
