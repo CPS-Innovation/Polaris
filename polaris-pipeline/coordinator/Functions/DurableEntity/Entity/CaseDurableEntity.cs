@@ -254,7 +254,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
-
+                trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
                 changedDocuments.Add(trackerDocument);
             }
 
@@ -420,6 +420,14 @@ namespace coordinator.Functions.DurableEntity.Entity
                     .ToArray();
 
             return Task.FromResult(polarisDocumentIds);
+        }
+
+        public void SetOcrProcessed((string PolarisDocumentId, bool IsOcrProcessed) args)
+        {
+            var (polarisDocumentId, isOcrProcessed) = args;
+
+            var document = GetDocument(polarisDocumentId) as CmsDocumentEntity;
+            document.IsOcrProcessed = isOcrProcessed;
         }
 
         public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)

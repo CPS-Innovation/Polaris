@@ -52,6 +52,10 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for PolarisDocumentId: '{payload.PolarisDocumentId}'");
             var pdfGeneratorResponse = await CallPdfGeneratorAsync(context, payload, caseEntity, caseRefreshLogsEntity, log);
 
+            if (payload.CmsDocumentTracker != null) {
+                caseEntity.SetOcrProcessed((payload.PolarisDocumentId.ToString(), payload.CmsDocumentTracker.IsOcrProcessed));
+            }
+
             if (pdfGeneratorResponse.AlreadyProcessed)
             {
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.DocumentAlreadyProcessed, pdfGeneratorResponse.BlobName));
