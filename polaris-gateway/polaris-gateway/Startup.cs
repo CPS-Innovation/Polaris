@@ -25,6 +25,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http.Headers;
 using Ddei.Services.Extensions;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -49,6 +51,14 @@ namespace PolarisGateway
                 .Build();
             builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            builder.Services.AddSingleton(_ =>
+            {
+                // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
+                return new ConfigurationManager<OpenIdConnectConfiguration>(
+                    $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
+                    new OpenIdConnectConfigurationRetriever(),
+                    new HttpDocumentRetriever());
+            });
             builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();

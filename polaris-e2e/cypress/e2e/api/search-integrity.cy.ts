@@ -13,6 +13,7 @@ const {
   SEARCH_INTEGRITY_TARGET_CASE_ID,
   SEARCH_INTEGRITY_TARGET_TERM,
   SEARCH_INTEGRITY_TARGET_TERM_COUNT,
+  PRE_SEARCH_DELAY_MS,
 } = Cypress.env()
 
 let routes: ApiRoutes
@@ -72,6 +73,9 @@ describe("Search Integrity", () => {
         //  when we know about it and start searching
         RAPID_RETRY_WAIT_UNTIL_OPTIONS
       )
+
+      .wait(PRE_SEARCH_DELAY_MS)
+
       .api<ApiTextSearchResult[]>(
         routes.GET_SEARCH(
           SEARCH_INTEGRITY_TARGET_URN,
