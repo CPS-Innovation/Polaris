@@ -254,7 +254,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
-
+                trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
                 changedDocuments.Add(trackerDocument);
             }
 
