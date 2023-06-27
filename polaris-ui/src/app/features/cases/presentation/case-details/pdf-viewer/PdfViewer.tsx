@@ -32,7 +32,7 @@ type Props = {
   searchHighlights: undefined | IPdfHighlight[];
   redactionHighlights: IPdfHighlight[];
   focussedHighlightIndex: number;
-  isOkToSave: boolean
+  isOkToSave: boolean;
   handleAddRedaction: (newRedaction: NewPdfHighlight) => void;
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
