@@ -88,3 +88,11 @@ variable "cms_details" {
     upstream_cms_services_domain_name = string
   })
 }
+
+variable "app_service_log_retention" {
+  type = number
+}
+
+variable "app_service_log_total_retention" {
+  type = number
+}
