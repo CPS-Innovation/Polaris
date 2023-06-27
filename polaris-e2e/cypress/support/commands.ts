@@ -239,6 +239,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
         authorization: `Bearer ${cachedADTokens.access_token}`,
         "correlation-id": correlationIds.BLANK,
       },
+      timeout: 5 * 60 * 1000
     }).waitUntil(
       () =>
         cy
