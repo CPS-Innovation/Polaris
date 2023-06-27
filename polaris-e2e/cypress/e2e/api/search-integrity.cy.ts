@@ -26,26 +26,7 @@ describe("Search Integrity", () => {
   })
 
   it("can observe the exact number of search results expected at the point the tracker is complete", () => {
-    cy.api(
-      routes.TRACKER_CLEAR(
-        SEARCH_INTEGRITY_TARGET_URN,
-        SEARCH_INTEGRITY_TARGET_CASE_ID
-      )
-    )
-      .waitUntil(
-        () =>
-          cy
-            .api<PipelineResults>({
-              ...routes.GET_TRACKER(
-                SEARCH_INTEGRITY_TARGET_URN,
-                SEARCH_INTEGRITY_TARGET_CASE_ID
-              ),
-              failOnStatusCode: false,
-            })
-            .its("status")
-            .then((status) => status === 404),
-        WAIT_UNTIL_OPTIONS
-      )
+    cy.clearCaseTracker(SEARCH_INTEGRITY_TARGET_URN, SEARCH_INTEGRITY_TARGET_CASE_ID)
       .api(
         routes.TRACKER_START(
           SEARCH_INTEGRITY_TARGET_URN,

@@ -248,7 +248,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
-                pipelineState={pipelineState}
+                isOkToSave={pipelineState.status === "complete"}
                 tabsState={tabsState}
                 savedDocumentDetails={pipelineRefreshData.savedDocumentDetails}
                 handleTabSelection={handleTabSelection}
