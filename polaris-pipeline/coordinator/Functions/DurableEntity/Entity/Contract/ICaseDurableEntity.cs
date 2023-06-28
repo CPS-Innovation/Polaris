@@ -22,6 +22,9 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
         void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
         void SetCaseTiming((DocumentLogType LogType, float? T) args);
+
+        void SetOcrProcessed((string PolarisDocumentId, bool IsOcrProcessed) args);
+        
         Task<bool> AllDocumentsFailed();
         Task<string[]> GetPolarisDocumentIds();
     }

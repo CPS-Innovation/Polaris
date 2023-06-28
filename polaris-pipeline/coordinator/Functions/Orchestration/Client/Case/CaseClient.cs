@@ -128,6 +128,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
                     case "DELETE":
                         await _caseSearchClient.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
+                        await _caseSearchClient.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
 
                         var terminateConditions = GetOrchestrationQueries(terminateStatuses, caseId);
                         var instanceIds = await TerminateOrchestrationsAndDurableEntities(orchestrationClient, terminateConditions, currentCorrelationId);

@@ -120,10 +120,12 @@ describe("useCaseDetailsState reducer", () => {
       });
 
       it("should not build documents state if the current documentsRetrieved timestamp is not greater than the current one", () => {
+        const documentsRetrieved = "2023-06-27T20:16:46.532Z";
+
         const existingState = {
           pipelineState: {
             haveData: true,
-            data: { documentsRetrieved: new Date().toISOString() },
+            data: { documentsRetrieved },
           },
           tabsState: { items: [] },
           pipelineRefreshData: {
@@ -144,7 +146,7 @@ describe("useCaseDetailsState reducer", () => {
             data: {
               transactionId: "123",
               status: "Completed",
-              documentsRetrieved: new Date().toISOString(),
+              documentsRetrieved,
               documents: [],
             },
           } as unknown as AsyncPipelineResult<PipelineResults>,
