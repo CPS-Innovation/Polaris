@@ -19,7 +19,7 @@ export const Routes: FC = () => {
   const { state } = useLocation();
   const [isAppInsightActive, setIsAppInsightActive] = useState(true);
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
+    if (process.env.NODE_ENV === "production") {
       setTimeout(async () => {
         if (!(await testAppInsightsConnection())) {
           setIsAppInsightActive(false);
