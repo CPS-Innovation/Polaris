@@ -7,6 +7,7 @@ import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { initializeAppInsights } from "../app/common/utils/appInsightsUtils";
 export const App: FC = () => {
   const reactPlugin = initializeAppInsights();
+
   return (
     <AppInsightsContext.Provider value={reactPlugin}>
       <ErrorBoundary>

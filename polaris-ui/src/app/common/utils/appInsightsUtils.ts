@@ -8,7 +8,8 @@ let appInsights: ApplicationInsights | null = null;
   REACT_APP_AI_CONNECTION_STRING. This variable is set to empty for cypress test and local .env file. 
   If we ever want to test appinsight locally, please pass in the connection string from "ai-polaris-dev"(check in the azure portal) 
   in the local env file.
-  */
+*/
+
 export const initializeAppInsights = () => {
   const reactPlugin = new ReactPlugin();
   try {
