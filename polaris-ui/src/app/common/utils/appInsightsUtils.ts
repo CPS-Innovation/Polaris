@@ -11,17 +11,16 @@ let appInsights: ApplicationInsights | null = null;
   */
 export const initializeAppInsights = () => {
   const reactPlugin = new ReactPlugin();
-  const configObj = {
-    connectionString: AI_CONNECTION_STRING,
-    enableCorsCorrelation: true,
-    extensions: [reactPlugin],
-  };
-  appInsights = new ApplicationInsights({
-    config: configObj,
-  });
-
-  console.log("ApplicationInsights>>", appInsights.config);
   try {
+    const configObj = {
+      connectionString: AI_CONNECTION_STRING,
+      enableCorsCorrelation: true,
+      extensions: [reactPlugin],
+    };
+    appInsights = new ApplicationInsights({
+      config: configObj,
+    });
+
     appInsights.loadAppInsights();
   } catch (e) {
     console.log("app insight error", e);
@@ -39,8 +38,6 @@ export const testAppInsightsConnection = async () => {
 
   const endpointUrl = appInsights.config.endpointUrl;
   const instrumentationKey = appInsights.config.instrumentationKey;
-  console.log("endpointUrl>>", endpointUrl);
-  console.log("instrumentationKey>>", instrumentationKey);
   if (!endpointUrl || !instrumentationKey) {
     return false;
   }
