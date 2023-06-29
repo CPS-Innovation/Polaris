@@ -19,7 +19,10 @@ export const Routes: FC = () => {
   const { state } = useLocation();
   const [isAppInsightActive, setIsAppInsightActive] = useState(true);
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.REACT_APP_MOCK_API_SOURCE !== "cypress"
+    ) {
       setTimeout(async () => {
         if (!(await testAppInsightsConnection())) {
           setIsAppInsightActive(false);
