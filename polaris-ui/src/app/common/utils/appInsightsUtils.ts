@@ -29,16 +29,16 @@ export const initializeAppInsights = () => {
   return reactPlugin;
 };
 
-export const getAppInsights = () => appInsights;
+export const getAppInsights = (): ApplicationInsights | null => appInsights;
 
 export const testAppInsightsConnection = async () => {
-  const appInsights = getAppInsights();
+  const appInsights: ApplicationInsights | null = exports.getAppInsights();
   if (!appInsights) {
     return false;
   }
 
-  const endpointUrl = appInsights.config.endpointUrl;
-  const instrumentationKey = appInsights.config.instrumentationKey;
+  const endpointUrl = appInsights.config?.endpointUrl;
+  const instrumentationKey = appInsights.config?.instrumentationKey;
   if (!endpointUrl || !instrumentationKey) {
     return false;
   }
@@ -65,6 +65,7 @@ export const testAppInsightsConnection = async () => {
       return false;
     }
   } catch (e) {
+    console.error("AppInsight request error", e);
     return false;
   }
   return true;
