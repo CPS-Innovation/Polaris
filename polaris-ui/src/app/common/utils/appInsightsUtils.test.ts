@@ -1,4 +1,7 @@
-import * as appInsightsUtils from "./appInsightsUtils";
+import {
+  appInsightsUtils,
+  testAppInsightsConnection,
+} from "./appInsightsUtils";
 import fetchMock from "jest-fetch-mock";
 
 describe("AppInsightsUitls", () => {
@@ -9,7 +12,7 @@ describe("AppInsightsUitls", () => {
 
     test("It should return false if the appInsights object is not available", async () => {
       jest.spyOn(appInsightsUtils, "getAppInsights").mockReturnValue(null);
-      const result = await appInsightsUtils.testAppInsightsConnection();
+      const result = await testAppInsightsConnection();
       expect(appInsightsUtils.getAppInsights).toHaveBeenCalledTimes(1);
       expect(result).toEqual(false);
     });
@@ -18,7 +21,7 @@ describe("AppInsightsUitls", () => {
       jest
         .spyOn(appInsightsUtils, "getAppInsights")
         .mockReturnValue({ config: {} } as any);
-      const result = await appInsightsUtils.testAppInsightsConnection();
+      const result = await testAppInsightsConnection();
       expect(appInsightsUtils.getAppInsights).toHaveBeenCalledTimes(1);
       expect(result).toEqual(false);
     });
@@ -34,7 +37,7 @@ describe("AppInsightsUitls", () => {
           endpointUrl: "test_url",
         },
       } as any);
-      const result = await appInsightsUtils.testAppInsightsConnection();
+      const result = await testAppInsightsConnection();
       expect(appInsightsUtils.getAppInsights).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(consoleErrorSpy).toHaveBeenCalledWith("AppInsight Error", [{}]);
@@ -53,7 +56,7 @@ describe("AppInsightsUitls", () => {
           endpointUrl: "test_url",
         },
       } as any);
-      const result = await appInsightsUtils.testAppInsightsConnection();
+      const result = await testAppInsightsConnection();
       expect(appInsightsUtils.getAppInsights).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -75,7 +78,7 @@ describe("AppInsightsUitls", () => {
           endpointUrl: "test_url",
         },
       } as any);
-      const result = await appInsightsUtils.testAppInsightsConnection();
+      const result = await testAppInsightsConnection();
       expect(appInsightsUtils.getAppInsights).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(consoleErrorSpy).toHaveBeenCalledTimes(0);

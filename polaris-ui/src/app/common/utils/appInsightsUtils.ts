@@ -29,10 +29,11 @@ export const initializeAppInsights = () => {
   return reactPlugin;
 };
 
-export const getAppInsights = (): ApplicationInsights | null => appInsights;
+const getAppInsights = (): ApplicationInsights | null => appInsights;
 
 export const testAppInsightsConnection = async () => {
-  const appInsights: ApplicationInsights | null = exports.getAppInsights();
+  const appInsights: ApplicationInsights | null =
+    appInsightsUtils.getAppInsights();
   if (!appInsights) {
     return false;
   }
@@ -69,4 +70,8 @@ export const testAppInsightsConnection = async () => {
     return false;
   }
   return true;
+};
+
+export const appInsightsUtils = {
+  getAppInsights,
 };
