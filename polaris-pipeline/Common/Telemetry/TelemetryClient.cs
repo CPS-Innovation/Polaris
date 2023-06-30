@@ -6,8 +6,8 @@ namespace Common.Telemetry
 {
     public class TelemetryClient : ITelemetryClient
     {
-        private const string VersionFlagName = "TelemetryVersion";
-        private const string VersionFlagValue = "0.0";
+        public static string telemetryVersion = nameof(telemetryVersion);
+        public static string Version = "0.0";
         protected readonly AppInsights.TelemetryClient _telemetryClient;
 
         public TelemetryClient(AppInsights.TelemetryClient telemetryClient)
@@ -18,7 +18,7 @@ namespace Common.Telemetry
         public void TrackEvent(BaseTelemetryEvent baseTelemetryEvent)
         {
             var (properties, metrics) = baseTelemetryEvent.ToTelemetryEventProps();
-            properties.Add(VersionFlagName, VersionFlagValue);
+            properties.Add(telemetryVersion, Version);
 
             _telemetryClient.TrackEvent(
                 PrepareEventName(baseTelemetryEvent.EventName),
@@ -26,7 +26,6 @@ namespace Common.Telemetry
                 PrepareKeyNames(metrics)
             );
         }
-
         private static string PrepareEventName(string source)
         {
             if (!source.EndsWith("Event"))

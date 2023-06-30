@@ -16,9 +16,9 @@ namespace Common.Telemetry
         }
         abstract public (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps();
 
-        protected float GetDurationSeconds(DateTime startTime, DateTime endTime)
+        public static double GetDurationSeconds(DateTime startTime, DateTime endTime)
         {
-            return (float)(endTime - startTime).TotalSeconds;
+            return (double)(endTime - startTime).TotalSeconds;
         }
     }
 }
