@@ -74,7 +74,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
             string blobName = null;
             FileType fileType = (FileType)(-1);
 
-            if(payload.CmsDocumentTracker != null)
+            if (payload.CmsDocumentTracker != null)
             {
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
 
@@ -90,7 +90,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                 blobName = $"{payload.CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(payload.CmsDocumentTracker.CmsDocumentId)}.pdf";
                 fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
             }
-            else if(payload.PcdRequestTracker != null) 
+            else if (payload.PcdRequestTracker != null)
             {
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting PCD request to HTML for documentId: '{payload.PcdRequestTracker.CmsDocumentId}'");
 
@@ -114,7 +114,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             try
             {
-                pdfStream = await ConvertToPdf(payload.CorrelationId, payload.CmsAuthValues, payload.CmsDocumentId, documentStream, fileType);
+                pdfStream = await ConvertToPdf(payload.CorrelationId, payload.CmsAuthValues, payload.CmsCaseId.ToString(), payload.CmsDocumentId, payload.CmsVersionId.ToString(), documentStream, fileType);
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{blobName}'...");
                 await _blobStorageService.UploadDocumentAsync
@@ -129,7 +129,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{blobName}' uploaded successfully");
             }
-            finally 
+            finally
             {
                 documentStream?.Dispose();
                 pdfStream?.Dispose();
@@ -139,7 +139,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
             return generatePdfResponse;
         }
 
-        private async Task<Stream> ConvertToPdf(Guid correlationId, string cmsAuthValues, string documentId, Stream documentStream, FileType fileType)
+        private async Task<Stream> ConvertToPdf(Guid correlationId, string cmsAuthValues, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
             var pdfStream = new MemoryStream();
 
@@ -149,7 +149,9 @@ namespace coordinator.Functions.ActivityFunctions.Document
             {
                 request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
                 request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
+                request.Headers.Add(HttpHeaderKeys.CaseId, caseId);
                 request.Headers.Add(HttpHeaderKeys.DocumentId, documentId);
+                request.Headers.Add(HttpHeaderKeys.VersionId, versionId);
                 request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
                 request.Content = requestContent;

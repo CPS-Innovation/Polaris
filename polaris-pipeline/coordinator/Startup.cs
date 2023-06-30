@@ -35,6 +35,8 @@ using coordinator.Domain;
 using RenderPcd;
 using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
+using Common.Telemetry.Contracts;
+using Common.Telemetry;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -91,6 +93,7 @@ namespace coordinator
                 client.BaseAddress = pipelineRedactPdfBaseUrl;
             });
 
+            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder);
         }
 

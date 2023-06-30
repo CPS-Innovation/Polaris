@@ -26,7 +26,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
         private readonly ILogger<PolarisPipelineCase> _logger;
         private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
 
-        public PolarisPipelineCase( ILogger<PolarisPipelineCase> logger,
+        public PolarisPipelineCase(ILogger<PolarisPipelineCase> logger,
                                     IPipelineClient pipelineClient,
                                     IAuthorizationValidator tokenValidator,
                                     ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
@@ -78,7 +78,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                     default:
                         throw new BadRequestException("Unexpected HTTP Verb", req.Method);
                 }
-
             }
             catch (Exception exception)
             {
