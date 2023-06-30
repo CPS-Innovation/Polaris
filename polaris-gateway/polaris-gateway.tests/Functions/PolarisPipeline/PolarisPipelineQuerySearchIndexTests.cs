@@ -14,17 +14,17 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Functions.PolarisPipeline.Case;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
     public class PolarisPipelineQuerySearchIndexTests : SharedMethods.SharedMethods
-	{
-		private readonly string _caseUrn;
-		private readonly int _caseId;
-		private readonly string _searchTerm;
-		private readonly Guid _correlationId;
+    {
+        private readonly string _caseUrn;
+        private readonly int _caseId;
+        private readonly string _searchTerm;
+        private readonly Guid _correlationId;
 
         private readonly Mock<IPipelineClient> _mockPipelineClient;
         private readonly IList<StreamlinedSearchLine> _searchResults;

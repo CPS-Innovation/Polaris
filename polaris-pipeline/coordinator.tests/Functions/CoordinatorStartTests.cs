@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Services.CaseSearchService.Contracts;
+using Common.Telemetry.Contracts;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
@@ -33,6 +34,7 @@ namespace coordinator.tests.Functions
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
         private readonly Mock<ICaseSearchClient> _mockCaseSearchClient;
         private readonly Mock<ILogger<CaseClient>> _mockLogger;
+        private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         private readonly CaseClient _coordinatorStart;
@@ -57,7 +59,8 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
             _mockCaseSearchClient = new Mock<ICaseSearchClient>();
             _mockLogger = new Mock<ILogger<CaseClient>>();
-            
+            _mockTelemetryClient = new Mock<ITelemetryClient>();
+
             _httpRequestHeaders.Add("Correlation-Id", correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
 
@@ -67,7 +70,10 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequestMessage, _instanceId, false))
                 .Returns(_httpResponseMessage);
 
-            _coordinatorStart = new CaseClient(_mockCaseSearchClient.Object, _jsonConvertWrapper, _mockLogger.Object);
+            _coordinatorStart = new CaseClient(_mockCaseSearchClient.Object,
+                                               _jsonConvertWrapper,
+                                               _mockLogger.Object,
+                                               _mockTelemetryClient.Object);
         }
 
         [Fact]

@@ -19,6 +19,8 @@ using System.IO;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Handlers;
+using Common.Telemetry.Contracts;
+using Common.Telemetry;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -47,6 +49,7 @@ namespace text_extractor
 
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
             BuildHealthChecks(builder);
         }

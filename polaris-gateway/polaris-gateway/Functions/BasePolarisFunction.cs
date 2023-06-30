@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using PolarisGateway.Domain.Exceptions;
 using PolarisGateway.Domain.Validation;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -63,7 +63,7 @@ namespace PolarisGateway.Functions
 
             return result;
         }
-        
+
         private static Guid EstablishCorrelation(HttpRequest req)
         {
             if (!req.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationId) || string.IsNullOrWhiteSpace(correlationId))

@@ -27,6 +27,7 @@ using Xunit;
 using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using Common.Domain.Entity;
+using Common.Telemetry.Contracts;
 
 namespace coordinator.tests.Functions
 {
@@ -46,7 +47,7 @@ namespace coordinator.tests.Functions
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
         private readonly Mock<ICaseRefreshLogsDurableEntity> _mockCaseRefreshLogsEntity;
-
+        private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly RefreshCaseOrchestrator _coordinatorOrchestrator;
 
         public CoordinatorOrchestratorTests()
@@ -55,7 +56,7 @@ namespace coordinator.tests.Functions
             _cmsAuthValues = fixture.Create<string>();
             _cmsCaseUrn = fixture.Create<string>();
             _cmsCaseId = fixture.Create<long>();
-            _correlationId = fixture.Create<Guid>();    
+            _correlationId = fixture.Create<Guid>();
             _polarisDocumentId = fixture.Create<PolarisDocumentId>();
             fixture.Create<Guid>();
             var durableRequest = new DurableHttpRequest(HttpMethod.Post, new Uri("https://www.google.co.uk"));
@@ -71,7 +72,7 @@ namespace coordinator.tests.Functions
             _transactionId = $"[{_cmsCaseId}]";
             _trackerCmsDocuments = fixture.CreateMany<CmsDocumentEntity>(11).ToList();
             for (int i = 0; i < _trackerCmsDocuments.Count; i++)
-                _trackerCmsDocuments[i].CmsDocumentId = $"CMS-{i+1}";
+                _trackerCmsDocuments[i].CmsDocumentId = $"CMS-{i + 1}";
             _deltaDocuments = new CaseDeltasEntity
             {
                 CreatedCmsDocuments = _trackerCmsDocuments.Where(d => d.Status == DocumentStatus.New).ToList(),
@@ -91,7 +92,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
             _mockCaseRefreshLogsEntity = new Mock<ICaseRefreshLogsDurableEntity>();
-
+            _mockTelemetryClient = new Mock<ITelemetryClient>();
             mockConfiguration
                 .Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs])
                 .Returns("300");
@@ -127,7 +128,7 @@ namespace coordinator.tests.Functions
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: evaluateDocumentsResponse.ToJson());
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
 
-            _coordinatorOrchestrator = new RefreshCaseOrchestrator(mockLogger.Object, mockConfiguration.Object);
+            _coordinatorOrchestrator = new RefreshCaseOrchestrator(mockLogger.Object, mockConfiguration.Object, _mockTelemetryClient.Object);
         }
 
         [Fact]
@@ -188,7 +189,7 @@ namespace coordinator.tests.Functions
                     It.IsAny<string>(),
                     It.Is<CaseDocumentOrchestrationPayload>
                     (
-                        payload => 
+                        payload =>
                             payload.CmsCaseId == _payload.CmsCaseId &&
                             (
                                 (payload.CmsDocumentTracker != null && payload.CmsDocumentTracker.CmsDocumentId == document.CmsDocumentId) ||

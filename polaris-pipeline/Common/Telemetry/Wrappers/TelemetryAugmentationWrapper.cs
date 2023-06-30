@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
-using PolarisGateway.Domain.Exceptions;
+using Common.Constants;
+using Common.Domain.Exceptions;
+using Common.Telemetry.Wrappers.Contracts;
 
-namespace PolarisGateway.Wrappers
+namespace Common.Telemetry.Wrappers
 {
     public class TelemetryAugmentationWrapper : ITelemetryAugmentationWrapper
     {

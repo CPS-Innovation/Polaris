@@ -6,7 +6,9 @@
         public const string CorrelationId = "Correlation-Id";
         public const string CmsAuthValues = "Cms-Auth-Values";
         public const string Filetype = nameof(Filetype);
+        public const string CaseId = nameof(CaseId);
         public const string DocumentId = nameof(DocumentId);
+        public const string VersionId = nameof(VersionId);
     }
 
     public static class HttpHeaderValues
