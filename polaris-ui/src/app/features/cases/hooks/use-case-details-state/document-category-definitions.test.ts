@@ -67,12 +67,30 @@ describe("documentCategoryDefinitions", () => {
     expect(result).toBe("Unused material");
   });
 
-  it("will only resolve document with correct statement documentTypeId and docTypeCategory as 'UsedStatement' into 'Statements' accordion category", () => {
+  it("will only resolve documents with correct statement documentTypeId and docTypeCategory not equal to 'UnusedStatement' or 'Unused' into 'Statements' accordion category", () => {
     const result = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "UsedStatement" },
     } as PresentationDocumentProperties);
 
     expect(result).toBe("Statements");
+
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1059, documentCategory: null as any },
+    } as PresentationDocumentProperties);
+
+    expect(result1).toBe("Statements");
+
+    const result3 = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: "UnusedStatement" },
+    } as PresentationDocumentProperties);
+
+    expect(result3).toBe("Unused material");
+
+    const result4 = getCategory({
+      cmsDocType: { documentTypeId: 1031, documentCategory: "Unused" },
+    } as PresentationDocumentProperties);
+
+    expect(result4).toBe("Unused material");
   });
 
   it("can resolve a documents category to Uncategorised if no prior categories match", () => {

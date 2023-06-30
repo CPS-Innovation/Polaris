@@ -45,7 +45,8 @@ const documentCategoryDefinitions: {
     category: "Statements",
     showIfEmpty: true,
     testFn: (doc) =>
-      doc.cmsDocType.documentCategory === "UsedStatement" &&
+      doc.cmsDocType.documentCategory !== "UnusedStatement" &&
+      doc.cmsDocType.documentCategory !== "Unused" &&
       docTypeTest(doc, [1031, 1059]),
     sortFn: sortAscendingByListOrderAndId,
   },
