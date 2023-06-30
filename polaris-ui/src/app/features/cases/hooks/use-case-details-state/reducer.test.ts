@@ -895,7 +895,7 @@ describe("useCaseDetailsState reducer", () => {
           },
           tabsState: {
             ...existingTabsState,
-          headers: {
+            headers: {
               Authorization: "bar",
               "Correlation-Id": "bar1",
             } as HeadersInit,
