@@ -15,7 +15,7 @@ using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Factories.Contracts;
 using PolarisGateway.Functions.PolarisPipeline.Case;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline

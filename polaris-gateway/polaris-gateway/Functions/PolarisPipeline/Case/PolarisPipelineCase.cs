@@ -12,7 +12,7 @@ using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Tracker;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Factories.Contracts;

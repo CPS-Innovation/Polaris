@@ -14,7 +14,7 @@ using PolarisGateway.Domain.Validators;
 using PolarisGateway.Extensions;
 using Common.Mappers.Contracts;
 using Gateway.Common.Extensions;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.ValueObjects;
 
