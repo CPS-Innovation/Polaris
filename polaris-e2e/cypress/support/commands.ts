@@ -119,8 +119,8 @@ Cypress.Commands.add(
         password: CMS_PASSWORD,
       },
     }).then(() => {
-      cy.getADTokens().then((cachedTokens) => ({
-        Authorization: `Bearer ${cachedTokens.access_token}`,
+      cy.getADTokens().then((adTokens) => ({
+        Authorization: `Bearer ${adTokens.access_token}`,
         credentials: "include",
       }))
     })
@@ -206,13 +206,13 @@ Cypress.Commands.add("fullLogin", () => {
 })
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
-  cy.getADTokens().then((cachedADTokens) => {
+  cy.getADTokens().then((adTokens) => {
     cy.request({
       url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
       method: "DELETE",
       followRedirect: false,
       headers: {
-        authorization: `Bearer ${cachedADTokens.access_token}`,
+        authorization: `Bearer ${adTokens.access_token}`,
         "correlation-id": correlationIds.BLANK,
       },
       timeout: 5 * 60 * 1000,
@@ -223,7 +223,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
             url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
             failOnStatusCode: false,
             headers: {
-              authorization: `Bearer ${cachedADTokens.access_token}`,
+              authorization: `Bearer ${adTokens.access_token}`,
               "correlation-id": correlationIds.BLANK,
             },
           })
