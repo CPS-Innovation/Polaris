@@ -22,8 +22,4 @@ require("cypress-timestamps/support")({
   commandLog: true,
 })
 require("cypress-terminal-report/src/installLogsCollector")()
-before(() => {
-  cy.safeLogEnvVars()
-})
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+beforeEach(() => cy.checkDependencies())

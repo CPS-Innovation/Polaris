@@ -16,7 +16,9 @@ export default defineConfig({
         throw new Error("Please provide an ENVIRONMENT variable")
       }
       require("cypress-timestamps/plugin")(on)
-      require("cypress-terminal-report/src/installLogsPrinter")(on)
+      require("cypress-terminal-report/src/installLogsPrinter")(on, {
+        includeSuccessfulHookLogs: true,
+      })
 
       on("task", {
         storeTokenResponseInNode: (tokenResponse: any) => {
@@ -24,7 +26,7 @@ export default defineConfig({
           return null
         },
         retrieveTokenResponseFromNode: () => {
-          return globalAny.tokenResponse
+          return globalAny.tokenResponse || null
         },
       })
 

@@ -14,14 +14,12 @@ type ADTokens = {
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
-      safeLogEnvVars(): Chainable<any>
       loginToAD(): Chainable<any>
       loginToCms(): Chainable<any>
       preemptivelyAttachCookies(): Chainable<any>
       fullLogin(): Chainable<any>
       clearCaseTracker(urn: string, caseId: string): Chainable<any>
-      cacheADTokens(): Chainable
-      retrieveCachedADTokens(): Chainable<ADTokens>
+      getADTokens(): Chainable<ADTokens>
       getAuthHeaders(): Chainable<{
         Authorization: string
         credentials: "include"
@@ -70,61 +68,39 @@ const {
 const AUTOMATION_LANDING_PAGE_PATH =
   "/polaris-ui/?automation-test-first-visit=true"
 
-Cypress.Commands.add("safeLogEnvVars", () => {
-  const processSecret = (secret: string) => {
-    const chars = (secret || "").split("")
-    const length = chars.length
-    if (!length) {
-      return "IS EMPTY!!!!"
-    }
-    const [initial] = chars
-
-    return `'${initial}' plus ${length - 1} chars`
-  }
-
-  const rawEnvVars = { ...Cypress.env() }
-  const processedEnvVars = {
-    ...rawEnvVars,
-    CLIENTSECRET: processSecret(rawEnvVars.CLIENTSECRET),
-    AD_PASSWORD: processSecret(rawEnvVars.AD_PASSWORD),
-    CMS_PASSWORD: processSecret(rawEnvVars.CMS_PASSWORD),
-  }
-
-  cy.log(JSON.stringify(processedEnvVars))
-})
-
 Cypress.Commands.add(
-  "cacheADTokens",
+  "getADTokens",
   {
     prevSubject: ["optional"],
   },
-  () =>
-    cy
-      .log("setting tokens")
-      .request({
-        url: AUTHORITY + "/oauth2/v2.0/token",
-        method: "POST",
-        body: {
-          grant_type: "password",
-          client_id: CLIENTID,
-          client_secret: CLIENTSECRET,
-          scope: ["openid profile"].concat([APISCOPE]).join(" "),
-          username: AD_USERNAME,
-          password: AD_PASSWORD,
-        },
-        form: true,
-      })
-      .then((response) => {
-        cy.task("storeTokenResponseInNode", response.body)
-      })
-)
-
-Cypress.Commands.add(
-  "retrieveCachedADTokens",
-  {
-    prevSubject: ["optional"],
-  },
-  () => cy.task("retrieveTokenResponseFromNode")
+  () => {
+    cy.task("retrieveTokenResponseFromNode").then((cachedTokens) => {
+      if (cachedTokens) {
+        return cachedTokens
+      } else {
+        return cy
+          .log("setting tokens")
+          .request({
+            url: AUTHORITY + "/oauth2/v2.0/token",
+            method: "POST",
+            body: {
+              grant_type: "password",
+              client_id: CLIENTID,
+              client_secret: CLIENTSECRET,
+              scope: ["openid profile"].concat([APISCOPE]).join(" "),
+              username: AD_USERNAME,
+              password: AD_PASSWORD,
+            },
+            form: true,
+          })
+          .then((response) =>
+            cy
+              .task("storeTokenResponseInNode", response.body)
+              .task("retrieveTokenResponseFromNode")
+          )
+      }
+    })
+  }
 )
 
 Cypress.Commands.add(
@@ -143,7 +119,7 @@ Cypress.Commands.add(
         password: CMS_PASSWORD,
       },
     }).then(() => {
-      cy.retrieveCachedADTokens().then((cachedTokens) => ({
+      cy.getADTokens().then((cachedTokens) => ({
         Authorization: `Bearer ${cachedTokens.access_token}`,
         credentials: "include",
       }))
@@ -162,7 +138,7 @@ Cypress.Commands.add("loginToAD", () => {
 
   return cy
     .visit(AUTOMATION_LANDING_PAGE_PATH, { timeout: timeoutMs })
-    .retrieveCachedADTokens()
+    .getADTokens()
     .then((response) => {
       injectTokens(response)
     })
@@ -230,7 +206,7 @@ Cypress.Commands.add("fullLogin", () => {
 })
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
-  cy.retrieveCachedADTokens().then((cachedADTokens) => {
+  cy.getADTokens().then((cachedADTokens) => {
     cy.request({
       url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
       method: "DELETE",
@@ -239,7 +215,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
         authorization: `Bearer ${cachedADTokens.access_token}`,
         "correlation-id": correlationIds.BLANK,
       },
-      timeout: 5 * 60 * 1000
+      timeout: 5 * 60 * 1000,
     }).waitUntil(
       () =>
         cy
@@ -311,6 +287,3 @@ Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
 })
 
 const isFullUrl = (url: string) => url.startsWith("http")
-
-before(() => cy.cacheADTokens())
-beforeEach(() => cy.checkDependencies())
