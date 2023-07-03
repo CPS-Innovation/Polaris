@@ -48,16 +48,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
-    <!-- 
-      Include document-toggle.config as well as embeddeding (see below) 
-      because the tests are interested in it 
-    -->
-    <None Update="document-toggle.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="document-toggle.config" />
   </ItemGroup>
 
   <ItemGroup>

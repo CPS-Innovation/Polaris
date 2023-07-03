@@ -1,15 +1,12 @@
-using System;
-using System.IO;
 using Common.Domain.Entity;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
-using Common.Dto.Tracker;
 using Common.Services.DocumentToggle;
 using Common.ValueObjects;
 using FluentAssertions;
 using Xunit;
 
-namespace coordinator.tests.Services.DocumentToggle
+namespace Common.tests.Services.DocumentToggle
 {
     public class DocumentToggleServiceTests
     {

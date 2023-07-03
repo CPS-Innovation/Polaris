@@ -26,7 +26,7 @@ namespace Common.tests.Telemetry
             var aiTelemetryConfig = new TelemetryConfiguration
             {
                 TelemetryChannel = _mockTelemetryChannel,
-                InstrumentationKey = Guid.NewGuid().ToString(),
+                ConnectionString = $"InstrumentationKey={Guid.NewGuid().ToString()};IngestionEndpoint=https://example.org;LiveEndpoint=https://example.org;",
             };
             var aiTelemetryClient = new AI.TelemetryClient(aiTelemetryConfig);
 
@@ -82,6 +82,12 @@ namespace Common.tests.Telemetry
     public class MockTelemetryChannel : ITelemetryChannel
     {
         public ConcurrentBag<ITelemetry> SentTelemetries = new ConcurrentBag<ITelemetry>();
+
+        public MockTelemetryChannel()
+        {
+            EndpointAddress = "";
+        }
+
         public bool IsFlushed { get; private set; }
         public bool? DeveloperMode { get; set; }
         public string EndpointAddress { get; set; }
