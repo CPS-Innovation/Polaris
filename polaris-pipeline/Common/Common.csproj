@@ -4,6 +4,10 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <!-- 
+      Include document-toggle.config as well as embeddeding (see below) 
+      because the tests are interested in it 
+    -->
     <None Update="document-toggle.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -17,11 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- 
-      Include document-toggle.config as well as embeddeding (see below) 
-      because the tests are interested in it 
-    -->
-
     <EmbeddedResource Include="document-toggle.config" />
     <EmbeddedResource Include="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
     <EmbeddedResource Include="Services\RenderHtmlService\PcdRequest.cshtml" />
