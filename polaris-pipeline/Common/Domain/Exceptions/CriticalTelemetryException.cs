@@ -1,4 +1,6 @@
-namespace PolarisGateway.Domain.Exceptions
+using System;
+
+namespace Common.Domain.Exceptions
 {
     public class CriticalTelemetryException : Exception
     {

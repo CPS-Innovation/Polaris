@@ -1,6 +1,6 @@
 using System;
 
-namespace PolarisGateway.Wrappers
+namespace Common.Telemetry.Wrappers.Contracts
 {
     public interface ITelemetryAugmentationWrapper
     {

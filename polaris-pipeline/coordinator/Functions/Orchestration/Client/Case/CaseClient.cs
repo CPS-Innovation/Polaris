@@ -3,11 +3,13 @@ using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Logging;
 using Common.Services.CaseSearchService.Contracts;
+using Common.Telemetry.Contracts;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.Functions.Orchestration.Functions.Tracker;
+using coordinator.TelemetryEvents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -31,6 +33,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
         private readonly ICaseSearchClient _caseSearchClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<CaseClient> _logger;
+        private readonly ITelemetryClient _telemetryClient;
         private const string LoggingName = $"{nameof(CaseClient)} - {nameof(Run)}";
         private const int DefaultPageSize = 100;
 
@@ -50,17 +53,22 @@ namespace coordinator.Functions.Orchestration.Client.Case
             OrchestrationRuntimeStatus.Terminated
         };
 
-        public CaseClient(ICaseSearchClient caseSearchClient, IJsonConvertWrapper jsonConvertWrapper, ILogger<CaseClient> logger)
+        public CaseClient(
+            ICaseSearchClient caseSearchClient,
+            IJsonConvertWrapper jsonConvertWrapper,
+            ILogger<CaseClient> logger,
+            ITelemetryClient telemetryClient)
         {
             _caseSearchClient = caseSearchClient;
             _jsonConvertWrapper = jsonConvertWrapper;
             _logger = logger;
+            _telemetryClient = telemetryClient;
         }
 
         [FunctionName(nameof(CaseClient))]
-        [ProducesResponseType((int)HttpStatusCode.Accepted)] 
+        [ProducesResponseType((int)HttpStatusCode.Accepted)]
         [ProducesResponseType((int)HttpStatusCode.Locked)] // Refresh already running
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)] 
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<HttpResponseMessage> Run
             (
                 [HttpTrigger(AuthorizationLevel.Anonymous, "put", "delete", "post", Route = RestApi.Case)] HttpRequestMessage req,
@@ -127,16 +135,36 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         return orchestrationClient.CreateCheckStatusResponse(req, instanceId);
 
                     case "DELETE":
+                        var startTime = DateTime.UtcNow;
+
                         await _caseSearchClient.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
+                        var removedCaseIndexTime = DateTime.UtcNow;
+
                         await _caseSearchClient.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
+                        var indexSettledTime = DateTime.UtcNow;
 
                         var terminateConditions = GetOrchestrationQueries(terminateStatuses, caseId);
                         var instanceIds = await TerminateOrchestrationsAndDurableEntities(orchestrationClient, terminateConditions, currentCorrelationId);
+                        var gotTerminateInstancesTime = DateTime.UtcNow;
 
                         await WaitForOrchestrationsToTerminateTask(orchestrationClient, instanceIds);
+                        var terminatedInstancesTime = DateTime.UtcNow;
 
                         var purgeConditions = GetOrchestrationQueries(purgeStatuses, caseId);
                         var success = await PurgeOrchestrationsAndDurableEntities(orchestrationClient, purgeConditions, currentCorrelationId);
+                        var purgedInstancesTime = DateTime.UtcNow;
+
+                        _telemetryClient.TrackEvent(new DeletedCaseEvent(
+                            correlationId: currentCorrelationId,
+                            caseId: caseIdNum,
+                            startTime: startTime,
+                            removedCaseIndexTime: removedCaseIndexTime,
+                            indexSettledTime: indexSettledTime,
+                            gotTerminateInstancesTime: gotTerminateInstancesTime,
+                            terminatedInstancesTime: terminatedInstancesTime,
+                            endTime: purgedInstancesTime,
+                            terminatedInstancesCount: instanceIds.Count
+                        ));
 
                         return new HttpResponseMessage(success ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
 
@@ -198,7 +226,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
             _logger.LogMethodFlow(correlationId, LoggingName, "Terminating Case Orchestrations, Sub Orchestrations and Durable Entities");
 
             var instanceIds = new List<string>();
-            foreach(var terminateCondition in terminateConditions)
+            foreach (var terminateCondition in terminateConditions)
             {
                 do
                 {
@@ -209,7 +237,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                     instanceIds.AddRange(instancesToTerminate);
 
                     await Task.WhenAll(instancesToTerminate.Select(async instanceId => await client.TerminateAsync(instanceId, "Forcibly terminated DELETE")));
-                } 
+                }
                 while (terminateCondition.ContinuationToken != null);
             }
 
@@ -225,11 +253,11 @@ namespace coordinator.Functions.Orchestration.Client.Case
             const int totalWaitTimeSeconds = 30;
             const int retryDelayMilliseconds = 1000;
 
-            for(int i=0; i < (totalWaitTimeSeconds * 1000) / retryDelayMilliseconds; i++)
+            for (int i = 0; i < (totalWaitTimeSeconds * 1000) / retryDelayMilliseconds; i++)
             {
                 var statuses = await client.GetStatusAsync(instanceIds);
 
-                if(statuses == null || statuses.All(statuses => statuses.RuntimeStatus == OrchestrationRuntimeStatus.Terminated))
+                if (statuses == null || statuses.All(statuses => statuses.RuntimeStatus == OrchestrationRuntimeStatus.Terminated))
                     return true;
 
                 await Task.Delay(retryDelayMilliseconds);
@@ -269,7 +297,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         or OrchestrationRuntimeStatus.Failed
                         or OrchestrationRuntimeStatus.Terminated
                         // Is this correct? unit tests assert Canceled state, but MS docs don't include this state
-                        or OrchestrationRuntimeStatus.Canceled; 
+                        or OrchestrationRuntimeStatus.Canceled;
 
             return !notRunning;
         }

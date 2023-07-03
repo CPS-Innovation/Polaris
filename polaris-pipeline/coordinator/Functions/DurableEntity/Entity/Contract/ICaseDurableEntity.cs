@@ -3,9 +3,7 @@ using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
-using Common.ValueObjects;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace coordinator.Functions.DurableEntity.Entity.Contract
@@ -24,8 +22,11 @@ namespace coordinator.Functions.DurableEntity.Entity.Contract
         void SetCaseTiming((DocumentLogType LogType, float? T) args);
 
         void SetOcrProcessed((string PolarisDocumentId, bool IsOcrProcessed) args);
-        
+
         Task<bool> AllDocumentsFailed();
         Task<string[]> GetPolarisDocumentIds();
+
+        Task<DateTime> GetStartTime();
+        Task<float> GetDurationToCompleted();
     }
 }

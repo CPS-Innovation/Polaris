@@ -14,7 +14,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using PolarisGateway.Extensions;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 
 namespace PolarisGateway.Functions.CaseData
 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Security.AccessControl;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -12,13 +13,13 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using PolarisGateway.Domain.Validation;
 using PolarisGateway.Functions.PolarisPipeline.Document;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions.PolarisPipeline
 {
     public class PolarisPipelineGetDocumentTests : SharedMethods.SharedMethods
-	{
+    {
         private readonly string _blobName;
         private readonly string _caseUrn;
         private readonly int _caseId;

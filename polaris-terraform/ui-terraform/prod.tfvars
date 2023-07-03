@@ -31,7 +31,5 @@ cms_details = {
   upstream_cms_services_domain_name = "cms-services.cps.gov.uk"
 }
 
-react_app_ai_connection_string = "IngestionEndpoint=https://polaris.cps.gov.uk/;LiveEndpoint=https://polaris.cps.gov.uk/"
-
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555

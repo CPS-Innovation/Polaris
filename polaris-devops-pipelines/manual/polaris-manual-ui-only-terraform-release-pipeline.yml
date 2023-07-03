@@ -172,6 +172,23 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-auth-handover-drop
+                    
+                # Set Log Analytics Archival Period - remove when supported natively by Terraform
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  displayName: Script > Set Log Analytics Archival Periods
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    LOG_RETENTION_TIME: $(log-retention-time)
+                    TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
+                    TF_LOG: $(dev-log-level)
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -486,6 +503,23 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-qa-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-auth-handover-drop
+                    
+                # Set Log Analytics Archival Period - remove when supported natively by Terraform
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  displayName: Script > Set Log Analytics Archival Periods
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    LOG_RETENTION_TIME: $(log-retention-time)
+                    TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
+                    TF_LOG: $(qa-log-level)
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -800,6 +834,23 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-auth-handover-drop
+                    
+                # Set Log Analytics Archival Period - remove when supported natively by Terraform
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  displayName: Script > Set Log Analytics Archival Periods
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    LOG_RETENTION_TIME: $(log-retention-time)
+                    TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
+                    TF_LOG: $(prod-log-level)
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0

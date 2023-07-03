@@ -11,11 +11,13 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.Tracker;
 using Common.Logging;
+using Common.Telemetry.Contracts;
 using coordinator.Domain;
 using coordinator.Domain.Exceptions;
 using coordinator.Functions.ActivityFunctions.Case;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Document;
+using coordinator.TelemetryEvents;
 using Mapster;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -28,6 +30,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
+        private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
 
         const string loggingName = $"{nameof(RefreshCaseOrchestrator)} - {nameof(Run)}";
@@ -37,10 +40,11 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             return $"[{caseId}]";
         }
 
-        public RefreshCaseOrchestrator(ILogger<RefreshCaseOrchestrator> log, IConfiguration configuration)
+        public RefreshCaseOrchestrator(ILogger<RefreshCaseOrchestrator> log, IConfiguration configuration, ITelemetryClient telemetryClient)
         {
             _log = log;
             _configuration = configuration;
+            _telemetryClient = telemetryClient;
             _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
         }
 
@@ -101,7 +105,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var documents = await GetDocuments(context, loggingName, log, payload);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
 
-            var documentTasks = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
+            var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
             await Task.WhenAll(documentTasks.Select(BufferCall));
 
             if (await caseEntity.AllDocumentsFailed())
@@ -114,11 +118,23 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             caseEntity.SetCaseTiming((DocumentLogType.Indexed, maxIndexed));
 
             log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
+
+            _telemetryClient.TrackEvent(new RefreshedCaseEvent(
+                correlationId: payload.CorrelationId,
+                caseId: payload.CmsCaseId,
+                versionId: await caseEntity.GetVersion(),
+                startTime: await caseEntity.GetStartTime(),
+                endTime: context.CurrentUtcDateTime,
+                cmsDocsCount: documents.CmsDocuments.Length,
+                cmsDocsProcessedCount: cmsDocsProcessedCount,
+                pcdRequestsProcessedCount: pcdRequestsProcessedCount)
+            );
+
             var trackerDto = caseEntity.Adapt<TrackerDto>();
             return trackerDto;
         }
 
-        private async static Task<List<Task>> GetDocumentTasks
+        private async static Task<(List<Task>, int, int)> GetDocumentTasks
             (
                 IDurableOrchestrationContext context,
                 ICaseDurableEntity caseTracker,
@@ -180,7 +196,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                     ToList();
 
             var defendantsAndChargesPayloads = new List<CaseDocumentOrchestrationPayload>();
-            if (createdOrUpdatedDefendantsAndCharges != null) 
+            if (createdOrUpdatedDefendantsAndCharges != null)
             {
                 var payload = new CaseDocumentOrchestrationPayload
                 (
@@ -205,7 +221,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                             payload)
                         );
 
-            return allTasks.ToList();
+            return (allTasks.ToList(), createdOrUpdatedDocuments.Count, createdOrUpdatedPcdRequests.Count);
         }
 
         private static async Task BufferCall(Task task)
@@ -220,7 +236,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)> 
+        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
             GetDocuments(IDurableOrchestrationContext context, string nameToLog, ILogger logger, CaseOrchestrationPayload payload)
         {
             logger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");

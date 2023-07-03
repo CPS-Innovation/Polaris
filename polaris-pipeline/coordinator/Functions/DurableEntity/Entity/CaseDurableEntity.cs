@@ -38,10 +38,10 @@ namespace coordinator.Functions.DurableEntity.Entity
         private int? version = null;
 
         [JsonProperty("versionId")]
-        public int? Version 
-        { 
-            get { return version; } 
-            set { version = value;  } 
+        public int? Version
+        {
+            get { return version; }
+            set { version = value; }
         }
 
         public Task<int?> GetVersion()
@@ -71,7 +71,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         public float? Indexed { get; set; }
 
         [JsonProperty("completed")]
-        public float? Completed{ get; set; }
+        public float? Completed { get; set; }
 
         [JsonProperty("failed")]
         public float? Failed { get; set; }
@@ -153,17 +153,17 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             var updatedDocuments =
                 (from incomingDocument in incomingDocuments
-                let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.CmsDocumentId == incomingDocument.DocumentId)
-                where 
-                (
-                    cmsDocument != null &&
-                    (
-                        cmsDocument.Status != DocumentStatus.Indexed || 
-                        cmsDocument.CmsVersionId != incomingDocument.VersionId ||
-                        cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed 
-                    )
-                )
-                select incomingDocument).ToList();
+                 let cmsDocument = CmsDocuments.FirstOrDefault(doc => doc.CmsDocumentId == incomingDocument.DocumentId)
+                 where
+                 (
+                     cmsDocument != null &&
+                     (
+                         cmsDocument.Status != DocumentStatus.Indexed ||
+                         cmsDocument.CmsVersionId != incomingDocument.VersionId ||
+                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed
+                     )
+                 )
+                 select incomingDocument).ToList();
 
             var deletedCmsDocumentIdsToRemove
                 = CmsDocuments.Where(doc => !incomingDocuments.Any(incomingDoc => incomingDoc.DocumentId == doc.CmsDocumentId))
@@ -197,7 +197,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             DefendantsAndChargesListDto newDefendantsAndCharges = null, updatedDefendantsAndCharges = null;
 
-            if (DefendantsAndCharges == null && incomingDefendantsAndCharges != null) 
+            if (DefendantsAndCharges == null && incomingDefendantsAndCharges != null)
                 newDefendantsAndCharges = incomingDefendantsAndCharges;
 
             if (DefendantsAndCharges != null && incomingDefendantsAndCharges != null)
@@ -217,7 +217,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             foreach (var newDocument in createdDocuments)
             {
-                var trackerDocument 
+                var trackerDocument
                     = new CmsDocumentEntity
                     (
                         new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
@@ -263,7 +263,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<string> documentIdsToDelete)
         {
-            var deleteDocuments 
+            var deleteDocuments
                 = CmsDocuments
                     .Where(d => documentIdsToDelete.Contains(d.CmsDocumentId))
                     .ToList();
@@ -325,7 +325,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         private DefendantsAndChargesEntity CreateTrackerDefendantsAndCharges(DefendantsAndChargesListDto createdDefendantsAndCharges)
         {
-            if(createdDefendantsAndCharges != null)
+            if (createdDefendantsAndCharges != null)
             {
                 PolarisDocumentId polarisDocumentId = new PolarisDocumentId(PolarisDocumentType.DefendantsAndCharges, createdDefendantsAndCharges.CaseId.ToString());
                 DefendantsAndCharges = new DefendantsAndChargesEntity(polarisDocumentId, 1, createdDefendantsAndCharges);
@@ -338,7 +338,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         private DefendantsAndChargesEntity UpdateTrackerDefendantsAndCharges(DefendantsAndChargesListDto updatedDefendantsAndCharges)
         {
-            if(updatedDefendantsAndCharges != null)
+            if (updatedDefendantsAndCharges != null)
             {
                 DefendantsAndCharges.DefendantsAndCharges = updatedDefendantsAndCharges;
                 DefendantsAndCharges.PolarisDocumentVersionId++;
@@ -351,7 +351,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         private bool DeleteTrackerDefendantsAndCharges(bool deletedDefendantsAndCharges)
         {
-            if(deletedDefendantsAndCharges) 
+            if (deletedDefendantsAndCharges)
             {
                 DefendantsAndCharges = null;
             }
@@ -385,24 +385,24 @@ namespace coordinator.Functions.DurableEntity.Entity
 
             Status = status;
 
-            switch(status)
+            switch (status)
             {
                 case CaseRefreshStatus.Running:
-                    Running = t; 
+                    Running = t;
                     break;
 
                 case CaseRefreshStatus.DocumentsRetrieved:
-                    if(Running != null)
-                        Retrieved = (float)((t-Running).Value.TotalMilliseconds/1000.0);
+                    if (Running != null)
+                        Retrieved = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Completed:
-                    if(Running != null)
+                    if (Running != null)
                         Completed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Failed:
-                    if(Running != null)
+                    if (Running != null)
                     {
                         Failed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                         FailedReason = info;
@@ -413,10 +413,10 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         public Task<string[]> GetPolarisDocumentIds()
         {
-            var polarisDocumentIds = 
+            var polarisDocumentIds =
                 CmsDocuments?.Select(doc => doc.PolarisDocumentId.ToString())
                     .Union(PcdRequests?.Select(pcd => pcd.PolarisDocumentId.ToString())
-                    .Union(new string[]{DefendantsAndCharges?.PolarisDocumentId.ToString()}))
+                    .Union(new string[] { DefendantsAndCharges?.PolarisDocumentId.ToString() }))
                     .ToArray();
 
             return Task.FromResult(polarisDocumentIds);
@@ -451,7 +451,7 @@ namespace coordinator.Functions.DurableEntity.Entity
         {
             var (logType, t) = args;
 
-            switch(logType)
+            switch (logType)
             {
                 case DocumentLogType.PdfGenerated:
                     PdfsGenerated = t;
@@ -482,6 +482,16 @@ namespace coordinator.Functions.DurableEntity.Entity
         public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
             return context.DispatchAsync<CaseDurableEntity>();
+        }
+
+        public Task<DateTime> GetStartTime()
+        {
+            return Task.FromResult<DateTime>(Running.GetValueOrDefault());
+        }
+
+        public Task<float> GetDurationToCompleted()
+        {
+            return Task.FromResult<float>(Completed.GetValueOrDefault());
         }
     }
 }

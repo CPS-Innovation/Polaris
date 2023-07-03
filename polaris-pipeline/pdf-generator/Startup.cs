@@ -11,6 +11,8 @@ using Common.Services.BlobStorageService;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation;
 using Common.Services.DocumentEvaluation.Contracts;
+using Common.Telemetry;
+using Common.Telemetry.Contracts;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
@@ -56,6 +58,7 @@ namespace pdf_generator
             builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder);
         }
 

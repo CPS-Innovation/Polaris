@@ -17,9 +17,3 @@ public static class CmsAuthConstants
     public const string CookieQueryParamName = "cookie";
     public const string PolarisUiQueryParamName = "polaris-ui-url";
 }
-
-public static class TelemetryConstants
-{
-    public const string UserCustomDimensionName = "User";
-    public const string CorrelationIdCustomDimensionName = "PolarisCorrelationId";
-}

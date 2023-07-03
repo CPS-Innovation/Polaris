@@ -12,7 +12,7 @@ using Common.Configuration;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
-using PolarisGateway.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Tracker;
 using PolarisGateway.Domain.PolarisPipeline;
 using PolarisGateway.Factories.Contracts;
@@ -26,7 +26,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
         private readonly ILogger<PolarisPipelineCase> _logger;
         private readonly ITriggerCoordinatorResponseFactory _triggerCoordinatorResponseFactory;
 
-        public PolarisPipelineCase( ILogger<PolarisPipelineCase> logger,
+        public PolarisPipelineCase(ILogger<PolarisPipelineCase> logger,
                                     IPipelineClient pipelineClient,
                                     IAuthorizationValidator tokenValidator,
                                     ITriggerCoordinatorResponseFactory triggerCoordinatorResponseFactory,
@@ -78,7 +78,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                     default:
                         throw new BadRequestException("Unexpected HTTP Verb", req.Method);
                 }
-
             }
             catch (Exception exception)
             {
