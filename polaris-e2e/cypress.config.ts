@@ -24,7 +24,7 @@ export default defineConfig({
           return null
         },
         retrieveTokenResponseFromNode: () => {
-          return globalAny.tokenResponse
+          return globalAny.tokenResponse || null
         },
       })
 
