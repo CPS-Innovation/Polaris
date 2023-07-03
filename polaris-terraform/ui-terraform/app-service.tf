@@ -21,7 +21,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_GATEWAY_BASE_URL"               = ""
     "REACT_APP_GATEWAY_SCOPE"                  = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
     "REACT_APP_REAUTH_REDIRECT_URL"            = "/polaris?polaris-ui-url="
-    "REACT_APP_AI_CONNECTION_STRING"           = "InstrumentationKey=${data.azurerm_application_insights.global_ai.instrumentation_key};${var.react_app_ai_connection_string}"
+    "REACT_APP_AI_KEY"                         = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_SURVEY_LINK"                    = "https://www.smartsurvey.co.uk/s/DG5B6G/"
   }
 
