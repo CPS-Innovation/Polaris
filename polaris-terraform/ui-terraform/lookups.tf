@@ -32,6 +32,11 @@ data "azurerm_search_service" "pipeline_ss" {
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
+data "azurerm_storage_account" "sacpspolarispipeline" {
+  name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
 data "azuread_service_principal" "fa_pipeline_coordinator_service_principal" {
   application_id = data.azuread_application.fa_pipeline_coordinator.application_id
 }
@@ -127,8 +132,4 @@ data "azurerm_log_analytics_workspace" "global_la" {
 
 data "azurerm_resource_group" "rg_analytics" {
   name = "rg-${local.analytics_group_name}"
-}
-
-data "azurerm_storage_account" "sacpspolarispipeline" {
-  name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
 }
