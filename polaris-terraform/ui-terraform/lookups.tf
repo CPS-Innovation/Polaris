@@ -128,3 +128,7 @@ data "azurerm_log_analytics_workspace" "global_la" {
 data "azurerm_resource_group" "rg_analytics" {
   name = "rg-${local.analytics_group_name}"
 }
+
+data "azurerm_storage_account" "sacpspolarispipeline" {
+  name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+}
