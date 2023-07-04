@@ -36,7 +36,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     vnet_route_all_enabled = true
 
     application_stack {
-      node_version = "14-lts"
+      node_version = "18-lts"
     }
   }
 
