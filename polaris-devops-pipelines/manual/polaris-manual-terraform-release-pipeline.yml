@@ -470,16 +470,8 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
-              artifact: "Commit Report - DEV"
-            displayName: "Publish Commit report for DEV"
-            condition: succeeded()
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
               artifact: "Commit Report - DEV ($(System.JobAttempt))"
             displayName: "Publish Commit report for DEV"
-            condition: not(succeeded())
                 
   - stage: Update_DEV_Tag
     displayName: Update Tag > DEV
@@ -952,16 +944,8 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
-              artifact: "Commit Report - QA"
-            displayName: "Publish Commit report for QA"
-            condition: succeeded()
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
               artifact: "Commit Report - QA ($(System.JobAttempt))"
             displayName: "Publish Commit report for QA"
-            condition: not(succeeded())
                 
   - stage: Update_QA_Tag
     displayName: Update Tag > QA
@@ -1434,16 +1418,8 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
-              artifact: "Commit Report - PROD"
-            displayName: "Publish Commit report for PROD"
-            condition: succeeded()
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
               artifact: "Commit Report - PROD ($(System.JobAttempt))"
             displayName: "Publish Commit report for PROD"
-            condition: not(succeeded())
                 
   - stage: Update_PROD_Tag
     displayName: Update Tag > PROD
