@@ -854,6 +854,30 @@ stages:
                 -Retries $(status-check-retries)
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
+                
+  - stage: Create_DEV_Report
+    displayName: Create Report > DEV
+    dependsOn: Check_DEV
+    jobs:
+      - job: Create_DEV_Report
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git log dev...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-dev.csv
+            displayName: Generate commit report for DEV
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
+              artifact: "Commit Report - DEV ($(System.JobAttempt))"
+            displayName: "Publish Commit report for DEV"
 
   - stage: Update_DEV_Tag
     displayName: Update Tag > DEV
@@ -871,25 +895,12 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                git log dev...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-dev.csv
-            displayName: Generate commit report for DEV
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
-              artifact: "Commit Report - DEV"
-            displayName: "Publish Commit report for DEV"
-
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              script: |
                 git config user.name "$BUILD_REQUESTEDFOR"
                 git config user.email "$BUILD_REQUESTEDFOREMAIL"
                 
                 git push origin :refs/tags/dev
                 git tag -f dev
-                git push origin --tags
+                git push origin dev
             displayName: Updating the dev tag        
                     
   - stage: Run_e2e_Tests_DEV
@@ -1413,12 +1424,11 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
-  - stage: Update_QA_Tag
-    displayName: Update Tag > QA
+  - stage: Create_QA_Report
+    displayName: Create Report > QA
     dependsOn: Check_QA
-    condition: succeeded()
     jobs:
-      - job: Update_QA_Tag
+      - job: Create_QA_Report
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -1435,8 +1445,20 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
-              artifact: "Commit Report - QA"
+              artifact: "Commit Report - QA ($(System.JobAttempt))"
             displayName: "Publish Commit report for QA"
+                
+  - stage: Update_QA_Tag
+    displayName: Update Tag > QA
+    dependsOn: Create_QA_Report
+    condition: succeeded()
+    jobs:
+      - job: Update_QA_Tag
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
 
           - task: PowerShell@2
             inputs:
@@ -1447,7 +1469,7 @@ stages:
                 
                 git push origin :refs/tags/qa
                 git tag -f qa
-                git push origin --tags 
+                git push origin qa 
             displayName: Updating the qa tag
             
   - stage: Run_e2e_Tests_QA
@@ -1971,12 +1993,11 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
-  - stage: Update_PROD_Tag
-    displayName: Update Tag > PROD
+  - stage: Create_PROD_Report
+    displayName: Create Report > PROD
     dependsOn: Check_PROD
-    condition: succeeded()
     jobs:
-      - job: Update_PROD_Tag
+      - job: Create_PROD_Report
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -1993,8 +2014,20 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
-              artifact: "Commit Report - PROD"
+              artifact: "Commit Report - PROD ($(System.JobAttempt))"
             displayName: "Publish Commit report for PROD"
+                
+  - stage: Update_PROD_Tag
+    displayName: Update Tag > PROD
+    dependsOn: Create_PROD_Report
+    condition: succeeded()
+    jobs:
+      - job: Update_PROD_Tag
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
 
           - task: PowerShell@2
             inputs:
@@ -2005,7 +2038,7 @@ stages:
                 
                 git push origin :refs/tags/prod
                 git tag -f prod
-                git push origin --tags 
+                git push origin prod 
             displayName: Updating the prod tag
             
   - stage: Run_e2e_Tests_PROD

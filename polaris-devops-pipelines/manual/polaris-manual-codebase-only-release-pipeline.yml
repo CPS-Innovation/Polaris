@@ -246,11 +246,11 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
-  - stage: Update_DEV_Tag
-    displayName: Update Tag > DEV
+  - stage: Create_DEV_Report
+    displayName: Create Report > DEV
     dependsOn: Check_DEV
     jobs:
-      - job: Update_DEV_Tag
+      - job: Create_DEV_Report
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -263,13 +263,24 @@ stages:
               script: |
                 git log dev...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-dev.csv
             displayName: Generate commit report for DEV
-
+            
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
-              artifact: "Commit Report - DEV"
+              artifact: "Commit Report - DEV ($(System.JobAttempt))"
             displayName: "Publish Commit report for DEV"
-
+                
+  - stage: Update_DEV_Tag
+    displayName: Update Tag > DEV
+    dependsOn: Create_DEV_Report
+    jobs:
+      - job: Update_DEV_Tag
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
+          
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
@@ -279,7 +290,7 @@ stages:
 
                 git push origin :refs/tags/dev
                 git tag -f dev
-                git push origin --tags 
+                git push origin dev 
             displayName: Updating the dev tag
             
   - stage: Apply_QA
@@ -506,9 +517,33 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
+  - stage: Create_QA_Report
+    displayName: Create Report > QA
+    dependsOn: Check_QA
+    jobs:
+      - job: Create_QA_Report
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git log qa...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-qa.csv
+            displayName: Generate commit report for QA
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
+              artifact: "Commit Report - QA ($(System.JobAttempt))"
+            displayName: "Publish Commit report for QA"
+                
   - stage: Update_QA_Tag
     displayName: Update Tag > QA
-    dependsOn: Check_QA
+    dependsOn: Create_QA_Report
     jobs:
       - job: Update_QA_Tag
         pool:
@@ -521,25 +556,12 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                git log qa...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-qa.csv
-            displayName: Generate commit report for QA
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
-              artifact: "Commit Report - QA"
-            displayName: "Publish Commit report for QA"
-
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              script: |
                 git config user.name "$BUILD_REQUESTEDFOR"
                 git config user.email "$BUILD_REQUESTEDFOREMAIL"
                 
                 git push origin :refs/tags/qa
                 git tag -f qa
-                git push origin --tags 
+                git push origin qa 
             displayName: Updating the qa tag
             
   - stage: Apply_PROD
@@ -766,9 +788,33 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
+  - stage: Create_PROD_Report
+    displayName: Create Report > PROD
+    dependsOn: Check_PROD
+    jobs:
+      - job: Create_PROD_Report
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            persistCredentials: true
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                git log prod...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-prod.csv
+            displayName: Generate commit report for PROD
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
+              artifact: "Commit Report - PROD ($(System.JobAttempt))"
+            displayName: "Publish Commit report for PROD"
+                
   - stage: Update_PROD_Tag
     displayName: Update Tag > PROD
-    dependsOn: Check_PROD
+    dependsOn: Create_PROD_Report
     jobs:
       - job: Update_PROD_Tag
         pool:
@@ -781,23 +827,10 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                git log prod...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-prod.csv
-            displayName: Generate commit report for PROD
-
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
-              artifact: "Commit Report - PROD"
-            displayName: "Publish Commit report for PROD"
-
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              script: |
                 git config user.name "$BUILD_REQUESTEDFOR"
                 git config user.email "$BUILD_REQUESTEDFOREMAIL"
                 
                 git push origin :refs/tags/prod
                 git tag -f prod
-                git push origin --tags 
+                git push origin prod 
             displayName: Updating the prod tag
