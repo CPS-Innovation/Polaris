@@ -17,6 +17,7 @@ import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -61,9 +62,38 @@ export const PdfViewer: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
+  useControlledRedactionFocus();
+  let sortedRedactionHighlights: IPdfHighlight[] = [];
+
+  const sortRedactionHighlights = (elements: IPdfHighlight[]) => {
+    return elements.sort((a: IPdfHighlight, b: IPdfHighlight) => {
+      if (a.position.pageNumber > b.position.pageNumber) {
+        return 1;
+      }
+      if (a.position.boundingRect.y1 - b.position.boundingRect.y1 > 20) {
+        return 1;
+      }
+      if (a.position.boundingRect.y1 - b.position.boundingRect.y1 < -20) {
+        return -1;
+      }
+      if (
+        Math.abs(a.position.boundingRect.y1 - b.position.boundingRect.y1) < 20
+      ) {
+        return a.position.boundingRect.x1 > b.position.boundingRect.x1 ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
+  const getSortedRedactionHighlights = () => {
+    const sortedRedactionHighlights =
+      sortRedactionHighlights(redactionHighlights);
+    console.log("sortedElements>>", sortedRedactionHighlights);
+    return sortedRedactionHighlights;
+  };
 
   const highlights = useMemo(
-    () => [...searchHighlights, ...redactionHighlights],
+    () => [...searchHighlights, ...getSortedRedactionHighlights()],
     [searchHighlights, redactionHighlights]
   );
 
@@ -89,14 +119,14 @@ export const PdfViewer: React.FC<Props> = ({
     [handleAddRedaction]
   );
 
-  const removeRedaction = (id: string) => {
+  const removeRedaction = useCallback((id: string) => {
     trackEvent("Remove Redact Content", {
       documentType: contextData.documentType,
       documentId: contextData.documentId,
       redactionsCount: 1,
     });
     handleRemoveRedaction(id);
-  };
+  }, []);
 
   return (
     <>

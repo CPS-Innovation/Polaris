@@ -51,6 +51,16 @@ export const PdfHighlight: React.FC<Props> = ({
       onMouseOver={(popupContent) =>
         setTip(highlight, (/*highlight*/) => popupContent)
       }
+      onFocus={() => {
+        setTip(highlight, (/*highlight*/) => (
+          <RemoveButton
+            onClick={() => {
+              handleRemoveRedaction(highlight.id);
+              hideTip();
+            }}
+          />
+        ));
+      }}
       onMouseOut={hideTip}
       key={index}
       children={component}

@@ -7,5 +7,7 @@ type Props = {
 };
 
 export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({ rect }) => {
-  return <div style={rect} className={classes[`Highlight__part__redaction`]} />;
+  return (
+    <button style={rect} className={classes[`Highlight__part__redaction`]} />
+  );
 };

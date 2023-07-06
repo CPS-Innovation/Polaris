@@ -24,10 +24,10 @@ export const PdfAreaHighlight: React.FC<Props> = ({
       isScrolledTo ? classes["AreaHighlight--scrolledTo"] : ""
     }`}
   >
-    <div
+    <button
       className={classes["AreaHighlight__part"]}
       style={boundingRect}
       {...otherProps}
-    ></div>
+    ></button>
   </div>
 );
