@@ -84,7 +84,6 @@ namespace text_extractor.Functions
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
                 var startTime = DateTime.UtcNow;
                 var ocrResults = await _ocrService.GetOcrResultsAsync(extractTextRequest.BlobName, currentCorrelationId);
-                await System.IO.File.WriteAllTextAsync($"{extractTextRequest.PolarisDocumentId}.json", _jsonConvertWrapper.SerializeObject(ocrResults));
                 var ocrCompletedTime = DateTime.UtcNow;
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
                 await _searchIndexService.SendStoreResultsAsync

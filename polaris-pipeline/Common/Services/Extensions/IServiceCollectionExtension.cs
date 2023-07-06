@@ -82,7 +82,14 @@ namespace Common.Services.Extensions
             services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
             services.AddTransient<ISearchLineFactory, SearchLineFactory>();
 
-            if (!string.IsNullOrWhiteSpace(configuration[ConfigKeys.SharedKeys.SearchClientCosmosEndpointUrl]))
+            if (string.IsNullOrWhiteSpace(configuration[ConfigKeys.SharedKeys.SearchClientCosmosEndpointUrl]))
+            {
+                // Singleton important: https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
+                services.AddSingleton<IAzureSearchClientFactory, AzureSearchClientFactory>();
+                services.AddTransient<ICaseSearchClient, CaseSearchClient>();
+                services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
+            }
+            else
             {
                 // Singleton important: https://devblogs.microsoft.com/cosmosdb/improve-net-sdk-initialization/
                 services.AddSingleton((s) =>
@@ -97,13 +104,6 @@ namespace Common.Services.Extensions
                     });
                 });
                 services.AddTransient<ICaseSearchClient, CosmosDbSearchClient>();
-            }
-            else
-            {
-                // Singleton important: https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
-                services.AddSingleton<IAzureSearchClientFactory, AzureSearchClientFactory>();
-                services.AddTransient<ICaseSearchClient, CaseSearchClient>();
-                services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
             }
         }
     }
