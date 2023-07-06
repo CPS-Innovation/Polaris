@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using Common.Services.CaseSearchService.Contracts;
+using Microsoft.Azure.Cosmos;
 
 namespace Common.Services.Extensions
 {
@@ -76,13 +77,34 @@ namespace Common.Services.Extensions
                 configuration.GetSection("searchClient").Bind(settings);
             });
 
-            services.AddTransient<ICaseSearchClient, CaseSearchClient>();
-            services.AddTransient<IAzureSearchClientFactory, AzureSearchClientFactory>();
             services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
             services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
             services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
             services.AddTransient<ISearchLineFactory, SearchLineFactory>();
-            services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
+
+            if (!string.IsNullOrWhiteSpace(configuration[ConfigKeys.SharedKeys.SearchClientCosmosEndpointUrl]))
+            {
+                // Singleton important: https://devblogs.microsoft.com/cosmosdb/improve-net-sdk-initialization/
+                services.AddSingleton((s) =>
+                {
+                    return new CosmosClient(
+                    configuration[ConfigKeys.SharedKeys.SearchClientCosmosEndpointUrl],
+                    new DefaultAzureCredential(),
+                    new CosmosClientOptions()
+                    {
+                        AllowBulkExecution = true,
+                        ConnectionMode = ConnectionMode.Direct // this is the default, but just to be explicit (it is the most performant option)
+                    });
+                });
+                services.AddTransient<ICaseSearchClient, CosmosDbSearchClient>();
+            }
+            else
+            {
+                // Singleton important: https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
+                services.AddSingleton<IAzureSearchClientFactory, AzureSearchClientFactory>();
+                services.AddTransient<ICaseSearchClient, CaseSearchClient>();
+                services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
+            }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Common.Services.CaseSearchService
             IAzureSearchClientFactory searchClientFactory,
             ISearchLineFactory searchLineFactory,
             ISearchIndexingBufferedSenderFactory searchIndexingBufferedSenderFactory,
-            IStreamlinedSearchResultFactory streamlinedSearchResultFactory, 
+            IStreamlinedSearchResultFactory streamlinedSearchResultFactory,
             ILogger<CaseSearchClient> logger)
         {
             _azureSearchClient = searchClientFactory.Create();
@@ -140,7 +140,7 @@ namespace Common.Services.CaseSearchService
             foreach (var timeoutBase in Fibonacci(10))
             {
                 var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
-                var recievedLinesCount = searchResults.Value.TotalCount; 
+                var recievedLinesCount = searchResults.Value.TotalCount;
 
                 if (recievedLinesCount == sentLinesCount)
                 {
@@ -232,7 +232,7 @@ namespace Common.Services.CaseSearchService
             return results;
         }
 
-        public IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm, Guid correlationId)
+        private IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(BuildStreamlinedResults), string.Empty);
 
@@ -240,7 +240,7 @@ namespace Common.Services.CaseSearchService
             if (searchResults.Count == 0)
                 return streamlinedResults;
 
-            IEnumerable<StreamlinedSearchLine> seachResultsValues 
+            IEnumerable<StreamlinedSearchLine> seachResultsValues
                 = searchResults.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm, correlationId));
 
             streamlinedResults.AddRange(seachResultsValues);
@@ -267,30 +267,6 @@ namespace Common.Services.CaseSearchService
                     correlationId,
                     nameof(RemoveCaseIndexEntriesAsync),
                     $"Updating the search index completed following a deletion request for caseId '{caseId}'"
-                );
-        }
-
-        public async Task RemoveDocumentIndexEntriesAsync(long caseId, string documentId, long versionId, Guid correlationId)
-        {
-            _logger.LogMethodEntry(correlationId, nameof(RemoveDocumentIndexEntriesAsync), $"CaseId: {caseId}, DoocumentId: {documentId}, Versionid {versionId}");
-
-            #region Validate-Inputs
-            if (caseId == 0)
-                throw new ArgumentException("Invalid caseId", nameof(caseId));
-
-            if (string.IsNullOrWhiteSpace(documentId))
-                throw new ArgumentException("Invalid Document ID", nameof(documentId));
-            #endregion
-
-            string filter = $"caseId eq {caseId} and documentId eq '{documentId}' and versionId eq {versionId}";
-
-            await RemoveIndexEntries(filter, correlationId);
-
-            _logger.LogMethodFlow
-                (
-                    correlationId, 
-                    nameof(RemoveDocumentIndexEntriesAsync),
-                    $"Updating the search index completed following a deletion request for caseId '{caseId}', documentId '{documentId}', versionid '{versionId}'"
                 );
         }
 
@@ -329,7 +305,7 @@ namespace Common.Services.CaseSearchService
 
             if (searchLines.Count == 0)
             {
-                _logger.LogMethodFlow(correlationId, nameof(RemoveDocumentIndexEntriesAsync), "No results found - this document has been previously removed");
+                _logger.LogMethodFlow(correlationId, nameof(RemoveIndexEntries), "No results found - this document has been previously removed");
             }
             else
             {
@@ -364,7 +340,7 @@ namespace Common.Services.CaseSearchService
                 await indexer.FlushAsync();
                 _logger.LogMethodFlow
                     (
-                        correlationId, 
+                        correlationId,
                         nameof(RemoveIndexEntries),
                         $"number of lines: {searchLines.Count}, successes: {successCount}, failures: {failureCount}"
                     );

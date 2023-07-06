@@ -10,25 +10,25 @@ namespace Common.Factories;
 
 public class AzureSearchClientFactory : IAzureSearchClientFactory
 {
-    private readonly IConfiguration _configuration;
-    
+    // Singleton important: https://devblogs.microsoft.com/azure-sdk/lifetime-management-and-thread-safety-guarantees-of-azure-sdk-net-clients/
+    private readonly SearchClient _searchClient;
+
     public AzureSearchClientFactory(IConfiguration configuration)
     {
-        _configuration = configuration;
-    }
 
-    public SearchClient Create()
-    {
-        string searchClientEndpointUrl = _configuration[ConfigKeys.SharedKeys.SearchClientEndpointUrl] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientEndpointUrl));
-        string indexName = _configuration[ConfigKeys.SharedKeys.SearchClientIndexName] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientIndexName));
-        string searchClientAuthorizationKey = _configuration[ConfigKeys.SharedKeys.SearchClientAuthorizationKey] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientAuthorizationKey));
+        var searchClientEndpointUrl = configuration[ConfigKeys.SharedKeys.SearchClientEndpointUrl] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientEndpointUrl));
+        var indexName = configuration[ConfigKeys.SharedKeys.SearchClientIndexName] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientIndexName));
+        var searchClientAuthorizationKey = configuration[ConfigKeys.SharedKeys.SearchClientAuthorizationKey] ?? throw new ArgumentNullException(nameof(ConfigKeys.SharedKeys.SearchClientAuthorizationKey));
 
-        var sc = new SearchClient(
+        _searchClient = new SearchClient(
             new Uri(searchClientEndpointUrl),
             indexName,
             new AzureKeyCredential(searchClientAuthorizationKey),
             new SearchClientOptions { Serializer = new NewtonsoftJsonObjectSerializer() });
-        
-        return sc;
+    }
+
+    public SearchClient Create()
+    {
+        return _searchClient;
     }
 }

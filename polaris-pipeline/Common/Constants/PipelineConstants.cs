@@ -83,6 +83,7 @@
 
         public static class SharedKeys
         {
+            public const string SearchClientCosmosEndpointUrl = "SearchClientCosmosEndpointUrl";
             public const string SearchClientEndpointUrl = "SearchClientEndpointUrl";
             public const string SearchClientIndexName = "SearchClientIndexName";
             public const string SearchClientAuthorizationKey = "SearchClientAuthorizationKey";

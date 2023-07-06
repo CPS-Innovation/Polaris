@@ -10,7 +10,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
 using Common.Factories.Contracts;
-using Common.Services.CaseSearchService;
 using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;

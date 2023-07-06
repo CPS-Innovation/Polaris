@@ -43,6 +43,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.0" />
     <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.35.1-preview" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.4.0" />
