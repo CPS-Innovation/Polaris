@@ -597,7 +597,7 @@ stages:
       runTextExtractor: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_TEXT_EXTRACTOR']]
     jobs:
       - job:
-        displayName: Build, Test, Report - Pipeline
+        displayName: Build, Test, Report - Pipeline (Ubuntu)
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -608,29 +608,6 @@ stages:
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Coordinator"
             condition: eq(variables.runCoordinator, 'true')
-
-          - task: DownloadSecureFile@1
-            name: licence
-            inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
-            condition: eq(variables.runPdfGenerator, 'true')
-
-          - task: CopyFiles@2
-            inputs:
-              sourceFolder: $(Agent.TempDirectory)
-              contents: Aspose.Total.NET.lic
-              targetFolder: 'polaris-pipeline/pdf-generator'
-            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-            condition: eq(variables.runPdfGenerator, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "build"
-              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
-              arguments: "--configuration $(buildConfiguration)"
-            displayName: "Build PDF Generator"
-            condition: eq(variables.runPdfGenerator, 'true')
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -663,19 +640,6 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"
-              projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run Pdf-Generator tests"
-            condition: eq(variables.runPdfGenerator, 'true')
-            
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
-            artifact: PdfGeneratorTestResults
-            displayName: Publish Pdf-Generator Test Results
-            condition: eq(variables.runPdfGenerator, 'true')
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
               projects: "polaris-pipeline/text-extractor.tests/text-extractor.tests.csproj"
               arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
             displayName: "Run Text-Extractor tests"
@@ -685,6 +649,47 @@ stages:
             artifact: TextExtractorTestResults
             displayName: Publish Text-Extractor Test Results
             condition: eq(variables.runTextExtractor, 'true')
+            
+      - job:
+        displayName: Build, Test, Report - Pipeline (Windows)
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+            condition: eq(variables.runPdfGenerator, 'true')
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-pipeline/pdf-generator'
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+            condition: eq(variables.runPdfGenerator, 'true')
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "polaris-pipeline/pdf-generator/pdf-generator.csproj"
+              arguments: "--configuration $(buildConfiguration)"
+            displayName: "Build PDF Generator"
+            condition: eq(variables.runPdfGenerator, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-pipeline/pdf-generator.tests/pdf-generator.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Pdf-Generator tests"
+            condition: eq(variables.runPdfGenerator, 'true')
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-generator.tests/coverage.cobertura.xml
+            artifact: PdfGeneratorTestResults
+            displayName: Publish Pdf-Generator Test Results
+            condition: eq(variables.runPdfGenerator, 'true')
                       
   - stage: Validate_UI_Codebase
     displayName: Validate UI Codebase
