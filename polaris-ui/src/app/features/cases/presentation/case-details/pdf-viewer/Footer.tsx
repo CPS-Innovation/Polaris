@@ -45,6 +45,7 @@ export const Footer: React.FC<Props> = ({
     <div className={classes.footer}>
       <div className={classes.removeButton}>
         <LinkButton
+          id="btn-link-removeAll"
           onClick={handleRemoveAllRedactionsClick}
           dataTestId="link-removeAll"
         >

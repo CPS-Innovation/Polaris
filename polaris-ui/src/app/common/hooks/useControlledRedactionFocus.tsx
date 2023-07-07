@@ -35,6 +35,27 @@ export const useControlledRedactionFocus = (
     const removeBtn = pdfHighlighters[tabIndex].querySelector("#remove-btn");
     return removeBtn;
   };
+
+  const getRemoveAllRedactionBtn = () => {
+    const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
+    const removeAllRedactionBtn = pdfHighlighters[tabIndex].querySelector(
+      "#btn-link-removeAll"
+    );
+    return removeAllRedactionBtn;
+  };
+
+  const getReportIssueBtn = () => {
+    const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
+    const reportIssueBtn =
+      pdfHighlighters[tabIndex].querySelector("#btn-report-issue");
+    return reportIssueBtn;
+  };
+  const getOpenPdfBtn = () => {
+    const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
+    const openPdfBtn = pdfHighlighters[tabIndex].querySelector("#btn-open-pdf");
+    return openPdfBtn;
+  };
+
   const activeButtonIndex = useRef(0);
 
   const keyDownHandler = useCallback(
@@ -45,21 +66,39 @@ export const useControlledRedactionFocus = (
       if (tabId === activeTabId) {
         const tabbableElements = getTabbableElements();
         const removeBtn = getRemoveRedactionBtn();
+        const removeAllRedactionBtn = getRemoveAllRedactionBtn();
+        const reportIssueBtn = getReportIssueBtn();
+        const openPdfBtn = getOpenPdfBtn();
+        const entryButton = (reportIssueBtn as HTMLButtonElement).disabled
+          ? openPdfBtn
+          : reportIssueBtn;
+
         if (document.activeElement) {
           if (
             (e.code === "Tab" || e.key === "Tab") &&
             !e.shiftKey &&
             tabbableElements
           ) {
+            if (document.activeElement === entryButton) {
+              (tabbableElements[0] as HTMLElement).focus();
+              (tabbableElements[0] as HTMLElement).scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+              activeButtonIndex.current = 0;
+              e.preventDefault();
+              return;
+            }
             if (
               document.activeElement === removeBtn &&
               activeButtonIndex.current < tabbableElements.length - 1
             ) {
+              activeButtonIndex.current = activeButtonIndex.current + 1;
               (
-                tabbableElements[activeButtonIndex.current + 1] as HTMLElement
+                tabbableElements[activeButtonIndex.current] as HTMLElement
               ).focus();
               (
-                tabbableElements[activeButtonIndex.current + 1] as HTMLElement
+                tabbableElements[activeButtonIndex.current] as HTMLElement
               ).scrollIntoView({
                 behavior: "smooth",
                 block: "center",
@@ -87,6 +126,20 @@ export const useControlledRedactionFocus = (
             tabbableElements &&
             e.shiftKey
           ) {
+            if (document.activeElement === removeAllRedactionBtn) {
+              (
+                tabbableElements[tabbableElements.length - 1] as HTMLElement
+              ).focus();
+              (
+                tabbableElements[tabbableElements.length - 1] as HTMLElement
+              ).scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+              activeButtonIndex.current = tabbableElements.length - 1;
+              e.preventDefault();
+              return;
+            }
             if (document.activeElement === removeBtn) {
               (
                 tabbableElements[activeButtonIndex.current] as HTMLElement
@@ -97,6 +150,33 @@ export const useControlledRedactionFocus = (
                 behavior: "smooth",
                 block: "center",
               });
+              e.preventDefault();
+              return;
+            }
+            if (
+              Array.from(tabbableElements).includes(document.activeElement) &&
+              activeButtonIndex.current > 0
+            ) {
+              activeButtonIndex.current = activeButtonIndex.current - 1;
+              (
+                tabbableElements[activeButtonIndex.current] as HTMLElement
+              ).focus();
+              (
+                tabbableElements[activeButtonIndex.current] as HTMLElement
+              ).scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+              e.preventDefault();
+              return;
+            }
+            if (document.activeElement === tabbableElements[0]) {
+              (entryButton as HTMLElement).focus();
+              (entryButton as HTMLElement).scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+
               e.preventDefault();
               return;
             }

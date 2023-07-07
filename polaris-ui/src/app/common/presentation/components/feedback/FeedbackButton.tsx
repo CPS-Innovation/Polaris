@@ -38,6 +38,7 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
     <>
       <div className={`${classes.content}`}>
         <Button
+          id="btn-report-issue"
           name="secondary"
           className={`${classes.btnReportIssue} govuk-button--secondary`}
           disabled={disableReportBtn}
