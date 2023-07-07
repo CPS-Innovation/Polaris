@@ -24,6 +24,8 @@ const SCROLL_TO_OFFSET = 120;
 type Props = {
   url: string;
   tabIndex: number;
+  activeTabId: string | undefined;
+  tabId: string;
   contextData: {
     documentType: string;
     documentId: string;
@@ -47,6 +49,8 @@ const ensureAllPdfInView = () =>
 export const PdfViewer: React.FC<Props> = ({
   url,
   tabIndex,
+  activeTabId,
+  tabId,
   headers,
   documentWriteStatus,
   contextData,
@@ -62,7 +66,10 @@ export const PdfViewer: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
-  useControlledRedactionFocus();
+  console.log("tabId>>", tabId);
+  console.log("activeTabId>>", activeTabId);
+  console.log("tabIndex>>", tabIndex);
+  useControlledRedactionFocus(tabId, activeTabId, tabIndex);
   let sortedRedactionHighlights: IPdfHighlight[] = [];
 
   const sortRedactionHighlights = (elements: IPdfHighlight[]) => {
@@ -88,7 +95,7 @@ export const PdfViewer: React.FC<Props> = ({
   const getSortedRedactionHighlights = () => {
     const sortedRedactionHighlights =
       sortRedactionHighlights(redactionHighlights);
-    console.log("sortedElements>>", sortedRedactionHighlights);
+    // console.log("sortedElements>>", sortedRedactionHighlights);
     return sortedRedactionHighlights;
   };
 

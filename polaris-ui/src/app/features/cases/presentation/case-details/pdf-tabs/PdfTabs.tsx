@@ -67,6 +67,8 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleSavedRedactions={handleSavedRedactions}
               handleOpenPdfInNewTab={handleOpenPdfInNewTab}
               contextData={contextData}
+              activeTabId={activeTabId}
+              tabId={item.documentId}
             />
           ),
         },
