@@ -4,7 +4,12 @@ import { PipelineResults } from "../../../gateway/PipelineResults"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
 
-const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
+const {
+  TARGET_URN,
+  TARGET_CASE_ID,
+  TARGET_SAS_LINK_DOCUMENT_ID,
+  SAS_LINK_DOMAIN,
+} = Cypress.env()
 
 let routes: ApiRoutes
 
@@ -15,7 +20,7 @@ describe("Simple Tracker", () => {
     })
   })
 
-  it("run a trackerthrough to all documents being indexed", () => {
+  it("run a tracker through to all documents being indexed", () => {
     cy.clearCaseTracker(TARGET_URN, TARGET_CASE_ID)
       .api(routes.TRACKER_START(TARGET_URN, TARGET_CASE_ID))
       .waitUntil(
@@ -44,5 +49,18 @@ describe("Simple Tracker", () => {
             }),
         WAIT_UNTIL_OPTIONS
       )
+      .api(
+        routes.GET_DOCUMENT_SAS_LINK(
+          TARGET_URN,
+          TARGET_CASE_ID,
+          TARGET_SAS_LINK_DOCUMENT_ID
+        )
+      )
+      .its("body")
+      .then((body) => {
+        expect(body)
+          .to.be.a("string")
+          .and.satisfy((s) => s.startsWith(SAS_LINK_DOMAIN))
+      })
   })
 })
