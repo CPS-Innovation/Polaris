@@ -61,7 +61,6 @@ namespace pdf_generator.tests.Factories
             result.Should().NotBeNull();
         }
 
-#if Windows
         [Fact]
         public void CreateHtmlDocument_ReturnsValidObject()
         {
@@ -70,7 +69,6 @@ namespace pdf_generator.tests.Factories
 
             result.Should().NotBeNull();
         }
-#endif
 
         [Fact]
         public void CreateImage_ReturnsValidObject()

@@ -35,7 +35,6 @@ namespace pdf_generator.tests.Services.PdfService
             act.Should().Throw<ArgumentNullException>().And.ParamName.Should().Be("asposeItemFactory");
         }
 
-#if Windows
         [Fact]
         public void ReadToPdfStream_CallsCreateImage()
         {
@@ -51,6 +50,5 @@ namespace pdf_generator.tests.Services.PdfService
                 pdfStream.Length.Should().BeGreaterThan(0);
             }
         }
-#endif
     }
 }
