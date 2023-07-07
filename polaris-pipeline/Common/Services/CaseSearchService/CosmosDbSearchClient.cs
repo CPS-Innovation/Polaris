@@ -30,7 +30,10 @@ namespace Common.Services.CaseSearchService
         }
 
         /*
-            At the time of writing, this is the Index Policy index definition on the container
+            At the time of writing:
+            
+             - partition Id is the caseId
+             - index Policy index definition on the container
             {
                 "indexingMode": "consistent",
                 "automatic": true,
