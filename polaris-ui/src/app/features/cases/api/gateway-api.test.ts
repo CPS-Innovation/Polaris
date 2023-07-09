@@ -150,7 +150,7 @@ describe("gateway-apis", () => {
       expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://gateway-url/api/urns/abc/cases/123/documents/ABC/sasUrl",
+        "https://gateway-url/api/urns/abc/cases/123/documents/ABC/sas-url",
         expect.anything()
       );
       expect(response).toEqual("mocked response");
@@ -162,7 +162,7 @@ describe("gateway-apis", () => {
       expect(async () => {
         await getPdfSasUrl("abc", 123, "ABC");
       }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123/documents/ABC/sasUrl: Get Pdf SasUrl failed; status - Internal Server Error (500)"
+        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123/documents/ABC/sas-url: Get Pdf SasUrl failed; status - Internal Server Error (500)"
       );
     });
   });
