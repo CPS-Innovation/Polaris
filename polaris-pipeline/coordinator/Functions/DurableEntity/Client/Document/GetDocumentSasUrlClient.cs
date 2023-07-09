@@ -43,7 +43,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     return response.Error;
 
                 currentCorrelationId = response.CorrelationId;
-                var blobName = response.CmsDocument.PdfBlobName;
+                var blobName = response.GetBlobName();
                 var sasUrl = await _sasGeneratorService.GenerateSasUrlAsync(blobName, currentCorrelationId);
 
                 return !string.IsNullOrEmpty(sasUrl) ? new OkObjectResult(sasUrl) : null;
