@@ -20,7 +20,7 @@ describe("Simple Tracker", () => {
     })
   })
 
-  it("run a tracker through to all documents being indexed", () => {
+  it("run a tracker through to all documents being indexed and verifies a document sas link with the anticipated domain is returned", () => {
     cy.clearCaseTracker(TARGET_URN, TARGET_CASE_ID)
       .api(routes.TRACKER_START(TARGET_URN, TARGET_CASE_ID))
       .waitUntil(
