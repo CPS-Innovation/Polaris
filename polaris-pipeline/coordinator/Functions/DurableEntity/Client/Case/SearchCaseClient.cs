@@ -18,11 +18,11 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 {
     public class SearchCaseClient
     {
-        private readonly ICaseSearchClient _searchIndexClient;
+        private readonly ISearchIndexService _searchIndexService;
 
-        public SearchCaseClient(ICaseSearchClient searchIndexClient)
+        public SearchCaseClient(ISearchIndexService searchIndexService)
         {
-            _searchIndexClient = searchIndexClient;
+            _searchIndexService = searchIndexService;
         }
 
         const string loggingName = $"{nameof(SearchCaseClient)} - {nameof(HttpStart)}";
@@ -77,7 +77,7 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                         .Concat(entityState.PcdRequests)
                         .Append(entityState.DefendantsAndCharges)
                         .ToList();
-                var searchResults = await _searchIndexClient.QueryAsync(caseId, documents, searchTerm, currentCorrelationId);
+                var searchResults = await _searchIndexService.QueryAsync(caseId, documents, searchTerm, currentCorrelationId);
 
                 return new OkObjectResult(searchResults);
             }

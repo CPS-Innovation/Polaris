@@ -27,7 +27,7 @@ namespace Common.Tests.Clients
         private readonly Mock<SearchClient> _mockSearchClient;
         private readonly Mock<ISearchLineFactory> _mockSearchLineFactory;
         private readonly Mock<ISearchIndexingBufferedSenderFactory> _mockSearchIndexingBufferedSenderFactory;
-        private readonly ICaseSearchClient _searchIndexClient;
+        private readonly ISearchIndexService _searchIndexService;
 
         public SearchIndexClientTests()
         {
@@ -44,7 +44,7 @@ namespace Common.Tests.Clients
             var mockResponse = new Mock<Response<SearchResults<SearchLine>>>();
             var mockSearchResults = new Mock<SearchResults<SearchLine>>();
 
-            var mockSearchIndexLogger = new Mock<ILogger<CaseSearchClient>>();
+            var mockSearchIndexLogger = new Mock<ILogger<SearchIndexService>>();
             var mockSearchLineMapperLogger = new Mock<ILogger<StreamlinedSearchLineMapper>>();
             var mockSearchWordMapperLogger = new Mock<ILogger<StreamlinedSearchWordMapper>>();
             var mockSearchResultFactoryLogger = new Mock<ILogger<StreamlinedSearchResultFactory>>();
@@ -59,17 +59,17 @@ namespace Common.Tests.Clients
                 .Setup(response => response.Value)
                 .Returns(mockSearchResults.Object);
 
-            _searchIndexClient = new CaseSearchClient
+            _searchIndexService = new SearchIndexService
                 (
                     mockSearchClientFactory.Object,
                     _mockSearchLineFactory.Object,
                     _mockSearchIndexingBufferedSenderFactory.Object,
                     new StreamlinedSearchResultFactory
                     (
-                        new StreamlinedSearchLineMapper(mockSearchLineMapperLogger.Object), 
-                        new StreamlinedSearchWordMapper(mockSearchWordMapperLogger.Object),  
+                        new StreamlinedSearchLineMapper(mockSearchLineMapperLogger.Object),
+                        new StreamlinedSearchWordMapper(mockSearchWordMapperLogger.Object),
                         mockSearchResultFactoryLogger.Object
-                    ), 
+                    ),
                     mockSearchIndexLogger.Object
                 );
         }
@@ -77,7 +77,7 @@ namespace Common.Tests.Clients
         [Fact]
         public async Task Query_ReturnsSearchLines()
         {
-            var results = await _searchIndexClient.QueryAsync(_caseId, _documents, _searchTerm, _correlationId);
+            var results = await _searchIndexService.QueryAsync(_caseId, _documents, _searchTerm, _correlationId);
 
             results.Should().NotBeNull();
         }

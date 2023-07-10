@@ -60,7 +60,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _content = fixture.Create<string>();
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: _content);
             _pdfResponse = fixture.Create<GeneratePdfResponse>();
-            
+
             var mockLogger = new Mock<ILogger<RefreshDocumentOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
@@ -88,7 +88,7 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockDurableOrchestrationContext
                 .Setup(context => context.CallHttpAsync(textExtractorDurableRequest))
                 .ReturnsAsync(durableResponse);
-            
+
             //set default activity responses
             _evaluateDocumentResponse.EvaluationResult = DocumentEvaluationResult.AcquireDocument;
             _mockDurableOrchestrationContext
@@ -143,14 +143,14 @@ namespace coordinator.tests.Functions.SubOrchestrators
             // Assert
             _mockCaseEntity.Verify
                 (
-                    tracker => 
+                    tracker =>
                     tracker.SetDocumentStatus
                     (
                         It.Is<(string, DocumentStatus, string)>
                         (
-                            a => 
-                                a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() && 
-                                a.Item2 == DocumentStatus.PdfUploadedToBlob && 
+                            a =>
+                                a.Item1 == _payload.CmsDocumentTracker.PolarisDocumentId.ToString() &&
+                                a.Item2 == DocumentStatus.PdfUploadedToBlob &&
                                 a.Item3 == _pdfResponse.BlobName
                         )
                     )

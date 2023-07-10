@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Dto.Request;
 using Common.Extensions;
@@ -24,7 +23,7 @@ namespace text_extractor.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<ExtractTextRequestDto> _validatorWrapper;
         private readonly IOcrService _ocrService;
-        private readonly ICaseSearchClient _searchIndexService;
+        private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly ILogger<ExtractText> _log;
         private readonly ITelemetryClient _telemetryClient;
@@ -32,7 +31,7 @@ namespace text_extractor.Functions
         public ExtractText(IJsonConvertWrapper jsonConvertWrapper,
                            IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
                            IOcrService ocrService,
-                           ICaseSearchClient searchIndexService,
+                           ISearchIndexService searchIndexService,
                            IExceptionHandler exceptionHandler,
                            ILogger<ExtractText> logger,
                            ITelemetryClient telemetryClient)
@@ -68,7 +67,7 @@ namespace text_extractor.Functions
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 #endregion
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.CmsDocumentId}");
+                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
 
                 var startTime = DateTime.UtcNow;
 
@@ -82,8 +81,8 @@ namespace text_extractor.Functions
                     (
                         ocrResults,
                         extractTextRequest.PolarisDocumentId,
-                        extractTextRequest.CmsCaseId,
-                        extractTextRequest.CmsDocumentId,
+                        extractTextRequest.CaseId,
+                        extractTextRequest.DocumentId,
                         extractTextRequest.VersionId,
                         extractTextRequest.BlobName,
                         currentCorrelationId
@@ -91,12 +90,12 @@ namespace text_extractor.Functions
                 var indexStoredTime = DateTime.UtcNow;
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
-                if (await _searchIndexService.WaitForStoreResultsAsync(ocrResults, extractTextRequest.CmsCaseId, extractTextRequest.CmsDocumentId, extractTextRequest.VersionId, currentCorrelationId))
+                if (await _searchIndexService.WaitForStoreResultsAsync(ocrResults, extractTextRequest.CaseId, extractTextRequest.DocumentId, extractTextRequest.VersionId, currentCorrelationId))
                 {
                     _telemetryClient.TrackEvent(new IndexedDocumentEvent(
                         correlationId: currentCorrelationId,
-                        caseId: extractTextRequest.CmsCaseId,
-                        documentId: extractTextRequest.CmsDocumentId,
+                        caseId: extractTextRequest.CaseId,
+                        documentId: extractTextRequest.DocumentId,
                         versionId: extractTextRequest.VersionId,
                         pageCount: ocrResults.ReadResults.Count,
                         lineCount: ocrResults.ReadResults.Sum(x => x.Lines.Count),

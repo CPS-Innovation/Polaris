@@ -29,18 +29,18 @@ namespace pdf_generator.Functions
         private readonly ILogger<RedactPdf> _logger;
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
 
-        public RedactPdf(IExceptionHandler exceptionHandler, IJsonConvertWrapper jsonConvertWrapper, IDocumentRedactionService documentRedactionService, 
+        public RedactPdf(IExceptionHandler exceptionHandler, IJsonConvertWrapper jsonConvertWrapper, IDocumentRedactionService documentRedactionService,
             ILogger<RedactPdf> logger, IValidator<RedactPdfRequestDto> requestValidator)
         {
             _exceptionHandler = exceptionHandler;
             _jsonConvertWrapper = jsonConvertWrapper;
             _documentRedactionService = documentRedactionService;
             _requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
-            _logger = logger ;
+            _logger = logger;
         }
 
         [FunctionName("redact-pdf")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "redactPdf")] HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = "redact-pdf")] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "RedactPdf - Run";
@@ -48,15 +48,15 @@ namespace pdf_generator.Functions
 
             try
             {
-                #region Vaidate-Inputs
+                #region Validate-Inputs
                 request.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                     throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(request));
 
                 var correlationId = correlationIdValues.First();
                 if (!Guid.TryParse(correlationId, out currentCorrelationId) || currentCorrelationId == Guid.Empty)
-                        throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
-                
+                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
+
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (request.Content == null)
@@ -73,7 +73,7 @@ namespace pdf_generator.Functions
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
-                
+
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{redactions.PolarisDocumentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
                 return new HttpResponseMessage(HttpStatusCode.OK)

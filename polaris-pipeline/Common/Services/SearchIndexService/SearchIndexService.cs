@@ -17,20 +17,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.Services.CaseSearchService
 {
-    public class CaseSearchClient : ICaseSearchClient
+    public class SearchIndexService : ISearchIndexService
     {
         private readonly SearchClient _azureSearchClient;
         private readonly ISearchLineFactory _searchLineFactory;
         private readonly ISearchIndexingBufferedSenderFactory _searchIndexingBufferedSenderFactory;
         private readonly IStreamlinedSearchResultFactory _streamlinedSearchResultFactory;
-        private readonly ILogger<CaseSearchClient> _logger;
+        private readonly ILogger<SearchIndexService> _logger;
 
-        public CaseSearchClient(
+        public SearchIndexService(
             IAzureSearchClientFactory searchClientFactory,
             ISearchLineFactory searchLineFactory,
             ISearchIndexingBufferedSenderFactory searchIndexingBufferedSenderFactory,
             IStreamlinedSearchResultFactory streamlinedSearchResultFactory,
-            ILogger<CaseSearchClient> logger)
+            ILogger<SearchIndexService> logger)
         {
             _azureSearchClient = searchClientFactory.Create();
             _searchLineFactory = searchLineFactory;

@@ -30,7 +30,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
 {
     public class CaseClient
     {
-        private readonly ICaseSearchClient _caseSearchClient;
+        private readonly ISearchIndexService _searchIndexService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ILogger<CaseClient> _logger;
         private readonly ITelemetryClient _telemetryClient;
@@ -54,12 +54,12 @@ namespace coordinator.Functions.Orchestration.Client.Case
         };
 
         public CaseClient(
-            ICaseSearchClient caseSearchClient,
+            ISearchIndexService searchIndexService,
             IJsonConvertWrapper jsonConvertWrapper,
             ILogger<CaseClient> logger,
             ITelemetryClient telemetryClient)
         {
-            _caseSearchClient = caseSearchClient;
+            _searchIndexService = searchIndexService;
             _jsonConvertWrapper = jsonConvertWrapper;
             _logger = logger;
             _telemetryClient = telemetryClient;
@@ -137,10 +137,10 @@ namespace coordinator.Functions.Orchestration.Client.Case
                     case "DELETE":
                         var startTime = DateTime.UtcNow;
 
-                        await _caseSearchClient.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
+                        await _searchIndexService.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
                         var removedCaseIndexTime = DateTime.UtcNow;
 
-                        await _caseSearchClient.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
+                        await _searchIndexService.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
                         var indexSettledTime = DateTime.UtcNow;
 
                         var terminateConditions = GetOrchestrationQueries(terminateStatuses, caseId);

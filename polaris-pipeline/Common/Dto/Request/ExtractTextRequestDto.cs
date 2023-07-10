@@ -10,8 +10,8 @@ namespace Common.Dto.Request
         public ExtractTextRequestDto(PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName)
         {
             PolarisDocumentId = polarisDocumentId;
-            CmsCaseId = cmsCaseId;
-            CmsDocumentId = cmsDocumentId;
+            CaseId = cmsCaseId;
+            DocumentId = cmsDocumentId;
             VersionId = versionId;
         }
 
@@ -32,10 +32,10 @@ namespace Common.Dto.Request
         }
 
         [RequiredLongGreaterThanZero]
-        public long CmsCaseId { get; set; }
+        public long CaseId { get; set; }
 
         [Required]
-        public string CmsDocumentId { get; set; }
+        public string DocumentId { get; set; }
 
         [RequiredLongGreaterThanZero]
         public long VersionId { get; set; }

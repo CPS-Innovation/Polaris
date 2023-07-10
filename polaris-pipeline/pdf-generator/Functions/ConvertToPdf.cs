@@ -35,7 +35,7 @@ namespace pdf_generator.Functions
         }
 
         [FunctionName(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "convert-to-pdf")] HttpRequestMessage request)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "convert-to-pdf")] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
 

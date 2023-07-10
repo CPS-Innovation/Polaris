@@ -37,6 +37,7 @@ using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using static Common.Constants.ConfigKeys;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -59,7 +60,6 @@ namespace coordinator
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
-            builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
@@ -72,26 +72,24 @@ namespace coordinator
                         configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
             });
 
-            // Redact PDF
-            builder.Services.AddHttpClient<IRedactionClient, RedactionClient>(client =>
+            builder.Services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
+            builder.Services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
 
             builder.Services.RegisterMapsterConfiguration();
-            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
             builder.Services.AddDdeiClient(configuration);
-
-            var pipelineRedactPdfBaseUrl = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
-            builder.Services.AddHttpClient(nameof(GeneratePdf), client =>
-            {
-                client.BaseAddress = pipelineRedactPdfBaseUrl;
-            });
 
             builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder);

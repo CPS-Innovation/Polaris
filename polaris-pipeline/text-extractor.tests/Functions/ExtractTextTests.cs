@@ -33,7 +33,7 @@ namespace text_extractor.tests.Functions
         private HttpResponseMessage _errorHttpResponseMessage;
 
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<ICaseSearchClient> _mockSearchIndexService;
+        private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly AnalyzeResults _mockAnalyzeResults;
         private readonly Mock<IValidatorWrapper<ExtractTextRequestDto>> _mockValidatorWrapper;
@@ -60,7 +60,7 @@ namespace text_extractor.tests.Functions
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockValidatorWrapper = new Mock<IValidatorWrapper<ExtractTextRequestDto>>();
             var mockOcrService = new Mock<IOcrService>();
-            _mockSearchIndexService = new Mock<ICaseSearchClient>();
+            _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockAnalyzeResults = Mock.Of<AnalyzeResults>(ctx => ctx.ReadResults == new List<ReadResult>());
             _mockTelemetryClient = new Mock<ITelemetryClient>();
@@ -178,7 +178,7 @@ namespace text_extractor.tests.Functions
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
             await _extractText.Run(_httpRequestMessage);
 
-            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CmsCaseId, _extractTextRequest.CmsDocumentId,
+            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CaseId, _extractTextRequest.DocumentId,
                 _extractTextRequest.VersionId, _extractTextRequest.BlobName, _correlationId));
         }
 
