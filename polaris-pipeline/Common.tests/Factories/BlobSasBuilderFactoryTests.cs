@@ -31,7 +31,7 @@ public class BlobSasBuilderFactoryTests
 
         configuration.Setup(x => x[ConfigKeys.SharedKeys.BlobServiceContainerName]).Returns(_blobContainerName);
         configuration.Setup(x => x[ConfigKeys.SharedKeys.BlobExpirySecs]).Returns(_blobExpirySecs.ToString());
-            
+
         _blobSasBuilderFactory = new BlobSasBuilderFactory(configuration.Object, loggerMock.Object);
     }
 
@@ -89,6 +89,14 @@ public class BlobSasBuilderFactoryTests
         var sasBuilder = _blobSasBuilderFactory.Create(_blobContainerName, _correlationId);
 
         sasBuilder.ContentType.Should().Be("application/pdf");
+    }
+
+    [Fact]
+    public void Create_ReturnsSasBuilderWithExpectedContentDisposition()
+    {
+        var sasBuilder = _blobSasBuilderFactory.Create(_blobName, _correlationId);
+
+        sasBuilder.ContentDisposition.Should().Be($"inline; filename={_blobName}");
     }
 }
 
