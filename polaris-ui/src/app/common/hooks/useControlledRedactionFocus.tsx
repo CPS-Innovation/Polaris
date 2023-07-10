@@ -5,17 +5,11 @@ export const useControlledRedactionFocus = (
   activeTabId: string | undefined,
   tabIndex: number
 ) => {
-  // console.log("tabId received>>", tabId);
-  // console.log("activeTabId received>>", activeTabId);
-  // console.log("tabIndex received>>", tabIndex);
   const getTabbableElements = () => {
     const pdfHighlighters = document.querySelectorAll(".PdfHighlighter");
-    // console.log("tabIndex used00>>", tabIndex);
-    // console.log("pdfHighlighters>>", pdfHighlighters);
     const pageHighlightElements = pdfHighlighters[tabIndex].querySelectorAll(
       ".PdfHighlighter__highlight-layer"
     );
-    // console.log("pageHighlightElements>>", pageHighlightElements);
     const tabbableElements = Array.from(pageHighlightElements).reduce(
       (acc, current) => {
         const elements = current.querySelectorAll(
@@ -26,7 +20,6 @@ export const useControlledRedactionFocus = (
       },
       [] as Element[]
     );
-    // console.log("tabbableElements>>", tabbableElements);
     return tabbableElements;
   };
 

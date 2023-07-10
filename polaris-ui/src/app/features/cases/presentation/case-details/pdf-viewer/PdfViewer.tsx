@@ -66,9 +66,6 @@ export const PdfViewer: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
-  console.log("tabId>>", tabId);
-  console.log("activeTabId>>", activeTabId);
-  console.log("tabIndex>>", tabIndex);
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
   let sortedRedactionHighlights: IPdfHighlight[] = [];
 
@@ -95,7 +92,6 @@ export const PdfViewer: React.FC<Props> = ({
   const getSortedRedactionHighlights = () => {
     const sortedRedactionHighlights =
       sortRedactionHighlights(redactionHighlights);
-    // console.log("sortedElements>>", sortedRedactionHighlights);
     return sortedRedactionHighlights;
   };
 
@@ -126,14 +122,14 @@ export const PdfViewer: React.FC<Props> = ({
     [handleAddRedaction]
   );
 
-  const removeRedaction = useCallback((id: string) => {
+  const removeRedaction = (id: string) => {
     trackEvent("Remove Redact Content", {
       documentType: contextData.documentType,
       documentId: contextData.documentId,
       redactionsCount: 1,
     });
     handleRemoveRedaction(id);
-  }, []);
+  };
 
   return (
     <>

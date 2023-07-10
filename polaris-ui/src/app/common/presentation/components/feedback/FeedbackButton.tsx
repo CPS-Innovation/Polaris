@@ -52,18 +52,18 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
           {disableReportBtn ? "Issue reported" : "Report an issue"}
         </Button>
       </div>
-      {showConfirmationModal && (
-        <Modal
-          isVisible
+      (
+      <Modal
+        isVisible={showConfirmationModal}
+        handleClose={() => setShowConfirmationModal(false)}
+        type="alert"
+      >
+        <ConfirmationModalContent
+          message="Thanks for reporting an issue with this document."
           handleClose={() => setShowConfirmationModal(false)}
-          type="alert"
-        >
-          <ConfirmationModalContent
-            message="Thanks for reporting an issue with this document."
-            handleClose={() => setShowConfirmationModal(false)}
-          />
-        </Modal>
-      )}
+        />
+      </Modal>
+      )
     </>
   );
 };
