@@ -60,9 +60,6 @@ export const useControlledRedactionFocus = (
 
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
-      // console.log("tabId used111>", tabId);
-      // console.log("activeTabId used111>>", activeTabId);
-      // console.log("tabIndex used111>>", tabIndex);
       if (tabId === activeTabId) {
         const tabbableElements = getTabbableElements();
         const removeBtn = getRemoveRedactionBtn();
@@ -86,6 +83,9 @@ export const useControlledRedactionFocus = (
                 block: "center",
               });
               activeButtonIndex.current = 0;
+              if (removeBtn) {
+                (removeBtn as HTMLElement).style.visibility = "visible";
+              }
               e.preventDefault();
               return;
             }
@@ -119,6 +119,20 @@ export const useControlledRedactionFocus = (
                 block: "center",
               });
               e.preventDefault();
+              return;
+            }
+            if (
+              document.activeElement === removeBtn &&
+              activeButtonIndex.current === tabbableElements.length - 1
+            ) {
+              (removeAllRedactionBtn as HTMLElement).focus();
+              (removeAllRedactionBtn as HTMLElement).scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+              (removeBtn as HTMLElement).style.visibility = "hidden";
+              e.preventDefault();
+              return;
             }
           }
           if (
@@ -137,6 +151,9 @@ export const useControlledRedactionFocus = (
                 block: "center",
               });
               activeButtonIndex.current = tabbableElements.length - 1;
+              if (removeBtn) {
+                (removeBtn as HTMLElement).style.visibility = "visible";
+              }
               e.preventDefault();
               return;
             }
@@ -176,7 +193,9 @@ export const useControlledRedactionFocus = (
                 behavior: "smooth",
                 block: "center",
               });
-
+              if (removeBtn) {
+                (removeBtn as HTMLElement).style.visibility = "hidden";
+              }
               e.preventDefault();
               return;
             }
