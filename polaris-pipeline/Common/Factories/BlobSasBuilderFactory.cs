@@ -29,11 +29,12 @@ public class BlobSasBuilderFactory : IBlobSasBuilderFactory
             BlobContainerName = _configuration[ConfigKeys.SharedKeys.BlobServiceContainerName],
             BlobName = blobName,
             Resource = "b",
-            StartsOn = DateTimeOffset.UtcNow
+            StartsOn = DateTimeOffset.UtcNow,
+            ContentType = "application/pdf",
+            ContentDisposition = $"inline; filename={blobName}"
         };
         sasBuilder.ExpiresOn = sasBuilder.StartsOn.AddSeconds(double.Parse(_configuration[ConfigKeys.SharedKeys.BlobExpirySecs]));
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
-        sasBuilder.ContentType = "application/pdf";
 
         _logger.LogMethodExit(correlationId, nameof(Create), sasBuilder.ToJson());
         return sasBuilder;
