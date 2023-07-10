@@ -29,7 +29,7 @@ namespace Common.Services.CaseSearchService
             IAzureSearchClientFactory searchClientFactory,
             ISearchLineFactory searchLineFactory,
             ISearchIndexingBufferedSenderFactory searchIndexingBufferedSenderFactory,
-            IStreamlinedSearchResultFactory streamlinedSearchResultFactory, 
+            IStreamlinedSearchResultFactory streamlinedSearchResultFactory,
             ILogger<CaseSearchClient> logger)
         {
             _azureSearchClient = searchClientFactory.Create();
@@ -140,7 +140,7 @@ namespace Common.Services.CaseSearchService
             foreach (var timeoutBase in Fibonacci(10))
             {
                 var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
-                var recievedLinesCount = searchResults.Value.TotalCount; 
+                var recievedLinesCount = searchResults.Value.TotalCount;
 
                 if (recievedLinesCount == sentLinesCount)
                 {
@@ -240,7 +240,7 @@ namespace Common.Services.CaseSearchService
             if (searchResults.Count == 0)
                 return streamlinedResults;
 
-            IEnumerable<StreamlinedSearchLine> seachResultsValues 
+            IEnumerable<StreamlinedSearchLine> seachResultsValues
                 = searchResults.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm, correlationId));
 
             streamlinedResults.AddRange(seachResultsValues);
@@ -288,7 +288,7 @@ namespace Common.Services.CaseSearchService
 
             _logger.LogMethodFlow
                 (
-                    correlationId, 
+                    correlationId,
                     nameof(RemoveDocumentIndexEntriesAsync),
                     $"Updating the search index completed following a deletion request for caseId '{caseId}', documentId '{documentId}', versionid '{versionId}'"
                 );
@@ -364,7 +364,7 @@ namespace Common.Services.CaseSearchService
                 await indexer.FlushAsync();
                 _logger.LogMethodFlow
                     (
-                        correlationId, 
+                        correlationId,
                         nameof(RemoveIndexEntries),
                         $"number of lines: {searchLines.Count}, successes: {successCount}, failures: {failureCount}"
                     );

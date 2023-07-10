@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Services.CaseSearchService.Contracts;
@@ -54,38 +55,29 @@ namespace text_extractor.Functions
             try
             {
                 #region Validate-Inputs
-                request.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-                if (correlationIdValues == null)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(request));
-
-                var correlationId = correlationIdValues.First();
-                if (!Guid.TryParse(correlationId, out currentCorrelationId) || currentCorrelationId == Guid.Empty)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.",
-                        correlationId);
-
-                _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
+                var correlationId = request.Headers.GetCorrelationId();
 
                 if (request.Content == null)
+                {
                     throw new BadRequestException("Request body has no content", nameof(request));
+                }
 
-                var content = await request.Content.ReadAsStringAsync();
-                if (string.IsNullOrWhiteSpace(content))
-                    throw new BadRequestException("Request body cannot be null.", nameof(request));
-
-                var extractTextRequest = _jsonConvertWrapper.DeserializeObject<ExtractTextRequestDto>(content);
-                if (extractTextRequest == null)
-                    throw new BadRequestException($"An invalid message was received '{content}'", nameof(request));
-
+                var extractTextRequest = request.Headers.ToDto<ExtractTextRequestDto>();
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 #endregion
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
+                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.CmsDocumentId}");
+
                 var startTime = DateTime.UtcNow;
-                var ocrResults = await _ocrService.GetOcrResultsAsync(extractTextRequest.BlobName, currentCorrelationId);
+
+                var inputStream = await request.Content.ReadAsStreamAsync();
+                var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
+
                 var ocrCompletedTime = DateTime.UtcNow;
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
+
                 await _searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,

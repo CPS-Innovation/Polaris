@@ -8,8 +8,8 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 namespace Common.Services.CaseSearchService.Contracts
 {
-	public interface ICaseSearchClient
-	{
+    public interface ICaseSearchClient
+    {
         Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId);
 
         Task<bool> WaitForStoreResultsAsync(AnalyzeResults analyzeResults, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId);

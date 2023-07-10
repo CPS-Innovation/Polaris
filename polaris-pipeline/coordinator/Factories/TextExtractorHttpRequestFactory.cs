@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Common.Constants;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Logging;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
@@ -21,7 +22,7 @@ namespace coordinator.Factories
         private readonly ILogger<TextExtractorHttpRequestFactory> _logger;
 
         public TextExtractorHttpRequestFactory(IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration, ILogger<TextExtractorHttpRequestFactory> logger)
-		{
+        {
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger;
@@ -35,13 +36,12 @@ namespace coordinator.Factories
             {
                 var headers = new Dictionary<string, StringValues>
                 {
-                    { HttpHeaderKeys.ContentType, HttpHeaderValues.ApplicationJson },
                     { HttpHeaderKeys.CorrelationId, correlationId.ToString() }
                 };
-                var request = new ExtractTextRequestDto(polarisDocumentId, cmsCaseId, cmsDocumentId, versionId, blobName);
-                var content = _jsonConvertWrapper.SerializeObject(request);
 
-                return new DurableHttpRequest(HttpMethod.Post, new Uri(_configuration[ConfigKeys.CoordinatorKeys.TextExtractorUrl]), headers, content);
+                headers.PopulateFromDto(new ExtractTextRequestDto(polarisDocumentId, cmsCaseId, cmsDocumentId, versionId, blobName));
+
+                return new DurableHttpRequest(HttpMethod.Post, new Uri(_configuration[ConfigKeys.CoordinatorKeys.TextExtractorUrl]), headers);
             }
             catch (Exception ex)
             {
@@ -52,6 +52,6 @@ namespace coordinator.Factories
                 _logger.LogMethodExit(correlationId, nameof(Create), string.Empty);
             }
         }
-	}
+    }
 }
 

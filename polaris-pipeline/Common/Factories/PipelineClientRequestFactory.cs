@@ -16,13 +16,13 @@ namespace Common.Factories
             _logger = logger;
         }
 
-        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues=null)
+        public HttpRequestMessage Create(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null)
         {
             _logger.LogMethodEntry(correlationId, nameof(Create), requestUri);
 
             var request = new HttpRequestMessage(httpMethod, requestUri);
             request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
-            if(cmsAuthValues != null) 
+            if (cmsAuthValues != null)
                 request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
 
             _logger.LogMethodExit(correlationId, nameof(Create), string.Empty);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Common.Validators;
 using Common.ValueObjects;
@@ -14,7 +13,6 @@ namespace Common.Dto.Request
             CmsCaseId = cmsCaseId;
             CmsDocumentId = cmsDocumentId;
             VersionId = versionId;
-            BlobName = blobName;
         }
 
         [JsonIgnore]

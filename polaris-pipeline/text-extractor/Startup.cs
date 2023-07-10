@@ -4,13 +4,11 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Services.OcrService;
-using Common.Services.SasGeneratorService;
 using Azure.Identity;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
 using Common.Factories.Contracts;
-using Common.Services.CaseSearchService;
 using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
@@ -41,27 +39,15 @@ namespace text_extractor
             builder.Services.AddSingleton<IConfiguration>(configuration);
             BuildOcrService(builder, configuration);
             builder.Services.AddSearchClient(configuration);
-            builder.Services.AddTransient<ISasGeneratorService, SasGeneratorService>();
-            BuildAzureClients(builder, configuration);
+
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
-            builder.Services.AddBlobSasGenerator();
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
             BuildHealthChecks(builder);
-        }
-
-        private static void BuildAzureClients(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
-        {
-            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
-            {
-                string blobServiceUrl = configuration[ConfigKeys.SharedKeys.BlobServiceUrl];
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl))
-                    .WithCredential(new DefaultAzureCredential());
-            });
         }
 
         private static void BuildOcrService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)

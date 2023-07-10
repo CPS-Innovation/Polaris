@@ -20,7 +20,7 @@ using Common.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Telemetry.Contracts;
-using text_extractor.TelemetryEvents;
+using System.IO;
 
 namespace text_extractor.tests.Functions
 {
@@ -70,7 +70,7 @@ namespace text_extractor.tests.Functions
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequestDto>(_serializedExtractTextRequest))
                 .Returns(_extractTextRequest);
             _mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_extractTextRequest)).Returns(new List<ValidationResult>());
-            mockOcrService.Setup(service => service.GetOcrResultsAsync(_extractTextRequest.BlobName, It.IsAny<Guid>()))
+            mockOcrService.Setup(service => service.GetOcrResultsAsync(It.IsAny<Stream>(), It.IsAny<Guid>()))
                 .ReturnsAsync(_mockAnalyzeResults);
 
             _mockLogger = new Mock<ILogger<ExtractText>>();

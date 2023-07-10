@@ -7,33 +7,28 @@ using Microsoft.Extensions.Logging;
 using Common.Domain.Exceptions;
 using Common.Factories.Contracts;
 using Common.Services.SasGeneratorService;
+using System.IO;
 
 namespace Common.Services.OcrService
 {
     public class OcrService : IOcrService
     {
         private readonly ComputerVisionClient _computerVisionClient;
-        private readonly ISasGeneratorService _sasGeneratorService;
+
         private readonly ILogger<OcrService> _log;
 
         public OcrService(IComputerVisionClientFactory computerVisionClientFactory,
             ISasGeneratorService sasGeneratorService, ILogger<OcrService> log)
         {
             _computerVisionClient = computerVisionClientFactory.Create();
-            _sasGeneratorService = sasGeneratorService;
             _log = log;
         }
 
-        public async Task<AnalyzeResults> GetOcrResultsAsync(string blobName, Guid correlationId)
+        public async Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
         {
-            _log.LogMethodEntry(correlationId, nameof(GetOcrResultsAsync), blobName);
-            _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), "Generate Shared Access Signature encrypted uri to pass to the computer vision client to begin the OCR process");
-            var sasLink = await _sasGeneratorService.GenerateSasUrlAsync(blobName, correlationId);
-
             try
             {
-                _log.LogMethodFlow(correlationId, nameof(GetOcrResultsAsync), $"Calling the computer vision client ReadAsync method to begin the OCR process, passing in '{sasLink}'");
-                var textHeaders = await _computerVisionClient.ReadAsync(sasLink);
+                var textHeaders = await _computerVisionClient.ReadInStreamAsync(stream);
 
                 var operationLocation = textHeaders.OperationLocation;
                 await Task.Delay(500);
