@@ -20,7 +20,7 @@ export const PdfAreaHighlight: React.FC<Props> = ({
   <div
     data-testid={`div-highlight-${id}`}
     data-test-isfocussed={isScrolledTo}
-    className={`${classes["AreaHighlight"]} ${
+    className={`highlight-layer-wrapper ${classes["AreaHighlight"]} ${
       isScrolledTo ? classes["AreaHighlight--scrolledTo"] : ""
     }`}
   >

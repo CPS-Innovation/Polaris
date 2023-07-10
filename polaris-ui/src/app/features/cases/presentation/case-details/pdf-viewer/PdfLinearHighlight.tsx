@@ -26,7 +26,7 @@ export const PdfLinearHighlight: React.FC<Props> = ({
 
   return (
     <div
-      className={className}
+      className={`highlight-layer-wrapper ${className}`}
       data-testid={`div-highlight-${id}`}
       data-test-isfocussed={isScrolledTo}
     >

@@ -8,14 +8,14 @@ export const useControlledRedactionFocus = (
   const getTabbableElements = () => {
     const pdfHighlighters = document.querySelectorAll(".PdfHighlighter");
     const pageHighlightElements = pdfHighlighters[tabIndex].querySelectorAll(
-      ".PdfHighlighter__highlight-layer"
+      ".highlight-layer-wrapper"
     );
     const tabbableElements = Array.from(pageHighlightElements).reduce(
       (acc, current) => {
         const elements = current.querySelectorAll(
           'button:not([disabled]), [tabindex="0"]'
         );
-        acc = [...acc, ...elements];
+        acc = [...acc, elements[0]];
         return acc;
       },
       [] as Element[]
