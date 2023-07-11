@@ -456,6 +456,200 @@ describe("case details page", () => {
       cy.findByTestId("btn-report-issue").should("be.disabled");
     });
   });
+
+  describe("Unsaved redaction accessibility through keyboard", () => {
+    it("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").click();
+      cy.findByTestId("btn-report-issue").focus();
+
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("EOIN MCLOVE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("PC Blaynee");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Approved for referral to CPS:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Instructions to Court Prosecutor:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("POCA case");
+      cy.findByTestId("btn-redact").click();
+
+      cy.get("#btn-report-issue").tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 1);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 2);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 3);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 4);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 5);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 6);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.id", "btn-link-removeAll");
+    });
+
+    it("Should be able to tab + shift backward through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("EOIN MCLOVE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("PC Blaynee");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Approved for referral to CPS:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Instructions to Court Prosecutor:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("POCA case");
+      cy.findByTestId("btn-redact").click();
+
+      cy.get("#btn-link-removeAll").tab();
+      cy.tab({ shift: true });
+      cy.tab({ shift: true });
+
+      cy.focused().should("have.attr", "data-redaction-added-order", 6);
+      cy.tab({ shift: true });
+
+      cy.focused().should("have.attr", "data-redaction-added-order", 5);
+
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 4);
+
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 3);
+
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 2);
+
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 1);
+
+      cy.tab({ shift: true });
+      cy.focused().should("have.id", "btn-report-issue");
+    });
+
+    it("Should be able to tab through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Dangerous offender:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Date of birth:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Police incident log:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("PC JONES");
+      cy.findByTestId("btn-redact").click();
+
+      cy.get("#btn-report-issue").tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 2);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 3);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 1);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 5);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 4);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+    });
+
+    it("Should be able to tab forward and backward skipping the `Report an issue` btn, if it is disabled ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("btn-report-issue").click();
+      cy.findByTestId("btn-modal-close").click();
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+      cy.get("#btn-open-pdf").tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab();
+      cy.focused().should("have.id", "btn-link-removeAll");
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      cy.tab({ shift: true });
+      cy.focused().should("have.id", "btn-open-pdf");
+    });
+  });
 });
 
 export {};

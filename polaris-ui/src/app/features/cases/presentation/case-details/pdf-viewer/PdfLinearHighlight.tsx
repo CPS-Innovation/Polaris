@@ -16,6 +16,7 @@ export const PdfLinearHighlight: React.FC<Props> = ({
   highlight: {
     position: { rects },
     id,
+    redactionAddedOrder,
   },
   isScrolledTo,
   type,
@@ -35,7 +36,11 @@ export const PdfLinearHighlight: React.FC<Props> = ({
           type === "search" ? (
             <PdfLinearHighlightPartSearch key={index} rect={rect} />
           ) : (
-            <PdfLinearHighlightPartRedaction key={index} rect={rect} />
+            <PdfLinearHighlightPartRedaction
+              key={index}
+              rect={rect}
+              redactionAddedOrder={redactionAddedOrder}
+            />
           )
         )}
       </div>
