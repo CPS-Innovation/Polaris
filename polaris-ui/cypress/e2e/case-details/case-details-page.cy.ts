@@ -616,11 +616,11 @@ describe("case details page", () => {
       cy.tab();
       cy.focused().should("have.id", "remove-btn");
       cy.tab();
-      cy.focused().should("have.attr", "data-redaction-added-order", 5);
+      cy.focused().should("have.attr", "data-redaction-added-order", 4);
       cy.tab();
       cy.focused().should("have.id", "remove-btn");
       cy.tab();
-      cy.focused().should("have.attr", "data-redaction-added-order", 4);
+      cy.focused().should("have.attr", "data-redaction-added-order", 5);
       cy.tab();
       cy.focused().should("have.id", "remove-btn");
       cy.tab();
