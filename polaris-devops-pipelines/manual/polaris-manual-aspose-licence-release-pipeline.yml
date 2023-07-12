@@ -1,0 +1,191 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PolarisManualAsposeLicenceBuild
+      source: Polaris - Manual Aspose Licence Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: pipeline-terraform
+  - group: ui-terraform
+  - group: polaris-status-check-endpoints
+
+stages:
+  - stage: Apply_DEV
+    displayName: Deployment > DEV
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: Manual_Deploy_PDF_Generator
+        environment: "DEV"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download pdf-generator build artifact
+                - download: PolarisManualAsposeLicenceBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-dev-pdf-generator"
+                    package: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-pdf-generator-drop
+                    
+  - stage: Check_DEV
+    displayName: Status Check > DEV
+    dependsOn:
+      - Apply_DEV
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job:
+        steps:
+          #download scripts artifact
+          - download: PolarisManualAsposeLicenceBuild
+            displayName: Polaris Build > Download Pipeline Scripts
+            artifact: 'polaris-script-files'
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV PDF-Generator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualAsposeLicenceBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+                
+  - stage: Apply_QA
+    displayName: Deployment > QA
+    dependsOn:
+      - Check_DEV
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - deployment: Manual_Deploy_PDF_Generator
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download pdf-generator build artifact
+                - download: PolarisManualAsposeLicenceBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-qa-pdf-generator"
+                    package: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-pdf-generator-drop
+  
+  - stage: Check_QA
+    displayName: Status Check > QA
+    dependsOn:
+      - Apply_QA
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - job:
+        steps:
+          #download scripts artifact
+          - download: PolarisManualAsposeLicenceBuild
+            displayName: Polaris Build > Download Pipeline Scripts
+            artifact: 'polaris-script-files'
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA PDF-Generator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualAsposeLicenceBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+  
+  - stage: Apply_PROD
+    displayName: Deployment > PROD
+    dependsOn:
+      - Check_QA
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - deployment: Manual_Deploy_PDF_Generator
+        environment: "Prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download pdf-generator build artifact
+                - download: PolarisManualAsposeLicenceBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-pdf-generator"
+                    package: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-pdf-generator-drop
+                  
+  - stage: Check_PROD
+    displayName: Status Check > PROD
+    dependsOn:
+      - Apply_PROD
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - job:
+        steps:
+          #download scripts artifact
+          - download: PolarisManualAsposeLicenceBuild
+            displayName: Polaris Build > Download Pipeline Scripts
+            artifact: 'polaris-script-files'
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD PDF-Generator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PolarisManualAsposeLicenceBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
