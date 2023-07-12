@@ -1,7 +1,8 @@
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 const Y_AXIS_VARIATION = 10;
 export const sortRedactionHighlights = (elements: IPdfHighlight[]) => {
-  const firstSortList = elements.sort((a: IPdfHighlight, b: IPdfHighlight) => {
+  //first sort based on page number and then y position and x position (top-left to bottom-right)
+  elements.sort((a: IPdfHighlight, b: IPdfHighlight) => {
     if (a.position.pageNumber > b.position.pageNumber) {
       return 1;
     }
@@ -12,7 +13,7 @@ export const sortRedactionHighlights = (elements: IPdfHighlight[]) => {
   });
 
   //trying to add some y-axis variation of 10 units and group them together based on x-axis position (for visual impact)
-  return firstSortList.sort((a: IPdfHighlight, b: IPdfHighlight) => {
+  return elements.sort((a: IPdfHighlight, b: IPdfHighlight) => {
     if (a.position.pageNumber > b.position.pageNumber) {
       return 1;
     }
