@@ -50,6 +50,7 @@ namespace text_extractor
             builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
             builder.Services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
+            builder.Services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             BuildHealthChecks(builder);
         }
 

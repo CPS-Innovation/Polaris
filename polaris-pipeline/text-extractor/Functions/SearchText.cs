@@ -7,7 +7,7 @@ using Common.Dto.Request.Search;
 using Common.Extensions;
 using Common.Mappers.Contracts;
 using Common.Services.CaseSearchService.Contracts;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 
@@ -17,9 +17,9 @@ namespace text_extractor.Functions
     {
         private readonly ISearchIndexService _searchIndexService;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
-        private readonly JsonConvertWrapper _jsonConvertWrapper;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public SearchText(ISearchIndexService searchIndexService, ISearchFilterDocumentMapper searchFilterDocumentMapper, JsonConvertWrapper jsonConvertWrapper)
+        public SearchText(ISearchIndexService searchIndexService, ISearchFilterDocumentMapper searchFilterDocumentMapper, IJsonConvertWrapper jsonConvertWrapper)
         {
             _searchIndexService = searchIndexService;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
