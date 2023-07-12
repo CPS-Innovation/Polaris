@@ -117,7 +117,6 @@ export const useControlledRedactionFocus = (
       });
       (removeBtn as HTMLElement).style.visibility = "hidden";
       e.preventDefault();
-      return;
     }
   };
 
@@ -179,7 +178,6 @@ export const useControlledRedactionFocus = (
         (removeBtn as HTMLElement).style.visibility = "hidden";
       }
       e.preventDefault();
-      return;
     }
   };
 
