@@ -32,7 +32,6 @@ namespace pdf_generator.tests.Functions
         private readonly Fixture _fixture = new();
         private readonly string _serializedGeneratePdfRequest;
         private readonly CaseDocumentOrchestrationPayload _generatePdfRequest;
-        private readonly string _cmsDocId;
         private readonly Stream _documentStream;
         private readonly Stream _pdfStream;
         private readonly string _serializedGeneratePdfResponse;

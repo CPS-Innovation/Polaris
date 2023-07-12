@@ -43,7 +43,6 @@ namespace Common.Clients
 
             documentStream.Seek(0, SeekOrigin.Begin);
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"convert-to-pdf?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
-            request.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             request.Headers.Add(HttpHeaderKeys.CaseId, caseId);
             request.Headers.Add(HttpHeaderKeys.DocumentId, documentId);

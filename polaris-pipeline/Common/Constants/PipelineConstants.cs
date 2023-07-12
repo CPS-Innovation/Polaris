@@ -66,8 +66,8 @@
 
         public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
         public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
-        public const string PipelineTextExtractorBaseUrl = "PipelineTextExtractorBaseUrl";
-        public const string PipelineTextExtractorFunctionAppKey = "PipelineTextExtractorFunctionAppKey";
+        public const string PipelineTextExtractorBaseUrl = "PolarisPipelineTextExtractorBaseUrl";
+        public const string PipelineTextExtractorFunctionAppKey = "PolarisPipelineTextExtractorFunctionAppKey";
     }
 
     public static class ConfigKeys

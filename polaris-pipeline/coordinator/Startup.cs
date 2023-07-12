@@ -36,6 +36,7 @@ using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using Microsoft.Extensions.Azure;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -60,8 +61,12 @@ namespace coordinator
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
             builder.Services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-
+            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
+            {
+                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
+            });
             builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
             {
                 var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
@@ -83,6 +88,7 @@ namespace coordinator
 
             builder.Services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
 
             builder.Services.RegisterMapsterConfiguration();

@@ -8,7 +8,7 @@ using Common.Constants;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
 using Common.ValueObjects;
-using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 
 namespace Common.Clients
@@ -19,14 +19,14 @@ namespace Common.Clients
         private readonly IConfiguration _configuration;
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
         private readonly IPipelineClientSearchRequestFactory _pipelineClientSearchRequestFactory;
-        private readonly JsonConvertWrapper _jsonConvertWrapper;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
         public TextExtractorClient(
             HttpClient httpClient,
             IConfiguration configuration,
             IPipelineClientRequestFactory pipelineClientRequestFactory,
             IPipelineClientSearchRequestFactory pipelineClientSearchRequestFactory,
-            JsonConvertWrapper jsonConvertWrapper
+            IJsonConvertWrapper jsonConvertWrapper
             )
         {
             _httpClient = httpClient;

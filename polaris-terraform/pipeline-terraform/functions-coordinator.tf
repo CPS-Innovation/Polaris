@@ -23,8 +23,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.coordinator_scale_controller
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"       = "600"
-    "TextExtractorBaseUrl"                     = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/"
-    "TextExtractorFunctionAppKey"              = data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key
+    "PolarisPipelineTextExtractorBaseUrl"      = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/"
+    "PolarisPipelineTextExtractorFunctionAppKey" = data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
