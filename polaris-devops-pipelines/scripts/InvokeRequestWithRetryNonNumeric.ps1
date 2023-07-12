@@ -1,4 +1,4 @@
-## Base code borrowed from https://karask.com/retry-powershell-invoke-webrequest/
+﻿## Base code borrowed from https://karask.com/retry-powershell-invoke-webrequest/
 ## Slightly modified to remove things like the file logging.
 
 param (
@@ -32,27 +32,24 @@ Function Req {
     while (-not $completed) {
         try {
             $response = Invoke-Command $cmd -ArgumentList $Params
-            Write-Information "Result: '$response.StatusCode'"            
-            if ($response.StatusCode -ne 200) 
+            Write-Information "Result: '$response.StatusCode'"
+            if ($response.StatusCode -ne 200)
             {
                 Write-Warning "Expecting reponse code 200, code received was: $($response.StatusCode)"
             }
-            else 
+            else
             {
-                $jsonResponse = $response.Content | Out-String | ConvertFrom-Json
-                $currentBuildVersion = $jsonResponse.buildVersion.replace('-ci', '').replace('-man', '')
-                $currentBuildVersionNumber = [Int64]$currentBuildVersion.replace('.','')
-                if($currentBuildVersionNumber -ge $potentialBuildVersionNumber)
+                if($response.Content -like "*$AdjustedSuccessTextContent*")
                 {
-                    Write-Host "Health check validation success - version matched '$adjustedSuccessTextContent' or was greater (response was $currentBuildVersion)."
+                    Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
                     $completed = $true
                 }
                 else
                 {
-                    Write-Warning "Invalid version found - expecting content to be '$adjustedSuccessTextContent' or greater but received '$currentBuildVersion' instead."
+                    Write-Warning "Invalid version found - expecting content to contain '$AdjustedSuccessTextContent', received '$response.Content'"
                 }
             }
-            
+
             if (-not $completed)
             {
                 if ($retrycount -ge $Retries) {
@@ -61,7 +58,7 @@ Function Req {
                     Write-Warning "Retrying in $SecondsDelay seconds."
                     Start-Sleep $SecondsDelay
                     $retrycount++
-                }   
+                }
             }
         } catch {
             Write-Host "$(Get-Date -Format G): Request to $url failed. $_"
@@ -81,22 +78,21 @@ Function Req {
 
 try
 {
-    $adjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
-    $potentialBuildVersionNumber = [int64]$adjustedSuccessTextContent.Replace('.','')
+    $AdjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
 
-    Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersionMin $adjustedSuccessTextContent";
-
+    Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $AdjustedSuccessTextContent";
+    
     $res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method' = $Method; 'Uri' = $URI; 'TimeoutSec' = $TimeoutSec; 'UseBasicParsing' = $true }
     if($res -eq $true)
     {
-        Write-Host "Health check validation success - '$adjustedSuccessTextContent' or greater was found."
+        Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
     }
     else
     {
-        Write-Error "Health check validation failed - expected a build version matching or greater than '$adjustedSuccessTextContent', but was never received."
+        Write-Error "Health check validation failed - '$AdjustedSuccessTextContent' was never found."
     }
 }
-catch 
+catch
 {
-    Write-Host $PSItem.Exception.Message -ForegroundColor RED    
+    Write-Host $PSItem.Exception.Message -ForegroundColor RED
 }
