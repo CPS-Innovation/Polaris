@@ -25,35 +25,5 @@ namespace Common.Extensions
 
             return currentCorrelationId;
         }
-
-        public static T ToDto<T>(this HttpHeaders headers)
-        {
-            var dict = ToDictionary(headers);
-            var interimJson = JsonConvert.SerializeObject(dict);
-            return JsonConvert.DeserializeObject<T>(interimJson);
-        }
-
-        private static Dictionary<string, string> ToDictionary(this HttpHeaders headers)
-        {
-            var dict = new Dictionary<string, string>();
-
-            foreach (var item in headers.ToList())
-            {
-                if (item.Value != null)
-                {
-                    var header = String.Empty;
-                    foreach (var value in item.Value)
-                    {
-                        header += value + " ";
-                    }
-
-                    // Trim the trailing space and add item to the dictionary
-                    header = header.TrimEnd(" ".ToCharArray());
-                    dict.Add(item.Key, header);
-                }
-            }
-
-            return dict;
-        }
     }
 }

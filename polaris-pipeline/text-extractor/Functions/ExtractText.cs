@@ -8,6 +8,7 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Handlers.Contracts;
 using Common.Logging;
+using Common.Mappers.Contracts;
 using Common.Services.CaseSearchService.Contracts;
 using Common.Services.OcrService;
 using Common.Telemetry.Contracts;
@@ -20,27 +21,27 @@ namespace text_extractor.Functions
 {
     public class ExtractText
     {
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<ExtractTextRequestDto> _validatorWrapper;
         private readonly IOcrService _ocrService;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
+        private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
         private readonly ILogger<ExtractText> _log;
         private readonly ITelemetryClient _telemetryClient;
 
-        public ExtractText(IJsonConvertWrapper jsonConvertWrapper,
-                           IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
+        public ExtractText(IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
                            IOcrService ocrService,
                            ISearchIndexService searchIndexService,
                            IExceptionHandler exceptionHandler,
+                           IDtoHttpRequestHeadersMapper dtoHttpRequestHeadersMapper,
                            ILogger<ExtractText> logger,
                            ITelemetryClient telemetryClient)
         {
-            _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;
             _ocrService = ocrService;
             _searchIndexService = searchIndexService;
             _exceptionHandler = exceptionHandler;
+            _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper;
             _log = logger;
             _telemetryClient = telemetryClient;
         }
@@ -54,14 +55,14 @@ namespace text_extractor.Functions
             try
             {
                 #region Validate-Inputs
-                var correlationId = request.Headers.GetCorrelationId();
+                currentCorrelationId = request.Headers.GetCorrelationId();
 
                 if (request.Content == null)
                 {
                     throw new BadRequestException("Request body has no content", nameof(request));
                 }
 
-                var extractTextRequest = request.Headers.ToDto<ExtractTextRequestDto>();
+                var extractTextRequest = _dtoHttpRequestHeadersMapper.Map<ExtractTextRequestDto>(request.Headers);
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
