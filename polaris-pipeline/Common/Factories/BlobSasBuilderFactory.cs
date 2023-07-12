@@ -31,8 +31,8 @@ public class BlobSasBuilderFactory : IBlobSasBuilderFactory
             Resource = "b",
             StartsOn = DateTimeOffset.UtcNow,
             ContentType = "application/pdf",
-            ContentDisposition = $"inline; filename={blobName}"
         };
+        sasBuilder.ContentDisposition = $"inline; filename={blobName}";
         sasBuilder.ExpiresOn = sasBuilder.StartsOn.AddSeconds(double.Parse(_configuration[ConfigKeys.SharedKeys.BlobExpirySecs]));
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
