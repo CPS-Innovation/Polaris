@@ -4,14 +4,15 @@ using System.Linq;
 using System.Net.Http.Headers;
 using Common.Mappers.Contracts;
 using Common.Wrappers;
+using Common.Wrappers.Contracts;
 
 namespace Common.Mappers
 {
     public class DtoHttpRequestHeadersMapper : IDtoHttpRequestHeadersMapper
     {
-        private readonly JsonConvertWrapper _jsonConvertWrapper;
+        private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public DtoHttpRequestHeadersMapper(JsonConvertWrapper jsonConvertWrapper)
+        public DtoHttpRequestHeadersMapper(IJsonConvertWrapper jsonConvertWrapper)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
         }

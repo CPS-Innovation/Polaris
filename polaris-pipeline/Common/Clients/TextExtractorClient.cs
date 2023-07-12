@@ -46,7 +46,7 @@ namespace Common.Clients
             Stream documentStream)
         {
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"extract?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
-            request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, cmsCaseId.ToString());
+            request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());
             request.Headers.Add(HttpHeaderKeys.DocumentId, cmsDocumentId);
             request.Headers.Add(HttpHeaderKeys.VersionId, versionId.ToString());

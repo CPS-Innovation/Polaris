@@ -13,6 +13,7 @@ namespace Common.Dto.Request
             CaseId = cmsCaseId;
             DocumentId = cmsDocumentId;
             VersionId = versionId;
+            BlobName = blobName;
         }
 
         [JsonIgnore]

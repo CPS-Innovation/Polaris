@@ -9,8 +9,8 @@ namespace Common.ValueObjects
 
         public PolarisDocumentId() { }
 
-        public PolarisDocumentId(string polarisDocumentIdValue) 
-        { 
+        public PolarisDocumentId(string polarisDocumentIdValue)
+        {
             Value = polarisDocumentIdValue;
         }
 
@@ -31,5 +31,8 @@ namespace Common.ValueObjects
             yield return Value;
         }
         public override string ToString() => Value;
+
+        public static implicit operator PolarisDocumentId(string value) => new PolarisDocumentId(value);
+
     }
 }

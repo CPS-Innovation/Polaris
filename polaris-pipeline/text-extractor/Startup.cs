@@ -19,6 +19,8 @@ using Common.Handlers.Contracts;
 using Common.Handlers;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using Common.Mappers.Contracts;
+using Common.Mappers;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -47,6 +49,7 @@ namespace text_extractor
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
+            builder.Services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
             BuildHealthChecks(builder);
         }
 

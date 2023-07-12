@@ -63,17 +63,7 @@ namespace coordinator
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
-            {
-                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
-            });
-            builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
-            {
-                var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
-
-                return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
-                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
-            });
+            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
 
             builder.Services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {

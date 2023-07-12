@@ -29,7 +29,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "PolarisPipelineCoordinatorDurableExtensionCode" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.durabletask_extension_key
     "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                              = "documents"
-    "BlobServiceConnectionString"                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_ui_storage_connection_string.id})"
     "BlobExpirySecs"                                 = 3600
     "BlobUserDelegationKeyExpirySecs"                = 3600
     "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
