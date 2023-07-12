@@ -31,8 +31,10 @@ public class BlobSasBuilderFactory : IBlobSasBuilderFactory
             Resource = "b",
             StartsOn = DateTimeOffset.UtcNow,
             ContentType = "application/pdf",
-            ContentDisposition = $"inline; filename={blobName}"
         };
+        // todo: ContentDisposition is being set below as opposed to within the initializer above in an attempt to stop two Content-Disposition
+        //  headers being set to the client.
+        sasBuilder.ContentDisposition = $"inline; filename={blobName}";
         sasBuilder.ExpiresOn = sasBuilder.StartsOn.AddSeconds(double.Parse(_configuration[ConfigKeys.SharedKeys.BlobExpirySecs]));
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
