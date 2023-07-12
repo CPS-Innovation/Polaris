@@ -457,7 +457,7 @@ describe("case details page", () => {
     });
   });
 
-  describe("Unsaved redaction accessibility through keyboard", () => {
+  describe("Unsaved redactions accessibility through keyboard", () => {
     it("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -648,6 +648,29 @@ describe("case details page", () => {
       cy.focused().should("have.attr", "data-redaction-added-order", 0);
       cy.tab({ shift: true });
       cy.focused().should("have.id", "btn-open-pdf");
+    });
+
+    it("When tabbing from an unsaved redaction button, it should move the focus to remove redaction button and (shift +tab ) from remove redaction button should focus corresponding unsaved redaction button", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+      cy.get("#btn-report-issue").tab();
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      cy.tab();
+      cy.focused().should("have.id", "remove-btn");
+      cy.tab({ shift: true });
+      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      cy.tab({ shift: true });
+      cy.get("#btn-report-issue").tab();
     });
   });
 });
