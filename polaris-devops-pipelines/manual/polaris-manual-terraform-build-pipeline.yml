@@ -150,7 +150,7 @@ stages:
               workingDirectory: polaris-ui/public
               script: |
                 New-Item build-version.txt
-                Set-Content build-version.txt "Build Number: $(Build.BuildNumber), Commit Id: $(Build.SourceVersion)"
+                Set-Content build-version.txt '{"name": "ui","buildVersion": "$(Build.BuildNumber)","sourceVersion": "$(Build.SourceVersion)","lastBuilt": "2023-07-12T10:13:34"}'
 
           - task: Npm@1
             inputs:
