@@ -10,10 +10,6 @@ param (
     [string]$TimeoutSec = 120
 )
 
-$AdjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
-
-Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $AdjustedSuccessTextContent";
-
 Function Req {
     Param(
         [Parameter(Mandatory=$True)]
@@ -82,6 +78,10 @@ Function Req {
 
 try
 {
+    $AdjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
+
+    Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $AdjustedSuccessTextContent";
+    
     $res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method' = $Method; 'Uri' = $URI; 'TimeoutSec' = $TimeoutSec; 'UseBasicParsing' = $true }
     if($res -eq $true)
     {
