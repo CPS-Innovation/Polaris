@@ -77,8 +77,9 @@ stages:
               targetType: 'inline'
               workingDirectory: polaris-ui/public
               script: |
-                New-Item build-version.txt
-                Set-Content build-version.txt '{"name": "ui","buildVersion": "$(Build.BuildNumber)","sourceVersion": "$(Build.SourceVersion)","lastBuilt": "2023-07-12T10:13:34"}'
+                New-Item build-version.txt -force
+                $currentDate = Get-Date
+                Set-Content build-version.txt "{`"name`":`"ui`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
 
           - task: Npm@1
             inputs:
