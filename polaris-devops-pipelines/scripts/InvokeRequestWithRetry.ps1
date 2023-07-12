@@ -40,7 +40,7 @@ Function Req {
             else 
             {
                 $jsonResponse = $response.Content | Out-String | ConvertFrom-Json
-                $currentBuildVersion = $jsonResponse.buildVersion
+                $currentBuildVersion = $jsonResponse.buildVersion.replace('-ci', '').replace('-man', '')
                 $currentBuildVersionNumber = [Int64]$currentBuildVersion.replace('.','')
                 if($currentBuildVersionNumber -ge $potentialBuildVersionNumber)
                 {
