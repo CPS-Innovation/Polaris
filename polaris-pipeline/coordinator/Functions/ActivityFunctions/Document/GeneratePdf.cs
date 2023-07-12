@@ -22,7 +22,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
     {
         private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
         private readonly IPdfGeneratorClient _pdfGeneratorClient;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidatorWrapper<CaseDocumentOrchestrationPayload> _validatorWrapper;
         private readonly IDdeiClient _ddeiClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
@@ -33,7 +32,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
         public GeneratePdf(
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
             IPdfGeneratorClient pdfGeneratorCLient,
-            IJsonConvertWrapper jsonConvertWrapper,
             IValidatorWrapper<CaseDocumentOrchestrationPayload> validatorWrapper,
             IDdeiClient ddeiClient,
             IPolarisBlobStorageService blobStorageService,
@@ -41,7 +39,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
         {
             _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
             _pdfGeneratorClient = pdfGeneratorCLient;
-            _jsonConvertWrapper = jsonConvertWrapper;
             _validatorWrapper = validatorWrapper;
             _ddeiClient = ddeiClient;
             _blobStorageService = blobStorageService;
@@ -105,7 +102,14 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             try
             {
-                pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(payload.CorrelationId, payload.CmsAuthValues, payload.CmsCaseId.ToString(), payload.CmsDocumentId, payload.CmsVersionId.ToString(), documentStream, fileType);
+                pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
+                    payload.CorrelationId,
+                    payload.CmsAuthValues,
+                    payload.CmsCaseId.ToString(),
+                    payload.CmsDocumentId,
+                    payload.CmsVersionId.ToString(),
+                    documentStream,
+                    fileType);
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{payload.BlobName}'...");
                 await _blobStorageService.UploadDocumentAsync

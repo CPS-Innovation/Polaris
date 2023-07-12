@@ -30,14 +30,12 @@ using Common.Services.BlobStorageService;
 using Microsoft.Extensions.Logging;
 using Common.Handlers.Contracts;
 using Common.Handlers;
-using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Domain;
 using RenderPcd;
 using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
-using static Common.Constants.ConfigKeys;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -83,6 +81,7 @@ namespace coordinator
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
+            builder.Services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
 

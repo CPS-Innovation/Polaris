@@ -4,7 +4,6 @@ using Common.Domain.Extensions;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.ValueObjects;
-using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity.Contract;
@@ -16,8 +15,6 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 {
     public class RefreshDocumentOrchestrator : PolarisOrchestrator
     {
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
-
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
 
         const string loggingName = $"{nameof(RefreshDocumentOrchestrator)} - {nameof(Run)}";
@@ -27,9 +24,8 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             return $"[{caseId}]-{polarisDocumentId}";
         }
 
-        public RefreshDocumentOrchestrator(IJsonConvertWrapper jsonConvertWrapper, ILogger<RefreshDocumentOrchestrator> log)
+        public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log)
         {
-            _jsonConvertWrapper = jsonConvertWrapper;
             _log = log;
         }
 

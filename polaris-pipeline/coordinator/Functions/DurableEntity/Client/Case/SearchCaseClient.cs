@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Entity;
 using Common.Logging;
-using Common.Services.CaseSearchService.Contracts;
+using Common.Mappers.Contracts;
 using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -18,11 +19,14 @@ namespace coordinator.Functions.DurableEntity.Client.Case
 {
     public class SearchCaseClient
     {
-        private readonly ISearchIndexService _searchIndexService;
+        private readonly ITextExtractorClient _textExtractorClient;
 
-        public SearchCaseClient(ISearchIndexService searchIndexService)
+        private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
+
+        public SearchCaseClient(ITextExtractorClient textExtractorClient, ISearchFilterDocumentMapper searchFilterDocumentMapper)
         {
-            _searchIndexService = searchIndexService;
+            _textExtractorClient = textExtractorClient;
+            _searchFilterDocumentMapper = searchFilterDocumentMapper;
         }
 
         const string loggingName = $"{nameof(SearchCaseClient)} - {nameof(HttpStart)}";
@@ -76,8 +80,10 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                     entityState.CmsDocuments.OfType<BaseDocumentEntity>()
                         .Concat(entityState.PcdRequests)
                         .Append(entityState.DefendantsAndCharges)
+                        .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
                         .ToList();
-                var searchResults = await _searchIndexService.QueryAsync(caseId, documents, searchTerm, currentCorrelationId);
+
+                var searchResults = await _textExtractorClient.SearchTextAsync(caseId, searchTerm, currentCorrelationId, documents);
 
                 return new OkObjectResult(searchResults);
             }

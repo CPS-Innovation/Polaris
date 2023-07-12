@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
-using Common.Domain.Entity;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
 using Common.Logging;
@@ -140,9 +139,9 @@ namespace Common.Services.CaseSearchService
             foreach (var timeoutBase in Fibonacci(10))
             {
                 var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
-                var recievedLinesCount = searchResults.Value.TotalCount;
+                var receivedLinesCount = searchResults.Value.TotalCount;
 
-                if (recievedLinesCount == sentLinesCount)
+                if (receivedLinesCount == sentLinesCount)
                 {
                     _logger.LogMethodExit(correlationId, nameof(WaitForStoreResultsAsync), $"Consistent Search Index, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}");
                     return true;
@@ -150,7 +149,7 @@ namespace Common.Services.CaseSearchService
 
                 var timeout = baseDelayMs * timeoutBase;
 
-                _logger.LogMethodFlow(correlationId, nameof(WaitForStoreResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}, sent {sentLinesCount} lines, received {recievedLinesCount} lines");
+                _logger.LogMethodFlow(correlationId, nameof(WaitForStoreResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId}, DocumentId={cmsDocumentId}, Version={versionId}, sent {sentLinesCount} lines, received {receivedLinesCount} lines");
 
                 await Task.Delay(timeout);
             }
@@ -176,9 +175,9 @@ namespace Common.Services.CaseSearchService
             foreach (var timeoutBase in Fibonacci(10))
             {
                 var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
-                var recievedLinesCount = searchResults.Value.TotalCount;
+                var receivedLinesCount = searchResults.Value.TotalCount;
 
-                if (recievedLinesCount == 0)
+                if (receivedLinesCount == 0)
                 {
                     _logger.LogMethodExit(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Consistent Search Index, CaseId={cmsCaseId}");
                     return true;
@@ -186,7 +185,7 @@ namespace Common.Services.CaseSearchService
 
                 var timeout = baseDelayMs * timeoutBase;
 
-                _logger.LogMethodFlow(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId},  expectedLineCount 0 lines, received {recievedLinesCount} lines");
+                _logger.LogMethodFlow(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Waiting {timeout} ms for Search Index to be consistent, CaseId={cmsCaseId},  expectedLineCount 0 lines, received {receivedLinesCount} lines");
 
                 await Task.Delay(timeout);
             }
@@ -208,7 +207,7 @@ namespace Common.Services.CaseSearchService
             }
         }
 
-        public async Task<IList<StreamlinedSearchLine>> QueryAsync(int caseId, List<BaseDocumentEntity> documents, string searchTerm, Guid correlationId)
+        public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(QueryAsync), $"CaseId '{caseId}', searchTerm '{searchTerm}'");
 
@@ -240,10 +239,10 @@ namespace Common.Services.CaseSearchService
             if (searchResults.Count == 0)
                 return streamlinedResults;
 
-            IEnumerable<StreamlinedSearchLine> seachResultsValues
+            IEnumerable<StreamlinedSearchLine> searchResultsValues
                 = searchResults.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm, correlationId));
 
-            streamlinedResults.AddRange(seachResultsValues);
+            streamlinedResults.AddRange(searchResultsValues);
 
             _logger.LogMethodExit(correlationId, nameof(BuildStreamlinedResults), string.Empty);
             return streamlinedResults;
@@ -272,7 +271,7 @@ namespace Common.Services.CaseSearchService
 
         public async Task RemoveDocumentIndexEntriesAsync(long caseId, string documentId, long versionId, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(RemoveDocumentIndexEntriesAsync), $"CaseId: {caseId}, DoocumentId: {documentId}, Versionid {versionId}");
+            _logger.LogMethodEntry(correlationId, nameof(RemoveDocumentIndexEntriesAsync), $"CaseId: {caseId}, DocumentId: {documentId}, VersionId {versionId}");
 
             #region Validate-Inputs
             if (caseId == 0)
@@ -290,7 +289,7 @@ namespace Common.Services.CaseSearchService
                 (
                     correlationId,
                     nameof(RemoveDocumentIndexEntriesAsync),
-                    $"Updating the search index completed following a deletion request for caseId '{caseId}', documentId '{documentId}', versionid '{versionId}'"
+                    $"Updating the search index completed following a deletion request for caseId '{caseId}', DocumentId '{documentId}', VersionId '{versionId}'"
                 );
         }
 
@@ -376,7 +375,7 @@ namespace Common.Services.CaseSearchService
             }
         }
 
-        private string GetCaseDocumentsSearchQuery(int caseId, List<BaseDocumentEntity> documents)
+        private string GetCaseDocumentsSearchQuery(long caseId, List<SearchFilterDocument> documents)
         {
             var stringBuilder = new StringBuilder($"caseId eq {caseId}");
 
