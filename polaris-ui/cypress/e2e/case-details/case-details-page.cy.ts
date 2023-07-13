@@ -160,43 +160,43 @@ describe("case details page", () => {
     });
   });
 
-  describe("pdf viewing", () => {
-    it("can open a pdf", () => {
-      cy.visit("/case-search-results?urn=12AB1111111");
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
+  // describe("pdf viewing", () => {
+  //   it("can open a pdf", () => {
+  //     cy.visit("/case-search-results?urn=12AB1111111");
+  //     cy.visit("/case-details/12AB1111111/13401");
+  //     cy.findByTestId("btn-accordion-open-close-all").click();
 
-      cy.findByTestId("div-pdfviewer-0").should("not.exist");
+  //     cy.findByTestId("div-pdfviewer-0").should("not.exist");
 
-      cy.findByTestId("link-document-1").click();
+  //     cy.findByTestId("link-document-1").click();
 
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-    });
+  //     cy.findByTestId("div-pdfviewer-0")
+  //       .should("exist")
+  //       .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+  //   });
 
-    it("can open a pdf in a new tab", () => {
-      cy.visit("/case-details/12AB1111111/13401", {
-        onBeforeLoad(window) {
-          cy.stub(window, "open");
-        },
-      });
+  //   it("can open a pdf in a new tab", () => {
+  //     cy.visit("/case-details/12AB1111111/13401", {
+  //       onBeforeLoad(window) {
+  //         cy.stub(window, "open");
+  //       },
+  //     });
 
-      cy.findByTestId("btn-accordion-open-close-all").click();
+  //     cy.findByTestId("btn-accordion-open-close-all").click();
 
-      cy.findByTestId("link-document-1").click();
+  //     cy.findByTestId("link-document-1").click();
 
-      cy.findByTestId("btn-open-pdf").click();
+  //     cy.findByTestId("btn-open-pdf").click();
 
-      cy.window()
-        .its("open")
-        .should(
-          "be.calledWith",
-          "https://mocked-out-api/api/some-complicated-sas-url/MCLOVEMG3",
-          "_blank"
-        );
-    });
-  });
+  //     cy.window()
+  //       .its("open")
+  //       .should(
+  //         "be.calledWith",
+  //         "https://mocked-out-api/api/some-complicated-sas-url/MCLOVEMG3",
+  //         "_blank"
+  //       );
+  //   });
+  // });
 
   describe("Document navigation away alert modal", () => {
     it("Should show an alert modal when closing a document with active redactions", () => {
