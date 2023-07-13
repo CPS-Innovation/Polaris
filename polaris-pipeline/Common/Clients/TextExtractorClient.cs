@@ -74,8 +74,8 @@ namespace Common.Clients
             using (var response = await _httpClient.SendAsync(request))
             {
                 response.EnsureSuccessStatusCode();
-
-                return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(await response.Content.ReadAsStringAsync());
+                var content = await response.Content.ReadAsStringAsync();
+                return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(content);
             }
         }
     }

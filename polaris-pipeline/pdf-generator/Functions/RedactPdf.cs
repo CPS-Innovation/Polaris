@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
@@ -39,8 +40,8 @@ namespace pdf_generator.Functions
             _logger = logger;
         }
 
-        [FunctionName("redact-pdf")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = "redact-pdf")] HttpRequestMessage request)
+        [FunctionName(nameof(RedactPdf))]
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "RedactPdf - Run";

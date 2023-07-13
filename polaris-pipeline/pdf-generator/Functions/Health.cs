@@ -11,6 +11,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Common.Logging;
 using Common.Health;
+using Common.Configuration;
 
 public class Health
 {
@@ -26,7 +27,7 @@ public class Health
 
     [FunctionName(nameof(Health))]
     public async Task<IActionResult> Healthcheck(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "health")]
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Health)]
         HttpRequest request)
     {
         request.Headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var correlationIdValues);

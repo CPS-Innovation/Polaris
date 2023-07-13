@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
@@ -35,7 +36,7 @@ namespace pdf_generator.Functions
         }
 
         [FunctionName(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "convert-to-pdf")] HttpRequestMessage request)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
 

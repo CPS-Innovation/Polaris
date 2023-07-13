@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Domain.Exceptions;
 using Common.Dto.Request;
 using Common.Extensions;
@@ -47,7 +48,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(ExtractText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "extract")] HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Extract)] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "ExtractText - Run";

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Common.Configuration;
 using Common.Domain.Exceptions;
 using Common.Dto.Request.Search;
 using Common.Extensions;
@@ -27,7 +28,7 @@ namespace text_extractor.Functions
         }
 
         [FunctionName(nameof(SearchText))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "search")] HttpRequestMessage request)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Search)] HttpRequestMessage request)
         {
             var correlationId = request.Headers.GetCorrelationId();
 

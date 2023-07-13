@@ -22,7 +22,15 @@ namespace Common.Configuration
         public const string ResetDurableState = "maintenance/resetDurableState";
 
         // Other
+        public const string AuthInitialisation = "init";
         public const string Health = "health";
+        public const string Status = "status";
+
+        // Internal Pipeline
+        public const string Search = "search";
+        public const string Extract = "extract";
+        public const string ConvertToPdf = "convert-to-pdf";
+        public const string RedactPdf = "redact-pdf";
 
         public static string GetCasePath(string caseUrn, long caseId)
         {
