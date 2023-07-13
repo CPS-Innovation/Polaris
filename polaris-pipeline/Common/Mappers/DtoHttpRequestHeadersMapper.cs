@@ -17,6 +17,8 @@ namespace Common.Mappers
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
+        // This is simplistic method, assumes that all DTO properties being mapped to 
+        //  are castable/convertable from string.
         public T Map<T>(HttpHeaders headers)
         {
             var dict = ToDictionary(headers);

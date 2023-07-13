@@ -62,6 +62,7 @@ namespace text_extractor.Functions
                     throw new BadRequestException("Request body has no content", nameof(request));
                 }
 
+                // map our request headers to our dto so that we can make use of the validator rules against the dto.
                 var extractTextRequest = _dtoHttpRequestHeadersMapper.Map<ExtractTextRequestDto>(request.Headers);
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
