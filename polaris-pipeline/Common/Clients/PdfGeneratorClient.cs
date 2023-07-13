@@ -71,7 +71,7 @@ namespace Common.Clients
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"redactPdf?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"redact-pdf?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
                 request.Content = requestMessage;
 
                 response = await _httpClient.SendAsync(request);

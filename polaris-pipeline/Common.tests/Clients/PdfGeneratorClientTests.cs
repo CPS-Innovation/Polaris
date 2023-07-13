@@ -65,7 +65,12 @@ namespace Common.Clients.Tests.Clients
                 .ReturnsAsync(redactPdfResponseMessage);
             var redactPdfHttpClient = new HttpClient(mockRedactPdfMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
 
-            _redactionClient = new PdfGeneratorClient(_mockRequestFactory.Object, redactPdfHttpClient, mockConfiguration.Object, mockJsonConvertWrapper.Object, mockRedactionClientLogger.Object);
+            _redactionClient = new PdfGeneratorClient(
+                _mockRequestFactory.Object,
+                redactPdfHttpClient,
+                mockConfiguration.Object,
+                mockJsonConvertWrapper.Object,
+                mockRedactionClientLogger.Object);
         }
 
         [Fact]
