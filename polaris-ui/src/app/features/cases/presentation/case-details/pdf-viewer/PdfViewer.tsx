@@ -18,6 +18,7 @@ import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
+import { useFakeCursor } from "../../../../../common/hooks/useFakeCursor";
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 
 const SCROLL_TO_OFFSET = 120;
@@ -68,6 +69,7 @@ export const PdfViewer: React.FC<Props> = ({
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
+  useFakeCursor(tabId, activeTabId, tabIndex);
 
   const getSortedRedactionHighlights = () => {
     const sortedRedactionHighlights =
