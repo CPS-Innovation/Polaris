@@ -32,6 +32,9 @@ namespace Common.ValueObjects
         }
         public override string ToString() => Value;
 
+        // this is conversion operator is required when deserializing from JSON in the "extract" endpoint of 
+        //  the text-extractor app. Weird because there is evidence of deserialization in the pdf-generator app
+        //  that works prior to this conversion operator being added.
         public static implicit operator PolarisDocumentId(string value) => new PolarisDocumentId(value);
 
     }
