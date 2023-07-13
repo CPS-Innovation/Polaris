@@ -32,7 +32,7 @@ namespace coordinator.tests.Functions
         private readonly HttpResponseMessage _httpResponseMessage;
 
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
-        private readonly Mock<ICaseSearchClient> _mockCaseSearchClient;
+        private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<ILogger<CaseClient>> _mockLogger;
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
@@ -57,7 +57,7 @@ namespace coordinator.tests.Functions
             _httpResponseMessage = new HttpResponseMessage();
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
-            _mockCaseSearchClient = new Mock<ICaseSearchClient>();
+            _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockLogger = new Mock<ILogger<CaseClient>>();
             _mockTelemetryClient = new Mock<ITelemetryClient>();
 
@@ -70,7 +70,7 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationClient.Setup(client => client.CreateCheckStatusResponse(_httpRequestMessage, _instanceId, false))
                 .Returns(_httpResponseMessage);
 
-            _coordinatorStart = new CaseClient(_mockCaseSearchClient.Object,
+            _coordinatorStart = new CaseClient(_mockSearchIndexService.Object,
                                                _jsonConvertWrapper,
                                                _mockLogger.Object,
                                                _mockTelemetryClient.Object);

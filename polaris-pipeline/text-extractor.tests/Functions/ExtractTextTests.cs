@@ -1,7 +1,7 @@
-﻿using System;
+﻿using System.Net.Http.Headers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,7 +20,8 @@ using Common.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Telemetry.Contracts;
-using text_extractor.TelemetryEvents;
+using System.IO;
+using Common.Mappers.Contracts;
 
 namespace text_extractor.tests.Functions
 {
@@ -31,9 +32,7 @@ namespace text_extractor.tests.Functions
         private readonly HttpRequestMessage _httpRequestMessage;
         private readonly ExtractTextRequestDto _extractTextRequest;
         private HttpResponseMessage _errorHttpResponseMessage;
-
-        private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<ICaseSearchClient> _mockSearchIndexService;
+        private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly AnalyzeResults _mockAnalyzeResults;
         private readonly Mock<IValidatorWrapper<ExtractTextRequestDto>> _mockValidatorWrapper;
@@ -45,6 +44,7 @@ namespace text_extractor.tests.Functions
 
         private readonly ExtractText _extractText;
 
+        private List<ValidationResult> _validationResults;
         public ExtractTextTests()
         {
             _fixture = new Fixture();
@@ -56,21 +56,20 @@ namespace text_extractor.tests.Functions
                 Content = new StringContent(_serializedExtractTextRequest)
             };
             _extractTextRequest = _fixture.Create<ExtractTextRequestDto>();
-
-            _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockValidatorWrapper = new Mock<IValidatorWrapper<ExtractTextRequestDto>>();
             var mockOcrService = new Mock<IOcrService>();
-            _mockSearchIndexService = new Mock<ICaseSearchClient>();
+            _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockAnalyzeResults = Mock.Of<AnalyzeResults>(ctx => ctx.ReadResults == new List<ReadResult>());
             _mockTelemetryClient = new Mock<ITelemetryClient>();
 
             _correlationId = _fixture.Create<Guid>();
 
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequestDto>(_serializedExtractTextRequest))
-                .Returns(_extractTextRequest);
-            _mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_extractTextRequest)).Returns(new List<ValidationResult>());
-            mockOcrService.Setup(service => service.GetOcrResultsAsync(_extractTextRequest.BlobName, It.IsAny<Guid>()))
+            _validationResults = new List<ValidationResult>();
+            _mockValidatorWrapper
+                .Setup(wrapper => wrapper.Validate(_extractTextRequest))
+                .Returns(_validationResults);
+            mockOcrService.Setup(service => service.GetOcrResultsAsync(It.IsAny<Stream>(), It.IsAny<Guid>()))
                 .ReturnsAsync(_mockAnalyzeResults);
 
             _mockLogger = new Mock<ILogger<ExtractText>>();
@@ -79,12 +78,17 @@ namespace text_extractor.tests.Functions
                 .Setup(service => service.WaitForStoreResultsAsync(It.IsAny<AnalyzeResults>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
                 .Returns(Task.FromResult(true));
 
+            var mockDtoHttpRequestHeadersMapper = new Mock<IDtoHttpRequestHeadersMapper>();
 
-            _extractText = new ExtractText(_mockJsonConvertWrapper.Object,
+            mockDtoHttpRequestHeadersMapper.Setup(mapper => mapper.Map<ExtractTextRequestDto>(It.IsAny<HttpHeaders>()))
+                .Returns(_extractTextRequest);
+
+            _extractText = new ExtractText(
                                 _mockValidatorWrapper.Object,
                                 mockOcrService.Object,
                                 _mockSearchIndexService.Object,
                                 _mockExceptionHandler.Object,
+                                mockDtoHttpRequestHeadersMapper.Object,
                                 _mockLogger.Object,
                                 _mockTelemetryClient.Object);
         }
@@ -108,23 +112,9 @@ namespace text_extractor.tests.Functions
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
-            _httpRequestMessage.Content = new StringContent(" ");
+
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-
-            var response = await _extractText.Run(_httpRequestMessage);
-
-            response.Should().Be(_errorHttpResponseMessage);
-        }
-
-        [Fact]
-        public async Task Run_ReturnsBadRequestWhenContentIsNull()
-        {
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
-            _httpRequestMessage.Content = null;
-            _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-
+            _validationResults.Add(new ValidationResult("Invalid"));
             var response = await _extractText.Run(_httpRequestMessage);
 
             response.Should().Be(_errorHttpResponseMessage);
@@ -157,28 +147,12 @@ namespace text_extractor.tests.Functions
         }
 
         [Fact]
-        public async Task Run_ReturnsBadRequestWhenThereAreAnyValidationErrors()
-        {
-            var validationResults = _fixture.CreateMany<ValidationResult>(2).ToList();
-
-            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
-                .Returns(_errorHttpResponseMessage);
-            _mockValidatorWrapper.Setup(wrapper => wrapper.Validate(_extractTextRequest)).Returns(validationResults);
-            _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-
-            var response = await _extractText.Run(_httpRequestMessage);
-
-            response.Should().Be(_errorHttpResponseMessage);
-        }
-
-        [Fact]
         public async Task Run_StoresOcrResults()
         {
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
             await _extractText.Run(_httpRequestMessage);
 
-            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CmsCaseId, _extractTextRequest.CmsDocumentId,
+            _mockSearchIndexService.Verify(service => service.SendStoreResultsAsync(_mockAnalyzeResults, _extractTextRequest.PolarisDocumentId, _extractTextRequest.CaseId, _extractTextRequest.DocumentId,
                 _extractTextRequest.VersionId, _extractTextRequest.BlobName, _correlationId));
         }
 
@@ -200,8 +174,8 @@ namespace text_extractor.tests.Functions
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             var exception = new Exception();
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequestDto>(_serializedExtractTextRequest))
-                .Throws(exception);
+            // _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<ExtractTextRequestDto>(_serializedExtractTextRequest))
+            //     .Throws(exception);
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
 

@@ -1,5 +1,6 @@
 ﻿using Common.Domain.Entity;
 using System;
+using System.IO;
 using System.Text.Json;
 
 namespace coordinator.Domain
@@ -18,12 +19,12 @@ namespace coordinator.Domain
             )
             : base(cmsCaseUrn, cmsCaseId, correlationId)
         {
-            if(serializedTrackerCmsDocumentDto != null)
+            if (serializedTrackerCmsDocumentDto != null)
             {
                 CmsDocumentTracker = JsonSerializer.Deserialize<CmsDocumentEntity>(serializedTrackerCmsDocumentDto);
                 base.PolarisDocumentId = CmsDocumentTracker.PolarisDocumentId;
             }
-            else if(serializedTrackerPcdRequestDto != null)
+            else if (serializedTrackerPcdRequestDto != null)
             {
                 PcdRequestTracker = JsonSerializer.Deserialize<PcdRequestEntity>(serializedTrackerPcdRequestDto);
                 base.PolarisDocumentId = PcdRequestTracker.PolarisDocumentId;
@@ -37,11 +38,11 @@ namespace coordinator.Domain
         }
         public string CmsAuthValues { get; set; }
 
-        public string CmsDocumentId 
-        { 
+        public string CmsDocumentId
+        {
             get
             {
-                if(CmsDocumentTracker != null)
+                if (CmsDocumentTracker != null)
                     return CmsDocumentTracker.CmsDocumentId;
                 if (PcdRequestTracker != null)
                     return PcdRequestTracker.CmsDocumentId;
@@ -60,6 +61,33 @@ namespace coordinator.Domain
                     return PcdRequestTracker.CmsVersionId;
                 else
                     return DefendantAndChargesTracker.CmsVersionId;
+            }
+        }
+
+        public string BlobName
+        {
+            get
+            {
+                string docId = default(string);
+
+                if (CmsDocumentTracker != null)
+                {
+                    docId = CmsDocumentTracker.CmsDocumentId;
+                }
+                else if (PcdRequestTracker != null)
+                {
+                    docId = PcdRequestTracker.CmsDocumentId;
+                }
+                else if (DefendantAndChargesTracker != null)
+                {
+                    docId = DefendantAndChargesTracker.CmsDocumentId;
+                }
+                else
+                {
+                    throw new Exception("No document tracker found");
+                }
+
+                return $"{CmsCaseId}/pdfs/CMS-{Path.GetFileNameWithoutExtension(docId)}.pdf";
             }
         }
 

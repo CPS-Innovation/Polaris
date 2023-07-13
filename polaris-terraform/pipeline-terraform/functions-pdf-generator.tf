@@ -24,7 +24,6 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
-    "BlobServiceConnectionString"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_pipeline_storage_connection_string.id})"
   }
   https_only = true
 

@@ -17,9 +17,9 @@ namespace text_extractor.Functions;
 public class HandleDocumentDeletedEvent
 {
     private readonly ILogger<HandleDocumentDeletedEvent> _logger;
-    private readonly ICaseSearchClient _searchIndexService;
-    
-    public HandleDocumentDeletedEvent(ILogger<HandleDocumentDeletedEvent> logger, ICaseSearchClient searchIndexService)
+    private readonly ISearchIndexService _searchIndexService;
+
+    public HandleDocumentDeletedEvent(ILogger<HandleDocumentDeletedEvent> logger, ISearchIndexService searchIndexService)
     {
         _logger = logger;
         _searchIndexService = searchIndexService;
@@ -54,16 +54,16 @@ public class HandleDocumentDeletedEvent
                 var eventData = eventGridEvent.Data.ToObjectFromJson<StorageBlobDeletedEventData>();
                 if (eventData == null)
                     throw new NullReferenceException("Could not deserialize event data into the expected type: 'StorageBlobDeletedEventData'");
-                
+
                 _logger.LogMethodFlow(correlationId, loggerSource, ReturnEventGridEventLevel(eventData));
 
                 var blobDetails = new Uri(eventData.Url).PathAndQuery.Split("/");
                 var caseId = long.Parse(blobDetails[2]);
                 var blobName = blobDetails[4];
-                
+
                 var searchIndexUpdated = $"The search index update event was received and should remove any joint references to caseId: {caseId} and blobName: '{blobName}'";
                 _logger.LogMethodFlow(correlationId, loggerSource, searchIndexUpdated);
-                
+
                 await _searchIndexService.RemoveResultsByBlobNameAsync(caseId, blobName, correlationId);
             }
             else

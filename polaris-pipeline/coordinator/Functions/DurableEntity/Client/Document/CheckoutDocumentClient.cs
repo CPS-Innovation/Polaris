@@ -18,11 +18,11 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 {
     public class CheckoutDocumentClient : BaseClient
     {
-        private readonly IDdeiClient _gatewayDdeiService;
+        private readonly IDdeiClient _ddeiClient;
 
-        public CheckoutDocumentClient(IDdeiClient gatewayDdeiService)
+        public CheckoutDocumentClient(IDdeiClient ddeiClient)
         {
-            _gatewayDdeiService = gatewayDdeiService;
+            _ddeiClient = ddeiClient;
         }
 
         const string loggingName = $"{nameof(CheckoutDocumentClient)} - {nameof(HttpStart)}";
@@ -73,7 +73,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                var result = await _gatewayDdeiService.CheckoutDocument(arg);
+                var result = await _ddeiClient.CheckoutDocument(arg);
 
                 switch (result.StatusCode)
                 {

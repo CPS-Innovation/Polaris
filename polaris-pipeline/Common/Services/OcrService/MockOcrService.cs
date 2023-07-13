@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Common.Domain.Exceptions;
 using Common.Constants;
+using System.IO;
 
 namespace Common.Services.OcrService
 {
@@ -22,9 +23,9 @@ namespace Common.Services.OcrService
             _log = log;
         }
 
-        public async Task<AnalyzeResults> GetOcrResultsAsync(string blobName, Guid correlationId)
+        public async Task<AnalyzeResults> GetOcrResultsAsync(Stream stream, Guid correlationId)
         {
-            _log.LogMethodEntry(correlationId, $"{nameof(MockOcrService)}.{nameof(GetOcrResultsAsync)}", blobName);
+            _log.LogMethodEntry(correlationId, $"{nameof(MockOcrService)}.{nameof(GetOcrResultsAsync)}", nameof(stream));
 
             try
             {
