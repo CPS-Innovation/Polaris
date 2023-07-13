@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Clients.Contracts;
+using Common.Configuration;
 using Common.Constants;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
@@ -45,7 +46,7 @@ namespace Common.Clients
             Guid correlationId,
             Stream documentStream)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"extract?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Extract}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());
             request.Headers.Add(HttpHeaderKeys.DocumentId, cmsDocumentId);

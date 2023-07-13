@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Clients.Contracts;
+using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
 using Common.Dto.Request;
@@ -42,7 +43,7 @@ namespace Common.Clients
             var pdfStream = new MemoryStream();
 
             documentStream.Seek(0, SeekOrigin.Begin);
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"convert-to-pdf?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.ConvertToPdf}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             request.Headers.Add(HttpHeaderKeys.CaseId, caseId);
             request.Headers.Add(HttpHeaderKeys.DocumentId, documentId);
@@ -71,7 +72,7 @@ namespace Common.Clients
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"redact-pdf?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.RedactPdf}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
                 request.Content = requestMessage;
 
                 response = await _httpClient.SendAsync(request);
