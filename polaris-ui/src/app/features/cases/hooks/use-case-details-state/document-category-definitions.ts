@@ -4,7 +4,8 @@ import {
   sortDocumentsByCreatedDate,
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
-} from "./document-category-sort-helpers";
+  isUnusedCommunicationMaterial,
+} from "./document-category-helpers";
 
 const docTypeTest = (
   caseDocument: PresentationDocumentProperties,
@@ -73,6 +74,10 @@ const documentCategoryDefinitions: {
     category: "Unused material",
     showIfEmpty: true,
     testFn: (doc) =>
+      isUnusedCommunicationMaterial(
+        doc.presentationTitle,
+        doc.cmsDocType.documentTypeId
+      ) ||
       doc.cmsDocType.documentCategory === "UnusedStatement" ||
       doc.cmsDocType.documentCategory === "Unused" ||
       docTypeTest(doc, [1001, 1008, 1009, 1010, 1011, 1039, 1202]),

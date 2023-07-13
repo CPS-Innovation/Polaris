@@ -89,3 +89,28 @@ export const customSortByDocumentType = (a: string, b: string): number => {
     return postfixA < postfixB ? -1 : 1;
   }
 };
+
+export const isUnusedCommunicationMaterial = (
+  filename: string,
+  documentTypeId: number
+) => {
+  if (!filename) {
+    return false;
+  }
+
+  if (documentTypeId !== 1029) {
+    return false;
+  }
+  if (filename.includes("UM")) {
+    return true;
+  }
+  // Check if the filename contains "Item N" (where N is an integer)
+  const regex = /Item\s\d+/;
+  const matches = filename.match(regex);
+
+  if (matches) {
+    return true;
+  }
+
+  return false;
+};

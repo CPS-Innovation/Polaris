@@ -3,10 +3,11 @@ import {
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
   customSortByDocumentType,
-} from "./document-category-sort-helpers";
+  isUnusedCommunicationMaterial,
+} from "./document-category-helpers";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
-describe("sortUtils", () => {
+describe("DocumentCategory Helpers", () => {
   describe("sortDocumentsByCreatedDate", () => {
     it("Should sort documents in the ascending order, based on cmsFileCreatedDate", () => {
       const unsortedDocs = [
@@ -324,6 +325,33 @@ describe("sortUtils", () => {
         null,
         null,
       ]);
+    });
+  });
+  describe("isUnusedCommunicationMaterial", () => {
+    it("Should return false, if the documentTypeId is not 1029", () => {
+      const result = isUnusedCommunicationMaterial("UN CM01", 1030);
+      expect(result).toEqual(false);
+    });
+    it("Should return false, if the presentationTitle is not empty", () => {
+      expect(isUnusedCommunicationMaterial(" ", 1030)).toEqual(false);
+    });
+    it(`Should return false, if the presentationTitle is does not contain "UM " or "Item N" where N represent digits and documentTypeId is 1029`, () => {
+      expect(isUnusedCommunicationMaterial("CM01 ", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("CM01 Item1", 1029)).toEqual(false);
+    });
+    it(`Should return true, if the presentationTitle is does contain "UM " or "Item N" where N represent digits and documentTypeId is 1029`, () => {
+      expect(isUnusedCommunicationMaterial("CM01 UM", 1029)).toEqual(true);
+      expect(isUnusedCommunicationMaterial("CM01 Item 4", 1029)).toEqual(true);
+      expect(isUnusedCommunicationMaterial("CM01 Item 45 6", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("CM01 Item 4abc", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("UMCM01 Item 56", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("UMCM01 rttr", 1029)).toEqual(true);
     });
   });
 });

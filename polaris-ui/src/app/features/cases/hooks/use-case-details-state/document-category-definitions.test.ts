@@ -108,4 +108,33 @@ describe("documentCategoryDefinitions", () => {
 
     expect(result).toBe("Uncategorised");
   });
+
+  it(`can resolve document with documentTypeId 1029 and with presentationTitle contains "UM" or"Item N" where N represent digits under Unused material category `, () => {
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: "UM CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: "CM01 Item 4 a",
+    } as PresentationDocumentProperties);
+
+    expect(result1).toBe("Unused material");
+    expect(result2).toBe("Unused material");
+  });
+  it(`can resolve document with documentTypeId 1029 and with presentationTitle doesn't not contains "UM" or"Item N" where N represent digits under "Communications" category `, () => {
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: "CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: " CM01 Typea 4 a",
+    } as PresentationDocumentProperties);
+
+    expect(result1).toBe("Communications");
+    expect(result2).toBe("Communications");
+  });
 });
