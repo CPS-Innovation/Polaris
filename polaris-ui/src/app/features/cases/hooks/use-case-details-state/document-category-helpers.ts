@@ -72,16 +72,16 @@ export const customSortByDocumentType = (a: string, b: string): number => {
   const sliceA = a.slice(0, 12);
   const sliceB = b.slice(0, 12);
   // Get the prefix characters
-  const prefixA = (sliceA.match(/^[a-zA-Z]+/) || [""])[0];
-  const prefixB = (sliceB.match(/^[a-zA-Z]+/) || [""])[0];
+  const prefixA = (sliceA.match(/^[a-zA-Z]+/g) ?? [""])[0];
+  const prefixB = (sliceB.match(/^[a-zA-Z]+/g) ?? [""])[0];
 
   // Get the mid elements of numbers
-  const midA = parseInt((sliceA.match(/\d+/) || ["0"])[0]);
-  const midB = parseInt((sliceB.match(/\d+/) || ["0"])[0]);
+  const midA = parseInt((sliceA.match(/\d+/g) ?? ["0"])[0]);
+  const midB = parseInt((sliceB.match(/\d+/g) ?? ["0"])[0]);
 
   // Get the postfix characters
-  const postfixA = (sliceA.match(/[a-zA-Z]$/u) || [""])[0];
-  const postfixB = (sliceB.match(/[a-zA-Z]$/u) || [""])[0];
+  const postfixA = (sliceA.match(/[a-zA-Z]$/g) ?? [""])[0];
+  const postfixB = (sliceB.match(/[a-zA-Z]$/g) ?? [""])[0];
 
   // Sort based on categories
   if (prefixA !== prefixB) {
@@ -108,7 +108,7 @@ export const isUnusedCommunicationMaterial = (
     return true;
   }
   // Check if the filename contains "Item N" (where N is an integer)
-  const regex = /Item\s\d+/;
+  const regex = /Item\s?\d+/;
   const matches = filename.match(regex);
 
   if (matches) {
