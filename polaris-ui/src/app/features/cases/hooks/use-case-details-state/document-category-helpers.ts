@@ -69,6 +69,7 @@ export const customSortByDocumentType = (a: string, b: string): number => {
   if (!a) return 1;
   if (!b) return -1;
 
+  //slice down to reduce the unnecessary complexity when sorting
   const sliceA = a.slice(0, 12);
   const sliceB = b.slice(0, 12);
   // Get the prefix characters
@@ -109,7 +110,7 @@ export const isUnusedCommunicationMaterial = (
   }
   // Check if the filename contains "Item N" (where N is an integer)
   const regex = /Item\s?\d+/;
-  const matches = filename.match(regex);
+  const matches = regex.exec(filename);
 
   if (matches) {
     return true;
