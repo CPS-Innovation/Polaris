@@ -3,10 +3,11 @@ import {
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
   customSortByDocumentType,
-} from "./document-category-sort-helpers";
+  isUnusedCommunicationMaterial,
+} from "./document-category-helpers";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 
-describe("sortUtils", () => {
+describe("DocumentCategory Helpers", () => {
   describe("sortDocumentsByCreatedDate", () => {
     it("Should sort documents in the ascending order, based on cmsFileCreatedDate", () => {
       const unsortedDocs = [
@@ -265,8 +266,8 @@ describe("sortUtils", () => {
         "MG7A",
         "MG 7",
       ];
-      const sortedList = unsortedList.sort(customSortByDocumentType);
-      expect(sortedList).toEqual([
+      unsortedList.sort(customSortByDocumentType);
+      expect(unsortedList).toEqual([
         "MG6",
         "MG 6",
         "MG 6A",
@@ -277,7 +278,7 @@ describe("sortUtils", () => {
         "MG 12",
       ]);
     });
-    it("Should successfully do the custom sort without breaking even if some values are null or undefined", () => {
+    it("Should successfully do the custom sort without breaking, even if some values are null or undefined", () => {
       const unsortedList = [
         null,
         "MG(6)",
@@ -288,8 +289,8 @@ describe("sortUtils", () => {
         "MG 7A",
         "ABC",
       ] as any;
-      const sortedList = unsortedList.sort(customSortByDocumentType);
-      expect(sortedList).toEqual([
+      unsortedList.sort(customSortByDocumentType);
+      expect(unsortedList).toEqual([
         "ABC",
         "MG(6)",
         "MG6",
@@ -300,7 +301,7 @@ describe("sortUtils", () => {
         null,
       ]);
     });
-    it("Should successfully do the custom sort without breaking even if some values are null or undefined", () => {
+    it("Should successfully do the custom sort without breaking, even if some values are null or undefined", () => {
       const unsortedList = [
         null,
         null,
@@ -312,8 +313,8 @@ describe("sortUtils", () => {
         "MG",
         null,
       ] as any;
-      const sortedList = unsortedList.sort(customSortByDocumentType);
-      expect(sortedList).toEqual([
+      unsortedList.sort(customSortByDocumentType);
+      expect(unsortedList).toEqual([
         "MG",
         "MG 3",
         "MG 6",
@@ -324,6 +325,47 @@ describe("sortUtils", () => {
         null,
         null,
       ]);
+    });
+
+    it("Should successfully do the custom sort and only consider the first 12 characters", () => {
+      const unsortedList = [
+        "MG 6ABCDEFGHZ",
+        "MG 6ABCDEFGHM",
+        "MG 6ABCDEFGAD",
+      ] as any;
+      unsortedList.sort(customSortByDocumentType);
+      expect(unsortedList).toEqual([
+        "MG 6ABCDEFGAD",
+        "MG 6ABCDEFGHZ",
+        "MG 6ABCDEFGHM",
+      ]);
+    });
+  });
+  describe("isUnusedCommunicationMaterial", () => {
+    it("Should return false, if the documentTypeId is not 1029", () => {
+      const result = isUnusedCommunicationMaterial("UN CM01", 1030);
+      expect(result).toEqual(false);
+    });
+    it("Should return false, if the presentationTitle is not empty", () => {
+      expect(isUnusedCommunicationMaterial(" ", 1030)).toEqual(false);
+    });
+    it(`Should return false, if the presentationTitle is does not contain "UM " or "Item N" where N represent digits and documentTypeId is 1029`, () => {
+      expect(isUnusedCommunicationMaterial("CM01 ", 1029)).toEqual(false);
+      expect(isUnusedCommunicationMaterial("CM01 Item a", 1029)).toEqual(false);
+    });
+    it(`Should return true, if the presentationTitle is does contain "UM " or "Item N" where N represent digits and documentTypeId is 1029`, () => {
+      expect(isUnusedCommunicationMaterial("CM01 UM", 1029)).toEqual(true);
+      expect(isUnusedCommunicationMaterial("CM01 Item 4", 1029)).toEqual(true);
+      expect(isUnusedCommunicationMaterial("CM01 Item 45 6", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("CM01 Item4abc", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("UMCM01 Item 56", 1029)).toEqual(
+        true
+      );
+      expect(isUnusedCommunicationMaterial("UMCM01 rttr", 1029)).toEqual(true);
     });
   });
 });
