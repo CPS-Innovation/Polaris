@@ -152,7 +152,7 @@ export const Tabs: React.FC<TabsProps> = ({
                     onClick={handleCloseTab}
                     onKeyDown={handleKeyPressOnTab}
                     data-testid="tab-remove"
-                    aria-label="tab close"
+                    aria-label="close tab"
                   >
                     <CloseIcon />
                   </button>

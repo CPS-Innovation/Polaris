@@ -73,7 +73,7 @@ export const Modal: React.FC<Props> = ({
                 data-testid="btn-modal-close"
                 type="button"
                 className={classes.dataModalClose}
-                aria-label="modal close"
+                aria-label="close modal"
                 onClick={handleClose}
               >
                 <CloseIcon height={"40px"} width={"40px"} />
@@ -93,7 +93,7 @@ export const Modal: React.FC<Props> = ({
                   data-testid="btn-modal-close"
                   type="button"
                   className={classes.alertModalClose}
-                  aria-label="modal close"
+                  aria-label="close modal"
                   onClick={handleClose}
                 >
                   <CloseIcon height={"25px"} width={"25px"} />
