@@ -68,17 +68,20 @@ export const sortAscendingByListOrderAndId = (
 export const customSortByDocumentType = (a: string, b: string): number => {
   if (!a) return 1;
   if (!b) return -1;
+
+  const sliceA = a.slice(0, 12);
+  const sliceB = b.slice(0, 12);
   // Get the prefix characters
-  const prefixA = (a.match(/^[a-zA-Z]+/) || [""])[0];
-  const prefixB = (b.match(/^[a-zA-Z]+/) || [""])[0];
+  const prefixA = (sliceA.match(/^[a-zA-Z]+/) || [""])[0];
+  const prefixB = (sliceB.match(/^[a-zA-Z]+/) || [""])[0];
 
   // Get the mid elements of numbers
-  const midA = parseInt((a.match(/\d+/) || ["0"])[0]);
-  const midB = parseInt((b.match(/\d+/) || ["0"])[0]);
+  const midA = parseInt((sliceA.match(/\d+/) || ["0"])[0]);
+  const midB = parseInt((sliceB.match(/\d+/) || ["0"])[0]);
 
   // Get the postfix characters
-  const postfixA = (a.match(/[a-zA-Z]+$/u) || [""])[0];
-  const postfixB = (b.match(/[a-zA-Z]+$/u) || [""])[0];
+  const postfixA = (sliceA.match(/[a-zA-Z]$/u) || [""])[0];
+  const postfixB = (sliceB.match(/[a-zA-Z]$/u) || [""])[0];
 
   // Sort based on categories
   if (prefixA !== prefixB) {
