@@ -77,8 +77,8 @@ export const customSortByDocumentType = (a: string, b: string): number => {
   const midB = parseInt((b.match(/\d+/) || ["0"])[0]);
 
   // Get the postfix characters
-  const postfixA = (a.match(/[a-zA-Z]+$/) || [""])[0];
-  const postfixB = (b.match(/[a-zA-Z]+$/) || [""])[0];
+  const postfixA = (a.match(/[a-zA-Z]+$/u) || [""])[0];
+  const postfixB = (b.match(/[a-zA-Z]+$/u) || [""])[0];
 
   // Sort based on categories
   if (prefixA !== prefixB) {
