@@ -25,7 +25,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   const trackEvent = useAppInsightsTrackEvent();
   useEffect(() => {
     if (sasUrl) {
-      window.open(sasUrl, "_blank");
+      window.open(sasUrl, "_blank")?.focus();
     }
   }, [sasUrl]);
 
@@ -34,14 +34,15 @@ export const HeaderReadMode: React.FC<Props> = ({
       <LinkButton
         id="btn-open-pdf"
         dataTestId="btn-open-pdf"
+        className={classes.btnOpenPdf}
         onClick={() => {
           trackEvent("Open Document In Tab", {
             documentId: documentId,
           });
-          handleOpenPdfInNewTab(documentId);
+          // handleOpenPdfInNewTab(documentId);
         }}
       >
-        {presentationFileName} (opens in a new window)
+        {presentationFileName} (opens in a new tab)
       </LinkButton>
       {REPORT_ISSUE && <FeedbackButton {...contextData} />}
     </div>

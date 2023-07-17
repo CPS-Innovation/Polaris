@@ -116,6 +116,20 @@ export const makeApiRoutes = (authHeaders: any) => {
     } as RedactionSaveRequest,
   })
 
+  const GET_DOCUMENT_SAS_LINK = (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    correlationId: CorrelationId = "BLANK"
+  ) => ({
+    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/sas-url`,
+    headers: {
+      ...authHeaders,
+      "correlation-id": correlationIds[correlationId],
+    },
+    method: "GET",
+  })
+
   return {
     LIST_CASES,
     GET_CASE,
@@ -125,5 +139,6 @@ export const makeApiRoutes = (authHeaders: any) => {
     GET_SEARCH,
     CHECKOUT_DOCUMENT,
     SAVE_DOCUMENT,
+    GET_DOCUMENT_SAS_LINK,
   }
 }

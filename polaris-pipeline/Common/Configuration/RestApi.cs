@@ -16,13 +16,21 @@ namespace Common.Configuration
         // Document (singular)
         public const string Document = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/checkout";
-        public const string DocumentSasUrl = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sasUrl";
-        
+        public const string DocumentSasUrl = "urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sas-url";
+
         // Admin
         public const string ResetDurableState = "maintenance/resetDurableState";
 
         // Other
+        public const string AuthInitialisation = "init";
         public const string Health = "health";
+        public const string Status = "status";
+
+        // Internal Pipeline
+        public const string Search = "search";
+        public const string Extract = "extract";
+        public const string ConvertToPdf = "convert-to-pdf";
+        public const string RedactPdf = "redact-pdf";
 
         public static string GetCasePath(string caseUrn, long caseId)
         {
@@ -51,6 +59,12 @@ namespace Common.Configuration
         public static string GetDocumentPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}";
+            return url;
+        }
+
+        public static string GetDocumentSasPath(string caseUrn, long caseId, PolarisDocumentId polarisDocumentId)
+        {
+            var url = $"urns/{caseUrn}/cases/{caseId}/documents/{polarisDocumentId}/sas-url";
             return url;
         }
 

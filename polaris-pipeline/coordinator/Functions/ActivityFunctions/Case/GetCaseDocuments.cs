@@ -18,18 +18,18 @@ namespace coordinator.Functions.ActivityFunctions.Case
 {
     public class GetCaseDocuments
     {
-        private readonly IDdeiClient _ddeiService;
+        private readonly IDdeiClient _ddeiClient;
         private readonly IDocumentToggleService _documentToggleService;
         private readonly ILogger<GetCaseDocuments> _log;
 
         const string loggingName = $"{nameof(GetCaseDocuments)} - {nameof(Run)}";
 
         public GetCaseDocuments(
-                 IDdeiClient ddeiService,
+                 IDdeiClient ddeiClient,
                  IDocumentToggleService documentToggleService,
                  ILogger<GetCaseDocuments> logger)
         {
-            _ddeiService = ddeiService;
+            _ddeiClient = ddeiClient;
             _documentToggleService = documentToggleService;
             _log = logger;
         }
@@ -53,9 +53,9 @@ namespace coordinator.Functions.ActivityFunctions.Case
             #endregion
 
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            CmsDocumentDto[] documents = await _ddeiService.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
+            CmsDocumentDto[] documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
-            var cmsDocuments = 
+            var cmsDocuments =
                 documents
                     .Select(doc => MapPresentationFlags(doc))
                     .ToArray();
@@ -67,9 +67,9 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 CmsAuthValues = payload.CmsAuthValues,
                 CorrelationId = payload.CorrelationId
             };
-            var @case = await _ddeiService.GetCase(caseArgDto);
+            var @case = await _ddeiClient.GetCase(caseArgDto);
 
-            var pcdRequests = 
+            var pcdRequests =
                 @case.PreChargeDecisionRequests
                        .Select(MapPresentationFlags)
                        .ToArray();

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using PolarisDomain.Functions;
 using PolarisGateway;
 using DdeiClient.Services.Contracts;
+using Common.Configuration;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
@@ -28,7 +29,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         private readonly ILogger<InitiateCookies> _logger;
         private readonly IDdeiClient _ddeiClient;
 
-        public InitiateCookies(ILogger<InitiateCookies> logger, IDdeiClient ddeiClient) 
+        public InitiateCookies(ILogger<InitiateCookies> logger, IDdeiClient ddeiClient)
             : base(logger)
         {
             _logger = logger;
@@ -37,7 +38,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         [FunctionName("Init")]
         public async Task<IActionResult> Get(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "init")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req,
             ILogger log)
         {
             Guid currentCorrelationId = Guid.NewGuid();

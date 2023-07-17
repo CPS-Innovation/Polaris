@@ -10,10 +10,6 @@ param (
     [string]$TimeoutSec = 120
 )
 
-$AdjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
-
-Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersion $AdjustedSuccessTextContent";
-
 Function Req {
     Param(
         [Parameter(Mandatory=$True)]
@@ -43,14 +39,17 @@ Function Req {
             }
             else 
             {
-                if($response.Content -like "*$AdjustedSuccessTextContent*")
+                $jsonResponse = $response.Content | Out-String | ConvertFrom-Json
+                $currentBuildVersion = $jsonResponse.buildVersion.replace('-ci', '').replace('-man', '')
+                $currentBuildVersionNumber = [Int64]$currentBuildVersion.replace('.','')
+                if($currentBuildVersionNumber -ge $potentialBuildVersionNumber)
                 {
-                    Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
+                    Write-Host "Health check validation success - version matched '$adjustedSuccessTextContent' or was greater (response was $currentBuildVersion)."
                     $completed = $true
                 }
                 else
                 {
-                    Write-Warning "Invalid version found - expecting content to contain '$AdjustedSuccessTextContent', received '$response.Content'"
+                    Write-Warning "Invalid version found - expecting content to be '$adjustedSuccessTextContent' or greater but received '$currentBuildVersion' instead."
                 }
             }
             
@@ -82,14 +81,19 @@ Function Req {
 
 try
 {
+    $adjustedSuccessTextContent = $SuccessTextContent.replace('-ci', '').replace('-man', '')
+    $potentialBuildVersionNumber = [int64]$adjustedSuccessTextContent.Replace('.','')
+
+    Write-Output "$Method ""$URI"" Retries: $Retries, SecondsDelay $SecondsDelay, TimeoutSec $TimeoutSec, ExpectedVersionMin $adjustedSuccessTextContent";
+
     $res = Req -Retries $Retries -SecondsDelay $SecondsDelay -Params @{ 'Method' = $Method; 'Uri' = $URI; 'TimeoutSec' = $TimeoutSec; 'UseBasicParsing' = $true }
     if($res -eq $true)
     {
-        Write-Host "Health check validation success - '$AdjustedSuccessTextContent' found."
+        Write-Host "Health check validation success - '$adjustedSuccessTextContent' or greater was found."
     }
     else
     {
-        Write-Error "Health check validation failed - '$AdjustedSuccessTextContent' was never found."
+        Write-Error "Health check validation failed - expected a build version matching or greater than '$adjustedSuccessTextContent', but was never received."
     }
 }
 catch 

@@ -9,6 +9,8 @@
         public const string CaseId = nameof(CaseId);
         public const string DocumentId = nameof(DocumentId);
         public const string VersionId = nameof(VersionId);
+        public const string PolarisDocumentId = nameof(PolarisDocumentId);
+        public const string BlobName = nameof(BlobName);
     }
 
     public static class HttpHeaderValues
@@ -64,6 +66,8 @@
 
         public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
         public const string PipelineRedactPdfFunctionAppKey = "PolarisPipelineRedactPdfFunctionAppKey";
+        public const string PipelineTextExtractorBaseUrl = "PolarisPipelineTextExtractorBaseUrl";
+        public const string PipelineTextExtractorFunctionAppKey = "PolarisPipelineTextExtractorFunctionAppKey";
     }
 
     public static class ConfigKeys
@@ -71,7 +75,6 @@
         public static class CoordinatorKeys
         {
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
-            public const string TextExtractorUrl = "TextExtractorUrl";
             public const string AzureWebJobsStorage = "AzureWebJobsStorage";
         }
 
@@ -91,7 +94,6 @@
             public const string BlobExpirySecs = "BlobExpirySecs";
             public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
             public const string BlobServiceUrl = nameof(BlobServiceUrl);
-            public const string BlobServiceConnectionString = nameof(BlobServiceConnectionString);
         }
     }
 }

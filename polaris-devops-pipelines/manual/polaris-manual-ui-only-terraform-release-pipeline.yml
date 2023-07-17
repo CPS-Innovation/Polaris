@@ -293,7 +293,7 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -URI $(dev-proxy-status-url)
                 -Method $(status-check-method)
@@ -635,7 +635,7 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -URI $(qa-proxy-status-url)
                 -Method $(status-check-method)
@@ -977,7 +977,7 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              filePath: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -URI $(prod-proxy-status-url)
                 -Method $(status-check-method)

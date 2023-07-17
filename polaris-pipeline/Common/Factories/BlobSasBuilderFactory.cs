@@ -29,11 +29,14 @@ public class BlobSasBuilderFactory : IBlobSasBuilderFactory
             BlobContainerName = _configuration[ConfigKeys.SharedKeys.BlobServiceContainerName],
             BlobName = blobName,
             Resource = "b",
-            StartsOn = DateTimeOffset.UtcNow
+            StartsOn = DateTimeOffset.UtcNow,
+            ContentType = "application/pdf",
         };
+        // todo: ContentDisposition is being set below as opposed to within the initializer above in an attempt to stop two Content-Disposition
+        //  headers being set to the client.
+        sasBuilder.ContentDisposition = $"inline; filename={blobName}";
         sasBuilder.ExpiresOn = sasBuilder.StartsOn.AddSeconds(double.Parse(_configuration[ConfigKeys.SharedKeys.BlobExpirySecs]));
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
-        sasBuilder.ContentType = "application/pdf";
 
         _logger.LogMethodExit(correlationId, nameof(Create), sasBuilder.ToJson());
         return sasBuilder;

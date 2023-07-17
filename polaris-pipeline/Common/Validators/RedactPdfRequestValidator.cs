@@ -1,5 +1,4 @@
-﻿using Cmmon.Domain.Validators;
-using Common.Dto.Request;
+﻿using Common.Dto.Request;
 using FluentValidation;
 
 namespace Common.Domain.Validators

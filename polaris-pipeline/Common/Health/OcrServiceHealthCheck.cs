@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace Common.Health
                 mockService = _ocrService.GetType() == typeof(MockOcrService);
 #endif
 
-                var response = await _ocrService.GetOcrResultsAsync("2143172/pdfs/TestDOCX.pdf", Guid.NewGuid());
+                var response = await _ocrService.GetOcrResultsAsync(new MemoryStream(), Guid.NewGuid());
                 string json = JsonSerializer.Serialize(response);
 
                 return HealthCheckResult.Healthy(mockService ? "(MOCKED SERVICE)" : $"Model Version={response.ModelVersion}");

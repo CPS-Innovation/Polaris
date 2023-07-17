@@ -30,13 +30,13 @@ using Common.Services.BlobStorageService;
 using Microsoft.Extensions.Logging;
 using Common.Handlers.Contracts;
 using Common.Handlers;
-using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Domain;
 using RenderPcd;
 using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using Microsoft.Extensions.Azure;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -59,39 +59,32 @@ namespace coordinator
             builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
             builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
-            builder.Services.AddSingleton<ITextExtractorHttpRequestFactory, TextExtractorHttpRequestFactory>();
             builder.Services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
 
-            builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
-            {
-                var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
-
-                return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
-                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
-            });
-
-            // Redact PDF
-            builder.Services.AddHttpClient<IRedactionClient, RedactionClient>(client =>
+            builder.Services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
+            builder.Services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+
+            builder.Services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
 
             builder.Services.RegisterMapsterConfiguration();
-            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
             builder.Services.AddBlobSasGenerator();
             builder.Services.AddSearchClient(configuration);
             builder.Services.AddDdeiClient(configuration);
-
-            var pipelineRedactPdfBaseUrl = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
-            builder.Services.AddHttpClient(nameof(GeneratePdf), client =>
-            {
-                client.BaseAddress = pipelineRedactPdfBaseUrl;
-            });
 
             builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder);

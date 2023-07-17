@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Logging;
+using Common.Services.BlobStorageService.Contracts;
 using Common.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -15,13 +15,13 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 {
     public class GetDocumentClient : BaseClient
     {
-        private readonly IPolarisStorageClient _blobStorageClient;
+        private readonly IPolarisBlobStorageService _blobStorageService;
 
         const string loggingName = $"{nameof(GetDocumentClient)} - {nameof(HttpStart)}";
 
-        public GetDocumentClient(IPolarisStorageClient blobStorageClient)
+        public GetDocumentClient(IPolarisBlobStorageService blobStorageService)
         {
-            _blobStorageClient = blobStorageClient;
+            _blobStorageService = blobStorageService;
         }
 
         [FunctionName(nameof(GetDocumentClient))]
@@ -48,7 +48,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
                 var blobName = response.GetBlobName();
                 log.LogMethodFlow(currentCorrelationId, loggingName, $"Getting PDF document from Polaris blob storage for blob named '{blobName}'");
-                var blobStream = await _blobStorageClient.GetDocumentAsync(blobName, currentCorrelationId);
+                var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
 
                 return blobStream != null
                     ? new OkObjectResult(blobStream)

@@ -11,7 +11,7 @@ namespace Common.Health
 {
     public class SearchIndexServiceHealthCheck : IHealthCheck
     {
-        private readonly ICaseSearchClient _searchIndexService;
+        private readonly ISearchIndexService _searchIndexService;
 
         #region OcrResults
         readonly string _ocrResult =
@@ -63,7 +63,7 @@ namespace Common.Health
         #endregion
 
 
-        public SearchIndexServiceHealthCheck(ICaseSearchClient searchIndexService)
+        public SearchIndexServiceHealthCheck(ISearchIndexService searchIndexService)
         {
             _searchIndexService = searchIndexService;
         }

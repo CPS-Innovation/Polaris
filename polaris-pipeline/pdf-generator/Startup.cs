@@ -11,6 +11,7 @@ using Common.Services.BlobStorageService;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation;
 using Common.Services.DocumentEvaluation.Contracts;
+using Common.Services.Extensions;
 using Common.Telemetry;
 using Common.Telemetry.Contracts;
 using FluentValidation;
@@ -39,18 +40,7 @@ namespace pdf_generator
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(configuration);
-
-            builder.Services.AddAzureClients(azureClientFactoryBuilder =>
-            {
-                azureClientFactoryBuilder.AddBlobServiceClient(configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString]);
-            });
-            builder.Services.AddTransient<IPolarisBlobStorageService>(serviceProvider =>
-            {
-                var loggingService = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
-
-                return new PolarisBlobStorageService(serviceProvider.GetRequiredService<BlobServiceClient>(),
-                        configuration[ConfigKeys.SharedKeys.BlobServiceContainerName], loggingService);
-            });
+            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
 
             builder.Services.AddPdfGenerator();
 

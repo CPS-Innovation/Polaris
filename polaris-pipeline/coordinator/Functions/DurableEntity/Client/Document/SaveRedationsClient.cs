@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,6 +19,7 @@ using Ddei.Domain.CaseData.Args;
 using Common.Dto.Request;
 using DdeiClient.Services.Contracts;
 using Common.ValueObjects;
+using Common.Services.BlobStorageService.Contracts;
 
 namespace coordinator.Functions.DurableEntity.Client.Document
 {
@@ -29,21 +29,21 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
-        private readonly IRedactionClient _redactionClient;
-        private readonly IPolarisStorageClient _blobStorageClient;
-        private readonly IDdeiClient _gatewayDdeiService;
+        private readonly IPdfGeneratorClient _redactionClient;
+        private readonly IPolarisBlobStorageService _blobStorageService;
+        private readonly IDdeiClient _ddeiClient;
 
         public SaveRedactionsClient(IJsonConvertWrapper jsonConvertWrapper,
                               IValidator<RedactPdfRequestDto> requestValidator,
-                              IRedactionClient redactionClient,
-                              IPolarisStorageClient blobStorageClient,
-                              IDdeiClient gatewayDdeiService)
+                              IPdfGeneratorClient redactionClient,
+                              IPolarisBlobStorageService blobStorageService,
+                              IDdeiClient ddeiClient)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;
             _redactionClient = redactionClient;
-            _blobStorageClient = blobStorageClient;
-            _gatewayDdeiService = gatewayDdeiService;
+            _blobStorageService = blobStorageService;
+            _ddeiClient = ddeiClient;
         }
 
         [FunctionName(nameof(SaveRedactionsClient))]
@@ -89,7 +89,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new ArgumentException(error);
                 }
 
-                var pdfStream = await _blobStorageClient.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
+                var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
@@ -108,7 +108,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                await _gatewayDdeiService.UploadPdf(arg, pdfStream);
+                await _ddeiClient.UploadPdf(arg, pdfStream);
 
                 return new ObjectResult(redactionResult);
             }

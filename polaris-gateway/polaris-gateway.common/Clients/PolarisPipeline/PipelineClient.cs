@@ -126,7 +126,7 @@ namespace Gateway.Clients.PolarisPipeline
             HttpResponseMessage response;
             try
             {
-                var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/sasUrl?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
+                var url = $"{RestApi.GetDocumentSasPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
                 response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
             }
             catch (HttpRequestException exception)
@@ -243,7 +243,7 @@ namespace Gateway.Clients.PolarisPipeline
             return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(stringContent, correlationId);
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, string cmsAuthValues, Guid correlationId, HttpContent content = null, HttpStatusCode[] expectedResponseCodes=null)
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, string cmsAuthValues, Guid correlationId, HttpContent content = null, HttpStatusCode[] expectedResponseCodes = null)
         {
             _logger.LogMethodEntry(correlationId, nameof(SendRequestAsync), requestUri);
 

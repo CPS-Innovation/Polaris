@@ -1,10 +1,4 @@
-﻿using Azure.Identity;
-using Azure.Search.Documents;
-using Azure.Storage.Blobs;
-using Common.Clients;
-using Common.Clients.Contracts;
-using Common.Configuration;
-using Common.Constants;
+﻿using Azure.Search.Documents;
 using Common.Factories;
 using Common.Factories.Contracts;
 using Common.Mappers;
@@ -13,12 +7,18 @@ using Common.Services.SasGeneratorService;
 using Common.Services.CaseSearchService;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System;
 using Common.Services.CaseSearchService.Contracts;
+using Microsoft.Extensions.Azure;
+using Common.Configuration;
+using Common.Constants;
+using System;
+using Azure.Identity;
+using Azure.Storage.Blobs;
+using Common.Services.BlobStorageService.Contracts;
+using Microsoft.Extensions.Logging;
+using Common.Services.BlobStorageService;
 
 namespace Common.Services.Extensions
 {
@@ -33,31 +33,12 @@ namespace Common.Services.Extensions
                     .WithCredential(new DefaultAzureCredential());
             });
 
-            services.AddTransient((Func<IServiceProvider, IPolarisStorageClient>)(serviceProvider =>
+            services.AddTransient((Func<IServiceProvider, IPolarisBlobStorageService>)(serviceProvider =>
             {
-                var logger = serviceProvider.GetService<ILogger<PolarisStorageClient>>();
-                BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
-                var blobStorageClient = new PolarisStorageClient(blobServiceClient, blobServiceContainerName, logger);
-
-                return blobStorageClient;
-            }));
-        }
-
-        public static void AddBlobStorageWithConnectionString(this IServiceCollection services, IConfigurationRoot configuration)
-        {
-            services.AddAzureClients(azureClientFactoryBuilder =>
-            {
-                string blobServiceConnectionString = configuration[ConfigKeys.SharedKeys.BlobServiceConnectionString];
-                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceConnectionString);
-            });
-
-            services.AddTransient((Func<IServiceProvider, IPolarisStorageClient>)(serviceProvider =>
-            {
-                var logger = serviceProvider.GetService<ILogger<PolarisStorageClient>>();
-                BlobServiceClient blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
-                string blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
-                return new PolarisStorageClient(blobServiceClient, blobServiceContainerName, logger);
+                var logger = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
+                var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
+                var blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
+                return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName, logger);
             }));
         }
 
@@ -76,7 +57,7 @@ namespace Common.Services.Extensions
                 configuration.GetSection("searchClient").Bind(settings);
             });
 
-            services.AddTransient<ICaseSearchClient, CaseSearchClient>();
+            services.AddTransient<ISearchIndexService, SearchIndexService>();
             services.AddTransient<IAzureSearchClientFactory, AzureSearchClientFactory>();
             services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
             services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();

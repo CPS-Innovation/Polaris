@@ -1,8 +1,7 @@
-﻿using Common.Domain.Validators;
-using Common.Dto.Request.Redaction;
+﻿using Common.Dto.Request.Redaction;
 using FluentValidation;
 
-namespace Cmmon.Domain.Validators
+namespace Common.Domain.Validators
 {
     public class RedactionDefinitionValidator : AbstractValidator<RedactionDefinitionDto>
     {

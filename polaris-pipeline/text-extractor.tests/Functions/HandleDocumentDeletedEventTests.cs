@@ -17,17 +17,17 @@ namespace text_extractor.tests.Functions;
 public class HandleDocumentDeletedEventTests
 {
     private readonly Fixture _fixture;
-    private readonly Mock<ICaseSearchClient> _searchIndexServiceMock;
+    private readonly Mock<ISearchIndexService> _searchIndexServiceMock;
 
     private readonly HandleDocumentDeletedEvent _handleDocumentDeletedEvent;
-    
+
     public HandleDocumentDeletedEventTests()
     {
         _fixture = new Fixture();
-        _searchIndexServiceMock = new Mock<ICaseSearchClient>();
+        _searchIndexServiceMock = new Mock<ISearchIndexService>();
 
         var logger = new Mock<ILogger<HandleDocumentDeletedEvent>>();
-        
+
         _handleDocumentDeletedEvent = new HandleDocumentDeletedEvent(logger.Object, _searchIndexServiceMock.Object);
     }
 
@@ -36,13 +36,13 @@ public class HandleDocumentDeletedEventTests
     {
         var act = async () =>
         {
-           await _handleDocumentDeletedEvent.RunAsync(null, new ExecutionContext());
+            await _handleDocumentDeletedEvent.RunAsync(null, new ExecutionContext());
         };
 
         using (new AssertionScope())
         {
             await act.Should().ThrowAsync<ArgumentNullException>();
-            _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(), 
+            _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(),
                     It.IsAny<Guid>()), Times.Never);
         }
     }
@@ -53,18 +53,18 @@ public class HandleDocumentDeletedEventTests
         var evt = _fixture.Create<EventGridEvent>();
 
         await _handleDocumentDeletedEvent.RunAsync(evt, new ExecutionContext());
-        
-        _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(), 
+
+        _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(),
             It.IsAny<Guid>()), Times.Never);
     }
-    
+
     [Fact]
     public async Task RunAsync_WhenEventGridEventType_IsBlobDeleted_ButNoEventDataReceived_ThrowsNullReferenceException()
     {
         var evt = _fixture.Create<EventGridEvent>();
         evt.EventType = EventGridEvents.BlobDeletedEvent;
         evt.Data = null;
-        
+
         var act = async () =>
         {
             await _handleDocumentDeletedEvent.RunAsync(evt, new ExecutionContext());
@@ -73,17 +73,17 @@ public class HandleDocumentDeletedEventTests
         using (new AssertionScope())
         {
             await act.Should().ThrowAsync<NullReferenceException>();
-            _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(), 
+            _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(),
                 It.IsAny<Guid>()), Times.Never);
         }
     }
-    
+
     [Fact]
     public async Task RunAsync_WhenEventGridEventType_IsBlobDeleted_AndEventDataIsReceivedAsExpected_ThenTheEventIsProcessed_UsingTheCorrectParams()
     {
         var evt = _fixture.Create<EventGridEvent>();
         evt.EventType = EventGridEvents.BlobDeletedEvent;
-        
+
         const string eventJson = @"{
 		            ""api"": ""DeleteBlob"",
                     ""clientRequestId"": ""a2b52c16-3aab-4f42-4567-321eae73f697"",
@@ -99,10 +99,10 @@ public class HandleDocumentDeletedEventTests
                         }
                     }";
         evt.Data = new BinaryData(eventJson);
-        
+
         await _handleDocumentDeletedEvent.RunAsync(evt, new ExecutionContext());
-        
-        _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(), 
+
+        _searchIndexServiceMock.Verify(s => s.RemoveResultsByBlobNameAsync(It.IsAny<long>(), It.IsAny<string>(),
             It.IsAny<Guid>()), Times.Once);
     }
 }

@@ -96,7 +96,7 @@ export const getPdfSasUrl = async (
   documentId: string
 ) => {
   const url = fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/sasUrl`
+    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/sas-url`
   );
   const response = await internalFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
