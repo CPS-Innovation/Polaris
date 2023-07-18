@@ -1450,7 +1450,7 @@ stages:
                 
   - stage: Update_QA_Tag
     displayName: Update Tag > QA
-    dependsOn: Create_QA_Report
+    dependsOn: Check_QA
     condition: succeeded()
     jobs:
       - job: Update_QA_Tag
@@ -2019,7 +2019,7 @@ stages:
                 
   - stage: Update_PROD_Tag
     displayName: Update Tag > PROD
-    dependsOn: Create_PROD_Report
+    dependsOn: Check_PROD
     condition: succeeded()
     jobs:
       - job: Update_PROD_Tag
