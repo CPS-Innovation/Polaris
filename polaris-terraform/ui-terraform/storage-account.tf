@@ -1,6 +1,6 @@
 resource "azurerm_storage_account" "sacpspolaris" {
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
-  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
+  #checkov:skip=CKV_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   name                = "sacps${var.env != "prod" ? var.env : ""}polaris"
   resource_group_name = azurerm_resource_group.rg_polaris.name

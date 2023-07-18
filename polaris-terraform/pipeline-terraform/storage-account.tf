@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "sa" {
-  #checkov:skip=CKV2_AZURE_206:Ensure that Storage Accounts use replication
+  #checkov:skip=CKV_AZURE_206:Ensure that Storage Accounts use replication
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"

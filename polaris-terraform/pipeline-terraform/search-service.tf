@@ -1,5 +1,5 @@
 resource "azurerm_search_service" "ss" {
-  #checkov:skip=CKV2_AZURE_207:Ensure Azure Cognitive Search service uses managed identities to access Azure resources
+  #checkov:skip=CKV_AZURE_207:Ensure Azure Cognitive Search service uses managed identities to access Azure resources
   name                          = "ss-${local.resource_name}"
   resource_group_name           = azurerm_resource_group.rg.name
   location                      = azurerm_resource_group.rg.location
