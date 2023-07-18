@@ -64,8 +64,9 @@
     @foreach(var defendant in Model.DefendantsAndCharges)
     {
         <h4>@defendant.DefendantDetails.Surname, @defendant.DefendantDetails.FirstNames</h4>
-        <div>DOB: @defendant.DefendantDetails.Dob</div>
+        <div>DOB: @defendant.DefendantDetails.GetDdMmYyyyDateOfBirth()</div>
         <div>Age: @defendant.DefendantDetails.Age</div>
+        <div>Youth Offender: @(defendant.DefendantDetails.IsYouth ? "Yes" : "No")</div>
 
         <table>
             <tr>
