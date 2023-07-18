@@ -7,7 +7,6 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   #checkov:skip=CKV_AZURE_213:Ensure that App Service configures health check
   #checkov:skip=CKV_AZURE_71:Ensure that Managed identity provider is enabled for app services
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
-  #checkov:skip=CKV_SECRET_6:.*.tf$
   name                      = "as-web-${local.resource_name}"
   location                  = azurerm_resource_group.rg_polaris.location
   resource_group_name       = azurerm_resource_group.rg_polaris.name
@@ -57,6 +56,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     # our default_provider:
     active_directory_v2 {
       tenant_auth_endpoint       = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_as_web_polaris.client_id
     }
