@@ -1,5 +1,5 @@
 resource "azurerm_cognitive_account" "computer_vision_service" {
-  #checkov:skip=CKV_AZURE_22:Ensure that Cognitive Services enables customer-managed key for encryption
+  #checkov:skip=CKV2_AZURE_22:Ensure that Cognitive Services enables customer-managed key for encryption
   name                = "cv-${local.resource_name}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location

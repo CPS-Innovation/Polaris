@@ -58,8 +58,8 @@ resource "azurerm_private_dns_a_record" "polaris_key_vault_dns_a" {
 }
 
 resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
-  #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
-  #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
+  #checkov:skip=CKV2_AZURE_41:Ensure that the expiration date is set on all secrets
+  #checkov:skip=CKV2_AZURE_114:Ensure that key vault secrets have "content_type" set
   name         = "PolarisFunctionAppRegistrationClientSecret"
   value        = azuread_application_password.faap_polaris_app_service.value
   key_vault_id = azurerm_key_vault.kv_polaris.id
