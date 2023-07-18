@@ -11,31 +11,31 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   tags                        = local.common_tags
   functions_extension_version = "~4"
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
-    "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_coordinator_file_share.name
-    "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.coordinator_scale_controller
-    "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
-    "CoordinatorOrchestratorTimeoutSecs"       = "600"
-    "PolarisPipelineTextExtractorBaseUrl"      = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/"
+    "FUNCTIONS_WORKER_RUNTIME"                   = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"        = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"            = "true"
+    "WEBSITE_CONTENTOVERVNET"                    = "1"
+    "WEBSITE_DNS_SERVER"                         = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                     = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"   = azurerm_storage_account.sa.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                       = azapi_resource.pipeline_sa_coordinator_file_share.name
+    "SCALE_CONTROLLER_LOGGING_ENABLED"           = var.pipeline_logging.coordinator_scale_controller
+    "AzureWebJobsStorage"                        = azurerm_storage_account.sa.primary_connection_string
+    "CoordinatorOrchestratorTimeoutSecs"         = "600"
+    "PolarisPipelineTextExtractorBaseUrl"        = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorFunctionAppKey" = data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key
-    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
-    "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                 = "documents"
-    "BlobExpirySecs"                           = 3600
-    "BlobUserDelegationKeyExpirySecs"          = 3600
-    "DdeiBaseUrl"                              = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                            = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
-    "PolarisPipelineRedactPdfBaseUrl"          = "https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"   = data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key
+    "SearchClientAuthorizationKey"               = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                    = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                      = jsondecode(file("search-index-definition.json")).name
+    "BlobServiceUrl"                             = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobServiceContainerName"                   = "documents"
+    "BlobExpirySecs"                             = 3600
+    "BlobUserDelegationKeyExpirySecs"            = 3600
+    "DdeiBaseUrl"                                = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                              = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "PolarisPipelineRedactPdfBaseUrl"            = "https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/api/"
+    "PolarisPipelineRedactPdfFunctionAppKey"     = data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key
   }
   https_only = true
 

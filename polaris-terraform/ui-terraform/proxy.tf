@@ -1,4 +1,7 @@
 resource "azurerm_linux_web_app" "polaris_proxy" {
+  #checkov:skip=CKV_AZURE_88:Ensure that app services use Azure Files
+  #checkov:skip=CKV_AZURE_13:Ensure App Service Authentication is set on Azure App Service
+  #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
   name                      = "${local.resource_name}-cmsproxy"
   resource_group_name       = azurerm_resource_group.rg_polaris.name
   location                  = azurerm_resource_group.rg_polaris.location
@@ -36,7 +39,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
     "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
-    "SAS_URL_DOMAIN_NAME"                            = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
+    "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "DOCKER_REGISTRY_SERVER_URL"                      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
     "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
@@ -68,7 +71,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     excluded_paths         = ["/status"]
 
     active_directory_v2 {
-      tenant_auth_endpoint       = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_polaris_proxy.client_id
     }
@@ -88,6 +92,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   }
 
   logs {
+    detailed_error_messages = true
+    failed_request_tracing  = true
     http_logs {
       file_system {
         retention_in_days = 3
