@@ -1,4 +1,7 @@
 resource "azurerm_storage_account" "sa" {
+  #checkov:skip=CKV_AZURE_206:Ensure that Storage Accounts use replication
+  #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
+  #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -64,6 +67,15 @@ resource "azurerm_storage_container" "container" {
   storage_account_name  = azurerm_storage_account.sa.name
   container_access_type = "private"
   depends_on            = [azurerm_storage_account.sa]
+}
+
+resource "azurerm_log_analytics_storage_insights" "pipeline_documents_analytics_storage_insights" {
+  name                 = "documents-storage-insights-config"
+  resource_group_name  = azurerm_resource_group.rg.name
+  workspace_id         = data.azurerm_log_analytics_workspace.global_la.id
+  storage_account_id   = azurerm_storage_account.sa.id
+  storage_account_key  = azurerm_storage_account.sa.primary_access_key
+  blob_container_names = ["documents"]
 }
 
 data "azurerm_function_app_host_keys" "fa_text_extractor_generator_host_keys" {

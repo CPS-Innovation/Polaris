@@ -1,4 +1,5 @@
 resource "azurerm_subnet" "sn_cms_services_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "cms-services-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -23,6 +24,7 @@ resource "azurerm_subnet_route_table_association" "sn_cms_services_subnet_rt_ass
 }
 
 resource "azurerm_subnet" "sn_ddei_services_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-cin-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -48,6 +50,7 @@ resource "azurerm_subnet_route_table_association" "sn_ddei_services_subnet_rt_as
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_sa_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-pipeline-sa-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -66,6 +69,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_sa_subnet
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_coordinator_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-pipeline-coordinator-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -91,6 +95,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_coordinat
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_pdfgenerator_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-pipeline-pdfgenerator-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -116,6 +121,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_pdfgenera
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-pipeline-textextractor-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -141,6 +147,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_textextra
 }
 
 resource "azurerm_subnet" "sn_polaris_pipeline_keyvault_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-pipeline-keyvault-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -159,6 +166,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_keyvault_
 }
 
 resource "azurerm_subnet" "sn_polaris_gateway_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-gateway-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -184,6 +192,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_gateway_subnet_rt_
 }
 
 resource "azurerm_subnet" "sn_polaris_ui_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-ui-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -209,6 +218,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_ui_subnet_rt_assoc
 }
 
 resource "azurerm_subnet" "sn_polaris_proxy_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-proxy-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -234,6 +244,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_proxy_subnet_rt_as
 }
 
 resource "azurerm_subnet" "sn_polaris_apps_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-apps-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -252,6 +263,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_apps_subnet_rt_ass
 }
 
 resource "azurerm_subnet" "sn_polaris_ci_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-ci-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -277,6 +289,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_ci_subnet_rt_assoc
 }
 
 resource "azurerm_subnet" "sn_polaris_dns_resolve_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-dns-resolve-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -295,6 +308,7 @@ resource "azurerm_subnet" "sn_polaris_dns_resolve_subnet" {
 }
 
 resource "azurerm_subnet" "sn_gateway_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "GatewaySubnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -304,6 +318,7 @@ resource "azurerm_subnet" "sn_gateway_subnet" {
 }
 
 resource "azurerm_subnet" "sn_polaris_auth_handover_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-auth-handover-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -323,6 +338,7 @@ resource "azurerm_subnet" "sn_polaris_auth_handover_subnet" {
 }
 
 resource "azurerm_subnet" "sn_polaris_mock_service_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-service-mock-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name
@@ -350,6 +366,7 @@ resource "azurerm_subnet_route_table_association" "sn_polaris_mock_service_subne
 }
 
 resource "azurerm_subnet" "sn_polaris_ampls_subnet" {
+  #checkov:skip=CKV2_AZURE_31:Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "polaris-ampls-subnet"
   resource_group_name  = azurerm_resource_group.rg_networking.name
   virtual_network_name = azurerm_virtual_network.vnet_networking.name

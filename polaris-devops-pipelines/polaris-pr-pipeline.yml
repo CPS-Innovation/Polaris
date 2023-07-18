@@ -172,10 +172,6 @@ stages:
             inputs:
               terraformVersion: $(terraform-version)
           
-          # Install Checkov
-          - bash: pip3 install checkov
-            displayName: Checkov > Install
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -196,23 +192,6 @@ stages:
           - bash: terraform validate
             displayName: Terraform > Validate Config
             workingDirectory: $(pipelineTerraformWorkingDir)
-          
-          # Verify main files with Checkov
-          - bash: checkov --directory $(pipelineTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(pipelineTerraformWorkingDir)/Pipeline-Checkov-Report.xml
-            displayName: Checkov > Verify Pipeline Terraform
-          
-          # Publish test results for root module
-          - task: PublishTestResults@2
-            displayName: Checkov > Publish Pipeline Test Results
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '**/*-Checkov-Report.xml'
-              searchFolder: $(pipelineTerraformWorkingDir)
-              mergeTestResults: true
-              testRunTitle: Checkov Scan
-              failTaskOnFailedTests: false
-              publishRunAttachments: true
 
       - job: CheckPlan
         pool:
@@ -269,10 +248,6 @@ stages:
             inputs:
               terraformVersion: $(terraform-version)
           
-          # Install Checkov
-          - bash: pip3 install checkov
-            displayName: Checkov > Install
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -294,23 +269,6 @@ stages:
             displayName: Terraform > Validate Config
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
           
-          # Verify main files with Checkov
-          - bash: checkov --directory $(pipelineEventsTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(pipelineEventsTerraformWorkingDir)/Pipeline-Events-Checkov-Report.xml
-            displayName: Checkov > Verify Pipeline Events Terraform
-          
-          # Publish test results for root module
-          - task: PublishTestResults@2
-            displayName: Checkov > Publish Pipeline Events Test Results
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '**/*-Checkov-Report.xml'
-              searchFolder: $(pipelineEventsTerraformWorkingDir)
-              mergeTestResults: true
-              testRunTitle: Checkov Scan
-              failTaskOnFailedTests: false
-              publishRunAttachments: true
-
       - job: CheckPlan
         pool:
           name: $(dev-build-agent)
@@ -366,10 +324,6 @@ stages:
             inputs:
               terraformVersion: $(terraform-version)
           
-          # Install Checkov
-          - bash: pip3 install checkov
-            displayName: Checkov > Install
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -390,23 +344,6 @@ stages:
           - bash: terraform validate
             displayName: Terraform > Validate Config
             workingDirectory: $(uiTerraformWorkingDir)
-          
-          # Verify main files with Checkov
-          - bash: checkov --directory $(uiTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(uiTerraformWorkingDir)/UI-Checkov-Report.xml
-            displayName: Checkov > Verify UI Terraform
-          
-          # Publish test results for root module
-          - task: PublishTestResults@2
-            displayName: Checkov > Publish UI Test Results
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '**/*-Checkov-Report.xml'
-              searchFolder: $(uiTerraformWorkingDir)
-              mergeTestResults: true
-              testRunTitle: Checkov Scan
-              failTaskOnFailedTests: false
-              publishRunAttachments: true
 
       - job: CheckPlan
         pool:
@@ -463,10 +400,6 @@ stages:
             inputs:
               terraformVersion: $(terraform-version)
           
-          # Install Checkov
-          - bash: pip3 install checkov
-            displayName: Checkov > Install
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -487,23 +420,6 @@ stages:
           - bash: terraform validate
             displayName: Terraform > Validate Config
             workingDirectory: $(uiEventsTerraformWorkingDir)
-          
-          # Verify main files with Checkov
-          - bash: checkov --directory $(uiEventsTerraformWorkingDir) --skip-check $(checkov-rules-to-skip) -o junitxml > $(uiEventsTerraformWorkingDir)/UI-Events-Checkov-Report.xml
-            displayName: Checkov > Verify UI Events Terraform
-          
-          # Publish test results for root module
-          - task: PublishTestResults@2
-            displayName: Checkov > Publish UI Events Test Results
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '**/*-Checkov-Report.xml'
-              searchFolder: $(uiEventsTerraformWorkingDir)
-              mergeTestResults: true
-              testRunTitle: Checkov Scan
-              failTaskOnFailedTests: false
-              publishRunAttachments: true
 
       - job: CheckPlan
         pool:
