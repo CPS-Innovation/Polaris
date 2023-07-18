@@ -110,11 +110,11 @@ data "azurerm_key_vault" "terraform_key_vault" {
 }
 
 data "azurerm_application_insights" "global_ai" {
-  name                = "ai-${local.resource_name}"
+  name                = "ai-${local.global_name}"
   resource_group_name = "rg-${local.analytics_group_name}"
 }
 
 data "azurerm_log_analytics_workspace" "global_la" {
-  name                = "la-${local.resource_name}"
+  name                = "la-${local.global_name}"
   resource_group_name = "rg-${local.analytics_group_name}"
 }

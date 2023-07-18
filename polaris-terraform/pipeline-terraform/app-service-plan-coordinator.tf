@@ -16,7 +16,7 @@ resource "azurerm_monitor_autoscale_setting" "amas_polaris_pipeline_coordinator"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   target_resource_id  = azurerm_service_plan.asp_polaris_pipeline_coordinator.id
-  enabled             = false 
+  enabled             = false
   profile {
     name = "Polaris Pipeline Coordinator App Service Performance Scaling Profile"
     capacity {

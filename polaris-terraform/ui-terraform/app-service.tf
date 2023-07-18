@@ -55,7 +55,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
     # our default_provider:
     active_directory_v2 {
-      tenant_auth_endpoint       = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
+      tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_id                  = module.azurerm_app_reg_as_web_polaris.client_id
@@ -66,10 +66,10 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       token_store_enabled = true
     }
   }
-  
+
   logs {
     detailed_error_messages = true
-    failed_request_tracing = true
+    failed_request_tracing  = true
   }
 }
 
