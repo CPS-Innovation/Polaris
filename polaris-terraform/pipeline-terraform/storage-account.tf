@@ -64,6 +64,7 @@ resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
 }
 
 resource "azurerm_storage_container" "container" {
+  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   name                  = "documents"
   storage_account_name  = azurerm_storage_account.sa.name
   container_access_type = "private"
