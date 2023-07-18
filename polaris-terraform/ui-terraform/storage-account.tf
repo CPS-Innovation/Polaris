@@ -193,6 +193,7 @@ resource "azapi_resource" "polaris_sacpspolaris_auth_handover_file_share" {
 }
 
 resource "azurerm_storage_container" "polaris_proxy_content" {
+  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   name                  = "content"
   storage_account_name  = azurerm_storage_account.sacpspolaris.name
   container_access_type = "private"

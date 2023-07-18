@@ -2,7 +2,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   #checkov:skip=CKV_AZURE_88:Ensure that app services use Azure Files
   #checkov:skip=CKV_AZURE_13:Ensure App Service Authentication is set on Azure App Service
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
-  #checkov:skip=CKV_AZURE_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+  #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
   name                      = "${local.resource_name}-cmsproxy"
   resource_group_name       = azurerm_resource_group.rg_polaris.name
   location                  = azurerm_resource_group.rg_polaris.location
