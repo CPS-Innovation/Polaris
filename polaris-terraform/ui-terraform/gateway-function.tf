@@ -1,5 +1,6 @@
 #################### Functions ####################
 resource "azurerm_linux_function_app" "fa_polaris" {
+  #checkov:skip=CKV_AZURE_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
   name                        = "fa-${local.resource_name}-gateway"
   location                    = azurerm_resource_group.rg_polaris.location
   resource_group_name         = azurerm_resource_group.rg_polaris.name
