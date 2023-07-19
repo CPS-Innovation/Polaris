@@ -27,26 +27,43 @@ namespace Common.Dto.Case
         {
             get
             {
-                // YYYY-MM-DD ?
-                if(Dob?.Length == 10 
-                    && char.IsDigit(Dob[0]) && char.IsDigit(Dob[1]) && char.IsDigit(Dob[2]) && char.IsDigit(Dob[3])
-                    && Dob[4] == '-'
-                    && char.IsDigit(Dob[5]) && char.IsDigit(Dob[6])
-                    && Dob[7] == '-'
-                    && char.IsDigit(Dob[8]) && char.IsDigit(Dob[9])
-                  )
+                if (IsYyyyMmDd())
                 {
                     // https://stackoverflow.com/questions/9/how-do-i-calculate-someones-age-based-on-a-datetime-type-birthday
+                    DateTime dob = GetYyyyMmDdDateOfBirth();
                     var today = DateTime.Today;
-                    DateTime dob = new DateTime(int.Parse(Dob.Substring(0, 4)), int.Parse(Dob.Substring(5, 2)), int.Parse(Dob.Substring(8, 2)));
                     var age = today.Year - dob.Year;
-                    if (dob.Date > today.AddYears(-age)) age--;
+                    if (dob.Date > today.AddYears(-age))
+                        age--;
 
                     return age.ToString();
                 }
 
                 return string.Empty;
             }
+        }
+
+        private DateTime GetYyyyMmDdDateOfBirth()
+        {
+            return new DateTime(int.Parse(Dob.Substring(0, 4)), int.Parse(Dob.Substring(5, 2)), int.Parse(Dob.Substring(8, 2)));
+        }
+
+        public string GetDdMmYyyyDateOfBirth()
+        {
+            if (IsYyyyMmDd())
+                return $"{Dob.Substring(8, 2)}/{Dob.Substring(5, 2)}/{Dob.Substring(0, 4)}";
+
+            return Dob;
+        }
+
+        private bool IsYyyyMmDd()
+        {
+            return Dob?.Length == 10
+                    && char.IsDigit(Dob[0]) && char.IsDigit(Dob[1]) && char.IsDigit(Dob[2]) && char.IsDigit(Dob[3])
+                    && Dob[4] == '-'
+                    && char.IsDigit(Dob[5]) && char.IsDigit(Dob[6])
+                    && Dob[7] == '-'
+                    && char.IsDigit(Dob[8]) && char.IsDigit(Dob[9]);
         }
 
         [JsonProperty("youth")]

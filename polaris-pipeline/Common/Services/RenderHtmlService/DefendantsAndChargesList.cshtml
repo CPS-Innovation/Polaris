@@ -61,11 +61,12 @@
 
 <body style="width:800px">
     <h2>Defendants and Charges</h2>
-    @foreach(var defendant in Model.DefendantsAndCharges)
+    @foreach (var defendant in Model.DefendantsAndCharges)
     {
         <h4>@defendant.DefendantDetails.Surname, @defendant.DefendantDetails.FirstNames</h4>
-        <div>DOB: @defendant.DefendantDetails.Dob</div>
+        <div>DOB: @defendant.DefendantDetails.GetDdMmYyyyDateOfBirth()</div>
         <div>Age: @defendant.DefendantDetails.Age</div>
+        <div>Youth Offender: @(defendant.DefendantDetails.IsYouth ? "Yes" : "No")</div>
 
         <table>
             <tr>
@@ -74,7 +75,7 @@
                 <th>Custody end</th>
                 <th>Status</th>
             </tr>
-            @foreach(var charge in defendant.Charges)
+            @foreach (var charge in defendant.Charges)
             {
                 <tr>
                     <td>@charge.LongDescription</td>
