@@ -11,6 +11,7 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
       className={classes.button}
       onClick={onConfirm}
       data-testid="btn-redact"
+      id="btn-redact"
     >
       Redact
     </button>
