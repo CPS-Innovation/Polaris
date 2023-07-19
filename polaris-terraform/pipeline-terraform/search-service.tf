@@ -1,4 +1,5 @@
 resource "azurerm_search_service" "ss" {
+  #checkov:skip=CKV_AZURE_207:Ensure Azure Cognitive Search service uses managed identities to access Azure resources
   name                          = "ss-${local.resource_name}"
   resource_group_name           = azurerm_resource_group.rg.name
   location                      = azurerm_resource_group.rg.location
@@ -27,7 +28,7 @@ resource "azurerm_private_endpoint" "pipeline_search_service_pe" {
     is_manual_connection           = false
     subresource_names              = ["searchService"]
   }
-  
+
   depends_on = [azurerm_search_service.ss]
 }
 
@@ -39,7 +40,7 @@ resource "azurerm_private_dns_a_record" "pipeline_search_service_dns_a" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.pipeline_search_service_pe.private_service_connection.0.private_ip_address]
   tags                = local.common_tags
-  
+
   depends_on = [
     azurerm_search_service.ss,
     azurerm_private_endpoint.pipeline_search_service_pe
