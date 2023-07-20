@@ -53,7 +53,7 @@ export const Footer: React.FC<Props> = ({
         </LinkButton>
       </div>
 
-      <div className={classes.summary}>
+      <div className={classes.summary} data-testid={`redaction-count-text`}>
         {redactionHighlights.length === 1 ? (
           <>There is 1 redaction</>
         ) : (

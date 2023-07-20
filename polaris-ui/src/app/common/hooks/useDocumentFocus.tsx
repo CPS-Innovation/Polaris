@@ -92,7 +92,7 @@ export const useDocumentFocus = (
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
       if (activeTabId === tabId) {
-        if (!e.shiftKey && (e.code === "Tab" || e.code === "Tab")) {
+        if (e.code === "Tab" || e.code === "Tab") {
           const redactBtn = getRedactBtn();
           if (redactBtn) {
             (redactBtn as HTMLElement).focus();

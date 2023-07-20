@@ -27,6 +27,7 @@
     "@types/uuid": "^8.3.4",
     "cypress": "^12.5.1",
     "cypress-hmr-restarter": "^2.0.3",
+    "cypress-real-events": "^1.9.1",
     "date-fns": "^2.25.0",
     "del": "^6.0.0",
     "env-cmd": "^10.1.0",
