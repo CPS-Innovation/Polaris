@@ -717,6 +717,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  condition: eq(variables.runUITerraform, 'true')
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
@@ -1136,6 +1137,7 @@ stages:
                     az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-text-extractor --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
                     az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
                     az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
+                  condition: eq(variables.runPipelineTerraform, 'true')
                   displayName: CLI > Apply firewall permissions
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
@@ -1305,6 +1307,7 @@ stages:
 
                     az resource update --resource-group rg-polaris-qa --name polaris-qa-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
                     az resource update --resource-group rg-polaris-qa --name polaris-qa-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
+                  condition: eq(variables.runUITerraform, 'true')
                   displayName: CLI > Apply firewall permissions
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -1366,6 +1369,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  condition: eq(variables.runUITerraform, 'true')
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -1787,6 +1791,7 @@ stages:
                     az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-text-extractor --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
                     az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
                     az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
+                  condition: eq(variables.runPipelineTerraform, 'true')
                   displayName: CLI > Apply firewall permissions
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
@@ -1956,6 +1961,7 @@ stages:
 
                     az resource update --resource-group rg-polaris --name polaris-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
                     az resource update --resource-group rg-polaris --name polaris-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
+                  condition: eq(variables.runUITerraform, 'true')
                   displayName: CLI > Apply firewall permissions
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -2017,6 +2023,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  condition: eq(variables.runUITerraform, 'true')
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
