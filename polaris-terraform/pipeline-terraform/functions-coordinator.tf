@@ -50,10 +50,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     scm_use_main_ip_restriction            = true
 
-    cors {
-      allowed_origins = []
-    }
-
     dynamic "ip_restriction" {
       for_each = var.ip_restrictions
       content {
