@@ -1,4 +1,7 @@
 trigger: none
+  
+pool:
+  vmImage: ubuntu-latest
 
 schedules:
   # run every 15 minutes between 7pm and 11:45pm
@@ -48,6 +51,25 @@ steps:
       command: "install"
       workingDir: "polaris-e2e"
     displayName: "npm install"
+    
+  #download env-specific cert
+  - task: DownloadSecureFile@1
+    name: vpnCertificate
+    inputs:
+      secureFile: 'vpnconfig_cert_$(cypress_environment).ovpn'
+    displayName: 'Download VPN certificate for OVPN'
+
+  #create env-specific vpn tunnel
+  - bash: |
+      sudo apt-get update
+      sudo apt-get --assume-yes --no-install-recommends install openvpn
+      ls
+      head $(vpnCertificate.secureFilePath)
+      sudo openvpn --config $(vpnCertificate.secureFilePath) --daemon
+      sleep 5
+      ifconfig
+      echo "connected"
+    displayName: Creating VPN tunnel
 
   - task: Npm@1
     env:
