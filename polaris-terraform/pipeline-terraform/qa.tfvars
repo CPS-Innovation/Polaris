@@ -11,3 +11,11 @@ pipeline_logging = {
   pdf_generator_scale_controller  = "AppInsights:None"
   text_extractor_scale_controller = "AppInsights:None"
 }
+
+ip_restrictions = [
+  {
+    action      = "Allow"
+    service_tag = "AzureCloud"
+    priority    = 1
+  }
+]

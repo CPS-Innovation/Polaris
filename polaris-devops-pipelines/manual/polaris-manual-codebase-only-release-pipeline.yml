@@ -27,7 +27,7 @@ stages:
   - stage: Apply_DEV
     displayName: Deployment > DEV
     pool:
-      name: $(dev-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: Manual_Deploy_Polaris_Codebase
         environment: "DEV"
@@ -35,6 +35,25 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download dev cert
+                - task: DownloadSecureFile@1
+                  name: devVpnCertificate
+                  inputs:
+                    secureFile: 'vpnconfig_cert_dev.ovpn'
+                  displayName: 'Download DEV VPN certificate for OVPN'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get update
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+                    ls
+                    head $(devVpnCertificate.secureFilePath)
+                    sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+                    sleep 5
+                    ifconfig
+                    echo "connected"
+                  displayName: Creating DEV VPN tunnel
+                  
                 #download coordinator build artifact
                 - download: PolarisManualCodebaseOnlyBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -132,10 +151,29 @@ stages:
     dependsOn:
       - Apply_DEV
     pool:
-      name: $(dev-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job:
         steps:
+          #download dev cert
+          - task: DownloadSecureFile@1
+            name: devVpnCertificate
+            inputs:
+              secureFile: 'vpnconfig_cert_dev.ovpn'
+            displayName: 'Download DEV VPN certificate for OVPN'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get update
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+              ls
+              head $(devVpnCertificate.secureFilePath)
+              sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+              sleep 5
+              ifconfig
+              echo "connected"
+            displayName: Creating DEV VPN tunnel
+            
           #download scripts artifact
           - download: PolarisManualCodebaseOnlyBuild
             displayName: Polaris Build > Download Pipeline Scripts
@@ -298,7 +336,7 @@ stages:
     dependsOn:
       - Update_DEV_Tag
     pool:
-      name: $(qa-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: Manual_Deploy_Polaris_Codebase
         environment: "QA"
@@ -306,6 +344,25 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download qa cert
+                - task: DownloadSecureFile@1
+                  name: qaVpnCertificate
+                  inputs:
+                    secureFile: 'vpnconfig_cert_qa.ovpn'
+                  displayName: 'Download QA VPN certificate for OVPN'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get update
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+                    ls
+                    head $(qaVpnCertificate.secureFilePath)
+                    sudo openvpn --config $(qaVpnCertificate.secureFilePath) --daemon
+                    sleep 5
+                    ifconfig
+                    echo "connected"
+                  displayName: Creating QA VPN tunnel
+                  
                 #download coordinator build artifact
                 - download: PolarisManualCodebaseOnlyBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -403,10 +460,29 @@ stages:
     dependsOn:
       - Apply_QA
     pool:
-      name: $(qa-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job:
         steps:
+          #download qa cert
+          - task: DownloadSecureFile@1
+            name: qaVpnCertificate
+            inputs:
+              secureFile: 'vpnconfig_cert_qa.ovpn'
+            displayName: 'Download QA VPN certificate for OVPN'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get update
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+              ls
+              head $(qaVpnCertificate.secureFilePath)
+              sudo openvpn --config $(qaVpnCertificate.secureFilePath) --daemon
+              sleep 5
+              ifconfig
+              echo "connected"
+            displayName: Creating QA VPN tunnel
+            
           #download scripts artifact
           - download: PolarisManualCodebaseOnlyBuild
             displayName: Polaris Build > Download Pipeline Scripts
@@ -569,7 +645,7 @@ stages:
     dependsOn:
       - Update_DEV_Tag
     pool:
-      name: $(prod-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: Manual_Deploy_Polaris_Codebase
         environment: "Prod"
@@ -577,6 +653,25 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download prod cert
+                - task: DownloadSecureFile@1
+                  name: prodVpnCertificate
+                  inputs:
+                    secureFile: 'vpnconfig_cert_prod.ovpn'
+                  displayName: 'Download PROD VPN certificate for OVPN'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get update
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+                    ls
+                    head $(prodVpnCertificate.secureFilePath)
+                    sudo openvpn --config $(prodVpnCertificate.secureFilePath) --daemon
+                    sleep 5
+                    ifconfig
+                    echo "connected"
+                  displayName: Creating PROD VPN tunnel
+                  
                 #download coordinator build artifact
                 - download: PolarisManualCodebaseOnlyBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -674,10 +769,29 @@ stages:
     dependsOn:
       - Apply_PROD
     pool:
-      name: $(prod-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job:
         steps:
+          #download prod cert
+          - task: DownloadSecureFile@1
+            name: prodVpnCertificate
+            inputs:
+              secureFile: 'vpnconfig_cert_prod.ovpn'
+            displayName: 'Download PROD VPN certificate for OVPN'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get update
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+              ls
+              head $(prodVpnCertificate.secureFilePath)
+              sudo openvpn --config $(prodVpnCertificate.secureFilePath) --daemon
+              sleep 5
+              ifconfig
+              echo "connected"
+            displayName: Creating PROD VPN tunnel
+            
           #download scripts artifact
           - download: PolarisManualCodebaseOnlyBuild
             displayName: Polaris Build > Download Pipeline Scripts

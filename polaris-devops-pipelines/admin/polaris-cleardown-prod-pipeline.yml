@@ -37,7 +37,7 @@ stages:
     jobs:
       - job: Clear_down_SearchIndex
         pool:
-          name: $(prod-build-agent)
+          vmImage: ubuntu-latest
         steps:
           # Install Terraform based on version variable
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -89,7 +89,7 @@ stages:
     jobs:
       - job: Clear_down_BlobStorage
         pool:
-          name: $(prod-build-agent)
+          vmImage: ubuntu-latest
         steps:
           - task: AzureCLI@2
             displayName: Refresh Blob Storage

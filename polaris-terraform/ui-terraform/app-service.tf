@@ -7,12 +7,13 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   #checkov:skip=CKV_AZURE_213:Ensure that App Service configures health check
   #checkov:skip=CKV_AZURE_71:Ensure that Managed identity provider is enabled for app services
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
-  name                      = "as-web-${local.resource_name}"
-  location                  = azurerm_resource_group.rg_polaris.location
-  resource_group_name       = azurerm_resource_group.rg_polaris.name
-  service_plan_id           = azurerm_service_plan.asp_polaris_spa.id
-  https_only                = true
-  virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
+  name                          = "as-web-${local.resource_name}"
+  location                      = azurerm_resource_group.rg_polaris.location
+  resource_group_name           = azurerm_resource_group.rg_polaris.name
+  service_plan_id               = azurerm_service_plan.asp_polaris_spa.id
+  https_only                    = true
+  virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
+  public_network_access_enabled = true
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
@@ -43,6 +44,27 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
     application_stack {
       node_version = "18-lts"
+    }
+
+    dynamic "ip_restriction" {
+      for_each = var.ip_restrictions
+      content {
+        action                    = can(ip_restriction.value["action"]) ? ip_restriction.value["action"] : null
+        ip_address                = can(ip_restriction.value["ip_address"]) ? ip_restriction.value["ip_address"] : null
+        name                      = can(ip_restriction.value["name"]) ? ip_restriction.value["name"] : null
+        priority                  = can(ip_restriction.value["priority"]) ? ip_restriction.value["priority"] : null
+        service_tag               = can(ip_restriction.value["service_tag"]) ? ip_restriction.value["service_tag"] : null
+        virtual_network_subnet_id = can(ip_restriction.value["virtual_network_subnet_id"]) ? ip_restriction.value["virtual_network_subnet_id"] : null
+        dynamic "headers" {
+          for_each = ip_restriction.value["headers"] == null ? [] : [1]
+          content {
+            x_azure_fdid      = can(ip_restriction.value["headers"].x_azure_fdid) ? ip_restriction.value["headers"].x_azure_fdid : null
+            x_fd_health_probe = can(ip_restriction.value["headers"].x_fd_health_probe) ? ip_restriction.value["headers"].x_fd_health_probe : null
+            x_forwarded_for   = can(ip_restriction.value["headers"].x_forwarded_for) ? ip_restriction.value["headers"].x_forwarded_for : null
+            x_forwarded_host  = can(ip_restriction.value["headers"].x_forwarded_host) ? ip_restriction.value["headers"].x_forwarded_host : null
+          }
+        }
+      }
     }
   }
 

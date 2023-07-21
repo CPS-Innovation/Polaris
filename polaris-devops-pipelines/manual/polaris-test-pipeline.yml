@@ -13,10 +13,29 @@ stages:
   - stage: Run_Script
     displayName: Test > Script
     pool:
-      name: $(dev-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job: Execute
         steps:
+          #download dev cert
+          - task: DownloadSecureFile@1
+            name: devVpnCertificate
+            inputs:
+              secureFile: 'vpnconfig_cert_dev.ovpn'
+            displayName: 'Download DEV VPN certificate for OVPN'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get update
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+              ls
+              head $(devVpnCertificate.secureFilePath)
+              sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+              sleep 5
+              ifconfig
+              echo "connected"
+            displayName: Creating DEV VPN tunnel
+            
           # Set Log Analytics Archival Period - remove when supported natively by Terraform
           - bash: |
               az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
