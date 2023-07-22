@@ -218,11 +218,10 @@ stages:
               echo "connected"
             displayName: Creating DEV VPN tunnel
             
-          # Use CLI to apply custom firewall rules to apps - not yet supported properly by Terraform (less so for function apps!)
+          # Add IP-address into Key Vault access restrictions
           - bash: |
               az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
               ipaddr=$(curl -s http://ipinfo.io/ip)
-              # Add IP-address into Key Vault access restrictions
               az keyvault network-rule add --name kv-polaris-pipeline-dev --ip-address "$(ipaddr)/32"
             condition: eq(variables.runPipelineTerraform, 'true')
             displayName: CLI > Apply firewall permissions
