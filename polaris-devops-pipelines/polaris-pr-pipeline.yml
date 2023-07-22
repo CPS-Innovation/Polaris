@@ -421,6 +421,19 @@ stages:
               echo "connected"
             displayName: Creating DEV VPN tunnel
             
+          # Add IP-address into Key Vault access restrictions
+          - bash: |
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              ipaddr=$(curl -s http://ipinfo.io/ip)
+              echo $ipaddr
+              az keyvault network-rule add --name kv-polaris-dev --ip-address "$ipaddr/32"
+            displayName: CLI > Apply firewall permissions
+            workingDirectory: $(pipelineTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+            
           # Install Terraform based on version variable
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: Terraform > Install
