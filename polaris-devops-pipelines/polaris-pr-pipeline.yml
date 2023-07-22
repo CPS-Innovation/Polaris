@@ -223,7 +223,6 @@ stages:
               az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
               ipaddr=$(curl -s http://ipinfo.io/ip)
               az keyvault network-rule add --name kv-polaris-pipeline-dev --ip-address "$(ipaddr)/32"
-            condition: eq(variables.runPipelineTerraform, 'true')
             displayName: CLI > Apply firewall permissions
             workingDirectory: $(pipelineTerraformWorkingDir)
             env:
