@@ -70,7 +70,6 @@ export const useControlledRedactionFocus = (
       if (removeBtn) {
         (removeBtn as HTMLElement).style.visibility = "visible";
       }
-      console.log("im here>>");
       e.preventDefault();
       return;
     }
@@ -187,8 +186,6 @@ export const useControlledRedactionFocus = (
         (e.code === "Tab" || e.key === "Tab")
       ) {
         const tabbableElements = getTabbableElements();
-        console.log("tabbableElements>>", tabbableElements.length);
-        debugger;
         if (!tabbableElements.length) {
           return;
         }
