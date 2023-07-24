@@ -199,41 +199,30 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #download dev public cert
+          #download dev cert
           - task: DownloadSecureFile@1
-            name: devPublicCert
+            name: devVpnCertificate
             inputs:
-              secureFile: 'dev_public_cert'
-            displayName: 'Download DEV public cert'
-            
-          #download dev private cert
-          - task: DownloadSecureFile@1
-            name: devPrivateCert
-            inputs:
-              secureFile: 'dev_private_cert'
-            displayName: 'Download DEV private cert'
+              secureFile: 'vpnconfig_cert_dev.ovpn'
+            displayName: 'Download DEV VPN certificate for OVPN'
 
           #create vpn tunnel
           - bash: |
               sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              
-              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-              
-              curl -o client.zip $(az network vnet-gateway vpn-client generate -n polaris-vpn-gateway -g rg-networking | tr -d '"')
-              unzip client.zip -d client
-              CLIENTCERTIFICATE=$(cat $PUBLIC_CERT) PRIVATEKEY=$(cat $PRIVATE_CERT) envsubst < client/OpenVPN/vpnconfig_cert.ovpn > vpnconfig.ovpn
-              rm -r client.zip client
-              sudo openvpn vpnconfig.ovpn&
+              ls
+              head $OVPN_CONFIG
+              sudo openvpn --config $OVPN_CONFIG
               sleep 5
+              ifconfig
+              echo "connected"
               
               nslookup fa-polaris-dev-gateway.azurewebsites.net
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              PUBLIC_CERT: $(devPublicCert.secureFilePath)
-              PRIVATE_CERT: $(devPrivateCert.secureFilePath)
+              OVPN_CONFIG: $(devVpnCertificate.secureFilePath)
             displayName: Creating DEV VPN tunnel
             
           # Install Terraform based on version variable
