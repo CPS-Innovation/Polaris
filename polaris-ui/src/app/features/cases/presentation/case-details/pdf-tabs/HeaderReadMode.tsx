@@ -1,7 +1,5 @@
 import { useEffect } from "react";
-import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
-import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import {
   FeedbackButton,
   FeedbackButtonProps,
@@ -18,11 +16,10 @@ type Props = {
 };
 
 export const HeaderReadMode: React.FC<Props> = ({
-  caseDocumentViewModel: { presentationFileName, sasUrl, documentId },
+  caseDocumentViewModel: { sasUrl },
   handleOpenPdfInNewTab,
   contextData,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
   useEffect(() => {
     if (sasUrl) {
       window.open(sasUrl, "_blank")?.focus();
@@ -31,19 +28,6 @@ export const HeaderReadMode: React.FC<Props> = ({
 
   return (
     <div className={classes.content}>
-      <LinkButton
-        id="btn-open-pdf"
-        dataTestId="btn-open-pdf"
-        className={classes.btnOpenPdf}
-        onClick={() => {
-          trackEvent("Open Document In Tab", {
-            documentId: documentId,
-          });
-          // handleOpenPdfInNewTab(documentId);
-        }}
-      >
-        {presentationFileName} (opens in a new tab)
-      </LinkButton>
       {REPORT_ISSUE && <FeedbackButton {...contextData} />}
     </div>
   );

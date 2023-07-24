@@ -17,7 +17,6 @@
 import "./commands";
 import "@cypress/code-coverage/support";
 import "cypress-hmr-restarter";
-import "cypress-plugin-tab";
 import "cypress-real-events";
 import { setupMockApi } from "../../src/mock-api/browser";
 // Alternatively you can use CommonJS syntax:

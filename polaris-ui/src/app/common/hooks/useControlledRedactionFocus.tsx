@@ -16,9 +16,7 @@ export const useControlledRedactionFocus = (
     );
     const tabbableElements = Array.from(pageHighlightElements).reduce(
       (acc, current) => {
-        const elements = current.querySelectorAll(
-          'button:not([disabled]), [tabindex="0"]'
-        );
+        const elements = current.querySelectorAll("button:not([disabled])");
         acc = [...acc, elements[0]];
         return acc;
       },
@@ -41,17 +39,16 @@ export const useControlledRedactionFocus = (
     return removeAllRedactionBtn;
   }, [tabIndex]);
 
-  const getReportIssueBtn = useCallback(() => {
+  const getEntryElement = useCallback(() => {
     const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
     const reportIssueBtn =
       pdfHighlighters[tabIndex].querySelector("#btn-report-issue");
-    return reportIssueBtn;
-  }, [tabIndex]);
-
-  const getOpenPdfBtn = useCallback(() => {
-    const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
     const openPdfBtn = pdfHighlighters[tabIndex].querySelector("#btn-open-pdf");
-    return openPdfBtn;
+    const tabPanel = pdfHighlighters[tabIndex];
+    const entryElement = (reportIssueBtn as HTMLButtonElement).disabled
+      ? openPdfBtn ?? tabPanel
+      : reportIssueBtn;
+    return entryElement;
   }, [tabIndex]);
 
   const activeButtonIndex = useRef(0);
@@ -60,10 +57,10 @@ export const useControlledRedactionFocus = (
     tabbableElements: Element[],
     removeBtn: Element | null,
     removeAllRedactionBtn: Element | null,
-    entryButton: Element | null,
+    entryElement: Element | null,
     e: KeyboardEvent
   ) => {
-    if (document.activeElement === entryButton) {
+    if (document.activeElement === entryElement) {
       (tabbableElements[0] as HTMLElement).focus();
       (tabbableElements[0] as HTMLElement).scrollIntoView({
         behavior: "smooth",
@@ -73,6 +70,7 @@ export const useControlledRedactionFocus = (
       if (removeBtn) {
         (removeBtn as HTMLElement).style.visibility = "visible";
       }
+      console.log("im here>>");
       e.preventDefault();
       return;
     }
@@ -124,7 +122,7 @@ export const useControlledRedactionFocus = (
     tabbableElements: Element[],
     removeBtn: Element | null,
     removeAllRedactionBtn: Element | null,
-    entryButton: Element | null,
+    entryElement: Element | null,
     e: KeyboardEvent
   ) => {
     if (document.activeElement === removeAllRedactionBtn) {
@@ -169,8 +167,8 @@ export const useControlledRedactionFocus = (
       return;
     }
     if (document.activeElement === tabbableElements[0]) {
-      (entryButton as HTMLElement).focus();
-      (entryButton as HTMLElement).scrollIntoView({
+      (entryElement as HTMLElement).focus();
+      (entryElement as HTMLElement).scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -189,23 +187,20 @@ export const useControlledRedactionFocus = (
         (e.code === "Tab" || e.key === "Tab")
       ) {
         const tabbableElements = getTabbableElements();
+        console.log("tabbableElements>>", tabbableElements.length);
+        debugger;
         if (!tabbableElements.length) {
           return;
         }
         const removeBtn = getRemoveRedactionBtn();
         const removeAllRedactionBtn = getRemoveAllRedactionBtn();
-        const reportIssueBtn = getReportIssueBtn();
-        const openPdfBtn = getOpenPdfBtn();
-        const entryButton = (reportIssueBtn as HTMLButtonElement).disabled
-          ? openPdfBtn
-          : reportIssueBtn;
-
+        const entryElement = getEntryElement();
         if (!e.shiftKey) {
           handleTabKeyPress(
             tabbableElements,
             removeBtn,
             removeAllRedactionBtn,
-            entryButton,
+            entryElement,
             e
           );
         }
@@ -214,7 +209,7 @@ export const useControlledRedactionFocus = (
             tabbableElements,
             removeBtn,
             removeAllRedactionBtn,
-            entryButton,
+            entryElement,
             e
           );
         }
@@ -223,8 +218,7 @@ export const useControlledRedactionFocus = (
     [
       activeTabId,
       getRemoveRedactionBtn,
-      getReportIssueBtn,
-      getOpenPdfBtn,
+      getEntryElement,
       getRemoveAllRedactionBtn,
       getTabbableElements,
       tabId,
