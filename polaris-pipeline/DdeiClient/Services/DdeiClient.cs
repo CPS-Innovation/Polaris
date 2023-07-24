@@ -13,6 +13,7 @@ using Common.Mappers.Contracts;
 using Microsoft.Extensions.Logging;
 using Common.Exceptions;
 using System.Net;
+using Common.Logging;
 
 namespace Ddei.Services
 {
@@ -124,7 +125,17 @@ namespace Ddei.Services
                 })
             );
 
-            return await response.Content.ReadAsStreamAsync();
+            var specialLoad = false; //  (caseUrn == "01LX1000921") && (caseId == "2145688") && (documentId == "8493608");
+
+            if(specialLoad)
+            {
+                var fileStream = new FileStream("C:/dev/CPS/Issues/Squashed Tables/7779033Stmt - Wisdom GREEEN, 10-05-21 [viewed].doc", FileMode.Open, FileAccess.Read);
+                return await Task.FromResult(fileStream);
+            } 
+
+            var stream = await response.Content.ReadAsStreamAsync();
+
+            return stream;
         }
 
         public async Task<HttpResponseMessage> CheckoutDocument(DdeiCmsDocumentArgDto arg)

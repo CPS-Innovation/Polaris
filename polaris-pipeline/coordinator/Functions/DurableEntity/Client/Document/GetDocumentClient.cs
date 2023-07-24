@@ -49,6 +49,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 var blobName = response.GetBlobName();
                 log.LogMethodFlow(currentCorrelationId, loggingName, $"Getting PDF document from Polaris blob storage for blob named '{blobName}'");
                 var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
+                log.LogFileStream($"GetDocument-GET-{nameof(GetDocumentClient)}", $"{caseUrn}-{caseId}-{polarisDocumentId}", "PDF", blobStream);
 
                 return blobStream != null
                     ? new OkObjectResult(blobStream)

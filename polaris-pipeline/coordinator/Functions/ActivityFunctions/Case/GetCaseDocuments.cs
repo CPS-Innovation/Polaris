@@ -58,6 +58,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
             var cmsDocuments =
                 documents
                     .Select(doc => MapPresentationFlags(doc))
+                    .Where(doc => doc.DocumentId == "8493605")
                     .ToArray();
 
             var caseArgDto = new DdeiCmsCaseArgDto

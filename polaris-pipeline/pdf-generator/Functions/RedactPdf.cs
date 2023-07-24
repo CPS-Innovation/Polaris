@@ -77,10 +77,11 @@ namespace pdf_generator.Functions
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{redactions.PolarisDocumentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
+                var serialisedRedactPdfResponse = _jsonConvertWrapper.SerializeObject(redactPdfResponse);
+
                 return new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfResponse), Encoding.UTF8,
-                        MediaTypeNames.Application.Json)
+                { 
+                    Content = new StringContent(serialisedRedactPdfResponse, Encoding.UTF8, MediaTypeNames.Application.Json)
                 };
             }
             catch (Exception ex)

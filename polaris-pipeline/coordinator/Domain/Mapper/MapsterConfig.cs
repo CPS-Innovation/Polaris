@@ -73,6 +73,13 @@ namespace coordinator.Domain.Mapper
                 documents.AddRange(pcdRequestDocuments);
             }
 
+            // TODO - remove temp change for redaction isse
+            foreach (var doc in documents)
+            {
+                doc.IsOcrProcessed = true;
+                doc.PresentationFlags.Write = Common.Dto.FeatureFlags.WriteFlag.Ok;
+            }
+
             return documents;
         }
 

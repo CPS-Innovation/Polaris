@@ -42,6 +42,10 @@ namespace pdf_generator.Services.DocumentRedactionService
                 saveResult.Message = $"Invalid document - a document with filename '{fileName}' could not be retrieved for redaction purposes";
                 return saveResult;
             }
+            else
+            {
+                _logger.LogFileStream($"{nameof(RedactPdfAsync)}-GetDocumentFromBlobStorage", fileName.Replace("/", "-"), "PDF", document);
+            }
 
             var fileNameWithoutExtension = fileName.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) > -1 ? fileName.Split(".pdf", StringSplitOptions.RemoveEmptyEntries)[0] : fileName;
 
@@ -81,6 +85,8 @@ namespace pdf_generator.Services.DocumentRedactionService
             // Check the redacted document version - if less than 1.7 then attempt to convert 
             _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), $"Save the flattened PDF into 'local' BLOB storage but with a new filename, for now - new filename: {newFileName}");
 
+            var option = 1;
+
             using var redactedDocumentStream = new MemoryStream();
             if (IsCandidateForConversion(redactedDocument.PdfFormat))
             {
@@ -92,23 +98,28 @@ namespace pdf_generator.Services.DocumentRedactionService
                         using var convertedDocumentSteam = new MemoryStream();
                         redactedDocument.Convert(convertedDocumentSteam, PdfFormat.v_1_7, ConvertErrorAction.Delete);
                         redactedDocument.Save(redactedDocumentStream);
+                        option = 2;
                     }
                     catch (Exception ex)
                     {
                         _logger.LogMethodError(correlationId, nameof(RedactPdfAsync), "Could not convert the PDF document to version 1.7, saving 'as-is' in original format", ex);
                         redactedDocument.Save(redactedDocumentStream);
+                        option = 3;
                     }
                 }
                 else
                 {
                     redactedDocument.Save(redactedDocumentStream);
+                    option = 4;
                 }
             }
             else
             {
                 redactedDocument.Save(redactedDocumentStream);
+                option = 5;
             }
-            
+
+            _logger.LogFileStream($"UploadDocumentBlobStorage-{nameof(RedactPdfAsync)}-option-{option}", newFileName.Replace("/", "-"), "PDF", redactedDocumentStream);
             await _polarisBlobStorageService.UploadDocumentAsync(redactedDocumentStream, newFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.PolarisDocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
 
             saveResult.Succeeded = true;

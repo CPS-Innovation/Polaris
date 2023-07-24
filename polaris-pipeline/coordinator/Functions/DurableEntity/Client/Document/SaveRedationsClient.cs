@@ -20,6 +20,7 @@ using Common.Dto.Request;
 using DdeiClient.Services.Contracts;
 using Common.ValueObjects;
 using Common.Services.BlobStorageService.Contracts;
+using System.IO.Compression;
 
 namespace coordinator.Functions.DurableEntity.Client.Document
 {
@@ -90,6 +91,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 }
 
                 var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
+                log.LogFileStream($"GetDocument-PUT-{nameof(SaveRedactionsClient)}", redactionResult.RedactedDocumentName.Replace("/", "-"), "PDF", pdfStream);
 
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
@@ -109,6 +111,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     VersionId = document.CmsVersionId
                 };
                 await _ddeiClient.UploadPdf(arg, pdfStream);
+                log.LogFileStream($"DdieClientUploadPdf-PUT-{nameof(SaveRedactionsClient)}", redactionResult.RedactedDocumentName.Replace("/", "-"), "PDF", pdfStream);
 
                 return new ObjectResult(redactionResult);
             }

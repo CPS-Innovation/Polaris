@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Domain.Document;
@@ -78,7 +79,13 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CmsAuthValues,
                         payload.CorrelationId
                     );
+                //fileType = FileType.DOC;
                 fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
+                _log.LogFileStream("GeneratePdf-DDEI-GetDocument", $"{payload.CmsCaseId}-{payload.CmsDocumentTracker.CmsDocumentId}", "PDF", documentStream);
+
+                /* var specialLoad = (payload.CmsCaseUrn == "01LX1000921") && (payload.CmsCaseId.ToString() == "2145688") && (payload.CmsDocumentTracker.CmsDocumentId == "8493608");
+                if (specialLoad)
+                    fileType = FileType.DOC; */
             }
             else if (payload.PcdRequestTracker != null)
             {
@@ -102,6 +109,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             try
             {
+                _log.LogFileStream($"PreConvertToPdf-{nameof(GeneratePdf)}", payload.BlobName.Replace("/", "-"), "PDF", documentStream);
                 pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
                     payload.CorrelationId,
                     payload.CmsAuthValues,
@@ -112,6 +120,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     fileType);
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{payload.BlobName}'...");
+                _log.LogFileStream($"PostConvertToPdf-UploadDocument-{nameof(GeneratePdf)}", payload.BlobName.Replace("/", "-"), "PDF", pdfStream);
                 await _blobStorageService.UploadDocumentAsync
                     (
                         pdfStream,
@@ -123,6 +132,10 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     );
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{payload.BlobName}' uploaded successfully");
+            }
+            catch(Exception e)
+            {
+                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{payload.BlobName}' {e.Message} exception");
             }
             finally
             {

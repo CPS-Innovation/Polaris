@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -47,6 +49,18 @@ public static class LoggingExtensions
     public static void LogMethodFlow(this ILogger logger, Guid correlationId, string methodName, string message)
     {
         MethodFlowMessageAction(logger, correlationId, methodName, message, null);
+    }
+
+    public static void LogFileStream(this ILogger logger, string methodName, string message, string fileExtension, Stream stream)
+    {
+        var timeString = DateTime.Now.ToString("HHmmssffff");
+        var fileStream = new FileStream($"C:/dev/CPS/Issues/Squashed Tables/RunTime/{timeString}_{methodName}_{message}.{fileExtension}", FileMode.Create, FileAccess.Write);
+        stream.Seek(0, SeekOrigin.Begin);
+        stream.CopyTo(fileStream);
+        fileStream.Flush();
+        fileStream.Close();
+
+        stream.Seek(0, SeekOrigin.Begin);
     }
 
     public static void LogMethodError(this ILogger logger, Guid correlationId, string methodName,
