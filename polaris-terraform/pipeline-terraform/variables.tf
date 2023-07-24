@@ -51,3 +51,8 @@ variable "pipeline_logging" {
     text_extractor_scale_controller = string
   })
 }
+
+
+variable "overnight_clear_down_enabled" {
+  type = bool
+}

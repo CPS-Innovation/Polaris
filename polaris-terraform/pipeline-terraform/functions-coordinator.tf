@@ -36,6 +36,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "DdeiAccessKey"                              = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "PolarisPipelineRedactPdfBaseUrl"            = "https://fa-${local.resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfFunctionAppKey"     = data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key
+    "OvernightClearDownEnabled"                  = var.overnight_clear_down_enabled
   }
   https_only = true
 
