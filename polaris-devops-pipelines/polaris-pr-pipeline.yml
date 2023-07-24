@@ -199,20 +199,32 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #download dev cert
+          #download dev public cert
           - task: DownloadSecureFile@1
-            name: devVpnCertificate
+            name: devPublicCert
             inputs:
-              secureFile: 'vpnconfig_cert_dev.ovpn'
-            displayName: 'Download DEV VPN certificate for OVPN'
+              secureFile: 'dev_public_cert'
+            displayName: 'Download DEV public cert'
+            
+          #download dev private cert
+          - task: DownloadSecureFile@1
+            name: devPrivateCert
+            inputs:
+              secureFile: 'dev_private_cert'
+            displayName: 'Download DEV private cert'
 
           #create vpn tunnel
           - bash: |
               sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
               
-              echo $(devVpnCertificate.secureFilePath)
-              sudo openvpn --config $(devVpnCertificate.secureFilePath)&
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              
+              curl -o client.zip $(az network vnet-gateway vpn-client generate -n gateway -g example-resources | tr -d '"')
+              unzip client.zip -d client
+              CLIENTCERTIFICATE=$(cat devPublicCert.secureFilePath) PRIVATEKEY=$(cat devPrivateCert.secureFilePath) envsubst < client/OpenVPN/vpnconfig_cert.ovpn > vpnconfig.ovpn
+              rm -r client.zip client
+              sudo openvpn vpnconfig.ovpn&
               
               nslookup fa-polaris-dev-gateway.azurewebsites.net
             env:
