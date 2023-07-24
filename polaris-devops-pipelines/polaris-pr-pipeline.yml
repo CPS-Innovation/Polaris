@@ -218,6 +218,7 @@ stages:
               ifconfig
               echo "connected"
               
+              cat /etc/resolv.conf
               nslookup fa-polaris-dev-gateway.azurewebsites.net
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
