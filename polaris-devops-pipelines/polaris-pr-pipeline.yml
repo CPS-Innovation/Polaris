@@ -212,13 +212,14 @@ stages:
               sudo apt-get --assume-yes --no-install-recommends install openvpn
               sudo apt-get install openresolv
               ls
+              
+              echo -e "nameserver 10.7.197.20\n$(cat /etc/resolv.conf)" > /etc/resolv.conf
+              
               head $OVPN_CONFIG
               sudo openvpn --config $OVPN_CONFIG
               sleep 5
               ifconfig
-              echo "connected!"
               
-              cat /etc/resolv.conf
               resolvectl status
               nslookup fa-polaris-dev-gateway.azurewebsites.net
             env:
