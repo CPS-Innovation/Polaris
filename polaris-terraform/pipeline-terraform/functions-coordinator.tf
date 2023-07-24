@@ -47,10 +47,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     always_on                              = true
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
-
-    cors {
-      allowed_origins = []
-    }
   }
 
   identity {
