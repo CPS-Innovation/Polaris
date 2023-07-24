@@ -214,7 +214,7 @@ stages:
               echo $(devVpnCertificate.secureFilePath)
               sudo openvpn --config $(devVpnCertificate.secureFilePath)&
               
-              nslookup https://fa-polaris-dev-gateway.azurewebsites.net
+              nslookup fa-polaris-dev-gateway.azurewebsites.net
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
