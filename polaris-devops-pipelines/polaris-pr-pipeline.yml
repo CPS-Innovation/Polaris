@@ -216,7 +216,7 @@ stages:
               sudo openvpn --config $OVPN_CONFIG
               sleep 5
               ifconfig
-              echo "connected"
+              echo "connected!"
               
               cat /etc/resolv.conf
               nslookup fa-polaris-dev-gateway.azurewebsites.net
