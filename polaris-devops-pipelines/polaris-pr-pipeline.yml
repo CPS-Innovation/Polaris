@@ -220,7 +220,7 @@ stages:
               
               az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
               
-              curl -o client.zip $(az network vnet-gateway vpn-client generate -n gateway -g example-resources | tr -d '"')
+              curl -o client.zip $(az network vnet-gateway vpn-client generate -n polaris-vpn-gateway -g rg-networking | tr -d '"')
               unzip client.zip -d client
               CLIENTCERTIFICATE=$(cat devPublicCert.secureFilePath) PRIVATEKEY=$(cat devPrivateCert.secureFilePath) envsubst < client/OpenVPN/vpnconfig_cert.ovpn > vpnconfig.ovpn
               rm -r client.zip client
