@@ -222,7 +222,7 @@ stages:
               
               curl -o client.zip $(az network vnet-gateway vpn-client generate -n polaris-vpn-gateway -g rg-networking | tr -d '"')
               unzip client.zip -d client
-              CLIENTCERTIFICATE=$(cat devPublicCert.secureFilePath) PRIVATEKEY=$(cat devPrivateCert.secureFilePath) envsubst < client/OpenVPN/vpnconfig_cert.ovpn > vpnconfig.ovpn
+              CLIENTCERTIFICATE=$(cat $PUBLIC_CERT) PRIVATEKEY=$(cat $PRIVATE_CERT) envsubst < client/OpenVPN/vpnconfig_cert.ovpn > vpnconfig.ovpn
               rm -r client.zip client
               sudo openvpn vpnconfig.ovpn&
               sleep 5
@@ -232,6 +232,8 @@ stages:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
               ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              PUBLIC_CERT: $(devPublicCert.secureFilePath)
+              PRIVATE_CERT: $(devPrivateCert.secureFilePath)
             displayName: Creating DEV VPN tunnel
             
           # Install Terraform based on version variable
