@@ -225,6 +225,7 @@ stages:
               CLIENTCERTIFICATE=$(cat devPublicCert.secureFilePath) PRIVATEKEY=$(cat devPrivateCert.secureFilePath) envsubst < client/OpenVPN/vpnconfig_cert.ovpn > vpnconfig.ovpn
               rm -r client.zip client
               sudo openvpn vpnconfig.ovpn&
+              sleep 5
               
               nslookup fa-polaris-dev-gateway.azurewebsites.net
             env:
