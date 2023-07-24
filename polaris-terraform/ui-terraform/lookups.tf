@@ -33,7 +33,7 @@ data "azurerm_search_service" "pipeline_ss" {
 }
 
 data "azurerm_storage_account" "sacpspolarispipeline" {
-  name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
+  name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 

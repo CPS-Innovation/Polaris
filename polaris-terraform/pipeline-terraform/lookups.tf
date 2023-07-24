@@ -113,3 +113,8 @@ data "azurerm_application_insights" "global_ai" {
   name                = "ai-${local.global_name}"
   resource_group_name = "rg-${local.analytics_group_name}"
 }
+
+data "azurerm_log_analytics_workspace" "global_la" {
+  name                = "la-${local.global_name}"
+  resource_group_name = "rg-${local.analytics_group_name}"
+}
