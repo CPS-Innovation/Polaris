@@ -210,6 +210,7 @@ stages:
           - bash: |
               sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
+              sudo apt-get openresolv
               ls
               head $OVPN_CONFIG
               sudo openvpn --config $OVPN_CONFIG
