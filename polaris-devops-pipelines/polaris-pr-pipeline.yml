@@ -211,6 +211,7 @@ stages:
               sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn netcat
               ls
+              curl ifconfig.me
               nc -v -l 12345
               
               head $OVPN_CONFIG
