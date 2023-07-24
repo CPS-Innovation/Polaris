@@ -216,6 +216,9 @@ stages:
               sleep 5
               ifconfig
               echo "connected"
+              
+              cat /etc/resolv.conf
+              nslookup https://fa-polaris-dev-gateway.azurewebsites.net
             displayName: Creating DEV VPN tunnel
             
           # Add IP-address into Key Vault access restrictions
