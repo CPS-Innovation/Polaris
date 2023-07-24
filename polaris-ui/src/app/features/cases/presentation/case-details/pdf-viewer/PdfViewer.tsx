@@ -71,14 +71,11 @@ export const PdfViewer: React.FC<Props> = ({
   useControlledRedactionFocus(tabId, activeTabId, tabIndex);
   useDocumentFocus(tabId, activeTabId, tabIndex);
 
-  const getSortedRedactionHighlights = () => {
-    const sortedRedactionHighlights =
-      sortRedactionHighlights(redactionHighlights);
-    return sortedRedactionHighlights;
-  };
-
   const highlights = useMemo(
-    () => [...searchHighlights, ...getSortedRedactionHighlights()],
+    () => [
+      ...searchHighlights,
+      ...sortRedactionHighlights(redactionHighlights),
+    ],
     [searchHighlights, redactionHighlights]
   );
 
