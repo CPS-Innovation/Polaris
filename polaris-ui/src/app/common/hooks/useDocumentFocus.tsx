@@ -9,7 +9,7 @@ export const useDocumentFocus = (
   activeTabId: string | undefined,
   tabIndex: number
 ) => {
-  const activeButtonIndex = useRef(-1);
+  const activeTextLayerChildIndex = useRef(-1);
   const textLayerIndex = useRef(0);
 
   const getRedactBtn = useCallback(() => {
@@ -24,7 +24,7 @@ export const useDocumentFocus = (
 
   const getTextLayerChildren = useCallback(() => {
     const textLayers = document.querySelectorAll(".textLayer");
-    if (activeButtonIndex.current === -1) {
+    if (activeTextLayerChildIndex.current === -1) {
       return getNonEmptyTextContentElements(textLayers[0].children);
     }
     const children = Array.from(textLayers).reduce(
@@ -46,23 +46,25 @@ export const useDocumentFocus = (
       const textLayerChildren = getTextLayerChildren();
       if (
         keyCode === "KeyH" &&
-        activeButtonIndex.current !== -1 &&
-        activeButtonIndex.current >= textLayerChildren.length - 1
+        activeTextLayerChildIndex.current !== -1 &&
+        activeTextLayerChildIndex.current >= textLayerChildren.length - 1
       ) {
-        activeButtonIndex.current = 0;
+        activeTextLayerChildIndex.current = 0;
       } else if (
         keyCode === "KeyH" &&
-        activeButtonIndex.current < textLayerChildren.length
+        activeTextLayerChildIndex.current < textLayerChildren.length
       ) {
-        activeButtonIndex.current = activeButtonIndex.current + 1;
+        activeTextLayerChildIndex.current =
+          activeTextLayerChildIndex.current + 1;
       }
-      if (keyCode === "KeyG" && activeButtonIndex.current <= 0) {
-        activeButtonIndex.current = 0;
-      } else if (keyCode === "KeyG" && activeButtonIndex.current > 0) {
-        activeButtonIndex.current = activeButtonIndex.current - 1;
+      if (keyCode === "KeyG" && activeTextLayerChildIndex.current <= 0) {
+        activeTextLayerChildIndex.current = 0;
+      } else if (keyCode === "KeyG" && activeTextLayerChildIndex.current > 0) {
+        activeTextLayerChildIndex.current =
+          activeTextLayerChildIndex.current - 1;
       }
 
-      const selection = textLayerChildren[activeButtonIndex.current];
+      const selection = textLayerChildren[activeTextLayerChildIndex.current];
 
       return selection;
     },
@@ -110,7 +112,10 @@ export const useDocumentFocus = (
 
         const textLayerChildren = getTextLayerChildren();
         //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
-        if (textLayerChildren.length - 1 === activeButtonIndex.current) {
+        if (
+          textLayerChildren.length - 1 ===
+          activeTextLayerChildIndex.current
+        ) {
           textLayerIndex.current = textLayerIndex.current + 1;
         }
         const child = getTextToSelect(e.code ?? e.key);
