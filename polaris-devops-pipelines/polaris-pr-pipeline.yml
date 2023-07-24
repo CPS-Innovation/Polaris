@@ -210,8 +210,6 @@ stages:
           - bash: |
               sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              sudo apt-get -y install network-manager-openvpn
-              sudo service network-manager restart
               
               echo $(devVpnCertificate.secureFilePath)
               sudo openvpn --config $(devVpnCertificate.secureFilePath)&
