@@ -162,17 +162,17 @@ stages:
     dependsOn: Determine_Changes
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
     jobs:
-#      - job: Validate
-#        pool:
-#          vmImage: ubuntu-latest
-#        steps:
-#          # Install Terraform based on version variable
-#          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-#            displayName: Terraform > Install
-#            inputs:
-#              terraformVersion: $(terraform-version)
-#          
-#          # Terraform Init
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
 #          - bash: |
 #              terraform init \
 #                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
