@@ -162,36 +162,36 @@ stages:
     dependsOn: Determine_Changes
     condition: and(succeeded(), eq(dependencies.Determine_Changes.outputs['Generate_Diff.Change_Results.RUN_PIPELINE_TERRAFORM'], 'true'))
     jobs:
-#      - job: Validate
-#        pool:
-#          vmImage: ubuntu-latest
-#        steps:
-#          # Install Terraform based on version variable
-#          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-#            displayName: Terraform > Install
-#            inputs:
-#              terraformVersion: $(terraform-version)
-#          
-#          # Terraform Init
-#          - bash: |
-#              terraform init \
-#                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
-#                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
-#                -backend-config="key=$TF_STATE_KEY" \
-#                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
-#            displayName: Terraform > Init
-#            workingDirectory: $(pipelineTerraformWorkingDir)
-#            env:
-#              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
-#              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
-#              TF_STATE_KEY: $(terraform-key)
-#              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
-#              TF_LOG: $(dev-log-level)
-#          
-#          # Validate
-#          - bash: terraform validate
-#            displayName: Terraform > Validate Config
-#            workingDirectory: $(pipelineTerraformWorkingDir)
+      - job: Validate
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          # Install Terraform based on version variable
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: Terraform > Install
+            inputs:
+              terraformVersion: $(terraform-version)
+          
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(pipelineTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_LOG: $(dev-log-level)
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(pipelineTerraformWorkingDir)
 
       - job: CheckPlan
         pool:
