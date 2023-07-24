@@ -208,18 +208,14 @@ stages:
 
           #create vpn tunnel
           - bash: |
+              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
+              sudo apt-get -y install network-manager-openvpn
+              sudo service network-manager restart
               
-              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-              curl -o client.zip $(az network vnet-gateway vpn-client generate -n polaris-vpn-gateway -g rg-networking | tr -d '"')
-              unzip client.zip -d client
+              echo $(devVpnCertificate.secureFilePath)
+              sudo openvpn --config $(devVpnCertificate.secureFilePath)&
               
-              rm -r client.zip client
-              sudo openvpn vpnconfig_cert.ovpn&
-              echo "connected"
-              
-              cat /etc/resolv.conf
               nslookup https://fa-polaris-dev-gateway.azurewebsites.net
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
