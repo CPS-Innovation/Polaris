@@ -58,7 +58,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
             var cmsDocuments =
                 documents
                     .Select(doc => MapPresentationFlags(doc))
-                    .Where(doc => doc.DocumentId == "8493605")
+                    .Where(doc => doc.DocumentId == "8666648")
                     .ToArray();
 
             var caseArgDto = new DdeiCmsCaseArgDto
@@ -70,10 +70,10 @@ namespace coordinator.Functions.ActivityFunctions.Case
             };
             var @case = await _ddeiClient.GetCase(caseArgDto);
 
-            var pcdRequests =
-                @case.PreChargeDecisionRequests
+            var pcdRequests = new PcdRequestDto[0];
+                /*@case.PreChargeDecisionRequests
                        .Select(MapPresentationFlags)
-                       .ToArray();
+                       .ToArray();*/
 
             var defendantsAndCharges = new DefendantsAndChargesListDto { CaseId = @case.Id, DefendantsAndCharges = @case.DefendantsAndCharges.OrderBy(dac => dac.ListOrder) };
             defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);

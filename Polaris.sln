@@ -43,6 +43,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DdeiClient", "DdeiClient", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DdeiClient", "polaris-pipeline\DdeiClient\DdeiClient.csproj", "{46CA2F61-0283-43A0-BCEC-9A84766FE0DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test-corrupt-pdf", "polaris-pipeline\test-corrupt-pdf\test-corrupt-pdf.csproj", "{264D2779-37BB-408F-9249-174CC9D5AE1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,10 @@ Global
 		{46CA2F61-0283-43A0-BCEC-9A84766FE0DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46CA2F61-0283-43A0-BCEC-9A84766FE0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46CA2F61-0283-43A0-BCEC-9A84766FE0DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{264D2779-37BB-408F-9249-174CC9D5AE1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{264D2779-37BB-408F-9249-174CC9D5AE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{264D2779-37BB-408F-9249-174CC9D5AE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{264D2779-37BB-408F-9249-174CC9D5AE1D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
