@@ -21,6 +21,7 @@ variables:
   - group: polaris-global
   - group: pipeline-terraform
   - group: ui-terraform
+  - group: polaris-vpn
   - name: buildConfiguration
     value: "Release"
   - name: pipelineTerraformWorkingDir
@@ -31,6 +32,8 @@ variables:
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-terraform"
   - name: uiEventsTerraformWorkingDir
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/ui-events-terraform"
+  - name: templatesWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-devops-pipelines/templates"
 
 stages:
   - stage: Determine_Changes
@@ -199,25 +202,26 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #download dev ovpn client config
-          - task: DownloadSecureFile@1
-            name: devVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_dev.ovpn'
-            displayName: 'Download DEV VPN certificate for OVPN'
-            
           #create vpn tunnel
           - bash: |
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              sudo openvpn $OVPN_CONFIG &
+              
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+              
+              sudo openvpn _vpnconfig.ovpn &
         
               sleep 5
         
               ifconfig tun0
+              cat openvpn.log
               
               nslookup fa-polaris-dev-gateway.azurewebsites.net
+            workingDirectory: $(templatesWorkingDir)
             env:
-              OVPN_CONFIG: $(devVpnCertificate.secureFilePath)
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
             displayName: Creating DEV VPN tunnel
             
           # Install Terraform based on version variable
