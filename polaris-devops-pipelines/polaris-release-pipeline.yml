@@ -941,7 +941,7 @@ stages:
 
   - stage: Update_DEV_Tag
     displayName: Update Tag > DEV
-    dependsOn: Check_DEV
+    dependsOn: Create_DEV_Report
     condition: succeeded()
     jobs:
       - job: Update_DEV_Tag
