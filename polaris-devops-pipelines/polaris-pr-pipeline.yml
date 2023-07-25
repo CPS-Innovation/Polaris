@@ -214,6 +214,8 @@ stages:
               sleep 5
         
               ifconfig tun0
+              sudo rm /etc/resolv.conf
+              echo "nameserver 10.7.197.20" | sudo tee /etc/resolv.conf
               
               sudo cat openvpn.log
               
