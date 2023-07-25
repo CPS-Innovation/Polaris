@@ -1992,6 +1992,7 @@ describe("useCaseDetailsState reducer", () => {
                   type: "redaction",
                   position: { pageNumber: 1 },
                   id: "1640995200000",
+                  redactionAddedOrder: 1,
                 },
               ],
             },

@@ -19,3 +19,5 @@ ip_restrictions = [
     priority    = 1
   }
 ]
+
+overnight_clear_down_enabled = true

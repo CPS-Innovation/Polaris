@@ -17,12 +17,17 @@ import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
 import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
+import { useDocumentFocus } from "../../../../../common/hooks/useDocumentFocus";
+import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
   url: string;
   tabIndex: number;
+  activeTabId: string | undefined;
+  tabId: string;
   contextData: {
     documentType: string;
     documentId: string;
@@ -46,6 +51,8 @@ const ensureAllPdfInView = () =>
 export const PdfViewer: React.FC<Props> = ({
   url,
   tabIndex,
+  activeTabId,
+  tabId,
   headers,
   documentWriteStatus,
   contextData,
@@ -61,9 +68,14 @@ export const PdfViewer: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
+  useControlledRedactionFocus(tabId, activeTabId, tabIndex);
+  useDocumentFocus(tabId, activeTabId, tabIndex);
 
   const highlights = useMemo(
-    () => [...searchHighlights, ...redactionHighlights],
+    () => [
+      ...searchHighlights,
+      ...sortRedactionHighlights(redactionHighlights),
+    ],
     [searchHighlights, redactionHighlights]
   );
 

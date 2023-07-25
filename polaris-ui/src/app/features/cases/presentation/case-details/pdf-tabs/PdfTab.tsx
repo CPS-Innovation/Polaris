@@ -11,6 +11,8 @@ import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
   tabIndex: number;
+  activeTabId: string | undefined;
+  tabId: string;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -32,6 +34,8 @@ type PdfTabProps = {
 
 export const PdfTab: React.FC<PdfTabProps> = ({
   tabIndex,
+  activeTabId,
+  tabId,
   caseDocumentViewModel,
   headers,
   documentWriteStatus,
@@ -123,6 +127,8 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         <PdfViewer
           url={url}
           tabIndex={tabIndex}
+          activeTabId={activeTabId}
+          tabId={tabId}
           headers={headers}
           searchHighlights={searchHighlights}
           documentWriteStatus={documentWriteStatus}
