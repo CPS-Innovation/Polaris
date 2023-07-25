@@ -34,11 +34,3 @@ cms_details = {
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
-
-ip_restrictions = [
-  {
-    action      = "Allow"
-    service_tag = "AzureCloud"
-    priority    = 1
-  }
-]

@@ -22,6 +22,7 @@ variables:
   - group: pipeline-terraform
   - group: ui-terraform
   - group: polaris-status-check-endpoints
+  - group: polaris-vpn
 
 stages:
   - stage: Apply_DEV
@@ -35,23 +36,33 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download dev cert
-                - task: DownloadSecureFile@1
-                  name: devVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_dev.ovpn'
-                  displayName: 'Download DEV VPN certificate for OVPN'
+                #download templates artifact
+                - download: PolarisManualAsposeLicenceBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
 
                 #create vpn tunnel
                 - bash: |
-                    sudo apt-get update
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(devVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
                     sleep 5
-                    ifconfig
-                    echo "connected"
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(dev_pre-shared_key)
+                    PRIVATEKEY: $(dev_private_key)
+                    CLIENTCERTIFICATE: $(dev_client_cert)
+                    VPNSERVER: $(dev_vpn_server)
+                    DNSSERVER: $(dev_dns_server)
                   displayName: Creating DEV VPN tunnel
                   
                 #download pdf-generator build artifact
@@ -77,28 +88,38 @@ stages:
     jobs:
       - job:
         steps:
-          #download dev cert
-          - task: DownloadSecureFile@1
-            name: devVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_dev.ovpn'
-            displayName: 'Download DEV VPN certificate for OVPN'
+          #download templates artifact
+          - download: PolarisManualAsposeLicenceBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
 
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
-              head $(devVpnCertificate.secureFilePath)
-              sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
               sleep 5
-              ifconfig
-              echo "connected"
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
             
           #download scripts artifact
           - download: PolarisManualAsposeLicenceBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query pdf-generator status endpoint
@@ -129,23 +150,33 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download qa cert
-                - task: DownloadSecureFile@1
-                  name: qaVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_qa.ovpn'
-                  displayName: 'Download QA VPN certificate for OVPN'
+                #download templates artifact
+                - download: PolarisManualAsposeLicenceBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
 
                 #create vpn tunnel
                 - bash: |
-                    sudo apt-get update
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(qaVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(qaVpnCertificate.secureFilePath) --daemon
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
                     sleep 5
-                    ifconfig
-                    echo "connected"
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(qa_pre-shared_key)
+                    PRIVATEKEY: $(qa_private_key)
+                    CLIENTCERTIFICATE: $(qa_client_cert)
+                    VPNSERVER: $(qa_vpn_server)
+                    DNSSERVER: $(qa_dns_server)
                   displayName: Creating QA VPN tunnel
                   
                 #download pdf-generator build artifact
@@ -171,28 +202,38 @@ stages:
     jobs:
       - job:
         steps:
-          #download qa cert
-          - task: DownloadSecureFile@1
-            name: qaVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_qa.ovpn'
-            displayName: 'Download QA VPN certificate for OVPN'
+          #download templates artifact
+          - download: PolarisManualAsposeLicenceBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
 
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
-              head $(qaVpnCertificate.secureFilePath)
-              sudo openvpn --config $(qaVpnCertificate.secureFilePath) --daemon
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
               sleep 5
-              ifconfig
-              echo "connected"
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(qa_pre-shared_key)
+              PRIVATEKEY: $(qa_private_key)
+              CLIENTCERTIFICATE: $(qa_client_cert)
+              VPNSERVER: $(qa_vpn_server)
+              DNSSERVER: $(qa_dns_server)
             displayName: Creating QA VPN tunnel
           
           #download scripts artifact
           - download: PolarisManualAsposeLicenceBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query pdf-generator status endpoint
@@ -223,38 +264,34 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download prod cert
-                - task: DownloadSecureFile@1
-                  name: prodVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_prod.ovpn'
-                  displayName: 'Download PROD VPN certificate for OVPN'
+                #download templates artifact
+                - download: PolarisManualAsposeLicenceBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
 
                 #create vpn tunnel
                 - bash: |
-                    sudo apt-get update
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(prodVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(prodVpnCertificate.secureFilePath) --daemon
-                    sleep 5
-                    ifconfig
-                    echo "connected"
-                  displayName: Creating PROD VPN tunnel
-                  
-                #download pdf-generator build artifact
-                - download: PolarisManualAsposeLicenceBuild
-                  displayName: Deploy > Download PDF Generator Codebase Build
-                  artifact: "polaris-pdf-generator-drop"
 
-                # Deploy Related Codebase to Env
-                - task: AzureFunctionApp@1
-                  displayName: 'Deploy PDF Generator Azure Function App to PROD'
-                  inputs:
-                    azureSubscription: $(prod-azure-subscription)
-                    appType: functionApp
-                    appName: "fa-polaris-pipeline-pdf-generator"
-                    package: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-pdf-generator-drop
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(prod_pre-shared_key)
+                    PRIVATEKEY: $(prod_private_key)
+                    CLIENTCERTIFICATE: $(prod_client_cert)
+                    VPNSERVER: $(prod_vpn_server)
+                    DNSSERVER: $(prod_dns_server)
+                  displayName: Creating PROD VPN tunnel
                   
   - stage: Check_PROD
     displayName: Status Check > PROD
@@ -265,28 +302,38 @@ stages:
     jobs:
       - job:
         steps:
-          #download prod cert
-          - task: DownloadSecureFile@1
-            name: prodVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_prod.ovpn'
-            displayName: 'Download PROD VPN certificate for OVPN'
+          #download templates artifact
+          - download: PolarisManualAsposeLicenceBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
 
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
-              head $(prodVpnCertificate.secureFilePath)
-              sudo openvpn --config $(prodVpnCertificate.secureFilePath) --daemon
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
               sleep 5
-              ifconfig
-              echo "connected"
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualAsposeLicenceBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(prod_pre-shared_key)
+              PRIVATEKEY: $(prod_private_key)
+              CLIENTCERTIFICATE: $(prod_client_cert)
+              VPNSERVER: $(prod_vpn_server)
+              DNSSERVER: $(prod_dns_server)
             displayName: Creating PROD VPN tunnel
             
           #download scripts artifact
           - download: PolarisManualAsposeLicenceBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query pdf-generator status endpoint

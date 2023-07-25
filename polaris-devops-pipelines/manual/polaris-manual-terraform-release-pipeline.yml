@@ -22,6 +22,7 @@ variables:
   - group: pipeline-terraform
   - group: ui-terraform
   - group: polaris-status-check-endpoints
+  - group: polaris-vpn
 
 stages:
   - stage: Apply_DEV
@@ -35,23 +36,33 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download dev cert
-                - task: DownloadSecureFile@1
-                  name: devVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_dev.ovpn'
-                  displayName: 'Download DEV VPN certificate for OVPN'
+                #download templates artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
 
                 #create vpn tunnel
                 - bash: |
-                    sudo apt-get update
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(devVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
                     sleep 5
-                    ifconfig
-                    echo "connected"
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(dev_pre-shared_key)
+                    PRIVATEKEY: $(dev_private_key)
+                    CLIENTCERTIFICATE: $(dev_client_cert)
+                    VPNSERVER: $(dev_vpn_server)
+                    DNSSERVER: $(dev_dns_server)
                   displayName: Creating DEV VPN tunnel
                   
                 # Install Terraform based on version variable
@@ -105,27 +116,6 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
                     
-                # Use CLI to apply custom firewall rules to apps - not yet supported properly by Terraform (less so for function apps!)
-                - bash: |
-                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                    
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-text-extractor --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                  displayName: CLI > Apply firewall permissions
-                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/pipeline-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-                      
                 #download coordinator build artifact
                 - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -258,29 +248,6 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
                     
-                # Use CLI to apply custom firewall rules to apps - not yet supported properly by Terraform (less so for function apps!)
-                - bash: |
-                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    az resource update --resource-group rg-polaris-dev --name as-web-polaris-dev --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-dev --name as-web-polaris-dev --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-dev --name fa-polaris-dev-auth-handover --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-dev --name fa-polaris-dev-auth-handover --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-dev --name fa-polaris-dev-auth-handover --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-dev --name fa-polaris-dev-gateway --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-dev --name fa-polaris-dev-gateway --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-dev --name fa-polaris-dev-gateway --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                    
-                    az resource update --resource-group rg-polaris-dev --name polaris-dev-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-dev --name polaris-dev-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                  displayName: CLI > Apply firewall permissions
-                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/ui-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-                
                 #download ui events terraform build artifact
                 - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download UI Events terraform build
@@ -402,28 +369,38 @@ stages:
     jobs:
       - job:
         steps:
-          #download dev cert
-          - task: DownloadSecureFile@1
-            name: devVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_dev.ovpn'
-            displayName: 'Download DEV VPN certificate for OVPN'
+          #download templates artifact
+          - download: PolarisManualTerraformBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
 
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
-              head $(devVpnCertificate.secureFilePath)
-              sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
               sleep 5
-              ifconfig
-              echo "connected"
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
             
           #download scripts artifact
           - download: PolarisManualTerraformBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query coordinator status endpoint
@@ -591,23 +568,33 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download qa cert
-                - task: DownloadSecureFile@1
-                  name: qaVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_qa.ovpn'
-                  displayName: 'Download QA VPN certificate for OVPN'
+                #download templates artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
 
                 #create vpn tunnel
                 - bash: |
-                    sudo apt-get update
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(qaVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(qaVpnCertificate.secureFilePath) --daemon
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
                     sleep 5
-                    ifconfig
-                    echo "connected"
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(qa_pre-shared_key)
+                    PRIVATEKEY: $(qa_private_key)
+                    CLIENTCERTIFICATE: $(qa_client_cert)
+                    VPNSERVER: $(qa_vpn_server)
+                    DNSSERVER: $(qa_dns_server)
                   displayName: Creating QA VPN tunnel
                   
                 # Install Terraform based on version variable
@@ -661,27 +648,6 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
                     
-                # Use CLI to apply custom firewall rules to apps - not yet supported properly by Terraform (less so for function apps!)
-                - bash: |
-                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-text-extractor --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                  displayName: CLI > Apply firewall permissions
-                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/pipeline-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
-                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
-                
                 #download coordinator build artifact
                 - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -814,29 +780,6 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
                     
-                # Use CLI to apply custom firewall rules to apps - not yet supported properly by Terraform (less so for function apps!)
-                - bash: |
-                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    az resource update --resource-group rg-polaris-qa --name as-web-polaris-qa --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-qa --name as-web-polaris-qa --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-qa --name fa-polaris-qa-auth-handover --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-qa --name fa-polaris-qa-auth-handover --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-qa --name fa-polaris-qa-auth-handover --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-qa --name fa-polaris-qa-gateway --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-qa --name fa-polaris-qa-gateway --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-qa --name fa-polaris-qa-gateway --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-qa --name polaris-qa-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-qa --name polaris-qa-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                  displayName: CLI > Apply firewall permissions
-                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/ui-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
-                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
-                
                 #download ui events terraform build artifact
                 - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download UI Events terraform build
@@ -958,28 +901,38 @@ stages:
     jobs:
       - job:
         steps:
-          #download qa cert
-          - task: DownloadSecureFile@1
-            name: qaVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_qa.ovpn'
-            displayName: 'Download QA VPN certificate for OVPN'
+          #download templates artifact
+          - download: PolarisManualTerraformBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
 
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
-              head $(qaVpnCertificate.secureFilePath)
-              sudo openvpn --config $(qaVpnCertificate.secureFilePath) --daemon
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
               sleep 5
-              ifconfig
-              echo "connected"
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(qa_pre-shared_key)
+              PRIVATEKEY: $(qa_private_key)
+              CLIENTCERTIFICATE: $(qa_client_cert)
+              VPNSERVER: $(qa_vpn_server)
+              DNSSERVER: $(qa_dns_server)
             displayName: Creating QA VPN tunnel
             
           #download scripts artifact
           - download: PolarisManualTerraformBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query coordinator status endpoint
@@ -1147,23 +1100,33 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download prod cert
-                - task: DownloadSecureFile@1
-                  name: prodVpnCertificate
-                  inputs:
-                    secureFile: 'vpnconfig_cert_prod.ovpn'
-                  displayName: 'Download PROD VPN certificate for OVPN'
+                #download templates artifact
+                - download: PolarisManualTerraformBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
 
                 #create vpn tunnel
                 - bash: |
-                    sudo apt-get update
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
-                    ls
-                    head $(prodVpnCertificate.secureFilePath)
-                    sudo openvpn --config $(prodVpnCertificate.secureFilePath) --daemon
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
                     sleep 5
-                    ifconfig
-                    echo "connected"
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(prod_pre-shared_key)
+                    PRIVATEKEY: $(prod_private_key)
+                    CLIENTCERTIFICATE: $(prod_client_cert)
+                    VPNSERVER: $(prod_vpn_server)
+                    DNSSERVER: $(prod_dns_server)
                   displayName: Creating PROD VPN tunnel
                   
                 # Install Terraform based on version variable
@@ -1217,27 +1180,6 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
                     
-                # Use CLI to apply custom firewall rules to apps - not yet supported properly by Terraform (less so for function apps!)
-                - bash: |
-                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-pdf-generator --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-text-extractor --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-text-extractor --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                  displayName: CLI > Apply firewall permissions
-                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/pipeline-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
-                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
-
                 #download coordinator build artifact
                 - download: PolarisManualTerraformBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -1370,29 +1312,6 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
                     
-                # Use CLI to apply custom firewall rules to apps - not yet supported properly by Terraform (less so for function apps!)
-                - bash: |
-                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    az resource update --resource-group rg-polaris --name as-web-polaris --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris --name as-web-polaris --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris --name fa-polaris-auth-handover --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris --name fa-polaris-auth-handover --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris --name fa-polaris-auth-handover --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris --name fa-polaris-gateway --resource-type "Microsoft.Web/sites" --set properties.publicNetworkAccess=Enabled
-                    az resource update --resource-group rg-polaris --name fa-polaris-gateway --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris --name fa-polaris-gateway --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-
-                    az resource update --resource-group rg-polaris --name polaris-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny
-                    az resource update --resource-group rg-polaris --name polaris-cmsproxy --resource-type "Microsoft.Web/sites" --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Deny
-                  displayName: CLI > Apply firewall permissions
-                  workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/ui-terraform-files
-                  env:
-                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
-                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
-                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
-
                 #download ui events terraform build artifact
                 - download: PolarisManualTerraformBuild
                   displayName: Terraform > Download UI Events terraform build
@@ -1514,28 +1433,38 @@ stages:
     jobs:
       - job:
         steps:
-          #download prod cert
-          - task: DownloadSecureFile@1
-            name: prodVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_prod.ovpn'
-            displayName: 'Download PROD VPN certificate for OVPN'
+          #download templates artifact
+          - download: PolarisManualTerraformBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
 
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
-              head $(prodVpnCertificate.secureFilePath)
-              sudo openvpn --config $(prodVpnCertificate.secureFilePath) --daemon
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
               sleep 5
-              ifconfig
-              echo "connected"
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualTerraformBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(prod_pre-shared_key)
+              PRIVATEKEY: $(prod_private_key)
+              CLIENTCERTIFICATE: $(prod_client_cert)
+              VPNSERVER: $(prod_vpn_server)
+              DNSSERVER: $(prod_dns_server)
             displayName: Creating PROD VPN tunnel
             
           #download scripts artifact
           - download: PolarisManualTerraformBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query coordinator status endpoint
