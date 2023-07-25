@@ -218,6 +218,9 @@ stages:
               sudo cat openvpn.log
               
               nslookup fa-polaris-dev-gateway.azurewebsites.net
+              nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
+              
+              sudo cat /etc/resolv.conf
             workingDirectory: $(templatesWorkingDir)
             env:
               PRESHAREDKEY: $(dev_pre-shared_key)
