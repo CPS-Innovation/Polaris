@@ -206,6 +206,7 @@ stages:
           - bash: |
               sudo apt-get --assume-yes --no-install-recommends install openvpn
               
+              chmod 777 vpnconfig.ovpn
               envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
               
               sudo openvpn _vpnconfig.ovpn &
@@ -214,8 +215,7 @@ stages:
         
               ifconfig tun0
               
-              chmod 777 openvpn.log
-              cat openvpn.log
+              sudo cat openvpn.log
               
               nslookup fa-polaris-dev-gateway.azurewebsites.net
             workingDirectory: $(templatesWorkingDir)
