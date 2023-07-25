@@ -199,7 +199,7 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #download dev cert
+          #download dev ovpn client config
           - task: DownloadSecureFile@1
             name: devVpnCertificate
             inputs:
