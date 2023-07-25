@@ -4,8 +4,18 @@ import classes from "./PdfLinearHighlight.module.scss";
 
 type Props = {
   rect: LTWH;
+  redactionAddedOrder?: number;
 };
 
-export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({ rect }) => {
-  return <div style={rect} className={classes[`Highlight__part__redaction`]} />;
+export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({
+  rect,
+  redactionAddedOrder,
+}) => {
+  return (
+    <button
+      style={rect}
+      className={classes[`Highlight__part__redaction`]}
+      data-redaction-added-order={redactionAddedOrder}
+    />
+  );
 };
