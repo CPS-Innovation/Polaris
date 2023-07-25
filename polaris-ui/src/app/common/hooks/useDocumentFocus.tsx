@@ -49,7 +49,7 @@ export const useDocumentFocus = (
         activeTextLayerChildIndex.current !== -1 &&
         activeTextLayerChildIndex.current >= textLayerChildren.length - 1
       ) {
-        activeTextLayerChildIndex.current = 0;
+        activeTextLayerChildIndex.current = textLayerChildren.length - 1;
       } else if (
         keyCode === "KeyH" &&
         activeTextLayerChildIndex.current < textLayerChildren.length
@@ -57,6 +57,7 @@ export const useDocumentFocus = (
         activeTextLayerChildIndex.current =
           activeTextLayerChildIndex.current + 1;
       }
+
       if (keyCode === "KeyG" && activeTextLayerChildIndex.current <= 0) {
         activeTextLayerChildIndex.current = 0;
       } else if (keyCode === "KeyG" && activeTextLayerChildIndex.current > 0) {
