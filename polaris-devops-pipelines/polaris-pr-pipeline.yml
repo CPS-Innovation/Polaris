@@ -213,6 +213,8 @@ stages:
               sleep 5
         
               ifconfig tun0
+              
+              chmod 777 openvpn.log
               cat openvpn.log
               
               nslookup fa-polaris-dev-gateway.azurewebsites.net
