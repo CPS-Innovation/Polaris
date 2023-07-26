@@ -13,7 +13,6 @@ export const PdfAreaHighlight: React.FC<Props> = ({
   highlight: {
     position: { boundingRect },
     id,
-    redactionAddedOrder,
     textContent,
   },
   isScrolledTo,
@@ -27,14 +26,13 @@ export const PdfAreaHighlight: React.FC<Props> = ({
     }`}
   >
     <button
-      aria-describedby={`redacted-text-${redactionAddedOrder}`}
-      data-redaction-added-order={redactionAddedOrder}
+      aria-describedby={`redacted-text-${id}`}
       className={classes["AreaHighlight__part"]}
       style={boundingRect}
       {...otherProps}
     ></button>
 
-    <p hidden id={`redacted-text-${redactionAddedOrder}`}>
+    <p hidden id={`redacted-text-${id}`}>
       {textContent}
     </p>
   </div>
