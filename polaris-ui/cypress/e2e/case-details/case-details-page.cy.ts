@@ -460,9 +460,7 @@ describe("case details page", () => {
   describe("Unsaved redactions accessibility through keyboard", () => {
     const verifyAriaDescriptionTextContent = (textContent: string) => {
       cy.focused().then((button) => {
-        console.log("button", button);
         const siblingP = button.next("p");
-
         cy.wrap(siblingP).should("contain.text", textContent);
       });
     };

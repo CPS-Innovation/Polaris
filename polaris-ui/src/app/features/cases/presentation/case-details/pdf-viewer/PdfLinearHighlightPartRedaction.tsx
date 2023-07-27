@@ -11,12 +11,12 @@ type Props = {
 export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({
   rect,
   id,
-  textContent = "",
+  textContent,
 }) => {
   return (
     <>
       <button
-        aria-label="unsaved redaction button"
+        aria-label="unsaved redaction"
         aria-describedby={`redacted-text-${id}`}
         style={rect}
         className={classes[`Highlight__part__redaction`]}
