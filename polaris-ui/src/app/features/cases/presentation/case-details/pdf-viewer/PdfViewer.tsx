@@ -95,7 +95,7 @@ export const PdfViewer: React.FC<Props> = ({
         position,
         textContent:
           content.text ??
-          "This is an image redaction and redacted content is unavailable",
+          "This is an area redaction and redacted content is unavailable",
         highlightType: content.image ? "area" : "linear",
       };
 
