@@ -4,18 +4,28 @@ import classes from "./PdfLinearHighlight.module.scss";
 
 type Props = {
   rect: LTWH;
-  redactionAddedOrder?: number;
+  id: string;
+  textContent?: string;
 };
 
 export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({
   rect,
-  redactionAddedOrder,
+  id,
+  textContent,
 }) => {
   return (
-    <button
-      style={rect}
-      className={classes[`Highlight__part__redaction`]}
-      data-redaction-added-order={redactionAddedOrder}
-    />
+    <>
+      <button
+        aria-label="unsaved redaction"
+        aria-describedby={`redacted-text-${id}`}
+        style={rect}
+        className={classes[`Highlight__part__redaction`]}
+        data-redaction-added-order={id}
+      />
+      <p
+        hidden
+        id={`redacted-text-${id}`}
+      >{`The text redacted is, ${textContent}`}</p>
+    </>
   );
 };

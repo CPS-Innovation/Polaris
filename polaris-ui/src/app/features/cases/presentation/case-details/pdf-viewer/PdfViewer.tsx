@@ -89,11 +89,14 @@ export const PdfViewer: React.FC<Props> = ({
   }, [searchHighlights, focussedHighlightIndex]);
 
   const addRedaction = useCallback(
-    (position: ScaledPosition, isAreaHighlight: boolean) => {
+    (position: ScaledPosition, content: { text?: string; image?: string }) => {
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
         position,
-        highlightType: isAreaHighlight ? "area" : "linear",
+        textContent:
+          content.text ??
+          "This is an area redaction and redacted content is unavailable",
+        highlightType: content.image ? "area" : "linear",
       };
 
       handleAddRedaction(newRedaction);
@@ -149,7 +152,7 @@ export const PdfViewer: React.FC<Props> = ({
                         documentType: contextData.documentType,
                         documentId: contextData.documentId,
                       });
-                      addRedaction(position, !!content.image);
+                      addRedaction(position, content);
                       hideTipAndSelection();
                     }}
                   />
