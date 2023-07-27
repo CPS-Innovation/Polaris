@@ -22,6 +22,7 @@ variables:
   - group: pipeline-terraform
   - group: ui-terraform
   - group: polaris-status-check-endpoints
+  - group: polaris-vpn
 
 stages:
   - stage: Determine_Changes
@@ -386,7 +387,7 @@ stages:
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_DEV']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_DEV']]
     pool:
-      name: $(dev-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: CI_Deploy_Polaris
         environment: "Dev"
@@ -394,6 +395,35 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: PolarisBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(dev_pre-shared_key)
+                    PRIVATEKEY: $(dev_private_key)
+                    CLIENTCERTIFICATE: $(dev_client_cert)
+                    VPNSERVER: $(dev_vpn_server)
+                    DNSSERVER: $(dev_dns_server)
+                  displayName: Creating DEV VPN tunnel
+                  
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
@@ -652,6 +682,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  condition: eq(variables.runUITerraform, 'true')
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
@@ -734,10 +765,39 @@ stages:
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_DEV']]
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_DEV']]
     pool:
-      name: $(dev-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job: Run_Status_Checks
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
+            displayName: Creating DEV VPN tunnel
+            
           #download scripts artifact
           - download: PolarisBuild
             displayName: Polaris Build > Download Pipeline Scripts
@@ -881,7 +941,7 @@ stages:
 
   - stage: Update_DEV_Tag
     displayName: Update Tag > DEV
-    dependsOn: Check_DEV
+    dependsOn: Create_DEV_Report
     condition: succeeded()
     jobs:
       - job: Update_DEV_Tag
@@ -955,7 +1015,7 @@ stages:
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_QA']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
     pool:
-      name: $(qa-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: CI_Deploy_Polaris
         environment: "QA"
@@ -963,6 +1023,35 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: PolarisBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(qa_pre-shared_key)
+                    PRIVATEKEY: $(qa_private_key)
+                    CLIENTCERTIFICATE: $(qa_client_cert)
+                    VPNSERVER: $(qa_vpn_server)
+                    DNSSERVER: $(qa_dns_server)
+                  displayName: Creating QA VPN tunnel
+                  
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
@@ -1219,6 +1308,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  condition: eq(variables.runUITerraform, 'true')
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -1303,10 +1393,39 @@ stages:
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_QA']]
     pool:
-      name: $(qa-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job: Run_Status_Checks
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(qa_pre-shared_key)
+              PRIVATEKEY: $(qa_private_key)
+              CLIENTCERTIFICATE: $(qa_client_cert)
+              VPNSERVER: $(qa_vpn_server)
+              DNSSERVER: $(qa_dns_server)
+            displayName: Creating QA VPN tunnel
+            
           #download scripts artifact
           - download: PolarisBuild
             displayName: Polaris Build > Download Pipeline Scripts
@@ -1524,7 +1643,7 @@ stages:
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_PROD']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
     pool:
-      name: $(prod-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: CI_Deploy_Polaris
         environment: "Prod"
@@ -1532,6 +1651,35 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: PolarisBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(prod_pre-shared_key)
+                    PRIVATEKEY: $(prod_private_key)
+                    CLIENTCERTIFICATE: $(prod_client_cert)
+                    VPNSERVER: $(prod_vpn_server)
+                    DNSSERVER: $(prod_dns_server)
+                  displayName: Creating PROD VPN tunnel
+                  
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
@@ -1788,6 +1936,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  condition: eq(variables.runUITerraform, 'true')
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -1872,10 +2021,39 @@ stages:
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_PROD']]
     pool:
-      name: $(prod-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job: Run_Status_Checks
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(prod_pre-shared_key)
+              PRIVATEKEY: $(prod_private_key)
+              CLIENTCERTIFICATE: $(prod_client_cert)
+              VPNSERVER: $(prod_vpn_server)
+              DNSSERVER: $(prod_dns_server)
+            displayName: Creating PROD VPN tunnel
+            
           #download scripts artifact
           - download: PolarisBuild
             displayName: Polaris Build > Download Pipeline Scripts

@@ -1,15 +1,17 @@
 #################### Functions ####################
 
 resource "azurerm_linux_function_app" "fa_text_extractor" {
-  name                        = "fa-${local.resource_name}-text-extractor"
-  location                    = azurerm_resource_group.rg.location
-  resource_group_name         = azurerm_resource_group.rg.name
-  service_plan_id             = azurerm_service_plan.asp_polaris_text_extractor.id
-  storage_account_name        = azurerm_storage_account.sa.name
-  storage_account_access_key  = azurerm_storage_account.sa.primary_access_key
-  virtual_network_subnet_id   = data.azurerm_subnet.polaris_textextractor_subnet.id
-  tags                        = local.common_tags
-  functions_extension_version = "~4"
+  name                          = "fa-${local.resource_name}-text-extractor"
+  location                      = azurerm_resource_group.rg.location
+  resource_group_name           = azurerm_resource_group.rg.name
+  service_plan_id               = azurerm_service_plan.asp_polaris_text_extractor.id
+  storage_account_name          = azurerm_storage_account.sa.name
+  storage_account_access_key    = azurerm_storage_account.sa.primary_access_key
+  virtual_network_subnet_id     = data.azurerm_subnet.polaris_textextractor_subnet.id
+  tags                          = local.common_tags
+  functions_extension_version   = "~4"
+  https_only                    = true
+  
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
@@ -28,7 +30,6 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
   }
-  https_only = true
 
   site_config {
     ftps_state                             = "FtpsOnly"

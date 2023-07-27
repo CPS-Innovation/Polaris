@@ -1,4 +1,7 @@
 trigger: none
+  
+pool:
+  vmImage: ubuntu-latest
 
 schedules:
   # run every 15 minutes between 7pm and 11:45pm
@@ -30,6 +33,9 @@ resources:
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
       ref: refs/tags/$(cypress_environment)
+      
+variables:
+  - group: polaris-vpn
 
 steps:
   - checkout: PolarisTagged
@@ -48,6 +54,30 @@ steps:
       command: "install"
       workingDir: "polaris-e2e"
     displayName: "npm install"
+    
+  #create vpn tunnel
+  - bash: |
+      sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+      chmod 777 vpnconfig.ovpn
+      envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+      sudo openvpn _vpnconfig.ovpn &
+
+      sleep 5
+
+      ifconfig tun0
+
+      sudo rm /etc/resolv.conf
+      echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+    workingDirectory: "polaris-devops-pipelines/templates"
+    env:
+      PRESHAREDKEY: $(pre-shared_key)
+      PRIVATEKEY: $(private_key)
+      CLIENTCERTIFICATE: $(client_cert)
+      VPNSERVER: $(vpn_server)
+      DNSSERVER: $(dns_server)
+    displayName: Creating VPN tunnel
 
   - task: Npm@1
     env:

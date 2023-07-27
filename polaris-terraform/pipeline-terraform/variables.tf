@@ -52,7 +52,6 @@ variable "pipeline_logging" {
   })
 }
 
-
 variable "overnight_clear_down_enabled" {
   type = bool
 }

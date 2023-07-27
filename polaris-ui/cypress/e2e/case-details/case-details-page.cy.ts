@@ -458,6 +458,13 @@ describe("case details page", () => {
   });
 
   describe("Unsaved redactions accessibility through keyboard", () => {
+    const verifyAriaDescriptionTextContent = (textContent: string) => {
+      cy.focused().then((button) => {
+        const siblingP = button.next("p");
+        cy.wrap(siblingP).should("contain.text", textContent);
+      });
+    };
+
     it("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -473,10 +480,10 @@ describe("case details page", () => {
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").click();
 
-      cy.selectPDFTextElement("EOIN MCLOVE");
+      cy.selectPDFTextElement("PC Blaynee");
       cy.findByTestId("btn-redact").click();
 
-      cy.selectPDFTextElement("PC Blaynee");
+      cy.selectPDFTextElement("EOIN MCLOVE");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Approved for referral to CPS:");
@@ -490,31 +497,31 @@ describe("case details page", () => {
 
       cy.get("#btn-report-issue").focus();
       cy.realPress("Tab");
-      cy.focused().should("have.attr", "data-redaction-added-order", 1);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("NORTH MARSH");
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
-      cy.focused().should("have.attr", "data-redaction-added-order", 2);
+      verifyAriaDescriptionTextContent("EOIN MCLOVE");
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
-      cy.focused().should("have.attr", "data-redaction-added-order", 3);
+      verifyAriaDescriptionTextContent("PC Blaynee");
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
-      cy.focused().should("have.attr", "data-redaction-added-order", 4);
+      verifyAriaDescriptionTextContent("Approved for referral to CPS:");
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
-      cy.focused().should("have.attr", "data-redaction-added-order", 5);
+      verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
-      cy.focused().should("have.attr", "data-redaction-added-order", 6);
+      verifyAriaDescriptionTextContent("POCA case");
       cy.realPress("Tab");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Tab");
@@ -539,10 +546,10 @@ describe("case details page", () => {
       cy.selectPDFTextElement("EOIN MCLOVE");
       cy.findByTestId("btn-redact").click();
 
-      cy.selectPDFTextElement("PC Blaynee");
+      cy.selectPDFTextElement("Approved for referral to CPS:");
       cy.findByTestId("btn-redact").click();
 
-      cy.selectPDFTextElement("Approved for referral to CPS:");
+      cy.selectPDFTextElement("PC Blaynee");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Instructions to Court Prosecutor:");
@@ -556,25 +563,25 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
 
-      cy.focused().should("have.attr", "data-redaction-added-order", 6);
-      cy.realPress(["Shift", "Tab"]);
-
-      cy.focused().should("have.attr", "data-redaction-added-order", 5);
+      verifyAriaDescriptionTextContent("POCA case");
 
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 4);
+      verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
 
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 3);
+      verifyAriaDescriptionTextContent("Approved for referral to CPS:");
 
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 2);
+      verifyAriaDescriptionTextContent("PC Blaynee");
 
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("EOIN MCLOVE");
 
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 1);
+      verifyAriaDescriptionTextContent("NORTH MARSH");
+
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
 
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-report-issue");
@@ -609,27 +616,27 @@ describe("case details page", () => {
 
       cy.get("#btn-report-issue").focus();
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 2);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 3);
+      verifyAriaDescriptionTextContent("Date of birth:");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 1);
+      verifyAriaDescriptionTextContent("Dangerous offender:");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 4);
+      verifyAriaDescriptionTextContent("Police incident log:");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 5);
+      verifyAriaDescriptionTextContent("PC JONES");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("NORTH MARSH");
       cy.findByTestId("link-removeAll").click();
     });
 
@@ -647,13 +654,13 @@ describe("case details page", () => {
       cy.findByTestId("tab-remove").focus();
       cy.realPress(["Tab"]);
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "btn-link-removeAll");
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "panel-0");
       cy.findByTestId("link-removeAll").click();
@@ -670,15 +677,15 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").click();
       cy.get("#btn-report-issue").focus();
       cy.realPress(["Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.attr", "data-redaction-added-order", 0);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-report-issue");
       cy.findByTestId("link-removeAll").click();
