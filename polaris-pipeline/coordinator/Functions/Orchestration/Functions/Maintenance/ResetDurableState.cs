@@ -15,26 +15,25 @@ namespace coordinator.Functions.Orchestration.Functions.Maintenance;
 public class ResetDurableState
 {
     private readonly ILogger<ResetDurableState> _logger;
-    private IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
     private const int DefaultPageSize = 100;
     private const int MaxAzureFunctionRunTimeMinutes = 10;
     // CRON - {second} {minute} {hour} {day} {month} {day-of-week}
     private const string TimerStartTime = "0 0 3 * * *";
 
-    public ResetDurableState(ILogger<ResetDurableState> logger)
+    public ResetDurableState(ILogger<ResetDurableState> logger, IConfiguration configuration)
     {
         _logger = logger;
+        _configuration = configuration;
     }
     
     [FunctionName(nameof(ResetDurableState))]
     public async Task RunAsync(
         [TimerTrigger(TimerStartTime)] TimerInfo myTimer, 
-        [DurableClient] IDurableOrchestrationClient client,
-        IConfiguration configuration)
+        [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
-        _configuration = configuration;
         try
         {
             var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.OvernightClearDownEnabled], out var clearDownEnabled);
