@@ -11,6 +11,7 @@ export const useDocumentFocus = (
 ) => {
   const activeTextLayerChildIndex = useRef(-1);
   const textLayerIndex = useRef(0);
+  const wordFirstLetterIndex = useRef(0);
 
   const getRedactBtn = useCallback(() => {
     const pdfHighlighters = document.querySelectorAll(".PdfHighlighter");
@@ -41,9 +42,42 @@ export const useDocumentFocus = (
     return children;
   }, []);
 
+  const hasNextWordIndex = (textLayerChildren: any[], keyCode: string) => {
+    const sentence =
+      textLayerChildren[activeTextLayerChildIndex.current]?.textContent;
+    const startIndexes = getWordStartingIndices(sentence);
+    console.log("startIndexes>>", startIndexes);
+    const currentIndex = startIndexes.findIndex(
+      (value) => value === wordFirstLetterIndex.current
+    );
+    if (keyCode === "KeyH") {
+      if (currentIndex < startIndexes.length - 1) {
+        wordFirstLetterIndex.current = startIndexes[currentIndex + 1];
+        return true;
+      }
+      wordFirstLetterIndex.current = 0;
+    }
+    if (keyCode === "KeyG") {
+      if (currentIndex > 0) {
+        wordFirstLetterIndex.current = startIndexes[currentIndex - 1];
+        return true;
+      }
+      const oldSentence =
+        textLayerChildren[activeTextLayerChildIndex.current - 1]?.textContent;
+      const previousIndexes = getWordStartingIndices(oldSentence);
+      wordFirstLetterIndex.current = previousIndexes.length
+        ? previousIndexes[previousIndexes.length - 1]
+        : 0;
+    }
+    return false;
+  };
   const getTextToSelect = useCallback(
     (keyCode: string) => {
       const textLayerChildren = getTextLayerChildren();
+      const hasNextWord = hasNextWordIndex(textLayerChildren, keyCode);
+      if (hasNextWord) {
+        return textLayerChildren[activeTextLayerChildIndex.current];
+      }
       if (
         keyCode === "KeyH" &&
         activeTextLayerChildIndex.current !== -1 &&
@@ -87,9 +121,20 @@ export const useDocumentFocus = (
   };
 
   const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
-    return Array.from(elements).filter((element) =>
-      element.textContent?.trim()
+    const filteredElements = Array.from(elements).filter(
+      (element) =>
+        !element.classList.contains("PdfHighlighter__highlight-layer")
     );
+    const leafSpanElements = filteredElements.reduce((acc: any[], curr) => {
+      if (curr.children.length) {
+        acc = [...acc, ...curr.children];
+        return acc;
+      }
+      acc = [...acc, curr];
+      return acc;
+    }, []);
+
+    return leafSpanElements.filter((element) => element.textContent?.trim());
   };
 
   const keyDownHandler = useCallback(
@@ -126,6 +171,8 @@ export const useDocumentFocus = (
         });
         const range = document.createRange();
         range.selectNodeContents(child);
+        range.setStart(child.firstChild, wordFirstLetterIndex.current);
+        range.setEnd(child.firstChild, wordFirstLetterIndex.current + 1);
         document.getSelection()?.removeAllRanges();
         document.getSelection()?.addRange(range);
       }
@@ -146,4 +193,16 @@ export const useDocumentFocus = (
       window.removeEventListener("keydown", keyDownHandler);
     };
   }, [keyDownHandler]);
+};
+
+export const getWordStartingIndices = (sentence: string) => {
+  //regular expression pattern to find all words in the sentence
+  const wordPattern = /\b\w+\b/g;
+  const wordStartingIndices = [];
+  let match;
+  while ((match = wordPattern.exec(sentence)) !== null) {
+    wordStartingIndices.push(match.index);
+  }
+
+  return wordStartingIndices;
 };
