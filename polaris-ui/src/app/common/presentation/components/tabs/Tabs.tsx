@@ -174,7 +174,7 @@ export const Tabs: React.FC<TabsProps> = ({
       role: "tabpanel",
       tabIndex: 0,
       "aria-labelledby": `tab_${index}`,
-      "data-testid": "tab-content-" + itemId,
+      "data-testid": `tab-content-${itemId}`,
       //disable hash navigation scrolling.  If we uncomment the below (as per standard GDS)
       // and give the panel an id, the screen will jump on every tab navigation
       id: `panel-${index}`,

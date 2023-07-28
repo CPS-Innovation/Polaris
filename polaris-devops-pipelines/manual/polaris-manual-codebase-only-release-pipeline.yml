@@ -22,12 +22,13 @@ variables:
   - group: pipeline-terraform
   - group: ui-terraform
   - group: polaris-status-check-endpoints
+  - group: polaris-vpn
 
 stages:
   - stage: Apply_DEV
     displayName: Deployment > DEV
     pool:
-      name: $(dev-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: Manual_Deploy_Polaris_Codebase
         environment: "DEV"
@@ -35,6 +36,35 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: PolarisManualCodebaseOnlyBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(dev_pre-shared_key)
+                    PRIVATEKEY: $(dev_private_key)
+                    CLIENTCERTIFICATE: $(dev_client_cert)
+                    VPNSERVER: $(dev_vpn_server)
+                    DNSSERVER: $(dev_dns_server)
+                  displayName: Creating DEV VPN tunnel
+                  
                 #download coordinator build artifact
                 - download: PolarisManualCodebaseOnlyBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -132,13 +162,42 @@ stages:
     dependsOn:
       - Apply_DEV
     pool:
-      name: $(dev-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job:
         steps:
+          #download templates artifact
+          - download: PolarisManualCodebaseOnlyBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
+            displayName: Creating DEV VPN tunnel
+            
           #download scripts artifact
           - download: PolarisManualCodebaseOnlyBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query coordinator status endpoint
@@ -298,7 +357,7 @@ stages:
     dependsOn:
       - Update_DEV_Tag
     pool:
-      name: $(qa-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: Manual_Deploy_Polaris_Codebase
         environment: "QA"
@@ -306,6 +365,35 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: PolarisManualCodebaseOnlyBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(qa_pre-shared_key)
+                    PRIVATEKEY: $(qa_private_key)
+                    CLIENTCERTIFICATE: $(qa_client_cert)
+                    VPNSERVER: $(qa_vpn_server)
+                    DNSSERVER: $(qa_dns_server)
+                  displayName: Creating QA VPN tunnel
+                  
                 #download coordinator build artifact
                 - download: PolarisManualCodebaseOnlyBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -403,13 +491,42 @@ stages:
     dependsOn:
       - Apply_QA
     pool:
-      name: $(qa-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job:
         steps:
+          #download templates artifact
+          - download: PolarisManualCodebaseOnlyBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(qa_pre-shared_key)
+              PRIVATEKEY: $(qa_private_key)
+              CLIENTCERTIFICATE: $(qa_client_cert)
+              VPNSERVER: $(qa_vpn_server)
+              DNSSERVER: $(qa_dns_server)
+            displayName: Creating QA VPN tunnel
+            
           #download scripts artifact
           - download: PolarisManualCodebaseOnlyBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query coordinator status endpoint
@@ -569,7 +686,7 @@ stages:
     dependsOn:
       - Update_DEV_Tag
     pool:
-      name: $(prod-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - deployment: Manual_Deploy_Polaris_Codebase
         environment: "Prod"
@@ -577,6 +694,35 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: PolarisManualCodebaseOnlyBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(prod_pre-shared_key)
+                    PRIVATEKEY: $(prod_private_key)
+                    CLIENTCERTIFICATE: $(prod_client_cert)
+                    VPNSERVER: $(prod_vpn_server)
+                    DNSSERVER: $(prod_dns_server)
+                  displayName: Creating PROD VPN tunnel
+                  
                 #download coordinator build artifact
                 - download: PolarisManualCodebaseOnlyBuild
                   displayName: Deploy > Download Coordinator Codebase Build
@@ -674,13 +820,42 @@ stages:
     dependsOn:
       - Apply_PROD
     pool:
-      name: $(prod-build-agent)
+      vmImage: ubuntu-latest
     jobs:
       - job:
         steps:
+          #download templates artifact
+          - download: PolarisManualCodebaseOnlyBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisManualCodebaseOnlyBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(prod_pre-shared_key)
+              PRIVATEKEY: $(prod_private_key)
+              CLIENTCERTIFICATE: $(prod_client_cert)
+              VPNSERVER: $(prod_vpn_server)
+              DNSSERVER: $(prod_dns_server)
+            displayName: Creating PROD VPN tunnel
+            
           #download scripts artifact
           - download: PolarisManualCodebaseOnlyBuild
-            displayName: Polaris Build > Download Pipeline Scripts
+            displayName: Download Pipeline Scripts
             artifact: 'polaris-script-files'
 
           #query coordinator status endpoint

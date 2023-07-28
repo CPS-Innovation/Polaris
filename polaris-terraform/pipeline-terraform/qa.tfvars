@@ -11,3 +11,5 @@ pipeline_logging = {
   pdf_generator_scale_controller  = "AppInsights:None"
   text_extractor_scale_controller = "AppInsights:None"
 }
+
+overnight_clear_down_enabled = true

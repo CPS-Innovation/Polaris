@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Constants;
 using Common.Logging;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Maintenance;
@@ -13,15 +15,17 @@ namespace coordinator.Functions.Orchestration.Functions.Maintenance;
 public class ResetDurableState
 {
     private readonly ILogger<ResetDurableState> _logger;
+    private readonly IConfiguration _configuration;
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
     private const int DefaultPageSize = 100;
     private const int MaxAzureFunctionRunTimeMinutes = 10;
     // CRON - {second} {minute} {hour} {day} {month} {day-of-week}
     private const string TimerStartTime = "0 0 3 * * *";
 
-    public ResetDurableState(ILogger<ResetDurableState> logger)
+    public ResetDurableState(ILogger<ResetDurableState> logger, IConfiguration configuration)
     {
         _logger = logger;
+        _configuration = configuration;
     }
     
     [FunctionName(nameof(ResetDurableState))]
@@ -29,12 +33,20 @@ public class ResetDurableState
         [TimerTrigger(TimerStartTime)] TimerInfo myTimer, 
         [DurableClient] IDurableOrchestrationClient client)
     {
-         var correlationId = Guid.NewGuid();
+        var correlationId = Guid.NewGuid();
         try
         {
-            await TerminateOrchestrationsAndDurableEntities(client, correlationId);
-            await WaitForTerminationsToComplete();
-            await PurgeOrchestrationsAndDurableEntitiesHistory(client, correlationId);
+            var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.OvernightClearDownEnabled], out var clearDownEnabled);
+            if (convSucceeded && clearDownEnabled)
+            {
+                await TerminateOrchestrationsAndDurableEntities(client, correlationId);
+                await WaitForTerminationsToComplete();
+                await PurgeOrchestrationsAndDurableEntitiesHistory(client, correlationId);
+            }
+            else
+            {
+                _logger.LogMethodFlow(correlationId, nameof(ResetDurableState), "Overnight clear down has been disabled in config.");
+            }
         }
         catch (Exception ex)
         {

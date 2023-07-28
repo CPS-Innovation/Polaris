@@ -2,11 +2,11 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   #checkov:skip=CKV_AZURE_88:Ensure that app services use Azure Files
   #checkov:skip=CKV_AZURE_13:Ensure App Service Authentication is set on Azure App Service
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
-  name                      = "${local.resource_name}-cmsproxy"
-  resource_group_name       = azurerm_resource_group.rg_polaris.name
-  location                  = azurerm_resource_group.rg_polaris.location
-  service_plan_id           = azurerm_service_plan.asp_polaris_proxy.id
-  virtual_network_subnet_id = data.azurerm_subnet.polaris_proxy_subnet.id
+  name                          = "${local.resource_name}-cmsproxy"
+  resource_group_name           = azurerm_resource_group.rg_polaris.name
+  location                      = azurerm_resource_group.rg_polaris.location
+  service_plan_id               = azurerm_service_plan.asp_polaris_proxy.id
+  virtual_network_subnet_id     = data.azurerm_subnet.polaris_proxy_subnet.id
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                         = "1"

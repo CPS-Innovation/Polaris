@@ -13,6 +13,7 @@ export const PdfAreaHighlight: React.FC<Props> = ({
   highlight: {
     position: { boundingRect },
     id,
+    textContent,
   },
   isScrolledTo,
   ...otherProps
@@ -20,14 +21,19 @@ export const PdfAreaHighlight: React.FC<Props> = ({
   <div
     data-testid={`div-highlight-${id}`}
     data-test-isfocussed={isScrolledTo}
-    className={`${classes["AreaHighlight"]} ${
+    className={`highlight-layer-wrapper ${classes["AreaHighlight"]} ${
       isScrolledTo ? classes["AreaHighlight--scrolledTo"] : ""
     }`}
   >
-    <div
+    <button
+      aria-describedby={`redacted-text-${id}`}
       className={classes["AreaHighlight__part"]}
       style={boundingRect}
       {...otherProps}
-    ></div>
+    ></button>
+
+    <p hidden id={`redacted-text-${id}`}>
+      {textContent}
+    </p>
   </div>
 );

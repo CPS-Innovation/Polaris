@@ -76,8 +76,27 @@ stages:
       - job: CheckPlan
         dependsOn: Validate
         pool:
-          name: $(dev-build-agent)
+          vmImage: ubuntu-latest
         steps:
+          #download dev cert
+          - task: DownloadSecureFile@1
+            name: devVpnCertificate
+            inputs:
+              secureFile: 'vpnconfig_cert_dev.ovpn'
+            displayName: 'Download DEV VPN certificate for OVPN'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get update
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+              ls
+              head $(devVpnCertificate.secureFilePath)
+              sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+              sleep 5
+              ifconfig
+              echo "connected"
+            displayName: Creating DEV VPN tunnel
+            
           # Install Terraform based on version variable
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: Terraform > Install

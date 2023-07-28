@@ -456,6 +456,403 @@ describe("case details page", () => {
       cy.findByTestId("btn-report-issue").should("be.disabled");
     });
   });
+
+  describe("Unsaved redactions accessibility through keyboard", () => {
+    const verifyAriaDescriptionTextContent = (textContent: string) => {
+      cy.focused().then((button) => {
+        const siblingP = button.next("p");
+        cy.wrap(siblingP).should("contain.text", textContent);
+      });
+    };
+
+    it("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").click();
+      cy.findByTestId("btn-report-issue").focus();
+
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("PC Blaynee");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("EOIN MCLOVE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Approved for referral to CPS:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Instructions to Court Prosecutor:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("POCA case");
+      cy.findByTestId("btn-redact").click();
+
+      cy.get("#btn-report-issue").focus();
+      cy.realPress("Tab");
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Tab");
+      verifyAriaDescriptionTextContent("NORTH MARSH");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Tab");
+      verifyAriaDescriptionTextContent("EOIN MCLOVE");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Tab");
+      verifyAriaDescriptionTextContent("PC Blaynee");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Tab");
+      verifyAriaDescriptionTextContent("Approved for referral to CPS:");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Tab");
+      verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Tab");
+      verifyAriaDescriptionTextContent("POCA case");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "btn-link-removeAll");
+      cy.findByTestId("link-removeAll").click();
+    });
+
+    it("Should be able to tab + shift backward through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("EOIN MCLOVE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Approved for referral to CPS:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("PC Blaynee");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Instructions to Court Prosecutor:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("POCA case");
+      cy.findByTestId("btn-redact").click();
+
+      cy.get("#btn-link-removeAll").focus();
+      cy.realPress("Tab");
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
+
+      verifyAriaDescriptionTextContent("POCA case");
+
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
+
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("Approved for referral to CPS:");
+
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("PC Blaynee");
+
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("EOIN MCLOVE");
+
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("NORTH MARSH");
+
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+
+      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "btn-report-issue");
+      cy.findByTestId("link-removeAll").click();
+    });
+
+    it("Should be able to tab through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.selectPDFTextElement("NORTH MARSH");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Dangerous offender:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Date of birth:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("Police incident log:");
+      cy.findByTestId("btn-redact").click();
+
+      cy.selectPDFTextElement("PC JONES");
+      cy.findByTestId("btn-redact").click();
+
+      cy.get("#btn-report-issue").focus();
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("Date of birth:");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("Dangerous offender:");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("Police incident log:");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("PC JONES");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("NORTH MARSH");
+      cy.findByTestId("link-removeAll").click();
+    });
+
+    it("Should be able to tab forward and backward skipping the `Report an issue` btn, if it is disabled ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("btn-report-issue").click();
+      cy.findByTestId("btn-modal-close").click();
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+      cy.findByTestId("tab-remove").focus();
+      cy.realPress(["Tab"]);
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "btn-link-removeAll");
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "panel-0");
+      cy.findByTestId("link-removeAll").click();
+    });
+
+    it("When tabbing from an unsaved redaction button, it should move the focus to remove redaction button and (shift +tab ) from remove redaction button should focus corresponding unsaved redaction button", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").click();
+      cy.get("#btn-report-issue").focus();
+      cy.realPress(["Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress(["Tab"]);
+      cy.focused().should("have.id", "remove-btn");
+      cy.realPress(["Shift", "Tab"]);
+      verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "btn-report-issue");
+      cy.findByTestId("link-removeAll").click();
+    });
+  });
+
+  describe("Document texts accessibility through keyboard", () => {
+    it("Should be able to tab forward and backward through span elements in a document page using key 'H' and 'G'", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
+      });
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
+      });
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("Not disclosable");
+      });
+      cy.realPress("G");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
+      });
+      cy.realPress("G");
+      cy.realPress("G");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
+      });
+    });
+
+    it("Should be able to select and redact using keyboard", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
+      });
+      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "btn-redact");
+      cy.realPress("Enter");
+      cy.findByTestId("btn-redact").should("have.length", 0);
+      cy.findByTestId("redaction-count-text").contains("There is 1 redaction");
+      cy.findByTestId("btn-save-redaction-0").should("exist");
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "btn-redact");
+      cy.realPress("Enter");
+      cy.findByTestId("redaction-count-text").contains(
+        "There are 2 redactions"
+      );
+      cy.findByTestId("link-removeAll").click();
+    });
+
+    it("Should lock the focus on the redact btn if the btn is present, when pressing both 'shift+tab' and 'tab' and release if the redact btn is not present", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-4").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
+      });
+      cy.findByTestId("btn-redact").should("have.length", 1);
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "btn-redact");
+      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "btn-redact");
+      cy.realPress("Escape");
+      cy.realPress("Tab");
+      cy.focused().should("contain", "Privacy");
+      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "btn-report-issue");
+    });
+
+    it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key 'H' and 'G'", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
+      });
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
+      });
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("Not disclosable");
+      });
+      cy.realPress("G");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
+      });
+      //open the next document
+      cy.findByTestId("link-document-4").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("MG6");
+        cy.findByTestId("btn-redact").should("have.length", 1);
+      });
+      //switch to first document
+      cy.findByTestId("btn-tab-0").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain("Not disclosable");
+      });
+      //switch to second document
+      cy.findByTestId("btn-tab-1").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.realPress("H");
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain(
+          "CASE FILE EVIDENCE and INFORMATION"
+        );
+      });
+    });
+  });
 });
 
 export {};

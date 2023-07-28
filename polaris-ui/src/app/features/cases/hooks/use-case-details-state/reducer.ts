@@ -687,7 +687,11 @@ export const reducer = (
                   ...item,
                   redactionHighlights: [
                     ...item.redactionHighlights,
-                    { ...redaction, id: String(+new Date()) },
+                    {
+                      ...redaction,
+                      id: String(+new Date()),
+                      redactionAddedOrder: item.redactionHighlights.length,
+                    },
                   ],
                 }
               : item

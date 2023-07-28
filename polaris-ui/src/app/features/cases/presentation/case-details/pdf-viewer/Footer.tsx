@@ -45,6 +45,7 @@ export const Footer: React.FC<Props> = ({
     <div className={classes.footer}>
       <div className={classes.removeButton}>
         <LinkButton
+          id="btn-link-removeAll"
           onClick={handleRemoveAllRedactionsClick}
           dataTestId="link-removeAll"
         >
@@ -52,7 +53,7 @@ export const Footer: React.FC<Props> = ({
         </LinkButton>
       </div>
 
-      <div className={classes.summary}>
+      <div className={classes.summary} data-testid={`redaction-count-text`}>
         {redactionHighlights.length === 1 ? (
           <>There is 1 redaction</>
         ) : (
