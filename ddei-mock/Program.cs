@@ -14,8 +14,7 @@ Console.WriteLine("WireMockServer running at {0}", string.Join(",", server.Ports
 
 var fixture = new Fixture();
 
-MockTestCases(server, fixture, 100);
-MockIssue22734(server, fixture);
+MockTestCases(server, fixture);
 MockCheckoutDocument(server);
 
 Console.WriteLine("Press any key to stop the server");
@@ -28,79 +27,121 @@ Console.WriteLine(JsonConvert.SerializeObject(allRequests, Formatting.Indented))
 Console.WriteLine("Press any key to quit");
 Console.ReadKey();
 
-static void MockTestCases(WireMockServer server, Fixture fixture, int count)
+static void MockTestCases(WireMockServer server, Fixture fixture)
 {
-    for (var i = 1; i <= count; i++)
+    var urns = Directory
+                 .EnumerateDirectories("urns", "*")
+                 .Select(x => x.Replace("urns\\", string.Empty))
+                 .ToList();
+
+    foreach (var urn in urns)
     {
-        var num = i.ToString("000");
-        var urn = $"TST{num}";
-        var id = int.Parse($"{num}001");
+        var cases = Directory
+                        .EnumerateDirectories($"urns\\{urn}\\cases", "*")
+                        .Select(x => x.Replace($"urns\\{urn}\\cases\\", string.Empty))
+                        .Select(x => int.Parse(x))
+                        .ToList();
 
-        // GET Case IDs by URN
-        var cases = fixture.Build<DdeiCaseIdentifiersDto>()
-            .With(x => x.Id, id)
-            .With(x => x.Urn, urn)
-            .CreateMany(1);
+        MockCases(server, fixture, urn, cases);
 
-        MockGetJson(server, $"/api/urns/{urn}/cases", cases);
+        foreach (var @case in cases)
+        {
+            MockCase(server, fixture, urn, @case);
 
-        // GET Case by Case ID
-        var caseSummary = fixture.Build<DdeiCaseSummaryDto>()
-            .With(x => x.Id, id)
-            .With(x => x.Urn, urn)
-            .Create();
-        var @case = fixture.Build<DdeiCaseDetailsDto>()
-            .With(x => x.Summary, caseSummary)
-            .Create();
-        @case.Summary.NumberOfDefendants = @case.Defendants.Count();
+            var categories = Directory
+                                .EnumerateDirectories($"urns\\{urn}\\cases\\{@case}\\documents", "*")
+                                .Select(x => x.Replace($"urns\\{urn}\\cases\\{@case}\\documents\\", string.Empty))
+                                .Select(x => Enum.Parse<DdeiCmsDocCategory>(x))
+                                .ToList();
 
-        MockGetJson(server, $"/api/urns/{urn}/cases/{id}", @case);  
+            var documentIds = new Dictionary<DdeiCmsDocCategory, List<int>>();
+
+            foreach (var category in categories)
+            {
+                var categoryDocumentIds = Directory
+                                    .EnumerateDirectories($"urns\\{urn}\\cases\\{@case}\\documents\\{category}", "*")
+                                    .Select(x => x.Replace($"urns\\{urn}\\cases\\{@case}\\documents\\{category}\\", string.Empty))
+                                    .Select(x => int.Parse(x))
+                                    .ToList();
+
+                documentIds[category] = categoryDocumentIds;
+            }
+
+             MockDocuments(server, fixture, urn, @case, documentIds);
+        }
     }
 }
 
-// Issue 22734, Pipeline corrupts PDF coming back from CMS after a redaction
-// https://dev.azure.com/CPSDTS/Information%20Management/_sprints/taskboard/Polaris%20-%20Private%20to%20Public%20Beta/Information%20Management/Polaris%20-%20Release%202/Sprint%202?workitem=22734
-static void MockIssue22734(WireMockServer server, Fixture fixture)
+static void MockCases(WireMockServer server, Fixture fixture, string urn, List<int> cases)
 {
-    var caseId = 22734;
-    var urn = $"ISS{caseId}";
-
-    // GET Case IDs by URN
-    var cases = fixture.Build<DdeiCaseIdentifiersDto>()
-        .With(x => x.Id, caseId)
+    var casesDto = fixture.Build<DdeiCaseIdentifiersDto>()
         .With(x => x.Urn, urn)
-        .CreateMany(1);
+        .CreateMany(cases.Count);
 
-    MockGetJson(server, $"/api/urns/{urn}/cases", cases);
+    for(int i=0; i < cases.Count; i++)
+    {
+        casesDto.ElementAt(i).Id = cases[i];
+    }
 
-    // GET Case by Case ID
-    var caseSummary = fixture.Build<DdeiCaseSummaryDto>()
-        .With(x => x.Id, caseId)
+    MockGetJson(server, $"/api/urns/{urn}/cases", casesDto);
+}
+
+static void MockCase(WireMockServer server, Fixture fixture, string urn, int @case)
+{
+    var caseSummaryDto = fixture.Build<DdeiCaseSummaryDto>()
+        .With(x => x.Id, @case)
         .With(x => x.Urn, urn)
         .Create();
-    var @case = fixture.Build<DdeiCaseDetailsDto>()
-        .With(x => x.Summary, caseSummary)
+
+    var caseDto = fixture.Build<DdeiCaseDetailsDto>()
+        .With(x => x.Summary, caseSummaryDto)
         .Create();
-    @case.Summary.NumberOfDefendants = @case.Defendants.Count();
 
-    MockGetJson(server, $"/api/urns/{urn}/cases/{caseId}", @case);
+    caseDto.Summary.NumberOfDefendants = caseDto.Defendants.Count();
 
-    var category = DdeiCmsDocCategory.UsedStatement;
-    var documentId = 2273401;
+    MockGetJson(server, $"/api/urns/{urn}/cases/{@case}", caseDto);
+}
 
-    // GET Document(s) List by Case ID
-    var documents = fixture.Build<DdeiDocumentDetailsDto>()
-        .With(x => x.Id, documentId)
-        .With(x => x.VersionId, 22734011)
-        .With(x => x.OriginalFileName, "Document 1")
-        .With(x => x.MimeType, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-        .With(x => x.CmsDocCategory, category)
-        .CreateMany(1);
+static void MockDocuments(WireMockServer server, Fixture fixture, string urn, int @case, Dictionary<DdeiCmsDocCategory, List<int>> documentIds)
+{
+    int documentsCount = documentIds.Values.Sum(list => list.Count);
 
-    MockGetJson(server, $"/api/urns/{urn}/cases/{caseId}/documents", documents);
+    var documentsDto = fixture.Build<DdeiDocumentDetailsDto>()
+        .CreateMany(documentsCount);
 
-    // GET Document by Document ID
-    MockGetFile(server, $"/api/urns/{urn}/cases/{caseId}/documents/{category}/{documentId}", "1437428004_PreConvertToPdf-GeneratePdf_2145688-pdfs-CMS-8666648.pdf");
+    for(int i=0; i < documentIds.Keys.Count; i++)
+    {
+        var category = documentIds.Keys.ElementAt(i);
+
+        for(int j=0; j < documentIds[category].Count; j++)
+        {
+            var documentDto = documentsDto.ElementAt(j);
+            var documentId = documentIds[category][j];
+
+            documentDto.Id = documentId;
+            documentDto.VersionId = int.Parse((documentId % 1000000) + (j+1).ToString("00"));
+            documentDto.CmsDocCategory = category;
+
+            // 1 file per directory - dir name has ID, directory has file
+            var filename = Directory
+                            .EnumerateFiles($"urns\\{urn}\\cases\\{@case}\\documents\\{category}\\{documentId}", "*")
+                            .Select(x => x.Replace($"urns\\{urn}\\cases\\{@case}\\documents\\{category}\\{documentId}\\", string.Empty))
+                            .First();
+
+            documentDto.OriginalFileName = Path.GetFileNameWithoutExtension(filename);
+            // TODO
+            documentDto.MimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+            MockDocument(server, fixture, urn, @case, category, documentId, $"urns\\{urn}\\cases\\{@case}\\documents\\{category}\\{documentId}\\{filename}");
+        }
+    }
+
+    MockGetJson(server, $"/api/urns/{urn}/cases/{@case}/documents", documentsDto);
+}
+
+static void MockDocument(WireMockServer server, Fixture fixture, string urn, int @case, DdeiCmsDocCategory category, int documentId, string filename)
+{
+    MockGetFile(server, $"/api/urns/{urn}/cases/{@case}/documents/{category}/{documentId}", filename);
 }
 
 static void MockGetJson(WireMockServer server, string path, object result)
@@ -146,5 +187,3 @@ static void MockCheckoutDocument(WireMockServer server)
         .Given(request)
         .RespondWith(response);
 }
-
-
