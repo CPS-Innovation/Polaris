@@ -113,44 +113,43 @@ export const useDocumentFocus = (
 
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
-      if (activeTabId === tabId) {
-        if (e.code === "Tab" || e.key === "Tab") {
-          const redactBtn = getRedactBtn();
-          if (redactBtn) {
-            (redactBtn as HTMLElement).focus();
-            e.preventDefault();
-          }
-        }
-        if (!(e.code === "KeyW" || e.key === "KeyW")) {
-          return;
-        }
-        e.preventDefault();
-        const documentPanel = getDocumentPanel();
-        if (!documentPanel) {
-          return;
-        }
-        (documentPanel as HTMLElement).focus();
-        const textLayerChildren = getTextLayerChildren();
-        //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
-        if (
-          textLayerChildren.length - 1 ===
-          activeTextLayerChildIndex.current
-        ) {
-          textLayerIndex.current = textLayerIndex.current + 1;
-        }
-        const direction = e.shiftKey ? "backward" : "forward";
-        const textToSelect = getTextToSelect(textLayerChildren, direction);
-        (textToSelect as HTMLElement).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-        const range = document.createRange();
-        range.selectNodeContents(textToSelect);
-        range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
-        range.setEnd(textToSelect.firstChild, wordFirstLetterIndex.current + 1);
-        document.getSelection()?.removeAllRanges();
-        document.getSelection()?.addRange(range);
+      if (activeTabId !== tabId) {
+        return;
       }
+
+      if (e.code === "Tab" || e.key === "Tab") {
+        const redactBtn = getRedactBtn();
+        if (redactBtn) {
+          (redactBtn as HTMLElement).focus();
+          e.preventDefault();
+        }
+      }
+      if (!(e.code === "KeyW" || e.key === "KeyW")) {
+        return;
+      }
+      e.preventDefault();
+      const documentPanel = getDocumentPanel();
+      if (!documentPanel) {
+        return;
+      }
+      (documentPanel as HTMLElement).focus();
+      const textLayerChildren = getTextLayerChildren();
+      //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
+      if (textLayerChildren.length - 1 === activeTextLayerChildIndex.current) {
+        textLayerIndex.current = textLayerIndex.current + 1;
+      }
+      const direction = e.shiftKey ? "backward" : "forward";
+      const textToSelect = getTextToSelect(textLayerChildren, direction);
+      (textToSelect as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      const range = document.createRange();
+      range.selectNodeContents(textToSelect);
+      range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
+      range.setEnd(textToSelect.firstChild, wordFirstLetterIndex.current + 1);
+      document.getSelection()?.removeAllRanges();
+      document.getSelection()?.addRange(range);
     },
     [
       activeTabId,
