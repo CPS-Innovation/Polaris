@@ -79,13 +79,8 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CmsAuthValues,
                         payload.CorrelationId
                     );
-                //fileType = FileType.DOC;
                 fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
-                _log.LogFileStream("GeneratePdf-DDEI-GetDocument", $"{payload.CmsCaseId}-{payload.CmsDocumentTracker.CmsDocumentId}", "PDF", documentStream);
-
-                /* var specialLoad = (payload.CmsCaseUrn == "01LX1000921") && (payload.CmsCaseId.ToString() == "2145688") && (payload.CmsDocumentTracker.CmsDocumentId == "8493608");
-                if (specialLoad)
-                    fileType = FileType.DOC; */
+                _log.LogFileStream("GeneratePdf-DDEI-GetDocument", $"{payload.CmsCaseId}-{payload.CmsDocumentTracker.CmsDocumentId}", fileType.ToString(), documentStream);
             }
             else if (payload.PcdRequestTracker != null)
             {
@@ -109,7 +104,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             try
             {
-                _log.LogFileStream($"PreConvertToPdf-{nameof(GeneratePdf)}", payload.BlobName.Replace("/", "-"), "PDF", documentStream);
+                _log.LogFileStream($"PreConvertToPdf-{nameof(GeneratePdf)}", payload.BlobName.Replace("/", "-"), fileType.ToString(), documentStream);
                 pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
                     payload.CorrelationId,
                     payload.CmsAuthValues,

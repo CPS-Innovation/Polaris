@@ -128,7 +128,7 @@ static void MockDocuments(WireMockServer server, Fixture fixture, string urn, in
                             .Select(x => x.Replace($"urns\\{urn}\\cases\\{@case}\\documents\\{category}\\{documentId}\\", string.Empty))
                             .First();
 
-            documentDto.OriginalFileName = Path.GetFileNameWithoutExtension(filename);
+            documentDto.OriginalFileName = filename;
             // TODO
             documentDto.MimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
@@ -162,12 +162,22 @@ static void MockGetJson(WireMockServer server, string path, object result)
 
 static void MockGetFile(WireMockServer server, string path, string filename)
 {
+    var contentTypes = new Dictionary<string, string>
+    {
+        { ".pdf",   "application/pdf" },
+        { ".docx",  "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+        { ".doc",   "application/msword" }
+    };
+
+    var extension = Path.GetExtension(filename);
+    var contentType = contentTypes[extension];
+
     var request = Request.Create()
         .WithPath(path)
         .UsingGet();
     var response = Response.Create()
         .WithStatusCode(200)
-        .WithHeader("Content-Type", "application/pdf")
+        .WithHeader("Content-Type", contentType)
         .WithBodyFromFile(filename);
 
     server
