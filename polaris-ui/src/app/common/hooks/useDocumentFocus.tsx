@@ -1,4 +1,9 @@
 import { useEffect, useCallback, useRef } from "react";
+import {
+  getWordStartingIndices,
+  getFirstNonEmptySpanIndex,
+  getNonEmptyTextContentElements,
+} from "./useDocumentFocusHelpers";
 /**
  * This hook will take care of custom navigation and selection of all the span elements in each page
  * and making the focus trapped on the redact button if it is available. User can use "keyH" and "keyG"
@@ -13,40 +18,14 @@ export const useDocumentFocus = (
   const textLayerIndex = useRef(0);
   const wordFirstLetterIndex = useRef(0);
 
-  const getRedactBtn = useCallback(() => {
-    const pdfHighlighters = document.querySelectorAll(".PdfHighlighter");
-    const redactBtn = pdfHighlighters[tabIndex].querySelector("#btn-redact");
-    return redactBtn;
-  }, [tabIndex]);
-
-  const getDocumentPanel = useCallback(() => {
-    return document.querySelector(`#panel-${tabIndex}`);
-  }, [tabIndex]);
-
-  const getTextLayerChildren = useCallback(() => {
-    const textLayers = document.querySelectorAll(".textLayer");
-    if (activeTextLayerChildIndex.current === -1) {
-      return getNonEmptyTextContentElements(textLayers[0].children);
-    }
-    const children = Array.from(textLayers).reduce(
-      (acc: any[], textLayer: Element, index) => {
-        if (index > textLayerIndex.current) {
-          return acc;
-        }
-        acc = [...acc, ...getNonEmptyTextContentElements(textLayer.children)];
-        return acc;
-      },
-      []
-    );
-
-    return children;
-  }, []);
-
+  /*
+  Each textLayer child might have more than one word as text content and need to navigate our focus to start of the each word, 
+  this function will identify this and update the wordFirstLetterIndex in than text content
+  */
   const hasNextWordIndex = (textLayerChildren: any[], keyCode: string) => {
     const sentence =
       textLayerChildren[activeTextLayerChildIndex.current]?.textContent;
     const startIndexes = getWordStartingIndices(sentence);
-    console.log("startIndexes>>", startIndexes);
     const currentIndex = startIndexes.findIndex(
       (value) => value === wordFirstLetterIndex.current
     );
@@ -71,16 +50,42 @@ export const useDocumentFocus = (
     }
     return false;
   };
+
+  const getRedactBtn = useCallback(() => {
+    const pdfHighlighters = document.querySelectorAll(".PdfHighlighter");
+    const redactBtn = pdfHighlighters[tabIndex].querySelector("#btn-redact");
+    return redactBtn;
+  }, [tabIndex]);
+
+  const getDocumentPanel = useCallback(() => {
+    return document.querySelector(`#panel-${tabIndex}`);
+  }, [tabIndex]);
+
+  const getTextLayerChildren = useCallback(() => {
+    const textLayers = document.querySelectorAll(".textLayer");
+    const children = Array.from(textLayers).reduce(
+      (acc: any[], textLayer: Element, index) => {
+        if (index > textLayerIndex.current) {
+          return acc;
+        }
+        acc = [...acc, ...getNonEmptyTextContentElements(textLayer.children)];
+        return acc;
+      },
+      []
+    );
+
+    return children;
+  }, []);
+
   const getTextToSelect = useCallback(
-    (keyCode: string) => {
-      const textLayerChildren = getTextLayerChildren();
+    (textLayerChildren: any[], keyCode: string) => {
       const hasNextWord = hasNextWordIndex(textLayerChildren, keyCode);
+      // if there are more words on the same child continue with the same child
       if (hasNextWord) {
         return textLayerChildren[activeTextLayerChildIndex.current];
       }
       if (
         keyCode === "KeyH" &&
-        activeTextLayerChildIndex.current !== -1 &&
         activeTextLayerChildIndex.current >= textLayerChildren.length - 1
       ) {
         activeTextLayerChildIndex.current = textLayerChildren.length - 1;
@@ -98,44 +103,11 @@ export const useDocumentFocus = (
         activeTextLayerChildIndex.current =
           activeTextLayerChildIndex.current - 1;
       }
-
       const selection = textLayerChildren[activeTextLayerChildIndex.current];
-
       return selection;
     },
-    [getTextLayerChildren]
+    []
   );
-
-  const getFirstNonEmptySpanIndex = (child: Element) => {
-    if (!child.children.length) {
-      return child;
-    }
-    let index = 0;
-    while (
-      !child.children[index].textContent?.trim() &&
-      index < child.children.length - 1
-    ) {
-      index = index + 1;
-    }
-    return child.children[index];
-  };
-
-  const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
-    const filteredElements = Array.from(elements).filter(
-      (element) =>
-        !element.classList.contains("PdfHighlighter__highlight-layer")
-    );
-    const leafSpanElements = filteredElements.reduce((acc: any[], curr) => {
-      if (curr.children.length) {
-        acc = [...acc, ...curr.children];
-        return acc;
-      }
-      acc = [...acc, curr];
-      return acc;
-    }, []);
-
-    return leafSpanElements.filter((element) => element.textContent?.trim());
-  };
 
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
@@ -164,7 +136,7 @@ export const useDocumentFocus = (
         ) {
           textLayerIndex.current = textLayerIndex.current + 1;
         }
-        const child = getTextToSelect(e.code ?? e.key);
+        const child = getTextToSelect(textLayerChildren, e.code ?? e.key);
         (getFirstNonEmptySpanIndex(child) as HTMLElement).scrollIntoView({
           behavior: "smooth",
           block: "center",
@@ -193,16 +165,4 @@ export const useDocumentFocus = (
       window.removeEventListener("keydown", keyDownHandler);
     };
   }, [keyDownHandler]);
-};
-
-export const getWordStartingIndices = (sentence: string) => {
-  //regular expression pattern to find all words in the sentence
-  const wordPattern = /\b\w+\b/g;
-  const wordStartingIndices = [];
-  let match;
-  while ((match = wordPattern.exec(sentence)) !== null) {
-    wordStartingIndices.push(match.index);
-  }
-
-  return wordStartingIndices;
 };

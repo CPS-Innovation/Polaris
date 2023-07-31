@@ -1,4 +1,4 @@
-import { getWordStartingIndices } from "./useDocumentFocus";
+import { getWordStartingIndices } from "./useDocumentFocusHelpers";
 
 describe("useDocumentFocus helpers", () => {
   it("should return starting index of words in a sentence", () => {
