@@ -40,9 +40,13 @@ namespace Common.Clients
 
         public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
+            documentStream.Seek(0, SeekOrigin.Begin);
+
+            if (fileType == FileType.PDF)
+                return documentStream;
+
             var pdfStream = new MemoryStream();
 
-            documentStream.Seek(0, SeekOrigin.Begin);
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.ConvertToPdf}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
             request.Headers.Add(HttpHeaderKeys.CaseId, caseId);
