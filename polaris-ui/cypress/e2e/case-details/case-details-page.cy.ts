@@ -693,30 +693,39 @@ describe("case details page", () => {
   });
 
   describe("Document texts accessibility through keyboard", () => {
-    const keyPressAndVerifySelection = (key: "H" | "G", text: string) => {
-      cy.realPress(key);
+    const keyPressAndVerifySelection = (
+      direction: "forward" | "backward",
+      text: string
+    ) => {
+      if (direction === "forward") {
+        cy.realPress("W");
+      }
+      if (direction === "backward") {
+        cy.realPress(["Shift", "W"]);
+      }
+
       cy.window().then((win) => {
         const selection = win.document.getSelection();
         expect(selection?.toString()).to.contain(text);
       });
     };
-    it("Should be able to tab forward and backward through span elements in a document page using key 'H' and 'G'", () => {
+    it("Should be able to tab forward and backward through span elements in a document page using key 'W' and 'Shift'+'W'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      keyPressAndVerifySelection("H", "W");
-      keyPressAndVerifySelection("H", "Y");
-      keyPressAndVerifySelection("H", "P");
-      keyPressAndVerifySelection("H", "M");
-      keyPressAndVerifySelection("H", "P");
-      keyPressAndVerifySelection("G", "M");
-      keyPressAndVerifySelection("G", "P");
-      keyPressAndVerifySelection("G", "Y");
-      keyPressAndVerifySelection("G", "W");
-      keyPressAndVerifySelection("G", "W");
+      keyPressAndVerifySelection("forward", "W");
+      keyPressAndVerifySelection("forward", "Y");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("backward", "P");
+      keyPressAndVerifySelection("backward", "Y");
+      keyPressAndVerifySelection("backward", "W");
+      keyPressAndVerifySelection("backward", "W");
     });
 
     it("Should be able to select and redact using keyboard", () => {
@@ -726,7 +735,7 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("WEST YORKSHIRE POLICE");
-      keyPressAndVerifySelection("H", "W");
+      keyPressAndVerifySelection("forward", "W");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
@@ -734,7 +743,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-count-text").contains("There is 1 redaction");
       cy.findByTestId("btn-save-redaction-0").should("exist");
-      keyPressAndVerifySelection("H", "Y");
+      keyPressAndVerifySelection("forward", "Y");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-redact");
@@ -752,7 +761,7 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION ");
-      cy.realPress("H");
+      cy.realPress("W");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
@@ -763,36 +772,36 @@ describe("case details page", () => {
       cy.focused().should("have.id", "btn-report-issue");
     });
 
-    it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key 'H' and 'G'", () => {
+    it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key 'W' and 'Shift'+'W'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      keyPressAndVerifySelection("H", "W");
-      cy.realPress("H");
-      keyPressAndVerifySelection("H", "P");
-      keyPressAndVerifySelection("H", "M");
-      keyPressAndVerifySelection("G", "P");
+      keyPressAndVerifySelection("forward", "W");
+      cy.realPress("W");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("backward", "P");
       //open the next document
       cy.findByTestId("link-document-4").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.realPress("H");
-      keyPressAndVerifySelection("H", "P");
-      keyPressAndVerifySelection("H", "1");
-      keyPressAndVerifySelection("H", "o");
-      keyPressAndVerifySelection("H", "3");
-      keyPressAndVerifySelection("H", "R");
-      keyPressAndVerifySelection("G", "3");
-      keyPressAndVerifySelection("G", "o");
-      cy.realPress("H");
-      cy.realPress("H");
+      cy.realPress("W");
+      cy.realPress("W");
+      cy.realPress("W");
+      cy.realPress("W");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "1");
+      keyPressAndVerifySelection("forward", "o");
+      keyPressAndVerifySelection("forward", "3");
+      keyPressAndVerifySelection("forward", "R");
+      keyPressAndVerifySelection("backward", "3");
+      keyPressAndVerifySelection("backward", "o");
+      keyPressAndVerifySelection("backward", "1");
+      keyPressAndVerifySelection("backward", "P");
     });
   });
 });

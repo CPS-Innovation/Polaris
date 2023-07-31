@@ -21,21 +21,24 @@ export const useDocumentFocus = (
   Each textLayer child might have more than one word as text content and need to navigate our focus to start of the each word, 
   this function will identify this and update the wordFirstLetterIndex in than text content
   */
-  const hasNextWordIndex = (textLayerChildren: any[], keyCode: string) => {
+  const hasNextWordIndex = (
+    textLayerChildren: any[],
+    direction: "forward" | "backward"
+  ) => {
     const sentence =
       textLayerChildren[activeTextLayerChildIndex.current]?.textContent;
     const startIndexes = getWordStartingIndices(sentence);
     const currentIndex = startIndexes.findIndex(
       (value) => value === wordFirstLetterIndex.current
     );
-    if (keyCode === "KeyH") {
+    if (direction === "forward") {
       if (currentIndex < startIndexes.length - 1) {
         wordFirstLetterIndex.current = startIndexes[currentIndex + 1];
         return true;
       }
       wordFirstLetterIndex.current = 0;
     }
-    if (keyCode === "KeyG") {
+    if (direction === "backward") {
       if (currentIndex > 0) {
         wordFirstLetterIndex.current = startIndexes[currentIndex - 1];
         return true;
@@ -77,30 +80,30 @@ export const useDocumentFocus = (
   }, []);
 
   const getTextToSelect = useCallback(
-    (textLayerChildren: any[], keyCode: string) => {
-      const hasNextWord = hasNextWordIndex(textLayerChildren, keyCode);
+    (textLayerChildren: any[], direction: "forward" | "backward") => {
+      const hasNextWord = hasNextWordIndex(textLayerChildren, direction);
       // if there are more words on the same child continue with the same child
       if (hasNextWord) {
         return textLayerChildren[activeTextLayerChildIndex.current];
       }
-      if (
-        keyCode === "KeyH" &&
-        activeTextLayerChildIndex.current >= textLayerChildren.length - 1
-      ) {
-        activeTextLayerChildIndex.current = textLayerChildren.length - 1;
-      } else if (
-        keyCode === "KeyH" &&
-        activeTextLayerChildIndex.current < textLayerChildren.length
-      ) {
-        activeTextLayerChildIndex.current =
-          activeTextLayerChildIndex.current + 1;
+      if (direction === "forward") {
+        if (activeTextLayerChildIndex.current >= textLayerChildren.length - 1) {
+          activeTextLayerChildIndex.current = textLayerChildren.length - 1;
+        } else if (
+          activeTextLayerChildIndex.current < textLayerChildren.length
+        ) {
+          activeTextLayerChildIndex.current =
+            activeTextLayerChildIndex.current + 1;
+        }
       }
 
-      if (keyCode === "KeyG" && activeTextLayerChildIndex.current <= 0) {
-        activeTextLayerChildIndex.current = 0;
-      } else if (keyCode === "KeyG" && activeTextLayerChildIndex.current > 0) {
-        activeTextLayerChildIndex.current =
-          activeTextLayerChildIndex.current - 1;
+      if (direction === "backward") {
+        if (activeTextLayerChildIndex.current <= 0) {
+          activeTextLayerChildIndex.current = 0;
+        } else if (activeTextLayerChildIndex.current > 0) {
+          activeTextLayerChildIndex.current =
+            activeTextLayerChildIndex.current - 1;
+        }
       }
       const selection = textLayerChildren[activeTextLayerChildIndex.current];
       return selection;
@@ -118,15 +121,15 @@ export const useDocumentFocus = (
             e.preventDefault();
           }
         }
-        if (!(e.code === "KeyG" || e.code === "KeyH")) {
+        if (!(e.code === "KeyW" || e.key === "KeyW")) {
           return;
         }
+        e.preventDefault();
         const documentPanel = getDocumentPanel();
         if (!documentPanel) {
           return;
         }
         (documentPanel as HTMLElement).focus();
-
         const textLayerChildren = getTextLayerChildren();
         //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
         if (
@@ -135,10 +138,8 @@ export const useDocumentFocus = (
         ) {
           textLayerIndex.current = textLayerIndex.current + 1;
         }
-        const textToSelect = getTextToSelect(
-          textLayerChildren,
-          e.code ?? e.key
-        );
+        const direction = e.shiftKey ? "backward" : "forward";
+        const textToSelect = getTextToSelect(textLayerChildren, direction);
         (textToSelect as HTMLElement).scrollIntoView({
           behavior: "smooth",
           block: "center",
