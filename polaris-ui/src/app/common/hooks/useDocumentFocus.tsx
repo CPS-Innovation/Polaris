@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef } from "react";
 import {
   getWordStartingIndices,
-  getFirstNonEmptySpanIndex,
   getNonEmptyTextContentElements,
 } from "./useDocumentFocusHelpers";
 /**
@@ -136,15 +135,18 @@ export const useDocumentFocus = (
         ) {
           textLayerIndex.current = textLayerIndex.current + 1;
         }
-        const child = getTextToSelect(textLayerChildren, e.code ?? e.key);
-        (getFirstNonEmptySpanIndex(child) as HTMLElement).scrollIntoView({
+        const textToSelect = getTextToSelect(
+          textLayerChildren,
+          e.code ?? e.key
+        );
+        (textToSelect as HTMLElement).scrollIntoView({
           behavior: "smooth",
           block: "center",
         });
         const range = document.createRange();
-        range.selectNodeContents(child);
-        range.setStart(child.firstChild, wordFirstLetterIndex.current);
-        range.setEnd(child.firstChild, wordFirstLetterIndex.current + 1);
+        range.selectNodeContents(textToSelect);
+        range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
+        range.setEnd(textToSelect.firstChild, wordFirstLetterIndex.current + 1);
         document.getSelection()?.removeAllRanges();
         document.getSelection()?.addRange(range);
       }

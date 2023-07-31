@@ -10,20 +10,6 @@ export const getWordStartingIndices = (sentence: string) => {
   return wordStartingIndices;
 };
 
-export const getFirstNonEmptySpanIndex = (child: Element) => {
-  if (!child.children.length) {
-    return child;
-  }
-  let index = 0;
-  while (
-    !child.children[index].textContent?.trim() &&
-    index < child.children.length - 1
-  ) {
-    index = index + 1;
-  }
-  return child.children[index];
-};
-
 export const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
   const filteredElements = Array.from(elements).filter(
     (element) => !element.classList.contains("PdfHighlighter__highlight-layer")
