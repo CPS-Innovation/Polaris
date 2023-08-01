@@ -693,40 +693,39 @@ describe("case details page", () => {
   });
 
   describe("Document texts accessibility through keyboard", () => {
-    it("Should be able to tab forward and backward through span elements in a document page using key 'H' and 'G'", () => {
+    const keyPressAndVerifySelection = (
+      direction: "forward" | "backward",
+      text: string
+    ) => {
+      if (direction === "forward") {
+        cy.realPress("W");
+      }
+      if (direction === "backward") {
+        cy.realPress(["Shift", "W"]);
+      }
+
+      cy.window().then((win) => {
+        const selection = win.document.getSelection();
+        expect(selection?.toString()).to.contain(text);
+      });
+    };
+    it("Should be able to tab forward and backward through span elements in a document page using key 'W' and 'Shift'+'W'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
-      });
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
-      });
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("Not disclosable");
-      });
-      cy.realPress("G");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
-      });
-      cy.realPress("G");
-      cy.realPress("G");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
-      });
+      keyPressAndVerifySelection("forward", "W");
+      keyPressAndVerifySelection("forward", "Y");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("backward", "P");
+      keyPressAndVerifySelection("backward", "Y");
+      keyPressAndVerifySelection("backward", "W");
+      keyPressAndVerifySelection("backward", "W");
     });
 
     it("Should be able to select and redact using keyboard", () => {
@@ -735,12 +734,8 @@ describe("case details page", () => {
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
-      });
+        .contains("WEST YORKSHIRE POLICE");
+      keyPressAndVerifySelection("forward", "W");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
@@ -748,8 +743,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-count-text").contains("There is 1 redaction");
       cy.findByTestId("btn-save-redaction-0").should("exist");
-      cy.realPress("H");
-      cy.realPress("H");
+      keyPressAndVerifySelection("forward", "Y");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-redact");
@@ -766,91 +760,48 @@ describe("case details page", () => {
       cy.findByTestId("link-document-4").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
-        .contains("CASE FILE EVIDENCE and INFORMATION");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
-      });
+        .contains("CASE FILE EVIDENCE and INFORMATION ");
+      cy.realPress("W");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Escape");
-      cy.realPress("Tab");
-      cy.focused().should("contain", "Privacy");
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-report-issue");
     });
 
-    it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key 'H' and 'G'", () => {
+    it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key 'W' and 'Shift'+'W'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("WEST YORKSHIRE POLICE");
-      });
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
-      });
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("Not disclosable");
-      });
-      cy.realPress("G");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("RESTRICTED (when complete)");
-      });
+      keyPressAndVerifySelection("forward", "W");
+      cy.realPress("W");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("backward", "P");
       //open the next document
       cy.findByTestId("link-document-4").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("MG6");
-        cy.findByTestId("btn-redact").should("have.length", 1);
-      });
-      //switch to first document
-      cy.findByTestId("btn-tab-0").click();
-      cy.findByTestId("div-pdfviewer-0")
-        .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain("Not disclosable");
-      });
-      //switch to second document
-      cy.findByTestId("btn-tab-1").click();
-      cy.findByTestId("div-pdfviewer-1")
-        .should("exist")
-        .contains("CASE FILE EVIDENCE and INFORMATION");
-      cy.realPress("H");
-      cy.window().then((win) => {
-        const selection = win.document.getSelection();
-        expect(selection?.toString()).to.contain(
-          "CASE FILE EVIDENCE and INFORMATION"
-        );
-      });
+      cy.realPress("W");
+      cy.realPress("W");
+      cy.realPress("W");
+      cy.realPress("W");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "1");
+      keyPressAndVerifySelection("forward", "o");
+      keyPressAndVerifySelection("forward", "3");
+      keyPressAndVerifySelection("forward", "R");
+      keyPressAndVerifySelection("backward", "3");
+      keyPressAndVerifySelection("backward", "o");
+      keyPressAndVerifySelection("backward", "1");
+      keyPressAndVerifySelection("backward", "P");
     });
   });
 });

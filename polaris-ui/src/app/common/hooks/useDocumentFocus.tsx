@@ -1,8 +1,12 @@
 import { useEffect, useCallback, useRef } from "react";
+import {
+  getWordStartingIndices,
+  getNonEmptyTextContentElements,
+} from "./useDocumentFocusHelpers";
 /**
- * This hook will take care of custom navigation and selection of all the span elements in each page
- * and making the focus trapped on the redact button if it is available. User can use "keyH" and "keyG"
- * to navigate through the document span elements.
+ * This hook will take care of custom navigation and selection of starting letter of each word in each page
+ * and making the focus trapped on the redact button if it is available. User can use "key W" and " Shift + key W"
+ * to navigate forward and backward through the document words.
  */
 export const useDocumentFocus = (
   tabId: string,
@@ -11,6 +15,43 @@ export const useDocumentFocus = (
 ) => {
   const activeTextLayerChildIndex = useRef(-1);
   const textLayerIndex = useRef(0);
+  const wordFirstLetterIndex = useRef(0);
+
+  /*
+  Each textLayer child might have more than one word as text content and need to navigate our focus to start of the each word, 
+  this function will identify this and update the wordFirstLetterIndex in than text content
+  */
+  const hasNextWordIndex = (
+    textLayerChildren: any[],
+    direction: "forward" | "backward"
+  ) => {
+    const sentence =
+      textLayerChildren[activeTextLayerChildIndex.current]?.textContent;
+    const startIndexes = getWordStartingIndices(sentence);
+    const currentIndex = startIndexes.findIndex(
+      (value) => value === wordFirstLetterIndex.current
+    );
+    if (direction === "forward") {
+      if (currentIndex < startIndexes.length - 1) {
+        wordFirstLetterIndex.current = startIndexes[currentIndex + 1];
+        return true;
+      }
+      wordFirstLetterIndex.current = 0;
+    }
+    if (direction === "backward") {
+      if (currentIndex > 0) {
+        wordFirstLetterIndex.current = startIndexes[currentIndex - 1];
+        return true;
+      }
+      const oldSentence =
+        textLayerChildren[activeTextLayerChildIndex.current - 1]?.textContent;
+      const previousIndexes = getWordStartingIndices(oldSentence);
+      wordFirstLetterIndex.current = previousIndexes.length
+        ? previousIndexes[previousIndexes.length - 1]
+        : 0;
+    }
+    return false;
+  };
 
   const getRedactBtn = useCallback(() => {
     const pdfHighlighters = document.querySelectorAll(".PdfHighlighter");
@@ -24,9 +65,6 @@ export const useDocumentFocus = (
 
   const getTextLayerChildren = useCallback(() => {
     const textLayers = document.querySelectorAll(".textLayer");
-    if (activeTextLayerChildIndex.current === -1) {
-      return getNonEmptyTextContentElements(textLayers[0].children);
-    }
     const children = Array.from(textLayers).reduce(
       (acc: any[], textLayer: Element, index) => {
         if (index > textLayerIndex.current) {
@@ -42,93 +80,76 @@ export const useDocumentFocus = (
   }, []);
 
   const getTextToSelect = useCallback(
-    (keyCode: string) => {
-      const textLayerChildren = getTextLayerChildren();
-      if (
-        keyCode === "KeyH" &&
-        activeTextLayerChildIndex.current !== -1 &&
-        activeTextLayerChildIndex.current >= textLayerChildren.length - 1
-      ) {
-        activeTextLayerChildIndex.current = textLayerChildren.length - 1;
-      } else if (
-        keyCode === "KeyH" &&
-        activeTextLayerChildIndex.current < textLayerChildren.length
-      ) {
-        activeTextLayerChildIndex.current =
-          activeTextLayerChildIndex.current + 1;
+    (textLayerChildren: any[], direction: "forward" | "backward") => {
+      const hasNextWord = hasNextWordIndex(textLayerChildren, direction);
+      // if there are more words on the same child continue with the same child
+      if (hasNextWord) {
+        return textLayerChildren[activeTextLayerChildIndex.current];
+      }
+      if (direction === "forward") {
+        if (activeTextLayerChildIndex.current >= textLayerChildren.length - 1) {
+          activeTextLayerChildIndex.current = textLayerChildren.length - 1;
+        } else if (
+          activeTextLayerChildIndex.current < textLayerChildren.length
+        ) {
+          activeTextLayerChildIndex.current =
+            activeTextLayerChildIndex.current + 1;
+        }
       }
 
-      if (keyCode === "KeyG" && activeTextLayerChildIndex.current <= 0) {
-        activeTextLayerChildIndex.current = 0;
-      } else if (keyCode === "KeyG" && activeTextLayerChildIndex.current > 0) {
-        activeTextLayerChildIndex.current =
-          activeTextLayerChildIndex.current - 1;
+      if (direction === "backward") {
+        if (activeTextLayerChildIndex.current <= 0) {
+          activeTextLayerChildIndex.current = 0;
+        } else if (activeTextLayerChildIndex.current > 0) {
+          activeTextLayerChildIndex.current =
+            activeTextLayerChildIndex.current - 1;
+        }
       }
-
       const selection = textLayerChildren[activeTextLayerChildIndex.current];
-
       return selection;
     },
-    [getTextLayerChildren]
+    []
   );
-
-  const getFirstNonEmptySpanIndex = (child: Element) => {
-    if (!child.children.length) {
-      return child;
-    }
-    let index = 0;
-    while (
-      !child.children[index].textContent?.trim() &&
-      index < child.children.length - 1
-    ) {
-      index = index + 1;
-    }
-    return child.children[index];
-  };
-
-  const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
-    return Array.from(elements).filter((element) =>
-      element.textContent?.trim()
-    );
-  };
 
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
-      if (activeTabId === tabId) {
-        if (e.code === "Tab" || e.key === "Tab") {
-          const redactBtn = getRedactBtn();
-          if (redactBtn) {
-            (redactBtn as HTMLElement).focus();
-            e.preventDefault();
-          }
-        }
-        if (!(e.code === "KeyG" || e.code === "KeyH")) {
-          return;
-        }
-        const documentPanel = getDocumentPanel();
-        if (!documentPanel) {
-          return;
-        }
-        (documentPanel as HTMLElement).focus();
-
-        const textLayerChildren = getTextLayerChildren();
-        //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
-        if (
-          textLayerChildren.length - 1 ===
-          activeTextLayerChildIndex.current
-        ) {
-          textLayerIndex.current = textLayerIndex.current + 1;
-        }
-        const child = getTextToSelect(e.code ?? e.key);
-        (getFirstNonEmptySpanIndex(child) as HTMLElement).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-        const range = document.createRange();
-        range.selectNodeContents(child);
-        document.getSelection()?.removeAllRanges();
-        document.getSelection()?.addRange(range);
+      if (activeTabId !== tabId) {
+        return;
       }
+
+      if (e.code === "Tab" || e.key === "Tab") {
+        const redactBtn = getRedactBtn();
+        if (redactBtn) {
+          (redactBtn as HTMLElement).focus();
+          e.preventDefault();
+        }
+      }
+      if (!(e.code === "KeyW" || e.key === "KeyW")) {
+        return;
+      }
+      e.preventDefault();
+      const documentPanel = getDocumentPanel();
+      if (!documentPanel) {
+        return;
+      }
+      (documentPanel as HTMLElement).focus();
+      const textLayerChildren = getTextLayerChildren();
+      //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
+      if (textLayerChildren.length - 1 === activeTextLayerChildIndex.current) {
+        textLayerIndex.current = textLayerIndex.current + 1;
+      }
+      const direction = e.shiftKey ? "backward" : "forward";
+      const textToSelect = getTextToSelect(textLayerChildren, direction);
+      (textToSelect as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      const range = document.createRange();
+      range.selectNodeContents(textToSelect);
+      range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
+      range.setEnd(textToSelect.firstChild, wordFirstLetterIndex.current + 1);
+      document.getSelection()?.removeAllRanges();
+      document.getSelection()?.addRange(range);
     },
     [
       activeTabId,
