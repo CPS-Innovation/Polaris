@@ -78,7 +78,8 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CmsAuthValues,
                         payload.CorrelationId
                     );
-                fileType = Path.GetExtension(payload.CmsDocumentTracker.CmsOriginalFileName).ToFileType();
+                string fileExtension = payload.CmsDocumentTracker.FileExtension.Replace(".", string.Empty).ToUpperInvariant();
+                fileType = Enum.Parse<FileType>(fileExtension);
             }
             else if (payload.PcdRequestTracker != null)
             {
