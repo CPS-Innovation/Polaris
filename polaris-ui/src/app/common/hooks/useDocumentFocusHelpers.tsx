@@ -1,3 +1,5 @@
+const PDF_HIGHLIGHTER_CLASS = "PdfHighlighter__highlight-layer";
+
 export const getWordStartingIndices = (sentence: string) => {
   //regular expression pattern to find all words in the sentence
   const wordPattern = /\b\w+\b/g;
@@ -12,16 +14,13 @@ export const getWordStartingIndices = (sentence: string) => {
 
 export const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
   const filteredElements = Array.from(elements).filter(
-    (element) => !element.classList.contains("PdfHighlighter__highlight-layer")
+    (element) => !element.classList.contains(PDF_HIGHLIGHTER_CLASS)
   );
-  const leafSpanElements = filteredElements.reduce((acc: any[], curr) => {
-    if (curr.children.length) {
-      acc = [...acc, ...curr.children];
-      return acc;
-    }
-    acc = [...acc, curr];
-    return acc;
-  }, []);
+  const leafSpanElements = filteredElements.reduce(
+    (acc, curr) =>
+      curr.children.length ? [...acc, ...curr.children] : [...acc, curr],
+    [] as Element[]
+  );
 
   return leafSpanElements.filter((element) => element.textContent?.trim());
 };
