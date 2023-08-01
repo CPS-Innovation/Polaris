@@ -4,9 +4,9 @@ import {
   getNonEmptyTextContentElements,
 } from "./useDocumentFocusHelpers";
 /**
- * This hook will take care of custom navigation and selection of all the span elements in each page
- * and making the focus trapped on the redact button if it is available. User can use "keyH" and "keyG"
- * to navigate through the document span elements.
+ * This hook will take care of custom navigation and selection of starting letter of each word in each page
+ * and making the focus trapped on the redact button if it is available. User can use "key W" and " Shift + key W"
+ * to navigate forward and backward through the document words.
  */
 export const useDocumentFocus = (
   tabId: string,
