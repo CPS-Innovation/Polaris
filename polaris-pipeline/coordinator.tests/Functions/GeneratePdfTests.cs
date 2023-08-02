@@ -60,6 +60,7 @@ namespace pdf_generator.tests.Functions
                     null
                 );
             _generatePdfRequest.CmsCaseId = 123456;
+            _generatePdfRequest.CmsDocumentTracker.FileExtension = ".doc";
             _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test document";
             _generatePdfRequest.CmsDocumentTracker.CmsOriginalFileName = "Test.doc";
             _generatePdfRequest.CmsDocumentTracker.CmsVersionId = 654321;
