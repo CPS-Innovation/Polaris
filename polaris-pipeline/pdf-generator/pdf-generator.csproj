@@ -25,7 +25,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.2" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
 
     <PackageReference Include="Aspose.Cells" Version="23.7.0" />
     <PackageReference Include="Aspose.Slides.NET" Version="23.7.0" />
