@@ -89,13 +89,15 @@ namespace pdf_generator.Functions
                 var versionId = versionIds.First();
                 if (string.IsNullOrEmpty(versionId))
                     throw new BadRequestException("Invalid VersionId", versionId);
-
-
                 #endregion
 
                 var startTime = DateTime.UtcNow;
+
                 var inputStream = await request.Content.ReadAsStreamAsync();
+                var originalBytes = inputStream.Length;
+
                 var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
+                var bytes = pdfStream.Length;
 
                 _telemetryClient.TrackEvent(new ConvertedDocumentEvent(
                     correlationId: currentCorrelationId,
@@ -103,7 +105,8 @@ namespace pdf_generator.Functions
                     documentId: documentId,
                     versionId: versionId,
                     fileType: filetype.ToString(),
-                    bytes: pdfStream.Length,
+                    originalBytes: originalBytes,
+                    bytes: bytes,
                     startTime: startTime,
                     endTime: DateTime.UtcNow
                 ));
