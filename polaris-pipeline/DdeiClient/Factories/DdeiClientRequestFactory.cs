@@ -16,6 +16,13 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/urn-lookup/{arg.CaseId}");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
         public HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases");

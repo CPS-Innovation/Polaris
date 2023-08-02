@@ -7,6 +7,7 @@ namespace DdeiClient.Services.Contracts
     public interface IDdeiClient
     {
         Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg);
+        Task<string> GetUrnFromCaseId(DdeiCmsCaseIdArgDto arg);
         Task<IEnumerable<CaseDto>> ListCases(DdeiCmsUrnArgDto arg);
         Task<CaseDto> GetCase(DdeiCmsCaseArgDto arg);
         Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId);

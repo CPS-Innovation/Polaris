@@ -41,7 +41,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req,
             ILogger log)
         {
-            Guid currentCorrelationId = Guid.NewGuid();
+            var currentCorrelationId = Guid.NewGuid();
             const string loggingName = "Init - Run";
 
             try
@@ -53,13 +53,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     throw new ArgumentNullException(CmsAuthConstants.PolarisUiQueryParamName);
                 }
 
-                var cookiesString = req.Query[CmsAuthConstants.CookieQueryParamName];
-                var whitelistedCookies = WhitelistCookies(cookiesString);
-                // cookies as passed in the query could be legitimately empty, but only do more work if they have been passed   
-                if (string.IsNullOrWhiteSpace(whitelistedCookies))
-                {
-                    return new RedirectResult(returnUrl);
-                }
+                var whitelistedCookies = ExtractWhitelistedCookies(req);
 
                 string cmsModernToken = string.Empty;
                 try
@@ -69,7 +63,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     //  a) we have new cookies that correspond to a live Modern session and we are on the happy path.
                     //  b) we may have old cookies.  This means that the modern token that we have just been given looks
                     //    good, but actually will be no use to the client as it has expired as far as Modern is concerned.
-                    //  We can't tell here which scenario unless ( todo: ) we make a represntative call to Modern to see if
+                    //  We can't tell here which scenario unless ( todo: ) we make a representative call to Modern to see if
                     //  it doesn't fail. So we just continue to set the cookie and let the client figure things out.
                 }
                 catch (Exception)
@@ -79,7 +73,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     //  token will throw.  In this case just redirect back to the client, no point even setting the cookie.
 
                     // todo: be more granular and only catch an auth exception. Although if we are going to blow up
-                    //  here if other than an auth fail, we may need btter UX or messaging.
+                    //  here if other than an auth fail, we may need better UX or messaging.
                     return new RedirectResult(returnUrl);
                 }
 
@@ -99,15 +93,26 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             }
         }
 
+        private string ExtractWhitelistedCookies(HttpRequest req)
+        {
+            var cookiesString = req.Query[CmsAuthConstants.CookieQueryParamName];
+            var whitelistedCookies = WhitelistCookies(cookiesString);
+            // cookies as passed in the query could be legitimately empty, but only do more work if they have been passed   
+            if (string.IsNullOrWhiteSpace(whitelistedCookies))
+            {
+                throw new ArgumentException("Expected to find auth-related cookies but none were passed", CmsAuthConstants.CookieQueryParamName);
+            }
+
+            return whitelistedCookies;
+        }
+
         private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId, string loggingName)
         {
-            var cmsToken = await _ddeiClient.GetCmsModernToken(new DdeiCmsCaseDataArgDto
+            return await _ddeiClient.GetCmsModernToken(new DdeiCmsCaseDataArgDto
             {
                 CorrelationId = currentCorrelationId,
                 CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}"
             });
-
-            return cmsToken;
         }
 
         private string WhitelistCookies(string cookieString)
