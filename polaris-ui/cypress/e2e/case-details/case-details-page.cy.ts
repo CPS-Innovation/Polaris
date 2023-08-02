@@ -698,10 +698,10 @@ describe("case details page", () => {
       text: string
     ) => {
       if (direction === "forward") {
-        cy.realPress("W");
+        cy.realPress(",");
       }
       if (direction === "backward") {
-        cy.realPress(["Shift", "W"]);
+        cy.realPress(["Shift", ","]);
       }
 
       cy.window().then((win) => {
@@ -709,7 +709,7 @@ describe("case details page", () => {
         expect(selection?.toString()).to.contain(text);
       });
     };
-    it("Should be able to tab forward and backward through span elements in a document page using key 'W' and 'Shift'+'W'", () => {
+    it("Should be able to tab forward and backward through span elements in a document page using key ',' and 'Shift'+','", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -761,7 +761,7 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION ");
-      cy.realPress("W");
+      cy.realPress(",");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
@@ -772,7 +772,7 @@ describe("case details page", () => {
       cy.focused().should("have.id", "btn-report-issue");
     });
 
-    it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key 'W' and 'Shift'+'W'", () => {
+    it("Should be able to tab forward and backward through span elements in multiple document tabs pages using key ',' and 'Shift'+','", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -780,7 +780,7 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       keyPressAndVerifySelection("forward", "W");
-      cy.realPress("W");
+      cy.realPress(",");
       keyPressAndVerifySelection("forward", "P");
       keyPressAndVerifySelection("forward", "M");
       keyPressAndVerifySelection("backward", "P");
@@ -789,10 +789,10 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
-      cy.realPress("W");
-      cy.realPress("W");
-      cy.realPress("W");
-      cy.realPress("W");
+      cy.realPress(",");
+      cy.realPress(",");
+      cy.realPress(",");
+      cy.realPress(",");
       keyPressAndVerifySelection("forward", "P");
       keyPressAndVerifySelection("forward", "1");
       keyPressAndVerifySelection("forward", "o");
