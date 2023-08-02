@@ -26,7 +26,8 @@ type AppInsightsTrackEventNames =
   | "Save All Redactions"
   | "Report Document Issue"
   | "Uncategorised Document"
-  | "Categorised Documents Count";
+  | "Categorised Documents Count"
+  | "Open Documents Count";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -77,6 +78,7 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "Action auto-triggered. Action not initiated by a user. Log an Uncategorised document after loading the Case Details screen.",
   "Categorised Documents Count":
     "Action auto-triggered. Action not initiated by a user. Log the document count by category after loading the Case Details screen.",
+  "Open Documents Count": "Number of documents opened at a time",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
