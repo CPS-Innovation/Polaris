@@ -13,7 +13,7 @@
 
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
 
-    <PackageReference Include="FluentValidation" Version="11.2.0" />
+    <PackageReference Include="FluentValidation" Version="11.6.0" />
 
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.0" />
 

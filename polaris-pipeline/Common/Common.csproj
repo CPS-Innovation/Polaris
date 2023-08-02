@@ -34,7 +34,7 @@
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
     <PackageReference Include="Azure.Storage.Common" Version="12.13.0" />
-    <PackageReference Include="FluentValidation" Version="11.2.0" />
+    <PackageReference Include="FluentValidation" Version="11.6.0" />
     <PackageReference Include="FuzzySharp" Version="2.0.2" />
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
