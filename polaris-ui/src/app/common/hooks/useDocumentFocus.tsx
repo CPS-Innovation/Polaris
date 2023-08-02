@@ -8,6 +8,8 @@ import {
  * and making the focus trapped on the redact button if it is available. User can use "key W" and " Shift + key W"
  * to navigate forward and backward through the document words.
  */
+const WORD_FOCUS_KEY = ",";
+const TAB_KEY_CODE = "Tab";
 export const useDocumentFocus = (
   tabId: string,
   activeTabId: string | undefined,
@@ -113,18 +115,21 @@ export const useDocumentFocus = (
 
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
+      //this is temporary hack supply the keycode from console, for any further live test of key combination.
+      const WORD_FOCUS_CODE = (window as any).wordFocusCode ?? "Comma";
+
       if (activeTabId !== tabId) {
         return;
       }
 
-      if (e.code === "Tab" || e.key === "Tab") {
+      if (e.code === TAB_KEY_CODE || e.key === TAB_KEY_CODE) {
         const redactBtn = getRedactBtn();
         if (redactBtn) {
           (redactBtn as HTMLElement).focus();
           e.preventDefault();
         }
       }
-      if (!(e.code === "KeyW" || e.key === "KeyW")) {
+      if (!(e.code === WORD_FOCUS_CODE || e.key === WORD_FOCUS_KEY)) {
         return;
       }
       e.preventDefault();
