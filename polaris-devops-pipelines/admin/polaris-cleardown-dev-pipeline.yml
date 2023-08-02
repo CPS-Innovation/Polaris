@@ -99,6 +99,30 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          #create dev vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/templates"
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
+            displayName: Creating DEV VPN tunnel
+            
           - task: AzureCLI@2
             displayName: Refresh Blob Storage
             inputs:
