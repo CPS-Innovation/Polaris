@@ -59,7 +59,7 @@ const documentCategoryDefinitions: {
         doc,
         [
           1019, 1020, 1028, 1030, 1042, 1044, 1050, 1062, 1066, 1201, 100239,
-          226148, 225569,
+          225569, 226148,
         ]
       ),
     sortFn: sortAscendingByListOrderAndId,
