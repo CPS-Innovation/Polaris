@@ -7,12 +7,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-}
-
-.content a {
-  color: white;
-}
-
-.heavyText {
-  font-weight: 700;
+  .heavyText {
+    font-weight: 700;
+  }
+  .backToSearchBtn {
+    color: #fff;
+    font-size: 1rem;
+  }
 }
