@@ -31,15 +31,5 @@ namespace Common.Dto.Request
         public string FileName { get; set; }
 
         public List<RedactionDefinitionDto> RedactionDefinitions { get; set; }
-
-        public Dictionary<int, int> RedactionPageCounts
-        {
-            get
-            {
-                return RedactionDefinitions
-                    .ToDictionary(r => r.PageIndex, r => r.RedactionCoordinates.Count);
-
-            }
-        }
     }
 }

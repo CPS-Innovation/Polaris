@@ -13,6 +13,7 @@ using Common.Services.BlobStorageService.Contracts;
 using Common.Telemetry.Contracts;
 using Microsoft.Extensions.Logging;
 using pdf_generator.TelemetryEvents;
+using pdf_generator.TelemetryEvents.Extensions;
 
 namespace pdf_generator.Services.DocumentRedactionService
 {
@@ -126,7 +127,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                 correlationId: correlationId,
                 caseId: redactPdfRequest.CaseId.ToString(),
                 documentId: redactPdfRequest.PolarisDocumentIdValue,
-                redactionPageCounts: redactPdfRequest.RedactionPageCounts,
+                redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
                 originalBytes: originalBytes,
                 bytes: bytes,
                 startTime: startTime,
