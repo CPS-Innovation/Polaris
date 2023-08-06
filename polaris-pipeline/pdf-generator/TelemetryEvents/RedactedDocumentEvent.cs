@@ -12,7 +12,6 @@ namespace pdf_generator.TelemetryEvents
     private readonly Guid _correlationId;
     private readonly string _caseId;
     private readonly string _documentId;
-    private readonly string _versionId;
     private readonly Dictionary<int, int> _redactionPageCounts;
     private readonly long _originalBytes;
     private readonly long _bytes;
@@ -23,7 +22,6 @@ namespace pdf_generator.TelemetryEvents
         Guid correlationId,
         string caseId,
         string documentId,
-        string versionId,
         Dictionary<int, int> redactionPageCounts,
         long originalBytes,
         long bytes,
@@ -33,7 +31,6 @@ namespace pdf_generator.TelemetryEvents
       _correlationId = correlationId;
       _caseId = caseId;
       _documentId = documentId;
-      _versionId = versionId;
       _redactionPageCounts = redactionPageCounts;
       _originalBytes = originalBytes;
       _bytes = bytes;
@@ -47,9 +44,8 @@ namespace pdf_generator.TelemetryEvents
           new Dictionary<string, string>
           {
                     { nameof(_correlationId), _correlationId.ToString() },
-                    { nameof(_caseId), _documentId },
-                    { nameof(_documentId), _documentId },
-                    { nameof(_versionId), _versionId },
+                    { nameof(_caseId), _caseId },
+                    { nameof(_documentId), EnsureNumericId(_documentId) },
                     { nameof(_startTime), _startTime.ToString("o") },
                     { nameof(_endTime), _endTime.ToString("o") },
                     {nameof(_redactionPageCounts), string.Join(",", _redactionPageCounts.Select(x => $"{x.Key}:{x.Value}"))}

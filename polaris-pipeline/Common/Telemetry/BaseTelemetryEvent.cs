@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Common.Telemetry
 {
@@ -19,6 +20,11 @@ namespace Common.Telemetry
         public static double GetDurationSeconds(DateTime startTime, DateTime endTime)
         {
             return (double)(endTime - startTime).TotalSeconds;
+        }
+
+        public static string EnsureNumericId(string documentId)
+        {
+            return Regex.Match(documentId, @"\d+").Value;
         }
     }
 }

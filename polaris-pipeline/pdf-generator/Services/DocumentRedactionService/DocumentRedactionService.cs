@@ -126,7 +126,6 @@ namespace pdf_generator.Services.DocumentRedactionService
                 correlationId: correlationId,
                 caseId: redactPdfRequest.CaseId.ToString(),
                 documentId: redactPdfRequest.PolarisDocumentIdValue,
-                versionId: redactPdfRequest.VersionId.ToString(),
                 redactionPageCounts: redactPdfRequest.RedactionPageCounts,
                 originalBytes: originalBytes,
                 bytes: bytes,
