@@ -106,6 +106,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accordionState.status]);
 
+  useEffect(() => {
+    trackEvent("Open Documents Count", {
+      count: tabsState.items.length,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabsState.items.length]);
+
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
