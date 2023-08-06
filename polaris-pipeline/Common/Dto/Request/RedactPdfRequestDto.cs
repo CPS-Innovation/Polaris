@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Common.Dto.Request.Redaction;
 using Common.ValueObjects;
@@ -30,5 +31,15 @@ namespace Common.Dto.Request
         public string FileName { get; set; }
 
         public List<RedactionDefinitionDto> RedactionDefinitions { get; set; }
+
+        public Dictionary<int, int> RedactionPageCounts
+        {
+            get
+            {
+                return RedactionDefinitions
+                    .ToDictionary(r => r.PageIndex, r => r.RedactionCoordinates.Count);
+
+            }
+        }
     }
 }
