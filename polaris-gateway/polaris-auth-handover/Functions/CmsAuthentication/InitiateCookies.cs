@@ -41,48 +41,71 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req)
         {
             var currentCorrelationId = Guid.NewGuid();
-            try
+
+            return DetectAuthFlowMode(req) switch
             {
-                var whitelistedCookies = ExtractWhitelistedCookies(req);
-                if (whitelistedCookies == null)
-                {
-                    return BuildFailureResult();
-                }
+                AuthFlowMode.PolarisAuthRedirect => await PolarisAuthRedirectMode(req, currentCorrelationId),
+                _ => await CmsLaunchMode(req, currentCorrelationId)
+            };
+        }
 
-                var cmsModernToken = await GetCmsModernToken(whitelistedCookies, currentCorrelationId);
-                if (cmsModernToken == null)
-                {
-                    return BuildFailureResult();
-                }
+        private static AuthFlowMode DetectAuthFlowMode(HttpRequest req)
+        {
+            return !string.IsNullOrEmpty(req.Query[CmsAuthConstants.PolarisUiQueryParamName])
+                ? AuthFlowMode.PolarisAuthRedirect
+                : AuthFlowMode.CmsLaunch;
+        }
 
-                AppendPolarisAuthCookie(req, whitelistedCookies, cmsModernToken);
+        private async Task<IActionResult> CmsLaunchMode(HttpRequest req, Guid correlationId)
+        {
+            var (success, polarisAuthCookieContent) = await CommonAuthFlow(req, correlationId);
 
-                var redirectUrl = await BuildRedirectUrl(req, cmsModernToken, currentCorrelationId);
-                if (redirectUrl == null)
-                {
-                    return BuildFailureResult();
-                }
-                return new RedirectResult(redirectUrl);
-            }
-            catch (Exception)
+            var redirectUrl = success
+                ? await BuildCmsLaunchModeRedirectUrl(req, polarisAuthCookieContent, correlationId)
+                : null;
+
+            return new RedirectResult(redirectUrl ?? CmsAuthConstants.CmsLaunchModeFallbackRedirectUrl);
+        }
+
+        private async Task<IActionResult> PolarisAuthRedirectMode(HttpRequest req, Guid correlationId)
+        {
+            await CommonAuthFlow(req, correlationId);
+
+            var redirectUrl = req.Query[CmsAuthConstants.PolarisUiQueryParamName];
+            return new RedirectResult(redirectUrl);
+        }
+
+        private async Task<(bool, string)> CommonAuthFlow(HttpRequest req, Guid correlationId)
+        {
+            var whitelistedCookies = ExtractWhitelistedCookies(req);
+            if (whitelistedCookies == null)
             {
-                return BuildFailureResult();
+                return (false, null);
             }
+
+            var cmsModernToken = await GetCmsModernToken(whitelistedCookies, correlationId);
+            if (cmsModernToken == null)
+            {
+                return (false, null);
+            }
+
+            var polarisAuthCookieContent = CreateAndAppendPolarisAuthCookie(req, whitelistedCookies, cmsModernToken);
+
+            return (true, polarisAuthCookieContent);
         }
 
         private static string ExtractWhitelistedCookies(HttpRequest req)
         {
-            var cookiesString = req.Query[CmsAuthConstants.CookieQueryParamName];
+            string cookiesString = req.Query[CmsAuthConstants.CookieQueryParamName];
             if (string.IsNullOrWhiteSpace(cookiesString))
             {
                 return null;
             }
 
             var whitelistedCookies = cookiesString
-                .ToString()
                 .Split(" ")
                 .Where(cookie => WhitelistedCookieNameRoots.Any(whitelistedCookieNameRoot => cookie.StartsWith(whitelistedCookieNameRoot)))
-                .Aggregate((curr, next) => $"{curr} {next}");
+                .Aggregate(string.Empty, (curr, next) => $"{curr} {next}");
 
             if (string.IsNullOrWhiteSpace(whitelistedCookies))
             {
@@ -121,9 +144,9 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             }
         }
 
-        private static void AppendPolarisAuthCookie(HttpRequest req, string cmsCookiesString, string cmsToken)
+        private static string CreateAndAppendPolarisAuthCookie(HttpRequest req, string cmsCookiesString, string cmsToken)
         {
-            var cookiesString = $"{{Cookies: \"{cmsCookiesString}\", Token: \"{cmsToken}\"}}";
+            var polarisAuthCookieContent = $"{{Cookies: \"{cmsCookiesString}\", Token: \"{cmsToken}\"}}";
 
             var cookieOptions = req.IsHttps
                 ? new CookieOptions
@@ -139,34 +162,20 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     HttpOnly = true,
                 };
 
-            req.HttpContext.Response.Cookies.Append(HttpHeaderKeys.CmsAuthValues, cookiesString, cookieOptions);
+            req.HttpContext.Response.Cookies.Append(HttpHeaderKeys.CmsAuthValues, polarisAuthCookieContent, cookieOptions);
+
+            return polarisAuthCookieContent;
         }
 
-        private async Task<string> BuildRedirectUrl(HttpRequest req, string cmsCookiesString, Guid currentCorrelationId)
+        private async Task<string> BuildCmsLaunchModeRedirectUrl(HttpRequest req, string polarisCmsAuthValues, Guid currentCorrelationId)
         {
-            // There are two mechanisms for redirecting back to the client.  
-            //  Mechanism 1: the Polaris UI has detected missing or expired auth and redirects to this endpoint with
-            //    a query param that contains the URL to redirect to after auth.
-            var authRedirectParam = req.Query[CmsAuthConstants.PolarisUiQueryParamName];
-
-            if (!string.IsNullOrWhiteSpace(authRedirectParam))
-            {
-                return authRedirectParam;
-            }
-
-            // Mechanism 2: we are brought here from CMS.  The scheme there is that we are passed a case id of a case.
-            //  This is passed in the form of `q=%7B%22caseId%22%3A2073383%7D` where there is a fragment of JSON that
-            //  contains the case id.  We need to extract this and then call Modern to get the URN to form our full
-            //  redirect URL.
             var cmsRedirectParam = req.Query[CmsAuthConstants.CmsRedirectQueryParamName];
             if (string.IsNullOrWhiteSpace(cmsRedirectParam))
             {
-                // If neither mechanism is picked up by this point then we are broken
                 return null;
             }
 
             var decodedCmsRedirectParam = cmsRedirectParam.ToString().UrlDecodeString();
-
             var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CMSParamObject>(decodedCmsRedirectParam);
             if (cmsParamObject == null)
             {
@@ -184,25 +193,33 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 var urnLookupResponse = await _ddeiClient.GetUrnFromCaseId(new DdeiCmsCaseIdArgDto
                 {
                     CorrelationId = currentCorrelationId,
-                    CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}",
+                    CmsAuthValues = polarisCmsAuthValues,
                     CaseId = caseId
                 });
 
-                return $"{CmsAuthConstants.UiRootUrl}/{urnLookupResponse.Urn}/{caseId}";
+                return $"{CmsAuthConstants.CmsLaunchModeUiRootUrl}/{urnLookupResponse.Urn}/{caseId}";
             }
             catch (Exception) { }
 
             return null;
         }
 
-        private static IActionResult BuildFailureResult()
-        {
-            return new RedirectResult(CmsAuthConstants.FailureRedirectUrl);
-        }
-
         private class CMSParamObject
         {
             public int CaseId { get; set; }
+        }
+
+        private enum AuthFlowMode
+        {
+            // There are two mechanisms for redirecting back to the client.  
+            //  Mechanism 1: the Polaris UI has detected missing or expired auth and redirects to this endpoint with
+            //    a query param that contains the URL to redirect to after auth.
+            PolarisAuthRedirect,
+            // Mechanism 2: we are brought here from CMS.  The scheme there is that we are passed a case id of a case.
+            //  This is passed in the form of `q=%7B%22caseId%22%3A2073383%7D` where there is a fragment of JSON that
+            //  contains the case id.  We need to extract this and then call Modern to get the URN to form our full
+            //  redirect URL.
+            CmsLaunch
         }
     }
 }
