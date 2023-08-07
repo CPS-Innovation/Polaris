@@ -42,11 +42,18 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         {
             var currentCorrelationId = Guid.NewGuid();
 
-            return DetectAuthFlowMode(req) switch
+            try
             {
-                AuthFlowMode.PolarisAuthRedirect => await PolarisAuthRedirectMode(req, currentCorrelationId),
-                _ => await CmsLaunchMode(req, currentCorrelationId)
-            };
+                return DetectAuthFlowMode(req) switch
+                {
+                    AuthFlowMode.PolarisAuthRedirect => await PolarisAuthRedirectMode(req, currentCorrelationId),
+                    _ => await CmsLaunchMode(req, currentCorrelationId)
+                };
+            }
+            catch (Exception)
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
         private static AuthFlowMode DetectAuthFlowMode(HttpRequest req)
@@ -58,9 +65,9 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         private async Task<IActionResult> CmsLaunchMode(HttpRequest req, Guid correlationId)
         {
-            var (success, polarisAuthCookieContent) = await CommonAuthFlow(req, correlationId);
+            var polarisAuthCookieContent = await CommonAuthFlow(req, correlationId);
 
-            var redirectUrl = success
+            var redirectUrl = polarisAuthCookieContent != null
                 ? await BuildCmsLaunchModeRedirectUrl(req, polarisAuthCookieContent, correlationId)
                 : null;
 
@@ -75,23 +82,23 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             return new RedirectResult(redirectUrl);
         }
 
-        private async Task<(bool, string)> CommonAuthFlow(HttpRequest req, Guid correlationId)
+        private async Task<string> CommonAuthFlow(HttpRequest req, Guid correlationId)
         {
             var whitelistedCookies = ExtractWhitelistedCookies(req);
             if (whitelistedCookies == null)
             {
-                return (false, null);
+                return null;
             }
 
             var cmsModernToken = await GetCmsModernToken(whitelistedCookies, correlationId);
             if (cmsModernToken == null)
             {
-                return (false, null);
+                return null;
             }
 
             var polarisAuthCookieContent = CreateAndAppendPolarisAuthCookie(req, whitelistedCookies, cmsModernToken);
 
-            return (true, polarisAuthCookieContent);
+            return polarisAuthCookieContent;
         }
 
         private static string ExtractWhitelistedCookies(HttpRequest req)
@@ -153,6 +160,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 {
                     Path = "/api/",
                     HttpOnly = true,
+                    // in production we are https so we need to be restrictive with cookie characteristics 
                     Secure = true,
                     SameSite = SameSiteMode.None
                 }
@@ -160,6 +168,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 {
                     Path = "/api/",
                     HttpOnly = true,
+                    // in production we are on http so *have* to be lax with cookie characteristics
                 };
 
             req.HttpContext.Response.Cookies.Append(HttpHeaderKeys.CmsAuthValues, polarisAuthCookieContent, cookieOptions);
@@ -199,9 +208,10 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
                 return $"{CmsAuthConstants.CmsLaunchModeUiRootUrl}/{urnLookupResponse.Urn}/{caseId}";
             }
-            catch (Exception) { }
-
-            return null;
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private class CMSParamObject
