@@ -16,7 +16,6 @@ declare global {
     interface Chainable<Subject> {
       loginToAD(): Chainable<any>
       loginToCms(): Chainable<any>
-      preemptivelyAttachCookies(): Chainable<any>
       fullLogin(): Chainable<any>
       clearCaseTracker(urn: string, caseId: string): Chainable<any>
       getADTokens(): Chainable<ADTokens>
@@ -24,6 +23,7 @@ declare global {
         Authorization: string
         credentials: "include"
       }>
+      getCmsCookieString(): Chainable<string>
       setPolarisInstrumentationGuid(
         correlationId: CorrelationId
       ): Chainable<AUTWindow>
@@ -67,6 +67,27 @@ const {
 
 const AUTOMATION_LANDING_PAGE_PATH =
   "/polaris-ui/?automation-test-first-visit=true"
+
+Cypress.Commands.add("getCmsCookieString", () => {
+  cy.request({
+    followRedirect: false,
+    method: "POST",
+    url: CMS_LOGIN_PAGE_URL,
+    form: true,
+    body: {
+      username: CMS_USERNAME,
+      password: CMS_PASSWORD,
+    },
+  })
+    .getCookies()
+    .then((cookies) => {
+      var result = cookies.reduce(
+        (acc, curr) => `${acc}${curr.name}=${curr.value}; `,
+        ""
+      )
+      return cy.clearAllCookies().then(() => result)
+    })
+})
 
 Cypress.Commands.add(
   "getADTokens",
@@ -194,15 +215,12 @@ Cypress.Commands.add("loginToCms", () => {
   }
 })
 
-Cypress.Commands.add("preemptivelyAttachCookies", () => {
+Cypress.Commands.add("fullLogin", () => {
+  cy.loginToAD().loginToCms()
   cy.visit(
     COOKIE_REDIRECT_URL +
       encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
   )
-})
-
-Cypress.Commands.add("fullLogin", () => {
-  cy.loginToAD().loginToCms().preemptivelyAttachCookies()
 })
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
