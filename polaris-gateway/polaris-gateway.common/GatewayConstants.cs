@@ -16,4 +16,7 @@ public static class CmsAuthConstants
 {
     public const string CookieQueryParamName = "cookie";
     public const string PolarisUiQueryParamName = "polaris-ui-url";
+    public const string CmsRedirectQueryParamName = "q";
+    public const string FailureRedirectUrl = "/";
+    public const string UiRootUrl = "/polaris-ui/case-details";
 }

@@ -57,11 +57,11 @@ namespace Ddei.Services
             }
         }
 
-        public async Task<string> GetUrnFromCaseId(DdeiCmsCaseIdArgDto arg)
+        public async Task<DdeiCaseIdentifiersDto> GetUrnFromCaseId(DdeiCmsCaseIdArgDto arg)
         {
             try
             {
-                return await CallDdei<string>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
+                return await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
             }
             catch (Exception exception)
             {
