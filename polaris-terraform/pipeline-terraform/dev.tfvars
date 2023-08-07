@@ -12,4 +12,4 @@ pipeline_logging = {
   text_extractor_scale_controller = "AppInsights:Verbose"
 }
 
-overnight_clear_down_enabled = true
+overnight_clear_down_enabled = false
