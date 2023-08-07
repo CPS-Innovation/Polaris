@@ -71,14 +71,8 @@ namespace Ddei.Services
 
         private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiCmsUrnArgDto arg)
         {
-            try
-            {
-                return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
-            }
-            catch (Exception exception)
-            {
-                throw new CaseDataServiceException("Exception in ListCaseIdsAsync", exception);
-            }
+            // todo: should this return a CaseDataServiceException?
+            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
         }
 
         public async Task<IEnumerable<CaseDto>> ListCases(DdeiCmsUrnArgDto arg)
@@ -114,50 +108,38 @@ namespace Ddei.Services
 
         public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
         {
-            try
+            // todo: should this return a CaseDataServiceException?
+            DdeiCmsCaseArgDto caseArg = new DdeiCmsCaseArgDto
             {
-                DdeiCmsCaseArgDto caseArg = new DdeiCmsCaseArgDto
-                {
-                    Urn = caseUrn,
-                    CaseId = long.Parse(caseId),
-                    CmsAuthValues = cmsAuthValues,
-                    CorrelationId = correlationId
-                };
-                HttpRequestMessage request = _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg);
-                var ddeiResults = await CallDdei<List<DdeiCaseDocumentResponse>>(request);
+                Urn = caseUrn,
+                CaseId = long.Parse(caseId),
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId
+            };
+            HttpRequestMessage request = _ddeiClientRequestFactory.CreateListCaseDocumentsRequest(caseArg);
+            var ddeiResults = await CallDdei<List<DdeiCaseDocumentResponse>>(request);
 
-                return ddeiResults
-                    .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
-                    .ToArray();
-            }
-            catch (Exception exception)
-            {
-                throw new CaseDataServiceException("Exception in ListDocumentsAsync", exception);
-            }
+            return ddeiResults
+                .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
+                .ToArray();
         }
 
         public async Task<Stream> GetDocumentAsync(string caseUrn, string caseId, string documentCategory, string documentId, string cmsAuthValues, Guid correlationId)
         {
-            try
-            {
-                var response = await CallDdei(
-                    _ddeiClientRequestFactory.CreateDocumentRequest(new DdeiCmsDocumentArgDto
-                    {
-                        Urn = caseUrn,
-                        CaseId = long.Parse(caseId),
-                        CmsDocCategory = documentCategory,
-                        DocumentId = int.Parse(documentId),
-                        CmsAuthValues = cmsAuthValues,
-                        CorrelationId = correlationId
-                    })
-                );
+            // todo: should this return a DocumentServiceException?
+            var response = await CallDdei(
+                _ddeiClientRequestFactory.CreateDocumentRequest(new DdeiCmsDocumentArgDto
+                {
+                    Urn = caseUrn,
+                    CaseId = long.Parse(caseId),
+                    CmsDocCategory = documentCategory,
+                    DocumentId = int.Parse(documentId),
+                    CmsAuthValues = cmsAuthValues,
+                    CorrelationId = correlationId
+                })
+            );
 
-                return await response.Content.ReadAsStreamAsync();
-            }
-            catch (Exception exception)
-            {
-                throw new DocumentServiceException("Exception in GetDocumentAsync", exception);
-            }
+            return await response.Content.ReadAsStreamAsync();
         }
 
         public async Task<HttpResponseMessage> CheckoutDocument(DdeiCmsDocumentArgDto arg)
