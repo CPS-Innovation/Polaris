@@ -8,7 +8,7 @@ namespace Common.Telemetry
     {
         public const string telemetryVersion = nameof(telemetryVersion);
 
-        public const string Version = "0.0";
+        public const string Version = "0.1";
 
         protected readonly AppInsights.TelemetryClient _telemetryClient;
 
