@@ -6,3 +6,4 @@
 azurite
 /polaris-terraform/.vs
 .cache_ggshield
+/polaris-gateway/polaris-gateway.integration.tests/appsettings.json
