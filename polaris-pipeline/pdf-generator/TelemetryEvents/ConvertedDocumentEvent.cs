@@ -11,6 +11,7 @@ namespace pdf_generator.TelemetryEvents
         private readonly string _documentId;
         private readonly string _versionId;
         private readonly string _fileType;
+        private readonly long _originalBytes;
         private readonly long _bytes;
         private readonly DateTime _startTime;
         private readonly DateTime _endTime;
@@ -21,6 +22,7 @@ namespace pdf_generator.TelemetryEvents
             string documentId,
             string versionId,
             string fileType,
+            long originalBytes,
             long bytes,
             DateTime startTime,
             DateTime endTime)
@@ -30,6 +32,7 @@ namespace pdf_generator.TelemetryEvents
             _documentId = documentId;
             _versionId = versionId;
             _fileType = fileType;
+            _originalBytes = originalBytes;
             _bytes = bytes;
             _startTime = startTime;
             _endTime = endTime;
@@ -51,6 +54,7 @@ namespace pdf_generator.TelemetryEvents
                 new Dictionary<string, double>
                 {
                     { durationSeconds, GetDurationSeconds(_startTime, _endTime) },
+                    { nameof(_originalBytes), _originalBytes },
                     { nameof(_bytes), _bytes }
                 }
             );

@@ -10,7 +10,10 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
+using Common.Telemetry.Contracts;
 using Microsoft.Extensions.Logging;
+using pdf_generator.TelemetryEvents;
+using pdf_generator.TelemetryEvents.Extensions;
 
 namespace pdf_generator.Services.DocumentRedactionService
 {
@@ -19,12 +22,18 @@ namespace pdf_generator.Services.DocumentRedactionService
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ICoordinateCalculator _coordinateCalculator;
         private readonly ILogger<DocumentRedactionService> _logger;
+        private readonly ITelemetryClient _telemetryClient;
 
-        public DocumentRedactionService(IPolarisBlobStorageService blobStorageService, ICoordinateCalculator coordinateCalculator, ILogger<DocumentRedactionService> logger)
+        public DocumentRedactionService(
+            IPolarisBlobStorageService blobStorageService,
+            ICoordinateCalculator coordinateCalculator,
+            ILogger<DocumentRedactionService> logger,
+            ITelemetryClient telemetryClient)
         {
             _polarisBlobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _coordinateCalculator = coordinateCalculator ?? throw new ArgumentNullException(nameof(coordinateCalculator));
             _logger = logger;
+            _telemetryClient = telemetryClient;
         }
 
         public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
@@ -50,6 +59,10 @@ namespace pdf_generator.Services.DocumentRedactionService
 
             //2. Apply UI instructions by drawing boxes according to co-ordinate data onto existing PDF
             _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), "Apply UI instructions by drawing boxes according to co-ordinate data onto existing PDF");
+
+            var startTime = DateTime.UtcNow;
+            var originalBytes = document.Length;
+
             using var redactedDocument = new Document(document);
             var pdfInfo = new PdfFileInfo(redactedDocument);
 
@@ -57,7 +70,7 @@ namespace pdf_generator.Services.DocumentRedactionService
             {
                 var currentPage = redactionPage.PageIndex;
                 var annotationPage = redactedDocument.Pages[currentPage];
-                
+
                 foreach (var boxToDraw in redactionPage.RedactionCoordinates)
                 {
                     var translatedCoordinates = _coordinateCalculator.CalculateRelativeCoordinates(redactionPage.Width,
@@ -73,7 +86,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                     redactionAnnotation.Redact();
                 }
             }
-            
+
             _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), "Remove redacted document metadata");
             redactedDocument.RemoveMetadata();
 
@@ -108,7 +121,19 @@ namespace pdf_generator.Services.DocumentRedactionService
             {
                 redactedDocument.Save(redactedDocumentStream);
             }
-            
+            var bytes = redactedDocumentStream.Length;
+
+            _telemetryClient.TrackEvent(new RedactedDocumentEvent(
+                correlationId: correlationId,
+                caseId: redactPdfRequest.CaseId.ToString(),
+                documentId: redactPdfRequest.PolarisDocumentIdValue,
+                redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
+                originalBytes: originalBytes,
+                bytes: bytes,
+                startTime: startTime,
+                endTime: DateTime.UtcNow
+            ));
+
             await _polarisBlobStorageService.UploadDocumentAsync(redactedDocumentStream, newFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.PolarisDocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
 
             saveResult.Succeeded = true;
@@ -117,7 +142,7 @@ namespace pdf_generator.Services.DocumentRedactionService
             _logger.LogMethodExit(correlationId, nameof(RedactPdfAsync), saveResult.ToJson());
             return saveResult;
         }
-        
+
         private static bool IsCandidateForConversion(PdfFormat currentVersion)
         {
             return currentVersion is PdfFormat.v_1_0 or PdfFormat.v_1_1 or PdfFormat.v_1_2 or PdfFormat.v_1_3 or PdfFormat.v_1_4 or PdfFormat.v_1_5 or PdfFormat.v_1_6;
