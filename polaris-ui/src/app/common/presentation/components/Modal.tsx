@@ -76,7 +76,7 @@ export const Modal: React.FC<Props> = ({
                 aria-label="close modal"
                 onClick={handleClose}
               >
-                <CloseIcon height={"40px"} width={"40px"} />
+                <CloseIcon height={"2.5rem"} width={"2.5rem"} />
               </button>
             </div>
           )}
@@ -96,7 +96,7 @@ export const Modal: React.FC<Props> = ({
                   aria-label="close modal"
                   onClick={handleClose}
                 >
-                  <CloseIcon height={"25px"} width={"25px"} />
+                  <CloseIcon height={"1.5625rem"} width={"1.5625rem"} />
                 </button>
               </div>
             </header>

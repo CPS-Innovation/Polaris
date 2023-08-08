@@ -6,16 +6,16 @@
   display: inline;
   background: transparent;
   border-width: 0;
-  font-size: 16px;
+  font-size: 1rem;
   color: #005ea5;
   cursor: pointer;
-  padding: 14px 10px 12px 10px;
-  margin-bottom: 4px;
+  padding: 0.875rem 0.625rem 0.75rem 0.625rem;
+  margin-bottom: 0.25rem;
   &:focus {
-    outline: 3px solid rgba(0, 0, 0, 0);
+    outline: 0.1875rem solid rgba(0, 0, 0, 0);
     color: #0b0c0c;
     background-color: #fd0;
-    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    box-shadow: 0 -0.125rem #fd0, 0 0.25rem #0b0c0c;
     text-decoration: none;
   }
   &:hover:not(:active):not(:focus) {
@@ -28,13 +28,13 @@
 }
 
 .accordion {
-  border-bottom-width: 1px;
+  border-bottom-width: 0.0625rem;
   border-bottom-color: #bfc1c3;
   border-bottom-style: solid;
 }
 
 .accordion .accordion-section {
-  border-top-width: 1px;
+  border-top-width: 0.0625rem;
   border-top-color: #bfc1c3;
   border-top-style: solid;
 }
@@ -44,7 +44,7 @@
   margin-bottom: 0;
 }
 .accordion .accordion-table__cell {
-  padding-right: 5px;
+  padding-right: 0.3125rem;
 }
 .accordion .accordion-link-button {
   font-size: 1rem;
@@ -56,19 +56,19 @@
   justify-content: space-between;
   background: transparent;
   border-width: 0;
-  font-size: 16px;
+  font-size: 1rem;
   width: 100%;
   color: #005ea5;
   cursor: pointer;
   position: relative;
-  padding: 14px 5px 12px 0;
+  padding: 0.875rem 0.3125rem 0.75rem 0;
 
   align-items: center;
   &:focus {
-    outline: 3px solid rgba(0, 0, 0, 0);
+    outline: 0.1875rem solid rgba(0, 0, 0, 0);
     color: #0b0c0c;
     background-color: #fd0;
-    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    box-shadow: 0 -0.125rem #fd0, 0 0.25rem #0b0c0c;
     text-decoration: none;
   }
   &:hover:not(:active):not(:focus) {
@@ -82,7 +82,7 @@
 }
 
 .accordion .icon {
-  right: 15px;
+  right: 0.9375rem;
   height: 16px;
   width: 16px;
   /* Note: you may have to update these URL paths */
@@ -96,11 +96,11 @@
 }
 
 .accordion .accordion-section-body {
-  font-size: 16px;
+  font-size: 1rem;
 }
 .accordion .accordion-section-read-warning {
   display: block;
-  margin-top: 15px;
+  margin-top: 0.9375rem;
 }
 
 .accordion .accordion-section[aria-expanded="true"] .icon {
@@ -108,23 +108,23 @@
 }
 
 .accordion .accordion-section-document {
-  padding-top: 10px;
+  padding-top: 0.625rem;
 }
 .accordion .accordion-section-no-document {
-  padding: 10px 0;
+  padding: 0.625rem 0;
 }
 .accordion .accordion-document-date-title {
-  font-size: 16px;
+  font-size: 1rem;
   display: block;
   text-align: right;
-  margin-top: 5px;
-  margin-right: 10px;
+  margin-top: 0.3125rem;
+  margin-right: 0.625rem;
 }
 .accordion .accordion-document-list {
   list-style: none;
   padding: 0;
-  border-top: 1px solid #bfc1c3;
-  margin-top: 5px;
+  border-top: 0.0625rem solid #bfc1c3;
+  margin-top: 0.3125rem;
   margin-bottom: 0;
 }
 .accordion .accordion-document-list :last-child {
@@ -133,24 +133,24 @@
 .accordion .accordion-document-list-item {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #bfc1c3;
+  border-bottom: 0.0625rem solid #bfc1c3;
 }
 
 .accordion .accordion-document-item-wrapper {
   display: flex;
   flex-direction: row;
   align-items: baseline;
-  font-size: 16px;
+  font-size: 1rem;
   justify-content: space-between;
 }
 
 .accordion .accordion-document-link-button,
 .accordion .accordion-document-link-name {
-  padding: 10px 15px 10px 0;
+  padding: 0.625rem 0.9375rem 0.625rem 0;
   min-width: 30%;
   max-width: 80%;
   word-wrap: break-word;
-  font-size: 16px;
+  font-size: 1rem;
   text-align: left;
 }
 
@@ -159,5 +159,5 @@
 }
 
 .accordion .accordion-document-read-warning {
-  margin-bottom: 5px;
+  margin-bottom: 0.3125rem;
 }
