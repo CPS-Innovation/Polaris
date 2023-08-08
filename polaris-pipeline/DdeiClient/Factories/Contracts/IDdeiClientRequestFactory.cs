@@ -6,6 +6,8 @@ namespace Ddei.Factories.Contracts
     {
         HttpRequestMessage CreateCmsModernTokenRequest(DdeiCmsCaseDataArgDto arg);
 
+        HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg);
+
         HttpRequestMessage CreateListCasesRequest(DdeiCmsUrnArgDto arg);
 
         HttpRequestMessage CreateGetCaseRequest(DdeiCmsCaseArgDto arg);
