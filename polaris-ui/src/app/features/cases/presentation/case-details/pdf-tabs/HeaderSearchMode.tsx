@@ -23,7 +23,10 @@ export const HeaderSearchMode: React.FC<Props> = ({
   return (
     <div className={classes.content}>
       <div className={classes.heavyText}>
-        <LinkButton onClick={handleLaunchSearchResults}>
+        <LinkButton
+          onClick={handleLaunchSearchResults}
+          className={classes.backToSearchBtn}
+        >
           Back to search results
         </LinkButton>
       </div>

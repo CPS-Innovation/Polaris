@@ -7,6 +7,7 @@ using AutoFixture;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Services.BlobStorageService.Contracts;
+using Common.Telemetry.Contracts;
 using Common.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -22,6 +23,7 @@ namespace pdf_generator.tests.Services.DocumentRedactionService;
 public class DocumentRedactionServiceTests
 {
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
+    private readonly Mock<ITelemetryClient> _mockTelemetryClient;
 
     private readonly IDocumentRedactionService _documentRedactionService;
 
@@ -32,27 +34,28 @@ public class DocumentRedactionServiceTests
     {
         var fixture = new Fixture();
         _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
+        _mockTelemetryClient = new Mock<ITelemetryClient>();
         var mockLogger = new Mock<ILogger<pdf_generator.Services.DocumentRedactionService.DocumentRedactionService>>();
         var mockCalculatorLogger = new Mock<ILogger<CoordinateCalculator>>();
         ICoordinateCalculator coordinateCalculator = new CoordinateCalculator(mockCalculatorLogger.Object);
-        
+
         var asposeItemFactory = new Mock<IAsposeItemFactory>();
         asposeItemFactory.Setup(x => x.CreateWorkbook(It.IsAny<Stream>(), It.IsAny<Guid>())).Returns(new Workbook());
 
         IPdfService pdfService = new CellsPdfService(asposeItemFactory.Object);
-        
+
         _documentRedactionService = new pdf_generator.Services.DocumentRedactionService.DocumentRedactionService(_mockBlobStorageService.Object,
-            coordinateCalculator, mockLogger.Object);
+            coordinateCalculator, mockLogger.Object, _mockTelemetryClient.Object);
 
         _redactPdfRequest = fixture.Create<RedactPdfRequestDto>();
         _redactPdfRequest.RedactionDefinitions = fixture.CreateMany<RedactionDefinitionDto>(1).ToList();
         _redactPdfRequest.RedactionDefinitions[0].PageIndex = 1;
 
         _correlationId = Guid.NewGuid();
-        
+
         using var pdfStream = new MemoryStream();
         using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestBook.xlsx");
-        
+
         pdfService.ReadToPdfStream(inputStream, pdfStream, Guid.NewGuid());
 
         _mockBlobStorageService.Setup(s => s.GetDocumentAsync(It.IsAny<string>(), It.IsAny<Guid>()))
@@ -69,7 +72,7 @@ public class DocumentRedactionServiceTests
             .ReturnsAsync((Stream)null);
 
         var saveResult = await _documentRedactionService.RedactPdfAsync(_redactPdfRequest, _correlationId);
-        
+
         using (new AssertionScope())
         {
             saveResult.Succeeded.Should().BeFalse();
