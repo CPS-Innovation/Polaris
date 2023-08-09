@@ -1,6 +1,6 @@
 .pdfViewer {
   height: calc(84vh - 1.5rem);
-  max-height: 1500px; // to prevent zooming out overly elongating the pdf
+  max-height: 1500px; // to prevent zooming out overly elongating the pdf(not changing it to rems)
   width: 100%;
   position: relative;
   & *:focus {
