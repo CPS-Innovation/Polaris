@@ -27,6 +27,6 @@
     "@types/jsonwebtoken": "^9.0.1",
     "cypress-plugin-api": "^2.11.0",
     "cypress-wait-until": "^1.7.2",
-    "jsonwebtoken": "^9.0.0"
+    "jsonwebtoken": "^9.0.1"
   }
 }
