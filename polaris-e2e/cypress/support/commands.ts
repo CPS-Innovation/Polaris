@@ -215,11 +215,11 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
 });
 
 Cypress.Commands.add("checkDependencies", () => {
-  for (var dependency of DEPENDENCIES) {
+  for (let dependency of DEPENDENCIES) {
     const url = dependency;
     const t0 = performance.now();
     cy.request({ url }).then(({ status, body }) => {
-      var t1 = performance.now();
+      const t1 = performance.now();
       cy.log(
         `Previous call to ${url} returned ${status} in ${(
           (t1 - t0) /
