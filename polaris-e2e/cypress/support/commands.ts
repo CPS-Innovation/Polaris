@@ -1,5 +1,5 @@
 import "@testing-library/cypress/add-commands"
-import { injectTokens } from "./inject-tokens"
+import { loginViaAD } from "./loginViaAD"
 import { CorrelationId, correlationIds } from "./correlation-ids"
 import { WAIT_UNTIL_OPTIONS } from "./options"
 import "cypress-wait-until"
@@ -128,23 +128,7 @@ Cypress.Commands.add(
 )
 
 Cypress.Commands.add("loginToAD", () => {
-  // Intermittent failures have been observed on the first UI test of the day
-  //  whereby the very first UI interaction (this login process visit to the UI)
-  //  times out.  A working assumption is that the UI deployment is not warmed up
-  //  and so may take longer than the default 60 seconds to respond.  So rather than
-  //  increase the default timeout for all UI tests, we'll just increase the timeout
-  //  for this one type of visit (which will always be the first in any UI test run).
-  const timeoutMs = 2 * 60 * 1000
-
-  return cy
-    .visit(AUTOMATION_LANDING_PAGE_PATH, { timeout: timeoutMs })
-    .getADTokens()
-    .then((response) => {
-      injectTokens(response)
-    })
-    .reload()
-    .visit("/polaris-ui")
-    .contains(AD_USERNAME)
+  return loginViaAD(AD_USERNAME, AD_PASSWORD)
 })
 
 Cypress.Commands.add("loginToCms", () => {

@@ -56,5 +56,6 @@ export default defineConfig({
     viewportWidth: 1500,
     defaultCommandTimeout: 60000,
     trashAssetsBeforeRuns: false,
+    experimentalModifyObstructiveThirdPartyCode: true,
   },
 })
