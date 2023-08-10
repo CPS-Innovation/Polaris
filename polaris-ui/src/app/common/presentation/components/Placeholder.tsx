@@ -26,7 +26,7 @@ export const Placeholder: React.FC<Props> = ({
         marginLeft,
         marginRight,
         backgroundColor,
-        border: "1px dashed #888888",
+        border: "0.0625rem dashed #888888",
         width,
       }}
     ></div>

@@ -38,11 +38,11 @@ a {
 
 .perma-scrollbar::-webkit-scrollbar {
   -webkit-appearance: none;
-  width: 7px;
-  height: 7px;
+  width: 0.4375rem;
+  height: 0.4375rem;
 }
 .perma-scrollbar::-webkit-scrollbar-thumb {
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background-color: rgba(0, 0, 0, 0.5);
-  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+  -webkit-box-shadow: 0 0 0.0625rem rgba(255, 255, 255, 0.5);
 }
