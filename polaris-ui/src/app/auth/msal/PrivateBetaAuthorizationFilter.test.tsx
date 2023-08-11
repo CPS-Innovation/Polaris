@@ -19,7 +19,7 @@ const mockConfig = config as {
 };
 mockConfig.PRIVATE_BETA_SIGN_UP_URL = PRIVATE_BETA_SIGN_UP_URL_VALUE;
 
-var mockAccounts = [] as AccountInfo[];
+let mockAccounts: AccountInfo[];
 const mockMsalInstance = {
   getAllAccounts: () => mockAccounts,
 } as IPublicClientApplication;
@@ -27,10 +27,6 @@ const mockMsalInstance = {
 let mockWindow: Window;
 
 const actFn = () => {
-  mockWindow = {
-    location: { href: EXISTING_WINDOW_URL },
-  } as Window;
-
   return render(
     <PrivateBetaAuthorizationFilter
       msalInstance={mockMsalInstance}
@@ -42,6 +38,14 @@ const actFn = () => {
 };
 
 describe("PrivateBetaAuthorizationFilter", () => {
+  beforeEach(() => {
+    mockWindow = {
+      location: { href: EXISTING_WINDOW_URL },
+    } as Window;
+
+    mockAccounts = [];
+  });
+
   it("will allow the user in to the app if no private beta group is configured", () => {
     // Arrange
     mockConfig.PRIVATE_BETA_USER_GROUP = null;
