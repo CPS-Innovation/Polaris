@@ -6,6 +6,7 @@ import {
 import { CombinedState } from "../../../../domain/CombinedState";
 import { FilterOption } from "../../../../domain/FilterOption";
 import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCaseDetailsState";
+import classes from "./Filters.module.scss";
 
 type Props = {
   filterOptions: CombinedState["searchState"]["filterOptions"];
@@ -30,18 +31,10 @@ export const Filters: React.FC<Props> = ({
 
   return (
     <>
-      <div
-        style={{
-          borderBottom: "1px solid #b1b4b6",
-          paddingBottom: 5,
-          marginLeft: -15,
-          marginBottom: 20,
-        }}
-      >
+      <div className={`${classes.filterWrapper}`}>
         <h3
           data-testid="txt-filter-heading"
-          className="govuk-heading-m"
-          style={{ margin: "10px 0 10px 10px" }}
+          className={`govuk-heading-m ${classes.heading}`}
         >
           Filter
         </h3>

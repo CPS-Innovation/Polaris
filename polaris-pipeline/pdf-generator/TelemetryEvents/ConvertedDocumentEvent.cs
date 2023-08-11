@@ -44,8 +44,8 @@ namespace pdf_generator.TelemetryEvents
                 new Dictionary<string, string>
                 {
                     { nameof(_correlationId), _correlationId.ToString() },
-                    { nameof(_caseId), _documentId },
-                    { nameof(_documentId), _documentId },
+                    { nameof(_caseId), _caseId },
+                    { nameof(_documentId), EnsureNumericId(_documentId) },
                     { nameof(_versionId), _versionId },
                     { nameof(_fileType), _fileType},
                     { nameof(_startTime), _startTime.ToString("o") },
