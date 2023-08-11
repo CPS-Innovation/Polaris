@@ -16,6 +16,7 @@ trigger:
       - polaris-gateway/*
       - polaris-pipeline/*
       - polaris-ui/*
+      - polaris-e2e/*
        
 pr: none
   
