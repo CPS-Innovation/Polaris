@@ -1,5 +1,5 @@
 .container {
-  margin-top: 25px;
+  margin-top: 1.5625rem;
 }
 
 .suffix {
@@ -14,19 +14,18 @@
   justify-content: center;
   align-items: center;
   display: flex;
-  right: -3px;
-  top: -2px;
-  width: 41px;
-  height: 40px;
+  top: -0.125rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border: none;
   overflow: hidden;
   color: #fff;
   cursor: pointer;
   background-color: #1d70b8;
   &:focus {
-    outline: 4px solid #ffdd00;
+    outline: 0.25rem solid #ffdd00;
     outline-offset: 0;
-    box-shadow: inset 0 0 0 4px #0b0c0c;
+    box-shadow: inset 0 0 0 0.25rem #0b0c0c;
   }
 }
 

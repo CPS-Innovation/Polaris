@@ -26,6 +26,10 @@ export default defineConfig({
         retrieveTokenResponseFromNode: () => {
           return globalAny.tokenResponse || null
         },
+        log: (message) => {
+          console.log(message)
+          return null
+        },
       })
 
       const baseEnvFromFile = getConfigurationByFile("base")
@@ -56,5 +60,6 @@ export default defineConfig({
     viewportWidth: 1500,
     defaultCommandTimeout: 60000,
     trashAssetsBeforeRuns: false,
+    experimentalModifyObstructiveThirdPartyCode: true,
   },
 })

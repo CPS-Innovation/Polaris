@@ -32,8 +32,8 @@
   z-index: 7;
   position: fixed;
   background: white;
-  min-width: 400px;
-  min-height: 150px;
+  min-width: 25rem;
+  min-height: 9.375rem;
   top: 40%;
   left: 50%;
   transform: translate(-50%, -40%);
@@ -44,16 +44,16 @@
   height: 80%;
 }
 .modalHeader {
-  margin-bottom: 25px;
-  padding-bottom: 3px;
+  margin-bottom: 1.5625rem;
+  padding-bottom: 0.1875rem;
   color: #ffffff;
   background-color: #0b0c0c;
   text-align: right;
 }
 
 .closeContainer {
-  margin-top: 20px;
-  margin-right: 20px;
+  margin-top: 1.25rem;
+  margin-right: 1.25rem;
   display: flex;
   justify-content: flex-end;
 }
@@ -70,9 +70,9 @@
   justify-content: center;
   align-items: center;
   &:focus {
-    outline: 4px solid #ffdd00;
+    outline: 0.25rem solid #ffdd00;
     outline-offset: 0;
-    box-shadow: inset 0 0 0 4px #0b0c0c;
+    box-shadow: inset 0 0 0 0.25rem #0b0c0c;
   }
 }
 
@@ -84,7 +84,7 @@
 }
 
 .alertModalHeader {
-  height: 35px;
+  height: 2.1875rem;
   border-bottom: none !important;
   position: relative;
 }
@@ -94,8 +94,8 @@
   background: none;
   padding: 0;
   border: 0;
-  right: 5px;
-  top: 5px;
+  right: 0.3125rem;
+  top: 0.3125rem;
   color: #fff;
   cursor: pointer;
   display: flex;
@@ -104,8 +104,8 @@
   align-items: center;
 
   &:focus {
-    outline: 4px solid #ffdd00;
+    outline: 0.25rem solid #ffdd00;
     outline-offset: 0;
-    box-shadow: inset 0 0 0 4px #0b0c0c;
+    box-shadow: inset 0 0 0 0.25rem #0b0c0c;
   }
 }

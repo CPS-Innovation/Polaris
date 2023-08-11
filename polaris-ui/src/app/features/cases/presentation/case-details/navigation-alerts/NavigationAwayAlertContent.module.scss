@@ -1,15 +1,15 @@
 .alertContent {
-  max-width: 520px;
-  padding: 20px 30px 30px;
+  max-width: 32.5rem;
+  padding: 1.25rem 1.875rem 1.875rem;
 }
 
 .actionButtonsWrapper {
   display: flex;
   justify-content: flex-start;
   align-items: baseline;
-  margin-top: 30px;
+  margin-top: 1.875rem;
   :first-child {
-    margin-right: 20px;
+    margin-right: 1.25rem;
   }
 }
 

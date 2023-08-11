@@ -1,5 +1,5 @@
 .uniqueReferenceNumber {
-  margin-bottom: 10px !important;
+  margin-bottom: 0.625rem !important;
 }
 .defendantsList {
   display: flex;
@@ -20,7 +20,7 @@
   flex-direction: column;
   font-size: 1rem;
   .defendantName {
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
   .defendantDOB {
     font-size: 1rem;
@@ -34,41 +34,34 @@
 }
 
 .mainContent {
-  margin-top: -25px;
+  margin-top: -1.5625rem;
 }
 
 .leftColumn {
-  padding-right: 50px !important;
+  padding-right: 3.125rem !important;
   overflow-y: auto;
-  height: calc(100vh - 55px);
+  height: calc(100vh - 3.4375rem);
 }
 
 .rightColumn {
   /* to compensate for the back link height pushing our right column content down*/
-  margin-top: -55px;
+  margin-top: -3.4375rem;
   height: 100vh;
-}
-
-.pdfViewer {
-  height: 84vh;
-  max-height: 1500px; // to prevent zooming out overly elongating the pdf
-  width: 100%;
-  position: relative;
 }
 
 .chargesCustodyTime {
   display: flex;
   flex-direction: column;
   font-weight: 700;
-  margin-top: 20px;
+  margin-top: 1.25rem;
 }
 .charges {
-  min-height: 200px;
-  margin-top: 20px;
-  font-size: 16px;
+  min-height: 12.5rem;
+  margin-top: 1.25rem;
+  font-size: 1rem;
   background-color: #1d70b8;
   color: white;
-  padding: 20px;
+  padding: 1.25rem;
 
   * {
     color: white !important;
@@ -76,7 +69,7 @@
   ul {
     margin: 0;
     list-style-type: disc !important;
-    padding: 0 10px;
+    padding: 0 0.625rem;
   }
   li {
     margin: 0;
