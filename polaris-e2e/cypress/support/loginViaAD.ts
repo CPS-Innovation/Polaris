@@ -48,7 +48,7 @@ export const loginViaAD = (username: string, password: string) => {
   cy.url().should("equal", `${Cypress.config().baseUrl}/polaris-ui`)
 
   cy.origin("login.microsoftonline.com", { args: "" }, () => {
-    //NOTE : this wait is needed otherwise e2e test get stuck on the "Pick an Account screen of msal"
+    //NOTE : this wait is needed otherwise e2e test get stuck on the "Pick an Account screen of msal."
     cy.wait(1000)
   })
   return cy.visit("/polaris-ui").contains(username)
