@@ -1,6 +1,6 @@
 import { useUserDetails } from "./useUserDetails";
 
-jest.mock("./msalInstnce", () => ({
+jest.mock("./msalInstance", () => ({
   msalInstance: {
     getAllAccounts: () => [
       {
