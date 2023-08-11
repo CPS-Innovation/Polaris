@@ -2,7 +2,7 @@
 
 export const loginViaAD = (username: string, password: string) => {
   cy.visit("http://localhost:3000/polaris-ui")
-
+  cy.task("log", `Msal login start`)
   cy.origin(
     "login.microsoftonline.com",
     {
@@ -14,6 +14,7 @@ export const loginViaAD = (username: string, password: string) => {
       cy.get('input[type="email"]').type(username, {
         log: false,
       })
+      cy.task("log", `Msal login with username:${username}`)
       cy.get('input[type="submit"]').click()
     }
   )

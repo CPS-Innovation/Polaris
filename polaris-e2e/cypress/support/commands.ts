@@ -128,7 +128,18 @@ Cypress.Commands.add(
 )
 
 Cypress.Commands.add("loginToAD", () => {
-  return loginViaAD(AD_USERNAME, AD_PASSWORD)
+  cy.session(
+    `aad-${AD_USERNAME}`,
+    () => {
+      return loginViaAD(AD_USERNAME, AD_PASSWORD)
+    },
+    {
+      validate() {
+        cy.visit("/polaris-ui").contains(AD_USERNAME)
+      },
+      cacheAcrossSpecs: true,
+    }
+  )
 })
 
 Cypress.Commands.add("loginToCms", () => {
