@@ -27,7 +27,6 @@ export const Auth: FC = ({ children }) => {
     })();
   }, []);
 
-  debugger;
   return isLoggedIn ? (
     <MsalProvider instance={msalInstance}>
       <PrivateBetaAuthorizationFilter

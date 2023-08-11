@@ -36,5 +36,5 @@ app_service_log_total_retention = 2555
 
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
-  user_group = "611db2ac-4627-44ad-923b-abb04ef0e385" 
+  user_group = "4d88565f-227b-4043-995c-038286b79869" 
 }
