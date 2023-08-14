@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
-const LOCAL_DEV_SERVER_URL = "http://localhost:3000"
 export const loginViaAD = (username: string, password: string) => {
-  cy.visit(`${LOCAL_DEV_SERVER_URL}/polaris-ui`)
+  cy.visit(`${Cypress.config().baseUrl}/polaris-ui`)
   cy.task("log", `Msal login start`)
   cy.origin(
     "login.microsoftonline.com",
@@ -46,10 +45,10 @@ export const loginViaAD = (username: string, password: string) => {
   )
 
   // Ensure Microsoft has redirected us back to the sample app with our logged in user.
-  cy.url().should("equal", `${LOCAL_DEV_SERVER_URL}/polaris-ui`)
+  cy.url().should("equal", `${Cypress.config().baseUrl}/polaris-ui`)
 
   cy.origin("login.microsoftonline.com", { args: "" }, () => {
-    //NOTE : this wait is needed otherwise e2e test get stuck on the "Pick an Account screen of msal"
+    //NOTE : this wait is needed otherwise e2e test get stuck on the "Pick an Account screen of msal."
     cy.wait(1000)
   })
   return cy.visit("/polaris-ui").contains(username)
