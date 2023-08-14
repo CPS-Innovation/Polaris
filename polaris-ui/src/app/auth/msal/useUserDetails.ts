@@ -1,5 +1,5 @@
 import { UserDetails } from "../UserDetails";
-import { msalInstance } from "./msalInstnce";
+import { msalInstance } from "./msalInstance";
 import { getCookieValue } from "../../common/utils/getCookieValue";
 
 export const useUserDetails = () => {
