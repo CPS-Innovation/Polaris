@@ -13,6 +13,7 @@ using Common.Mappers.Contracts;
 using Common.Services.CaseSearchService.Contracts;
 using Common.Services.OcrService;
 using Common.Telemetry.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -29,6 +30,7 @@ namespace text_extractor.Functions
         private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
         private readonly ILogger<ExtractText> _log;
         private readonly ITelemetryClient _telemetryClient;
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
         public ExtractText(IValidatorWrapper<ExtractTextRequestDto> validatorWrapper,
                            IOcrService ocrService,
@@ -36,7 +38,8 @@ namespace text_extractor.Functions
                            IExceptionHandler exceptionHandler,
                            IDtoHttpRequestHeadersMapper dtoHttpRequestHeadersMapper,
                            ILogger<ExtractText> logger,
-                           ITelemetryClient telemetryClient)
+                           ITelemetryClient telemetryClient,
+                           ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _validatorWrapper = validatorWrapper;
             _ocrService = ocrService;
@@ -45,6 +48,7 @@ namespace text_extractor.Functions
             _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper;
             _log = logger;
             _telemetryClient = telemetryClient;
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         [FunctionName(nameof(ExtractText))]
@@ -57,6 +61,7 @@ namespace text_extractor.Functions
             {
                 #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
+                _telemetryAugmentationWrapper.AddCorrelationId(currentCorrelationId);
 
                 if (request.Content == null)
                 {

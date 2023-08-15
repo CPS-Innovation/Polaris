@@ -1,18 +1,18 @@
 using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Constants;
 using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
+using Common.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Handlers.Contracts;
 using Common.Logging;
+using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using FluentValidation;
 using Microsoft.Azure.WebJobs;
@@ -29,14 +29,21 @@ namespace pdf_generator.Functions
         private readonly IDocumentRedactionService _documentRedactionService;
         private readonly ILogger<RedactPdf> _logger;
         private readonly IValidator<RedactPdfRequestDto> _requestValidator;
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
-        public RedactPdf(IExceptionHandler exceptionHandler, IJsonConvertWrapper jsonConvertWrapper, IDocumentRedactionService documentRedactionService,
-            ILogger<RedactPdf> logger, IValidator<RedactPdfRequestDto> requestValidator)
+        public RedactPdf(
+            IExceptionHandler exceptionHandler,
+            IJsonConvertWrapper jsonConvertWrapper,
+            IDocumentRedactionService documentRedactionService,
+            ILogger<RedactPdf> logger,
+            IValidator<RedactPdfRequestDto> requestValidator,
+            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _exceptionHandler = exceptionHandler;
             _jsonConvertWrapper = jsonConvertWrapper;
             _documentRedactionService = documentRedactionService;
             _requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
             _logger = logger;
         }
 
@@ -50,13 +57,8 @@ namespace pdf_generator.Functions
             try
             {
                 #region Validate-Inputs
-                request.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-                if (correlationIdValues == null)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(request));
-
-                var correlationId = correlationIdValues.First();
-                if (!Guid.TryParse(correlationId, out currentCorrelationId) || currentCorrelationId == Guid.Empty)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
+                currentCorrelationId = request.Headers.GetCorrelationId();
+                _telemetryAugmentationWrapper.AddCorrelationId(currentCorrelationId);
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 

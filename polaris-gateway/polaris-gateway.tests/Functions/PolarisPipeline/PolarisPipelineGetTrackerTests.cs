@@ -47,8 +47,8 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
                 .ReturnsAsync(_tracker);
 
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
-            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
-
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AddUserName(It.IsAny<string>()));
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AddCorrelationId(It.IsAny<Guid>()));
             _polarisPipelineGetTracker = new PolarisPipelineGetCaseTracker(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }
 

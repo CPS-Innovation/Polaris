@@ -20,6 +20,7 @@ using Common.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Handlers.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
 
 namespace pdf_generator.tests.Functions
 {
@@ -34,7 +35,7 @@ namespace pdf_generator.tests.Functions
         private readonly Guid _correlationId;
         private HttpResponseMessage _errorHttpResponseMessage;
         private readonly Mock<IValidator<RedactPdfRequestDto>> _mockValidator;
-
+        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly RedactPdf _redactPdf;
 
         public RedactPdfTests()
@@ -67,11 +68,18 @@ namespace pdf_generator.tests.Functions
 
             _mockValidator = new Mock<IValidator<RedactPdfRequestDto>>();
             _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestDto>(),
-		            It.IsAny<CancellationToken>()))
-	            .ReturnsAsync(new ValidationResult());
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
 
-            _redactPdf = new RedactPdf(_mockExceptionHandler.Object, _mockJsonConvertWrapper.Object, mockDocumentRedactionService.Object, _loggerMock.Object, 
-	            _mockValidator.Object);
+            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
+
+            _redactPdf = new RedactPdf(
+                _mockExceptionHandler.Object,
+                _mockJsonConvertWrapper.Object,
+                mockDocumentRedactionService.Object,
+                _loggerMock.Object,
+                _mockValidator.Object,
+                _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]
@@ -87,76 +95,76 @@ namespace pdf_generator.tests.Functions
 
             response.Should().Be(errorHttpResponseMessage);
         }
-        
+
         [Fact]
-		public async Task Run_ReturnsBadRequestWhenContentIsNull()
-		{
-			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler
+        public async Task Run_ReturnsBadRequestWhenContentIsNull()
+        {
+            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            _mockExceptionHandler
                 .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
-				.Returns(_errorHttpResponseMessage);
-			_httpRequestMessage.Content = null;
-			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
+                .Returns(_errorHttpResponseMessage);
+            _httpRequestMessage.Content = null;
+            _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
 
-			var response = await _redactPdf.Run(_httpRequestMessage);
+            var response = await _redactPdf.Run(_httpRequestMessage);
 
-			response.Should().Be(_errorHttpResponseMessage);
-		}
-		
-		[Fact]
-		public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
-		{
-			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler
+            response.Should().Be(_errorHttpResponseMessage);
+        }
+
+        [Fact]
+        public async Task Run_ReturnsBadRequestWhenUsingAnInvalidCorrelationId()
+        {
+            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            _mockExceptionHandler
                 .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
-				.Returns(_errorHttpResponseMessage);
-			_httpRequestMessage.Headers.Clear();
-			_httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
+                .Returns(_errorHttpResponseMessage);
+            _httpRequestMessage.Headers.Clear();
+            _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
-			var response = await _redactPdf.Run(_httpRequestMessage);
+            var response = await _redactPdf.Run(_httpRequestMessage);
 
-			response.Should().Be(_errorHttpResponseMessage);
-		}
-		
-		[Fact]
-		public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
-		{
-			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler
+            response.Should().Be(_errorHttpResponseMessage);
+        }
+
+        [Fact]
+        public async Task Run_ReturnsBadRequestWhenUsingAnEmptyCorrelationId()
+        {
+            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            _mockExceptionHandler
                 .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
-				.Returns(_errorHttpResponseMessage);
-			_httpRequestMessage.Headers.Clear();
-			_httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
+                .Returns(_errorHttpResponseMessage);
+            _httpRequestMessage.Headers.Clear();
+            _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
-			var response = await _redactPdf.Run(_httpRequestMessage);
+            var response = await _redactPdf.Run(_httpRequestMessage);
 
-			response.Should().Be(_errorHttpResponseMessage);
-		}
+            response.Should().Be(_errorHttpResponseMessage);
+        }
 
-		[Fact]
-		public async Task Run_ReturnsBadRequestWhenThereAreAnyValidationErrors()
-		{
-			var testFailures = _fixture.CreateMany<ValidationFailure>(2);
-			
-			_errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			_mockExceptionHandler
+        [Fact]
+        public async Task Run_ReturnsBadRequestWhenThereAreAnyValidationErrors()
+        {
+            var testFailures = _fixture.CreateMany<ValidationFailure>(2);
+
+            _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            _mockExceptionHandler
                 .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
-				.Returns(_errorHttpResponseMessage);
-			_mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestDto>(),
-					It.IsAny<CancellationToken>()))
-				.ReturnsAsync(new ValidationResult(testFailures));
-			_httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
+                .Returns(_errorHttpResponseMessage);
+            _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestDto>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult(testFailures));
+            _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
 
-			var response = await _redactPdf.Run(_httpRequestMessage);
+            var response = await _redactPdf.Run(_httpRequestMessage);
 
-			response.Should().Be(_errorHttpResponseMessage);
-		}
+            response.Should().Be(_errorHttpResponseMessage);
+        }
 
         [Fact]
         public async Task Run_ReturnsResponseWhenExceptionOccurs()
         {
-	        _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
-	        
+            _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
+
             var errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             var exception = new Exception();
             _mockJsonConvertWrapper
@@ -174,7 +182,7 @@ namespace pdf_generator.tests.Functions
         [Fact]
         public async Task Run_ReturnsOk()
         {
-	        var response = await _redactPdf.Run(_httpRequestMessage);
+            var response = await _redactPdf.Run(_httpRequestMessage);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -182,7 +190,7 @@ namespace pdf_generator.tests.Functions
         [Fact]
         public async Task Run_ReturnsExpectedContent()
         {
-			var response = await _redactPdf.Run(_httpRequestMessage);
+            var response = await _redactPdf.Run(_httpRequestMessage);
 
             var content = await response.Content.ReadAsStringAsync();
             content.Should().Be(_serializedRedactPdfResponse);
