@@ -29,6 +29,7 @@ export const PrivateBetaAuthorizationFilter: FC<Props> = ({
   const [account] = msalInstance.getAllAccounts();
 
   if (
+    account &&
     account.username &&
     PRIVATE_BETA_CHECK_IGNORE_USER &&
     account.username === PRIVATE_BETA_CHECK_IGNORE_USER

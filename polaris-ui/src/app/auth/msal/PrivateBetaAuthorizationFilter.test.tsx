@@ -16,6 +16,7 @@ jest.mock("./../../config", () => ({
 const mockConfig = config as {
   PRIVATE_BETA_USER_GROUP: string | null;
   PRIVATE_BETA_SIGN_UP_URL: string;
+  PRIVATE_BETA_CHECK_IGNORE_USER: string | null;
 };
 mockConfig.PRIVATE_BETA_SIGN_UP_URL = PRIVATE_BETA_SIGN_UP_URL_VALUE;
 
@@ -115,6 +116,27 @@ describe("PrivateBetaAuthorizationFilter", () => {
         idTokenClaims: {
           groups: ["bar", "baz", PRIVATE_BETA_USER_GROUP_VALUE],
         } as AccountInfo["idTokenClaims"],
+      } as AccountInfo,
+    ];
+
+    // Act
+    const { findByText } = actFn();
+
+    // Assert
+    expect(findByText(EXPECTED_APP_TEXT)).toBeDefined();
+    expect(mockWindow.location.href).toBe(EXISTING_WINDOW_URL);
+  });
+
+  it("will allow the automation user to access even if it is not in the private beta group", () => {
+    // Arrange
+    mockConfig.PRIVATE_BETA_USER_GROUP = PRIVATE_BETA_USER_GROUP_VALUE;
+    mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "bar@example.org";
+    mockAccounts = [
+      {
+        idTokenClaims: {
+          groups: ["bar", "baz"],
+        } as AccountInfo["idTokenClaims"],
+        username: "bar@example.org",
       } as AccountInfo,
     ];
 
