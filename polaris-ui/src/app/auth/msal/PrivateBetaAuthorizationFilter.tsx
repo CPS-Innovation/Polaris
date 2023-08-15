@@ -3,6 +3,7 @@ import { FC } from "react";
 import {
   PRIVATE_BETA_SIGN_UP_URL,
   PRIVATE_BETA_USER_GROUP,
+  PRIVATE_BETA_CHECK_IGNORE_USER,
 } from "../../config";
 type Props = {
   msalInstance: IPublicClientApplication;
@@ -26,6 +27,15 @@ export const PrivateBetaAuthorizationFilter: FC<Props> = ({
   }
 
   const [account] = msalInstance.getAllAccounts();
+
+  if (
+    account &&
+    account.username &&
+    PRIVATE_BETA_CHECK_IGNORE_USER &&
+    account.username === PRIVATE_BETA_CHECK_IGNORE_USER
+  ) {
+    return proceedAuthorized();
+  }
 
   const groupClaims = account?.idTokenClaims?.groups as string[];
   return groupClaims && groupClaims.includes(PRIVATE_BETA_USER_GROUP)
