@@ -127,7 +127,7 @@ describe("PrivateBetaAuthorizationFilter", () => {
     expect(mockWindow.location.href).toBe(EXISTING_WINDOW_URL);
   });
 
-  it("will allow the automation user to access even if it is not in the private beta group", () => {
+  it("will allow the automation user to access the app even if it is not in the private beta group", () => {
     // Arrange
     mockConfig.PRIVATE_BETA_USER_GROUP = PRIVATE_BETA_USER_GROUP_VALUE;
     mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "bar@example.org";
