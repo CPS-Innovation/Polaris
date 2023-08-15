@@ -28,6 +28,9 @@ export const PRIVATE_BETA_USER_GROUP =
 export const PRIVATE_BETA_SIGN_UP_URL =
   process.env.REACT_APP_PRIVATE_BETA_SIGN_UP_URL!;
 
+export const PRIVATE_BETA_CHECK_IGNORE_USER =
+  process.env.REACT_APP_PRIVATE_BETA_CHECK_IGNORE_USER;
+
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "test") {
