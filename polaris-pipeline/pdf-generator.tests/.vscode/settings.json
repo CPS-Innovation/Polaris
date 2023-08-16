@@ -1,4 +1,0 @@
-{
-  "dotnet.defaultSolution": "pdf-generator.tests.sln",
-  "azureFunctions.projectSubpath": "bin/Debug/net6.0"
-}
