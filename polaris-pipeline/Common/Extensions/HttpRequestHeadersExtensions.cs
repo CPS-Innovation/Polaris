@@ -10,7 +10,7 @@ namespace Common.Extensions
     {
         public static Guid GetCorrelationId(this HttpRequestHeaders headers)
         {
-            Guid currentCorrelationId = default;
+            Guid currentCorrelationId;
 
             headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)

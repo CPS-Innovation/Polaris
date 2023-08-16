@@ -4,8 +4,6 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Services.OcrService;
-using Azure.Identity;
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
 using Common.Factories.Contracts;
@@ -21,6 +19,8 @@ using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using Common.Mappers.Contracts;
 using Common.Mappers;
+using Common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry.Wrappers;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -48,7 +48,7 @@ namespace text_extractor
 
             builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
             builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
-
+            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             builder.Services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
             builder.Services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             BuildHealthChecks(builder);
