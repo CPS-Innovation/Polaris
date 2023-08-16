@@ -127,24 +127,27 @@ describe("PrivateBetaAuthorizationFilter", () => {
     expect(mockWindow.location.href).toBe(EXISTING_WINDOW_URL);
   });
 
-  it("will allow the automation user to access the app even if it is not in the private beta group", () => {
-    // Arrange
-    mockConfig.PRIVATE_BETA_USER_GROUP = PRIVATE_BETA_USER_GROUP_VALUE;
-    mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = "bar@example.org";
-    mockAccounts = [
-      {
-        idTokenClaims: {
-          groups: ["bar", "baz"],
-        } as AccountInfo["idTokenClaims"],
-        username: "bar@example.org",
-      } as AccountInfo,
-    ];
+  it.each([["bar@example.org", "bAr@eXaMpLe.orG"]])(
+    "will allow the automation user to access the app even if it is not in the private beta group",
+    (username) => {
+      // Arrange
+      mockConfig.PRIVATE_BETA_USER_GROUP = PRIVATE_BETA_USER_GROUP_VALUE;
+      mockConfig.PRIVATE_BETA_CHECK_IGNORE_USER = username;
+      mockAccounts = [
+        {
+          idTokenClaims: {
+            groups: ["bar", "baz"],
+          } as AccountInfo["idTokenClaims"],
+          username: "bar@example.org",
+        } as AccountInfo,
+      ];
 
-    // Act
-    const { findByText } = actFn();
+      // Act
+      const { findByText } = actFn();
 
-    // Assert
-    expect(findByText(EXPECTED_APP_TEXT)).toBeDefined();
-    expect(mockWindow.location.href).toBe(EXISTING_WINDOW_URL);
-  });
+      // Assert
+      expect(findByText(EXPECTED_APP_TEXT)).toBeDefined();
+      expect(mockWindow.location.href).toBe(EXISTING_WINDOW_URL);
+    }
+  );
 });
