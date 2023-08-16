@@ -38,7 +38,7 @@ namespace text_extractor.Functions
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Search)] HttpRequestMessage request)
         {
             var correlationId = request.Headers.GetCorrelationId();
-            _telemetryAugmentationWrapper.AddCorrelationId(correlationId);
+            _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
             if (request.Content == null)
             {

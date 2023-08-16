@@ -8,9 +8,13 @@ namespace Common.Telemetry.Wrappers
 {
     public class TelemetryAugmentationWrapper : ITelemetryAugmentationWrapper
     {
-        public void AddUserName(string userName)
+        public void RegisterUserName(string userName)
         {
             var activity = GetActivityOrThrow();
+            if (activity == null)
+            {
+                return;
+            }
 
             try
             {
@@ -21,9 +25,13 @@ namespace Common.Telemetry.Wrappers
                 throw new CriticalTelemetryException($"Unable to set {TelemetryConstants.UserCustomDimensionName}", exception);
             }
         }
-        public void AddCorrelationId(Guid correlationId)
+        public void RegisterCorrelationId(Guid correlationId)
         {
             var activity = GetActivityOrThrow();
+            if (activity == null)
+            {
+                return;
+            }
 
             try
             {
@@ -44,8 +52,9 @@ namespace Common.Telemetry.Wrappers
                 // MS Issue Activity.Current = null - https://github.com/Azure/azure-functions-host/issues/7651
                 // TODO fix for local dev, but ok for now as local dev doesn't need to write to App Insights
                 // Current fix is to downgrade Diagnostics NuGet packages 
-                return new Activity(string.Empty);
+                return null;
 #endif
+
                 throw new CriticalTelemetryException("System.Diagnostics.Activity.Current was expected but found to be null");
             }
             return activity;

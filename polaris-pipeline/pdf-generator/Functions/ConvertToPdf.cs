@@ -49,7 +49,7 @@ namespace pdf_generator.Functions
             {
                 #region Validate-Inputs        
                 currentCorrelationId = request.Headers.GetCorrelationId();
-                _telemetryAugmentationWrapper.AddCorrelationId(currentCorrelationId);
+                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 

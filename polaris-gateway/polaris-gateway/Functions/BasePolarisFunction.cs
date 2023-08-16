@@ -36,11 +36,11 @@ namespace PolarisGateway.Functions
                 result.CurrentCorrelationId = EstablishCorrelation(req);
                 var (username, accessToken) = await AuthenticateRequest(req, result.CurrentCorrelationId, validScopes, validRoles);
                 result.AccessTokenValue = accessToken;
-                // Important that we call AugmentRequest* as soon as we have called AuthenticateRequest.
+                // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.
                 //  We are adding our user identity in to the AppInsights logs, so best to do this before
                 //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
-                _telemetryAugmentationWrapper.AddUserName(username);
-                _telemetryAugmentationWrapper.AddCorrelationId(result.CurrentCorrelationId);
+                _telemetryAugmentationWrapper.RegisterUserName(username);
+                _telemetryAugmentationWrapper.RegisterCorrelationId(result.CurrentCorrelationId);
 
                 // todo: only DDEI-bound requests need to have a cms auth values
                 result.CmsAuthValues = EstablishCmsAuthValues(req);

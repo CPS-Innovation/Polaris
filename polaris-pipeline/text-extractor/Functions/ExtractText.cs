@@ -61,7 +61,7 @@ namespace text_extractor.Functions
             {
                 #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
-                _telemetryAugmentationWrapper.AddCorrelationId(currentCorrelationId);
+                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 if (request.Content == null)
                 {
