@@ -22,6 +22,7 @@ using Common.Handlers.Contracts;
 using Common.Telemetry.Contracts;
 using System.IO;
 using Common.Mappers.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
 
 namespace text_extractor.tests.Functions
 {
@@ -40,6 +41,7 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ILogger<ExtractText>> _mockLogger;
 
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;
+        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Guid _correlationId;
 
         private readonly ExtractText _extractText;
@@ -62,6 +64,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockAnalyzeResults = Mock.Of<AnalyzeResults>(ctx => ctx.ReadResults == new List<ReadResult>());
             _mockTelemetryClient = new Mock<ITelemetryClient>();
+            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
 
             _correlationId = _fixture.Create<Guid>();
 
@@ -90,7 +93,8 @@ namespace text_extractor.tests.Functions
                                 _mockExceptionHandler.Object,
                                 mockDtoHttpRequestHeadersMapper.Object,
                                 _mockLogger.Object,
-                                _mockTelemetryClient.Object);
+                                _mockTelemetryClient.Object,
+                                _mockTelemetryAugmentationWrapper.Object);
         }
 
         [Fact]

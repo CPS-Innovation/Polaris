@@ -1,25 +1,21 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Azure.Storage.Blobs;
-using Common.Constants;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
 using Common.Handlers.Contracts;
 using Common.Health;
-using Common.Services.BlobStorageService;
-using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation;
 using Common.Services.DocumentEvaluation.Contracts;
 using Common.Services.Extensions;
 using Common.Telemetry;
 using Common.Telemetry.Contracts;
+using Common.Telemetry.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using pdf_generator.Services.DocumentRedactionService;
 using pdf_generator.Services.Extensions;
 
@@ -49,6 +45,7 @@ namespace pdf_generator
             builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
             builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
             BuildHealthChecks(builder);
         }
 
