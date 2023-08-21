@@ -14,6 +14,7 @@ variables:
   - group: kv-dev-terraform
   - group: polaris-global
   - group: networking-terraform
+  - group: polaris-vpn
   - name: networkingTerraformWorkingDir
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
   
@@ -78,23 +79,33 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          #download dev cert
-          - task: DownloadSecureFile@1
-            name: devVpnCertificate
-            inputs:
-              secureFile: 'vpnconfig_cert_dev.ovpn'
-            displayName: 'Download DEV VPN certificate for OVPN'
-
           #create vpn tunnel
           - bash: |
-              sudo apt-get update
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              ls
-              head $(devVpnCertificate.secureFilePath)
-              sudo openvpn --config $(devVpnCertificate.secureFilePath) --daemon
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
               sleep 5
-              ifconfig
-              echo "connected"
+
+              ifconfig tun0
+              sudo rm /etc/resolv.conf
+              echo "nameserver 10.7.197.20" | sudo tee /etc/resolv.conf
+
+              sudo cat openvpn.log
+
+              nslookup fa-polaris-dev-gateway.azurewebsites.net
+              nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
+
+              sudo cat /etc/resolv.conf
+            workingDirectory: $(templatesWorkingDir)
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
             displayName: Creating DEV VPN tunnel
             
           # Install Terraform based on version variable
