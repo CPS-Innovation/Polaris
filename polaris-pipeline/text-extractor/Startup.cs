@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Common.Services.OcrService;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
-using Common.Factories.Contracts;
-using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
 using Common.Wrappers.Contracts;
@@ -15,12 +13,6 @@ using System.IO;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Handlers;
-using Common.Telemetry.Contracts;
-using Common.Telemetry;
-using Common.Mappers.Contracts;
-using Common.Mappers;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Telemetry.Wrappers;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -57,12 +49,7 @@ namespace text_extractor
             services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
-            /* builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
-            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
-
-            builder.Services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
-            builder.Services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();*/
-            BuildHealthChecks(builder);
+            BuildHealthChecks(services);
         }
 
         private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
