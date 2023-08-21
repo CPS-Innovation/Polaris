@@ -55,3 +55,10 @@ variable "pipeline_logging" {
 variable "overnight_clear_down_enabled" {
   type = bool
 }
+
+variable "pipeline_event_hub_settings" {
+  type = object({
+    sku = string
+    capacity = number
+  })
+}
