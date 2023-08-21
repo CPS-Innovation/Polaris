@@ -10,8 +10,9 @@
     default_action = "Deny"
     public_network_access_enabled = false
     trusted_service_access_enabled = true
-    virtual_network_rule = {
-      subnet_id = data.azurerm_subnet.polaris_netherite_subnet.id
+    virtual_network_rule {
+        subnet_id = data.azurerm_subnet.polaris_netherite_subnet.id
+      }
     }
   }
 
