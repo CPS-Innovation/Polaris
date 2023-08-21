@@ -70,6 +70,9 @@ variable "mockCmsServiceSubnet" {
 variable "polarisAmplsSubnet" {
 }
 
+variable "polarisPipelineNetheriteSubnet" {
+}
+
 variable "terraform_service_principal_display_name" {
   type = string
 }

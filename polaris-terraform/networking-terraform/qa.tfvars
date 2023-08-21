@@ -23,5 +23,6 @@ gatewaySubnet                      = "10.7.198.128/27"
 polarisAuthHandoverSubnet          = "10.7.199.16/28"
 mockCmsServiceSubnet               = "10.7.199.48/28"
 polarisAmplsSubnet                 = "10.7.199.64/27"
+polarisPipelineNetheriteSubnet     = "10.7.199.96/27"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
