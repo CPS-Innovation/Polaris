@@ -69,3 +69,9 @@ resource "azurerm_private_dns_zone" "dns_zone_agentsvc" {
   resource_group_name = azurerm_resource_group.rg_networking.name
   tags                = local.common_tags
 }
+
+resource "azurerm_private_dns_zone" "dns_zone_service_bus" {
+  name                = "privatelink.servicebus.windows.net"
+  resource_group_name = azurerm_resource_group.rg_networking.name
+  tags                = local.common_tags
+}

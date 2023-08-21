@@ -13,3 +13,8 @@ pipeline_logging = {
 }
 
 overnight_clear_down_enabled = false
+
+pipeline_event_hub_settings = {
+  sku = "Standard"
+  capacity = 1
+}

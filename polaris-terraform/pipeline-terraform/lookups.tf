@@ -64,6 +64,12 @@ data "azurerm_subnet" "polaris_ci_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_netherite_subnet" {
+  name                 = "${var.resource_name_prefix}-netherite-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_private_dns_zone" "dns_zone_blob_storage" {
   name                = "privatelink.blob.core.windows.net"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
@@ -101,6 +107,11 @@ data "azurerm_private_dns_zone" "dns_zone_search_service" {
 
 data "azurerm_private_dns_zone" "dns_zone_cognitive_account" {
   name                = "privatelink.cognitiveservices.azure.com"
+  resource_group_name = "rg-${var.networking_resource_name_suffix}"
+}
+
+data "azurerm_private_dns_zone" "dns_zone_event_hub_namespace" {
+  name                = "privatelink.servicebus.windows.net"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
 }
 
