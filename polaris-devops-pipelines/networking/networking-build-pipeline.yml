@@ -32,3 +32,10 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/networking-terraform/"
               artifact: "networking-terraform-files"
               publishLocation: "pipeline"
+              
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline templates'
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/s/polaris-devops-pipelines/templates'
+              artifact: 'polaris-template-files'
+              publishLocation: 'pipeline'
