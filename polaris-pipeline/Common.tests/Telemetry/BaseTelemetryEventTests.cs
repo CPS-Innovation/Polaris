@@ -19,5 +19,21 @@ namespace Common.tests.Telemetry
             // Assert
             Assert.Equal(59.1, duration);
         }
+
+        [Theory]
+        [InlineData("123456", "123456")]
+        [InlineData("CMS-123456", "123456")]
+        [InlineData("PCD-123456", "123456")]
+        // code copes with missing value without blowing up (this is logging, not business logic)
+        [InlineData("", "")]
+        [InlineData(null, "")]
+        public void EnsureNumericId_ReturnsCleanDocumentId(string input, string expected)
+        {
+            // Act
+            var result = BaseTelemetryEvent.EnsureNumericId(input);
+
+            // Assert
+            Assert.Equal(expected, result);
+        }
     }
 }

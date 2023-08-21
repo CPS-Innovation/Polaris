@@ -1,5 +1,5 @@
 import "@testing-library/cypress/add-commands"
-import { injectTokens } from "./inject-tokens"
+import { loginViaAD } from "./loginViaAD"
 import { CorrelationId, correlationIds } from "./correlation-ids"
 import { WAIT_UNTIL_OPTIONS } from "./options"
 import "cypress-wait-until"
@@ -16,7 +16,6 @@ declare global {
     interface Chainable<Subject> {
       loginToAD(): Chainable<any>
       loginToCms(): Chainable<any>
-      preemptivelyAttachCookies(): Chainable<any>
       fullLogin(): Chainable<any>
       clearCaseTracker(urn: string, caseId: string): Chainable<any>
       getADTokens(): Chainable<ADTokens>
@@ -24,6 +23,7 @@ declare global {
         Authorization: string
         credentials: "include"
       }>
+      getCmsCookieString(): Chainable<string>
       setPolarisInstrumentationGuid(
         correlationId: CorrelationId
       ): Chainable<AUTWindow>
@@ -67,6 +67,27 @@ const {
 
 const AUTOMATION_LANDING_PAGE_PATH =
   "/polaris-ui/?automation-test-first-visit=true"
+
+Cypress.Commands.add("getCmsCookieString", () => {
+  cy.request({
+    followRedirect: false,
+    method: "POST",
+    url: CMS_LOGIN_PAGE_URL,
+    form: true,
+    body: {
+      username: CMS_USERNAME,
+      password: CMS_PASSWORD,
+    },
+  })
+    .getCookies()
+    .then((cookies) => {
+      var result = cookies.reduce(
+        (acc, curr) => `${acc}${curr.name}=${curr.value}; `,
+        ""
+      )
+      return cy.clearAllCookies().then(() => result)
+    })
+})
 
 Cypress.Commands.add(
   "getADTokens",
@@ -128,23 +149,18 @@ Cypress.Commands.add(
 )
 
 Cypress.Commands.add("loginToAD", () => {
-  // Intermittent failures have been observed on the first UI test of the day
-  //  whereby the very first UI interaction (this login process visit to the UI)
-  //  times out.  A working assumption is that the UI deployment is not warmed up
-  //  and so may take longer than the default 60 seconds to respond.  So rather than
-  //  increase the default timeout for all UI tests, we'll just increase the timeout
-  //  for this one type of visit (which will always be the first in any UI test run).
-  const timeoutMs = 2 * 60 * 1000
-
-  return cy
-    .visit(AUTOMATION_LANDING_PAGE_PATH, { timeout: timeoutMs })
-    .getADTokens()
-    .then((response) => {
-      injectTokens(response)
-    })
-    .reload()
-    .visit("/polaris-ui")
-    .contains(AD_USERNAME)
+  cy.session(
+    `aad-${AD_USERNAME}`,
+    () => {
+      return loginViaAD(AD_USERNAME, AD_PASSWORD)
+    },
+    {
+      validate() {
+        cy.visit("/polaris-ui").contains(AD_USERNAME)
+      },
+      cacheAcrossSpecs: true,
+    }
+  )
 })
 
 Cypress.Commands.add("loginToCms", () => {
@@ -194,15 +210,12 @@ Cypress.Commands.add("loginToCms", () => {
   }
 })
 
-Cypress.Commands.add("preemptivelyAttachCookies", () => {
+Cypress.Commands.add("fullLogin", () => {
+  cy.loginToAD().loginToCms()
   cy.visit(
     COOKIE_REDIRECT_URL +
       encodeURIComponent(Cypress.config().baseUrl + "/polaris-ui?auth-refresh")
   )
-})
-
-Cypress.Commands.add("fullLogin", () => {
-  cy.loginToAD().loginToCms().preemptivelyAttachCookies()
 })
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {

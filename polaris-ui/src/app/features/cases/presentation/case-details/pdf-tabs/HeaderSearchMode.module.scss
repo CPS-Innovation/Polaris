@@ -1,18 +1,17 @@
 .content {
   background-color: #1d70b8; //map-get($govuk-colours, "blue");
-  height: 50px;
+  height: 3.125rem;
   color: white !important;
   font-size: 1rem !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-}
-
-.content a {
-  color: white;
-}
-
-.heavyText {
-  font-weight: 700;
+  padding: 0 1.25rem;
+  .heavyText {
+    font-weight: 700;
+  }
+  .backToSearchBtn {
+    color: #fff;
+    font-size: 1rem;
+  }
 }

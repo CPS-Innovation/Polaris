@@ -1,5 +1,6 @@
 using Common.Dto.Case;
 using Common.Dto.Document;
+using Ddei.Domain;
 using Ddei.Domain.CaseData.Args;
 
 namespace DdeiClient.Services.Contracts
@@ -7,6 +8,7 @@ namespace DdeiClient.Services.Contracts
     public interface IDdeiClient
     {
         Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg);
+        Task<DdeiCaseIdentifiersDto> GetUrnFromCaseId(DdeiCmsCaseIdArgDto arg);
         Task<IEnumerable<CaseDto>> ListCases(DdeiCmsUrnArgDto arg);
         Task<CaseDto> GetCase(DdeiCmsCaseArgDto arg);
         Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId);

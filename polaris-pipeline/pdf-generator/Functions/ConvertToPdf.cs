@@ -7,8 +7,10 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
+using Common.Extensions;
 using Common.Logging;
 using Common.Telemetry.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -23,16 +25,19 @@ namespace pdf_generator.Functions
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
         private readonly ILogger<ConvertToPdf> _log;
         private readonly ITelemetryClient _telemetryClient;
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         const string loggingName = nameof(ConvertToPdf);
 
         public ConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
              ILogger<ConvertToPdf> logger,
-             ITelemetryClient telemetryClient)
+             ITelemetryClient telemetryClient,
+             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _pdfOrchestratorService = pdfOrchestratorService;
             _log = logger;
             _telemetryClient = telemetryClient;
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         [FunctionName(nameof(ConvertToPdf))]
@@ -42,14 +47,9 @@ namespace pdf_generator.Functions
 
             try
             {
-                #region Validate-Inputs
-                request.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
-                if (correlationIdValues == null)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(request));
-
-                var correlationId = correlationIdValues.First();
-                if (!Guid.TryParse(correlationId, out currentCorrelationId) || currentCorrelationId == Guid.Empty)
-                    throw new BadRequestException("Invalid correlationId. A valid GUID is required.", correlationId);
+                #region Validate-Inputs        
+                currentCorrelationId = request.Headers.GetCorrelationId();
+                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
@@ -89,13 +89,15 @@ namespace pdf_generator.Functions
                 var versionId = versionIds.First();
                 if (string.IsNullOrEmpty(versionId))
                     throw new BadRequestException("Invalid VersionId", versionId);
-
-
                 #endregion
 
                 var startTime = DateTime.UtcNow;
+
                 var inputStream = await request.Content.ReadAsStreamAsync();
+                var originalBytes = inputStream.Length;
+
                 var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
+                var bytes = pdfStream.Length;
 
                 _telemetryClient.TrackEvent(new ConvertedDocumentEvent(
                     correlationId: currentCorrelationId,
@@ -103,7 +105,8 @@ namespace pdf_generator.Functions
                     documentId: documentId,
                     versionId: versionId,
                     fileType: filetype.ToString(),
-                    bytes: pdfStream.Length,
+                    originalBytes: originalBytes,
+                    bytes: bytes,
                     startTime: startTime,
                     endTime: DateTime.UtcNow
                 ));

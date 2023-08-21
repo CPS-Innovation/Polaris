@@ -92,3 +92,11 @@ variable "app_service_log_retention" {
 variable "app_service_log_total_retention" {
   type = number
 }
+
+
+variable "private_beta" {
+  type = object({
+    sign_up_url = string
+    user_group = string 
+  })
+}

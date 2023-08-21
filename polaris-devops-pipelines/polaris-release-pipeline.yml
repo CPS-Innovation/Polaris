@@ -145,6 +145,11 @@ stages:
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
                   }
+                  if ($name -like 'polaris-e2e/*')
+                  {
+                    echo "DEV: changes to the e2e tests detected make sure they are run..."
+                    Write-Host "##vso[task.setvariable variable=RUN_E2E_TESTS_DEV;isOutput=true]true"
+                  }
                 }
 
                 $files = $(git diff --name-only --relative --diff-filter AMRD qa HEAD)
@@ -256,6 +261,11 @@ stages:
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
                   }
+                  if ($name -like 'polaris-e2e/*')
+                  {
+                    echo "QA: changes to the e2e tests detected make sure they are run..."
+                    Write-Host "##vso[task.setvariable variable=RUN_E2E_TESTS_QA;isOutput=true]true"
+                  }
                 }
 
                 $files = $(git diff --name-only --relative --diff-filter AMRD prod HEAD)
@@ -366,6 +376,11 @@ stages:
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
+                  }
+                  if ($name -like 'polaris-e2e/*')
+                  {
+                    echo "PROD: changes to the e2e tests detected make sure they are run..."
+                    Write-Host "##vso[task.setvariable variable=RUN_E2E_TESTS_PROD;isOutput=true]true"
                   }
                 }
             name: Change_Results
@@ -982,6 +997,7 @@ stages:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_DEV']]
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_DEV']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_DEV']]
+      runE2ETests: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_E2E_TESTS_DEV']]
     jobs:
       - job: Run_e2e_Tests_DEV
         pool:
@@ -989,7 +1005,7 @@ stages:
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: DEV'
-            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
+            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true'))
             inputs:
               buildDefinition: 129
               waitForQueuedBuildsToFinish: true
@@ -1610,6 +1626,7 @@ stages:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_QA']]
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_QA']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
+      runE2ETests: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_E2E_TESTS_QA']]
     jobs:
       - job: Run_e2e_Tests_QA
         pool:
@@ -1617,7 +1634,7 @@ stages:
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: QA'
-            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
+            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true'))
             inputs:
               buildDefinition: 210
               waitForQueuedBuildsToFinish: true
@@ -2238,6 +2255,7 @@ stages:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_PROD']]
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_PROD']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
+      runE2ETests: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_E2E_TESTS_PROD']]
     jobs:
       - job: Run_e2e_Tests_PROD
         pool:
@@ -2245,7 +2263,7 @@ stages:
         steps:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: PROD'
-            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'))
+            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true'))
             inputs:
               buildDefinition: 240
               waitForQueuedBuildsToFinish: true

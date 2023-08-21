@@ -633,11 +633,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
     return (
       <div onPointerDown={this.onMouseDown}>
-        <div
-          ref={this.attachRef}
-          className="PdfHighlighter"
-          onContextMenu={(e) => e.preventDefault()}
-        >
+        <div ref={this.attachRef} className="PdfHighlighter">
           <div className="pdfViewer" />
           {this.renderTip()}
           {typeof enableAreaSelection === "function" ? (

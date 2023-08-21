@@ -6,8 +6,10 @@ namespace Common.Telemetry
 {
     public class TelemetryClient : ITelemetryClient
     {
-        public static string telemetryVersion = nameof(telemetryVersion);
-        public static string Version = "0.0";
+        public const string telemetryVersion = nameof(telemetryVersion);
+
+        public const string Version = "0.1";
+
         protected readonly AppInsights.TelemetryClient _telemetryClient;
 
         public TelemetryClient(AppInsights.TelemetryClient telemetryClient)

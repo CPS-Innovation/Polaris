@@ -29,6 +29,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_REAUTH_REDIRECT_URL"            = "/polaris?polaris-ui-url="
     "REACT_APP_AI_KEY"                         = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_SURVEY_LINK"                    = "https://www.smartsurvey.co.uk/s/DG5B6G/"
+    "REACT_APP_PRIVATE_BETA_USER_GROUP"        = var.private_beta.user_group
+    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"       = var.private_beta.sign_up_url
   }
 
   site_config {

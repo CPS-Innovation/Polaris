@@ -56,7 +56,8 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
                 .ReturnsAsync(_blobStream);
 
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
-            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterUserName(It.IsAny<string>()));
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterCorrelationId(It.IsAny<Guid>()));
 
             _polarisPipelineGetPdf = new PolarisPipelineGetDocument(_mockPipelineClient.Object, mockLogger.Object, _mockTokenValidator.Object, _mockTelemetryAugmentationWrapper.Object);
         }

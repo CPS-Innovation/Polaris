@@ -4,15 +4,15 @@
   align-items: center;
   position: absolute;
   bottom: 0;
-  height: 70px;
+  height: 4.375rem;
   background: white;
   width: 100%;
-  border-top: 4px solid #b1b4b6;
+  border-top: 0.25rem solid #b1b4b6;
   z-index: 4;
 }
 
 .removeButton {
-  margin: 0 20px;
+  margin: 0 1.25rem;
 }
 
 .summary {
@@ -20,5 +20,5 @@
 }
 
 .saveButton {
-  margin: 0 20px !important;
+  margin: 0 1.25rem !important;
 }

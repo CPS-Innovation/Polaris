@@ -11,6 +11,8 @@ using Common.Services.DocumentEvaluation.Contracts;
 using Common.Services.Extensions;
 using Common.Telemetry;
 using Common.Telemetry.Contracts;
+using Common.Telemetry.Wrappers;
+using Common.Telemetry.Wrappers.Contracts;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -31,11 +33,11 @@ namespace pdf_generator
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
             services.AddPdfGenerator();
-            services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
+            /* services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();*/
 
             BuildHealthChecks(services);
         }

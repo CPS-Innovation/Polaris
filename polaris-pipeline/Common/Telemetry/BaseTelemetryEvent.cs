@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Common.Telemetry
 {
@@ -11,7 +12,7 @@ namespace Common.Telemetry
         {
             get
             {
-                return this.GetType().Name;
+                return GetType().Name;
             }
         }
         abstract public (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps();
@@ -19,6 +20,18 @@ namespace Common.Telemetry
         public static double GetDurationSeconds(DateTime startTime, DateTime endTime)
         {
             return (double)(endTime - startTime).TotalSeconds;
+        }
+
+        public static string EnsureNumericId(string documentId)
+        {
+            return Regex.Match(
+                // let's cope with nulls, this is logging logic, not business
+                documentId ?? string.Empty,
+                @"\d+",
+                RegexOptions.None,
+                // avoid DOS attacks, keep code scanning happy
+                TimeSpan.FromMilliseconds(100)
+            ).Value;
         }
     }
 }

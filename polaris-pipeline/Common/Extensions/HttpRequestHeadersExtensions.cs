@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using Common.Constants;
 using Common.Domain.Exceptions;
-using Newtonsoft.Json;
 
 namespace Common.Extensions
 {
@@ -12,7 +10,7 @@ namespace Common.Extensions
     {
         public static Guid GetCorrelationId(this HttpRequestHeaders headers)
         {
-            Guid currentCorrelationId = default;
+            Guid currentCorrelationId;
 
             headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)

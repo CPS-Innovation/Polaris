@@ -6,4 +6,8 @@
 azurite
 /polaris-terraform/.vs
 .cache_ggshield
+/ddei-mock/urns
+/ddei-mock/bin/Debug/net6.0
+/ddei-mock/obj
+.cache_ggshield
 /polaris-pipeline/coordinator/Properties
