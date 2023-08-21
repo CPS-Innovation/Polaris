@@ -6,6 +6,7 @@
     </PropertyGroup>
     <ItemGroup>
 		<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
