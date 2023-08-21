@@ -17,6 +17,8 @@ variables:
   - group: polaris-vpn
   - name: networkingTerraformWorkingDir
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
+  - name: templatesWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-devops-pipelines/templates"
   
 stages:
   - stage: Validate_Networking_Terraform
