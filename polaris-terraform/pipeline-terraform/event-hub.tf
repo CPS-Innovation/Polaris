@@ -40,13 +40,3 @@ resource "azurerm_private_endpoint" "pipeline_eh_namespace_pe" {
     subresource_names              = ["namespace"]
   }
 }
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_eh_namespace_dns_a" {
-  name                = azurerm_eventhub_namespace.polaris-eh-namespace.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_event_hub_namespace.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_eh_namespace_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
