@@ -34,6 +34,11 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: NetworkingBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+                  
                 #create vpn tunnel
                 - bash: |
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
@@ -125,6 +130,11 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: NetworkingBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+                  
                 #create vpn tunnel
                 - bash: |
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
@@ -211,6 +221,11 @@ stages:
           runOnce:
             deploy:
               steps:
+                #download templates artifact
+                - download: NetworkingBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+                  
                 #create vpn tunnel
                 - bash: |
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
