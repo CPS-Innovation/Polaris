@@ -55,7 +55,7 @@ stages:
                     nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
 
                     sudo cat /etc/resolv.conf
-                  workingDirectory: $(templatesWorkingDir)
+                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/polaris-template-files
                   env:
                     PRESHAREDKEY: $(dev_pre-shared_key)
                     PRIVATEKEY: $(dev_private_key)
@@ -140,7 +140,7 @@ stages:
 
                     sudo rm /etc/resolv.conf
                     echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/polaris-template-files
                   env:
                     PRESHAREDKEY: $(qa_pre-shared_key)
                     PRIVATEKEY: $(qa_private_key)
@@ -226,7 +226,7 @@ stages:
 
                     sudo rm /etc/resolv.conf
                     echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/polaris-template-files
                   env:
                     PRESHAREDKEY: $(prod_pre-shared_key)
                     PRIVATEKEY: $(prod_private_key)
