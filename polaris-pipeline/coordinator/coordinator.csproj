@@ -2,62 +2,45 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <RootNamespace>coordinator</RootNamespace>
-    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+	  <RootNamespace>coordinator</RootNamespace>
+	  <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<WarningLevel>4</WarningLevel>
+		<DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
+	</PropertyGroup>	
   <ItemGroup>
-    <Compile Remove="Domain\Tracker\**" />
-    <EmbeddedResource Remove="Domain\Tracker\**" />
-    <None Remove="Domain\Tracker\**" />
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.18.0" />
     <PackageReference Include="Azure.Search.Documents" Version="11.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
-    <PackageReference Include="Mapster" Version="7.3.0" />
-    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.1.0" />
+    <PackageReference Include="Azure.Storage.Queues" Version="12.11.1" />
+	<PackageReference Include="Mapster" Version="7.3.0" />
+	<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
+	<PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
+	<PackageReference Include="Microsoft.Azure.DurableTask.Netherite.AzureFunctions" Version="1.4.0" />
+	<PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.10.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.32.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
-    <PackageReference Include="Azure.Identity" Version="1.9.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+	<PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.32.1" />
+	<PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
+	<PackageReference Include="Azure.Identity" Version="1.9.0" />
+	<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Functions\SubOrchestrators\" />
-    <None Remove="Domain\Requests\" />
-    <None Remove="Domain\Responses\" />
-    <None Remove="Domain\Tracker\" />
-    <None Remove="Clients\" />
-    <None Remove="GraphQL.Client" />
-    <None Remove="Factories\" />
-    <None Remove="Domain\Exceptions\" />
-    <None Remove="Handlers\" />
-    <None Remove="GraphQL.Client.Serializer.Newtonsoft" />
-    <None Remove="Functions\ActivityFunctions\" />
-    <None Remove="Domain\DocumentExtraction\" />
-    <None Remove="Azure.Identity" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="local.settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Factories\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\polaris-gateway\polaris-gateway.common\polaris-gateway.common.csproj" />
-    <ProjectReference Include="..\Common\Common.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
 </Project>

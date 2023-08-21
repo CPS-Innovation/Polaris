@@ -1,14 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Azure.Storage.Blobs;
-using Common.Constants;
+using Common.Configuration;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
 using Common.Handlers.Contracts;
 using Common.Health;
-using Common.Services.BlobStorageService;
-using Common.Services.BlobStorageService.Contracts;
 using Common.Services.DocumentEvaluation;
 using Common.Services.DocumentEvaluation.Contracts;
 using Common.Services.Extensions;
@@ -16,10 +13,8 @@ using Common.Telemetry;
 using Common.Telemetry.Contracts;
 using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using pdf_generator.Services.DocumentRedactionService;
 using pdf_generator.Services.Extensions;
 
@@ -27,39 +22,32 @@ using pdf_generator.Services.Extensions;
 namespace pdf_generator
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : FunctionsStartup
+    internal class Startup : BaseDependencyInjectionStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-#if DEBUG
-                .SetBasePath(Directory.GetCurrentDirectory())
-#endif
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .Build();
+            var services = builder.Services;
 
-            builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddBlobStorageWithDefaultAzureCredential(Configuration);
+            services.AddPdfGenerator();
+            services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
+            services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
+            services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
-            builder.Services.AddPdfGenerator();
-
-            builder.Services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
-            builder.Services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
-            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
-            BuildHealthChecks(builder);
+            BuildHealthChecks(services);
         }
 
         /// <summary>
         /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
         /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
         /// </summary>
-        /// <param name="builder"></param>
-        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        /// <param name="services"></param>
+        private static void BuildHealthChecks(IServiceCollection services)
         {
-            builder.Services.AddHealthChecks()
+            services.AddHealthChecks()
                  .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
                  .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client");
         }

@@ -28,13 +28,14 @@ using System.Net.Http.Headers;
 using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Common.Configuration;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
 namespace PolarisGateway
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : FunctionsStartup
+    internal class Startup : BaseDependencyInjectionStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
@@ -42,17 +43,11 @@ namespace PolarisGateway
             // https://stackoverflow.com/questions/54435551/invalidoperationexception-idx20803-unable-to-obtain-configuration-from-pii
             IdentityModelEventSource.ShowPII = true;
 #endif
+            var services = builder.Services;
 
-            var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-#if DEBUG
-                .SetBasePath(Directory.GetCurrentDirectory())
-#endif
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .Build();
-            builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            builder.Services.AddSingleton(_ =>
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            services.AddSingleton(_ =>
             {
                 // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
                 return new ConfigurationManager<OpenIdConnectConfiguration>(
@@ -60,43 +55,42 @@ namespace PolarisGateway
                     new OpenIdConnectConfigurationRetriever(),
                     new HttpDocumentRetriever());
             });
-            builder.Services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
-            builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
-            builder.Services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
-            builder.Services.AddTransient<IPipelineClient, PipelineClient>();
+            services.AddTransient<IAuthorizationValidator, AuthorizationValidator>();
+            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddTransient<ITriggerCoordinatorResponseFactory, TriggerCoordinatorResponseFactory>();
+            services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
+            services.AddTransient<IPipelineClient, PipelineClient>();
 
-            var pipelineCoordinatorBaseUrl = GetValueFromConfig(configuration, PipelineSettings.PipelineCoordinatorBaseUrl);
+            var pipelineCoordinatorBaseUrl = GetValueFromConfig(Configuration, PipelineSettings.PipelineCoordinatorBaseUrl);
             var pipelineCoordinatorLowlevelBaseUrl = pipelineCoordinatorBaseUrl.Replace("/api", string.Empty);
-            builder.Services.AddHttpClient(nameof(PipelineClient), client =>
+            services.AddHttpClient(nameof(PipelineClient), client =>
             {
                 client.BaseAddress = new Uri(pipelineCoordinatorBaseUrl);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            builder.Services.AddHttpClient($"Lowlevel{nameof(PipelineClient)}", client =>
+            services.AddHttpClient($"Lowlevel{nameof(PipelineClient)}", client =>
             {
                 client.BaseAddress = new Uri(pipelineCoordinatorLowlevelBaseUrl);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
 
-            builder.Services.AddDdeiClient(configuration);
-            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
+            services.AddDdeiClient(Configuration);
+            services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
 
-            BuildHealthChecks(builder);
-
+            BuildHealthChecks(services);
         }
 
         // see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
         // Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
-        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        private static void BuildHealthChecks(IServiceCollection services)
         {
-            builder.Services.AddHttpClient();
+            services.AddHttpClient();
 
             var pipelineCoordinator = "pipelineCoordinator";
             Uri uri = new Uri(Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl"));
-            builder.Services.AddHttpClient(pipelineCoordinator, client =>
+            services.AddHttpClient(pipelineCoordinator, client =>
             {
                 string url = Environment.GetEnvironmentVariable("PolarisPipelineCoordinatorBaseUrl");
                 client.BaseAddress = new Uri(url.GetBaseUrl());
@@ -105,7 +99,7 @@ namespace PolarisGateway
             });
 
             var pdfFunctions = "pdfFunctions";
-            builder.Services.AddHttpClient(pdfFunctions, client =>
+            services.AddHttpClient(pdfFunctions, client =>
             {
                 string url = Environment.GetEnvironmentVariable("PolarisPipelineRedactPdfBaseUrl");
                 client.BaseAddress = new Uri(url.GetBaseUrl());
@@ -114,7 +108,7 @@ namespace PolarisGateway
             });
 
             var ddeiClient = "ddeiClient";
-            builder.Services.AddHealthChecks()
+            services.AddHealthChecks()
                 .AddCheck<DdeiClientHealthCheck>(ddeiClient)
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Pipeline co-ordinator", args: new object[] { pipelineCoordinator });
         }

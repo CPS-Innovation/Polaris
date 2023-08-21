@@ -32,6 +32,11 @@ namespace Common.Configuration
         public const string ConvertToPdf = "convert-to-pdf";
         public const string RedactPdf = "redact-pdf";
 
+#if SCALABILITY_TEST
+        public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";
+        public const string ScalabilityTestTracker = "cases/{caseId}/scalability-test/tracker";
+#endif
+
         public static string GetCasePath(string caseUrn, long caseId)
         {
             var url = $"urns/{caseUrn}/cases/{caseId}";
