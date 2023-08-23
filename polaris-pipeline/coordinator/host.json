@@ -3,13 +3,13 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Warning",
+      "default": "Information",
       "Function": "Information",
-      "Host.Aggregator": "Error",
+      "Host.Aggregator": "Information",
       "Host.Results": "Information",
-      "Host.Triggers.DurableTask": "Warning",
-      "DurableTask.AzureStorage": "Warning",
-      "DurableTask.Core": "Warning"
+      "Host.Triggers.DurableTask": "Information",
+      "DurableTask.AzureStorage": "Information",
+      "DurableTask.Core": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
@@ -29,27 +29,13 @@
   },
   "extensions": {
     "durableTask": {
-
-      // The task hub name can be set explicitly
-      "hubName": "polaris-netherite-taskhub",
-
-      // set this to true to reduce likelihood of duplicated work items   
-      "UseGracefulShutdown": "true",
-
-      // tweak these for performance tuning (work the same for all backends)
-      "maxConcurrentActivityFunctions": "100",
-      "maxConcurrentOrchestratorFunctions": "100",
-
-      "storageProvider": {
-
-        "type": "Netherite",
-
-        // the number of partitions to use. Cannot be changed after task hub is created.
-        "PartitionCount": "12",
-
-        // where to look for the connection strings
-        "StorageConnectionName": "AzureWebJobsStorage",
-        "EventHubsConnectionName": "EventHubsConnection"
+      "maxConcurrentActivityFunctions": 10,
+      "maxConcurrentOrchestratorFunctions": 10,
+      "tracing": {
+        "traceInputsAndOutputs": false,
+        "traceReplayEvents": false,
+        "distributedTracingEnabled": true,
+        "distributedTracingProtocol": "W3CTraceContext"
       }
     }
   }
