@@ -3,13 +3,13 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Trace",
-      "Function": "Trace",
-      "Host.Aggregator": "Trace",
-      "Host.Results": "Trace",
-      "Host.Triggers.DurableTask": "Trace",
-      "DurableTask.AzureStorage": "Trace",
-      "DurableTask.Core": "Trace"
+      "default": "Information",
+      "Function": "Information",
+      "Host.Aggregator": "Information",
+      "Host.Results": "Information",
+      "Host.Triggers.DurableTask": "Information",
+      "DurableTask.AzureStorage": "Information",
+      "DurableTask.Core": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
