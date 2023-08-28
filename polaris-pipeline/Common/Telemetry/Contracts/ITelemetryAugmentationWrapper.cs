@@ -6,5 +6,8 @@ namespace Common.Telemetry.Wrappers.Contracts
     {
         void RegisterUserName(string userName);
         void RegisterCorrelationId(Guid correlationId);
+        void RegisterCmsUserId(long cmsUserId);
+        void RegisterDocumentId(string documentId);
+        void RegisterDocumentVersionId(string documentIdVersionId);
     }
 }

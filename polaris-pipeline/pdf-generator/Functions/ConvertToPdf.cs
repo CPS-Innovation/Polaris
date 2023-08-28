@@ -82,6 +82,7 @@ namespace pdf_generator.Functions
                 var documentId = documentIds.First();
                 if (string.IsNullOrEmpty(documentId))
                     throw new BadRequestException("Invalid DocumentId", documentId);
+                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
 
                 request.Headers.TryGetValues(HttpHeaderKeys.VersionId, out var versionIds);
                 if (versionIds == null)
@@ -89,6 +90,7 @@ namespace pdf_generator.Functions
                 var versionId = versionIds.First();
                 if (string.IsNullOrEmpty(versionId))
                     throw new BadRequestException("Invalid VersionId", versionId);
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 #endregion
 
                 var startTime = DateTime.UtcNow;
