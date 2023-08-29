@@ -73,6 +73,9 @@ namespace text_extractor.Functions
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
+                _telemetryAugmentationWrapper.RegisterDocumentId(extractTextRequest.DocumentId);
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(extractTextRequest.VersionId.ToString());
+
                 #endregion
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");

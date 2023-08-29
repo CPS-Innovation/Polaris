@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Extensions;
 using Ddei.Domain.CaseData.Args;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using DdeiClient.Services.Contracts;
 using Common.Configuration;
 using Common.Wrappers.Contracts;
 using Common.Domain.Extensions;
+using Common.Telemetry.Wrappers.Contracts;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
@@ -27,21 +29,26 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         };
 
         private readonly IDdeiClient _ddeiClient;
-
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
-        public InitiateCookies(IDdeiClient ddeiClient, IJsonConvertWrapper jsonConvertWrapper)
+        public InitiateCookies(
+            IDdeiClient ddeiClient,
+            IJsonConvertWrapper jsonConvertWrapper,
+            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _ddeiClient = ddeiClient;
             _jsonConvertWrapper = jsonConvertWrapper;
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         [FunctionName(nameof(InitiateCookies))]
         public async Task<IActionResult> Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req)
         {
+            _telemetryAugmentationWrapper.RegisterClientIp(req.GetClientIpAddress());
             var currentCorrelationId = Guid.NewGuid();
-
+            _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
             try
             {
                 return DetectAuthFlowMode(req) switch
@@ -89,6 +96,8 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             {
                 return null;
             }
+            _telemetryAugmentationWrapper.RegisterCmsUserId(whitelistedCookies.ExtractCmsUserId());
+            _telemetryAugmentationWrapper.RegisterLoadBalancingCookie(whitelistedCookies.ExtractLoadBalancerCookie());
 
             var cmsModernToken = await GetCmsModernToken(whitelistedCookies, correlationId);
             if (cmsModernToken == null)
@@ -96,9 +105,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 return null;
             }
 
-            var polarisAuthCookieContent = CreateAndAppendPolarisAuthCookie(req, whitelistedCookies, cmsModernToken);
-
-            return polarisAuthCookieContent;
+            return CreateAndAppendPolarisAuthCookie(req, whitelistedCookies, cmsModernToken);
         }
 
         private static string ExtractWhitelistedCookies(HttpRequest req)

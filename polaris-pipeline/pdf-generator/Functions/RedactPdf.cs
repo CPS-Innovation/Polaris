@@ -73,6 +73,9 @@ namespace pdf_generator.Functions
                 #endregion
 
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
+                _telemetryAugmentationWrapper.RegisterDocumentId(redactions.PolarisDocumentId.ToString());
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(redactions.VersionId.ToString());
+
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
