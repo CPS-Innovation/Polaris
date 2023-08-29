@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 
 namespace Common.Extensions
@@ -6,7 +7,7 @@ namespace Common.Extensions
   {
     public static long ExtractCmsUserId(this string cookieString)
     {
-      var pattern = new Regex(@$"UID=(?<uid>-?\d+);");
+      var pattern = new Regex(@$"UID=(?<uid>-?\d+);", RegexOptions.None, TimeSpan.FromMilliseconds(100));
       var match = pattern.Match(cookieString);
       if (!long.TryParse(match.Groups["uid"].Value, out var cmsUserId))
       {
@@ -25,7 +26,7 @@ namespace Common.Extensions
         return string.Empty;
       }
 
-      var pattern = new Regex(@$"(BIGipServer[^;]*)(;|$)");
+      var pattern = new Regex(@$"(BIGipServer[^;]*)(;|$)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
       var match = pattern.Match(cookieString);
       return match.Groups[1].Value;
     }
