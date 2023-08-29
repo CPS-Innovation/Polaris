@@ -19,7 +19,6 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
     public class InitiateCookies
     {
-        private const string XForwardedForHeaderName = "X-Forwarded-For";
         private static readonly string[] WhitelistedCookieNameRoots = new[] {
           "ASP.NET_SessionId",
           "UID",
@@ -47,7 +46,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         public async Task<IActionResult> Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req)
         {
-            _telemetryAugmentationWrapper.RegisterClientIp(GetClientIpAddress(req));
+            _telemetryAugmentationWrapper.RegisterClientIp(req.GetClientIpAddress());
             var currentCorrelationId = Guid.NewGuid();
             _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
             try
@@ -220,11 +219,6 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             {
                 return null;
             }
-        }
-
-        private string GetClientIpAddress(HttpRequest req)
-        {
-            return req.Headers[XForwardedForHeaderName].FirstOrDefault();
         }
 
         private class CMSParamObject
