@@ -24,11 +24,13 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip                   = "10.2.177.14"
-  upstream_cms_modern_ip            = "10.2.177.55"
-  upstream_cms_domain_name          = "cin3.cps.gov.uk"
-  upstream_cms_modern_domain_name   = "cmsmodcin3.cps.gov.uk"
-  upstream_cms_services_domain_name = "not-used-in-cin3.cps.gov.uk"
+  upstream_cms_ip_corsham             = "10.2.177.14"
+  upstream_cms_modern_ip_corsham      = "10.2.177.55"
+  upstream_cms_ip_farnborough         = "10.3.177.14" // for non-prod environments, not 100% sure this is the correct IP
+  upstream_cms_modern_ip_farnborough  = "10.3.177.55" // for non-prod environments, not 100% sure this is the correct IP
+  upstream_cms_domain_name            = "cin3.cps.gov.uk"
+  upstream_cms_modern_domain_name     = "cmsmodcin3.cps.gov.uk"
+  upstream_cms_services_domain_name   = "not-used-in-cin3.cps.gov.uk"
 
 }
 
