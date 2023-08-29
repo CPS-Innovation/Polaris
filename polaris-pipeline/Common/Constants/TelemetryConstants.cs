@@ -8,5 +8,7 @@ namespace Common.Constants
         public const string CmsUserIdCustomDimensionName = "CmsUserId";
         public const string DocumentIdCustomDimensionName = "DocumentId";
         public const string DocumentVersionIdCustomDimensionName = "DocumentVersionId";
+        public const string ClientIpUnredacted = "ClientIPUnredacted";
+        public const string LoadBalancingCookie = "LoadBalancingCookie";
     }
 }

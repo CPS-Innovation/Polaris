@@ -17,5 +17,17 @@ namespace Common.Extensions
       };
       return cmsUserId;
     }
+
+    public static string ExtractLoadBalancerCookie(this string cookieString)
+    {
+      if (string.IsNullOrWhiteSpace(cookieString))
+      {
+        return string.Empty;
+      }
+
+      var pattern = new Regex(@$"(BIGipServer[^;]*)(;|$)");
+      var match = pattern.Match(cookieString);
+      return match.Groups[1].Value;
+    }
   }
 }

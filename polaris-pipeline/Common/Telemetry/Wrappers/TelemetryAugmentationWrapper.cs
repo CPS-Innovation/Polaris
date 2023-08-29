@@ -33,6 +33,16 @@ namespace Common.Telemetry.Wrappers
             RegisterCustomDimension(TelemetryConstants.DocumentVersionIdCustomDimensionName, documentIdVersionId);
         }
 
+        public void RegisterClientIp(string clientIp)
+        {
+            RegisterCustomDimension(TelemetryConstants.ClientIpUnredacted, clientIp);
+        }
+
+        public void RegisterLoadBalancingCookie(string loadBalancingCookie)
+        {
+            RegisterCustomDimension(TelemetryConstants.LoadBalancingCookie, loadBalancingCookie);
+        }
+
         private void RegisterCustomDimension(string key, string value)
         {
             Activity activity = Activity.Current;
