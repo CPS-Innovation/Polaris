@@ -105,7 +105,7 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
-                telemetryEvent.OcrCompletedTime = DateTime.UtcNow;
+                telemetryEvent.IndexStoredTime = DateTime.UtcNow;
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
