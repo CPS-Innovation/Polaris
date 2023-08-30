@@ -7,9 +7,9 @@
       "Function": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
-      "Host.Triggers.DurableTask": "Warning",
-      "DurableTask.AzureStorage": "Warning",
-      "DurableTask.Core": "Warning"
+      "Host.Triggers.DurableTask": "Information",
+      "DurableTask.AzureStorage": "Information",
+      "DurableTask.Core": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
@@ -29,8 +29,8 @@
   },
   "extensions": {
     "durableTask": {
-      "maxConcurrentActivityFunctions": 30,
-      "maxConcurrentOrchestratorFunctions": 30,
+      "maxConcurrentActivityFunctions": 150,
+      "maxConcurrentOrchestratorFunctions": 150,
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false
