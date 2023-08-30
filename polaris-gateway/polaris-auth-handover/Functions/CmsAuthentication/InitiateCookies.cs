@@ -97,7 +97,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 return null;
             }
             _telemetryAugmentationWrapper.RegisterCmsUserId(whitelistedCookies.ExtractCmsUserId());
-            _telemetryAugmentationWrapper.RegisterLoadBalancingCookie(whitelistedCookies.ExtractLoadBalancerCookie());
+            _telemetryAugmentationWrapper.RegisterLoadBalancingCookie(whitelistedCookies.ExtractLoadBalancerCookies());
 
             var cmsModernToken = await GetCmsModernToken(whitelistedCookies, correlationId);
             if (cmsModernToken == null)

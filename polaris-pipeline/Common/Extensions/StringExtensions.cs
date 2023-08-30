@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Common.Extensions
@@ -19,16 +20,17 @@ namespace Common.Extensions
       return cmsUserId;
     }
 
-    public static string ExtractLoadBalancerCookie(this string cookieString)
+    public static string ExtractLoadBalancerCookies(this string cookieString)
     {
       if (string.IsNullOrWhiteSpace(cookieString))
       {
         return string.Empty;
       }
 
-      var pattern = new Regex(@$"(BIGipServer[^;]*)(;|$)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
-      var match = pattern.Match(cookieString);
-      return match.Groups[1].Value;
+      var pattern = new Regex(@$"(BIGipServer[^;]*)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
+      var matches = pattern.Matches(cookieString);
+      var cookies = matches.ToList().Select(m => m.Value);
+      return string.Join("; ", cookies);
     }
   }
 }
