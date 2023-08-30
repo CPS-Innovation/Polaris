@@ -210,7 +210,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                   displayName: Script > Set Log Analytics Archival Periods
-                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
@@ -610,7 +610,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                   displayName: Script > Set Log Analytics Archival Periods
-                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
@@ -1010,7 +1010,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                   displayName: Script > Set Log Analytics Archival Periods
-                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
+                  workingDirectory: $(Pipeline.Workspace)/PolarisManualUIOnlyTerraformBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
