@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using Common.Extensions;
 using Common.Logging;
 using Common.Validators.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -44,6 +45,7 @@ namespace PolarisGateway.Functions
 
                 // todo: only DDEI-bound requests need to have a cms auth values
                 result.CmsAuthValues = EstablishCmsAuthValues(req);
+                _telemetryAugmentationWrapper.RegisterCmsUserId(result.CmsAuthValues.ExtractCmsUserId());
             }
             catch (CorrelationException correlationException)
             {

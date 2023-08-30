@@ -3,19 +3,19 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Information",
+      "default": "Warning",
       "Function": "Information",
-      "Host.Aggregator": "Information",
+      "Host.Aggregator": "Error",
       "Host.Results": "Information",
-      "Host.Triggers.DurableTask": "Information",
-      "DurableTask.AzureStorage": "Information",
-      "DurableTask.Core": "Information"
+      "Host.Triggers.DurableTask": "Warning",
+      "DurableTask.AzureStorage": "Warning",
+      "DurableTask.Core": "Warning"
     },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,
         "maxTelemetryItemsPerSecond": 20,
-        "excludedTypes": "Request;Exception;CustomEvents"
+        "excludedTypes": "Request;Exception;Event"
       },
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,

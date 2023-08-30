@@ -5,6 +5,8 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ddei.Services.Extensions;
+using Common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry.Wrappers;
 using Common.Configuration;
 
 [assembly: FunctionsStartup(typeof(PolarisAuthHandover.Startup))]
@@ -22,6 +24,7 @@ namespace PolarisAuthHandover
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
             services.AddDdeiClient(Configuration);
+            services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
         }
     }
 }

@@ -11,6 +11,7 @@
         public const string VersionId = nameof(VersionId);
         public const string PolarisDocumentId = nameof(PolarisDocumentId);
         public const string BlobName = nameof(BlobName);
+        public const string XForwardedFor = "X-Forwarded-For";
     }
 
     public static class HttpHeaderValues
