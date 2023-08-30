@@ -44,13 +44,13 @@ namespace pdf_generator.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
-
+            ConvertedDocumentEvent telemetryEvent = default;
             try
             {
                 #region Validate-Inputs        
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
-
+                telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
                 _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
@@ -68,6 +68,7 @@ namespace pdf_generator.Functions
                     throw new BadRequestException("Null Filetype Value", filetypeValue);
                 if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
                     throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
+                telemetryEvent.FileType = filetype.ToString();
 
                 request.Headers.TryGetValues(HttpHeaderKeys.CaseId, out var caseIds);
                 if (caseIds == null)
@@ -75,6 +76,7 @@ namespace pdf_generator.Functions
                 var caseId = caseIds.First();
                 if (string.IsNullOrEmpty(caseId))
                     throw new BadRequestException("Invalid CaseId", caseId);
+                telemetryEvent.CaseId = caseId;
 
                 request.Headers.TryGetValues(HttpHeaderKeys.DocumentId, out var documentIds);
                 if (documentIds == null)
@@ -83,6 +85,7 @@ namespace pdf_generator.Functions
                 if (string.IsNullOrEmpty(documentId))
                     throw new BadRequestException("Invalid DocumentId", documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
+                telemetryEvent.DocumentId = documentId;
 
                 request.Headers.TryGetValues(HttpHeaderKeys.VersionId, out var versionIds);
                 if (versionIds == null)
@@ -91,27 +94,24 @@ namespace pdf_generator.Functions
                 if (string.IsNullOrEmpty(versionId))
                     throw new BadRequestException("Invalid VersionId", versionId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
+                telemetryEvent.VersionId = versionId;
+
                 #endregion
 
                 var startTime = DateTime.UtcNow;
+                telemetryEvent.StartTime = startTime;
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var originalBytes = inputStream.Length;
+                telemetryEvent.OriginalBytes = originalBytes;
 
                 var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
                 var bytes = pdfStream.Length;
 
-                _telemetryClient.TrackEvent(new ConvertedDocumentEvent(
-                    correlationId: currentCorrelationId,
-                    caseId: caseId,
-                    documentId: documentId,
-                    versionId: versionId,
-                    fileType: filetype.ToString(),
-                    originalBytes: originalBytes,
-                    bytes: bytes,
-                    startTime: startTime,
-                    endTime: DateTime.UtcNow
-                ));
+                telemetryEvent.Bytes = bytes;
+                telemetryEvent.EndTime = DateTime.UtcNow;
+
+                _telemetryClient.TrackEvent(telemetryEvent);
 
                 pdfStream.Position = 0;
                 return new FileStreamResult(pdfStream, "application/pdf")
@@ -121,6 +121,8 @@ namespace pdf_generator.Functions
             }
             catch (Exception exception)
             {
+                _telemetryClient.TrackEventFailure(telemetryEvent);
+
                 return new ObjectResult(exception.ToString())
                 {
                     StatusCode = (int)HttpStatusCode.InternalServerError

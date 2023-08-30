@@ -135,38 +135,41 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         return orchestrationClient.CreateCheckStatusResponse(req, instanceId);
 
                     case "DELETE":
-                        var startTime = DateTime.UtcNow;
+                        var telemetryEvent = new DeletedCaseEvent(
+                                correlationId: currentCorrelationId,
+                                caseId: caseIdNum,
+                                startTime: DateTime.UtcNow
+                        );
+                        try
+                        {
+                            await _searchIndexService.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
+                            telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
 
-                        await _searchIndexService.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
-                        var removedCaseIndexTime = DateTime.UtcNow;
+                            await _searchIndexService.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
+                            telemetryEvent.IndexSettledTime = DateTime.UtcNow;
 
-                        await _searchIndexService.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
-                        var indexSettledTime = DateTime.UtcNow;
+                            var terminateConditions = GetOrchestrationQueries(terminateStatuses, caseId);
+                            var instanceIds = await TerminateOrchestrationsAndDurableEntities(orchestrationClient, terminateConditions, currentCorrelationId);
+                            telemetryEvent.TerminatedInstancesCount = instanceIds.Count;
+                            telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
 
-                        var terminateConditions = GetOrchestrationQueries(terminateStatuses, caseId);
-                        var instanceIds = await TerminateOrchestrationsAndDurableEntities(orchestrationClient, terminateConditions, currentCorrelationId);
-                        var gotTerminateInstancesTime = DateTime.UtcNow;
+                            await WaitForOrchestrationsToTerminateTask(orchestrationClient, instanceIds);
+                            telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
 
-                        await WaitForOrchestrationsToTerminateTask(orchestrationClient, instanceIds);
-                        var terminatedInstancesTime = DateTime.UtcNow;
+                            var purgeConditions = GetOrchestrationQueries(purgeStatuses, caseId);
+                            var success = await PurgeOrchestrationsAndDurableEntities(orchestrationClient, purgeConditions, currentCorrelationId);
+                            telemetryEvent.EndTime = DateTime.UtcNow;
 
-                        var purgeConditions = GetOrchestrationQueries(purgeStatuses, caseId);
-                        var success = await PurgeOrchestrationsAndDurableEntities(orchestrationClient, purgeConditions, currentCorrelationId);
-                        var purgedInstancesTime = DateTime.UtcNow;
+                            _telemetryClient.TrackEvent(telemetryEvent);
 
-                        _telemetryClient.TrackEvent(new DeletedCaseEvent(
-                            correlationId: currentCorrelationId,
-                            caseId: caseIdNum,
-                            startTime: startTime,
-                            removedCaseIndexTime: removedCaseIndexTime,
-                            indexSettledTime: indexSettledTime,
-                            gotTerminateInstancesTime: gotTerminateInstancesTime,
-                            terminatedInstancesTime: terminatedInstancesTime,
-                            endTime: purgedInstancesTime,
-                            terminatedInstancesCount: instanceIds.Count
-                        ));
+                            return new HttpResponseMessage(success ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
+                        }
+                        catch (Exception)
+                        {
+                            _telemetryClient.TrackEventFailure(telemetryEvent);
+                            throw;
+                        }
 
-                        return new HttpResponseMessage(success ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
 
                     case "PUT":
                         var content = await req.Content.ReadAsStringAsync();

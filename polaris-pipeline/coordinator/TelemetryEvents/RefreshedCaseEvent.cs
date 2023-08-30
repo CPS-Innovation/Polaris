@@ -6,33 +6,25 @@ namespace coordinator.TelemetryEvents
 {
     public class RefreshedCaseEvent : BaseTelemetryEvent
     {
-        private readonly Guid _correlationId;
-        private readonly long _caseId;
-        private readonly int? _versionId;
-        private readonly DateTime _startTime;
-        private readonly DateTime _endTime;
-        private readonly int _cmsDocsCount;
-        private readonly int _cmsDocsProcessedCount;
-        private readonly int _pcdRequestsProcessedCount;
+        public Guid CorrelationId;
+        public long CaseId;
+        public int? VersionId;
+        public DateTime StartTime;
+        public DateTime EndTime;
+        public int CmsDocsCount;
+        public int CmsDocsProcessedCount;
+        public int PcdRequestsProcessedCount;
 
         public RefreshedCaseEvent(
             Guid correlationId,
             long caseId,
             int? versionId,
-            DateTime startTime,
-            DateTime endTime,
-            int cmsDocsCount,
-            int cmsDocsProcessedCount,
-            int pcdRequestsProcessedCount)
+            DateTime startTime)
         {
-            _correlationId = correlationId;
-            _caseId = caseId;
-            _versionId = versionId;
-            _startTime = startTime;
-            _endTime = endTime;
-            _cmsDocsCount = cmsDocsCount;
-            _cmsDocsProcessedCount = cmsDocsProcessedCount;
-            _pcdRequestsProcessedCount = pcdRequestsProcessedCount;
+            CorrelationId = correlationId;
+            CaseId = caseId;
+            VersionId = versionId;
+            StartTime = startTime;
         }
 
         public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
@@ -40,18 +32,18 @@ namespace coordinator.TelemetryEvents
             return (
                 new Dictionary<string, string>
                 {
-                    { nameof(_correlationId), _correlationId.ToString() },
-                    { nameof(_caseId), _caseId.ToString() },
-                    { nameof(_versionId), _versionId.ToString() },
-                    { nameof(_startTime), _startTime.ToString("o") },
-                    { nameof(_endTime), _endTime.ToString("o") },
+                    { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseId), CaseId.ToString() },
+                    { nameof(VersionId), VersionId.ToString() },
+                    { nameof(StartTime), StartTime.ToString("o") },
+                    { nameof(EndTime), EndTime.ToString("o") },
                 },
                 new Dictionary<string, double>
                 {
-                    { durationSeconds, GetDurationSeconds( _startTime,_endTime) },
-                    { nameof(_cmsDocsCount), _cmsDocsCount },
-                    { nameof(_cmsDocsProcessedCount), _cmsDocsProcessedCount },
-                    { nameof(_pcdRequestsProcessedCount), _pcdRequestsProcessedCount },
+                    { durationSeconds, GetDurationSeconds( StartTime,EndTime) },
+                    { nameof(CmsDocsCount), CmsDocsCount },
+                    { nameof(CmsDocsProcessedCount), CmsDocsProcessedCount },
+                    { nameof(PcdRequestsProcessedCount), PcdRequestsProcessedCount },
                 }
             );
         }
