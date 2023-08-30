@@ -1,17 +1,21 @@
 trigger: none
-  
+
 pool:
   vmImage: ubuntu-latest
 
 schedules:
-  # run every 15 minutes between 7pm and 11:45pm
-  - cron: "*/15 19-23 * * *"
-    displayName: Cron schedule after work and before midnight
-    branches:
-      include:
-        - main
-    always: true
+  # Switch off pre-midnight runs for now, devs still working/releasing
+  #  and the e2e tests runs use up agents and otherwise confound releases
+
+  # # run every 15 minutes between 7pm and 11:45pm
+  # - cron: "*/15 19-23 * * *"
+  #   displayName: Cron schedule after work and before midnight
+  #   branches:
+  #     include:
+  #       - main
+  #   always: true
   # run every 15 minutes between midnight and 2:45pm
+
   - cron: "*/15 00-02 * * *"
     displayName: Cron schedule after midnight before 3am cleardown operations
     branches:
@@ -33,7 +37,7 @@ resources:
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
       ref: refs/tags/$(cypress_environment)
-      
+
 variables:
   - group: polaris-vpn
 
@@ -54,7 +58,7 @@ steps:
       command: "install"
       workingDir: "polaris-e2e"
     displayName: "npm install"
-    
+
   #create vpn tunnel
   - bash: |
       sudo apt-get --assume-yes --no-install-recommends install openvpn
