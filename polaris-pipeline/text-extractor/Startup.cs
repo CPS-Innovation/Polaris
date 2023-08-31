@@ -13,6 +13,14 @@ using System.IO;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Handlers;
+using Common.Factories.Contracts;
+using Common.Factories;
+using Common.Mappers.Contracts;
+using Common.Mappers;
+using Common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry.Wrappers;
+using Common.Telemetry.Contracts;
+using Common.Telemetry;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -48,6 +56,11 @@ namespace text_extractor
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
+            services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
+            services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
 
             BuildHealthChecks(services);
         }
