@@ -27,7 +27,7 @@ namespace coordinator.TelemetryEvents
             StartTime = startTime;
         }
 
-        public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
+        public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
         {
             return (
                 new Dictionary<string, string>
@@ -38,7 +38,7 @@ namespace coordinator.TelemetryEvents
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
                 },
-                new Dictionary<string, double>
+                new Dictionary<string, double?>
                 {
                     { durationSeconds, GetDurationSeconds( StartTime,EndTime) },
                     { nameof(CmsDocsCount), CmsDocsCount },
