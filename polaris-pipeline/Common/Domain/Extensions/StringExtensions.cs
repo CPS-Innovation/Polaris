@@ -18,5 +18,13 @@ namespace Common.Domain.Extensions
             var uri = new Uri(value);
             return uri.Scheme + "://" + uri.Authority;
         }
+
+        public static string ToLowerFirstChar(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToLower(input[0]) + input.Substring(1);
+        }
     }
 }

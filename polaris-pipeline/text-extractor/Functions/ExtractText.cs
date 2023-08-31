@@ -56,12 +56,13 @@ namespace text_extractor.Functions
         {
             Guid currentCorrelationId = default;
             const string loggingName = "ExtractText - Run";
-
+            IndexedDocumentEvent telemetryEvent = default;
             try
             {
                 #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
+                telemetryEvent = new IndexedDocumentEvent(currentCorrelationId);
 
                 if (request.Content == null)
                 {
@@ -75,17 +76,23 @@ namespace text_extractor.Functions
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
                 _telemetryAugmentationWrapper.RegisterDocumentId(extractTextRequest.DocumentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(extractTextRequest.VersionId.ToString());
+                telemetryEvent.CaseId = extractTextRequest.CaseId;
+                telemetryEvent.DocumentId = extractTextRequest.DocumentId;
+                telemetryEvent.VersionId = extractTextRequest.VersionId;
 
                 #endregion
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
 
-                var startTime = DateTime.UtcNow;
+                telemetryEvent.StartTime = DateTime.UtcNow;
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
                 var ocrResults = await _ocrService.GetOcrResultsAsync(inputStream, currentCorrelationId);
+                telemetryEvent.OcrCompletedTime = DateTime.UtcNow;
+                telemetryEvent.PageCount = ocrResults.ReadResults.Count;
+                telemetryEvent.LineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
+                telemetryEvent.WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count));
 
-                var ocrCompletedTime = DateTime.UtcNow;
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
 
                 await _searchIndexService.SendStoreResultsAsync
@@ -98,24 +105,14 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
-                var indexStoredTime = DateTime.UtcNow;
+                telemetryEvent.IndexStoredTime = DateTime.UtcNow;
+
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
                 if (await _searchIndexService.WaitForStoreResultsAsync(ocrResults, extractTextRequest.CaseId, extractTextRequest.DocumentId, extractTextRequest.VersionId, currentCorrelationId))
                 {
-                    _telemetryClient.TrackEvent(new IndexedDocumentEvent(
-                        correlationId: currentCorrelationId,
-                        caseId: extractTextRequest.CaseId,
-                        documentId: extractTextRequest.DocumentId,
-                        versionId: extractTextRequest.VersionId,
-                        pageCount: ocrResults.ReadResults.Count,
-                        lineCount: ocrResults.ReadResults.Sum(x => x.Lines.Count),
-                        wordCount: ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count)),
-                        startTime: startTime,
-                        ocrCompletedTime: ocrCompletedTime,
-                        indexStoredTime: indexStoredTime,
-                        endTime: DateTime.UtcNow
-                    ));
+                    telemetryEvent.EndTime = DateTime.UtcNow;
+                    _telemetryClient.TrackEvent(telemetryEvent);
                     return new HttpResponseMessage(HttpStatusCode.OK);
                 }
 
@@ -123,6 +120,7 @@ namespace text_extractor.Functions
             }
             catch (Exception exception)
             {
+                _telemetryClient.TrackEventFailure(telemetryEvent);
                 return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log);
             }
             finally

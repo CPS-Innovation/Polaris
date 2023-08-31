@@ -95,43 +95,53 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, CaseOrchestrationPayload payload)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
-            var log = context.CreateReplaySafeLogger(_log);
+            RefreshedCaseEvent telemetryEvent = default;
+            try
+            {
+                telemetryEvent = new RefreshedCaseEvent(
+                            correlationId: payload.CorrelationId,
+                    caseId: payload.CmsCaseId,
+                    versionId: await caseEntity.GetVersion(),
+                    startTime: await caseEntity.GetStartTime()
+                );
+                var log = context.CreateReplaySafeLogger(_log);
 
-            log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
-            caseEntity.Reset(context.InstanceId);
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
+                log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
+                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
+                caseEntity.Reset(context.InstanceId);
+                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
-            var documents = await GetDocuments(context, loggingName, log, payload);
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
+                var documents = await GetDocuments(context, loggingName, log, payload);
+                telemetryEvent.CmsDocsCount = documents.CmsDocuments.Length;
+                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
 
-            var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
-            await Task.WhenAll(documentTasks.Select(BufferCall));
+                var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, caseRefreshLogsEntity, payload, documents, log);
+                telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
+                telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
+                await Task.WhenAll(documentTasks.Select(BufferCall));
 
-            if (await caseEntity.AllDocumentsFailed())
-                throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
+                if (await caseEntity.AllDocumentsFailed())
+                    throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
-            var maxPdfGenerated = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.PdfGenerated);
-            caseEntity.SetCaseTiming((DocumentLogType.PdfGenerated, maxPdfGenerated));
-            var maxIndexed = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.Indexed);
-            caseEntity.SetCaseTiming((DocumentLogType.Indexed, maxIndexed));
+                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
+                var maxPdfGenerated = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.PdfGenerated);
+                caseEntity.SetCaseTiming((DocumentLogType.PdfGenerated, maxPdfGenerated));
+                var maxIndexed = await caseRefreshLogsEntity.GetMaxTimespan(DocumentLogType.Indexed);
+                caseEntity.SetCaseTiming((DocumentLogType.Indexed, maxIndexed));
 
-            log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
+                log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
+                telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
-            _telemetryClient.TrackEvent(new RefreshedCaseEvent(
-                correlationId: payload.CorrelationId,
-                caseId: payload.CmsCaseId,
-                versionId: await caseEntity.GetVersion(),
-                startTime: await caseEntity.GetStartTime(),
-                endTime: context.CurrentUtcDateTime,
-                cmsDocsCount: documents.CmsDocuments.Length,
-                cmsDocsProcessedCount: cmsDocsProcessedCount,
-                pcdRequestsProcessedCount: pcdRequestsProcessedCount)
-            );
+                var trackerDto = caseEntity.Adapt<TrackerDto>();
+                _telemetryClient.TrackEvent(telemetryEvent);
+                return trackerDto;
 
-            var trackerDto = caseEntity.Adapt<TrackerDto>();
-            return trackerDto;
+            }
+            catch (Exception)
+            {
+                _telemetryClient.TrackEventFailure(telemetryEvent);
+                throw;
+            }
         }
 
         private async static Task<(List<Task>, int, int)> GetDocumentTasks

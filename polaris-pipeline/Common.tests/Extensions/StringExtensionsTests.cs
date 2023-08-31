@@ -79,9 +79,14 @@ public class StringExtensionsTests
     [InlineData("foo=bar; BIGipServerabcd=1234", "BIGipServerabcd=1234")]
     [InlineData("foo=bar; BIGipServerabcd=1234;", "BIGipServerabcd=1234")]
     [InlineData("foo=bar; BIGipServerabcd=1234; baz=qux", "BIGipServerabcd=1234")]
+    [InlineData("BIGipServerabcd=1234; BIGipServerabcd=5678", "BIGipServerabcd=1234; BIGipServerabcd=5678")]
+    [InlineData("BIGipServerabcd=1234; BIGipServerabcd=5678;", "BIGipServerabcd=1234; BIGipServerabcd=5678")]
+    [InlineData("foo=bar; BIGipServerabcd=1234; baz=qux; BIGipServerabcd=5678", "BIGipServerabcd=1234; BIGipServerabcd=5678")]
+    [InlineData("foo=bar; BIGipServerabcd=1234; baz=qux; BIGipServerabcd=5678; foo=bar;", "BIGipServerabcd=1234; BIGipServerabcd=5678")]
+
     public void ExtractLoadBalancerCookie_ExtractsCookie(string valueIn, string expectedResult)
     {
-        var result = valueIn.ExtractLoadBalancerCookie();
+        var result = valueIn.ExtractLoadBalancerCookies();
 
         result.Should().Be(expectedResult);
     }

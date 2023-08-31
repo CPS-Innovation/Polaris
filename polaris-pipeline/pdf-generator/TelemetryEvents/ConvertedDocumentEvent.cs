@@ -6,36 +6,19 @@ namespace pdf_generator.TelemetryEvents
 {
     public class ConvertedDocumentEvent : BaseTelemetryEvent
     {
-        private readonly Guid _correlationId;
-        private readonly string _caseId;
-        private readonly string _documentId;
-        private readonly string _versionId;
-        private readonly string _fileType;
-        private readonly long _originalBytes;
-        private readonly long _bytes;
-        private readonly DateTime _startTime;
-        private readonly DateTime _endTime;
+        public Guid CorrelationId { get; set; }
+        public string CaseId { get; set; }
+        public string DocumentId { get; set; }
+        public string VersionId { get; set; }
+        public string FileType { get; set; }
+        public long OriginalBytes { get; set; }
+        public long Bytes { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
 
-        public ConvertedDocumentEvent(
-            Guid correlationId,
-            string caseId,
-            string documentId,
-            string versionId,
-            string fileType,
-            long originalBytes,
-            long bytes,
-            DateTime startTime,
-            DateTime endTime)
+        public ConvertedDocumentEvent(Guid correlationId)
         {
-            _correlationId = correlationId;
-            _caseId = caseId;
-            _documentId = documentId;
-            _versionId = versionId;
-            _fileType = fileType;
-            _originalBytes = originalBytes;
-            _bytes = bytes;
-            _startTime = startTime;
-            _endTime = endTime;
+            CorrelationId = correlationId;
         }
 
         public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
@@ -43,19 +26,19 @@ namespace pdf_generator.TelemetryEvents
             return (
                 new Dictionary<string, string>
                 {
-                    { nameof(_correlationId), _correlationId.ToString() },
-                    { nameof(_caseId), _caseId },
-                    { nameof(_documentId), EnsureNumericId(_documentId) },
-                    { nameof(_versionId), _versionId },
-                    { nameof(_fileType), _fileType},
-                    { nameof(_startTime), _startTime.ToString("o") },
-                    { nameof(_endTime), _endTime.ToString("o") },
+                    { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseId), CaseId },
+                    { nameof(DocumentId), EnsureNumericId(DocumentId) },
+                    { nameof(VersionId), VersionId },
+                    { nameof(FileType), FileType},
+                    { nameof(StartTime), StartTime.ToString("o") },
+                    { nameof(EndTime), EndTime.ToString("o") },
                 },
                 new Dictionary<string, double>
                 {
-                    { durationSeconds, GetDurationSeconds(_startTime, _endTime) },
-                    { nameof(_originalBytes), _originalBytes },
-                    { nameof(_bytes), _bytes }
+                    { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
+                    { nameof(OriginalBytes), OriginalBytes },
+                    { nameof(Bytes), Bytes }
                 }
             );
         }

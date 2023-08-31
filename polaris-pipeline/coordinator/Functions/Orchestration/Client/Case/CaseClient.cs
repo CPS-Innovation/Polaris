@@ -135,39 +135,42 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         return orchestrationClient.CreateCheckStatusResponse(req, instanceId);
 
                     case "DELETE":
-                        var startTime = DateTime.UtcNow;
+                        var telemetryEvent = new DeletedCaseEvent(
+                                correlationId: currentCorrelationId,
+                                caseId: caseIdNum,
+                                startTime: DateTime.UtcNow
+                        );
+                        try
+                        {
+                            await _searchIndexService.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
+                            telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
 
-                        await _searchIndexService.RemoveCaseIndexEntriesAsync(caseIdNum, currentCorrelationId);
-                        var removedCaseIndexTime = DateTime.UtcNow;
+                            await _searchIndexService.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
+                            telemetryEvent.IndexSettledTime = DateTime.UtcNow;
 
-                        await _searchIndexService.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
-                        var indexSettledTime = DateTime.UtcNow;
+                            // Terminate Orchestrations (can't terminate Durable Entities with Netherite backend, but can Purge - see below)
+                            var terminateOrchestrationQueries = GetOrchestrationQueries(terminateStatuses, caseId);
+                            var terminateOrchestrationInstanceIds = await TerminateOrchestrations(orchestrationClient, terminateOrchestrationQueries, currentCorrelationId);
+                            telemetryEvent.TerminatedInstancesCount = terminateOrchestrationInstanceIds.Count;
+                            telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
+                            telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
 
-                        // Terminate Orchestrations (can't terminate Durable Entities with Netherite backend, but can Purge - see below)
-                        var terminateOrchestrationQueries = GetOrchestrationQueries(terminateStatuses, caseId);
-                        var terminateOrchestrationInstanceIds = await TerminateOrchestrations(orchestrationClient, terminateOrchestrationQueries, currentCorrelationId);
-                        var gotTerminateInstancesTime = DateTime.UtcNow;
-                        var terminatedInstancesTime = DateTime.UtcNow;
+                            // Purge Orchestrations and Durable Entities
+                            var purgeConditions = GetOrchestrationQueries(purgeStatuses, caseId);
+                            purgeConditions.AddRange(GetDurableEntityQueries(terminateStatuses, caseId));
+                            var success = await Purge(orchestrationClient, purgeConditions, currentCorrelationId);
+                            telemetryEvent.EndTime = DateTime.UtcNow;
 
-                        // Purge Orchestrations and Durable Entities
-                        var purgeConditions = GetOrchestrationQueries(purgeStatuses, caseId);
-                        purgeConditions.AddRange(GetDurableEntityQueries(terminateStatuses, caseId));
-                        var success = await Purge(orchestrationClient, purgeConditions, currentCorrelationId);
-                        var purgedInstancesTime = DateTime.UtcNow;
+                            _telemetryClient.TrackEvent(telemetryEvent);
 
-                        _telemetryClient.TrackEvent(new DeletedCaseEvent(
-                            correlationId: currentCorrelationId,
-                            caseId: caseIdNum,
-                            startTime: startTime,
-                            removedCaseIndexTime: removedCaseIndexTime,
-                            indexSettledTime: indexSettledTime,
-                            gotTerminateInstancesTime: gotTerminateInstancesTime,
-                            terminatedInstancesTime: terminatedInstancesTime,
-                            endTime: purgedInstancesTime,
-                            terminatedInstancesCount: purgeConditions.Count
-                        ));
+                            return new HttpResponseMessage(success ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
+                        }
+                        catch (Exception)
+                        {
+                            _telemetryClient.TrackEventFailure(telemetryEvent);
+                            throw;
+                        }
 
-                        return new HttpResponseMessage(success ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
 
                     case "PUT":
                         var content = await req.Content.ReadAsStringAsync();
