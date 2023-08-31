@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.17.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="WireMock.Net" Version="1.5.32" />
   </ItemGroup>
 

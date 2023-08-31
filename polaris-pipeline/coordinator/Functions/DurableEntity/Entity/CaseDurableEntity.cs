@@ -480,12 +480,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = tracker.DefendantsAndCharges;
         }
 
-        [FunctionName(nameof(CaseDurableEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext context)
-        {
-            return context.DispatchAsync<CaseDurableEntity>();
-        }
-
         public Task<DateTime> GetStartTime()
         {
             return Task.FromResult<DateTime>(Running.GetValueOrDefault());
@@ -494,6 +488,12 @@ namespace coordinator.Functions.DurableEntity.Entity
         public Task<float> GetDurationToCompleted()
         {
             return Task.FromResult<float>(Completed.GetValueOrDefault());
+        }
+
+        [FunctionName(nameof(CaseDurableEntity))]
+        public static Task Run([EntityTrigger] IDurableEntityContext context)
+        {
+            return context.DispatchAsync<CaseDurableEntity>();
         }
     }
 }

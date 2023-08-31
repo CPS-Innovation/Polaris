@@ -7,26 +7,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Ddei.Services.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Telemetry.Wrappers;
+using Common.Configuration;
 
 [assembly: FunctionsStartup(typeof(PolarisAuthHandover.Startup))]
 
 namespace PolarisAuthHandover
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : FunctionsStartup
+    internal class Startup : BaseDependencyInjectionStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .Build();
+            var services = builder.Services;
 
-            builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
 
-            builder.Services.AddDdeiClient(configuration);
-            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
+            services.AddDdeiClient(Configuration);
+            services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
         }
     }
 }

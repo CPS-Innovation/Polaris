@@ -24,6 +24,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_CONTENTSHARE"                       = azapi_resource.pipeline_sa_coordinator_file_share.name
     "SCALE_CONTROLLER_LOGGING_ENABLED"           = var.pipeline_logging.coordinator_scale_controller
     "AzureWebJobsStorage"                        = azurerm_storage_account.sa.primary_connection_string
+    "EventHubsConnection"                        = azurerm_eventhub_namespace.polaris-eh-namespace.default_primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"         = "600"
     "PolarisPipelineTextExtractorBaseUrl"        = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorFunctionAppKey" = data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key

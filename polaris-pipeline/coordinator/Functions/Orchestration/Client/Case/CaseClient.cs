@@ -148,16 +148,17 @@ namespace coordinator.Functions.Orchestration.Client.Case
                             await _searchIndexService.WaitForCaseEmptyResultsAsync(caseIdNum, currentCorrelationId);
                             telemetryEvent.IndexSettledTime = DateTime.UtcNow;
 
-                            var terminateConditions = GetOrchestrationQueries(terminateStatuses, caseId);
-                            var instanceIds = await TerminateOrchestrationsAndDurableEntities(orchestrationClient, terminateConditions, currentCorrelationId);
-                            telemetryEvent.TerminatedInstancesCount = instanceIds.Count;
+                            // Terminate Orchestrations (can't terminate Durable Entities with Netherite backend, but can Purge - see below)
+                            var terminateOrchestrationQueries = GetOrchestrationQueries(terminateStatuses, caseId);
+                            var terminateOrchestrationInstanceIds = await TerminateOrchestrations(orchestrationClient, terminateOrchestrationQueries, currentCorrelationId);
+                            telemetryEvent.TerminatedInstancesCount = terminateOrchestrationInstanceIds.Count;
                             telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
-
-                            await WaitForOrchestrationsToTerminateTask(orchestrationClient, instanceIds);
                             telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
 
+                            // Purge Orchestrations and Durable Entities
                             var purgeConditions = GetOrchestrationQueries(purgeStatuses, caseId);
-                            var success = await PurgeOrchestrationsAndDurableEntities(orchestrationClient, purgeConditions, currentCorrelationId);
+                            purgeConditions.AddRange(GetDurableEntityQueries(terminateStatuses, caseId));
+                            var success = await Purge(orchestrationClient, purgeConditions, currentCorrelationId);
                             telemetryEvent.EndTime = DateTime.UtcNow;
 
                             _telemetryClient.TrackEvent(telemetryEvent);
@@ -224,9 +225,9 @@ namespace coordinator.Functions.Orchestration.Client.Case
             }
         }
 
-        private async Task<List<string>> TerminateOrchestrationsAndDurableEntities(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> terminateConditions, Guid correlationId)
+        private async Task<List<string>> TerminateOrchestrations(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> terminateConditions, Guid correlationId)
         {
-            _logger.LogMethodFlow(correlationId, LoggingName, "Terminating Case Orchestrations, Sub Orchestrations and Durable Entities");
+            _logger.LogMethodFlow(correlationId, LoggingName, "Terminating Case Orchestrations and Document Sub Orchestrations");
 
             var instanceIds = new List<string>();
             foreach (var terminateCondition in terminateConditions)
@@ -237,23 +238,29 @@ namespace coordinator.Functions.Orchestration.Client.Case
                     terminateCondition.ContinuationToken = statusQueryResult.ContinuationToken;
 
                     var instancesToTerminate = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToList();
-                    instanceIds.AddRange(instancesToTerminate);
 
-                    await Task.WhenAll(instancesToTerminate.Select(async instanceId => await client.TerminateAsync(instanceId, "Forcibly terminated DELETE")));
+                    if (instancesToTerminate.Any())
+                    {
+                        instanceIds.AddRange(instancesToTerminate);
+                        await Task.WhenAll(instancesToTerminate.Select(async instanceId => await client.TerminateAsync(instanceId, "Forcibly terminated DELETE")));
+                    }
                 }
                 while (terminateCondition.ContinuationToken != null);
             }
 
             var success = await WaitForOrchestrationsToTerminateTask(client, instanceIds);
 
-            _logger.LogMethodFlow(correlationId, LoggingName, $"Terminating Case Orchestrations, Sub Orchestrations and Durable Entities completed");
+            _logger.LogMethodFlow(correlationId, LoggingName, $"Terminating {instanceIds.Count} Case Orchestrations and Document Sub Orchestrations completed");
 
             return instanceIds;
         }
 
         private async Task<bool> WaitForOrchestrationsToTerminateTask(IDurableOrchestrationClient client, List<string> instanceIds)
         {
-            const int totalWaitTimeSeconds = 30;
+            if(instanceIds == null || !instanceIds.Any())
+                return true;
+
+            const int totalWaitTimeSeconds = 600;   
             const int retryDelayMilliseconds = 1000;
 
             for (int i = 0; i < (totalWaitTimeSeconds * 1000) / retryDelayMilliseconds; i++)
@@ -269,7 +276,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
             return false;
         }
 
-        private async Task<bool> PurgeOrchestrationsAndDurableEntities(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> purgeConditions, Guid correlationId)
+        private async Task<bool> Purge(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> purgeConditions, Guid correlationId)
         {
             _logger.LogMethodFlow(correlationId, LoggingName, "Purging Case Orchestrations, Sub Orchestrations and Durable Entities");
 
@@ -282,7 +289,8 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
                     var instancesToPurge = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId);
 
-                    await client.PurgeInstanceHistoryAsync(instancesToPurge);
+                    if(instancesToPurge.Any())
+                        await client.PurgeInstanceHistoryAsync(instancesToPurge);
                 } while (purgeCondition.ContinuationToken != null);
 
             }
@@ -309,7 +317,10 @@ namespace coordinator.Functions.Orchestration.Client.Case
         {
             var conditions = new List<OrchestrationStatusQueryCondition>();
 
-            var caseAndDocumentCondition = new OrchestrationStatusQueryCondition
+            // RefreshCaseOrchestrator, instanceId = e.g. [2149310]
+            // RefreshDocumentOrchestrator, instanceId = e.g. [2149310]-CMS4284166
+            // Common root = e.g. [2149310]
+            var refreshCaseOrDocumentOrchestratorCondition = new OrchestrationStatusQueryCondition
             {
                 InstanceIdPrefix = RefreshCaseOrchestrator.GetKey(caseId),
                 CreatedTimeFrom = DateTime.MinValue,
@@ -318,8 +329,16 @@ namespace coordinator.Functions.Orchestration.Client.Case
                 PageSize = DefaultPageSize,
                 ContinuationToken = null
             };
-            conditions.Add(caseAndDocumentCondition);
+            conditions.Add(refreshCaseOrDocumentOrchestratorCondition);
 
+            return conditions;
+        }
+
+        private static List<OrchestrationStatusQueryCondition> GetDurableEntityQueries(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses, string caseId)
+        {
+            var conditions = new List<OrchestrationStatusQueryCondition>();
+
+            // e.g. @casedurableentity@[2149310]
             var caseDurableEntityCondition = new OrchestrationStatusQueryCondition
             {
                 InstanceIdPrefix = CaseDurableEntity.GetInstanceId(caseId),
@@ -331,6 +350,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
             };
             conditions.Add(caseDurableEntityCondition);
 
+            // e.g @caserefreshlogsdurableentity@[2149310]-1
             var caseRefreshLogsDurableEntitiesCondition = new OrchestrationStatusQueryCondition
             {
                 InstanceIdPrefix = CaseRefreshLogsDurableEntity.GetInstanceId(caseId, 0).Replace("-0", string.Empty),
@@ -340,7 +360,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                 PageSize = DefaultPageSize,
                 ContinuationToken = null
             };
-            conditions.Add(caseRefreshLogsDurableEntitiesCondition);
+            conditions.Add(caseRefreshLogsDurableEntitiesCondition); 
 
             return conditions;
         }
