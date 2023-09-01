@@ -21,7 +21,7 @@ namespace pdf_generator.TelemetryEvents
             CorrelationId = correlationId;
         }
 
-        public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
+        public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
         {
             return (
                 new Dictionary<string, string>
@@ -34,7 +34,7 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
                 },
-                new Dictionary<string, double>
+                new Dictionary<string, double?>
                 {
                     { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
                     { nameof(OriginalBytes), OriginalBytes },

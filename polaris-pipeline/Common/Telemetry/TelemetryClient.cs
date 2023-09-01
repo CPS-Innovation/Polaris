@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Common.Domain.Extensions;
 using Common.Telemetry.Contracts;
 using AppInsights = Microsoft.ApplicationInsights;
@@ -39,6 +40,12 @@ namespace Common.Telemetry
 
 
             var (properties, metrics) = baseTelemetryEvent.ToTelemetryEventProps();
+
+            // filter metrics for only entries where we have a value
+            var nonNullMetrics = metrics
+                .Where(kvp => kvp.Value.HasValue)
+                .ToDictionary(kvp => kvp.Key, kvp => (double)kvp.Value);
+
             properties.Add(telemetryVersion, Version);
             if (isFailure)
             {
@@ -48,7 +55,7 @@ namespace Common.Telemetry
             _telemetryClient.TrackEvent(
                 PrepareEventName(baseTelemetryEvent.EventName),
                 PrepareKeyNames(properties),
-                PrepareKeyNames(metrics)
+                PrepareKeyNames(nonNullMetrics)
             );
         }
 
