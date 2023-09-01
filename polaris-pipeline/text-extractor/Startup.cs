@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Common.Services.OcrService;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
-using Common.Factories.Contracts;
-using Common.Factories;
 using Common.Health;
 using Common.Services.Extensions;
 using Common.Wrappers.Contracts;
@@ -15,12 +13,14 @@ using System.IO;
 using Common.Dto.Request;
 using Common.Handlers.Contracts;
 using Common.Handlers;
-using Common.Telemetry.Contracts;
-using Common.Telemetry;
+using Common.Factories.Contracts;
+using Common.Factories;
 using Common.Mappers.Contracts;
 using Common.Mappers;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Telemetry.Wrappers;
+using Common.Telemetry.Contracts;
+using Common.Telemetry;
 
 [assembly: FunctionsStartup(typeof(text_extractor.Startup))]
 namespace text_extractor
@@ -28,45 +28,56 @@ namespace text_extractor
     [ExcludeFromCodeCoverage]
     internal class Startup : FunctionsStartup
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        protected IConfigurationRoot Configuration { get; set; }
+
+        // https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection#customizing-configuration-sources
+        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
         {
-            var configuration = new ConfigurationBuilder()
+            FunctionsHostBuilderContext context = builder.GetContext();
+
+            var configurationBuilder = builder.ConfigurationBuilder
                 .AddEnvironmentVariables()
 #if DEBUG
                 .SetBasePath(Directory.GetCurrentDirectory())
 #endif
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .Build();
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
 
-            builder.Services.AddSingleton<IConfiguration>(configuration);
-            BuildOcrService(builder, configuration);
-            builder.Services.AddSearchClient(configuration);
-
-            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
-            builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-
-            builder.Services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
-            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
-            builder.Services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-            builder.Services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
-            builder.Services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            BuildHealthChecks(builder);
+            Configuration = configurationBuilder.Build();
         }
 
-        private static void BuildOcrService(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
+        public override void Configure(IFunctionsHostBuilder builder)
+        {
+            var services = builder.Services;
+
+            services.AddSingleton<IConfiguration>(Configuration);
+            BuildOcrService(services, Configuration);
+            services.AddSearchClient(Configuration);
+
+            services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
+            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
+            services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
+            services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
+
+            BuildHealthChecks(services);
+        }
+
+        private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)
         {
 #if DEBUG
             if (configuration.IsSettingEnabled(DebugSettings.MockOcrService))
             {
-                builder.Services.AddSingleton<IOcrService, MockOcrService>();
+                services.AddSingleton<IOcrService, MockOcrService>();
             }
             else
             {
-                builder.Services.AddSingleton<IOcrService, OcrService>();
+                services.AddSingleton<IOcrService, OcrService>();
             }
 #else
-            builder.Services.AddSingleton<IOcrService, OcrService>();
+            services.AddSingleton<IOcrService, OcrService>();
 #endif
         }
 
@@ -75,9 +86,9 @@ namespace text_extractor
         /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
         /// </summary>
         /// <param name="builder"></param>
-        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        private static void BuildHealthChecks(IServiceCollection services)
         {
-            builder.Services.AddHealthChecks()
+            services.AddHealthChecks()
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
                 .AddCheck<OcrServiceHealthCheck>("OCR Service")
                 .AddCheck<AzureComputerVisionClientHealthCheck>("OCR Service / Azure Computer Vision Client")

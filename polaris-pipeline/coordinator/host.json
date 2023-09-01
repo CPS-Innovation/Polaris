@@ -29,8 +29,16 @@
   },
   "extensions": {
     "durableTask": {
+      "hubName": "polaris-netherite-taskhub",
+      "useGracefulShutdown": "true",
       "maxConcurrentActivityFunctions": 150,
       "maxConcurrentOrchestratorFunctions": 150,
+      "storageProvider": {
+        "type": "Netherite",
+        "PartitionCount": "12",
+        "StorageConnectionName": "AzureWebJobsStorage",
+        "EventHubsConnectionName":  "EventHubsConnection"
+      },
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false

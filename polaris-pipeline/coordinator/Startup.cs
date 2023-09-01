@@ -21,7 +21,6 @@ using Common.Clients.Contracts;
 using Common.Clients;
 using FluentValidation;
 using Common.Domain.Validators;
-using System.IO;
 using Common.Dto.Request;
 using Ddei.Services.Extensions;
 using Common.Handlers.Contracts;
@@ -38,51 +37,45 @@ using Microsoft.Extensions.Azure;
 namespace coordinator
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : FunctionsStartup
+    internal class Startup : BaseDependencyInjectionStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-#if DEBUG
-                .SetBasePath(Directory.GetCurrentDirectory())
-#endif
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .Build();
+            var services = builder.Services;
 
-            builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
-            builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
-            builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
-            builder.Services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
-            builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
-            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
+            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
+            services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
+            services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
+            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
-            builder.Services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
+            services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {
-                client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
+                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            builder.Services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
+            services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
             {
-                client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
+                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            builder.Services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
-            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
-            builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
+            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
 
-            builder.Services.RegisterMapsterConfiguration();
-            builder.Services.AddBlobSasGenerator();
-            builder.Services.AddSearchClient(configuration);
-            builder.Services.AddDdeiClient(configuration);
+            services.RegisterMapsterConfiguration();
+            services.AddBlobSasGenerator();
+            services.AddSearchClient(Configuration);
+            services.AddDdeiClient(Configuration);
 
-            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder);
         }
 
