@@ -21,7 +21,7 @@ namespace Common.tests.Telemetry
         }
 
         [Fact]
-        public void GetDurationSeconds_ReturnsExpectedValue_WhenStartTimeIsDefault()
+        public void GetDurationSeconds_ReturnsNull_WhenStartTimeIsDefault()
         {
             // Arrange
             DateTime startTime = default;
@@ -35,7 +35,7 @@ namespace Common.tests.Telemetry
         }
 
         [Fact]
-        public void GetDurationSeconds_ReturnsExpectedValue_WhenEndTimeIsDefault()
+        public void GetDurationSeconds_ReturnsNull_WhenEndTimeIsDefault()
         {
             // Arrange
             var startTime = new DateTime(2020, 1, 1, 0, 0, 0, 100, DateTimeKind.Utc);
