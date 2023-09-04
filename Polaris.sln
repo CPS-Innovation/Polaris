@@ -47,7 +47,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DdeiServer", "DdeiServer", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-ddei-mock", "polaris-ddei-mock\polaris-ddei-mock.csproj", "{56B9FB84-6ABB-4F1E-BFB1-461427617250}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway.integration.tests", "polaris-gateway\polaris-gateway.integration.tests\polaris-gateway.integration.tests.csproj", "{0F75345B-3FBE-4E45-A923-4046B255FCA1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-integration.tests", "polaris-integration.tests", "{B4BB7C42-9CA4-4DC3-A4A7-57E969A8A510}"
+	ProjectSection(SolutionItems) = preProject
+		polaris-integration.tests\BaseCoordinatorScalingTest.cs = polaris-integration.tests\BaseCoordinatorScalingTest.cs
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-integration.tests", "polaris-integration.tests\polaris-integration.tests.csproj", "{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -140,12 +145,12 @@ Global
 		{56B9FB84-6ABB-4F1E-BFB1-461427617250}.Integration Tests|Any CPU.Build.0 = Release|Any CPU
 		{56B9FB84-6ABB-4F1E-BFB1-461427617250}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56B9FB84-6ABB-4F1E-BFB1-461427617250}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0F75345B-3FBE-4E45-A923-4046B255FCA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F75345B-3FBE-4E45-A923-4046B255FCA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F75345B-3FBE-4E45-A923-4046B255FCA1}.Integration Tests|Any CPU.ActiveCfg = Integration Tests|Any CPU
-		{0F75345B-3FBE-4E45-A923-4046B255FCA1}.Integration Tests|Any CPU.Build.0 = Integration Tests|Any CPU
-		{0F75345B-3FBE-4E45-A923-4046B255FCA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F75345B-3FBE-4E45-A923-4046B255FCA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A}.Integration Tests|Any CPU.ActiveCfg = Integration Tests|Any CPU
+		{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A}.Integration Tests|Any CPU.Build.0 = Integration Tests|Any CPU
+		{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -165,7 +170,7 @@ Global
 		{B1DB5ED8-D60E-467C-BC74-C7077DC834B0} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
 		{46CA2F61-0283-43A0-BCEC-9A84766FE0DD} = {AC71D5C1-6428-4D75-8C2D-BD1DFEE9F7F6}
 		{56B9FB84-6ABB-4F1E-BFB1-461427617250} = {21188A20-E627-4785-986E-6A9486D324D3}
-		{0F75345B-3FBE-4E45-A923-4046B255FCA1} = {3F04D8CF-B0FB-4776-913A-969ED4CB3F24}
+		{C1B9A12D-4D05-4D4B-B8BE-F097BEA7D61A} = {B4BB7C42-9CA4-4DC3-A4A7-57E969A8A510}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CCE1AB69-A62F-420B-88D0-216C65C26EAD}

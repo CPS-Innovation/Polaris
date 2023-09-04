@@ -1,17 +1,15 @@
 using Common.Configuration;
-using Common.Dto.Case;
 using Common.Dto.Tracker;
 using System.Net;
 using Newtonsoft.Json;
-using Common.Domain.SearchIndex;
-using Common.Dto.Request;
 using System.Text;
+using polaris_integration.tests;
 
-namespace polaris_gateway.integration.tests
+namespace polaris_gateway.integration.tests.Proxies
 {
     public class CoordinatorApiProxy : BaseFunctionTest
     {
-        protected async Task CaseDelete(string caseUrn, int caseId)
+        protected async Task CaseDeleteAsync(string caseUrn, int caseId)
         {
             string url = MakeUrl(RestApi.Case, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
 
@@ -31,15 +29,41 @@ namespace polaris_gateway.integration.tests
             return;
         }
 
+        protected async Task CaseRefreshAsync(string caseUrn, int caseId, string correlationId)
+        {
+            string url = MakeUrl(RestApi.Case, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
+            var response = await MakeHttpCall(url, HttpMethod.Post, correlationId);
+
+            if (response.StatusCode == HttpStatusCode.Accepted)
+                return;
+
+            throw new Exception($"Case refresh failed with status code {response.StatusCode}");
+        }
+
+        protected async Task<TrackerDto> WaitForCompletedTrackerAsync(string urn, int caseId, string correlationId)
+        {
+            TrackerDto tracker;
+
+            do
+            {
+                tracker = await GetTrackerAsync(urn, caseId, correlationId);
+
+                if (tracker.Status == CaseRefreshStatus.Failed)
+                    throw new Exception("Case refresh failed");
+            }
+            while (tracker.Status != CaseRefreshStatus.Completed);
+
+            return tracker;
+        }
 
 
-        //protected async Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, string correlationId)
-        //{
-        //    string url = MakeUrl(RestApi.CaseTracker, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
-        //    var tracker = await SendJsonRequestAsync<TrackerDto>(url, HttpMethod.Get, correlationId);
+        protected async Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, string correlationId)
+        {
+            string url = MakeUrl(RestApi.CaseTracker, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
+            var tracker = await SendJsonRequestAsync<TrackerDto>(url, HttpMethod.Get, correlationId);
 
-        //    return tracker;
-        //}
+            return tracker;
+        }
 
         //protected async Task<string> GetTrackerTextOnlyAsync(string caseUrn, int caseId)
         //{
@@ -47,33 +71,6 @@ namespace polaris_gateway.integration.tests
         //    var trackerText = await SendJsonRequestAsync<string>(url, HttpMethod.Get);
 
         //    return trackerText;
-        //}
-
-        //protected async Task<CaseDto[]> GetCasesAsync(string caseUrn)
-        //{
-        //    string url = MakeUrl(RestApi.Cases, new Dictionary<string, string>() { { "caseUrn", caseUrn } });
-        //    var cases = await SendJsonRequestAsync<CaseDto[]>(url, HttpMethod.Get);
-
-        //    return cases;
-        //}
-
-        //protected async Task<CaseDto> GetCaseAsync(string caseUrn, int caseId)
-        //{
-        //    string url = MakeUrl(RestApi.Case, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
-        //    var @case = await SendJsonRequestAsync<CaseDto>(url, HttpMethod.Get);
-
-        //    return @case;
-        //}
-
-        //protected async Task CaseRefresh(string caseUrn, int caseId, string correlationId)
-        //{
-        //    string url = MakeUrl(RestApi.Case, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
-        //    var response = await MakeHttpCall(url, HttpMethod.Post, correlationId);
-
-        //    if (response.StatusCode == HttpStatusCode.Accepted)
-        //        return;
-
-        //    throw new Exception($"Case refresh failed with status code {response.StatusCode}");
         //}
 
         //protected async Task<TrackerDto> WaitForCompletedTracker(string urn, int caseId, string correlationId)
@@ -152,7 +149,7 @@ namespace polaris_gateway.integration.tests
         protected async Task<HttpResponseMessage> MakeHttpCall(string url, HttpMethod httpMethod, string correlationId = null, object payload = null)
         {
             using var client = new HttpClient();
-            var request = new HttpRequestMessage(httpMethod, $"{_polarisCoordinatorUrl}api/{url}");
+            var request = new HttpRequestMessage(httpMethod, $"{_polarisCoordinatorUrl}api/{url}?code={_polarisCoordinatorCode}");
             AddAuthAndContextHeaders(request, correlationId ?? Guid.NewGuid().ToString());
             if (payload != null)
             {
@@ -164,32 +161,20 @@ namespace polaris_gateway.integration.tests
             return response;
         }
 
-        //protected async Task<string> SendRequestAsync(string url, HttpMethod httpMethod, string correlationId = null)
-        //{
-        //    var response = await MakeHttpCall(url, httpMethod, correlationId);
-        //    var responseContent = await response.Content.ReadAsStringAsync();
-
-        //    return responseContent;
-        //}
-
-        //protected async Task<T> SendJsonRequestAsync<T>(string url, HttpMethod httpMethod, string correlationId = null)
-        //{
-        //    var json = await SendRequestAsync(url, httpMethod, correlationId);
-        //    var dto = JsonConvert.DeserializeObject<T>(json);
-
-        //    return dto;
-        //}
-
-        private IEnumerable<int> Fibonacci(int n)
+        protected async Task<string> SendRequestAsync(string url, HttpMethod httpMethod, string correlationId = null)
         {
-            int previous = 0, current = 1;
-            for (var i = 0; i < n; i++)
-            {
-                yield return current;
-                var temp = previous;
-                previous = current;
-                current = temp + current;
-            }
+            var response = await MakeHttpCall(url, httpMethod, correlationId);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return responseContent;
+        }
+
+        protected async Task<T> SendJsonRequestAsync<T>(string url, HttpMethod httpMethod, string correlationId = null)
+        {
+            var json = await SendRequestAsync(url, httpMethod, correlationId);
+            var dto = JsonConvert.DeserializeObject<T>(json);
+
+            return dto;
         }
     }
 }

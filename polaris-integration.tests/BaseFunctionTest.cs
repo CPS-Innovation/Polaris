@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace polaris_gateway.integration.tests
+namespace polaris_integration.tests
 {
     public class BaseFunctionTest : IDisposable
     {
@@ -12,8 +12,10 @@ namespace polaris_gateway.integration.tests
         private string _cmsAuth;
         private IConfigurationRoot _config;
         private string _ddeiUrl;
+        private string _ddeiAuthUrl;
         protected string _polarisGatewayUrl;
         protected string _polarisCoordinatorUrl;
+        protected string _polarisCoordinatorCode;
 
         public BaseFunctionTest()
         {
@@ -25,9 +27,11 @@ namespace polaris_gateway.integration.tests
                 .AddEnvironmentVariables()
                 .Build();
 
-            _ddeiUrl = _config["BaseUrls:Ddei"];
-            _polarisGatewayUrl = _config["BaseUrls:PolarisGateway"];
-            _polarisCoordinatorUrl = _config["BaseUrls:PolarisCoordinator"];
+            _ddeiUrl = _config["BaseUrls:DdeiUrl"];
+            _ddeiAuthUrl = _config["BaseUrls:DdeiAuthUrl"];
+            _polarisGatewayUrl = _config["BaseUrls:PolarisGatewayUrl"];
+            _polarisCoordinatorUrl = _config["BaseUrls:PolarisCoordinatorUrl"];
+            _polarisCoordinatorCode = _config["BaseUrls:PolarisCoordinatorCode"];
 
             _adToken = GetBearerToken();
             _cmsAuth = GetCmsAuthCookieValues();
@@ -120,7 +124,7 @@ namespace polaris_gateway.integration.tests
         private string GetCmsAuthCookieValues()
         {
             using var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{_ddeiUrl}api/login-full-cookie");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_ddeiAuthUrl}api/login-full-cookie");
             var collection = new List<KeyValuePair<string, string>>
             {
                 new("username", _config["Cms:username"]),
@@ -147,10 +151,25 @@ namespace polaris_gateway.integration.tests
 
         protected void AddAuthAndContextHeaders(HttpRequestMessage request, string correlationId)
         {
+            var cmsAuthValues = Uri.EscapeDataString(_cmsAuth);
+
             var headers = request.Headers;
             headers.Add("Correlation-Id", correlationId);
             headers.Add("Authorization", $"Bearer {_adToken}");
-            headers.Add("Cookie", $"Cms-Auth-Values={Uri.EscapeDataString(_cmsAuth)}");
+            headers.Add("Cms-Auth-Values", cmsAuthValues);
+            headers.Add("Cookie", $"Cms-Auth-Values={cmsAuthValues}");
+        }
+
+        protected IEnumerable<int> Fibonacci(int n)
+        {
+            int previous = 0, current = 1;
+            for (var i = 0; i < n; i++)
+            {
+                yield return current;
+                var temp = previous;
+                previous = current;
+                current = temp + current;
+            }
         }
     }
 }

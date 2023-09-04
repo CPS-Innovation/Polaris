@@ -2,12 +2,13 @@ using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Dto.Tracker;
 using FluentAssertions;
+using polaris_gateway.integration.tests.Proxies;
 
-namespace polaris_gateway.integration.tests
+namespace polaris_integration.tests
 {
-    public class CoordinatorScalingTests : GatewayApiProxy
+    public class GatewayTests : GatewayApiProxy
     {
-        public CoordinatorScalingTests()
+        public GatewayTests()
         {
         }
 

@@ -1,4 +1,4 @@
-namespace polaris_gateway.integration.tests
+namespace polaris_integration.tests
 {
     public class AuthTokenDto
     {

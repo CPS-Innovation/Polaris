@@ -6,8 +6,9 @@ using Newtonsoft.Json;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request;
 using System.Text;
+using polaris_integration.tests;
 
-namespace polaris_gateway.integration.tests
+namespace polaris_gateway.integration.tests.Proxies
 {
     public class GatewayApiProxy : BaseFunctionTest
     {
@@ -40,8 +41,13 @@ namespace polaris_gateway.integration.tests
                 await Task.Delay(i * 250);
 
                 response = await MakeHttpCall(url, HttpMethod.Delete);
-                if (response.IsSuccessStatusCode && await response.Content.ReadAsStringAsync() == string.Empty)
-                    return;
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+
+                    if (content == string.Empty)
+                        return;
+                }
             }
 
             return;
@@ -100,7 +106,7 @@ namespace polaris_gateway.integration.tests
             {
                 var response = await MakeHttpCall(url, HttpMethod.Get);
 
-                if(response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
                     return JsonConvert.DeserializeObject<TrackerDto>(responseContent);
@@ -123,9 +129,9 @@ namespace polaris_gateway.integration.tests
 
         protected async Task DocumentCheckout(string caseUrn, int caseId, string polarisDocumentId, string correlationId)
         {
-            string url = MakeUrl(RestApi.DocumentCheckout, new Dictionary<string, string>() 
-                            { 
-                                { "caseUrn", caseUrn }, 
+            string url = MakeUrl(RestApi.DocumentCheckout, new Dictionary<string, string>()
+                            {
+                                { "caseUrn", caseUrn },
                                 { "caseId", $"{caseId}" },
                                 { "polarisDocumentId", $"{polarisDocumentId}" }
                             });
@@ -147,12 +153,12 @@ namespace polaris_gateway.integration.tests
             response.EnsureSuccessStatusCode();
         }
 
-        protected async Task<HttpResponseMessage> MakeHttpCall(string url, HttpMethod httpMethod, string correlationId=null, object payload=null)
+        protected async Task<HttpResponseMessage> MakeHttpCall(string url, HttpMethod httpMethod, string correlationId = null, object payload = null)
         {
             using var client = new HttpClient();
-            var request = new HttpRequestMessage(httpMethod, $"{_polarisGatewayUrl}api/{url}");
+            var request = new HttpRequestMessage(httpMethod, $"{_polarisCoordinatorUrl}api/{url}?code={_polarisCoordinatorCode}");
             AddAuthAndContextHeaders(request, correlationId ?? Guid.NewGuid().ToString());
-            if(payload != null)
+            if (payload != null)
             {
                 var content = JsonConvert.SerializeObject(payload, Formatting.None, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                 request.Content = new StringContent(content, Encoding.UTF8, "application/json");
@@ -176,18 +182,6 @@ namespace polaris_gateway.integration.tests
             var dto = JsonConvert.DeserializeObject<T>(json);
 
             return dto;
-        }
-
-        private IEnumerable<int> Fibonacci(int n)
-        {
-            int previous = 0, current = 1;
-            for (var i = 0; i < n; i++)
-            {
-                yield return current;
-                var temp = previous;
-                previous = current;
-                current = temp + current;
-            }
         }
     }
 }
