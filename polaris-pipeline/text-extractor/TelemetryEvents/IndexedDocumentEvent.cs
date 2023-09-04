@@ -27,7 +27,7 @@ namespace text_extractor.TelemetryEvents
             CorrelationId = correlationId;
         }
 
-        public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
+        public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
         {
             return (
                 new Dictionary<string, string>
@@ -39,7 +39,7 @@ namespace text_extractor.TelemetryEvents
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
                 },
-                new Dictionary<string, double>
+                new Dictionary<string, double?>
                 {
                     { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
                     { nameof(PageCount), PageCount },

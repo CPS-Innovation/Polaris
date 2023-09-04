@@ -30,7 +30,7 @@ namespace pdf_generator.TelemetryEvents
       RedactionPageCounts = redactionPageCounts;
     }
 
-    public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
+    public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
     {
       return (
           new Dictionary<string, string>
@@ -42,7 +42,7 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(EndTime), EndTime.ToString("o") },
                     { nameof(RedactionPageCounts), string.Join(",", RedactionPageCounts.Select(x => $"{x.Key}:{x.Value}")) }
           },
-          new Dictionary<string, double>
+          new Dictionary<string, double?>
           {
                     { redactionCount, RedactionPageCounts.Select(x => x.Value).Sum()},
                     { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
