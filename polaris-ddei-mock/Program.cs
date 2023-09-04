@@ -19,7 +19,7 @@ public static class Program
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddLogging(logging => logging.AddConsole().AddDebug());
+        services.AddLogging(logging => logging.AddConsole());
 
         services.AddTransient<IWireMockService, WireMockService>();
 #if DEBUG
