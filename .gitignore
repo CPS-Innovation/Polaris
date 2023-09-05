@@ -15,3 +15,7 @@ azurite
 /polaris-ddei-mock/Properties/ServiceDependencies/polaris-ddei-mock - Zip Deploy
 /polaris-ddei-mock/Properties/ServiceDependencies/WireMockNetWebApplicationNET6Linux - Zip Deploy
 /polaris-ddei-mock/polaris-ddei-mock.csproj.user
+/polaris-integration.tests/appsettings.json
+/polaris-integration.tests/bin
+/polaris-integration.tests/.vs/polaris-integraion.tests/v17
+/polaris-integration.tests/obj
