@@ -8,7 +8,6 @@ resource "azurerm_service_plan" "asp_polaris_pipeline_ep_coordinator" {
   os_type                      = "Linux"
   sku_name                     = var.pipeline_component_service_plans.coordinator_service_plan_sku
   tags                         = local.common_tags
-  maximum_elastic_worker_count = var.pipeline_component_service_plans.coordinator_maximum_instances
 }
 
 resource "azurerm_service_plan" "asp_polaris_pipeline_coordinator" {

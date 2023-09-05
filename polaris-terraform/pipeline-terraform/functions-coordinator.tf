@@ -49,6 +49,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     elastic_instance_minimum               = var.pipeline_component_service_plans.coordinator_minimum_instances
+    app_scale_limit                        = var.pipeline_component_service_plans.coordinator_maximum_instances
     runtime_scale_monitoring_enabled       = true
   }
 
