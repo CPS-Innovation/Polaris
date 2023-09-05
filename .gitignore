@@ -11,3 +11,7 @@ azurite
 /ddei-mock/obj
 .cache_ggshield
 /polaris-pipeline/coordinator/Properties
+/polaris-ddei-mock/Properties/PublishProfiles
+/polaris-ddei-mock/Properties/ServiceDependencies/polaris-ddei-mock - Zip Deploy
+/polaris-ddei-mock/Properties/ServiceDependencies/WireMockNetWebApplicationNET6Linux - Zip Deploy
+/polaris-ddei-mock/polaris-ddei-mock.csproj.user
