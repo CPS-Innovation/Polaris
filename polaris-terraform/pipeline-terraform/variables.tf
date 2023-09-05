@@ -19,6 +19,14 @@ variable "env" {
   type = string
 }
 
+variable "coordinator_service_plan_sku" {
+  type = string
+}
+
+variable "app_service_plan_sku" {
+  type = string
+}
+
 variable "pipeline_component_service_plans" {
   type = object({
     coordinator_service_plan_sku     = string
