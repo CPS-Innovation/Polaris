@@ -81,6 +81,18 @@ module "azurerm_app_reg_as_web_polaris" {
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}"]
   owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
   prevent_duplicate_names = true
+  group_membership_claims = "ApplicationGroup"
+  optional_claims = {
+    access_token = {
+      name = "groups"
+    }
+    id_token = {
+      name = "groups"
+    }
+    saml2_token = {
+      name = "groups"
+    }
+  }
   #use this code for adding api permissions
   required_resource_access = [{
     # Microsoft Graph
@@ -99,6 +111,9 @@ module "azurerm_app_reg_as_web_polaris" {
   }]
   single_page_application = {
     redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
+  }
+  api = {
+    mapped_claims_enabled = true
   }
   web = {
     homepage_url  = "https://as-web-${local.resource_name}.azurewebsites.net"
