@@ -81,7 +81,7 @@ module "azurerm_app_reg_as_web_polaris" {
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}"]
   owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
   prevent_duplicate_names = true
-  group_membership_claims = "ApplicationGroup"
+  group_membership_claims = ["ApplicationGroup"]
   optional_claims = {
     access_token = {
       name = "groups"
