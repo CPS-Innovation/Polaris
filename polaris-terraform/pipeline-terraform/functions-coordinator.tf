@@ -4,7 +4,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   name                        = "fa-${local.resource_name}-coordinator"
   location                    = azurerm_resource_group.rg.location
   resource_group_name         = azurerm_resource_group.rg.name
-  service_plan_id             = azurerm_service_plan.asp_polaris_pipeline_coordinator.id
+  service_plan_id             = azurerm_service_plan.asp_polaris_pipeline_ep_coordinator.id
   storage_account_name        = azurerm_storage_account.sa.name
   storage_account_access_key  = azurerm_storage_account.sa.primary_access_key
   virtual_network_subnet_id   = data.azurerm_subnet.polaris_coordinator_subnet.id
