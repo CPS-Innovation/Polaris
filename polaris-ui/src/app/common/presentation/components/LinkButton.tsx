@@ -4,6 +4,7 @@ type LinkButtonProps = {
   id?: string;
   className?: string;
   dataTestId?: string;
+  disabled?: boolean;
   onClick: () => void;
 };
 
@@ -13,10 +14,12 @@ export const LinkButton: React.FC<LinkButtonProps> = ({
   dataTestId,
   onClick,
   id,
+  disabled = false,
 }) => {
   const resolvedClassName = `${classes.linkButton} ${className}`;
   return (
     <button
+      disabled={disabled}
       id={id}
       className={resolvedClassName}
       onClick={onClick}

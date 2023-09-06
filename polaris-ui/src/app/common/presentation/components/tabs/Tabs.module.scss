@@ -6,12 +6,21 @@
     outline: #ffdd00 auto 0.0625rem;
   }
 }
+
+.tabNextButton,
+.tabPreviousButton {
+  height: 40px;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
 .tabsWrapper {
   display: flex;
   padding-top: 0.3125rem;
-  overflow-y: hidden;
-  overflow-x: auto;
+  justify-content: space-evenly;
   border-bottom: 0.0625rem solid $govuk-border-colour;
+  align-items: baseline;
 }
 .tabsList {
   display: flex;
@@ -19,6 +28,10 @@
   align-content: baseline;
   margin-bottom: 0;
   padding: 0;
+  max-width: 685px;
+  margin: 0 3px;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .activeTab {
@@ -49,7 +62,7 @@
   display: flex;
   width: 100%;
   white-space: nowrap;
-  padding: 1.25rem;
+  padding: 1.25rem 1rem;
   font-size: 1.1875rem;
   border: none;
   background-color: transparent;
