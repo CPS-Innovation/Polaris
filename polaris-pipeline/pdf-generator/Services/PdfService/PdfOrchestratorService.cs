@@ -79,6 +79,7 @@ namespace pdf_generator.Services.PdfService
                         _diagramPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
                     case FileType.HTML:
+                    case FileType.HTM:
                         _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
                     case FileType.MSG:

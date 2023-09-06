@@ -10,9 +10,9 @@ using Xunit;
 
 namespace pdf_generator.tests.Services.PdfService
 {
-    public class PdfOrchestratorServiceTests
+	public class PdfOrchestratorServiceTests
 	{
-        private readonly Stream _inputStream;
+		private readonly Stream _inputStream;
 		private readonly string _documentId;
 		private readonly Guid _correlationId;
 
@@ -58,11 +58,11 @@ namespace pdf_generator.tests.Services.PdfService
 
 		[Fact]
 		public void ReadToPdfStream_CallsWordsServiceWhenFileTypeIsDoc()
-        {
+		{
 			_pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.DOC, _documentId, _correlationId);
 
 			_mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
-        }
+		}
 
 		[Fact]
 		public void ReadToPdfStream_CallsWordsServiceWhenFileTypeIsDocx()
@@ -201,6 +201,14 @@ namespace pdf_generator.tests.Services.PdfService
 		}
 
 		[Fact]
+		public void ReadToPdfStream_CallsHtmlServiceWhenFileTypeIsHtm()
+		{
+			_pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTM, _documentId, _correlationId);
+
+			_mockHtmlPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+		}
+
+		[Fact]
 		public void ReadToPdfStream_CallsEmailServiceWhenFileTypeIsMsg()
 		{
 			_pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.MSG, _documentId, _correlationId);
@@ -208,13 +216,13 @@ namespace pdf_generator.tests.Services.PdfService
 			_mockEmailPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
 		}
 
-        [Fact]
-        public void ReadToPdfStream_CallsPdfRendererServiceWhenFileTypeIsPdf()
-        {
-	        _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PDF, _documentId, _correlationId);
+		[Fact]
+		public void ReadToPdfStream_CallsPdfRendererServiceWhenFileTypeIsPdf()
+		{
+			_pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PDF, _documentId, _correlationId);
 
-	        _mockPdfRendererService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
-        }
+			_mockPdfRendererService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+		}
 
 		[Fact]
 		public void ReadToPdfStream_ThrowsFailedToConvertToPdfExceptionWhenExceptionOccurs()
