@@ -50,13 +50,13 @@ namespace coordinator.Functions.Orchestration.Functions.Document
                 caseEntity.SetOcrProcessed((payload.PolarisDocumentId.ToString(), payload.CmsDocumentTracker.IsOcrProcessed));
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
-            caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.PdfGenerated, payload.PolarisDocumentId.ToString()));
+            //caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.PdfGenerated, payload.PolarisDocumentId.ToString()));
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for PolarisDocumentId: '{payload.PolarisDocumentId}', BlobName: '{payload.BlobName}'");
             await CallTextExtractorAsync(context, payload, payload.BlobName, caseEntity, caseRefreshLogsEntity, log);
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, payload.BlobName));
-            caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.Indexed, payload.PolarisDocumentId.ToString()));
+            //caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.Indexed, payload.PolarisDocumentId.ToString()));
 
             log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
         }
