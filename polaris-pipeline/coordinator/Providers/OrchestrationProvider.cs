@@ -21,6 +21,7 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Orchestration;
 using Common.Services.BlobStorageService.Contracts;
+using coordinator.Domain.Dto;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
