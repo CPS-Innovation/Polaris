@@ -11,9 +11,9 @@ namespace polaris_integration.tests
         private string _adToken;
         private string _cmsAuth;
         private IConfigurationRoot _config;
-        private string _ddeiUrl;
         private string _ddeiAuthUrl;
         protected string _polarisGatewayUrl;
+        protected string _polarisGatewayCode;
         protected string _polarisCoordinatorUrl;
         protected string _polarisCoordinatorCode;
 
@@ -27,9 +27,9 @@ namespace polaris_integration.tests
                 .AddEnvironmentVariables()
                 .Build();
 
-            _ddeiUrl = _config["BaseUrls:DdeiUrl"];
             _ddeiAuthUrl = _config["BaseUrls:DdeiAuthUrl"];
             _polarisGatewayUrl = _config["BaseUrls:PolarisGatewayUrl"];
+            _polarisGatewayCode = _config["BaseUrls:PolarisGatewayCode"];
             _polarisCoordinatorUrl = _config["BaseUrls:PolarisCoordinatorUrl"];
             _polarisCoordinatorCode = _config["BaseUrls:PolarisCoordinatorCode"];
 
@@ -127,7 +127,7 @@ namespace polaris_integration.tests
             var request = new HttpRequestMessage(HttpMethod.Post, $"{_ddeiAuthUrl}api/login-full-cookie");
             var collection = new List<KeyValuePair<string, string>>
             {
-                new("username", _config["Cms:username"]),
+                new("username", _config["Cms:Username"]),
                 new("password", _config["Cms:Password"])
             };
             request.Content = new FormUrlEncodedContent(collection);

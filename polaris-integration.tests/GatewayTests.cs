@@ -1,13 +1,20 @@
+#if INTEGRATION_TESTS
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Dto.Tracker;
 using FluentAssertions;
 using polaris_gateway.integration.tests.Proxies;
+using System.Net;
 
 namespace polaris_integration.tests
 {
     public class GatewayTests : GatewayApiProxy
     {
+        readonly string e2e0 = "E2E00000-0000-0000-0000-000000000000";
+        readonly string e2e1 = "E2E00000-0000-0000-0000-000000000001";
+        readonly string e2e2 = "E2E00000-0000-0000-0000-000000000002";
+        readonly string e2e3 = "E2E00000-0000-0000-0000-000000000003";
+
         public GatewayTests()
         {
         }
@@ -41,10 +48,6 @@ namespace polaris_integration.tests
             var caseId = 2146928;
             var document1Id = "CMS-8662332";
             var document2Id = "CMS-8662333";
-            var e2e0 = "E2E00000-0000-0000-0000-000000000000";
-            var e2e1 = "E2E00000-0000-0000-0000-000000000001";
-            var e2e2 = "E2E00000-0000-0000-0000-000000000002";
-            var e2e3 = "E2E00000-0000-0000-0000-000000000003";
 
             var searchExpectations = new (string query, bool exists)[]
               {
@@ -63,7 +66,10 @@ namespace polaris_integration.tests
 
             #region Initial Refresh
             await CaseDelete(urn, caseId);
-            await CaseRefresh(urn, caseId, e2e1);
+
+            var status = await CaseRefresh(urn, caseId, e2e1);
+            status.Should().Be(HttpStatusCode.Accepted);
+
             TrackerDto tracker = await WaitForCompletedTracker(urn, caseId, e2e0);
 
             tracker.Documents.Select(t => t.Status).ToList().Should().AllBeEquivalentTo(DocumentStatus.Indexed);
@@ -102,7 +108,10 @@ namespace polaris_integration.tests
             };
 
             await RedactDocument(urn, caseId, document1Id, redaction, e2e2);
-            await CaseRefresh(urn, caseId, e2e2);
+
+            status = await CaseRefresh(urn, caseId, e2e2);
+            status.Should().Be(HttpStatusCode.Accepted);
+
             tracker = await WaitForCompletedTracker(urn, caseId, e2e2);
 
             tracker.Documents.Select(t => t.Status).ToList().Should().AllBeEquivalentTo(DocumentStatus.Indexed);
@@ -153,7 +162,10 @@ namespace polaris_integration.tests
             };
 
             await RedactDocument(urn, caseId, document2Id, redaction, e2e3);
-            await CaseRefresh(urn, caseId, e2e3);
+
+            status = await CaseRefresh(urn, caseId, e2e3);
+            status.Should().Be(HttpStatusCode.Accepted);
+
             tracker = await WaitForCompletedTracker(urn, caseId, e2e3);
 
             tracker.Documents.Select(t => t.Status).ToList().Should().AllBeEquivalentTo(DocumentStatus.Indexed);
@@ -177,13 +189,34 @@ namespace polaris_integration.tests
             #endregion
        }
 
+        [Fact]
+        public async Task Subsequent_Refresh_Case_Returns_LockedStatus()
+        {
+            // Arrange
+            var urn = "01VK0000421";
+            var caseId = 2146928;
+
+            // Act / Assert
+            await CaseDelete(urn, caseId);
+
+            var status = await CaseRefresh(urn, caseId, e2e1);
+            status.Should().Be(HttpStatusCode.Accepted);
+
+            status = await CaseRefresh(urn, caseId, e2e1);
+            status.Should().Be(HttpStatusCode.Locked);
+        }
+
         private async Task CheckSearchAssertions(string urn, int caseId, string e2e0, (string query, bool exists)[] searchAssertions)
         {
             foreach (var (query, exists) in searchAssertions)
             {
-                var should = (await CaseSearch(urn, caseId, e2e0, query)).Should();
-                var _ = exists ? should.NotBeEmpty() : should.BeEmpty();
+                var streamlinedSearchLines = await CaseSearch(urn, caseId, e2e0, query);
+                if (exists)
+                    streamlinedSearchLines.Should().NotBeEmpty();
+                else
+                    streamlinedSearchLines.Should().BeEmpty();  
             }
         }
     }
 }
+#endif
