@@ -9,7 +9,8 @@
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
       "DurableTask.AzureStorage": "Information",
-      "DurableTask.Core": "Information"
+      "DurableTask.Core": "Information",
+      "Microsoft.Azure.WebJobs.Host.Scale": "None"
     },
     "applicationInsights": {
       "samplingSettings": {

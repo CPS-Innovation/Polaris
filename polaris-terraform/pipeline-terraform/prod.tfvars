@@ -7,9 +7,9 @@ coordinator_service_plan_sku = "P1v3"
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 
 pipeline_logging = {
-  coordinator_scale_controller    = "AppInsights:None"
-  pdf_generator_scale_controller  = "AppInsights:None"
-  text_extractor_scale_controller = "AppInsights:None"
+  coordinator_scale_controller    = "AppInsights:Verbose"
+  pdf_generator_scale_controller  = "AppInsights:Verbose"
+  text_extractor_scale_controller = "AppInsights:Verbose"
 }
 
 pipeline_component_service_plans = {
