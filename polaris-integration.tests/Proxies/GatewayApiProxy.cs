@@ -7,6 +7,7 @@ using Common.Domain.SearchIndex;
 using Common.Dto.Request;
 using System.Text;
 using polaris_integration.tests;
+using FluentAssertions.Equivalency;
 
 namespace polaris_gateway.integration.tests.Proxies
 {
@@ -69,15 +70,12 @@ namespace polaris_gateway.integration.tests.Proxies
             return @case;
         }
 
-        protected async Task CaseRefresh(string caseUrn, int caseId, string correlationId)
+        protected async Task<HttpStatusCode> CaseRefresh(string caseUrn, int caseId, string correlationId)
         {
             string url = MakeUrl(RestApi.Case, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
             var response = await MakeHttpCall(url, HttpMethod.Post, correlationId);
 
-            if (response.StatusCode == HttpStatusCode.Accepted)
-                return;
-
-            throw new Exception($"Case refresh failed with status code {response.StatusCode}");
+            return response.StatusCode;
         }
 
         protected async Task<TrackerDto> WaitForCompletedTracker(string urn, int caseId, string correlationId)
@@ -120,9 +118,7 @@ namespace polaris_gateway.integration.tests.Proxies
 
         protected async Task<StreamlinedSearchLine[]> CaseSearch(string caseUrn, int caseId, string correlationId, string query)
         {
-            string url = MakeUrl(RestApi.CaseSearch, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
-            url = url + $"?query={query}";
-
+            var url = MakeUrl(RestApi.CaseSearch, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } }) + $"?query={query}";
             var searchResults = await SendJsonRequestAsync<StreamlinedSearchLine[]>(url, HttpMethod.Get, correlationId);
             return searchResults;
         }
@@ -156,7 +152,9 @@ namespace polaris_gateway.integration.tests.Proxies
         protected async Task<HttpResponseMessage> MakeHttpCall(string url, HttpMethod httpMethod, string correlationId = null, object payload = null)
         {
             using var client = new HttpClient();
-            var request = new HttpRequestMessage(httpMethod, $"{_polarisCoordinatorUrl}api/{url}?code={_polarisCoordinatorCode}");
+            var separator = url.Contains("?") ? "&" : "?";
+            url = $"{_polarisGatewayUrl}api/{url}{separator}code={_polarisGatewayCode}";
+            var request = new HttpRequestMessage(httpMethod, url);
             AddAuthAndContextHeaders(request, correlationId ?? Guid.NewGuid().ToString());
             if (payload != null)
             {

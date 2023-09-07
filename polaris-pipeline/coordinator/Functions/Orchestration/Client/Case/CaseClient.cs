@@ -118,7 +118,8 @@ namespace coordinator.Functions.Orchestration.Client.Case
                 switch (req.Method.Method)
                 {
                     case "POST":
-                        var existingInstance = await orchestrationClient.GetStatusAsync(caseId);
+                        var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
+                        var existingInstance = await orchestrationClient.GetStatusAsync(instanceId);
                         bool isSingletonRefreshRunning = IsSingletonRefreshRunning(existingInstance);
 
                         if (isSingletonRefreshRunning)
@@ -126,8 +127,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
                             _logger.LogMethodFlow(currentCorrelationId, loggingName, $"{nameof(CaseClient)} Locked as already running - {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
                             return new HttpResponseMessage(HttpStatusCode.Locked);
                         }
-
-                        var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
 
                         await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), instanceId, casePayload);
 

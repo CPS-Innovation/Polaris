@@ -1,6 +1,6 @@
-env                          = "qa"
-environment_tag              = "qa"
-dns_server                   = "10.7.198.164"
+env             = "qa"
+environment_tag = "qa"
+dns_server      = "10.7.198.164"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
 

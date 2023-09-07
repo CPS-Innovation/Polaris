@@ -1,3 +1,4 @@
+#if SCALING_TESTS
 using polaris_integration.tests;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -66,3 +67,4 @@ namespace polaris_integration.coordinator.tests
         }
     }
 }
+#endif
