@@ -20,6 +20,7 @@
         TIFF,
         PNG,
         VSD,
+        HTM,
         HTML,
         MSG
     }

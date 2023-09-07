@@ -44,7 +44,7 @@ namespace pdf_generator
 
         /// <summary>
         /// see https://www.davidguida.net/azure-api-management-healthcheck/ for pattern
-        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
+        /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work.
         /// </summary>
         /// <param name="services"></param>
         private static void BuildHealthChecks(IServiceCollection services)

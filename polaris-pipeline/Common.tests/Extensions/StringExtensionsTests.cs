@@ -70,6 +70,33 @@ public class StringExtensionsTests
     }
 
     [Theory]
+    [InlineData(null, 0)]
+    [InlineData("", 0)]
+    [InlineData(" ", 0)]
+
+    [InlineData("UID=123", 123)]
+    [InlineData("UID=123;", 123)]
+    [InlineData("UID=123;foo=bar", 123)]
+    [InlineData("UID=123; foo=bar", 123)]
+    [InlineData("foo=bar;UID=123", 123)]
+    [InlineData("foo=bar;UID=123;", 123)]
+    [InlineData("foo=bar;UID=123; foo=bar", 123)]
+    [InlineData("foo=bar; UID=123; foo=bar", 123)]
+
+    [InlineData("UID=", 0)]
+    [InlineData("UID=;", 0)]
+    [InlineData("UID=;foo=bar", 0)]
+    [InlineData("UID=; foo=bar", 0)]
+    [InlineData("foo=bar;UID=", 0)]
+    [InlineData("foo=bar;UID=;", 0)]
+    public void ExtractCmsUserId_ExtractsCmsUserId(string valueIn, long expectedResult)
+    {
+        var result = valueIn.ExtractCmsUserId();
+
+        result.Should().Be(expectedResult);
+    }
+
+    [Theory]
     [InlineData(null, "")]
     [InlineData("", "")]
     [InlineData("foo=bar", "")]

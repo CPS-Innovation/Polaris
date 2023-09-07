@@ -442,13 +442,13 @@ stages:
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
-                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'))
+                  condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
                   inputs:
                     terraformVersion: $(terraform-version)
                 
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   displayName: Terraform > Download Pipeline terraform build
                   artifact: "pipeline-terraform-files"
                 
@@ -460,7 +460,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init Main Pipeline
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
@@ -473,7 +473,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: Terraform > Write Pipeline Plan
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -486,7 +486,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply Main Pipeline
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -497,13 +497,13 @@ stages:
                     
                 #download coordinator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runCoordinator, 'true')
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runCoordinator, 'true')
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
                   displayName: 'Deploy Coordinator Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -513,13 +513,13 @@ stages:
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPdfGenerator, 'true')
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPdfGenerator, 'true')
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
                   displayName: 'Deploy PDF Generator Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -529,13 +529,13 @@ stages:
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runTextExtractor, 'true')
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runTextExtractor, 'true')
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
                   displayName: 'Deploy Text Extractor Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -545,7 +545,7 @@ stages:
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   displayName: Terraform > Download Pipeline Events terraform build
                   artifact: "pipeline-events-terraform-files"
                 
@@ -557,7 +557,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init Pipeline Events
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
@@ -570,7 +570,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: Terraform > Write Pipeline Events Plan
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -583,7 +583,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply Pipeline Events
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -594,7 +594,7 @@ stages:
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   displayName: Terraform > Download UI terraform build
                   artifact: "ui-terraform-files"
                 
@@ -606,7 +606,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init UI Terraform
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
@@ -619,7 +619,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: Terraform > Write UI Plan
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -632,7 +632,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply UI Terraform
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -643,13 +643,13 @@ stages:
                     
                 #download UI build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
 
                 # Deploy Related Codebase to Env
                 - task: AzureRmWebAppDeployment@4
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: 'Deploy SPA App Service to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -659,13 +659,13 @@ stages:
                                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGateway, 'true')
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGateway, 'true')
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
                   displayName: 'Deploy Gateway Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -675,13 +675,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runAuthHandover, 'true')
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runAuthHandover, 'true')
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
                   displayName: 'Deploy Auth Handover Azure Function App to DEV'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -697,7 +697,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
                     ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
@@ -709,7 +709,7 @@ stages:
                 
                 # Restart app service - moved away from deployment to buy some time    
                 - task: AzureAppServiceManage@0
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: 'Restart SPA Azure App Service'
                   inputs:
                     azureSubscription: $(dev-azure-subscription)
@@ -718,7 +718,7 @@ stages:
                     
                 #download ui events terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
@@ -730,7 +730,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init UI Events
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
@@ -743,7 +743,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
                   displayName: Terraform > Write UI Events Plan
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -756,7 +756,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
                   displayName: Terraform > Apply UI Events
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -821,7 +821,7 @@ stages:
           #query coordinator status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Coordinator status'
-            condition: eq(variables.runCoordinator, 'true')
+            condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -837,7 +837,7 @@ stages:
           #query pdf-generator status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV PDF-Generator status'
-            condition: eq(variables.runPdfGenerator, 'true')
+            condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -853,7 +853,7 @@ stages:
           #query text-extractor status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Text-Extractor status'
-            condition: eq(variables.runTextExtractor, 'true')
+            condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -869,7 +869,7 @@ stages:
           #query auth-handover status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Auth-Handover status'
-            condition: eq(variables.runAuthHandover, 'true')
+            condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -885,7 +885,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Gateway status'
-            condition: eq(variables.runGateway, 'true')
+            condition: and(succeeded(), eq(variables.runGateway, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -901,7 +901,7 @@ stages:
           #query proxy status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Proxy status'
-            condition: eq(variables.runUITerraform, 'true')
+            condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -917,7 +917,7 @@ stages:
           #query proxy status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV UI status'
-            condition: eq(variables.runUICodebase, 'true')
+            condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1071,13 +1071,13 @@ stages:
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
-                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'))
+                  condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
                   inputs:
                     terraformVersion: $(terraform-version)
                 
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   displayName: Terraform > Download Pipeline terraform build
                   artifact: "pipeline-terraform-files"
                 
@@ -1089,7 +1089,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
@@ -1102,7 +1102,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
                   displayName: 'Terraform > Write Pipeline Plan'
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1115,7 +1115,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve qa.tfplan
                   displayName: Terraform > Apply to QA
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1126,13 +1126,13 @@ stages:
                     
                 #download coordinator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runCoordinator, 'true')
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runCoordinator, 'true')
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
                   displayName: 'Deploy Coordinator Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -1142,13 +1142,13 @@ stages:
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPdfGenerator, 'true')
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPdfGenerator, 'true')
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
                   displayName: 'Deploy PDF Generator Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -1158,13 +1158,13 @@ stages:
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runTextExtractor, 'true')
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runTextExtractor, 'true')
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
                   displayName: 'Deploy Text Extractor Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -1174,7 +1174,7 @@ stages:
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   displayName: Terraform > Download Pipeline Events terraform build
                   artifact: "pipeline-events-terraform-files"
                 
@@ -1186,7 +1186,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
@@ -1199,7 +1199,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
                   displayName: 'Terraform > Write Pipeline Events Plan'
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1212,7 +1212,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve qa.tfplan
                   displayName: Terraform > Apply to QA
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1223,7 +1223,7 @@ stages:
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   displayName: Terraform > Download UI terraform build
                   artifact: "ui-terraform-files"
                 
@@ -1235,7 +1235,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
@@ -1248,7 +1248,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
                   displayName: 'Terraform > Write UI Plan'
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1261,7 +1261,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve qa.tfplan
                   displayName: Terraform > Apply to QA
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1272,13 +1272,13 @@ stages:
                     
                 #download UI build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
 
                 # Deploy Related Codebase to Env
                 - task: AzureRmWebAppDeployment@4
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: 'Deploy UI App Service to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -1288,13 +1288,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGateway, 'true')
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGateway, 'true')
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
                   displayName: 'Deploy Gateway Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -1304,13 +1304,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runAuthHandover, 'true')
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runAuthHandover, 'true')
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
                   displayName: 'Deploy Auth Handover Azure Function App to QA'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -1324,7 +1324,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -1338,7 +1338,7 @@ stages:
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: 'Restart Azure App Service'
                   inputs:
                     azureSubscription: $(qa-azure-subscription)
@@ -1347,7 +1347,7 @@ stages:
                         
                 #download ui events terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
@@ -1359,7 +1359,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
@@ -1372,7 +1372,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
                   displayName: 'Terraform > Write UI Events Plan'
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1385,7 +1385,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve qa.tfplan
                   displayName: Terraform > Apply to QA
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
@@ -1450,7 +1450,7 @@ stages:
           #query coordinator status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Coordinator status'
-            condition: eq(variables.runCoordinator, 'true')
+            condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1466,7 +1466,7 @@ stages:
           #query pdf-generator status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA PDF-Generator status'
-            condition: eq(variables.runPdfGenerator, 'true')
+            condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1482,7 +1482,7 @@ stages:
           #query text-extractor status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Text-Extractor status'
-            condition: eq(variables.runTextExtractor, 'true')
+            condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1498,7 +1498,7 @@ stages:
           #query auth-handover status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Auth-Handover status'
-            condition: eq(variables.runAuthHandover, 'true')
+            condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1514,7 +1514,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Gateway status'
-            condition: eq(variables.runGateway, 'true')
+            condition: and(succeeded(), eq(variables.runGateway, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1530,7 +1530,7 @@ stages:
           #query proxy status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Proxy status'
-            condition: eq(variables.runUITerraform, 'true')
+            condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1546,7 +1546,7 @@ stages:
           #query proxy status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA UI status'
-            condition: eq(variables.runUICodebase, 'true')
+            condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1700,13 +1700,13 @@ stages:
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
-                  condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'))
+                  condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
                   inputs:
                     terraformVersion: $(terraform-version)
                 
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   displayName: Terraform > Download Pipeline terraform build
                   artifact: "pipeline-terraform-files"
                 
@@ -1718,7 +1718,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
@@ -1731,7 +1731,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
                   displayName: 'Terraform > Write Pipeline Plan'
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -1744,7 +1744,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve prod.tfplan
                   displayName: Terraform > Apply to PROD
-                  condition: eq(variables.runPipelineTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -1755,13 +1755,13 @@ stages:
                     
                 #download coordinator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runCoordinator, 'true')
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
                   displayName: Deploy > Download Coordinator Codebase Build
                   artifact: "polaris-coordinator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runCoordinator, 'true')
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
                   displayName: 'Deploy Coordinator Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1771,13 +1771,13 @@ stages:
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPdfGenerator, 'true')
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
                   displayName: Deploy > Download PDF Generator Codebase Build
                   artifact: "polaris-pdf-generator-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runPdfGenerator, 'true')
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
                   displayName: 'Deploy PDF Generator Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1787,13 +1787,13 @@ stages:
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runTextExtractor, 'true')
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
                   displayName: Deploy > Download Text Extractor Codebase Build
                   artifact: "polaris-text-extractor-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runTextExtractor, 'true')
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
                   displayName: 'Deploy Text Extractor Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1803,7 +1803,7 @@ stages:
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   displayName: Terraform > Download Pipeline Events terraform build
                   artifact: "pipeline-events-terraform-files"
                 
@@ -1815,7 +1815,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
@@ -1828,7 +1828,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
                   displayName: 'Terraform > Write Pipeline Events Plan'
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -1841,7 +1841,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve prod.tfplan
                   displayName: Terraform > Apply to PROD
-                  condition: eq(variables.runPipelineEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -1852,7 +1852,7 @@ stages:
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   displayName: Terraform > Download UI terraform build
                   artifact: "ui-terraform-files"
                 
@@ -1864,7 +1864,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
@@ -1877,7 +1877,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
                   displayName: 'Terraform > Write UI Plan'
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -1890,7 +1890,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve prod.tfplan
                   displayName: Terraform > Apply to PROD
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -1901,13 +1901,13 @@ stages:
                     
                 #download UI build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: Deploy > Download SPA Codebase Build
                   artifact: "polaris-ui-drop"
 
                 # Deploy Related Codebase to Env
                 - task: AzureRmWebAppDeployment@4
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: 'Deploy UI App Service to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1917,13 +1917,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runGateway, 'true')
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
                   displayName: Deploy > Download Gateway Codebase Build
                   artifact: "polaris-gateway-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runGateway, 'true')
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
                   displayName: 'Deploy Gateway Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1933,13 +1933,13 @@ stages:
                 
                 #download gateway build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runAuthHandover, 'true')
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
                   displayName: Deploy > Download Auth Handover Codebase Build
                   artifact: "polaris-auth-handover-drop"
                 
                 # Deploy Related Codebase to Env
                 - task: AzureFunctionApp@1
-                  condition: eq(variables.runAuthHandover, 'true')
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
                   displayName: 'Deploy Auth Handover Azure Function App to PROD'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1953,7 +1953,7 @@ stages:
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
                     az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
-                  condition: eq(variables.runUITerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
                   displayName: Script > Set Log Analytics Archival Periods
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-terraform-files
                   env:
@@ -1967,7 +1967,7 @@ stages:
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
-                  condition: eq(variables.runUICodebase, 'true')
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
                   displayName: 'Restart Azure App Service'
                   inputs:
                     azureSubscription: $(prod-azure-subscription)
@@ -1976,7 +1976,7 @@ stages:
                     
                 #download ui events terraform build artifact
                 - download: PolarisBuild
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   displayName: Terraform > Download UI Events terraform build
                   artifact: "ui-events-terraform-files"
                 
@@ -1988,7 +1988,7 @@ stages:
                       -backend-config="key=$TF_STATE_KEY" \
                       -backend-config="access_key=$TF_STATE_ACCESS_KEY"
                   displayName: Terraform > Init
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
@@ -2001,7 +2001,7 @@ stages:
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
                   displayName: 'Terraform > Write UI Events Plan'
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -2014,7 +2014,7 @@ stages:
                 - bash: |
                     terraform apply -auto-approve prod.tfplan
                   displayName: Terraform > Apply to PROD
-                  condition: eq(variables.runUIEventsTerraform, 'true')
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/ui-events-terraform-files
                   env:
                     ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
@@ -2079,7 +2079,7 @@ stages:
           #query coordinator status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Coordinator status'
-            condition: eq(variables.runCoordinator, 'true')
+            condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2095,7 +2095,7 @@ stages:
           #query pdf-generator status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD PDF-Generator status'
-            condition: eq(variables.runPdfGenerator, 'true')
+            condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2111,7 +2111,7 @@ stages:
           #query text-extractor status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Text-Extractor status'
-            condition: eq(variables.runTextExtractor, 'true')
+            condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2127,7 +2127,7 @@ stages:
           #query auth-handover status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Auth-Handover status'
-            condition: eq(variables.runAuthHandover, 'true')
+            condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2143,7 +2143,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Gateway status'
-            condition: eq(variables.runGateway, 'true')
+            condition: and(succeeded(), eq(variables.runGateway, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2159,7 +2159,7 @@ stages:
           #query proxy status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Proxy status'
-            condition: eq(variables.runUITerraform, 'true')
+            condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2175,7 +2175,7 @@ stages:
           #query proxy status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD UI status'
-            condition: eq(variables.runUICodebase, 'true')
+            condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'

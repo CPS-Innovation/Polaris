@@ -1,8 +1,6 @@
 env                          = "dev"
 environment_tag              = "development"
 dns_server                   = "10.7.197.20"
-app_service_plan_sku         = "EP1"
-coordinator_service_plan_sku = "P1v3"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Development"
 
