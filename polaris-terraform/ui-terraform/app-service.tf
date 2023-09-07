@@ -7,12 +7,13 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   #checkov:skip=CKV_AZURE_213:Ensure that App Service configures health check
   #checkov:skip=CKV_AZURE_71:Ensure that Managed identity provider is enabled for app services
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
-  name                      = "as-web-${local.resource_name}"
-  location                  = azurerm_resource_group.rg_polaris.location
-  resource_group_name       = azurerm_resource_group.rg_polaris.name
-  service_plan_id           = azurerm_service_plan.asp_polaris_spa.id
-  https_only                = true
-  virtual_network_subnet_id = data.azurerm_subnet.polaris_ui_subnet.id
+  name                          = "as-web-${local.resource_name}"
+  location                      = azurerm_resource_group.rg_polaris.location
+  resource_group_name           = azurerm_resource_group.rg_polaris.name
+  service_plan_id               = azurerm_service_plan.asp_polaris_spa.id
+  https_only                    = true
+  virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
+  public_network_access_enabled = false
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key

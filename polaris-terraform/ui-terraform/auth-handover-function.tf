@@ -1,12 +1,13 @@
 resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
-  name                        = "fa-${local.resource_name}-auth-handover"
-  location                    = azurerm_resource_group.rg_polaris.location
-  resource_group_name         = azurerm_resource_group.rg_polaris.name
-  service_plan_id             = azurerm_service_plan.asp_polaris.id
-  storage_account_name        = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key  = azurerm_storage_account.sacpspolaris.primary_access_key
-  virtual_network_subnet_id   = data.azurerm_subnet.polaris_auth_handover_subnet.id
-  functions_extension_version = "~4"
+  name                          = "fa-${local.resource_name}-auth-handover"
+  location                      = azurerm_resource_group.rg_polaris.location
+  resource_group_name           = azurerm_resource_group.rg_polaris.name
+  service_plan_id               = azurerm_service_plan.asp_polaris.id
+  storage_account_name          = azurerm_storage_account.sacpspolaris.name
+  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
+  virtual_network_subnet_id     = data.azurerm_subnet.polaris_auth_handover_subnet.id
+  functions_extension_version   = "~4"
+  public_network_access_enabled = false
 
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
