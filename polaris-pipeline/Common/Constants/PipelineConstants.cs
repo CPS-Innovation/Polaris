@@ -77,7 +77,8 @@
         {
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
             public const string AzureWebJobsStorage = "AzureWebJobsStorage";
-            public const string OvernightClearDownEnabled = "OvernightClearDownEnabled";
+            public const string ClearDownEnabled = "ClearDownEnabled";
+            public const string ClearDownInputMonths = "ClearDownInputMonths";
         }
 
         public static class TextExtractorKeys
