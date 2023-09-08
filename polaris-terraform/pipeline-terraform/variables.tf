@@ -73,6 +73,6 @@ variable "clear_down_enabled" {
   type = bool
 }
 
-variable "clear_down_input_months" {
+variable "clear_down_input_weeks" {
   type = number
 }

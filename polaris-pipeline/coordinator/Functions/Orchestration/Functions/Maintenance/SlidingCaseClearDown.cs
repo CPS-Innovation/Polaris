@@ -40,13 +40,13 @@ public class SlidingCaseClearDown
         try
         {
             var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownEnabled], out var clearDownEnabled);
-            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownInputMonths],
-                out var clearDownInputMonths);
+            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownInputWeeks],
+                out var clearDownInputWeeks);
             if (convSucceeded && clearDownEnabled && inputConvSucceeded)
             {
-                var clearDownPeriod = clearDownInputMonths * -1;
+                var clearDownPeriod = clearDownInputWeeks * 7 * -1;
                 var targetCaseId =
-                    await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddMonths(clearDownPeriod), correlationId);
+                    await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
                 if (string.IsNullOrEmpty(targetCaseId))
                 {
                     _logger.LogMethodFlow(correlationId, LoggingName, "No cases to clear-down");
