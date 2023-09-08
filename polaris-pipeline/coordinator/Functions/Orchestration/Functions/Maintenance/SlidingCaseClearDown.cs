@@ -62,7 +62,7 @@ public class SlidingCaseClearDown
             }
             else
             {
-                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "Durable data clear-down has been disabled in config.");
+                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "Sliding case data clear-down has been disabled in config.");
             }
         }
         catch (Exception ex)
