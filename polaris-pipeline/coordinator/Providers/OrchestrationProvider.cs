@@ -19,7 +19,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
-using Common.Dto.Orchestration;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain.Dto;
 using Microsoft.Extensions.Configuration;
@@ -115,7 +114,8 @@ public class OrchestrationProvider : IOrchestrationProvider
     public async Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId, 
         string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req)
     {
-        var existingInstance = await orchestrationClient.GetStatusAsync(caseId);
+        var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
+        var existingInstance = await orchestrationClient.GetStatusAsync(instanceId);
         var isSingletonRefreshRunning = IsSingletonRefreshRunning(existingInstance);
         const string loggingName = $"{nameof(OrchestrationProvider)} - {nameof(RefreshCaseAsync)}";
 
@@ -124,8 +124,6 @@ public class OrchestrationProvider : IOrchestrationProvider
             _logger.LogMethodFlow(correlationId, loggingName, $"{nameof(OrchestrationProvider)} Locked as already running - {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
             return new HttpResponseMessage(HttpStatusCode.Locked);
         }
-
-        var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
 
         await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), instanceId, casePayload);
 
@@ -136,44 +134,46 @@ public class OrchestrationProvider : IOrchestrationProvider
     public async Task<HttpResponseMessage> DeleteCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId, 
         int caseId)
     {
-        var startTime = DateTime.UtcNow;
+        var telemetryEvent = new DeletedCaseEvent(
+                correlationId: correlationId,
+                caseId: caseId,
+                startTime: DateTime.UtcNow
+        );
         var caseIdAsString = caseId.ToString();
-
-        await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
-        var removedCaseIndexTime = DateTime.UtcNow;
-
-        await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId, correlationId);
-        var indexSettledTime = DateTime.UtcNow;
         
-        await _blobStorageService.DeleteBlobsByCaseAsync(caseIdAsString, correlationId);
-        var blobsDeletedTime = DateTime.UtcNow;
+        try
+        {
+            await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
+            telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
 
-        // Terminate Orchestrations (can't terminate Durable Entities with Netherite backend, but can Purge - see below)
-        var terminateOrchestrationQueries = GetOrchestrationQueries(_terminateStatuses, caseIdAsString);
-        await TerminateOrchestrations(orchestrationClient, terminateOrchestrationQueries, correlationId);
-        var gotTerminateInstancesTime = DateTime.UtcNow;
-        var terminatedInstancesTime = DateTime.UtcNow;
+            await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId, correlationId);
+            telemetryEvent.IndexSettledTime = DateTime.UtcNow;
+            
+            await _blobStorageService.DeleteBlobsByCaseAsync(caseIdAsString, correlationId);
+            telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
 
-        // Purge Orchestrations and Durable Entities
-        var purgeConditions = GetOrchestrationQueries(_purgeStatuses, caseIdAsString);
-        purgeConditions.AddRange(GetDurableEntityQueries(_terminateStatuses, caseIdAsString));
-        var success = await Purge(orchestrationClient, purgeConditions, correlationId);
-        var purgedInstancesTime = DateTime.UtcNow;
-        
-        _telemetryClient.TrackEvent(new DeletedCaseEvent(
-            correlationId: correlationId,
-            caseId: caseId,
-            startTime: startTime,
-            removedCaseIndexTime: removedCaseIndexTime,
-            indexSettledTime: indexSettledTime,
-            blobsDeletedTime: blobsDeletedTime,
-            gotTerminateInstancesTime: gotTerminateInstancesTime,
-            terminatedInstancesTime: terminatedInstancesTime,
-            endTime: purgedInstancesTime,
-            terminatedInstancesCount: purgeConditions.Count
-        ));
+            // Terminate Orchestrations (can't terminate Durable Entities with Netherite backend, but can Purge - see below)
+            var terminateOrchestrationQueries = GetOrchestrationQueries(_terminateStatuses, caseIdAsString);
+            var terminateOrchestrationInstanceIds = await TerminateOrchestrations(orchestrationClient, terminateOrchestrationQueries, correlationId);
+            telemetryEvent.TerminatedInstancesCount = terminateOrchestrationInstanceIds.Count;
+            telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
+            telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
 
-        return new HttpResponseMessage(success ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
+            // Purge Orchestrations and Durable Entities
+            var purgeConditions = GetOrchestrationQueries(_purgeStatuses, caseIdAsString);
+            purgeConditions.AddRange(GetDurableEntityQueries(_terminateStatuses, caseIdAsString));
+            var success = await Purge(orchestrationClient, purgeConditions, correlationId);
+            telemetryEvent.EndTime = DateTime.UtcNow;
+
+            _telemetryClient.TrackEvent(telemetryEvent);
+
+            return new HttpResponseMessage(success ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
+        }
+        catch (Exception)
+        {
+            _telemetryClient.TrackEventFailure(telemetryEvent);
+            throw;
+        }
     }
 
     public async Task<HttpResponseMessage> UpdateTrackerAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId, string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req)
@@ -239,8 +239,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         return instanceIds;
     }
     
-    private static async Task WaitForOrchestrationsToTerminateTask(IDurableOrchestrationClient client,
-        IReadOnlyCollection<string> instanceIds)
+    private static async Task WaitForOrchestrationsToTerminateTask(IDurableOrchestrationClient client, IReadOnlyCollection<string> instanceIds)
     {
         if(instanceIds == null || !instanceIds.Any()) return;
 
@@ -284,40 +283,20 @@ public class OrchestrationProvider : IOrchestrationProvider
     private static List<OrchestrationStatusQueryCondition> GetOrchestrationQueries(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses, string caseId)
     {
         var conditions = new List<OrchestrationStatusQueryCondition>();
-        var receivedStatuses = runtimeStatuses.ToList();
 
-        var caseAndDocumentCondition = new OrchestrationStatusQueryCondition
+        // RefreshCaseOrchestrator, instanceId = e.g. [2149310]
+        // RefreshDocumentOrchestrator, instanceId = e.g. [2149310]-CMS4284166
+        // Common root = e.g. [2149310]
+        var refreshCaseOrDocumentOrchestratorCondition = new OrchestrationStatusQueryCondition
         {
             InstanceIdPrefix = RefreshCaseOrchestrator.GetKey(caseId),
             CreatedTimeFrom = DateTime.MinValue,
             CreatedTimeTo = DateTime.UtcNow,
-            RuntimeStatus = receivedStatuses,
+            RuntimeStatus = runtimeStatuses,
             PageSize = DefaultPageSize,
             ContinuationToken = null
         };
-        conditions.Add(caseAndDocumentCondition);
-
-        var caseDurableEntityCondition = new OrchestrationStatusQueryCondition
-        {
-            InstanceIdPrefix = CaseDurableEntity.GetInstanceId(caseId),
-            CreatedTimeFrom = DateTime.MinValue,
-            CreatedTimeTo = DateTime.UtcNow,
-            RuntimeStatus = receivedStatuses,
-            PageSize = DefaultPageSize,
-            ContinuationToken = null
-        };
-        conditions.Add(caseDurableEntityCondition);
-
-        var caseRefreshLogsDurableEntitiesCondition = new OrchestrationStatusQueryCondition
-        {
-            InstanceIdPrefix = CaseRefreshLogsDurableEntity.GetInstanceId(caseId, 0).Replace("-0", string.Empty),
-            CreatedTimeFrom = DateTime.MinValue,
-            CreatedTimeTo = DateTime.UtcNow,
-            RuntimeStatus = receivedStatuses,
-            PageSize = DefaultPageSize,
-            ContinuationToken = null
-        };
-        conditions.Add(caseRefreshLogsDurableEntitiesCondition);
+        conditions.Add(refreshCaseOrDocumentOrchestratorCondition);
 
         return conditions;
     }

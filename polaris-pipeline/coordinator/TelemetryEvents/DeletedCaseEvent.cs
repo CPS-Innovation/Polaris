@@ -6,11 +6,12 @@ namespace coordinator.TelemetryEvents
 {
     public class DeletedCaseEvent : BaseTelemetryEvent
     {
-        private const string indexDeletedDurationSeconds = nameof(indexDeletedDurationSeconds);
-        private const string indexSettledDurationSeconds = nameof(indexSettledDurationSeconds);
-        private const string getInstancesToTerminateDurationSeconds = nameof(getInstancesToTerminateDurationSeconds);
-        private const string terminateInstancesDurationSeconds = nameof(terminateInstancesDurationSeconds);
-        private const string purgedInstancesDurationSeconds = nameof(purgedInstancesDurationSeconds);
+        private const string IndexDeletedDurationSeconds = nameof(IndexDeletedDurationSeconds);
+        private const string IndexSettledDurationSeconds = nameof(IndexSettledDurationSeconds);
+        private const string GetInstancesToTerminateDurationSeconds = nameof(GetInstancesToTerminateDurationSeconds);
+        private const string TerminateInstancesDurationSeconds = nameof(TerminateInstancesDurationSeconds);
+        private const string PurgedInstancesDurationSeconds = nameof(PurgedInstancesDurationSeconds);
+        private const string BlobsDeletedDurationSeconds = nameof(BlobsDeletedDurationSeconds);
 
         public Guid CorrelationId;
         public long CaseId;
@@ -18,6 +19,7 @@ namespace coordinator.TelemetryEvents
         public DateTime StartTime;
         public DateTime RemovedCaseIndexTime;
         public DateTime IndexSettledTime;
+        public DateTime BlobsDeletedTime;
         public DateTime GotTerminateInstancesTime;
         public DateTime TerminatedInstancesTime;
         public DateTime EndTime;
@@ -47,11 +49,12 @@ namespace coordinator.TelemetryEvents
                 new Dictionary<string, double?>
                 {
                     { durationSeconds, GetDurationSeconds( StartTime,EndTime) },
-                    { indexDeletedDurationSeconds, GetDurationSeconds(StartTime, RemovedCaseIndexTime) },
-                    { indexSettledDurationSeconds, GetDurationSeconds(RemovedCaseIndexTime, IndexSettledTime) },
-                    { getInstancesToTerminateDurationSeconds, GetDurationSeconds(IndexSettledTime, GotTerminateInstancesTime) },
-                    { terminateInstancesDurationSeconds, GetDurationSeconds(GotTerminateInstancesTime, TerminatedInstancesTime) },
-                    { purgedInstancesDurationSeconds, GetDurationSeconds(TerminatedInstancesTime, EndTime) },
+                    { IndexDeletedDurationSeconds, GetDurationSeconds(StartTime, RemovedCaseIndexTime) },
+                    { IndexSettledDurationSeconds, GetDurationSeconds(RemovedCaseIndexTime, IndexSettledTime) },
+                    { BlobsDeletedDurationSeconds, GetDurationSeconds(IndexSettledTime, BlobsDeletedTime)},
+                    { GetInstancesToTerminateDurationSeconds, GetDurationSeconds(BlobsDeletedTime, GotTerminateInstancesTime) },
+                    { TerminateInstancesDurationSeconds, GetDurationSeconds(GotTerminateInstancesTime, TerminatedInstancesTime) },
+                    { PurgedInstancesDurationSeconds, GetDurationSeconds(TerminatedInstancesTime, EndTime) },
                     { nameof(TerminatedInstancesCount), TerminatedInstancesCount },
                 }
             );

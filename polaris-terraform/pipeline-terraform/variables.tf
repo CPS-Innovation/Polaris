@@ -68,3 +68,11 @@ variable "pipeline_event_hub_settings" {
     capacity = number
   })
 }
+
+variable "clear_down_enabled" {
+  type = bool
+}
+
+variable "clear_down_input_months" {
+  type = number
+}
