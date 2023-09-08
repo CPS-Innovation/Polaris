@@ -22,12 +22,12 @@ pipeline_component_service_plans = {
   text_extractor_maximum_instances = 10
 }
 
-overnight_clear_down_enabled = false
+overnight_sliding_clear_down_enabled = false
 
 pipeline_event_hub_settings = {
   sku      = "Standard"
   capacity = 1
 }
 
-clear_down_enabled      = true
-clear_down_input_days   = 31
+sliding_clear_down_enabled      = true
+sliding_clear_down_input_days   = 31

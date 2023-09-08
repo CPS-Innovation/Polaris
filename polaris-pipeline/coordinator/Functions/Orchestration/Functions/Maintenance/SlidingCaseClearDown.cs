@@ -39,8 +39,8 @@ public class SlidingCaseClearDown
         var correlationId = Guid.NewGuid();
         try
         {
-            var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownEnabled], out var clearDownEnabled);
-            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownInputDays],
+            var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownEnabled], out var clearDownEnabled);
+            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays],
                 out var clearDownInputDays);
             if (convSucceeded && clearDownEnabled && inputConvSucceeded)
             {

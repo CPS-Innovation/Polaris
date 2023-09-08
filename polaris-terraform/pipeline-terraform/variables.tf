@@ -58,7 +58,7 @@ variable "pipeline_logging" {
   })
 }
 
-variable "overnight_clear_down_enabled" {
+variable "overnight_sliding_clear_down_enabled" {
   type = bool
 }
 
@@ -69,10 +69,10 @@ variable "pipeline_event_hub_settings" {
   })
 }
 
-variable "clear_down_enabled" {
+variable "sliding_clear_down_enabled" {
   type = bool
 }
 
-variable "clear_down_input_days" {
+variable "sliding_clear_down_input_days" {
   type = number
 }
