@@ -2,7 +2,7 @@
 
 namespace coordinator.Domain.Dto;
 
-public class DurableInstanceRecord
+public class DurableInstanceDto
 {
     [JsonProperty("name")]
     public string Name { get; set; }

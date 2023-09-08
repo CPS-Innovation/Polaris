@@ -21,6 +21,7 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain.Dto;
+using coordinator.Domain.Extensions;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -76,6 +77,8 @@ public class OrchestrationProvider : IOrchestrationProvider
         _logger.LogMethodEntry(correlationId, nameof(FindCaseInstanceByDateAsync), $"Searching durable instance records for target case to clear-down, up to '{createdTimeTo:dd-MM-yyyy}'");
 
         var caseId = string.Empty;
+        var clearDownCandidates = new[] {OrchestrationRuntimeStatus.Completed, OrchestrationRuntimeStatus.Failed};
+        
         try
         {
             var requestUri = $"{RestApi.GetInstancesPath()}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}&createdTimeTo={createdTimeTo:yyyy-MM-ddThh:mm:ss.fffZ}&showInput=false&showHistoryOutput=false&instanceIdPrefix=[";
@@ -92,8 +95,8 @@ public class OrchestrationProvider : IOrchestrationProvider
             if (string.IsNullOrWhiteSpace(jsonString))
                 return caseId;
             
-            var results =  JsonConvert.DeserializeObject<List<DurableInstanceRecord>>(jsonString);
-            var targetInstance = results.FirstOrDefault(i => i.Name == "RefreshCaseOrchestrator" && i.RuntimeStatus is "Completed" or "Failed");
+            var results =  JsonConvert.DeserializeObject<List<DurableInstanceDto>>(jsonString);
+            var targetInstance = results.FirstOrDefault(i => i.Name == Orchestrators.RefreshCaseOrchestrator && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates));
             
             if (targetInstance != null && !string.IsNullOrWhiteSpace(targetInstance.InstanceId))
                 caseId = targetInstance.InstanceId;
@@ -174,26 +177,6 @@ public class OrchestrationProvider : IOrchestrationProvider
             _telemetryClient.TrackEventFailure(telemetryEvent);
             throw;
         }
-    }
-
-    public async Task<HttpResponseMessage> UpdateTrackerAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId, string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req)
-    {
-        var content = await req.Content?.ReadAsStringAsync()!;
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            throw new BadRequestException("Request body cannot be null.", nameof(req));
-        }
-        var tracker = _jsonConvertWrapper.DeserializeObject<CaseDurableEntity>(content);
-
-        var updateTrackerPayload = new UpdateCaseDurableEntityPayload
-        {
-            CaseOrchestrationPayload = casePayload,
-            Tracker = tracker
-        };
-
-        await orchestrationClient.StartNewAsync(nameof(UpdateTrackerOrchestrator), caseId, updateTrackerPayload);
-
-        return new HttpResponseMessage(HttpStatusCode.Accepted);
     }
     
     private static bool IsSingletonRefreshRunning(DurableOrchestrationStatus existingInstance)

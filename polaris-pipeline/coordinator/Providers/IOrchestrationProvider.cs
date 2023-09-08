@@ -15,7 +15,4 @@ public interface IOrchestrationProvider
 
     Task<HttpResponseMessage> DeleteCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
         int caseId);
-
-    Task<HttpResponseMessage> UpdateTrackerAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
-        string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req);
 }

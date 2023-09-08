@@ -94,9 +94,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
                     case "DELETE":
                         return await _orchestrationProvider.DeleteCaseAsync(orchestrationClient, currentCorrelationId, caseIdNum);
 
-                    case "PUT":
-                        return await _orchestrationProvider.UpdateTrackerAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
-
                     default:
                         throw new BadRequestException("Unexpected HTTP Verb", req.Method.Method);
                 }

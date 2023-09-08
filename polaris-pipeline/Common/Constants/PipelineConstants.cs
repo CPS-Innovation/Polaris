@@ -49,6 +49,11 @@
     {
     }
 
+    public static class Orchestrators
+    {
+        public const string RefreshCaseOrchestrator = "RefreshCaseOrchestrator";
+    }
+
 #if DEBUG
     public static class DebugSettings
     {
