@@ -30,4 +30,4 @@ pipeline_event_hub_settings = {
 }
 
 clear_down_enabled      = true
-clear_down_input_weeks = 4
+clear_down_input_days   = 31

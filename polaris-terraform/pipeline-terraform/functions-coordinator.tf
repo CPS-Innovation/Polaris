@@ -42,7 +42,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "PolarisPipelineRedactPdfFunctionAppKey"     = data.azurerm_function_app_host_keys.ak_pdf_generator.default_function_key
     "OvernightClearDownEnabled"                  = var.overnight_clear_down_enabled
     "ClearDownEnabled"                           = var.clear_down_enabled
-    "ClearDownInputWeeks"                        = var.clear_down_input_weeks
+    "ClearDownInputDays"                         = var.clear_down_input_days
   }
 
   site_config {

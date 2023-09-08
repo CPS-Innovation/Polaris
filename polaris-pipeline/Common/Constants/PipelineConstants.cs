@@ -79,7 +79,7 @@
             public const string AzureWebJobsStorage = "AzureWebJobsStorage";
             public const string OvernightClearDownEnabled = "OvernightClearDownEnabled";
             public const string ClearDownEnabled = "ClearDownEnabled";
-            public const string ClearDownInputWeeks = "ClearDownInputWeeks";
+            public const string ClearDownInputDays = "ClearDownInputDays";
         }
 
         public static class TextExtractorKeys

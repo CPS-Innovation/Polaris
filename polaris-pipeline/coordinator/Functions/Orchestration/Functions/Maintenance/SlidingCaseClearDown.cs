@@ -40,11 +40,11 @@ public class SlidingCaseClearDown
         try
         {
             var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownEnabled], out var clearDownEnabled);
-            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownInputWeeks],
-                out var clearDownInputWeeks);
+            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.ClearDownInputDays],
+                out var clearDownInputDays);
             if (convSucceeded && clearDownEnabled && inputConvSucceeded)
             {
-                var clearDownPeriod = clearDownInputWeeks * 7 * -1;
+                var clearDownPeriod = clearDownInputDays * -1;
                 var targetCaseId =
                     await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
                 if (string.IsNullOrEmpty(targetCaseId))
