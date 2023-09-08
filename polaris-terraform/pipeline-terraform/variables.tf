@@ -58,7 +58,7 @@ variable "pipeline_logging" {
   })
 }
 
-variable "overnight_sliding_clear_down_enabled" {
+variable "overnight_clear_down_enabled" {
   type = bool
 }
 

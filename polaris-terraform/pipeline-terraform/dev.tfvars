@@ -22,7 +22,7 @@ pipeline_component_service_plans = {
   text_extractor_maximum_instances = 10
 }
 
-overnight_sliding_clear_down_enabled = false
+overnight_clear_down_enabled = false
 
 pipeline_event_hub_settings = {
   sku      = "Standard"
