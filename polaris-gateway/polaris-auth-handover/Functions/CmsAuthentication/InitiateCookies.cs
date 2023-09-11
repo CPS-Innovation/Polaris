@@ -99,7 +99,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             _telemetryAugmentationWrapper.RegisterCmsUserId(whitelistedCookies.ExtractCmsUserId());
             _telemetryAugmentationWrapper.RegisterLoadBalancingCookie(whitelistedCookies.ExtractLoadBalancerCookies());
 
-            var cmsModernToken = await GetCmsModernToken(whitelistedCookies, correlationId);
+            var cmsModernToken = await GetCmsModernToken(req, whitelistedCookies, correlationId);
             if (cmsModernToken == null)
             {
                 return null;
@@ -129,14 +129,14 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             return whitelistedCookies;
         }
 
-        private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId)
+        private async Task<string> GetCmsModernToken(HttpRequest req, string cmsCookiesString, Guid currentCorrelationId)
         {
             try
             {
                 var token = await _ddeiClient.GetCmsModernToken(new DdeiCmsCaseDataArgDto
                 {
                     CorrelationId = currentCorrelationId,
-                    CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}"
+                    CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{req.GetClientIpAddress()}\"}}"
                 });
                 // Note 1 of 2:  two things may be happening if have got this far.
                 //  a) we have new cookies that correspond to a live Modern session and we are on the happy path.
@@ -160,7 +160,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         private static string CreateAndAppendPolarisAuthCookie(HttpRequest req, string cmsCookiesString, string cmsToken)
         {
-            var polarisAuthCookieContent = $"{{Cookies: \"{cmsCookiesString}\", Token: \"{cmsToken}\"}}";
+            var polarisAuthCookieContent = $"{{Cookies: \"{cmsCookiesString}\", Token: \"{cmsToken}\", UserIpAddress: \"{req.GetClientIpAddress()}\"}}";
 
             var cookieOptions = req.IsHttps
                 ? new CookieOptions
