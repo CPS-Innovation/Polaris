@@ -23,7 +23,6 @@
     <Folder Include="Factories\" />
     <Folder Include="Functions\ActivityFunctions\" />
     <Folder Include="Functions\SubOrchestrators\" />
-    <Folder Include="Domain\" />
     <Folder Include="Domain\Tracker\" />
   </ItemGroup>
   <ItemGroup>

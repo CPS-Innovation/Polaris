@@ -1,12 +1,9 @@
-﻿using Common.Domain.Exceptions;
-using Common.Logging;
+﻿using Common.Logging;
 using Common.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Contracts;
-using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
-using coordinator.Functions.Orchestration.Functions.Tracker;
 using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -32,7 +29,6 @@ public class OrchestrationProvider : IOrchestrationProvider
     private readonly ILogger<OrchestrationProvider> _logger;
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IJsonConvertWrapper _jsonConvertWrapper;
     private readonly ISearchIndexService _searchIndexService;
     private readonly ITelemetryClient _telemetryClient;
     private readonly IPolarisBlobStorageService _blobStorageService;
@@ -57,7 +53,6 @@ public class OrchestrationProvider : IOrchestrationProvider
         ILogger<OrchestrationProvider> logger,
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
-        IJsonConvertWrapper jsonConvertWrapper,
         ISearchIndexService searchIndexService,
         ITelemetryClient telemetryClient,
         IPolarisBlobStorageService blobStorageService
@@ -66,7 +61,6 @@ public class OrchestrationProvider : IOrchestrationProvider
         _logger = logger;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
-        _jsonConvertWrapper = jsonConvertWrapper;
         _searchIndexService = searchIndexService;
         _telemetryClient = telemetryClient;
         _blobStorageService = blobStorageService;
