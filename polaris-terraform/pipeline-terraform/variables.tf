@@ -68,3 +68,11 @@ variable "pipeline_event_hub_settings" {
     capacity = number
   })
 }
+
+variable "sliding_clear_down_enabled" {
+  type = bool
+}
+
+variable "sliding_clear_down_input_days" {
+  type = number
+}

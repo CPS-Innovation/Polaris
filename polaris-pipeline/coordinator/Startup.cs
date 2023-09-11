@@ -31,6 +31,7 @@ using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using coordinator.Providers;
 using Microsoft.Extensions.Azure;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -69,6 +70,7 @@ namespace coordinator
             services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
             services.AddBlobSasGenerator();

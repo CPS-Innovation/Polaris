@@ -84,5 +84,10 @@ namespace Common.Configuration
             var url = $"runtime/webhooks/durabletask/entities/{durableEntityType}/{instanceId}";
             return url;
         }
+        
+        public static string GetInstancesPath()
+        {
+            return "runtime/webhooks/durabletask/instances";
+        }
     }
 }

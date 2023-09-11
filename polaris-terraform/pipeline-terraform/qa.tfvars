@@ -28,3 +28,6 @@ pipeline_event_hub_settings = {
   sku      = "Standard"
   capacity = 1
 }
+
+sliding_clear_down_enabled      = true
+sliding_clear_down_input_days   = 31

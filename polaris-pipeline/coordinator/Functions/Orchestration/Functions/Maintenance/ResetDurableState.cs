@@ -86,7 +86,8 @@ public class ResetDurableState
         _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {runningInstances.Count} active orchestrations and durable instances forcibly terminated");
     }
 
-    private async Task<HashSet<string>> PurgeOrchestrationsAndDurableEntitiesHistory(IDurableOrchestrationClient client, Guid correlationId)
+    private async Task PurgeOrchestrationsAndDurableEntitiesHistory(IDurableOrchestrationClient client,
+        Guid correlationId)
     {
         _logger.LogMethodFlow(correlationId, LoggingName, "Overnight clear-down - second, purge durable instance history");
         
@@ -111,7 +112,6 @@ public class ResetDurableState
         } while (purgeCondition.ContinuationToken != null);
             
         _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {orchestrationInstances.Count} orchestration and durable entity instances purged from history.");
-        return orchestrationInstances;
     }
 
     private static OrchestrationStatusQueryCondition CreateOrchestrationQuery(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses)
