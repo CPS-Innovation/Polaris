@@ -90,7 +90,7 @@ public class OrchestrationProvider : IOrchestrationProvider
                 return caseId;
             
             var results =  JsonConvert.DeserializeObject<List<DurableInstanceDto>>(jsonString);
-            var targetInstance = results.FirstOrDefault(i => i.Name == Orchestrators.RefreshCaseOrchestrator && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates));
+            var targetInstance = results.FirstOrDefault(i => i.Name == nameof(RefreshCaseOrchestrator) && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates));
             
             if (targetInstance != null && !string.IsNullOrWhiteSpace(targetInstance.InstanceId))
                 caseId = targetInstance.InstanceId;
