@@ -93,3 +93,11 @@
     color: #0b0c0c;
   }
 }
+
+.contentArea {
+  border: 3px solid blue;
+  &:focus {
+    background-color: red;
+    border: 3px solid green;
+  }
+}

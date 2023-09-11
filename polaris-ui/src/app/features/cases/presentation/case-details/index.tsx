@@ -31,6 +31,7 @@ import {
 } from "../../../../common/hooks/useAppInsightsTracks";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { SURVEY_LINK } from "../../../../config";
+import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -74,6 +75,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     navigationUnblockHandle,
     unSavedRedactionDocs,
   } = useNavigationAlert(tabsState.items);
+
+  useSwitchContentArea();
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {
@@ -208,7 +211,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
           <div
-            className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn}`}
+            id="content-area-1"
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+            tabIndex={0}
+            className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
           >
             <div>
               <KeyDetails

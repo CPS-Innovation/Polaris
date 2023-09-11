@@ -77,3 +77,11 @@
     padding: 0;
   }
 }
+
+.contentArea {
+  border: 3px solid blue;
+  &:focus {
+    background-color: red;
+    border: 3px solid green;
+  }
+}
