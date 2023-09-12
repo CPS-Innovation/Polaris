@@ -27,6 +27,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "AzureWebJobsStorage"                        = azurerm_storage_account.sa.primary_connection_string
     "EventHubsConnection"                        = azurerm_eventhub_namespace.polaris-eh-namespace.default_primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"         = "600"
+    "PolarisPipelineCoordinatorBaseUrl"          = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorBaseUrl"        = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorFunctionAppKey" = data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key
     "SearchClientAuthorizationKey"               = azurerm_search_service.ss.primary_key
