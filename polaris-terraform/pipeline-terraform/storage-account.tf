@@ -71,6 +71,12 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
 
   network_rules {
     default_action = "Deny"
+    bypass         = ["Metrics", "Logging", "AzureServices"]
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.polaris_ci_subnet.id,
+      data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
+      data.azurerm_subnet.polaris_apps_subnet.id
+    ]
   }
 
   queue_properties {
@@ -124,6 +130,12 @@ resource "azurerm_storage_account" "sa_text_extractor" {
 
   network_rules {
     default_action = "Deny"
+    bypass         = ["Metrics", "Logging", "AzureServices"]
+    virtual_network_subnet_ids = [
+      data.azurerm_subnet.polaris_ci_subnet.id,
+      data.azurerm_subnet.polaris_textextractor_subnet.id,
+      data.azurerm_subnet.polaris_apps_subnet.id
+    ]
   }
 
   queue_properties {
@@ -169,32 +181,6 @@ resource "azurerm_storage_account_network_rules" "pipeline_sa_rules" {
     data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
     data.azurerm_subnet.polaris_textextractor_subnet.id,
     data.azurerm_subnet.polaris_gateway_subnet.id,
-    data.azurerm_subnet.polaris_apps_subnet.id
-  ]
-}
-
-resource "azurerm_storage_account_network_rules" "pipeline_sa_pdf_generator_rules" {
-  storage_account_id = azurerm_storage_account.sa_pdf_generator.id
-
-  default_action = "Deny"
-  bypass         = ["Metrics", "Logging", "AzureServices"]
-  depends_on     = [azurerm_storage_account.sa_pdf_generator]
-  virtual_network_subnet_ids = [
-    data.azurerm_subnet.polaris_ci_subnet.id,
-    data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
-    data.azurerm_subnet.polaris_apps_subnet.id
-  ]
-}
-
-resource "azurerm_storage_account_network_rules" "pipeline_sa_text_extractor_rules" {
-  storage_account_id = azurerm_storage_account.sa_text_extractor.id
-
-  default_action = "Deny"
-  bypass         = ["Metrics", "Logging", "AzureServices"]
-  depends_on     = [azurerm_storage_account.sa_text_extractor]
-  virtual_network_subnet_ids = [
-    data.azurerm_subnet.polaris_ci_subnet.id,
-    data.azurerm_subnet.polaris_textextractor_subnet.id,
     data.azurerm_subnet.polaris_apps_subnet.id
   ]
 }
@@ -360,16 +346,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_blob_pe" {
   }
 }
 
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_pdf_generator_blob_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_blob_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_pdf_generator_blob_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
 # Create Private Endpoint for Tables
 resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_table_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-table-pe"
@@ -389,16 +365,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_table_pe" {
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_pdf_generator_table_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_table_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_pdf_generator_table_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
 }
 
 # Create Private Endpoint for Files
@@ -422,16 +388,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_file_pe" {
   }
 }
 
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_pdf_generator_file_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_file_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_pdf_generator_file_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
 # Create Private Endpoint for Queues
 resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_queue_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator-queue-pe"
@@ -451,16 +407,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_pdf_generator_queue_pe" {
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_pdf_generator_queue_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_queue_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_pdf_generator_queue_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
 }
 
 # Text Extractor Storage Account Private Endpoint and DNS Config
@@ -485,16 +431,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_blob_pe" {
   }
 }
 
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_text_extractor_blob_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_blob_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_text_extractor_blob_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
 # Create Private Endpoint for Tables
 resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_table_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-table-pe"
@@ -514,16 +450,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_table_pe" {
     is_manual_connection           = false
     subresource_names              = ["table"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_text_extractor_table_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_table_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_text_extractor_table_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
 }
 
 # Create Private Endpoint for Files
@@ -547,16 +473,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_file_pe" {
   }
 }
 
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_text_extractor_file_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_file_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_text_extractor_file_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
 # Create Private Endpoint for Queues
 resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_queue_pe" {
   name                = "sacps${var.env != "prod" ? var.env : ""}textextractor-queue-pe"
@@ -576,16 +492,6 @@ resource "azurerm_private_endpoint" "pipeline_sa_text_extractor_queue_pe" {
     is_manual_connection           = false
     subresource_names              = ["queue"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_sa_text_extractor_queue_dns_a" {
-  name                = "sacps${var.env != "prod" ? var.env : ""}textextractor"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_queue_storage.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_sa_text_extractor_queue_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
 }
 
 resource "azapi_resource" "pipeline_sa_coordinator_file_share" {
