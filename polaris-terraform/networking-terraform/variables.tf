@@ -73,6 +73,9 @@ variable "polarisAmplsSubnet" {
 variable "polarisPipelineNetheriteSubnet" {
 }
 
+variable "polarisPipelineSa2Subnet" {
+}
+
 variable "terraform_service_principal_display_name" {
   type = string
 }
