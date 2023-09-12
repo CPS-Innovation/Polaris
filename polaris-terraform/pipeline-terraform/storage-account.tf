@@ -43,6 +43,10 @@ resource "azurerm_storage_account" "sa" {
       retention_policy_days = 10
     }
   }
+  
+  identity {
+    type = "SystemAssigned"
+  }
 
   tags = local.common_tags
 }
@@ -93,6 +97,10 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
     }
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   tags = local.common_tags
 }
 
@@ -140,6 +148,10 @@ resource "azurerm_storage_account" "sa_text_extractor" {
       version               = "1.0"
       retention_policy_days = 10
     }
+  }
+
+  identity {
+    type = "SystemAssigned"
   }
 
   tags = local.common_tags
