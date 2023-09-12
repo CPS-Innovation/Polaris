@@ -211,7 +211,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
           <div
-            id="content-area-1"
+            role="region"
+            area-label="Side Panel"
+            id="side-panel"
             // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
             tabIndex={0}
             className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}

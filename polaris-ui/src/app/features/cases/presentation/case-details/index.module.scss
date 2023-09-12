@@ -79,9 +79,7 @@
 }
 
 .contentArea {
-  border: 3px solid blue;
   &:focus {
-    background-color: red;
-    border: 3px solid green;
+    outline: 0.2rem solid #ffdd00;
   }
 }

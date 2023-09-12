@@ -662,7 +662,7 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "panel-0");
+      cy.focused().should("have.id", "active-tab-panel");
       cy.findByTestId("link-removeAll").click();
     });
 

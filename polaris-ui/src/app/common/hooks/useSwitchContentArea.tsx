@@ -1,24 +1,19 @@
 import { useEffect, useCallback } from "react";
 
 const SWITCH_CONTENT_AREA_KEY = ";";
-export const useSwitchContentArea = (
-  tabId?: string,
-  activeTabId?: string | undefined,
-  tabIndex?: number
-) => {
+export const useSwitchContentArea = () => {
   const getContentAreas = () => {
     const contentAreas = [
-      document.querySelector("#content-area-1"),
-      document.querySelector("#content-area-2"),
-      document.querySelector("#content-area-3"),
+      document.querySelector("#side-panel"),
+      document.querySelector("#document-tabs"),
+      document.querySelector("#active-tab-panel"),
     ];
 
     return contentAreas.filter((contentArea) => contentArea);
   };
 
   const keyDownHandler = useCallback((e: KeyboardEvent) => {
-    console.log(e.code);
-
+    if (e.key !== SWITCH_CONTENT_AREA_KEY) return;
     if (e.key === SWITCH_CONTENT_AREA_KEY) {
       const contentAreas = getContentAreas();
       const activeAreaIndex = contentAreas.findIndex(

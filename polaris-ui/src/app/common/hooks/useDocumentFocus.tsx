@@ -62,8 +62,8 @@ export const useDocumentFocus = (
   }, [tabIndex]);
 
   const getDocumentPanel = useCallback(() => {
-    return document.querySelector(`#panel-${tabIndex}`);
-  }, [tabIndex]);
+    return document.querySelector(`#active-tab-panel`);
+  }, []);
 
   const getTextLayerChildren = useCallback(() => {
     const textLayers = document.querySelectorAll(".textLayer");
@@ -117,7 +117,6 @@ export const useDocumentFocus = (
     (e: KeyboardEvent) => {
       //this is temporary hack supply the keycode from console, for any further live test of key combination.
       const WORD_FOCUS_CODE = (window as any).wordFocusCode ?? "Comma";
-
       if (activeTabId !== tabId) {
         return;
       }
@@ -132,6 +131,7 @@ export const useDocumentFocus = (
       if (!(e.code === WORD_FOCUS_CODE || e.key === WORD_FOCUS_KEY)) {
         return;
       }
+      console.log("helloo111");
       e.preventDefault();
       const documentPanel = getDocumentPanel();
       if (!documentPanel) {
