@@ -804,6 +804,33 @@ describe("case details page", () => {
       keyPressAndVerifySelection("backward", "P");
     });
   });
+
+  describe("Switch main content areas using the ';' key press", () => {
+    it("Should be able switch between main content areas using the ';' Key Press", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress(";");
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(";");
+      cy.focused().should("have.id", "document-tabs");
+      cy.realPress(";");
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(";");
+      cy.focused().should("have.id", "side-panel");
+    });
+    it("Should keep the focus on side-panel, if there are no documents open  while pressing the ';' Key", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.realPress(";");
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(";");
+      cy.focused().should("have.id", "side-panel");
+    });
+  });
 });
 
 export {};
