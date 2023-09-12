@@ -58,14 +58,17 @@ namespace pdf_generator.Services.PdfService
                     case FileType.TXT:
                         _wordsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     case FileType.XLS:
                     case FileType.XLSX:
                         _cellsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     case FileType.PPT:
                     case FileType.PPTX:
                         _slidesPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     case FileType.BMP:
                     case FileType.GIF:
                     case FileType.JPG:
@@ -75,19 +78,27 @@ namespace pdf_generator.Services.PdfService
                     case FileType.PNG:
                         _imagingPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     case FileType.VSD:
                         _diagramPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     case FileType.HTML:
                     case FileType.HTM:
+                    // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
+                    // But Aspose seems forgiving enough to convert it, so treat it as HTML
+                    case FileType.HTE:
                         _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     case FileType.MSG:
                         _emailPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     case FileType.PDF:
                         _pdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
+
                     default:
                         throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
                 }
