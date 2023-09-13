@@ -256,7 +256,10 @@ namespace pdf_generator.tests.Services.PdfService
 			catch(Exception e)
 			{
 				Assert.IsType<PdfConversionException>(e);
+				return;
 			}
+
+			Assert.Fail();
         }
 
         [Fact]
