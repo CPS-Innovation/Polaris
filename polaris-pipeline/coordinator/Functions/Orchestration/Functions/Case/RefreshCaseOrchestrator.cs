@@ -99,7 +99,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             try
             {
                 telemetryEvent = new RefreshedCaseEvent(
-                            correlationId: payload.CorrelationId,
+                    correlationId: payload.CorrelationId,
                     caseId: payload.CmsCaseId,
                     versionId: await caseEntity.GetVersion(),
                     startTime: await caseEntity.GetStartTime()

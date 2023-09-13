@@ -16,8 +16,9 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                   = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"                = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"        = "false"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"        = "true"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"            = "true"
+    "WEBSITE_RUN_FROM_PACKAGE"                   = "1"
     "WEBSITE_CONTENTOVERVNET"                    = "1"
     "WEBSITE_DNS_SERVER"                         = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                     = "168.63.129.16"
@@ -27,6 +28,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "AzureWebJobsStorage"                        = azurerm_storage_account.sa.primary_connection_string
     "EventHubsConnection"                        = azurerm_eventhub_namespace.polaris-eh-namespace.default_primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"         = "600"
+    "PolarisPipelineCoordinatorBaseUrl"          = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorBaseUrl"        = "https://fa-${local.resource_name}-text-extractor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorFunctionAppKey" = data.azurerm_function_app_host_keys.ak_text_extractor.default_function_key
     "SearchClientAuthorizationKey"               = azurerm_search_service.ss.primary_key

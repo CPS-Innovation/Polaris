@@ -76,3 +76,7 @@ variable "sliding_clear_down_enabled" {
 variable "sliding_clear_down_input_days" {
   type = number
 }
+
+variable "hte_feature_flag" {
+  type = bool
+}
