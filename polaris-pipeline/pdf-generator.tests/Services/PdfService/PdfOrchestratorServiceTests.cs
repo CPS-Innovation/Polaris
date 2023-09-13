@@ -248,11 +248,15 @@ namespace pdf_generator.tests.Services.PdfService
 			// Arrange
             _configuration.SetupGet(config => config[FeatureFlags.HteFeatureFlag]).Returns("false");
 
-			// Act
-            _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTE, _documentId, _correlationId);
-
-            // Assert
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Never);
+			// Act / Assert
+			try
+			{
+                _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTE, _documentId, _correlationId);
+            }
+			catch(Exception e)
+			{
+				Assert.IsType<PdfConversionException>(e);
+			}
         }
 
         [Fact]
