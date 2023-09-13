@@ -22,6 +22,12 @@ data "azurerm_subnet" "polaris_sa_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_sa2_subnet" {
+  name                 = "${var.resource_name_prefix}-sa2-subnet"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_subnet" "polaris_coordinator_subnet" {
   name                 = "${var.resource_name_prefix}-coordinator-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
