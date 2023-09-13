@@ -498,7 +498,7 @@ stages:
                 # Set Durable Extension Code app setting, post Coordinator creation
                 - bash: |
                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    $durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
                     az functionapp config appsettings set --name fa-polaris-pipeline-dev-coordinator --resource-group rg-polaris-pipeline-dev --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
                   displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
@@ -1142,7 +1142,7 @@ stages:
                 # Set Durable Extension Code app setting, post Coordinator creation
                 - bash: |
                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    $durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
                     az functionapp config appsettings set --name fa-polaris-pipeline-qa-coordinator --resource-group rg-polaris-pipeline-qa --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
                   displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
@@ -1786,7 +1786,7 @@ stages:
                 # Set Durable Extension Code app setting, post Coordinator creation
                 - bash: |
                     az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-                    $durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
                     az functionapp config appsettings set --name fa-polaris-pipeline-coordinator --resource-group rg-polaris-pipeline --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
                   displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
                   workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
