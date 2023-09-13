@@ -47,6 +47,7 @@
 
     public static class FeatureFlags
     {
+        public const string HteFeatureFlag = nameof(HteFeatureFlag);
     }
 
 #if DEBUG

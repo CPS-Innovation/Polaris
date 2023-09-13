@@ -31,3 +31,4 @@ pipeline_event_hub_settings = {
 
 sliding_clear_down_enabled      = true
 sliding_clear_down_input_days   = 31
+hte_feature_flag                = true

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace pdf_generator.Services.PdfService
@@ -18,6 +20,7 @@ namespace pdf_generator.Services.PdfService
         private readonly IPdfService _emailPdfService;
         private readonly IPdfService _pdfRendererService;
         private readonly ILogger<PdfOrchestratorService> _logger;
+        private readonly IConfiguration _configuration;
 
         public PdfOrchestratorService(
             IPdfService wordsPdfService,
@@ -28,7 +31,8 @@ namespace pdf_generator.Services.PdfService
             IPdfService htmlPdfService,
             IPdfService emailPdfService,
             IPdfService pdfRendererService,
-            ILogger<PdfOrchestratorService> logger)
+            ILogger<PdfOrchestratorService> logger,
+            IConfiguration configuration)
         {
             _wordsPdfService = wordsPdfService;
             _cellsPdfService = cellsPdfService;
@@ -39,6 +43,7 @@ namespace pdf_generator.Services.PdfService
             _emailPdfService = emailPdfService;
             _pdfRendererService = pdfRendererService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public Stream ReadToPdfStream(Stream inputStream, FileType fileType, string documentId, Guid correlationId)
@@ -85,10 +90,16 @@ namespace pdf_generator.Services.PdfService
 
                     case FileType.HTML:
                     case FileType.HTM:
+                        _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        break;
+
                     // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
                     // But Aspose seems forgiving enough to convert it, so treat it as HTML
                     case FileType.HTE:
-                        _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        if(_configuration.IsSettingEnabled(FeatureFlags.HteFeatureFlag))
+                            _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        else
+                            throw new ArgumentOutOfRangeException(nameof(fileType), FileType.HTE, null);
                         break;
 
                     case FileType.MSG:
