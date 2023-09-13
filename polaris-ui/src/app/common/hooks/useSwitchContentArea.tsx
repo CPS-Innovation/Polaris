@@ -1,10 +1,11 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
-const SWITCH_CONTENT_AREA_KEY = ";";
+const SWITCH_CONTENT_AREA_KEY = ".";
 /**
  * This custom hook is used to switch the focus between three main content areas in the case-details page
  */
 export const useSwitchContentArea = () => {
+  const lastActiveContentIndex = useRef(0);
   const getContentAreas = () => {
     const contentAreas = [
       document.querySelector("#side-panel"),
@@ -23,10 +24,23 @@ export const useSwitchContentArea = () => {
     const activeAreaIndex = contentAreas.findIndex(
       (contentArea) => document.activeElement === contentArea
     );
+
+    if (
+      activeAreaIndex === -1 &&
+      contentAreas[lastActiveContentIndex.current] &&
+      document.activeElement !== contentAreas[lastActiveContentIndex.current]
+    ) {
+      (contentAreas[lastActiveContentIndex.current] as HTMLElement).focus();
+      return;
+    }
+
     if (activeAreaIndex < contentAreas.length - 1) {
+      lastActiveContentIndex.current = activeAreaIndex + 1;
       (contentAreas[activeAreaIndex + 1] as HTMLElement).focus();
       return;
     }
+
+    lastActiveContentIndex.current = 0;
     (contentAreas[0] as HTMLElement).focus();
   }, []);
 

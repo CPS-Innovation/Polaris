@@ -805,29 +805,55 @@ describe("case details page", () => {
     });
   });
 
-  describe("Switch main content areas using the ';' key press", () => {
-    it("Should be able switch between main content areas using the ';' Key Press", () => {
+  describe("Switch main content areas using the Period '.' key press", () => {
+    it("Should be able switch between main content areas using the Period '.' Key Press", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.realPress(";");
+      cy.realPress(".");
       cy.focused().should("have.id", "side-panel");
-      cy.realPress(";");
+      cy.realPress(".");
       cy.focused().should("have.id", "document-tabs");
-      cy.realPress(";");
+      cy.realPress(".");
       cy.focused().should("have.id", "active-tab-panel");
-      cy.realPress(";");
+      cy.realPress(".");
       cy.focused().should("have.id", "side-panel");
     });
-    it("Should keep the focus on side-panel, if there are no documents open  while pressing the ';' Key", () => {
+
+    it("Should continue from the last active content if the focus has been changed to the inner element", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.realPress(";");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress(".");
       cy.focused().should("have.id", "side-panel");
-      cy.realPress(";");
+      cy.realPress(".");
+      cy.focused().should("have.id", "document-tabs");
+      cy.findAllByTestId("btn-tab-0").click();
+      cy.realPress(".");
+      cy.focused().should("have.id", "document-tabs");
+      cy.realPress(".");
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "btn-report-issue");
+      cy.realPress(".");
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+    });
+
+    it("Should keep the focus on side-panel, if there are no documents open  while pressing the Period '.' Key", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(".");
       cy.focused().should("have.id", "side-panel");
     });
   });
