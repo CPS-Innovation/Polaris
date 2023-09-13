@@ -28,6 +28,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa_pdf_generator.primary_connection_string
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
+    "HteFeatureFlag"                           = var.hte_feature_flag
   }
 
   site_config {

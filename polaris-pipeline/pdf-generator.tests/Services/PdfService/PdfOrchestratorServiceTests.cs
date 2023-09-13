@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using AutoFixture;
+using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using pdf_generator.Services.PdfService;
@@ -24,8 +26,9 @@ namespace pdf_generator.tests.Services.PdfService
 		private readonly Mock<IPdfService> _mockHtmlPdfService;
 		private readonly Mock<IPdfService> _mockEmailPdfService;
 		private readonly Mock<IPdfService> _mockPdfRendererService;
+        private readonly Mock<IConfigurationRoot> _configuration;
 
-		private readonly IPdfOrchestratorService _pdfOrchestratorService;
+        private readonly IPdfOrchestratorService _pdfOrchestratorService;
 
 		public PdfOrchestratorServiceTests()
 		{
@@ -42,6 +45,7 @@ namespace pdf_generator.tests.Services.PdfService
 			_mockHtmlPdfService = new Mock<IPdfService>();
 			_mockEmailPdfService = new Mock<IPdfService>();
 			_mockPdfRendererService = new Mock<IPdfService>();
+			_configuration = new Mock<IConfigurationRoot>();
 			var mockLogger = new Mock<ILogger<PdfOrchestratorService>>();
 
 			_pdfOrchestratorService = new PdfOrchestratorService(
@@ -53,7 +57,8 @@ namespace pdf_generator.tests.Services.PdfService
 										_mockHtmlPdfService.Object,
 										_mockEmailPdfService.Object,
 										_mockPdfRendererService.Object,
-										mockLogger.Object);
+										mockLogger.Object,
+										_configuration.Object);
 		}
 
 		[Fact]
@@ -224,7 +229,40 @@ namespace pdf_generator.tests.Services.PdfService
 			_mockPdfRendererService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
 		}
 
-		[Fact]
+        [Fact]
+        public void ReadToPdfStream_CallsPdfRendererServiceWhenFileTypeIsHte_AndFeatureIsEnabled()
+        {
+			// Arrange
+			_configuration.SetupGet(config => config[FeatureFlags.HteFeatureFlag]).Returns("true");
+
+			// Act
+            _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTE, _documentId, _correlationId);
+
+            // Assert
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);
+        }
+
+        [Fact]
+        public void ReadToPdfStream_DoesntCallPdfRendererServiceWhenFileTypeIsHte_AndFeatureIsDisabled()
+        {
+			// Arrange
+            _configuration.SetupGet(config => config[FeatureFlags.HteFeatureFlag]).Returns("false");
+
+			// Act / Assert
+			try
+			{
+                _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTE, _documentId, _correlationId);
+            }
+			catch(Exception e)
+			{
+				Assert.IsType<PdfConversionException>(e);
+				return;
+			}
+
+			Assert.Fail();
+        }
+
+        [Fact]
 		public void ReadToPdfStream_ThrowsFailedToConvertToPdfExceptionWhenExceptionOccurs()
 		{
 			_mockEmailPdfService.Setup(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()))

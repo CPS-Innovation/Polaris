@@ -31,7 +31,7 @@ namespace pdf_generator
 
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
-            services.AddPdfGenerator();
+            services.AddPdfGenerator(Configuration);
 
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
