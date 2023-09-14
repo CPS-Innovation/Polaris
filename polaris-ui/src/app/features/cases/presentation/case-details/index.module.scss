@@ -77,3 +77,9 @@
     padding: 0;
   }
 }
+
+.contentArea {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+}
