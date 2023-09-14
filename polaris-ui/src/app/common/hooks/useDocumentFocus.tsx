@@ -131,7 +131,6 @@ export const useDocumentFocus = (
       if (!(e.code === WORD_FOCUS_CODE || e.key === WORD_FOCUS_KEY)) {
         return;
       }
-      console.log("helloo111");
       e.preventDefault();
       const documentPanel = getDocumentPanel();
       if (!documentPanel) {
