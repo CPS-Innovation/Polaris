@@ -16,9 +16,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "true"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
-    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
