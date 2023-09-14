@@ -212,7 +212,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         <div className={`govuk-grid-row ${classes.mainContent}`}>
           <div
             role="region"
-            area-label="Side Panel"
+            aria-label="Side Panel"
             id="side-panel"
             // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
             tabIndex={0}

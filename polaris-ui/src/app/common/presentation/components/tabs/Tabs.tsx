@@ -112,7 +112,7 @@ export const Tabs: React.FC<TabsProps> = ({
     return (
       <div
         role="region"
-        area-label="Document Tabs"
+        aria-label="Document Tabs"
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
         id="document-tabs"
