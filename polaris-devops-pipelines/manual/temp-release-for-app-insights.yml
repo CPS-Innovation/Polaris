@@ -87,7 +87,6 @@ stages:
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
                       -Name "$(resources.pipeline.TempManualBuild.runName)"
-                      -Source "Temp Pipeline - Dev"
                       -Message "Tunnel Opened - Beginning Deployment"
                       -Success 1
                 
@@ -117,6 +116,5 @@ stages:
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
                       -Name "$(resources.pipeline.TempManualBuild.runName)"
-                      -Source "Temp Pipeline - Dev"
                       -Message "Deployment Completed"
                       -Success 1                
