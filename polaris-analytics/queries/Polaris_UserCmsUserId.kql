@@ -1,0 +1,112 @@
+// Work in progress.....
+// The datatable is generated usng the inefficient query as follows:
+
+//let CmsUsers = Polaris_ProxyCmsLogs
+//| where TimeGenerated > todatetime('2023-01-01')
+//| distinct CmsUserId, PolarisCorrelationId;
+//
+//let Users = AppRequests
+//| where AppRoleName == 'fa-polaris-gateway'
+//| where TimeGenerated > todatetime('2023-01-01')
+//| project PolarisCorrelationId = tostring(Properties.PolarisCorrelationId), User = tostring(Properties.User)
+//| distinct PolarisCorrelationId, User;
+//
+//CmsUsers
+//| join Users on PolarisCorrelationId
+//| distinct User, CmsUserId
+
+// After that, we can get users from looking at AppRequests, which had CmsUserId started being logged at a later date
+
+let KnownUsers = datatable(User:string, CmsUserId:long)
+[
+"Eleanor.Gauld@cps.gov.uk", 229145,
+"William.Rogers@cps.gov.uk", 246856,
+"Emma.Ward@cps.gov.uk", 222030,
+"Aamir.Barrett@cps.gov.uk", 224705,
+"Kate.Coleman@cps.gov.uk", 249715,
+"Barry.Hughes@cps.gov.uk", 20813,
+"Emily.Hodge@cps.gov.uk", 243245,
+"Jake.Hayden-Callen@cps.gov.uk", 246680,
+"Lauren.Smith@cps.gov.uk", 215878,
+"Maddy.Charlesworth@cps.gov.uk", 206358,
+"Maeve.Ward@cps.gov.uk", 244885,
+"Olivia.Samuel@cps.gov.uk", 235346,
+"Nicole.Brown@cps.gov.uk", 246681,
+"Fiona.Thomas@cps.gov.uk", 108201,
+"Mohammed.Ahmed@cps.gov.uk", 247213,
+"Nadine.Mawn@cps.gov.uk", 237926,
+"Charlotte.Webster@cps.gov.uk", 215779,
+"Ruth.Castle@cps.gov.uk", 24341,
+"Ian.Martin@cps.gov.uk", 227090,
+"David.Smy@cps.gov.uk", 242147,
+"James.Bridges@cps.gov.uk", 25016,
+"Jay.Brazil@cps.gov.uk", 135142,
+"Richard.Demczak@cps.gov.uk", 249817,
+"Alastair.Yapp@cps.gov.uk", 227245,
+"Kunal.Dave@cps.gov.uk", 209496,
+"Sana.Mamaniat@cps.gov.uk", 187964,
+"Michael.Fenwick@cps.gov.uk", 215098,
+"David.Miles@cps.gov.uk", 26680,
+"Hayden.Singh@cps.gov.uk", 237086,
+"Nicholas.Evans1@cps.gov.uk", 244625,
+"Alan.Murad@cps.gov.uk", 229487,
+"Dominic.Woolard@cps.gov.uk", 219542,
+"Anil.Vij@cps.gov.uk", 249756,
+"Grant.Rogers@cps.gov.uk", 136222,
+"Cathy.DeWavrin@cps.gov.uk", 250215,
+"Simon.Jarvis@cps.gov.uk", 23688,
+"Wilfred.Hilton@cps.gov.uk", 243765,
+"Jade.France@cps.gov.uk", 250499,
+"Max.Hinchcliffe@cps.gov.uk", 222610,
+"Chris.Highcock@cps.gov.uk", 247300,
+"Wayne.Baker@cps.gov.uk", 22305,
+"Kate.Carlyle@cps.gov.uk", 22760,
+"Suzanne.Nicholas@cps.gov.uk", 103804,
+"Hilary.Gold@cps.gov.uk", 211801,
+"Richard.Doolan@cps.gov.uk", 198391,
+"Christopher.Trotter@cps.gov.uk", 197811,
+"Natalie.Carman@cps.gov.uk", 22602,
+"Julius.Capon@cps.gov.uk", 23364,
+"Katie.Beattie@cps.gov.uk", 23471,
+"Heather.Howard-Spink@cps.gov.uk", 23625,
+"Railla.Razaq@cps.gov.uk", 165947,
+"Joanne.Brown@cps.gov.uk", 20616,
+"Julia.Redin@cps.gov.uk", 23060,
+"Clare.Sedgemond@cps.gov.uk", 217684,
+"Jessica.Foy@cps.gov.uk", 240028,
+"Connah.Morris1@cps.gov.uk", 246127,
+"Sheila.Graham@cps.gov.uk", 25168,
+"Tony.Smith@cps.gov.uk", 20868,
+"Jessica.Briggs@cps.gov.uk", 206026,
+"Gemma.Eliwi@cps.gov.uk", 244606,
+"Suzanne.Arnold@cps.gov.uk", 246366,
+"Corrinne.Gook-Hurren@cps.gov.uk", 133261,
+"Sajad.Hussain@cps.gov.uk", 110582,
+"Fern.Langley@cps.gov.uk", 248073,
+"Michael.Butlin@cps.gov.uk", 23369,
+"Albert.Squires@cps.gov.uk", 220741,
+"Arwen.Makin@cps.gov.uk", 226649,
+"Lois.Wray@cps.gov.uk", 118689,
+"Priya.Valentine@cps.gov.uk", 136677,
+"Noel.Watkins@cps.gov.uk", 104741,
+"Shona.Lockwood@cps.gov.uk", 214399,
+"Lisa.Ramsarran@cps.gov.uk", 22050,
+"Lisa.Hamm@cps.gov.uk", 23679,
+"Bethany.Nisbet@cps.gov.uk", 230229,
+"Zeltia.Carrera@cps.gov.uk", 105641,
+"Sara.Hunter-Dodds@cps.gov.uk", 26371,
+"Kate.Hatton@cps.gov.uk", 116629,
+"Anton.Allera@cps.gov.uk", 123138,
+"Varinder.Hayre@cps.gov.uk", 107561,
+"Simon.Stanyer@cps.gov.uk", 113944,
+"Niamh.Phillips@cps.gov.uk", 247553,
+];
+
+let LookedUpUsers = AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where Properties.CmsUserId != ""
+| project User = tostring(Properties.User), CmsUserId = tolong(Properties.CmsUserId)
+| distinct User, CmsUserId;
+
+union KnownUsers, LookedUpUsers
+| distinct User, CmsUserId;

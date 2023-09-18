@@ -1,0 +1,28 @@
+AppServiceConsoleLogs
+| where ResultDescription startswith " CMS"
+| extend PolarisOrCmsProxy =  iif(ResultDescription contains "internal-implementation/", 'Polaris', 'CmsProxy')
+| extend DestinationIp = extract('"(\\d+.\\d+.\\d+.\\d+):443"', 1, ResultDescription)
+| extend ClassicModernUiOrGraphQL = 
+    iif(DestinationIp endswith ".177.2", 
+        "Classic", 
+    iif(DestinationIp endswith ".177.50", 
+        iif(ResultDescription contains "/graphql/", "GraphQL", "ModernUI"), 
+    iif(ResultDescription contains "/CMS.", 
+        "Classic",
+        "Unknown"
+    )))
+//| where ResultDescription !contains "POLARIS-CORRELATION-ID:-"
+| project 
+    TimeGenerated, 
+    PolarisOrCmsProxy,
+    ClassicModernUiOrGraphQL,
+    DestinationIp,
+    StatusCode = extract('HTTP/1.1" ([0-9]{3})', 1, ResultDescription, typeof(int)),
+    PolarisCorrelationId = extract('POLARIS-CORRELATION-ID:([0-9a-f-]*)', 1, ResultDescription),
+    PolarisOperationName = extract('POLARIS-OPERATION-NAME:([[:alpha:]]+)', 1, ResultDescription),
+    CmsUserId = tolong(extract('CMS-USER-ID:([0-9]*)', 1, ResultDescription)),
+    Verb = extract('"(.*)\\s/', 1, ResultDescription),
+    Url=extract('\\s/(.*)\\sHTTP', 1, ResultDescription),
+    RequestBytes = tolong(extract('HTTP/1.1" [0-9]{3} [0-9]+ ([0-9]+)', 1, ResultDescription)),
+    ResponseBytes = tolong(extract('HTTP/1.1" [0-9]{3} ([0-9]+)', 1, ResultDescription)),
+    ResultDescription

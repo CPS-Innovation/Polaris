@@ -1,0 +1,14 @@
+AppEvents
+| where ClientType == 'PC'
+| where Name == 'IndexedDocument'
+| where Properties.correlationId !startswith "e2e"
+| project 
+    wordCount = bin(toint(Measurements.wordCount), 1000), 
+    ocrDurationSeconds = todouble(Measurements.ocrDurationSeconds),
+    indexDurationSeconds = todouble(Measurements.indexDurationSeconds),
+    indexSettledDurationSeconds = todouble(Measurements.indexSettledDurationSeconds),
+    durationSeconds= todouble(Measurements.durationSeconds) 
+| where ocrDurationSeconds > 0 and indexDurationSeconds > 0 and indexSettledDurationSeconds > 0 and durationSeconds > 0
+| summarize avg(durationSeconds), avg(ocrDurationSeconds), avg(indexDurationSeconds), avg(indexSettledDurationSeconds) by wordCount 
+| order by wordCount asc
+| render timechart
