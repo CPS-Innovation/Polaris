@@ -2,49 +2,36 @@
 Param(
     [String]$InstrumentationKey,
     [String]$Name,
-    [String]$Source,
     [String]$Message,
     [bool]$Success = $True)
 
-$customProperties = @{ ProjectID = $($env:SYSTEM_TEAMPROJECTID); BuildId = $($env:BUILD_BUILDID); SourceVersion = $($env:BUILD_SOURCEVERSION); Name = $Name; Source = $Source; Success = $Success }
-$customPropertiesObj = [PSCustomObject]$customProperties;
-$appInsightsIngestionEndpoint = "https://uksouth-1.in.applicationinsights.azure.com/";
-$bodyObject = [PSCustomObject]@{
-    'name' = "Microsoft.ApplicationInsights.$InstrumentationKey.Event"
-    'time' = ([System.dateTime]::UtcNow.ToString('o'))
-    'iKey' = $InstrumentationKey
-    'tags' = [PSCustomObject]@{
-        'ai.cloud.role' = $Name
-        'ai.internal.sdkVersion' = 'AzurePowerShellUtilityFunctions'
-    }
-    'data' = [PSCustomObject]@{
-        'baseType' = 'EventData'
-        'baseData' = [PSCustomObject]@{
-            'ver' = '2'
-            'name' = $Message
-            'properties' = $customPropertiesObj
-        }
-    }
-};
+Write-Host "Instantiating Telemetry Client"
+# setup telemetry client ("*ApplicationInsights.dll" DLL must be present)
+$telemetryClient  = New-Object -TypeName "Microsoft.ApplicationInsights.TelemetryClient"
+$telemetryClient.InstrumentationKey = $InstrumentationKey
 
-# convert the body object into a json blob.
-$bodyAsCompressedJson = $bodyObject | ConvertTo-JSON -Depth 10 -Compress;
-
-# prepare the headers
-$headers = @{
-    'Content-Type' = 'application/x-json-stream';
-};
+# initialize context information
+Write-Host "Initializing Telemetry Client with Context"
+$telemetryClient.Context.Session.Id = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
+$telemetryClient.Context.User.Id = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
+$telemetryClient.Context.Operation.Id = $Name
+$telemetryClient.Context.Operation.Name = $Name
 
 try
 {
-    Write-Host "Calling 'TrackEvent' endpoint with '$Message'"
-    Invoke-RestMethod -Uri $appInsightsIngestionEndpoint -Method Post -Headers $headers -Body $bodyAsCompressedJson;
+    Write-Host "Calling 'TrackEvent' with '$Message'"
+    $telemetryClient.TrackEvent($Message);
 }
 catch
 {
-    Write-Host $PSItem.Exception.Message -ForegroundColor RED
+    Write-Host "Exception Caught - Recording"
+    $telemtryException = New-Object -TypeName "Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry"
+    $telemtryException.Exception = $_.Exception
+    $telemetryClient.TrackException($telemtryException)
 }
 finally
 {
+    Write-Host "Flushing to output stream"
+    $telemetryClient.Flush()
     Write-Host "Finished writing message to App Insights"
 }
