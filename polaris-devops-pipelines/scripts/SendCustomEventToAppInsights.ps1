@@ -27,8 +27,6 @@ $bodyObject = [PSCustomObject]@{
     }
 };
 
-$telemetryClient.Context.User.Id = "/"
-
 # convert the body object into a json blob.
 $bodyAsCompressedJson = $bodyObject | ConvertTo-JSON -Depth 10 -Compress;
 
