@@ -5,24 +5,34 @@ Param(
     [String]$Message,
     [bool]$Success = $True)
 
-#insall NuGet package manager if not found
-Write-Host "Checking for existing NuGet package manager"
-$_nugetUrl = "https://api.nuget.org/v3/index.json"
-$packageSources = Get-PackageSource
-if(@($packageSources).Where{$_.location -eq $_nugetUrl}.count -eq 0)
-{
-    Write-Host "Installing NuGet package manager"
-    Register-PackageSource -Trusted -Name MyNuGet -Location $_nugetUrl -ProviderName NuGet
-}
+$appInsightsIngestionEndpoint = "https://uksouth-1.in.applicationinsights.azure.com/";
+$customPropertiesObj = [PSCustomObject]@{};
+$bodyObject = [PSCustomObject]@{
+    'name' = "Microsoft.ApplicationInsights.$InstrumentationKey.Event"
+    'time' = ([System.dateTime]::UtcNow.ToString('o'))
+    'iKey' = $InstrumentationKey
+    'tags' = [PSCustomObject]@{
+        'ai.cloud.roleInstance' = $($env:SYSTEM_TEAMPROJECTID)/$Name
+        'ai.internal.sdkVersion' = 'AzurePowerShellUtilityFunctions'
+    }
+    'data' = [PSCustomObject]@{
+        'baseType' = 'EventData'
+        'baseData' = [PSCustomObject]@{
+            'ver' = '2'
+            'name' = $Message
+            'properties' = $customPropertiesObj
+        }
+    }
+};
 
-#install Microsoft.ApplicationInsights package
-Write-Host "Installing Microsoft.ApplicationInsights"
-Install-Package -Force Microsoft.ApplicationInsights -RequiredVersion "2.21.0" -Scope CurrentUser
+# convert the body object into a json blob.
+$bodyAsCompressedJson = $bodyObject | ConvertTo-JSON -Depth 10 -Compress;
 
-Write-Host "Instantiating Telemetry Client"
-# setup telemetry client ("*ApplicationInsights.dll" DLL must be present)
-$telemetryClient  = New-Object -TypeName "Microsoft.ApplicationInsights.TelemetryClient"
-$telemetryClient.InstrumentationKey = $InstrumentationKey
+# prepare the headers
+$headers = @{
+    'Content-Type' = 'application/x-json-stream';
+};
+
 
 # initialize context information
 Write-Host "Initializing Telemetry Client with Context"
@@ -33,19 +43,14 @@ $telemetryClient.Context.Operation.Name = $Name
 
 try
 {
-    Write-Host "Calling 'TrackEvent' with '$Message'"
-    $telemetryClient.TrackEvent($Message);
+    Write-Host "Calling 'TrackEvent' endpoint with '$Message'"
+    Invoke-RestMethod -Uri $appInsightsIngestionEndpoint -Method Post -Headers $headers -Body $bodyAsCompressedJson;
 }
 catch
 {
-    Write-Host "Exception Caught - Recording"
-    $telemtryException = New-Object -TypeName "Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry"
-    $telemtryException.Exception = $_.Exception
-    $telemetryClient.TrackException($telemtryException)
+    Write-Host $PSItem.Exception.Message -ForegroundColor RED
 }
 finally
 {
-    Write-Host "Flushing to output stream"
-    $telemetryClient.Flush()
     Write-Host "Finished writing message to App Insights"
 }
