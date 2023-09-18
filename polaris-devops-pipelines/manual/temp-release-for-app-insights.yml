@@ -85,7 +85,7 @@ stages:
                     targetType: 'filePath'
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
-                      -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                       -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
                       -BuildId "$(resources.pipeline.TempManualBuild.runName)"
@@ -116,9 +116,26 @@ stages:
                     targetType: 'filePath'
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
-                      -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                       -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
                       -BuildId "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Complete"
-                      -Success 1                
+                      -Success 1
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                      -BuildId "$(resources.pipeline.TempManualBuild.runName)"
+                      -Message "Deployment Complete"
+                      -Success 1
