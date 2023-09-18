@@ -139,4 +139,4 @@ stages:
                       -BuildId "$(resources.pipeline.TempManualBuild.runID)"
                       -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Complete"
-                      -Success 1
+                      -Success 0
