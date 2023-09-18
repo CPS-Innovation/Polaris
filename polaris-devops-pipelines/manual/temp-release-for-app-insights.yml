@@ -74,7 +74,7 @@ stages:
                   inputs:
                     failOnStderr: true
                     targetType: 'filePath'
-                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
                       -Name "$(resources.pipeline.PolarisBuild.runName)"
@@ -103,7 +103,7 @@ stages:
                   inputs:
                     failOnStderr: true
                     targetType: 'filePath'
-                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
                       -Name "$(resources.pipeline.PolarisBuild.runName)"
