@@ -7,9 +7,8 @@
     [String]$Message,
     [bool]$Success = $True)
 
-$token = "PAT"
 $url="https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$BuildId/timeline?api-version=6.0"
-$token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
+$token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get -ContentType application/json
 $errors = $response.records.Where({ $_.result -eq "failed“ })
 
