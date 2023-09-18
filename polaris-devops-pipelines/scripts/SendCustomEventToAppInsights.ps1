@@ -14,7 +14,7 @@ $bodyObject = [PSCustomObject]@{
     'time' = ([System.dateTime]::UtcNow.ToString('o'))
     'iKey' = $InstrumentationKey
     'tags' = [PSCustomObject]@{
-        'ai.cloud.roleInstance' = $ENV:COMPUTERNAME
+        'ai.cloud.role' = $Name
         'ai.internal.sdkVersion' = 'AzurePowerShellUtilityFunctions'
     }
     'data' = [PSCustomObject]@{
