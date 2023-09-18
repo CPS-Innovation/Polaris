@@ -28,13 +28,15 @@ $telemetryClient.Context.Operation.SyntheticSource = "DevOps Release Pipeline"
 
 #add all errors to a hashtable
 $customErrors = @{}
-@customMetrics = @{}
+$customMetrics = @{}
 $errors.ForEach({
     Write-Host "Recording Errors"
+    $incre = 0
     $_.issues.ForEach({
-        $customErrors.Add("$($_.name)", "$($_.message)")
+        $incre++
+        $customErrors.Add("$($_.name):$($incre)", "$($_.message)")
     })
 })
 
-$telemetryClient.TrackEvent("Deployment Failed", $customErrors, @customMetrics);
+$telemetryClient.TrackEvent("Deployment Failed", $customErrors, $customMetrics);
 $telemetryClient.Flush();
