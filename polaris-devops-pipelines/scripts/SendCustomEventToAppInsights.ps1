@@ -14,18 +14,18 @@ if(@($packageSources).Where{$_.location -eq $_nugetUrl}.count -eq 0)
 }
 
 #install Microsoft.ApplicationInsights package
-Install-Package -Force Microsoft.ApplicationInsights -RequiredVersion "2.21.0"
+Install-Package -Force Microsoft.ApplicationInsights -RequiredVersion "2.21.0" -Scope CurrentUser
 
 # setup telemetry client ("*ApplicationInsights.dll" DLL must be present)
 $telemetryClient  = New-Object -TypeName "Microsoft.ApplicationInsights.TelemetryClient"
-$telemetryClient.InstrumentationKey     = $InstrumentationKey
+$telemetryClient.InstrumentationKey = $InstrumentationKey
 
 try
 {
     # initialize context information
-    $telemetryClient.Context.Session.Id     = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
-    $telemetryClient.Context.User.Id        = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
-    $telemetryClient.Context.Operation.Id   = $Name
+    $telemetryClient.Context.Session.Id = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
+    $telemetryClient.Context.User.Id = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
+    $telemetryClient.Context.Operation.Id = $Name
     $telemetryClient.Context.Operation.Name = $Name
 
     # setup request telemetry information
