@@ -105,7 +105,7 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-dev-text-extractor"
-                    package: $(Pipeline.Workspace)/TempManualBuild/polaris-text-extractor-drop
+                    package: $(Pipeline.Workspace)/TempManualBuild/polaris-text-extractor-drop-2
                   
                 #send custom event to AppInsights
                 - task: PowerShell@2
