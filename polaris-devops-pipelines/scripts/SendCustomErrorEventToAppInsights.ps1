@@ -3,11 +3,11 @@
     [String]$PatToken,
     [String]$PipelineName,
     [String]$CommitId,
-    [String]$BuildId,
+    [String]$ReleaseId,
     [String]$BuildName,
     [bool]$Success = $False)
 
-$url="https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$BuildId/timeline?api-version=6.0"
+$url="https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$ReleaseId/timeline?api-version=6.0"
 Write-Host "Getting errors from $($url)"
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get -ContentType application/json

@@ -136,7 +136,7 @@ stages:
                       -PatToken: "$(devops-pat-token)"
                       -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildId "$(resources.pipeline.TempManualBuild.runID)"
+                      -ReleaseId "$(Build.BuildNumber)"
                       -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Failed"
                       -Success 0
