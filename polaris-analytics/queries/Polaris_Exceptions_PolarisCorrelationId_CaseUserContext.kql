@@ -9,6 +9,6 @@ AppRequests
     DocumentId = make_set(iif(Name == 'InitiateCookies', "", extract("/documents/.*-([0-9]*)(/|$)", 1, Url))),
     CmsUserId = max(tolong(Properties.CmsUserId)),
     User = max(tostring(Properties.User)) by PolarisCorrelationId
-| where User != 'AutomationUser.ServiceTeam2@cps.gov.uk' and CmsUserId != -2147483648
+| where User != 'REDACTED@REDACTED.EMAIL.ADDRESS' and CmsUserId != -2147483648
 
 

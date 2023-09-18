@@ -26,3 +26,4 @@ AppServiceConsoleLogs
     RequestBytes = tolong(extract('HTTP/1.1" [0-9]{3} [0-9]+ ([0-9]+)', 1, ResultDescription)),
     ResponseBytes = tolong(extract('HTTP/1.1" [0-9]{3} ([0-9]+)', 1, ResultDescription)),
     ResultDescription
+| extend LoadBalancerTarget = coalesce(extract("(corsham|farnborough)", 1, ResultDescription), "corsham")

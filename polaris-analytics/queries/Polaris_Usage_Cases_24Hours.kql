@@ -1,6 +1,6 @@
 let GatewayRequests = AppRequests
 | where AppRoleName == 'fa-polaris-gateway'
-    and Properties.User != 'AutomationUser.ServiceTeam2@cps.gov.uk'    
+    and Properties.User != 'REDACTED@REDACTED.EMAIL.ADDRESS'    
 | where TimeGenerated > datetime_add('hour', -24, now());
 
 let CaseCounts = GatewayRequests

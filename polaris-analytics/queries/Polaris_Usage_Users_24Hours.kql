@@ -2,5 +2,5 @@ AppRequests
 | where AppRoleName == 'fa-polaris-gateway'
 | where TimeGenerated > datetime_add('hour', -24, now())
 | project TimeGenerated, User = tostring(Properties.User)
-| where User !in ("AutomationUser.ServiceTeam2@cps.gov.uk", "")
+| where User !in ("REDACTED@REDACTED.EMAIL.ADDRESS", "")
 | summarize UniqueUsers = count_distinct(User) by bin(TimeGenerated, 5m)
