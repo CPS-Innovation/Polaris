@@ -2,17 +2,19 @@
 Param(
     [String]$InstrumentationKey,
     [String]$Name,
+    [String]$Source,
     [String]$Message,
     [bool]$Success = $True)
 
+$customProperties = @{ ProjectID = $($env:SYSTEM_TEAMPROJECTID); BuildId = $($env:BUILD_BUILDID); SourceVersion = $($env:BUILD_SOURCEVERSION); Name = $Name; Source = $Source; Success = $Success }
+$customPropertiesObj = [PSCustomObject]$customProperties;
 $appInsightsIngestionEndpoint = "https://uksouth-1.in.applicationinsights.azure.com/";
-$customPropertiesObj = [PSCustomObject]@{};
 $bodyObject = [PSCustomObject]@{
     'name' = "Microsoft.ApplicationInsights.$InstrumentationKey.Event"
     'time' = ([System.dateTime]::UtcNow.ToString('o'))
     'iKey' = $InstrumentationKey
     'tags' = [PSCustomObject]@{
-        'ai.cloud.roleInstance' = $($env:SYSTEM_TEAMPROJECTID)/$Name
+        'ai.cloud.roleInstance' = $ENV:COMPUTERNAME
         'ai.internal.sdkVersion' = 'AzurePowerShellUtilityFunctions'
     }
     'data' = [PSCustomObject]@{
@@ -24,6 +26,8 @@ $bodyObject = [PSCustomObject]@{
         }
     }
 };
+
+$telemetryClient.Context.User.Id = "/"
 
 # convert the body object into a json blob.
 $bodyAsCompressedJson = $bodyObject | ConvertTo-JSON -Depth 10 -Compress;
