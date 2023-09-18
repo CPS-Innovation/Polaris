@@ -27,7 +27,8 @@ $telemetryClient.Context.Operation.Name = $BuildName
 $telemetryClient.Context.Operation.SyntheticSource = "DevOps Release Pipeline"
 
 #add all errors to a hashtable
-$customErrors = @{}
+$customMetrics = New-Object "System.Collections.Generic.Dictionary``2[System.String,System.Double]"
+$customErrors = New-Object "System.Collections.Generic.Dictionary``2[System.String,System.String]"
 $errors.ForEach({
     Write-Host "Recording Errors"
     $incre = 0
@@ -37,9 +38,5 @@ $errors.ForEach({
     })
 })
 
-$telemetryEvent = New-Object -TypeName "Microsoft.ApplicationInsights.DataContracts.EventTelemetry"
-$telemetryEvent.Name = "Deployment Failed"
-$telemetryEvent.Extension = $customErrors
-
-$telemetryClient.TrackEvent($telemetryEvent);
+$telemetryClient.TrackEvent("Deployment Failed", $customErrors, $customMetrics);
 $telemetryClient.Flush();
