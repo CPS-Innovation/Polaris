@@ -32,14 +32,14 @@ try
     #$request = New-Object -TypeName "Microsoft.ApplicationInsights.DataContracts.EventTelemetry"
     #$request.Name       = $Name
 
-    $p = [pscustomobject]@{
-        Str = "Test Message"
-    } | ConvertTo-Json
+    #$p = [pscustomobject]@{
+    #    Str = $Message
+    #} | ConvertTo-Json
 
-    $measurement = [pscustomobject]@{
-        totalTime = 0.33
-    } | ConvertTo-Json
-    $telemetryClient.TrackEvent($Name, $p, $measurement);
+    #$measurement = [pscustomobject]@{
+    #    totalTime = 0.33
+    #} | ConvertTo-Json
+    $telemetryClient.TrackEvent($Message);
 
     # track the request
     #$telemetryClient.TrackEvent($request)
