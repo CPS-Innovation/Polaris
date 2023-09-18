@@ -17,6 +17,7 @@ Write-Host "Initializing Telemetry Client with Context"
 $telemetryClient.Context.Operation.ParentId = $PipelineName
 $telemetryClient.Context.Operation.Id = $CommitId
 $telemetryClient.Context.Operation.Name = $BuildId
+$telemetryClient.Context.Operation.SyntheticSource = "DevOps Release Pipeline"
 
 try
 {
