@@ -88,7 +88,7 @@ stages:
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                       -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildId "$(resources.pipeline.TempManualBuild.runName)"
+                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Beginning Deployment"
                       -Success 1
                 
@@ -119,7 +119,7 @@ stages:
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                       -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildId "$(resources.pipeline.TempManualBuild.runName)"
+                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Complete"
                       -Success 1
                       
@@ -136,6 +136,7 @@ stages:
                       -PatToken: "$(devops-pat-token)"
                       -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildId "$(resources.pipeline.TempManualBuild.runName)"
+                      -BuildId "$(resources.pipeline.TempManualBuild.runID)"
+                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Complete"
                       -Success 1

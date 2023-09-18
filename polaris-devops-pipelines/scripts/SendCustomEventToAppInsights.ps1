@@ -3,7 +3,7 @@ Param(
     [String]$InstrumentationKey,
     [String]$PipelineName,
     [String]$CommitId,
-    [String]$BuildId,
+    [String]$BuildName,
     [String]$Message,
     [bool]$Success = $True)
 
@@ -16,7 +16,7 @@ $telemetryClient.InstrumentationKey = $InstrumentationKey
 Write-Host "Initializing Telemetry Client with Context"
 $telemetryClient.Context.Operation.ParentId = $PipelineName
 $telemetryClient.Context.Operation.Id = $CommitId
-$telemetryClient.Context.Operation.Name = $BuildId
+$telemetryClient.Context.Operation.Name = $BuildName
 $telemetryClient.Context.Operation.SyntheticSource = "DevOps Release Pipeline"
 
 Write-Host "Calling 'TrackEvent' with '$Message'"
