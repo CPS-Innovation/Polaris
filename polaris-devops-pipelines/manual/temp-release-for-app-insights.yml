@@ -123,9 +123,6 @@ stages:
                       -Message "Deployment Complete"
                       -Success 1
                       
-                - bash: printenv | sort
-                  condition: failed()
-                      
                 #send any errors to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Record Errors'
@@ -139,7 +136,7 @@ stages:
                       -PatToken: "$(devops-pat-token)"
                       -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -ReleaseId "$(System.JobId)"
+                      -ReleaseId "$(Build.BuildId)"
                       -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Failed"
                       -Success 0
