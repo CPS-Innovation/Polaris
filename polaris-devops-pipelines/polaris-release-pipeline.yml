@@ -456,7 +456,7 @@ stages:
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
                       -Name "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "Release Pipeline - Dev: Tunnel Opened - Beginning Deployment"
-                      -Success True
+                      -Success 1
                   
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
