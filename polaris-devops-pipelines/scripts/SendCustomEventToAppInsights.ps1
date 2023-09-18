@@ -33,14 +33,6 @@ $headers = @{
     'Content-Type' = 'application/x-json-stream';
 };
 
-
-# initialize context information
-Write-Host "Initializing Telemetry Client with Context"
-$telemetryClient.Context.Session.Id = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
-$telemetryClient.Context.User.Id = "$($env:SYSTEM_TEAMPROJECTID)/$($env:BUILD_BUILDID)"
-$telemetryClient.Context.Operation.Id = $Name
-$telemetryClient.Context.Operation.Name = $Name
-
 try
 {
     Write-Host "Calling 'TrackEvent' endpoint with '$Message'"
