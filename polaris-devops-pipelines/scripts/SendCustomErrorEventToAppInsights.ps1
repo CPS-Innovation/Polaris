@@ -5,8 +5,7 @@
     [String]$CommitId,
     [String]$BuildId,
     [String]$BuildName,
-    [String]$Message,
-    [bool]$Success = $True)
+    [bool]$Success = $False)
 
 $url="https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$BuildId/timeline?api-version=6.0"
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))
@@ -28,7 +27,7 @@ $telemetryClient.Context.Operation.SyntheticSource = "DevOps Release Pipeline"
 $errors.ForEach({
     $_.issues.ForEach({
         Write-Host "Recording Error"
-        $telemetryClient.TrackEvent($_.message);
+        $telemetryClient.TrackEvent("Deployment Failed: $($_.message)");
         $telemetryClient.Flush(); 
     })
 })
