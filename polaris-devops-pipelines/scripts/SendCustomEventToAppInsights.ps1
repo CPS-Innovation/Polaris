@@ -1,8 +1,9 @@
 ﻿
 Param(
     [String]$InstrumentationKey,
-    [String]$Source,
-    [String]$Name,
+    [String]$PipelineName,
+    [String]$CommitId,
+    [String]$BuildId,
     [String]$Message,
     [bool]$Success = $True)
 
@@ -13,8 +14,9 @@ $telemetryClient.InstrumentationKey = $InstrumentationKey
 
 # initialize context information
 Write-Host "Initializing Telemetry Client with Context"
-$telemetryClient.Context.Operation.Id = $Source
-$telemetryClient.Context.Operation.Name = $Name
+$telemetryClient.Context.Operation.ParentId = $PipelineName
+$telemetryClient.Context.Operation.Id = $CommitId
+$telemetryClient.Context.Operation.Name = $BuildId
 
 try
 {

@@ -86,9 +86,10 @@ stages:
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
-                      -Source "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -Name "$(resources.pipeline.TempManualBuild.runName)"
-                      -Message "$(resources.pipeline.TempManualBuild.pipelineName): Beginning Deployment"
+                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                      -BuildId "$(resources.pipeline.TempManualBuild.runName)"
+                      -Message "Beginning Deployment"
                       -Success 1
                 
                 #download text-extractor build artifact
@@ -116,7 +117,8 @@ stages:
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
-                      -Source "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -Name "$(resources.pipeline.TempManualBuild.runName)"
-                      -Message "$(resources.pipeline.TempManualBuild.pipelineName): Beginning Deployment"
+                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                      -BuildId "$(resources.pipeline.TempManualBuild.runName)"
+                      -Message "Deployment Complete"
                       -Success 1                
