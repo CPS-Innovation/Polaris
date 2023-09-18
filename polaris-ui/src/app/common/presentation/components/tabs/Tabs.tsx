@@ -110,7 +110,14 @@ export const Tabs: React.FC<TabsProps> = ({
       return null;
     }
     return (
-      <div className={`${classes.tabsWrapper}`}>
+      <div
+        role="region"
+        aria-label="Document Tabs"
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        tabIndex={0}
+        id="document-tabs"
+        className={`${classes.tabsWrapper} ${classes.contentArea}`}
+      >
         <ul className={`${classes.tabsList}   perma-scrollbar`} role="tablist">
           {items.map((item, index) => {
             const { id: itemId, label } = item;
@@ -175,17 +182,15 @@ export const Tabs: React.FC<TabsProps> = ({
       tabIndex: 0,
       "aria-labelledby": `tab_${index}`,
       "data-testid": `tab-content-${itemId}`,
-      //disable hash navigation scrolling.  If we uncomment the below (as per standard GDS)
-      // and give the panel an id, the screen will jump on every tab navigation
-      id: `panel-${index}`,
     };
 
     return (
       <div
+        id={index === activeTabIndex ? "active-tab-panel" : `panel-${index}`}
         {...coreProps}
         className={`govuk-tabs__panel ${
           index !== activeTabIndex ? "govuk-tabs__panel--hidden" : ""
-        }`}
+        }  ${classes.contentArea}`}
       >
         {panel.children}
       </div>
@@ -195,9 +200,8 @@ export const Tabs: React.FC<TabsProps> = ({
   return (
     <>
       <div
-        id={id}
         data-testid="tabs"
-        className={`govuk-tabs ${classes.tabs} ${className || ""}`}
+        className={`govuk-tabs ${classes.tabs} ${className || ""} `}
         {...attributes}
       >
         {renderTabs()}
