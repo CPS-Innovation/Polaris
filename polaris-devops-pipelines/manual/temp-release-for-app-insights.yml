@@ -138,5 +138,5 @@ stages:
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
                       -BuildId "$(resources.pipeline.TempManualBuild.runID)"
                       -BuildName "$(resources.pipeline.TempManualBuild.runName)"
-                      -Message "Deployment Complete"
+                      -Message "Deployment Failed"
                       -Success 0
