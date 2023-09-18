@@ -39,7 +39,7 @@ $errors.ForEach({
 
 $telemetryEvent = New-Object -TypeName "Microsoft.ApplicationInsights.DataContracts.EventTelemetry"
 $telemetryEvent.Name = "Deployment Failed"
-$telemetryEvent.Properties = $customErrors
+$telemetryEvent.Extension = $customErrors
 
 $telemetryClient.TrackEvent($telemetryEvent);
 $telemetryClient.Flush();
