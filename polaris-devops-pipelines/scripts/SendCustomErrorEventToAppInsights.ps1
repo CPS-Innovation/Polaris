@@ -34,7 +34,7 @@ $errors.ForEach({
     $incre = 0
     $_.issues.ForEach({
         $incre++
-        $customErrors.Add("$($_.name):$($incre)", "$($_.message)")
+        $customErrors.Add("Error $($incre)", "$($_.message)")
     })
 })
 
