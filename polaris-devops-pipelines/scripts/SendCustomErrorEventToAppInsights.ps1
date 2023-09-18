@@ -8,9 +8,11 @@
     [bool]$Success = $False)
 
 $url="https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$BuildId/timeline?api-version=6.0"
+Write-Host "Getting errors from $($url)"
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PatToken)"))
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get -ContentType application/json
 $errors = $response.records.Where({ $_.result -eq "failed“ })
+Write-Host "$($errors.Count) errors found"
 
 Write-Host "Instantiating Telemetry Client"
 # setup telemetry client ("*ApplicationInsights.dll" DLL must be present)
