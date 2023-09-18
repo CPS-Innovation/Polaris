@@ -35,6 +35,12 @@ stages:
                 - download: TempManualBuild
                   displayName: Download Templates
                   artifact: 'polaris-template-files'
+                  
+                #download scripts artifact
+                - download: TempManualBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                  condition: succeeded()
 
                 #create vpn tunnel
                 - bash: |
@@ -61,19 +67,13 @@ stages:
                   displayName: Creating DEV VPN tunnel
                   condition: succeeded()
                   
-                #download scripts artifact
-                - download: TempManualBuild
-                  displayName: Download Scripts
-                  artifact: 'polaris-script-files'
-                  condition: succeeded()     
-                  
                 #install nuget
                 - bash: |
                     sudo yum install -y mono-complete
                     sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
                     sudo chmod +x /usr/local/bin/nuget
                     nuget install Microsoft.ApplicationInsights
-                  displayName: Installing NuGet
+                  displayName: Installing Application Insights
                   condition: succeeded()
                 
                 #send custom event to AppInsights
@@ -86,8 +86,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
+                      -Source "$(resources.pipeline.TempManualBuild.sourceCommit)"
                       -Name "$(resources.pipeline.TempManualBuild.runName)"
-                      -Message "Tunnel Opened - Beginning Deployment"
+                      -Message "$(resources.pipeline.TempManualBuild.pipelineName): Beginning Deployment"
                       -Success 1
                 
                 #download text-extractor build artifact
@@ -115,6 +116,7 @@ stages:
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
+                      -Source "$(resources.pipeline.TempManualBuild.sourceCommit)"
                       -Name "$(resources.pipeline.TempManualBuild.runName)"
-                      -Message "Deployment Completed"
+                      -Message "$(resources.pipeline.TempManualBuild.pipelineName): Beginning Deployment"
                       -Success 1                
