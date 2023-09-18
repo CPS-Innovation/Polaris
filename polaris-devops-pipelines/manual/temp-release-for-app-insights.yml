@@ -1,0 +1,111 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: TempManualBuild
+      source: Temp - Manual App Insights Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: polaris-vpn
+
+stages:
+  - stage: Apply_DEV
+    displayName: Deployment > DEV
+    pool:
+      vmImage: ubuntu-latest
+    jobs:
+      - deployment: Manual_Deploy_Polaris_Codebase
+        environment: "DEV"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download templates artifact
+                - download: TempManualBuild
+                  displayName: Download Templates
+                  artifact: 'polaris-template-files'
+
+                #create vpn tunnel
+                - bash: |
+                    sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+                    chmod 777 vpnconfig.ovpn
+                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+                    sudo openvpn _vpnconfig.ovpn &
+
+                    sleep 5
+
+                    ifconfig tun0
+
+                    sudo rm /etc/resolv.conf
+                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+                  workingDirectory: $(Pipeline.Workspace)/TempManualBuild/polaris-template-files
+                  env:
+                    PRESHAREDKEY: $(dev_pre-shared_key)
+                    PRIVATEKEY: $(dev_private_key)
+                    CLIENTCERTIFICATE: $(dev_client_cert)
+                    VPNSERVER: $(dev_vpn_server)
+                    DNSSERVER: $(dev_dns_server)
+                  displayName: Creating DEV VPN tunnel
+                  condition: succeeded()
+                  
+                #download scripts artifact
+                - download: TempManualBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                  condition: succeeded()                
+                
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Start'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
+                      -Name "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "Temp Pipeline - Dev: Tunnel Opened - Beginning Deployment"
+                      -Success 1
+                
+                #download text-extractor build artifact
+                - download: TempManualBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                  condition: succeeded()
+                  
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-dev-text-extractor"
+                    package: $(Pipeline.Workspace)/TempManualBuild/polaris-text-extractor-drop
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record End'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
+                      -Name "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "Temp Pipeline - Dev: Tunnel Opened - Deployment Completed"
+                      -Success 1                

@@ -1,0 +1,50 @@
+# Build and Publish Artifact Azure DevOps pipeline for Polaris Terraform and Codebase
+
+name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-man'
+
+trigger: none
+pr: none
+  
+variables:
+  buildConfiguration: "Release"
+  majorMinorVersion: 1.0
+  semanticVersion: $[counter(variables['majorMinorVersion'], 1)]
+    
+stages:
+  - stage: Publish_Artifacts
+    displayName: Publish artifacts
+    jobs:
+      - job:
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish pipeline scripts"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/templates"
+              artifact: "polaris-template-files"
+              publishLocation: "pipeline"
+              
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish pipeline scripts"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
+              artifact: "polaris-script-files"
+              publishLocation: "pipeline"
+              
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              zipAfterPublish: false
+            displayName: "Create Text-Extractor package to publish"
+            condition: succeeded()
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
+              artifact: "polaris-text-extractor-drop"
+            displayName: "Publish Text-Extractor codebase artifact"
+            condition: succeeded()

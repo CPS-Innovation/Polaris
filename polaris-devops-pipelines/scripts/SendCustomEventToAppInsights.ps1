@@ -6,7 +6,7 @@ Param(
     [bool]$Success = $True)
 
 #install Microsoft.ApplicationInsights package
-Install-Package Microsoft.ApplicationInsights -Version 2.0.1
+Install-Package Microsoft.ApplicationInsights -RequiredVersion "2.21.0"
 
 # setup telemetry client ("*ApplicationInsights.dll" DLL must be present)
 $telemetryClient  = New-Object -TypeName "Microsoft.ApplicationInsights.TelemetryClient"
