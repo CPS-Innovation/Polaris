@@ -77,7 +77,7 @@ stages:
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
-                      -Name "$(resources.pipeline.PolarisBuild.runName)"
+                      -Name "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Temp Pipeline - Dev: Tunnel Opened - Beginning Deployment"
                       -Success 1
                 
@@ -106,6 +106,6 @@ stages:
                     filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey $(innovation-development-app-insights-instrumentation-key)
-                      -Name "$(resources.pipeline.PolarisBuild.runName)"
+                      -Name "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Temp Pipeline - Dev: Tunnel Opened - Deployment Completed"
                       -Success 1                
