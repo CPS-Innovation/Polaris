@@ -22,5 +22,40 @@ export const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
     [] as Element[]
   );
 
-  return leafSpanElements.filter((element) => element.textContent?.trim());
+  const nonEmptyTextContents = leafSpanElements.filter((element) =>
+    element.textContent?.trim()
+  );
+  const groupedTexts = nonEmptyTextContents.reduce((acc, element) => {
+    const styles = window.getComputedStyle(element);
+
+    // Access specific styles by property name
+    const top = styles.getPropertyValue("top");
+
+    if (!acc[top]) {
+      acc[top] = [element];
+      return acc;
+    }
+
+    acc[top] = [...acc[top], element];
+    return acc;
+  }, {} as Record<string, Element[]>);
+
+  const keyValueArray = Object.entries(groupedTexts);
+
+  // Sort the array based on the numeric portion of the keys
+  keyValueArray.sort(([keyA], [keyB]) => {
+    const numericA = parseFloat(keyA);
+    const numericB = parseFloat(keyB);
+    return numericA - numericB;
+  });
+
+  // Convert the sorted array back into an object
+  const sortedObject = Object.fromEntries(keyValueArray);
+
+  const childSpans = Object.keys(sortedObject).reduce((acc, element) => {
+    acc = [...acc, ...sortedObject[element]];
+    return acc;
+  }, [] as Element[]);
+
+  return childSpans;
 };
