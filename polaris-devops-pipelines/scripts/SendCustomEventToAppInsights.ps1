@@ -10,11 +10,11 @@ $_nugetUrl = "https://api.nuget.org/v3/index.json"
 $packageSources = Get-PackageSource
 if(@($packageSources).Where{$_.location -eq $_nugetUrl}.count -eq 0)
 {
-    Register-PackageSource -Name MyNuGet -Location $_nugetUrl -ProviderName NuGet
+    Register-PackageSource -Trusted -Name MyNuGet -Location $_nugetUrl -ProviderName NuGet
 }
 
 #install Microsoft.ApplicationInsights package
-Install-Package Microsoft.ApplicationInsights -RequiredVersion "2.21.0"
+Install-Package -Force Microsoft.ApplicationInsights -RequiredVersion "2.21.0"
 
 # setup telemetry client ("*ApplicationInsights.dll" DLL must be present)
 $telemetryClient  = New-Object -TypeName "Microsoft.ApplicationInsights.TelemetryClient"
