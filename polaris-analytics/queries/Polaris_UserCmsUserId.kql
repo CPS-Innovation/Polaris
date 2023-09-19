@@ -1,5 +1,5 @@
 // Work in progress.....
-// The datatable is generated usng the inefficient query as follows:
+// The datatable is generated using the inefficient query as follows:
 
 //let CmsUsers = Polaris_ProxyCmsLogs
 //| where TimeGenerated > todatetime('2023-01-01')
