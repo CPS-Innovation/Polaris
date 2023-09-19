@@ -90,7 +90,6 @@ stages:
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Beginning Deployment"
-                      -Success 1
                 
                 #download text-extractor build artifact
                 - download: TempManualBuild
@@ -121,7 +120,6 @@ stages:
                       -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Complete"
-                      -Success 1
                       
                 #send any errors to AppInsights
                 - task: PowerShell@2
@@ -139,4 +137,3 @@ stages:
                       -ReleaseId "$(Build.BuildId)"
                       -BuildName "$(resources.pipeline.TempManualBuild.runName)"
                       -Message "Deployment Failed"
-                      -Success 0

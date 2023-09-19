@@ -4,8 +4,7 @@
     [String]$PipelineName,
     [String]$CommitId,
     [String]$ReleaseId,
-    [String]$BuildName,
-    [bool]$Success = $False)
+    [String]$BuildName)
 
 $url="https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$ReleaseId/timeline?api-version=6.0"
 Write-Host "Getting errors from $($url)"

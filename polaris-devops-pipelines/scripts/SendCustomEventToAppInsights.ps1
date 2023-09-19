@@ -4,8 +4,7 @@ Param(
     [String]$PipelineName,
     [String]$CommitId,
     [String]$BuildName,
-    [String]$Message,
-    [bool]$Success = $True)
+    [String]$Message)
 
 Write-Host "Instantiating Telemetry Client"
 # setup telemetry client ("*ApplicationInsights.dll" DLL must be present)
