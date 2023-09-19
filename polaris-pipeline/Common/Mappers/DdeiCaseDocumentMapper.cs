@@ -1,7 +1,6 @@
 using Common.Dto.Document;
 using Common.Dto.Response;
 using Common.Mappers.Contracts;
-using System;
 
 namespace Common.Mappers;
 
@@ -13,6 +12,7 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
         {
             DocumentId = ddeiResponse.Id.ToString(),
             VersionId = ddeiResponse.VersionId,
+            FilePath = ddeiResponse.Path,
             FileName = ddeiResponse.OriginalFileName,
             PresentationTitle = ddeiResponse.PresentationTitle,
             MimeType = ddeiResponse.MimeType,

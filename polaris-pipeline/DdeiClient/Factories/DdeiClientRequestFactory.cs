@@ -65,6 +65,14 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiCmsFileStoreArgDto arg)
+        {
+            // note that `arg.FilePath` is already prefixed with a slash
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/file-store{arg.FilePath}");
+            AddAuthHeaders(request, arg);
+            return request;
+        }
+
         public HttpRequestMessage CreateUploadPdfRequest(DdeiCmsDocumentArgDto arg, Stream stream)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.CmsDocCategory}/{arg.DocumentId}/{arg.VersionId}");
