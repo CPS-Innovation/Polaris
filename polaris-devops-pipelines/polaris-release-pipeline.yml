@@ -470,9 +470,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Started"
                   
                 #send custom event to AppInsights
@@ -485,9 +485,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Pipeline Terraform - Started"
                       
                 #download pipeline terraform build artifact
@@ -565,9 +565,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Pipeline Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -580,9 +580,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Coordinator - Started"
                     
                 #download coordinator build artifact
@@ -611,9 +611,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Coordinator - Completed"
                       
                 #send custom event to AppInsights
@@ -626,9 +626,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Pdf Generator - Started"
                 
                 #download pdf-generator build artifact
@@ -657,9 +657,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Pdf Generator - Completed"
                       
                 #send custom event to AppInsights
@@ -672,9 +672,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
@@ -703,9 +703,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Text Extractor - Completed"
                       
                 #send custom event to AppInsights
@@ -718,9 +718,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
@@ -782,9 +782,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Pipeline Events Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -797,9 +797,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
@@ -861,9 +861,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: UI Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -876,9 +876,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish SPA - Started"
                     
                 #download UI build artifact
@@ -907,9 +907,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish SPA - Completed"
                       
                 #send custom event to AppInsights
@@ -922,9 +922,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Gateway - Started"
                                 
                 #download gateway build artifact
@@ -953,9 +953,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Gateway - Completed"
                       
                 #send custom event to AppInsights
@@ -968,9 +968,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Auth-Handover - Started"
                 
                 #download gateway build artifact
@@ -999,9 +999,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Publish Auth-Handover - Completed"
                       
                 #send custom event to AppInsights
@@ -1014,9 +1014,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Set Log Analytics Archival Periods - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
@@ -1047,9 +1047,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Set Log Analytics Archival Periods - Completed"
                       
                 #send custom event to AppInsights
@@ -1062,9 +1062,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Restarting SPA - Started"
                 
                 # Restart app service - moved away from deployment to buy some time    
@@ -1086,9 +1086,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Restarting SPA - Completed"
                       
                 #send custom event to AppInsights
@@ -1101,9 +1101,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: UI Events Terraform - Started"
                     
                 #download ui events terraform build artifact
@@ -1165,9 +1165,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: UI Events Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -1180,9 +1180,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Completed"
                       
                 #send any errors to AppInsights
@@ -1192,14 +1192,14 @@ stages:
                   inputs:
                     failOnStderr: true
                     targetType: 'filePath'
-                    filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                       -PatToken: "$(devops-pat-token)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -ReleaseId "$(Build.BuildId)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "DEV Deployment: Failed"
                     
   - stage: Check_DEV
@@ -1274,9 +1274,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Status Checks: Started"
 
           #query coordinator status endpoint
@@ -1401,9 +1401,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Status Checks: Completed"
                 
           #send any errors to AppInsights
@@ -1413,14 +1413,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Status Checks: Failed"
                 
   - stage: Create_DEV_Report
@@ -1484,9 +1484,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Create Report: Started"
             
           - checkout: self
@@ -1515,9 +1515,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Create Report: Completed"
                 
           #send any errors to AppInsights
@@ -1527,14 +1527,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Create Report: Failed"
 
   - stage: Update_DEV_Tag
@@ -1599,9 +1599,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Update Tag: Started"
                 
           - checkout: self
@@ -1629,9 +1629,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Update Tag: Completed"
 
           #send any errors to AppInsights
@@ -1641,14 +1641,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Update Tag: Failed"
                     
   - stage: Run_e2e_Tests_DEV
@@ -1729,9 +1729,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Run e2e Tests: Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
@@ -1753,9 +1753,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Run e2e Tests: Completed"
 
           #send any errors to AppInsights
@@ -1765,14 +1765,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "DEV Run e2e Tests: Failed"
 
   - stage: Apply_QA
@@ -1862,9 +1862,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Started"
                       
                 #send custom event to AppInsights
@@ -1877,9 +1877,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Pipeline Terraform - Started"
                 
                 #download pipeline terraform build artifact
@@ -1957,9 +1957,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Pipeline Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -1972,9 +1972,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Coordinator - Started"
                     
                 #download coordinator build artifact
@@ -2003,9 +2003,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Coordinator - Completed"
                       
                 #send custom event to AppInsights
@@ -2018,9 +2018,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish PDF Generator - Started"
                 
                 #download pdf-generator build artifact
@@ -2049,9 +2049,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish PDF Generator - Completed"
                       
                 #send custom event to AppInsights
@@ -2064,9 +2064,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
@@ -2095,9 +2095,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Text Extractor - Completed"
                       
                 #send custom event to AppInsights
@@ -2110,9 +2110,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
@@ -2174,9 +2174,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Pipeline Events Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -2189,9 +2189,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
@@ -2253,9 +2253,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: UI Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -2268,9 +2268,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish SPA - Started"
                     
                 #download UI build artifact
@@ -2299,9 +2299,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish SPA - Completed"
                       
                 #send custom event to AppInsights
@@ -2314,9 +2314,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Gateway - Started"
                 
                 #download gateway build artifact
@@ -2345,9 +2345,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Gateway - Completed"
                       
                 #send custom event to AppInsights
@@ -2360,9 +2360,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Auth Handover - Started"
                 
                 #download gateway build artifact
@@ -2391,9 +2391,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Publish Auth Handover - Completed"
                       
                 #send custom event to AppInsights
@@ -2406,9 +2406,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Set Log Analytics Archival Period - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
@@ -2439,9 +2439,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Set Log Analytics Archival Period - Completed"
                       
                 #send custom event to AppInsights
@@ -2454,9 +2454,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Restart SPA - Started"
                 
                 # Restart app service    
@@ -2478,9 +2478,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Restart SPA - Completed"
                       
                 #send custom event to AppInsights
@@ -2493,9 +2493,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: UI Events Terraform - Started"
                         
                 #download ui events terraform build artifact
@@ -2557,9 +2557,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: UI Events Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -2572,9 +2572,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Completed"
                       
                 #send any errors to AppInsights
@@ -2584,14 +2584,14 @@ stages:
                   inputs:
                     failOnStderr: true
                     targetType: 'filePath'
-                    filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
                       -PatToken: "$(devops-pat-token)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -ReleaseId "$(Build.BuildId)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "QA Deployment: Failed"
                     
   - stage: Check_QA
@@ -2666,9 +2666,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Status Checks: Started"  
           
           #query coordinator status endpoint
@@ -2793,9 +2793,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Status Checks: Completed"
 
           #send any errors to AppInsights
@@ -2805,14 +2805,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Status Checks: Failed"
                 
   - stage: Create_QA_Report
@@ -2876,9 +2876,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Create Report: Started"
                 
           - checkout: self
@@ -2907,9 +2907,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Create Report: Completed"
 
           #send any errors to AppInsights
@@ -2919,14 +2919,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Create Report: Failed"
                 
   - stage: Update_QA_Tag
@@ -2991,9 +2991,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Update Tag: Started"
                 
           - checkout: self
@@ -3021,9 +3021,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Update Tag: Completed"
 
           #send any errors to AppInsights
@@ -3033,14 +3033,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Update Tag: Failed"
             
   - stage: Run_e2e_Tests_QA
@@ -3121,9 +3121,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Run e2e Tests: Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
@@ -3145,9 +3145,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Run e2e Tests: Completed"
 
           #send any errors to AppInsights
@@ -3157,14 +3157,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "QA Run e2e Tests: Failed"
 
   - stage: Apply_PROD
@@ -3254,9 +3254,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Started"
                       
                 #send custom event to AppInsights
@@ -3269,9 +3269,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Pipeline Terraform - Started"
                 
                 #download pipeline terraform build artifact
@@ -3349,9 +3349,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Pipeline Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -3364,9 +3364,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Coordinator - Started"
                     
                 #download coordinator build artifact
@@ -3395,9 +3395,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Coordinator - Completed"
                       
                 #send custom event to AppInsights
@@ -3410,9 +3410,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish PDF Generator - Started"
                 
                 #download pdf-generator build artifact
@@ -3441,9 +3441,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish PDF Generator - Completed"
                       
                 #send custom event to AppInsights
@@ -3456,9 +3456,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
@@ -3487,9 +3487,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Text Extractor - Completed"
                       
                 #send custom event to AppInsights
@@ -3502,9 +3502,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
@@ -3566,9 +3566,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Pipeline Events Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -3581,9 +3581,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
@@ -3645,9 +3645,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: UI Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -3660,9 +3660,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish SPA - Started"
                     
                 #download UI build artifact
@@ -3691,9 +3691,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish SPA - Completed"
                       
                 #send custom event to AppInsights
@@ -3706,9 +3706,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Gateway - Started"
                 
                 #download gateway build artifact
@@ -3737,9 +3737,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Gateway - Completed"
                       
                 #send custom event to AppInsights
@@ -3752,9 +3752,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Auth Handover - Started"
                 
                 #download gateway build artifact
@@ -3783,9 +3783,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Publish Auth Handover - Completed"
                       
                 #send custom event to AppInsights
@@ -3798,9 +3798,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Set Log Analytics Archival Period - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
@@ -3831,9 +3831,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Set Log Analytics Archival Period - Completed"
                       
                 #send custom event to AppInsights
@@ -3846,9 +3846,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Restart SPA - Started"
                 
                 # Restart app service    
@@ -3870,9 +3870,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Restart SPA - Completed"
                       
                 #send custom event to AppInsights
@@ -3885,9 +3885,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: UI Events Terraform - Started"
                     
                 #download ui events terraform build artifact
@@ -3949,9 +3949,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: UI Events Terraform - Completed"
                       
                 #send custom event to AppInsights
@@ -3964,9 +3964,9 @@ stages:
                     filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Completed"
 
                 #send any errors to AppInsights
@@ -3976,14 +3976,14 @@ stages:
                   inputs:
                     failOnStderr: true
                     targetType: 'filePath'
-                    filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
                     arguments: > # Use this to avoid newline characters in multi-line string
                       -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
                       -PatToken: "$(devops-pat-token)"
-                      -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                      -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -ReleaseId "$(Build.BuildId)"
-                      -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                       -Message "PROD Deployment: Failed"
                     
   - stage: Check_PROD
@@ -4058,9 +4058,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Status Checks: Started"
             
           #query coordinator status endpoint
@@ -4185,9 +4185,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Status Checks: Completed"
 
           #send any errors to AppInsights
@@ -4197,14 +4197,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Status Checks: Failed"
                 
   - stage: Create_PROD_Report
@@ -4268,9 +4268,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Create Report: Started"
                 
           - checkout: self
@@ -4299,9 +4299,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Create Report: Completed"
 
           #send any errors to AppInsights
@@ -4311,14 +4311,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Create Report: Failed"
                 
   - stage: Update_PROD_Tag
@@ -4383,9 +4383,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Update Tag: Started"
                 
           - checkout: self
@@ -4413,9 +4413,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Update Tag: Completed"
 
           #send any errors to AppInsights
@@ -4425,14 +4425,14 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Update Tag: Failed"
             
   - stage: Run_e2e_Tests_PROD
@@ -4513,9 +4513,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Run e2e Tests: Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
@@ -4537,9 +4537,9 @@ stages:
               filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Run e2e Tests: Completed"
 
           #send any errors to AppInsights
@@ -4549,12 +4549,12 @@ stages:
             inputs:
               failOnStderr: true
               targetType: 'filePath'
-              filePath: $(Pipeline.Workspace)/TempManualBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
               arguments: > # Use this to avoid newline characters in multi-line string
                 -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
                 -PatToken: "$(devops-pat-token)"
-                -PipelineName "$(resources.pipeline.TempManualBuild.pipelineName)"
-                -CommitId "$(resources.pipeline.TempManualBuild.sourceCommit)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
-                -BuildName "$(resources.pipeline.TempManualBuild.runName)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
                 -Message "PROD Run e2e Tests: Failed"
