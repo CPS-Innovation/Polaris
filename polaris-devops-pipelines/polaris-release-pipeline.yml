@@ -473,7 +473,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Started"
+                      -Message "DEV CI Deployment: Started"
                   
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -488,7 +488,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Pipeline Terraform - Started"
+                      -Message "DEV CI Deployment: Pipeline Terraform - Started"
                       
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
@@ -568,7 +568,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Pipeline Terraform - Completed"
+                      -Message "DEV CI Deployment: Pipeline Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -583,7 +583,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Coordinator - Started"
+                      -Message "DEV CI Deployment: Publish Coordinator - Started"
                     
                 #download coordinator build artifact
                 - download: PolarisBuild
@@ -614,7 +614,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Coordinator - Completed"
+                      -Message "DEV CI Deployment: Publish Coordinator - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -629,7 +629,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Pdf Generator - Started"
+                      -Message "DEV CI Deployment: Publish Pdf Generator - Started"
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -660,7 +660,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Pdf Generator - Completed"
+                      -Message "DEV CI Deployment: Publish Pdf Generator - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -675,7 +675,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Text Extractor - Started"
+                      -Message "DEV CI Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -706,7 +706,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Text Extractor - Completed"
+                      -Message "DEV CI Deployment: Publish Text Extractor - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -721,7 +721,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Pipeline Events Terraform - Started"
+                      -Message "DEV CI Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -785,7 +785,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Pipeline Events Terraform - Completed"
+                      -Message "DEV CI Deployment: Pipeline Events Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -800,7 +800,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: UI Terraform - Started"
+                      -Message "DEV CI Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
@@ -864,7 +864,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: UI Terraform - Completed"
+                      -Message "DEV CI Deployment: UI Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -879,7 +879,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish SPA - Started"
+                      -Message "DEV CI Deployment: Publish SPA - Started"
                     
                 #download UI build artifact
                 - download: PolarisBuild
@@ -910,7 +910,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish SPA - Completed"
+                      -Message "DEV CI Deployment: Publish SPA - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -925,7 +925,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Gateway - Started"
+                      -Message "DEV CI Deployment: Publish Gateway - Started"
                                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -956,7 +956,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Gateway - Completed"
+                      -Message "DEV CI Deployment: Publish Gateway - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -971,7 +971,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Auth-Handover - Started"
+                      -Message "DEV CI Deployment: Publish Auth-Handover - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -1002,7 +1002,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Publish Auth-Handover - Completed"
+                      -Message "DEV CI Deployment: Publish Auth-Handover - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -1017,7 +1017,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Set Log Analytics Archival Periods - Started"
+                      -Message "DEV CI Deployment: Set Log Analytics Archival Periods - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
                 - bash: |
@@ -1050,7 +1050,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Set Log Analytics Archival Periods - Completed"
+                      -Message "DEV CI Deployment: Set Log Analytics Archival Periods - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -1065,7 +1065,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Restarting SPA - Started"
+                      -Message "DEV CI Deployment: Restarting SPA - Started"
                 
                 # Restart app service - moved away from deployment to buy some time    
                 - task: AzureAppServiceManage@0
@@ -1089,7 +1089,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Restarting SPA - Completed"
+                      -Message "DEV CI Deployment: Restarting SPA - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -1104,7 +1104,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: UI Events Terraform - Started"
+                      -Message "DEV CI Deployment: UI Events Terraform - Started"
                     
                 #download ui events terraform build artifact
                 - download: PolarisBuild
@@ -1168,7 +1168,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: UI Events Terraform - Completed"
+                      -Message "DEV CI Deployment: UI Events Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -1183,7 +1183,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Completed"
+                      -Message "DEV CI Deployment: Completed"
                       
                 #send any errors to AppInsights
                 - task: PowerShell@2
@@ -1200,7 +1200,7 @@ stages:
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -ReleaseId "$(Build.BuildId)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "DEV Deployment: Failed"
+                      -Message "DEV CI Deployment: Failed"
                     
   - stage: Check_DEV
     displayName: Status Checks > DEV
@@ -1277,7 +1277,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Status Checks - Started"
+                -Message "DEV CI Deployment: Status Checks - Started"
 
           #query coordinator status endpoint
           - task: PowerShell@2
@@ -1404,7 +1404,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Status Checks - Completed"
+                -Message "DEV CI Deployment: Status Checks - Completed"
                 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1421,7 +1421,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Status Checks - Failed"
+                -Message "DEV CI Deployment: Status Checks - Failed"
                 
   - stage: Create_DEV_Report
     displayName: Create Report > DEV
@@ -1487,7 +1487,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Create Report - Started"
+                -Message "DEV CI Deployment: Create Report - Started"
             
           - checkout: self
             persistCredentials: true
@@ -1518,7 +1518,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Create Report - Completed"
+                -Message "DEV CI Deployment: Create Report - Completed"
                 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1535,7 +1535,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Create Report - Failed"
+                -Message "DEV CI Deployment: Create Report - Failed"
 
   - stage: Update_DEV_Tag
     displayName: Update Tag > DEV
@@ -1602,7 +1602,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Update Tag - Started"
+                -Message "DEV CI Deployment: Update Tag - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -1632,7 +1632,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Update Tag - Completed"
+                -Message "DEV CI Deployment: Update Tag - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1649,7 +1649,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Update Tag - Failed"
+                -Message "DEV CI Deployment: Update Tag - Failed"
                     
   - stage: Run_e2e_Tests_DEV
     displayName: Run e2e tests > DEV
@@ -1732,7 +1732,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Run e2e Tests - Started"
+                -Message "DEV CI Deployment: Run e2e Tests - Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: DEV'
@@ -1756,7 +1756,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Run e2e Tests - Completed"
+                -Message "DEV CI Deployment: Run e2e Tests - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1773,7 +1773,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Deployment: Run e2e Tests - Failed"
+                -Message "DEV CI Deployment: Run e2e Tests - Failed"
 
   - stage: Apply_QA
     displayName: Deployment > QA
@@ -1865,7 +1865,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Started"
+                      -Message "QA CI Deployment: Started"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -1880,7 +1880,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Pipeline Terraform - Started"
+                      -Message "QA CI Deployment: Pipeline Terraform - Started"
                 
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
@@ -1960,7 +1960,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Pipeline Terraform - Completed"
+                      -Message "QA CI Deployment: Pipeline Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -1975,7 +1975,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Coordinator - Started"
+                      -Message "QA CI Deployment: Publish Coordinator - Started"
                     
                 #download coordinator build artifact
                 - download: PolarisBuild
@@ -2006,7 +2006,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Coordinator - Completed"
+                      -Message "QA CI Deployment: Publish Coordinator - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2021,7 +2021,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish PDF Generator - Started"
+                      -Message "QA CI Deployment: Publish PDF Generator - Started"
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -2052,7 +2052,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish PDF Generator - Completed"
+                      -Message "QA CI Deployment: Publish PDF Generator - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2067,7 +2067,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Text Extractor - Started"
+                      -Message "QA CI Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -2098,7 +2098,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Text Extractor - Completed"
+                      -Message "QA CI Deployment: Publish Text Extractor - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2113,7 +2113,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Pipeline Events Terraform - Started"
+                      -Message "QA CI Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -2177,7 +2177,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Pipeline Events Terraform - Completed"
+                      -Message "QA CI Deployment: Pipeline Events Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2192,7 +2192,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: UI Terraform - Started"
+                      -Message "QA CI Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
@@ -2256,7 +2256,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: UI Terraform - Completed"
+                      -Message "QA CI Deployment: UI Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2271,7 +2271,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish SPA - Started"
+                      -Message "QA CI Deployment: Publish SPA - Started"
                     
                 #download UI build artifact
                 - download: PolarisBuild
@@ -2302,7 +2302,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish SPA - Completed"
+                      -Message "QA CI Deployment: Publish SPA - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2317,7 +2317,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Gateway - Started"
+                      -Message "QA CI Deployment: Publish Gateway - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -2348,7 +2348,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Gateway - Completed"
+                      -Message "QA CI Deployment: Publish Gateway - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2363,7 +2363,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Auth Handover - Started"
+                      -Message "QA CI Deployment: Publish Auth Handover - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -2394,7 +2394,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Publish Auth Handover - Completed"
+                      -Message "QA CI Deployment: Publish Auth Handover - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2409,7 +2409,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Set Log Analytics Archival Period - Started"
+                      -Message "QA CI Deployment: Set Log Analytics Archival Period - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
                 - bash: |
@@ -2442,7 +2442,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Set Log Analytics Archival Period - Completed"
+                      -Message "QA CI Deployment: Set Log Analytics Archival Period - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2457,7 +2457,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Restart SPA - Started"
+                      -Message "QA CI Deployment: Restart SPA - Started"
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -2481,7 +2481,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Restart SPA - Completed"
+                      -Message "QA CI Deployment: Restart SPA - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2496,7 +2496,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: UI Events Terraform - Started"
+                      -Message "QA CI Deployment: UI Events Terraform - Started"
                         
                 #download ui events terraform build artifact
                 - download: PolarisBuild
@@ -2560,7 +2560,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: UI Events Terraform - Completed"
+                      -Message "QA CI Deployment: UI Events Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -2575,7 +2575,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Completed"
+                      -Message "QA CI Deployment: Completed"
                       
                 #send any errors to AppInsights
                 - task: PowerShell@2
@@ -2592,7 +2592,7 @@ stages:
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -ReleaseId "$(Build.BuildId)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "QA Deployment: Failed"
+                      -Message "QA CI Deployment: Failed"
                     
   - stage: Check_QA
     displayName: Status Checks > QA
@@ -2669,7 +2669,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Status Checks - Started"  
+                -Message "QA CI Deployment: Status Checks - Started"  
           
           #query coordinator status endpoint
           - task: PowerShell@2
@@ -2796,7 +2796,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Status Checks - Completed"
+                -Message "QA CI Deployment: Status Checks - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -2813,7 +2813,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Status Checks - Failed"
+                -Message "QA CI Deployment: Status Checks - Failed"
                 
   - stage: Create_QA_Report
     displayName: Create Report > QA
@@ -2879,7 +2879,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Create Report - Started"
+                -Message "QA CI Deployment: Create Report - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -2910,7 +2910,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Create Report - Completed"
+                -Message "QA CI Deployment: Create Report - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -2927,7 +2927,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Create Report - Failed"
+                -Message "QA CI Deployment: Create Report - Failed"
                 
   - stage: Update_QA_Tag
     displayName: Update Tag > QA
@@ -2994,7 +2994,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Update Tag - Started"
+                -Message "QA CI Deployment: Update Tag - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -3024,7 +3024,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Update Tag - Completed"
+                -Message "QA CI Deployment: Update Tag - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -3041,7 +3041,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Update Tag - Failed"
+                -Message "QA CI Deployment: Update Tag - Failed"
             
   - stage: Run_e2e_Tests_QA
     displayName: Run e2e tests > QA
@@ -3124,7 +3124,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Run e2e Tests - Started"
+                -Message "QA CI Deployment: Run e2e Tests - Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: QA'
@@ -3148,7 +3148,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Run e2e Tests - Completed"
+                -Message "QA CI Deployment: Run e2e Tests - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -3165,7 +3165,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Deployment: Run e2e Tests - Failed"
+                -Message "QA CI Deployment: Run e2e Tests - Failed"
 
   - stage: Apply_PROD
     displayName: Deployment > PROD
@@ -3257,7 +3257,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Started"
+                      -Message "PROD CI Deployment: Started"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3272,7 +3272,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Pipeline Terraform - Started"
+                      -Message "PROD CI Deployment: Pipeline Terraform - Started"
                 
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
@@ -3352,7 +3352,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Pipeline Terraform - Completed"
+                      -Message "PROD CI Deployment: Pipeline Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3367,7 +3367,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Coordinator - Started"
+                      -Message "PROD CI Deployment: Publish Coordinator - Started"
                     
                 #download coordinator build artifact
                 - download: PolarisBuild
@@ -3398,7 +3398,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Coordinator - Completed"
+                      -Message "PROD CI Deployment: Publish Coordinator - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3413,7 +3413,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish PDF Generator - Started"
+                      -Message "PROD CI Deployment: Publish PDF Generator - Started"
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -3444,7 +3444,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish PDF Generator - Completed"
+                      -Message "PROD CI Deployment: Publish PDF Generator - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3459,7 +3459,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Text Extractor - Started"
+                      -Message "PROD CI Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -3490,7 +3490,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Text Extractor - Completed"
+                      -Message "PROD CI Deployment: Publish Text Extractor - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3505,7 +3505,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Pipeline Events Terraform - Started"
+                      -Message "PROD CI Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -3569,7 +3569,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Pipeline Events Terraform - Completed"
+                      -Message "PROD CI Deployment: Pipeline Events Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3584,7 +3584,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: UI Terraform - Started"
+                      -Message "PROD CI Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
@@ -3648,7 +3648,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: UI Terraform - Completed"
+                      -Message "PROD CI Deployment: UI Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3663,7 +3663,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish SPA - Started"
+                      -Message "PROD CI Deployment: Publish SPA - Started"
                     
                 #download UI build artifact
                 - download: PolarisBuild
@@ -3694,7 +3694,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish SPA - Completed"
+                      -Message "PROD CI Deployment: Publish SPA - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3709,7 +3709,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Gateway - Started"
+                      -Message "PROD CI Deployment: Publish Gateway - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -3740,7 +3740,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Gateway - Completed"
+                      -Message "PROD CI Deployment: Publish Gateway - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3755,7 +3755,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Auth Handover - Started"
+                      -Message "PROD CI Deployment: Publish Auth Handover - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -3786,7 +3786,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Publish Auth Handover - Completed"
+                      -Message "PROD CI Deployment: Publish Auth Handover - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3801,7 +3801,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Set Log Analytics Archival Period - Started"
+                      -Message "PROD CI Deployment: Set Log Analytics Archival Period - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
                 - bash: |
@@ -3834,7 +3834,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Set Log Analytics Archival Period - Completed"
+                      -Message "PROD CI Deployment: Set Log Analytics Archival Period - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3849,7 +3849,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Restart SPA - Started"
+                      -Message "PROD CI Deployment: Restart SPA - Started"
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -3873,7 +3873,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Restart SPA - Completed"
+                      -Message "PROD CI Deployment: Restart SPA - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3888,7 +3888,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: UI Events Terraform - Started"
+                      -Message "PROD CI Deployment: UI Events Terraform - Started"
                     
                 #download ui events terraform build artifact
                 - download: PolarisBuild
@@ -3952,7 +3952,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: UI Events Terraform - Completed"
+                      -Message "PROD CI Deployment: UI Events Terraform - Completed"
                       
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -3967,7 +3967,7 @@ stages:
                       -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Completed"
+                      -Message "PROD CI Deployment: Completed"
 
                 #send any errors to AppInsights
                 - task: PowerShell@2
@@ -3984,7 +3984,7 @@ stages:
                       -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                       -ReleaseId "$(Build.BuildId)"
                       -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                      -Message "PROD Deployment: Failed"
+                      -Message "PROD CI Deployment: Failed"
                     
   - stage: Check_PROD
     displayName: Status Checks > PROD
@@ -4061,7 +4061,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Status Checks - Started"
+                -Message "PROD CI Deployment: Status Checks - Started"
             
           #query coordinator status endpoint
           - task: PowerShell@2
@@ -4188,7 +4188,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Status Checks - Completed"
+                -Message "PROD CI Deployment: Status Checks - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4205,7 +4205,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Status Checks - Failed"
+                -Message "PROD CI Deployment: Status Checks - Failed"
                 
   - stage: Create_PROD_Report
     displayName: Create Report > PROD
@@ -4271,7 +4271,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Create Report - Started"
+                -Message "PROD CI Deployment: Create Report - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -4302,7 +4302,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Create Report - Completed"
+                -Message "PROD CI Deployment: Create Report - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4319,7 +4319,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Create Report - Failed"
+                -Message "PROD CI Deployment: Create Report - Failed"
                 
   - stage: Update_PROD_Tag
     displayName: Update Tag > PROD
@@ -4386,7 +4386,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Update Tag - Started"
+                -Message "PROD CI Deployment: Update Tag - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -4416,7 +4416,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Update Tag - Completed"
+                -Message "PROD CI Deployment: Update Tag - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4433,7 +4433,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Update Tag - Failed"
+                -Message "PROD CI Deployment: Update Tag - Failed"
             
   - stage: Run_e2e_Tests_PROD
     displayName: Run e2e tests > PROD
@@ -4516,7 +4516,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Run e2e Tests - Started"
+                -Message "PROD CI Deployment: Run e2e Tests - Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: PROD'
@@ -4540,7 +4540,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Run e2e Tests - Completed"
+                -Message "PROD CI Deployment: Run e2e Tests - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4557,4 +4557,4 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Deployment: Run e2e Tests - Failed"
+                -Message "PROD CI Deployment: Run e2e Tests - Failed"
