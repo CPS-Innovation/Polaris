@@ -1277,7 +1277,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Status Checks: Started"
+                -Message "DEV Deployment: Status Checks - Started"
 
           #query coordinator status endpoint
           - task: PowerShell@2
@@ -1404,7 +1404,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Status Checks: Completed"
+                -Message "DEV Deployment: Status Checks - Completed"
                 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1421,7 +1421,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Status Checks: Failed"
+                -Message "DEV Deployment: Status Checks - Failed"
                 
   - stage: Create_DEV_Report
     displayName: Create Report > DEV
@@ -1487,7 +1487,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Create Report: Started"
+                -Message "DEV Deployment: Create Report - Started"
             
           - checkout: self
             persistCredentials: true
@@ -1518,7 +1518,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Create Report: Completed"
+                -Message "DEV Deployment: Create Report - Completed"
                 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1535,7 +1535,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Create Report: Failed"
+                -Message "DEV Deployment: Create Report - Failed"
 
   - stage: Update_DEV_Tag
     displayName: Update Tag > DEV
@@ -1602,7 +1602,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Update Tag: Started"
+                -Message "DEV Deployment: Update Tag - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -1632,7 +1632,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Update Tag: Completed"
+                -Message "DEV Deployment: Update Tag - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1649,7 +1649,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Update Tag: Failed"
+                -Message "DEV Deployment: Update Tag - Failed"
                     
   - stage: Run_e2e_Tests_DEV
     displayName: Run e2e tests > DEV
@@ -1732,7 +1732,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Run e2e Tests: Started"
+                -Message "DEV Deployment: Run e2e Tests - Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: DEV'
@@ -1756,7 +1756,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Run e2e Tests: Completed"
+                -Message "DEV Deployment: Run e2e Tests - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -1773,7 +1773,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "DEV Run e2e Tests: Failed"
+                -Message "DEV Deployment: Run e2e Tests - Failed"
 
   - stage: Apply_QA
     displayName: Deployment > QA
@@ -2669,7 +2669,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Status Checks: Started"  
+                -Message "QA Deployment: Status Checks - Started"  
           
           #query coordinator status endpoint
           - task: PowerShell@2
@@ -2796,7 +2796,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Status Checks: Completed"
+                -Message "QA Deployment: Status Checks - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -2813,7 +2813,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Status Checks: Failed"
+                -Message "QA Deployment: Status Checks - Failed"
                 
   - stage: Create_QA_Report
     displayName: Create Report > QA
@@ -2879,7 +2879,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Create Report: Started"
+                -Message "QA Deployment: Create Report - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -2910,7 +2910,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Create Report: Completed"
+                -Message "QA Deployment: Create Report - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -2927,7 +2927,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Create Report: Failed"
+                -Message "QA Deployment: Create Report - Failed"
                 
   - stage: Update_QA_Tag
     displayName: Update Tag > QA
@@ -2994,7 +2994,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Update Tag: Started"
+                -Message "QA Deployment: Update Tag - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -3024,7 +3024,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Update Tag: Completed"
+                -Message "QA Deployment: Update Tag - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -3041,7 +3041,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Update Tag: Failed"
+                -Message "QA Deployment: Update Tag - Failed"
             
   - stage: Run_e2e_Tests_QA
     displayName: Run e2e tests > QA
@@ -3124,7 +3124,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Run e2e Tests: Started"
+                -Message "QA Deployment: Run e2e Tests - Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: QA'
@@ -3148,7 +3148,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Run e2e Tests: Completed"
+                -Message "QA Deployment: Run e2e Tests - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -3165,7 +3165,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "QA Run e2e Tests: Failed"
+                -Message "QA Deployment: Run e2e Tests - Failed"
 
   - stage: Apply_PROD
     displayName: Deployment > PROD
@@ -4061,7 +4061,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Status Checks: Started"
+                -Message "PROD Deployment: Status Checks - Started"
             
           #query coordinator status endpoint
           - task: PowerShell@2
@@ -4188,7 +4188,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Status Checks: Completed"
+                -Message "PROD Deployment: Status Checks - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4205,7 +4205,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Status Checks: Failed"
+                -Message "PROD Deployment: Status Checks - Failed"
                 
   - stage: Create_PROD_Report
     displayName: Create Report > PROD
@@ -4271,7 +4271,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Create Report: Started"
+                -Message "PROD Deployment: Create Report - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -4302,7 +4302,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Create Report: Completed"
+                -Message "PROD Deployment: Create Report - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4319,7 +4319,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Create Report: Failed"
+                -Message "PROD Deployment: Create Report - Failed"
                 
   - stage: Update_PROD_Tag
     displayName: Update Tag > PROD
@@ -4386,7 +4386,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Update Tag: Started"
+                -Message "PROD Deployment: Update Tag - Started"
                 
           - checkout: self
             persistCredentials: true
@@ -4416,7 +4416,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Update Tag: Completed"
+                -Message "PROD Deployment: Update Tag - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4433,7 +4433,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Update Tag: Failed"
+                -Message "PROD Deployment: Update Tag - Failed"
             
   - stage: Run_e2e_Tests_PROD
     displayName: Run e2e tests > PROD
@@ -4516,7 +4516,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Run e2e Tests: Started"
+                -Message "PROD Deployment: Run e2e Tests - Started"
                 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: PROD'
@@ -4540,7 +4540,7 @@ stages:
                 -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Run e2e Tests: Completed"
+                -Message "PROD Deployment: Run e2e Tests - Completed"
 
           #send any errors to AppInsights
           - task: PowerShell@2
@@ -4557,4 +4557,4 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisBuild.runName)"
-                -Message "PROD Run e2e Tests: Failed"
+                -Message "PROD Deployment: Run e2e Tests - Failed"
