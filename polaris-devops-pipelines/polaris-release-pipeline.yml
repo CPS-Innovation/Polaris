@@ -1674,7 +1674,7 @@ stages:
     jobs:
       - job: Run_e2e_Tests_DEV
         pool:
-          vmImage: windows-latest
+          vmImage: ubuntu-latest
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -3066,7 +3066,7 @@ stages:
     jobs:
       - job: Run_e2e_Tests_QA
         pool:
-          vmImage: windows-latest
+          vmImage: ubuntu-latest
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -4458,7 +4458,7 @@ stages:
     jobs:
       - job: Run_e2e_Tests_PROD
         pool:
-          vmImage: windows-latest
+          vmImage: ubuntu-latest
         steps:
           #download templates artifact
           - download: PolarisBuild
