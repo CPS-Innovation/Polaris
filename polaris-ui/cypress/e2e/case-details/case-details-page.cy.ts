@@ -792,7 +792,6 @@ describe("case details page", () => {
       cy.realPress(",");
       cy.realPress(",");
       cy.realPress(",");
-      cy.realPress(",");
       keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("forward", "w");
       keyPressAndVerifySelection("forward", "c");

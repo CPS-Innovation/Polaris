@@ -11,7 +11,7 @@ import {
 const WORD_FOCUS_KEY = ",";
 const TAB_KEY_CODE = "Tab";
 export const useDocumentFocus = (activeTabId: string | undefined) => {
-  const getTextLayerChildren = (textLayerIndex: number) => {
+  const getTextLayerChildren = () => {
     const textLayers = document
       .querySelector("#active-tab-panel")
       ?.querySelectorAll(".textLayer");
@@ -20,7 +20,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     }
     const children = Array.from(textLayers).reduce(
       (acc: any[], textLayer: Element, index) => {
-        if (index > textLayerIndex) {
+        if (index > textLayerIndex.current) {
           return acc;
         }
         acc = [...acc, ...getNonEmptyTextContentElements(textLayer.children)];
@@ -34,13 +34,15 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     count: number;
     direction: "forward" | "backward" | "";
   }>({ count: 0, direction: "" });
-  const [textLayerIndex, setTextLayerIndex] = useState(-1);
+  const [toggleRefresh, setToggleRefresh] = useState(false);
+  const textLayerIndex = useRef(0);
   const activeTextLayerChildIndex = useRef(-1);
   const wordFirstLetterIndex = useRef(0);
 
   const sortedSpanElements = useMemo(() => {
-    return getTextLayerChildren(textLayerIndex);
-  }, [textLayerIndex]);
+    return getTextLayerChildren();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toggleRefresh]);
 
   /*
   Each textLayer child might have more than one word as text content and need to navigate our focus to start of the each word, 
@@ -139,18 +141,19 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
       e.shiftKey
         ? setKeyPress({ count: keyPress.count + 1, direction: "backward" })
         : setKeyPress({ count: keyPress.count + 1, direction: "forward" });
+
+      //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
+      if (sortedSpanElements.length - 1 === activeTextLayerChildIndex.current) {
+        textLayerIndex.current = textLayerIndex.current + 1;
+        setToggleRefresh((toggleRefresh) => !toggleRefresh);
+      }
     },
-    [getRedactBtn, keyPress]
+    [getRedactBtn, keyPress, sortedSpanElements.length]
   );
 
-  const handleResize = useCallback(() => {
-    setTextLayerIndex(-1);
-    setKeyPress({ count: -1, direction: "" });
-    activeTextLayerChildIndex.current = -1;
-    wordFirstLetterIndex.current = 0;
-  }, []);
   useEffect(() => {
-    setTextLayerIndex(-1);
+    setToggleRefresh((toggleRefresh) => !toggleRefresh);
+    textLayerIndex.current = 0;
     setKeyPress({ count: -1, direction: "" });
     activeTextLayerChildIndex.current = -1;
     wordFirstLetterIndex.current = 0;
@@ -162,22 +165,23 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
       return;
     }
     (documentPanel as HTMLElement).focus();
-    if (textLayerIndex === -1) {
-      setTextLayerIndex(0);
-      return;
-    }
     if (!sortedSpanElements.length) {
+      setToggleRefresh((toggleRefresh) => !toggleRefresh);
       return;
     }
-    //The textLayerIndex is used to keep track of the pages user has scrolled down which is used to get all the span children till that page progressively
-    if (sortedSpanElements.length - 1 === activeTextLayerChildIndex.current) {
-      setTextLayerIndex(textLayerIndex + 1);
-    }
+  }, [keyPress, getDocumentPanel, sortedSpanElements.length]);
 
+  useEffect(() => {
+    if (!keyPress.direction) {
+      return;
+    }
     const textToSelect = getTextToSelect(
       sortedSpanElements,
       keyPress.direction
     );
+    if (!textToSelect) {
+      return;
+    }
     (textToSelect as HTMLElement).scrollIntoView({
       behavior: "smooth",
       block: "center",
@@ -186,14 +190,26 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     range.selectNodeContents(textToSelect);
     range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
     range.setEnd(textToSelect.firstChild, wordFirstLetterIndex.current + 1);
+
+    if (
+      !document.contains(range.startContainer) ||
+      !document.contains(range.endContainer)
+    ) {
+      setToggleRefresh((toggleRefresh) => !toggleRefresh);
+      return;
+    }
     document.getSelection()?.removeAllRanges();
     document.getSelection()?.addRange(range);
-  }, [keyPress, textLayerIndex]);
+  }, [
+    keyPress,
+    getTextToSelect,
+    sortedSpanElements,
+    sortedSpanElements.length,
+  ]);
+
   useEffect(() => {
-    window.addEventListener("resize", handleResize);
     window.addEventListener("keydown", keyDownHandler);
     return () => {
-      window.removeEventListener("resize", handleResize);
       window.removeEventListener("keydown", keyDownHandler);
     };
   }, [keyDownHandler]);
