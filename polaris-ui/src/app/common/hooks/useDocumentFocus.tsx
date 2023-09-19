@@ -167,7 +167,6 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     (documentPanel as HTMLElement).focus();
     if (!sortedSpanElements.length) {
       setToggleRefresh((toggleRefresh) => !toggleRefresh);
-      return;
     }
   }, [keyPress, getDocumentPanel, sortedSpanElements.length]);
 
