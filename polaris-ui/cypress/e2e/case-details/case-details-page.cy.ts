@@ -792,6 +792,7 @@ describe("case details page", () => {
       cy.realPress(",");
       cy.realPress(",");
       cy.realPress(",");
+      cy.realPress(",");
       keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("forward", "w");
       keyPressAndVerifySelection("forward", "c");
@@ -801,6 +802,16 @@ describe("case details page", () => {
       keyPressAndVerifySelection("backward", "c");
       keyPressAndVerifySelection("backward", "w");
       keyPressAndVerifySelection("backward", "R");
+      //switch back to the first document
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      keyPressAndVerifySelection("forward", "W");
+      cy.realPress(",");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "R");
+      keyPressAndVerifySelection("backward", "P");
     });
   });
 

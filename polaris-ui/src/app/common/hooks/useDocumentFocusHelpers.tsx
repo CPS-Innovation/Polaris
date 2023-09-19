@@ -42,7 +42,7 @@ export const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
 
   const keyValueArray = Object.entries(groupedTexts);
 
-  // Sort the array based on the numeric portion of the keys
+  // Sort the array based on the numeric portion of the keys, the style top value
   keyValueArray.sort(([keyA], [keyB]) => {
     const numericA = parseFloat(keyA);
     const numericB = parseFloat(keyB);
@@ -51,7 +51,6 @@ export const getNonEmptyTextContentElements = (elements: HTMLCollection) => {
 
   // Convert the sorted array back into an object
   const sortedObject = Object.fromEntries(keyValueArray);
-
   const childSpans = Object.keys(sortedObject).reduce((acc, element) => {
     acc = [...acc, ...sortedObject[element]];
     return acc;

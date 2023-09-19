@@ -5,7 +5,7 @@ import {
 } from "./useDocumentFocusHelpers";
 /**
  * This hook will take care of custom navigation and selection of starting letter of each word in each page
- * and making the focus trapped on the redact button if it is available. User can use "key W" and " Shift + key W"
+ * and making the focus trapped on the redact button if it is available. User can use key "," and "Shift" + key ","
  * to navigate forward and backward through the document words.
  */
 const WORD_FOCUS_KEY = ",";
@@ -150,7 +150,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     },
     [getRedactBtn, keyPress, sortedSpanElements.length]
   );
-
+  // reset on tab change.
   useEffect(() => {
     setToggleRefresh((toggleRefresh) => !toggleRefresh);
     textLayerIndex.current = 0;
@@ -164,21 +164,22 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     if (!documentPanel || !keyPress.direction) {
       return;
     }
-    (documentPanel as HTMLElement).focus();
     if (!sortedSpanElements.length) {
       setToggleRefresh((toggleRefresh) => !toggleRefresh);
-    }
-  }, [keyPress, getDocumentPanel, sortedSpanElements.length]);
-
-  useEffect(() => {
-    if (!keyPress.direction) {
       return;
     }
+    // this is to identify whether a re-calculation of the span elements is needed
+    if (!document.contains(sortedSpanElements[0])) {
+      setToggleRefresh((toggleRefresh) => !toggleRefresh);
+      return;
+    }
+    (documentPanel as HTMLElement).focus();
     const textToSelect = getTextToSelect(
       sortedSpanElements,
       keyPress.direction
     );
     if (!textToSelect) {
+      setToggleRefresh((toggleRefresh) => !toggleRefresh);
       return;
     }
     (textToSelect as HTMLElement).scrollIntoView({
@@ -189,19 +190,12 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     range.selectNodeContents(textToSelect);
     range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
     range.setEnd(textToSelect.firstChild, wordFirstLetterIndex.current + 1);
-
-    if (
-      !document.contains(range.startContainer) ||
-      !document.contains(range.endContainer)
-    ) {
-      setToggleRefresh((toggleRefresh) => !toggleRefresh);
-      return;
-    }
     document.getSelection()?.removeAllRanges();
     document.getSelection()?.addRange(range);
   }, [
     keyPress,
     getTextToSelect,
+    getDocumentPanel,
     sortedSpanElements,
     sortedSpanElements.length,
   ]);
