@@ -4,7 +4,8 @@
     [String]$PipelineName,
     [String]$CommitId,
     [String]$ReleaseId,
-    [String]$BuildName)
+    [String]$BuildName,
+    [String]$Message)
 
 $url="https://dev.azure.com/CPSDTS/Information%20Management/_apis/build/builds/$ReleaseId/timeline?api-version=6.0"
 Write-Host "Getting errors from $($url)"
@@ -37,5 +38,9 @@ $errors.ForEach({
     })
 })
 
-$telemetryClient.TrackEvent("Deployment Failed", $customErrors, $customMetrics);
+Write-Host "Calling 'TrackEvent' with '$Message'"
+$telemetryClient.TrackEvent($Message, $customErrors, $customMetrics);
+
+Write-Host "Flushing to output stream"
 $telemetryClient.Flush();
+Write-Host "Finished writing message to App Insights"
