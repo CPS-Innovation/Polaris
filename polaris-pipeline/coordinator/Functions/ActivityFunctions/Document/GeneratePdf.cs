@@ -81,7 +81,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
                 documentStream = await _ddeiClient.GetDocumentFromFileStoreAsync
                     (
-                        payload.CmsDocumentTracker.FilePath,
+                        payload.CmsDocumentTracker.Path,
                         payload.CmsAuthValues,
                         payload.CorrelationId
                     );

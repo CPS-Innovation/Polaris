@@ -8,7 +8,7 @@ namespace Common.Dto.Document
 
         public long VersionId { get; set; }
 
-        public string FilePath { get; set; }
+        public string Path { get; set; }
 
         public string FileName { get; set; }
 

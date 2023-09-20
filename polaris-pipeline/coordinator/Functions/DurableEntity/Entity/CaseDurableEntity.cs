@@ -225,7 +225,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.DocumentId,
                         newDocument.VersionId,
                         newDocument.CmsDocType,
-                        newDocument.FilePath,
+                        newDocument.Path,
                         newDocument.FileExtension,
                         newDocument.DocumentDate,
                         newDocument.FileName,
@@ -253,7 +253,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.PolarisDocumentVersionId++;
                 trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
-                trackerDocument.FilePath = updatedDocument.FilePath;
+                trackerDocument.Path = updatedDocument.Path;
                 trackerDocument.FileExtension = updatedDocument.FileExtension;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;

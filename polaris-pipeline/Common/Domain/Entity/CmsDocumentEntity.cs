@@ -30,7 +30,7 @@ namespace Common.Domain.Entity
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
-            FilePath = filePath;
+            Path = filePath;
             FileExtension = fileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
@@ -40,8 +40,8 @@ namespace Common.Domain.Entity
             Status = DocumentStatus.New;
         }
 
-        [JsonProperty("filePath")]
-        public string FilePath { get; set; }
+        [JsonProperty("path")]
+        public string Path { get; set; }
 
         [JsonProperty("fileExtension")]
         public string FileExtension { get; set; }

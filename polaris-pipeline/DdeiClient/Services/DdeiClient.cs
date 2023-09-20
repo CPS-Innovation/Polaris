@@ -142,13 +142,13 @@ namespace Ddei.Services
             return await response.Content.ReadAsStreamAsync();
         }
 
-        public async Task<Stream> GetDocumentFromFileStoreAsync(string filePath, string cmsAuthValues, Guid correlationId)
+        public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
         {
             // todo: should this return a DocumentServiceException?
             var response = await CallDdei(
                 _ddeiClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiCmsFileStoreArgDto
                 {
-                    FilePath = filePath,
+                    Path = path,
                     CmsAuthValues = cmsAuthValues,
                     CorrelationId = correlationId
                 })
