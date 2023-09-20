@@ -14,8 +14,6 @@ namespace polaris_analytics
 
     const string EmailRegexPattern = @"[^@\s""']+@[^@\s]+\.[^@\s""']+";
 
-
-
     static void Main()
     {
       var client = new ArmClient(new DefaultAzureCredential());
