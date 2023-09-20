@@ -69,16 +69,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
             {
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
 
-                // documentStream = await _ddeiClient.GetDocumentAsync
-                //     (
-                //         payload.CmsCaseUrn,
-                //         payload.CmsCaseId.ToString(),
-                //         payload.CmsDocumentTracker.CmsDocType.DocumentCategory,
-                //         payload.CmsDocumentTracker.CmsDocumentId,
-                //         payload.CmsAuthValues,
-                //         payload.CorrelationId
-                //     );
-
                 documentStream = await _ddeiClient.GetDocumentFromFileStoreAsync
                     (
                         payload.CmsDocumentTracker.Path,

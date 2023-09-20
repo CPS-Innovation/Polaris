@@ -67,7 +67,7 @@ namespace Ddei.Factories.Contracts
 
         public HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiCmsFileStoreArgDto arg)
         {
-            // note that `arg.FilePath` is already prefixed with a slash
+            // note that `arg.Path` is already prefixed with a slash
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/file-store{arg.Path}");
             AddAuthHeaders(request, arg);
             return request;
