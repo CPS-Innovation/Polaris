@@ -19,7 +19,7 @@ namespace Common.Domain.Entity
             string cmsDocumentId,
             long cmsVersionId,
             DocumentTypeDto cmsDocType,
-            string filePath,
+            string path,
             string fileExtension,
             string cmsFileCreatedDate,
             string cmsOriginalFileName,
@@ -30,7 +30,7 @@ namespace Common.Domain.Entity
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
-            Path = filePath;
+            Path = path;
             FileExtension = fileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
