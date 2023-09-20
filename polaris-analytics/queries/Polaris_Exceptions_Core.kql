@@ -1,0 +1,137 @@
+let FilteredExceptions = AppExceptions
+// | where TimeGenerated between (startDate .. endDate)
+// HTE are not accommodated yet and so always create exceptions
+//| where InnermostMessage notcontains "HTE" and OuterMessage notcontains "HTE" 
+// Elastic premium scaling is currently spamming AppExceptions
+| where not (Method == "System.ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException"
+    and AppRoleName == "fa-polaris-pipeline-coordinator")
+// RefreshDocumentOrchestrator is always preceded by the original and more interesting exception
+| where OperationName !in ('RefreshDocumentOrchestrator', 'RefreshCaseOrchestrator')
+| where OperationId != ''
+//| where not(OperationId in (IgnoreOperations))
+;
+
+let OperationIdsWithPolarisCorrelationId = FilteredExceptions
+| where tostring(Properties.prop__CorrelationId) != ''
+| distinct OperationId, PolarisCorrelationId = tostring(Properties.prop__CorrelationId)
+;
+
+let OperationIdsWithoutPolarisCorrelationId = FilteredExceptions
+| where tostring(Properties.prop__CorrelationId) == ''
+| distinct OperationId
+;
+
+let OperationIdPolarisCorrelationIdMappings = OperationIdsWithoutPolarisCorrelationId
+| join kind=leftouter Polaris_Exceptions_PolarisCorrelationId_OperationId on OperationId
+| summarize PolarisCorrelationIds = make_set_if(tostring(PolarisCorrelationId), tostring(PolarisCorrelationId) != '') by OperationId
+| project 
+    OperationId, 
+    PolarisCorrelationId = iif(array_length(PolarisCorrelationIds) == 1, PolarisCorrelationIds[0], ''),
+    HasSinglePolarisCorrelationId = array_length(PolarisCorrelationIds) == 1,
+    PolarisCorrelationIds
+;
+
+let SingleMappedPolarisCorrelationIdOperations = OperationIdPolarisCorrelationIdMappings
+| where HasSinglePolarisCorrelationId 
+| project OperationId, PolarisCorrelationId
+;
+
+let CombinedExceptionsWithSinglePolarisCorrelationId = 
+union 
+    OperationIdsWithPolarisCorrelationId,
+    SingleMappedPolarisCorrelationIdOperations
+;
+
+let ExceptionsWithDirectPolarisCorrelationId = FilteredExceptions
+| join kind=inner CombinedExceptionsWithSinglePolarisCorrelationId on OperationId 
+| summarize 
+    OperationId = make_set(OperationId),
+    RolledUpExceptionCount = count(), 
+    EarliestExceptionTimeGenerated = min(TimeGenerated), 
+    Method = make_set(Method),
+    ExceptionType = make_set(ExceptionType),
+    OuterMessage = make_set(OuterMessage),
+    InnermostMessage = make_set(InnermostMessage),
+    OperationName = make_set(OperationName),
+    AppRoleName = make_set(AppRoleName),
+    ClientType = min(ClientType)
+  by PolarisCorrelationId
+| join kind= leftouter Polaris_Exceptions_PolarisCorrelationId_DdeiCmsExceptions on PolarisCorrelationId
+| join kind = leftouter Polaris_Exceptions_PolarisCorrelationId_CaseUserContext on PolarisCorrelationId
+| project 
+    OperationId = todynamic(OperationId),
+    PolarisCorrelationId= todynamic(PolarisCorrelationId),
+    RolledUpExceptionCount,
+    EarliestExceptionTimeGenerated,
+    Method,
+    ExceptionType,
+    OuterMessage,
+    InnermostMessage,
+    OperationName,
+    AppRoleName,
+    ClientType,
+
+    Urn,
+    CaseId,
+    CmsUserId,
+    User,
+    CmsStatusCode, 
+    HasAuthCookieInException, 
+    LoadBalancedDestination,
+
+    RollupType = 'ByPolarisCorrelationId'
+;
+
+
+let NonSingleMappedPolarisCorrelationIdOperations = OperationIdPolarisCorrelationIdMappings
+| where not(HasSinglePolarisCorrelationId) 
+| project OperationId, PolarisCorrelationIds
+;
+
+
+let ExceptionsWithoutDirectPolarisCorrelationId = FilteredExceptions
+| join kind=inner NonSingleMappedPolarisCorrelationIdOperations on OperationId 
+| summarize 
+    PolarisCorrelationId= make_set(PolarisCorrelationIds),
+    RolledUpExceptionCount = count(), 
+    EarliestExceptionTimeGenerated = min(TimeGenerated), 
+    Method = make_set(Method),
+    ExceptionType = make_set(ExceptionType),
+    OuterMessage = make_set(OuterMessage),
+    InnermostMessage = make_set(InnermostMessage),
+    OperationName = make_set(OperationName),
+    AppRoleName = make_set(AppRoleName),
+    ClientType = min(ClientType)
+  by OperationId
+| join kind= leftouter Polaris_Exceptions_OperationId_DdeiCmsExceptions on OperationId
+| join kind = leftouter Polaris_Exceptions_OperationId_CaseUserContext on OperationId
+| project 
+    OperationId = todynamic(OperationId),
+    PolarisCorrelationId= todynamic(PolarisCorrelationId),
+    RolledUpExceptionCount,
+    EarliestExceptionTimeGenerated,
+    Method,
+    ExceptionType,
+    OuterMessage,
+    InnermostMessage,
+    OperationName,
+    AppRoleName,
+    ClientType,
+
+    Urn,
+    CaseId,
+    CmsUserId,
+    User,
+    CmsStatusCode, 
+    HasAuthCookieInException, 
+    LoadBalancedDestination,
+
+    RollupType = 'ByOperationId'
+;
+
+union
+ExceptionsWithoutDirectPolarisCorrelationId,
+ExceptionsWithDirectPolarisCorrelationId
+
+
+
