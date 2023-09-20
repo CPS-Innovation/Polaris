@@ -5,8 +5,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   location                      = azurerm_resource_group.rg.location
   resource_group_name           = azurerm_resource_group.rg.name
   service_plan_id               = azurerm_service_plan.asp_polaris_pipeline_ep_coordinator.id
-  storage_account_name          = azurerm_storage_account.sa.name
-  storage_account_access_key    = azurerm_storage_account.sa.primary_access_key
+  storage_account_name          = azurerm_storage_account.sa_coordinator.name
+  storage_account_access_key    = azurerm_storage_account.sa_coordinator.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_coordinator_subnet.id
   tags                          = local.common_tags
   functions_extension_version   = "~4"
@@ -22,10 +22,10 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_CONTENTOVERVNET"                    = "1"
     "WEBSITE_DNS_SERVER"                         = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                     = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"   = azurerm_storage_account.sa.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"   = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTSHARE"                       = azapi_resource.pipeline_sa_coordinator_file_share.name
     "SCALE_CONTROLLER_LOGGING_ENABLED"           = var.pipeline_logging.coordinator_scale_controller
-    "AzureWebJobsStorage"                        = azurerm_storage_account.sa.primary_connection_string
+    "AzureWebJobsStorage"                        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "EventHubsConnection"                        = azurerm_eventhub_namespace.polaris-eh-namespace.default_primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"         = "600"
     "PolarisPipelineCoordinatorBaseUrl"          = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
