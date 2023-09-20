@@ -414,7 +414,12 @@ stages:
                 - download: PolarisBuild
                   displayName: Download Templates
                   artifact: 'polaris-template-files'
-
+                  
+                #download scripts artifact
+                - download: PolarisBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                  
                 #create vpn tunnel
                 - bash: |
                     sudo apt-get --assume-yes --no-install-recommends install openvpn
@@ -445,7 +450,46 @@ stages:
                   condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
                   inputs:
                     terraformVersion: $(terraform-version)
-                
+                  
+                #install nuget
+                - bash: |
+                    sudo yum install -y mono-complete
+                    sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+                    sudo chmod +x /usr/local/bin/nuget
+                    nuget install Microsoft.ApplicationInsights
+                  displayName: Installing Application Insights
+                  condition: succeeded()
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Started"
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Pipeline Terraform - Started"
+                      
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
                   condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
@@ -511,6 +555,36 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Pipeline Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Coordinator - Started"
+                    
                 #download coordinator build artifact
                 - download: PolarisBuild
                   condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
@@ -526,6 +600,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-dev-coordinator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Coordinator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Pdf Generator - Started"
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -542,6 +646,36 @@ stages:
                     appType: functionApp
                     appName: "fa-polaris-pipeline-dev-pdf-generator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Pdf Generator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -558,6 +692,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-dev-text-extractor"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Text Extractor - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -607,6 +771,36 @@ stages:
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Pipeline Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
@@ -657,6 +851,36 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: UI Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish SPA - Started"
+                    
                 #download UI build artifact
                 - download: PolarisBuild
                   condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
@@ -672,6 +896,36 @@ stages:
                     appType: webAppLinux
                     WebAppName: "as-web-polaris-dev"
                     packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Gateway - Started"
                                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -688,6 +942,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-gateway"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Auth-Handover - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -704,6 +988,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-dev-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Publish Auth-Handover - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Set Log Analytics Archival Periods - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
                 - bash: |
@@ -722,6 +1036,36 @@ stages:
                     LOG_RETENTION_TIME: $(log-retention-time)
                     TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
                     TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Set Log Analytics Archival Periods - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Restarting SPA - Started"
                 
                 # Restart app service - moved away from deployment to buy some time    
                 - task: AzureAppServiceManage@0
@@ -731,6 +1075,36 @@ stages:
                     azureSubscription: $(dev-azure-subscription)
                     Action: 'Restart Azure App Service'
                     WebAppName: "as-web-polaris-dev"
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Restarting SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: UI Events Terraform - Started"
                     
                 #download ui events terraform build artifact
                 - download: PolarisBuild
@@ -781,6 +1155,53 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: UI Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Completed"
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Failed"
+                    
   - stage: Check_DEV
     displayName: Status Checks > DEV
     dependsOn:
@@ -804,6 +1225,11 @@ stages:
           - download: PolarisBuild
             displayName: Download Templates
             artifact: 'polaris-template-files'
+            
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
 
           #create vpn tunnel
           - bash: |
@@ -829,10 +1255,29 @@ stages:
               DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
             
-          #download scripts artifact
-          - download: PolarisBuild
-            displayName: Polaris Build > Download Pipeline Scripts
-            artifact: 'polaris-script-files'
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+            
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Status Checks - Started"
 
           #query coordinator status endpoint
           - task: PowerShell@2
@@ -946,6 +1391,38 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Status Checks - Completed"
+                
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Status Checks - Failed"
+                
   - stage: Create_DEV_Report
     displayName: Create Report > DEV
     dependsOn: Check_DEV
@@ -954,6 +1431,64 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+            
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
+            displayName: Creating DEV VPN tunnel
+            
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Create Report - Started"
+            
           - checkout: self
             persistCredentials: true
 
@@ -969,6 +1504,38 @@ stages:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-dev.csv"
               artifact: "Commit Report - DEV ($(System.JobAttempt))"
             displayName: "Publish Commit report for DEV"
+            
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Create Report - Completed"
+                
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Create Report - Failed"
 
   - stage: Update_DEV_Tag
     displayName: Update Tag > DEV
@@ -979,6 +1546,64 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files' 
+          
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
+            displayName: Creating DEV VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Update Tag - Started"
+                
           - checkout: self
             persistCredentials: true
 
@@ -992,7 +1617,39 @@ stages:
                 git push origin :refs/tags/dev
                 git tag -f dev
                 git push origin dev
-            displayName: Updating the dev tag        
+            displayName: Updating the dev tag
+            
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Update Tag - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Update Tag - Failed"
                     
   - stage: Run_e2e_Tests_DEV
     displayName: Run e2e tests > DEV
@@ -1017,16 +1674,106 @@ stages:
     jobs:
       - job: Run_e2e_Tests_DEV
         pool:
-          vmImage: windows-latest
+          vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+            
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(dev_pre-shared_key)
+              PRIVATEKEY: $(dev_private_key)
+              CLIENTCERTIFICATE: $(dev_client_cert)
+              VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
+            displayName: Creating DEV VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Run e2e Tests - Started"
+                
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: DEV'
-            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true'))
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
             inputs:
               buildDefinition: 129
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "DEV CI Deployment: Run e2e Tests - Failed"
 
   - stage: Apply_QA
     displayName: Deployment > QA
@@ -1059,6 +1806,11 @@ stages:
                 - download: PolarisBuild
                   displayName: Download Templates
                   artifact: 'polaris-template-files'
+                  
+                #download scripts artifact
+                - download: PolarisBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
 
                 #create vpn tunnel
                 - bash: |
@@ -1090,6 +1842,45 @@ stages:
                   condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
                   inputs:
                     terraformVersion: $(terraform-version)
+                    
+                #install nuget
+                - bash: |
+                    sudo yum install -y mono-complete
+                    sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+                    sudo chmod +x /usr/local/bin/nuget
+                    nuget install Microsoft.ApplicationInsights
+                  displayName: Installing Application Insights
+                  condition: succeeded()
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Pipeline Terraform - Started"
                 
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
@@ -1156,6 +1947,36 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Pipeline Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Coordinator - Started"
+                    
                 #download coordinator build artifact
                 - download: PolarisBuild
                   condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
@@ -1171,6 +1992,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-qa-coordinator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Coordinator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish PDF Generator - Started"
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -1187,6 +2038,36 @@ stages:
                     appType: functionApp
                     appName: "fa-polaris-pipeline-qa-pdf-generator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish PDF Generator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -1203,6 +2084,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-qa-text-extractor"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Text Extractor - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -1252,6 +2163,36 @@ stages:
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Pipeline Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
@@ -1302,6 +2243,36 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: UI Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish SPA - Started"
+                    
                 #download UI build artifact
                 - download: PolarisBuild
                   condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
@@ -1317,6 +2288,36 @@ stages:
                     appType: webAppLinux
                     WebAppName: "as-web-polaris-qa"
                     packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Gateway - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -1333,6 +2334,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-qa-gateway"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Auth Handover - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -1349,6 +2380,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-qa-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Publish Auth Handover - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Set Log Analytics Archival Period - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
                 - bash: |
@@ -1367,6 +2428,36 @@ stages:
                     LOG_RETENTION_TIME: $(log-retention-time)
                     TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
                     TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Set Log Analytics Archival Period - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Restart SPA - Started"
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -1376,6 +2467,36 @@ stages:
                     azureSubscription: $(qa-azure-subscription)
                     Action: 'Restart Azure App Service'
                     WebAppName: "as-web-polaris-qa"
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Restart SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: UI Events Terraform - Started"
                         
                 #download ui events terraform build artifact
                 - download: PolarisBuild
@@ -1426,6 +2547,53 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: UI Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Completed"
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Failed"
+                    
   - stage: Check_QA
     displayName: Status Checks > QA
     dependsOn:
@@ -1449,6 +2617,11 @@ stages:
           - download: PolarisBuild
             displayName: Download Templates
             artifact: 'polaris-template-files'
+            
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
 
           #create vpn tunnel
           - bash: |
@@ -1473,12 +2646,31 @@ stages:
               VPNSERVER: $(qa_vpn_server)
               DNSSERVER: $(qa_dns_server)
             displayName: Creating QA VPN tunnel
-            
-          #download scripts artifact
-          - download: PolarisBuild
-            displayName: Polaris Build > Download Pipeline Scripts
-            artifact: 'polaris-script-files'
+          
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
 
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Status Checks - Started"  
+          
           #query coordinator status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Coordinator status'
@@ -1591,6 +2783,38 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Status Checks - Failed"
+                
   - stage: Create_QA_Report
     displayName: Create Report > QA
     dependsOn: Check_QA
@@ -1599,6 +2823,64 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(qa_pre-shared_key)
+              PRIVATEKEY: $(qa_private_key)
+              CLIENTCERTIFICATE: $(qa_client_cert)
+              VPNSERVER: $(qa_vpn_server)
+              DNSSERVER: $(qa_dns_server)
+            displayName: Creating QA VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Create Report - Started"
+                
           - checkout: self
             persistCredentials: true
 
@@ -1614,6 +2896,38 @@ stages:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-qa.csv"
               artifact: "Commit Report - QA ($(System.JobAttempt))"
             displayName: "Publish Commit report for QA"
+            
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Create Report - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Create Report - Failed"
                 
   - stage: Update_QA_Tag
     displayName: Update Tag > QA
@@ -1624,6 +2938,64 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(qa_pre-shared_key)
+              PRIVATEKEY: $(qa_private_key)
+              CLIENTCERTIFICATE: $(qa_client_cert)
+              VPNSERVER: $(qa_vpn_server)
+              DNSSERVER: $(qa_dns_server)
+            displayName: Creating QA VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Update Tag - Started"
+                
           - checkout: self
             persistCredentials: true
 
@@ -1638,6 +3010,38 @@ stages:
                 git tag -f qa
                 git push origin qa 
             displayName: Updating the qa tag
+            
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Update Tag - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Update Tag - Failed"
             
   - stage: Run_e2e_Tests_QA
     displayName: Run e2e tests > QA
@@ -1662,16 +3066,106 @@ stages:
     jobs:
       - job: Run_e2e_Tests_QA
         pool:
-          vmImage: windows-latest
+          vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(qa_pre-shared_key)
+              PRIVATEKEY: $(qa_private_key)
+              CLIENTCERTIFICATE: $(qa_client_cert)
+              VPNSERVER: $(qa_vpn_server)
+              DNSSERVER: $(qa_dns_server)
+            displayName: Creating QA VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Run e2e Tests - Started"
+                
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: QA'
-            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true'))
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
             inputs:
               buildDefinition: 210
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "QA CI Deployment: Run e2e Tests - Failed"
 
   - stage: Apply_PROD
     displayName: Deployment > PROD
@@ -1704,6 +3198,11 @@ stages:
                 - download: PolarisBuild
                   displayName: Download Templates
                   artifact: 'polaris-template-files'
+                  
+                #download scripts artifact
+                - download: PolarisBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
 
                 #create vpn tunnel
                 - bash: |
@@ -1735,6 +3234,45 @@ stages:
                   condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
                   inputs:
                     terraformVersion: $(terraform-version)
+                    
+                #install nuget
+                - bash: |
+                    sudo yum install -y mono-complete
+                    sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+                    sudo chmod +x /usr/local/bin/nuget
+                    nuget install Microsoft.ApplicationInsights
+                  displayName: Installing Application Insights
+                  condition: succeeded()
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Pipeline Terraform - Started"
                 
                 #download pipeline terraform build artifact
                 - download: PolarisBuild
@@ -1801,6 +3339,36 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Pipeline Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Coordinator - Started"
+                    
                 #download coordinator build artifact
                 - download: PolarisBuild
                   condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
@@ -1816,6 +3384,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-coordinator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-coordinator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runCoordinator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Coordinator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish PDF Generator - Started"
                 
                 #download pdf-generator build artifact
                 - download: PolarisBuild
@@ -1832,6 +3430,36 @@ stages:
                     appType: functionApp
                     appName: "fa-polaris-pipeline-pdf-generator"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-pdf-generator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPdfGenerator, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish PDF Generator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Text Extractor - Started"
                 
                 #download text-extractor build artifact
                 - download: PolarisBuild
@@ -1848,6 +3476,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-pipeline-text-extractor"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-text-extractor-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runTextExtractor, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Text Extractor - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Pipeline Events Terraform - Started"
                 
                 #download pipeline events terraform build artifact
                 - download: PolarisBuild
@@ -1897,6 +3555,36 @@ stages:
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Pipeline Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: UI Terraform - Started"
                 
                 #download ui terraform build artifact
                 - download: PolarisBuild
@@ -1947,6 +3635,36 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: UI Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish SPA - Started"
+                    
                 #download UI build artifact
                 - download: PolarisBuild
                   condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
@@ -1962,6 +3680,36 @@ stages:
                     appType: webAppLinux
                     WebAppName: "as-web-polaris"
                     packageForLinux: $(Pipeline.Workspace)/PolarisBuild/polaris-ui-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Gateway - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -1978,6 +3726,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-gateway"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-gateway-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runGateway, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Auth Handover - Started"
                 
                 #download gateway build artifact
                 - download: PolarisBuild
@@ -1994,6 +3772,36 @@ stages:
                     appType: functionAppLinux
                     appName: "fa-polaris-auth-handover"
                     package: $(Pipeline.Workspace)/PolarisBuild/polaris-auth-handover-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runAuthHandover, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Publish Auth Handover - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Set Log Analytics Archival Period - Started"
                     
                 # Set Log Analytics Archival Period - remove when supported natively by Terraform
                 - bash: |
@@ -2012,6 +3820,36 @@ stages:
                     LOG_RETENTION_TIME: $(log-retention-time)
                     TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
                     TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUITerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Set Log Analytics Archival Period - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Restart SPA - Started"
                 
                 # Restart app service    
                 - task: AzureAppServiceManage@0
@@ -2021,6 +3859,36 @@ stages:
                     azureSubscription: $(prod-azure-subscription)
                     Action: 'Restart Azure App Service'
                     WebAppName: "as-web-polaris"
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUICodebase, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Restart SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: UI Events Terraform - Started"
                     
                 #download ui events terraform build artifact
                 - download: PolarisBuild
@@ -2071,6 +3939,53 @@ stages:
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
                     
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runUIEventsTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: UI Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Completed"
+
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Failed"
+                    
   - stage: Check_PROD
     displayName: Status Checks > PROD
     dependsOn:
@@ -2094,6 +4009,11 @@ stages:
           - download: PolarisBuild
             displayName: Download Templates
             artifact: 'polaris-template-files'
+            
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
 
           #create vpn tunnel
           - bash: |
@@ -2119,11 +4039,30 @@ stages:
               DNSSERVER: $(prod_dns_server)
             displayName: Creating PROD VPN tunnel
             
-          #download scripts artifact
-          - download: PolarisBuild
-            displayName: Polaris Build > Download Pipeline Scripts
-            artifact: 'polaris-script-files'
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
 
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Status Checks - Started"
+            
           #query coordinator status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Coordinator status'
@@ -2236,6 +4175,38 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
                 
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Status Checks - Failed"
+                
   - stage: Create_PROD_Report
     displayName: Create Report > PROD
     dependsOn: Check_PROD
@@ -2244,6 +4215,64 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(prod_pre-shared_key)
+              PRIVATEKEY: $(prod_private_key)
+              CLIENTCERTIFICATE: $(prod_client_cert)
+              VPNSERVER: $(prod_vpn_server)
+              DNSSERVER: $(prod_dns_server)
+            displayName: Creating PROD VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Create Report - Started"
+                
           - checkout: self
             persistCredentials: true
 
@@ -2259,6 +4288,38 @@ stages:
               targetPath: "$(Build.Repository.LocalPath)/commit-report-prod.csv"
               artifact: "Commit Report - PROD ($(System.JobAttempt))"
             displayName: "Publish Commit report for PROD"
+            
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Create Report - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Create Report - Failed"
                 
   - stage: Update_PROD_Tag
     displayName: Update Tag > PROD
@@ -2269,6 +4330,64 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(prod_pre-shared_key)
+              PRIVATEKEY: $(prod_private_key)
+              CLIENTCERTIFICATE: $(prod_client_cert)
+              VPNSERVER: $(prod_vpn_server)
+              DNSSERVER: $(prod_dns_server)
+            displayName: Creating PROD VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Update Tag - Started"
+                
           - checkout: self
             persistCredentials: true
 
@@ -2283,6 +4402,38 @@ stages:
                 git tag -f prod
                 git push origin prod 
             displayName: Updating the prod tag
+            
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Update Tag - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Update Tag - Failed"
             
   - stage: Run_e2e_Tests_PROD
     displayName: Run e2e tests > PROD
@@ -2307,13 +4458,103 @@ stages:
     jobs:
       - job: Run_e2e_Tests_PROD
         pool:
-          vmImage: windows-latest
+          vmImage: ubuntu-latest
         steps:
+          #download templates artifact
+          - download: PolarisBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: PolarisBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #create vpn tunnel
+          - bash: |
+              sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+              chmod 777 vpnconfig.ovpn
+              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
+
+              sudo openvpn _vpnconfig.ovpn &
+
+              sleep 5
+
+              ifconfig tun0
+
+              sudo rm /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
+            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
+            env:
+              PRESHAREDKEY: $(prod_pre-shared_key)
+              PRIVATEKEY: $(prod_private_key)
+              CLIENTCERTIFICATE: $(prod_client_cert)
+              VPNSERVER: $(prod_vpn_server)
+              DNSSERVER: $(prod_dns_server)
+            displayName: Creating PROD VPN tunnel
+
+          #install nuget
+          - bash: |
+              sudo yum install -y mono-complete
+              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+              sudo chmod +x /usr/local/bin/nuget
+              nuget install Microsoft.ApplicationInsights
+            displayName: Installing Application Insights
+            condition: succeeded()
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Run e2e Tests - Started"
+                
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: PROD'
-            condition: or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true'))
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
             inputs:
               buildDefinition: 240
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true'),eq(variables.runCoordinator, 'true'),eq(variables.runPdfGenerator, 'true'),eq(variables.runTextExtractor, 'true'),eq(variables.runGateway, 'true'),eq(variables.runAuthHandover, 'true'),eq(variables.runUICodebase, 'true'),eq(variables.runE2ETests, 'true')))
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                -Message "PROD CI Deployment: Run e2e Tests - Failed"

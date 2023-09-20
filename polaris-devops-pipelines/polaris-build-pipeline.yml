@@ -514,7 +514,7 @@ stages:
               command: publish
               publishWebProjects: false
               projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Text-Extractor package to publish"
             condition: or(eq(variables.runTextExtractorDEV, 'true'),eq(variables.runTextExtractorQA, 'true'),eq(variables.runTextExtractorPROD, 'true'))
