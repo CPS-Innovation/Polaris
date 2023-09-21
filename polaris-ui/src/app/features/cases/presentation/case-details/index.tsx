@@ -32,6 +32,7 @@ import {
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { SURVEY_LINK } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
+import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -77,6 +78,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   } = useNavigationAlert(tabsState.items);
 
   useSwitchContentArea();
+  useDocumentFocus(tabsState.activeTabId);
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {

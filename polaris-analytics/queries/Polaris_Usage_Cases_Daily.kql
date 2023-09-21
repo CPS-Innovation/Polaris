@@ -1,0 +1,33 @@
+let GatewayRequests = AppRequests
+| where AppRoleName == 'fa-polaris-gateway'
+    and Properties.User != 'REDACTED@REDACTED.EMAIL.ADDRESS'
+    and TimeGenerated > todatetime('2023-05-22T00:00:00Z');
+
+let CaseCounts = GatewayRequests
+| where Name == 'PolarisPipelineCase'
+| summarize CaseCount = count_distinct(extract("cases/(.*)$", 1,Url)) by bin(TimeGenerated, 1d);
+
+let CaseDocumentViewedCounts = GatewayRequests
+| where Name == 'PolarisPipelineGetDocument'
+| summarize CaseDocumentViewedCount = count_distinct(extract("cases/(.*)/documents", 1,Url)) by bin(TimeGenerated, 1d);
+
+let CaseDocumentRedactedCounts = AppEvents
+| where Name == "RedactedDocument"
+| where Properties.isFailure != "true"
+| project TimeGenerated, CaseId = tolong(Properties.caseId)
+| summarize CaseDocumentRedactedCount = count_distinct(CaseId) by bin(TimeGenerated, 1d);
+
+let BrokenCaseCounts = Polaris_Exceptions_Core
+| summarize BrokenCaseCount = count_distinct(CaseId) by TimeGenerated = bin(EarliestExceptionTimeGenerated, 1d);
+
+CaseCounts
+| join kind=fullouter CaseDocumentViewedCounts on TimeGenerated
+| join kind=fullouter CaseDocumentRedactedCounts on TimeGenerated
+| join kind=fullouter BrokenCaseCounts on TimeGenerated
+| project 
+    TimeGenerated, 
+    CaseCount, 
+    BrokenCaseCount//,
+    // CaseDocumentViewedCount,
+    // CaseDocumentRedactedCount = coalesce(CaseDocumentRedactedCount,0)
+| render timechart

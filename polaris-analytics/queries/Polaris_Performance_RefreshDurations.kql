@@ -1,0 +1,8 @@
+AppEvents
+| where ClientType == 'PC'
+| where Name == 'RefreshedCase'
+| project cmsDocsProcessedCount = toint(Measurements.cmsDocsProcessedCount), durationSeconds = todouble(Measurements.durationSeconds)
+| where cmsDocsProcessedCount > 2
+| summarize avg(durationSeconds), max(durationSeconds), min(durationSeconds) by bin(cmsDocsProcessedCount,10)
+| order by cmsDocsProcessedCount asc
+| render timechart  
