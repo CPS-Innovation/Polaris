@@ -43,7 +43,7 @@ resource "azurerm_storage_account" "sa" {
       retention_policy_days = 10
     }
   }
-  
+
   identity {
     type = "SystemAssigned"
   }
@@ -62,7 +62,7 @@ resource "azurerm_storage_account" "sa_coordinator" {
 
   account_kind                    = "StorageV2"
   account_replication_type        = "LRS"
-  account_tier                    = "Premium"
+  account_tier                    = "Standard"
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
@@ -423,6 +423,48 @@ resource "azurerm_private_endpoint" "pipeline_sa_coordinator_table_pe" {
     private_connection_resource_id = azurerm_storage_account.sa_coordinator.id
     is_manual_connection           = false
     subresource_names              = ["table"]
+  }
+}
+
+# Create Private Endpoint for Files
+resource "azurerm_private_endpoint" "pipeline_sa_coordinator_file_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-file-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
+  tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_file_storage.id]
+  }
+
+  private_service_connection {
+    name                           = "sacps${var.env != "prod" ? var.env : ""}coordinator-file-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_coordinator.id
+    is_manual_connection           = false
+    subresource_names              = ["file"]
+  }
+}
+
+# Create Private Endpoint for Queues
+resource "azurerm_private_endpoint" "pipeline_sa_coordinator_queue_pe" {
+  name                = "sacps${var.env != "prod" ? var.env : ""}coordinator-queue-pe"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = data.azurerm_subnet.polaris_sa2_subnet.id
+  tags                = local.common_tags
+
+  private_dns_zone_group {
+    name                 = "polaris-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.dns_zone_queue_storage.id]
+  }
+
+  private_service_connection {
+    name                           = "sacps${var.env != "prod" ? var.env : ""}coordinator-queue-psc"
+    private_connection_resource_id = azurerm_storage_account.sa_coordinator.id
+    is_manual_connection           = false
+    subresource_names              = ["queue"]
   }
 }
 
