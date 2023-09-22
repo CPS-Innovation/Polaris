@@ -1376,7 +1376,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Gateway status'
-            condition: and(succeeded(), or(eq(variables.runGateway, 'true'), eq(variables.runCoordinator, 'true')))
+            condition: and(succeeded(), eq(variables.runGateway, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2818,7 +2818,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Gateway status'
-            condition: and(succeeded(), or(eq(variables.runGateway, 'true'), eq(variables.runCoordinator, 'true')))
+            condition: and(succeeded(), eq(variables.runGateway, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -4260,7 +4260,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Gateway status'
-            condition: and(succeeded(), or(eq(variables.runGateway, 'true'), eq(variables.runCoordinator, 'true')))
+            condition: and(succeeded(), eq(variables.runGateway, 'true'))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
