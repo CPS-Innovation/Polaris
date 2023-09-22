@@ -50,16 +50,10 @@ stages:
                     echo "run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -166,16 +160,10 @@ stages:
                     echo "QA: run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -282,16 +270,10 @@ stages:
                     echo "PROD: run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -1173,6 +1155,54 @@ stages:
                 #send custom event to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Pipeline Terraform Processed, Update Coordinator App Keys in Gateway - Started"
+                      
+                # if pipeline components deployed, update Coordinator function keys in deployed Gateway
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --query 'functionKeys.default' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-dev-gateway --resource-group rg-polaris-dev --settings "PolarisPipelineCoordinatorFunctionAppKey=$default_code"
+                    az functionapp config appsettings set --name fa-polaris-dev-gateway --resource-group rg-polaris-dev --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Update Coordinator Keys In Gateway Config
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "DEV CI Deployment: Pipeline Terraform Processed, Update Coordinator App Keys in Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
                   condition: succeeded()
                   inputs:
                     failOnStderr: true
@@ -1346,7 +1376,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Gateway status'
-            condition: and(succeeded(), eq(variables.runGateway, 'true'))
+            condition: and(succeeded(), or(eq(variables.runGateway, 'true'), eq(variables.runCoordinator, 'true')))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1793,6 +1823,7 @@ stages:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_QA']]
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_QA']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
+      runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_QA']]"
     pool:
       vmImage: ubuntu-latest
     jobs:
@@ -2565,6 +2596,54 @@ stages:
                 #send custom event to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Pipeline Terraform Processed, Update Coordinator App Keys in Gateway - Started"
+
+                # if pipeline components deployed, update Coordinator function keys in deployed Gateway
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --query 'functionKeys.default' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-qa-gateway --resource-group rg-polaris-qa --settings "PolarisPipelineCoordinatorFunctionAppKey=$default_code"
+                    az functionapp config appsettings set --name fa-polaris-qa-gateway --resource-group rg-polaris-qa --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Update Coordinator Keys In Gateway Config
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "QA CI Deployment: Pipeline Terraform Processed, Update Coordinator App Keys in Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
                   condition: succeeded()
                   inputs:
                     failOnStderr: true
@@ -2608,6 +2687,7 @@ stages:
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_QA']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_QA']]
+      runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_QA']]"
     pool:
       vmImage: ubuntu-latest
     jobs:
@@ -2738,7 +2818,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking QA Gateway status'
-            condition: and(succeeded(), eq(variables.runGateway, 'true'))
+            condition: and(succeeded(), or(eq(variables.runGateway, 'true'), eq(variables.runCoordinator, 'true')))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -3185,6 +3265,7 @@ stages:
       runGateway: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_GATEWAY_PROD']]
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_PROD']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
+      runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_PROD']]"
     pool:
       vmImage: ubuntu-latest
     jobs:
@@ -3957,6 +4038,54 @@ stages:
                 #send custom event to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Pipeline Terraform Processed, Update Coordinator App Keys in Gateway - Started"
+
+                # if pipeline components deployed, update Coordinator function keys in deployed Gateway
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --query 'functionKeys.default' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-gateway --resource-group rg-polaris --settings "PolarisPipelineCoordinatorFunctionAppKey=$default_code"
+                    az functionapp config appsettings set --name fa-polaris-gateway --resource-group rg-polaris --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Update Coordinator Keys In Gateway Config
+                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/pipeline-terraform-files
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: and(succeeded(), eq(variables.runPipelineTerraform, 'true'))
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PolarisBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PolarisBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PolarisBuild.runName)"
+                      -Message "PROD CI Deployment: Pipeline Terraform Processed, Update Coordinator App Keys in Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
                   condition: succeeded()
                   inputs:
                     failOnStderr: true
@@ -4000,6 +4129,7 @@ stages:
       runAuthHandover: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_GATEWAY_AUTH_HANDOVER_PROD']]
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_PROD']]
+      runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_PROD']]"
     pool:
       vmImage: ubuntu-latest
     jobs:
@@ -4130,7 +4260,7 @@ stages:
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking PROD Gateway status'
-            condition: and(succeeded(), eq(variables.runGateway, 'true'))
+            condition: and(succeeded(), or(eq(variables.runGateway, 'true'), eq(variables.runCoordinator, 'true')))
             inputs:
               failOnStderr: true
               targetType: 'filePath'
