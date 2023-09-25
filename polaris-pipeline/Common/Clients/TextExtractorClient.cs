@@ -46,6 +46,10 @@ namespace Common.Clients
             Guid correlationId,
             Stream documentStream)
         {
+            // For integration testing allow disabling of text extraction
+            if (_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
+                return;
+
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Extract}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());

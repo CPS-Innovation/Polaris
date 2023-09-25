@@ -48,6 +48,10 @@
     public static class FeatureFlags
     {
         public const string HteFeatureFlag = nameof(HteFeatureFlag);
+
+        // The Disable flags should default to ON if not present, only required for integration testing
+        public const string DisableConvertToPdfFeatureFlag = nameof(DisableConvertToPdfFeatureFlag);
+        public const string DisableTextExtractorFeatureFlag = nameof(DisableTextExtractorFeatureFlag);
     }
 
 #if DEBUG
