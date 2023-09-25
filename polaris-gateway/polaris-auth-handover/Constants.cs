@@ -1,5 +1,7 @@
-public class AuthHandoverConstants
+namespace PolarisAuthHandover
 {
+  public class AuthHandoverConstants
+  {
     public static readonly string[] WhitelistedCookieNameRoots = new[] {
           "ASP.NET_SessionId",
           "UID",
@@ -8,4 +10,6 @@ public class AuthHandoverConstants
           ".CMSAUTH",
           "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
         };
+  }
 }
+
