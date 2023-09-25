@@ -45,11 +45,11 @@ namespace Ddei.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg)
+        public async Task<DdeiCmsAuthValuesDto> GetFullCmsAuthValues(DdeiCmsCaseDataArgDto arg)
         {
             try
             {
-                return await CallDdei<string>(_ddeiClientRequestFactory.CreateCmsModernTokenRequest(arg));
+                return await CallDdei<DdeiCmsAuthValuesDto>(_ddeiClientRequestFactory.CreateCmsAuthValuesRequest(arg));
             }
             catch (Exception exception)
             {
