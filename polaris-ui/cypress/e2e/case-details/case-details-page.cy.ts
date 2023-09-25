@@ -719,9 +719,9 @@ describe("case details page", () => {
       keyPressAndVerifySelection("forward", "W");
       keyPressAndVerifySelection("forward", "Y");
       keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "M");
-      keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("forward", "R");
+      keyPressAndVerifySelection("forward", "(");
+      keyPressAndVerifySelection("backward", "R");
       keyPressAndVerifySelection("backward", "P");
       keyPressAndVerifySelection("backward", "Y");
       keyPressAndVerifySelection("backward", "W");
@@ -782,7 +782,7 @@ describe("case details page", () => {
       keyPressAndVerifySelection("forward", "W");
       cy.realPress(",");
       keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
       //open the next document
       cy.findByTestId("link-document-4").click();
@@ -793,14 +793,24 @@ describe("case details page", () => {
       cy.realPress(",");
       cy.realPress(",");
       cy.realPress(",");
-      keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "1");
-      keyPressAndVerifySelection("forward", "o");
-      keyPressAndVerifySelection("forward", "3");
       keyPressAndVerifySelection("forward", "R");
-      keyPressAndVerifySelection("backward", "3");
-      keyPressAndVerifySelection("backward", "o");
-      keyPressAndVerifySelection("backward", "1");
+      keyPressAndVerifySelection("forward", "w");
+      keyPressAndVerifySelection("forward", "c");
+      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "6");
+      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("backward", "c");
+      keyPressAndVerifySelection("backward", "w");
+      keyPressAndVerifySelection("backward", "R");
+      //switch back to the first document
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      keyPressAndVerifySelection("forward", "W");
+      cy.realPress(",");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
     });
   });

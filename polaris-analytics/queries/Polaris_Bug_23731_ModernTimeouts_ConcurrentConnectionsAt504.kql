@@ -1,0 +1,25 @@
+let times = AppDependencies
+| where AppRoleName == 'fa-polaris-ddei'
+| where Name == "POST /internal-implementation/corsham/modern/graphql/"
+| project StartTime = TimeGenerated, EndTime = datetime_add('millisecond', toint(ceiling(DurationMs)), TimeGenerated)
+;
+
+let TimeGeneratedWithConcurrentConnections = union 
+(times| project TimeGenerated = StartTime, Delta = 1),
+(times| project TimeGenerated = EndTime, Delta = -1)
+| order by TimeGenerated asc 
+| project TimeGenerated, ConcurrentConnections = row_cumsum(Delta)
+| summarize ConcurrentConnections = max(ConcurrentConnections) by TimeGenerated
+;
+
+let _504s = AppDependencies
+| where AppRoleName == 'fa-polaris-ddei'
+| where Name == "POST /internal-implementation/corsham/modern/graphql/"
+| where ResultCode == 504
+| project TimeGenerated
+;
+
+
+_504s
+| join TimeGeneratedWithConcurrentConnections on TimeGenerated
+| project TimeGenerated, ConcurrentConnections
