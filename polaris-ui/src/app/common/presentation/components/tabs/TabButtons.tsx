@@ -1,12 +1,12 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import classes from "./Tabs.module.scss";
-import { ItemProps } from "./types";
 import { ReactComponent as CloseIcon } from "../../svgs/closeIconBold.svg";
-import { ReactComponent as ArrowLeft } from "../../svgs/arrowLeft.svg";
-import { ReactComponent as ArrowRight } from "../../svgs/arrowRight.svg";
+import { ReactComponent as DownArrow } from "../../svgs/down.svg";
 import { LinkButton } from "../../../../common/presentation/components/LinkButton";
+import { DropdownButton } from "../../../../common/presentation/components";
+
 export type TabButtonProps = {
-  items: ItemProps[];
+  items: { id: string; label: string }[];
   activeTabIndex: number;
   handleTabSelection: (documentId: string) => void;
   handleCloseTab: () => void;
@@ -70,16 +70,28 @@ const TabButtons: React.FC<TabButtonProps> = ({
   }
   return (
     <div className={`${classes.tabsWrapper}`}>
-      <LinkButton
-        disabled={activeTabIndex === 0}
-        className={classes.tabNextButton}
-        dataTestId="btn-tab-next"
-        onClick={() => {
-          moveToNextOrPreviousTab(-1);
-        }}
-      >
-        <ArrowLeft />
-      </LinkButton>
+      <div className={`${classes.arrowBtnsWrapper}`}>
+        <LinkButton
+          disabled={activeTabIndex === 0}
+          className={classes.tabPreviousButton}
+          dataTestId="btn-tab-previous"
+          onClick={() => {
+            moveToNextOrPreviousTab(-1);
+          }}
+        >
+          <DownArrow />
+        </LinkButton>
+        <LinkButton
+          disabled={activeTabIndex === items.length - 1}
+          className={classes.tabNextButton}
+          dataTestId="btn-tab-next"
+          onClick={() => {
+            moveToNextOrPreviousTab(1);
+          }}
+        >
+          <DownArrow />
+        </LinkButton>
+      </div>
 
       <ul className={`${classes.tabsList}`} role="tablist">
         {items.map((item, index) => {
@@ -131,16 +143,8 @@ const TabButtons: React.FC<TabButtonProps> = ({
           );
         })}
       </ul>
-      <LinkButton
-        disabled={activeTabIndex === items.length - 1}
-        className={classes.tabNextButton}
-        dataTestId="btn-tab-next"
-        onClick={() => {
-          moveToNextOrPreviousTab(1);
-        }}
-      >
-        <ArrowRight />
-      </LinkButton>
+
+      <DropdownButton dropDownItems={items} callBackFn={handleTabSelection} />
     </div>
   );
 };

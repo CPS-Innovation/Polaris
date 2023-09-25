@@ -92,6 +92,11 @@ export const Tabs: React.FC<TabsProps> = ({
     );
   });
 
+  const tabItems = items.map((item) => ({
+    id: item.id,
+    label: item.label,
+  }));
+
   return (
     <>
       <div
@@ -101,7 +106,7 @@ export const Tabs: React.FC<TabsProps> = ({
         {...attributes}
       >
         <TabButtons
-          items={items}
+          items={tabItems}
           activeTabIndex={activeTabIndex}
           handleTabSelection={handleTabSelection}
           handleCloseTab={handleCloseTab}

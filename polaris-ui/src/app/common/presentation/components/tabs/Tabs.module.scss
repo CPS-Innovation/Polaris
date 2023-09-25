@@ -7,18 +7,14 @@
   }
 }
 
-.tabNextButton,
-.tabPreviousButton {
-  height: 40px;
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+:global(.govuk-form-group) {
+  margin-bottom: 0 !important;
 }
+
 .tabsWrapper {
   display: flex;
   padding-top: 0.3125rem;
-  justify-content: space-evenly;
+  justify-content: space-between;
   border-bottom: 0.0625rem solid $govuk-border-colour;
   align-items: baseline;
 }
@@ -105,4 +101,45 @@
     background-color: #ffdd00;
     color: #0b0c0c;
   }
+}
+
+.arrowBtnsWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tabNextButton,
+.tabPreviousButton {
+  height: 40px;
+  svg {
+    fill: #1d70b8;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    svg {
+      fill: #778087;
+    }
+  }
+}
+
+.tabPreviousButton {
+  svg {
+    transform: rotate(90deg);
+  }
+}
+.tabNextButton {
+  svg {
+    transform: rotate(-90deg);
+  }
+}
+
+.customSelect {
+  margin-bottom: 0px;
+  width: 80px;
+}
+.select option {
+  background-color: #fff;
+  color: #333;
+  font-size: 12px;
+  max-height: 20px;
 }
