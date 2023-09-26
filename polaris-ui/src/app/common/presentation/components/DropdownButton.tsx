@@ -19,7 +19,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   };
   return (
     <div className={classes.dropDownButtonWrapper}>
-      <button
+      <LinkButton
         className={`${classes.dropDownButton} ${buttonOpen && classes.upArrow}`}
         disabled={dropDownItems.length < 2}
         onClick={() => {
@@ -27,7 +27,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
         }}
       >
         <DownArrow />
-      </button>
+      </LinkButton>
 
       {buttonOpen && (
         <div className={classes.panel}>
