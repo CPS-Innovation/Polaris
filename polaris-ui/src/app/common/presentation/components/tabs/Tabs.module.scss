@@ -36,8 +36,7 @@
   border: 0.0625rem solid $govuk-border-colour;
   border-bottom: none;
   .tabButton {
-    padding-right: 3.125rem;
-    padding-top: 1.875rem;
+    padding-right: 2.5rem;
   }
 }
 .inactiveTab {
@@ -90,8 +89,8 @@
   background-color: transparent;
   position: absolute;
   border: none;
-  right: 0.9375rem;
-  top: 1.5625rem;
+  right: 0.5rem;
+  top: 1rem;
   padding: 0;
   color: white;
   cursor: pointer;
