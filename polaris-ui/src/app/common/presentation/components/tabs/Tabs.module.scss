@@ -15,7 +15,7 @@
   display: flex;
   padding-top: 0.3125rem;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   border-bottom: 0.0625rem solid $govuk-border-colour;
 }
 .tabsList {
@@ -24,8 +24,8 @@
   align-items: baseline;
   margin-bottom: 0;
   padding: 0;
-  min-width: 85%;
-  max-width: 900px;
+  width: 85%;
+  max-width: 880px;
   margin: 0 3px;
   overflow-y: hidden;
   overflow-x: auto;
@@ -111,6 +111,7 @@
 .tabNextButton,
 .tabPreviousButton {
   height: 40px;
+  padding: 0;
   svg {
     fill: #1d70b8;
   }
