@@ -15,19 +15,19 @@
   display: flex;
   padding-top: 0.3125rem;
   justify-content: space-between;
-  border-bottom: 0.0625rem solid $govuk-border-colour;
   align-items: baseline;
+  border-bottom: 0.0625rem solid $govuk-border-colour;
 }
 .tabsList {
   display: flex;
-  align-items: flex-end;
-  align-content: baseline;
+  justify-content: flex-start;
+  align-items: baseline;
   margin-bottom: 0;
   padding: 0;
-  max-width: 685px;
+  max-width: 900px;
   margin: 0 3px;
   overflow-y: hidden;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .activeTab {
