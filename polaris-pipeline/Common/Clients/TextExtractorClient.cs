@@ -51,7 +51,7 @@ namespace Common.Clients
             if (_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
             {
                 // Use average time seen in production for text extraction to simulate time typically taken
-                Thread.Sleep(5000);
+                Thread.Sleep(8000);
                 return;
             }
 
