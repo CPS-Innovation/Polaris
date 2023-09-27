@@ -7,15 +7,19 @@ type LinkButtonProps = {
   className?: string;
   dataTestId?: string;
   disabled?: boolean;
+  ariaLabel?:string;
+  ariaExpanded?:boolean;
   onClick: () => void;
 };
 
 export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
-  ({ children, className, dataTestId, onClick, id, disabled = false }, ref) => {
+  ({ children, className, dataTestId, onClick, id,ariaLabel,ariaExpanded, disabled = false }, ref) => {
     const resolvedClassName = `${classes.linkButton} ${className}`;
     return (
       <button
         ref={ref}
+        aria-label={ariaLabel}
+        aria-expanded={ariaExpanded}
         disabled={disabled}
         id={id}
         className={resolvedClassName}

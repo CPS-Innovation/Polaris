@@ -6,11 +6,13 @@ import classes from "./DropdownButton.module.scss";
 export type DropdownButtonProps = {
   dropDownItems: { id: string; label: string }[];
   callBackFn: (id: string) => void;
+  ariaLabel?:string;
 };
 
 export const DropdownButton: React.FC<DropdownButtonProps> = ({
   dropDownItems,
   callBackFn,
+  ariaLabel="dropdown"
 }) => {
   const dropDownBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -56,6 +58,8 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
     <div className={classes.dropDownButtonWrapper}>
       <LinkButton
         ref={dropDownBtnRef}
+        ariaLabel={buttonOpen?`${ariaLabel} close`:`${ariaLabel} open`}
+        ariaExpanded={buttonOpen}
         className={`${classes.dropDownButton} ${buttonOpen && classes.upArrow}`}
         disabled={dropDownItems.length < 2}
         onClick={() => {
