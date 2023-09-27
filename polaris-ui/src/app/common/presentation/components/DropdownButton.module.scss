@@ -47,4 +47,8 @@
 
 .tabListItem {
   padding: 5px 0;
+  & button:disabled {
+    cursor: not-allowed;
+    color: #778087;
+  }
 }
