@@ -23,7 +23,7 @@ namespace pdf_generator.Functions
     public class ConvertToPdf
     {
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
-        private readonly ILogger<ConvertToPdf> _log;
+        private readonly ILogger<ConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         const string loggingName = nameof(ConvertToPdf);
@@ -35,7 +35,7 @@ namespace pdf_generator.Functions
              ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _pdfOrchestratorService = pdfOrchestratorService;
-            _log = logger;
+            _logger = logger;
             _telemetryClient = telemetryClient;
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
@@ -51,7 +51,7 @@ namespace pdf_generator.Functions
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
-                _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
+                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
                 if (cmsAuthValuesValues == null)
@@ -121,6 +121,7 @@ namespace pdf_generator.Functions
             }
             catch (Exception exception)
             {
+                _logger.LogMethodError(currentCorrelationId, loggingName, exception.Message, exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
                 return new ObjectResult(exception.ToString())
@@ -130,7 +131,7 @@ namespace pdf_generator.Functions
             }
             finally
             {
-                _log.LogMethodExit(currentCorrelationId, loggingName, nameof(ConvertToPdf));
+                _logger.LogMethodExit(currentCorrelationId, loggingName, nameof(ConvertToPdf));
             }
         }
     }

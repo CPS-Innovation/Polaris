@@ -42,6 +42,10 @@ resource "azurerm_storage_account" "sacpspolaris" {
     }
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   tags = local.common_tags
 }
 

@@ -1,0 +1,17 @@
+
+Polaris_ProxyCmsLogs_Core
+| where PolarisOrCmsProxy == "Polaris"
+| project 
+    TimeGenerated, 
+    StatusCode,
+    PolarisCorrelationId,
+    PolarisOperationName,
+    CmsUserId,
+    Verb,
+    Url,
+    RequestBytes,
+    ResponseBytes,
+    ClassicModernUiOrGraphQL
+
+
+

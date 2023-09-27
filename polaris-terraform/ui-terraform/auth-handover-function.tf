@@ -7,6 +7,7 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_auth_handover_subnet.id
   functions_extension_version   = "~4"
+  public_network_access_enabled = false
 
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"

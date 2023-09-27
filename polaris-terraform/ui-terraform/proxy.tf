@@ -7,6 +7,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   location                      = azurerm_resource_group.rg_polaris.location
   service_plan_id               = azurerm_service_plan.asp_polaris_proxy.id
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_proxy_subnet.id
+  public_network_access_enabled = false
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                         = "1"

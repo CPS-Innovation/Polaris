@@ -31,6 +31,7 @@ using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using coordinator.Providers;
 using Microsoft.Extensions.Azure;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -64,11 +65,19 @@ namespace coordinator
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
+            var pipelineCoordinatorBaseUrl = Configuration.GetValueFromConfig(PipelineSettings.PipelineCoordinatorBaseUrl);
+            var orchestrationLowLevelApiBaseUrl = pipelineCoordinatorBaseUrl.Replace("/api", string.Empty);
+            builder.Services.AddHttpClient($"Low-level{nameof(OrchestrationProvider)}", client =>
+            {
+                client.BaseAddress = new Uri(orchestrationLowLevelApiBaseUrl);
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
 
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
             services.AddBlobSasGenerator();

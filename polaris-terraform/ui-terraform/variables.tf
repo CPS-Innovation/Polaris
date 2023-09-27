@@ -77,13 +77,13 @@ variable "ui_logging" {
 
 variable "cms_details" {
   type = object({
-    upstream_cms_ip_corsham             = string
-    upstream_cms_modern_ip_corsham      = string
-    upstream_cms_ip_farnborough         = string
-    upstream_cms_modern_ip_farnborough  = string
-    upstream_cms_domain_name            = string
-    upstream_cms_modern_domain_name     = string
-    upstream_cms_services_domain_name   = string
+    upstream_cms_ip_corsham            = string
+    upstream_cms_modern_ip_corsham     = string
+    upstream_cms_ip_farnborough        = string
+    upstream_cms_modern_ip_farnborough = string
+    upstream_cms_domain_name           = string
+    upstream_cms_modern_domain_name    = string
+    upstream_cms_services_domain_name  = string
   })
 }
 
@@ -99,6 +99,6 @@ variable "app_service_log_total_retention" {
 variable "private_beta" {
   type = object({
     sign_up_url = string
-    user_group = string 
+    user_group  = string
   })
 }

@@ -1,5 +1,8 @@
-﻿using Common.Wrappers;
+﻿using Aspose.Imaging.MemoryManagement;
+using Castle.Core.Configuration;
+using Common.Wrappers;
 using Common.Wrappers.Contracts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories;
@@ -12,7 +15,7 @@ namespace pdf_generator.Services.Extensions
 {
     public static class IServiceCollectionExtension
     {
-        public static void AddPdfGenerator(this IServiceCollection services)
+        public static void AddPdfGenerator(this IServiceCollection services, IConfigurationRoot configuration)
         {
             services.AddSingleton<IPdfService, WordsPdfService>();
             services.AddSingleton<IPdfService, CellsPdfService>();
@@ -37,7 +40,7 @@ namespace pdf_generator.Services.Extensions
                 var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
 
                 return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
-                    diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, loggingService);
+                    diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, loggingService, configuration);
             });
 
             services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();

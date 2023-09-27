@@ -1,11 +1,11 @@
-﻿resource "azurerm_eventhub_namespace" "polaris-eh-namespace" {
-  name = "eh-${local.resource_name}-namespace"
+resource "azurerm_eventhub_namespace" "polaris-eh-namespace" {
+  name                          = "eh-${local.resource_name}-namespace"
   location                      = azurerm_resource_group.rg.location
   resource_group_name           = azurerm_resource_group.rg.name
-  sku = var.pipeline_event_hub_settings.sku
-  capacity = var.pipeline_event_hub_settings.capacity
+  sku                           = var.pipeline_event_hub_settings.sku
+  capacity                      = var.pipeline_event_hub_settings.capacity
   public_network_access_enabled = false
-  
+
   network_rulesets {
     default_action                 = "Deny"
     public_network_access_enabled  = false

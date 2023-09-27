@@ -9,9 +9,9 @@ namespace Ddei.Factories.Contracts
     {
         private const string CorrelationId = "Correlation-Id";
 
-        public HttpRequestMessage CreateCmsModernTokenRequest(DdeiCmsCaseDataArgDto arg)
+        public HttpRequestMessage CreateCmsAuthValuesRequest(DdeiCmsCaseDataArgDto arg)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/cms-modern-token");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/cms-auth-values");
             AddAuthHeaders(request, arg);
             return request;
         }

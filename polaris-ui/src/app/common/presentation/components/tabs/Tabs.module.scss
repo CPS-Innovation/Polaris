@@ -3,7 +3,7 @@
 :global(.govuk-tabs > .govuk-tabs__panel) {
   padding: 0 !important;
   &:focus {
-    outline: #ffdd00 auto 0.0625rem;
+    outline: 0.2rem solid #ffdd00;
   }
 }
 
@@ -143,4 +143,9 @@
   color: #333;
   font-size: 12px;
   max-height: 20px;
+}
+.contentArea {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
 }

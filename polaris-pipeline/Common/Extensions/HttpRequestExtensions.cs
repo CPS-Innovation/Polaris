@@ -12,6 +12,8 @@ namespace Common.Extensions
     {
         private const string XForwardedForHeaderName = "X-Forwarded-For";
 
+        private const string EmptyClientIpAddress = "0.0.0.0";
+
         public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(this HttpRequest request)
             where V : AbstractValidator<T>, new()
         {
@@ -46,10 +48,11 @@ namespace Common.Extensions
         {
             return req.Headers[XForwardedForHeaderName]
                 .FirstOrDefault()
-                .Split(new char[] { ',' })
+                ?.Split(new char[] { ',' })
                 .FirstOrDefault()
-                .Split(new char[] { ':' })
-                .FirstOrDefault();
+                ?.Split(new char[] { ':' })
+                .FirstOrDefault()
+                ?? EmptyClientIpAddress;
         }
     }
 }

@@ -47,6 +47,7 @@
 
     public static class FeatureFlags
     {
+        public const string HteFeatureFlag = nameof(HteFeatureFlag);
     }
 
 #if DEBUG
@@ -78,6 +79,8 @@
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
             public const string AzureWebJobsStorage = "AzureWebJobsStorage";
             public const string OvernightClearDownEnabled = "OvernightClearDownEnabled";
+            public const string SlidingClearDownEnabled = "SlidingClearDownEnabled";
+            public const string SlidingClearDownInputDays = "SlidingClearDownInputDays";
         }
 
         public static class TextExtractorKeys

@@ -1,0 +1,32 @@
+let SuccessfulAppEvents = AppEvents
+| where ClientType == 'PC'
+| where Name in ('RefreshedCase', 'ConvertedDocument', 'IndexedDocument')
+| extend isFailure = tostring(Properties.isFailure)
+| where isFailure != 'true'
+;
+
+let starts = SuccessfulAppEvents
+| project 
+    t = todatetime(Properties.startTime), 
+    delta = 1,
+    docCount = toint(toint(Measurements.cmsDocsProcessedCount) + toint(Measurements.pcdRequestsProcessedCount));
+
+let startCutoffTime = toscalar(starts | summarize min(t)); 
+
+let ends = SuccessfulAppEvents
+// Avoid end times sneaking in if orchestrators are in progress at the start of our window,
+//. if we don't do this we see the maxConcurrentOrchestrators in negative territory
+| where todatetime(Properties.endTime) > startCutoffTime
+| project 
+    t = todatetime(Properties.endTime), 
+    delta = -1, 
+    docCount = toint('');
+
+starts
+| union ends
+| order by t asc
+| serialize concurrentOrchestrations=row_cumsum(delta)
+| summarize  max(concurrentOrchestrations), max(docCount) by _time = bin(t, 1h)
+| order by _time asc
+| render timechart  
+

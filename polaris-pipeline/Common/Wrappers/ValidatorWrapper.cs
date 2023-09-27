@@ -11,7 +11,9 @@ namespace Common.Wrappers
         {
             var validationResults = new Collection<ValidationResult>();
             if (request != null)
+            {
                 Validator.TryValidateObject(request, new ValidationContext(request), validationResults, true);
+            }
             else
             {
                 validationResults.Add(new ValidationResult("A null request was received and could not be validated."));

@@ -8,7 +8,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_gateway_subnet.id
   functions_extension_version   = "~4"
-  
+  public_network_access_enabled = false
+
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
@@ -100,9 +101,21 @@ module "azurerm_app_reg_fa_polaris" {
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.resource_name}-gateway"]
   owners                  = [data.azuread_client_config.current.object_id]
   prevent_duplicate_names = true
+  group_membership_claims = ["ApplicationGroup"]
+  optional_claims = {
+    access_token = {
+      name = "groups"
+    }
+    id_token = {
+      name = "groups"
+    }
+    saml2_token = {
+      name = "groups"
+    }
+  }
   #use this code for adding scopes
   api = {
-    mapped_claims_enabled          = false
+    mapped_claims_enabled          = true
     requested_access_token_version = 1
     known_client_applications      = []
     oauth2_permission_scope = [{
