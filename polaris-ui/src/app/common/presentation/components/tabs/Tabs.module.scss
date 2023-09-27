@@ -24,8 +24,7 @@
   align-items: baseline;
   margin-bottom: 0;
   padding: 0;
-  width: 85%;
-  max-width: 880px;
+  width: 95%;
   margin: 0 3px;
   overflow-y: hidden;
   overflow-x: auto;
@@ -110,8 +109,10 @@
 
 .tabNextButton,
 .tabPreviousButton {
-  height: 40px;
-  padding: 0;
+  // height: 30px;
+  padding: 5px 0;
+  margin: 0;
+  width: 100%;
   svg {
     fill: #1d70b8;
   }
