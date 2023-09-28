@@ -1,12 +1,12 @@
 /// <reference types="cypress" />
-import "cypress-wait-until";
-import { PipelineResults } from "../../../gateway/PipelineResults";
-import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes";
+import "cypress-wait-until"
+import { PipelineResults } from "../../../gateway/PipelineResults"
+import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import {
   WAIT_UNTIL_OPTIONS,
   RAPID_RETRY_WAIT_UNTIL_OPTIONS,
-} from "../../support/options";
-import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult";
+} from "../../support/options"
+import { ApiTextSearchResult } from "../../../gateway/ApiTextSearchResult"
 
 const {
   SEARCH_INTEGRITY_TARGET_URN,
@@ -15,16 +15,16 @@ const {
   SEARCH_INTEGRITY_TARGET_TERM_COUNT,
   SEARCH_INTEGRITY_TOLERANCE,
   PRE_SEARCH_DELAY_MS,
-} = Cypress.env();
+} = Cypress.env()
 
-let routes: ApiRoutes;
+let routes: ApiRoutes
 
 describe("Search Integrity", () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
-      routes = makeApiRoutes(headers);
-    });
-  });
+      routes = makeApiRoutes(headers)
+    })
+  })
 
   it("can observe the exact number of search results expected at the point the tracker is complete", () => {
     cy.clearCaseTracker(
@@ -50,9 +50,9 @@ describe("Search Integrity", () => {
             .its("body")
             .then(({ status }) => {
               if (status === "Failed") {
-                throw new Error("Pipeline failed, ending test");
+                throw new Error("Pipeline failed, ending test")
               }
-              return status === "Completed";
+              return status === "Completed"
             }),
         // RAPID... to try to minimise the gap between when the pipeline is complete and
         //  when we know about it and start searching
@@ -79,18 +79,19 @@ describe("Search Integrity", () => {
                 // .includes rather than === because the ocr will have results e.g. "Syracuse,"
                 .includes(SEARCH_INTEGRITY_TARGET_TERM.toLocaleUpperCase())
             ).length
-          );
-        }, 0);
+          )
+        }, 0)
 
         // Temporary fudge: we have problems with the search index acting in a transactionally
         //  consistent way, so we're going to allow a bit of leeway in the matching word count.
+        //  Otherwise our e2e tests fail intermittently but regularly.
         const minMatchingWordCount =
-          SEARCH_INTEGRITY_TARGET_TERM_COUNT - SEARCH_INTEGRITY_TOLERANCE;
+          SEARCH_INTEGRITY_TARGET_TERM_COUNT - SEARCH_INTEGRITY_TOLERANCE
         const maxMatchingWordCount =
-          SEARCH_INTEGRITY_TARGET_TERM_COUNT + SEARCH_INTEGRITY_TOLERANCE;
+          SEARCH_INTEGRITY_TARGET_TERM_COUNT + SEARCH_INTEGRITY_TOLERANCE
 
-        expect(matchingWordCount).to.be.greaterThan(minMatchingWordCount);
-        expect(matchingWordCount).to.be.lessThan(maxMatchingWordCount);
-      });
-  });
-});
+        expect(matchingWordCount).to.be.greaterThan(minMatchingWordCount)
+        expect(matchingWordCount).to.be.lessThan(maxMatchingWordCount)
+      })
+  })
+})
