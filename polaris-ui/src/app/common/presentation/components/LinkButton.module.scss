@@ -9,6 +9,11 @@
   width: fit-content;
   color: #1d70b8;
 
+  &:hover:not(:disabled):not(:focus) {
+    color: #fff;
+    background-color: #1d70b8;
+  }
+
   &:focus {
     margin: 0;
     color: #0b0c0c;

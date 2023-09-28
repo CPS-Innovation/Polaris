@@ -18,6 +18,11 @@
       fill: #b1b4b6;
     }
   }
+  &:hover:not(:disabled):not(:focus) {
+    svg {
+      fill: #fff;
+    }
+  }
 }
 .upArrow {
   svg {

@@ -116,6 +116,11 @@
       fill: #b1b4b6;
     }
   }
+  &:hover:not(:disabled) {
+    svg {
+      fill: #fff;
+    }
+  }
 }
 
 .tabPreviousButton {
