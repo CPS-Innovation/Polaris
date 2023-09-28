@@ -9,6 +9,7 @@
 
 .tabsWrapper {
   display: flex;
+  position: relative;
   padding-top: 0.3125rem;
   justify-content: space-between;
   align-items: center;
@@ -19,8 +20,8 @@
   justify-content: flex-start;
   align-items: baseline;
   padding: 0;
-  width: 95%;
-  margin: 0 0.1875rem;
+  width: 100%;
+  margin: 0 2.8rem 0 3.4rem;
   overflow-y: hidden;
   overflow-x: auto;
 }
@@ -100,6 +101,9 @@
 .arrowBtnsWrapper {
   display: flex;
   justify-content: space-between;
+  position: absolute;
+  top: 1.25rem;
+  left: 0.3125rem;
 }
 
 .tabNextButton,
@@ -138,4 +142,10 @@
   &:focus {
     outline: 0.2rem solid #ffdd00;
   }
+}
+
+.tabsDropDownWrapper {
+  position: absolute;
+  top: 1.25rem;
+  right: 0.3125rem;
 }
