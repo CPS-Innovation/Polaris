@@ -75,7 +75,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
         <div className={classes.panel} ref={panelRef} id="dropdown-panel">
           <ul className={classes.tabList}>
             {dropDownItems.map((item) => (
-              <li className={classes.tabListItem}>
+              <li key={item.id} className={classes.tabListItem}>
                 <LinkButton
                   disabled={item.id === currentSelectionId}
                   onClick={() => {
