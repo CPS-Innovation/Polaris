@@ -63,7 +63,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
       <LinkButton
         dataTestId={dataTestId}
         ref={dropDownBtnRef}
-        ariaLabel={buttonOpen ? `${ariaLabel} close` : `${ariaLabel} open`}
+        ariaLabel={ariaLabel}
         ariaExpanded={buttonOpen}
         className={`${classes.dropDownButton} ${buttonOpen && classes.upArrow}`}
         disabled={dropDownItems.length < 2}

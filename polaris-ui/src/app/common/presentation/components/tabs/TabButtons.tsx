@@ -82,7 +82,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
           disabled={activeTabIndex === 0}
           className={classes.tabPreviousButton}
           dataTestId="btn-tab-previous"
-          ariaLabel="previous tab"
+          ariaLabel="tab previous"
           onClick={() => {
             moveToNextOrPreviousTab(-1);
           }}
@@ -93,7 +93,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
           disabled={activeTabIndex === items.length - 1}
           className={classes.tabNextButton}
           dataTestId="btn-tab-next"
-          ariaLabel="next tab"
+          ariaLabel="tab next"
           onClick={() => {
             moveToNextOrPreviousTab(1);
           }}
