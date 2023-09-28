@@ -8,8 +8,7 @@
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
-      "DurableTask.AzureStorage": "Information",
-      "DurableTask.Netherite": "Information",
+      "DurableTask.Netherite": "Warning",
       "DurableTask.Core": "Information",
       "Microsoft.Azure.WebJobs.Host.Scale": "None"
     },
