@@ -3,7 +3,7 @@ type PanelProps = React.DetailedHTMLProps<
   HTMLDivElement
 >;
 
-export type ItemProps = {
+type ItemProps = {
   id: string;
   label: string;
   panel: PanelProps;

@@ -3,7 +3,7 @@
 }
 
 .dropDownButton {
-  padding: 5px;
+  padding: 0.3125rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -15,7 +15,7 @@
   &:disabled {
     cursor: not-allowed;
     svg {
-      fill: #778087;
+      fill: #b1b4b6;
     }
   }
 }
@@ -28,8 +28,8 @@
 .panel {
   position: absolute;
 
-  right: 2px;
-  border-radius: 5px;
+  right: 0.125rem;
+  border-radius: 0.3125rem;
   background: #fff;
   z-index: 5;
   filter: drop-shadow(0 1px 0.15rem #000);
@@ -46,9 +46,9 @@
 }
 
 .tabListItem {
-  padding: 5px 0;
+  padding: 0.3125rem 0;
   & button:disabled {
     cursor: not-allowed;
-    color: #778087;
+    color: #b1b4b6;
   }
 }

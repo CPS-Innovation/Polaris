@@ -25,7 +25,7 @@
   margin-bottom: 0;
   padding: 0;
   width: 95%;
-  margin: 0 3px;
+  margin: 0 0.1875rem;
   overflow-y: hidden;
   overflow-x: auto;
 }
@@ -109,8 +109,7 @@
 
 .tabNextButton,
 .tabPreviousButton {
-  // height: 30px;
-  padding: 5px 0;
+  padding: 0.3125rem 0;
   margin: 0;
   width: 100%;
   svg {
@@ -119,7 +118,7 @@
   &:disabled {
     cursor: not-allowed;
     svg {
-      fill: #778087;
+      fill: #b1b4b6;
     }
   }
 }
@@ -135,16 +134,6 @@
   }
 }
 
-.customSelect {
-  margin-bottom: 0px;
-  width: 80px;
-}
-.select option {
-  background-color: #fff;
-  color: #333;
-  font-size: 12px;
-  max-height: 20px;
-}
 .contentArea {
   &:focus {
     outline: 0.2rem solid #ffdd00;
