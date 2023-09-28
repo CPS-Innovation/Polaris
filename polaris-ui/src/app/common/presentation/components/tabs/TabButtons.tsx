@@ -15,9 +15,7 @@ export type TabButtonProps = {
 
 const ARROW_KEY_SHIFTS = {
   ArrowLeft: -1,
-  ArrowUp: -1,
   ArrowRight: 1,
-  ArrowDown: 1,
 };
 
 const TabButtons: React.FC<TabButtonProps> = ({
@@ -41,7 +39,9 @@ const TabButtons: React.FC<TabButtonProps> = ({
   ) => {
     const typedKeyCode = ev.code as keyof typeof ARROW_KEY_SHIFTS;
     const thisShift = ARROW_KEY_SHIFTS[typedKeyCode]; // -1, 1 or undefined
-
+    if (!thisShift) {
+      return;
+    }
     moveToNextOrPreviousTab(thisShift);
     if (ev.code === "ArrowRight" || ev.code === "ArrowLeft") {
       ev.preventDefault();
@@ -69,7 +69,14 @@ const TabButtons: React.FC<TabButtonProps> = ({
     return null;
   }
   return (
-    <div className={`${classes.tabsWrapper}`}>
+    <div
+      role="region"
+      aria-label="Document Tabs"
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+      id="document-tabs"
+      className={`${classes.tabsWrapper}`}
+    >
       <div className={`${classes.arrowBtnsWrapper}`}>
         <LinkButton
           disabled={activeTabIndex === 0}
@@ -151,6 +158,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
         dropDownItems={items}
         callBackFn={handleTabSelection}
         ariaLabel="tabs dropdown"
+        dataTestId="tabs-dropdown"
       />
     </div>
   );

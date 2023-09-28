@@ -8,12 +8,14 @@ export type DropdownButtonProps = {
   callBackFn: (id: string) => void;
   currentSelectionId?: string;
   ariaLabel?: string;
+  dataTestId?: string;
 };
 
 export const DropdownButton: React.FC<DropdownButtonProps> = ({
   dropDownItems,
   callBackFn,
   currentSelectionId,
+  dataTestId = "dropdown-btn",
   ariaLabel = "dropdown",
 }) => {
   const dropDownBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -59,6 +61,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   return (
     <div className={classes.dropDownButtonWrapper}>
       <LinkButton
+        dataTestId={dataTestId}
         ref={dropDownBtnRef}
         ariaLabel={buttonOpen ? `${ariaLabel} close` : `${ariaLabel} open`}
         ariaExpanded={buttonOpen}
@@ -72,7 +75,12 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
       </LinkButton>
 
       {buttonOpen && (
-        <div className={classes.panel} ref={panelRef} id="dropdown-panel">
+        <div
+          className={classes.panel}
+          ref={panelRef}
+          id="dropdown-panel"
+          data-testid={`${dataTestId}-panel`}
+        >
           <ul className={classes.tabList}>
             {dropDownItems.map((item) => (
               <li key={item.id} className={classes.tabListItem}>
