@@ -1,6 +1,4 @@
-﻿using Aspose.Imaging.MemoryManagement;
-using Castle.Core.Configuration;
-using Common.Wrappers;
+﻿using Common.Wrappers;
 using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

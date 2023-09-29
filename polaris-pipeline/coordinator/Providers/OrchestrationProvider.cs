@@ -140,12 +140,15 @@ public class OrchestrationProvider : IOrchestrationProvider
         
         try
         {
-            await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
-            telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
+            if (!_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
+            {
+                await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
+                telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
 
-            await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId, correlationId);
-            telemetryEvent.IndexSettledTime = DateTime.UtcNow;
-            
+                await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId, correlationId);
+                telemetryEvent.IndexSettledTime = DateTime.UtcNow;
+            }
+
             await _blobStorageService.DeleteBlobsByCaseAsync(caseIdAsString, correlationId);
             telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
 
