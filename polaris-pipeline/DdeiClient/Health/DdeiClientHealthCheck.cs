@@ -1,4 +1,5 @@
-﻿using Common.Health;
+﻿using Common.Extensions;
+using Common.Health;
 using DdeiClient.Services.Contracts;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -19,7 +20,7 @@ namespace DDei.Health
         {
             try
             {
-                var response = await _ddeiClient.GetStatus();
+                var response = await _ddeiClient.GetStatus().WithTimeout(TimeSpan.FromSeconds(5));
 
                 if (string.IsNullOrWhiteSpace(response))
                     return HealthCheckResult.Unhealthy("Null or empty response");

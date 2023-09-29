@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Common.Extensions;
 
 namespace Common.Health
 {
@@ -24,7 +25,9 @@ namespace Common.Health
         {
             try
             {
-                var container = _blobServiceClient.GetBlobContainerClient("documents");
+                var container 
+                    = await Task.Run(() => _blobServiceClient.GetBlobContainerClient("documents"))
+                                .WithTimeout(TimeSpan.FromSeconds(5)); 
 
                 if(!container.Uri.PathAndQuery.EndsWith("documents"))
                     return HealthCheckResult.Unhealthy($"Container Uri is not correct: {container.Uri}");
