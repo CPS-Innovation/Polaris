@@ -121,7 +121,8 @@ namespace coordinator
                 .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI")
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
                 .AddCheck<PolarisBlobStorageServiceHealthCheck>("PolarisBlobStorageService")
-                .AddCheck<OrchestrationProviderHealthCheck>("OrchestrationProvider");
+                .AddCheck<OrchestrationProviderHealthCheck>("OrchestrationProvider")
+                .AddCheck<GeneratePdfHealthCheck>("GeneratePdf");
                 //.AddCheck<IDurableOrchestrationClientHealthCheck>("IDurableOrchestrationClient");
 
             if (!configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
