@@ -12,6 +12,7 @@ namespace coordinator.Health
         public static DateTime? CmsDocumentRetrieved { get; set; } = null;
         public static DateTime? ConvertedToPdf { get; set; } = null;
         public static DateTime? UploadedToBlobStorage { get; set; } = null;
+        public static string LastException { get; set; } = null;
 
         private bool Completed
         {
@@ -27,10 +28,10 @@ namespace coordinator.Health
             HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
-            var result = $"RunCalled={RunCalled}, InputsValidated={InputsValidated}, CmsDocumentRetrieved={CmsDocumentRetrieved}, ConvertedToPdf={ConvertedToPdf}, UploadedToBlobStorage={UploadedToBlobStorage}";
+            var result = $"RunCalled={RunCalled}, InputsValidated={InputsValidated}, CmsDocumentRetrieved={CmsDocumentRetrieved}, ConvertedToPdf={ConvertedToPdf}, UploadedToBlobStorage={UploadedToBlobStorage}, LastException={LastException}";
 
             if (!RunCalled.HasValue)
-                return HealthCheckResult.Healthy("PDF Generation not yet called");
+                return HealthCheckResult.Healthy($"PDF Generation not yet called : {result}");
 
             if(!Completed)
                 return HealthCheckResult.Unhealthy(result);

@@ -20,7 +20,7 @@ namespace DDei.Health
         {
             try
             {
-                var response = await _ddeiClient.GetStatus().WithTimeout(TimeSpan.FromSeconds(5));
+                var response = await _ddeiClient.GetStatus().WithTimeout(TimeSpan.FromSeconds(10));
 
                 if (string.IsNullOrWhiteSpace(response))
                     return HealthCheckResult.Unhealthy("Null or empty response");

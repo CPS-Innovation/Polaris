@@ -7,9 +7,11 @@ using Common.ValueObjects;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
 using coordinator.Functions.DurableEntity.Entity.Contract;
+using coordinator.Health;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Microsoft.Rest;
 
 namespace coordinator.Functions.Orchestration.Functions.Document
 {
@@ -70,6 +72,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
             catch (Exception exception)
             {
+                GeneratePdfHealthCheck.LastException = exception.Message;
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
                 throw;
