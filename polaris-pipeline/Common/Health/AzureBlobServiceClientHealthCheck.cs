@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Common.Extensions;
 
 namespace Common.Health
