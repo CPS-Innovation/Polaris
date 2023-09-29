@@ -16,5 +16,6 @@ namespace DdeiClient.Services.Contracts
         Task<HttpResponseMessage> CheckoutDocument(DdeiCmsDocumentArgDto arg);
         Task CancelCheckoutDocument(DdeiCmsDocumentArgDto arg);
         Task UploadPdf(DdeiCmsDocumentArgDto arg, Stream stream);
+        Task<string> GetStatus();
     }
 }

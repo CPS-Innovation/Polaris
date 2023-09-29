@@ -8,9 +8,6 @@ namespace DDei.Health
     {
         private readonly IDdeiClient _ddeiClient;
 
-        static readonly string _testCaseUrn = "14XD1000422";
-        static readonly string _testCaseId = "2148897";
-
         public DdeiClientHealthCheck(IDdeiClient ddeiClient)
         {
             _ddeiClient = ddeiClient;
@@ -22,9 +19,12 @@ namespace DDei.Health
         {
             try
             {
-                var response = await _ddeiClient.ListDocumentsAsync(_testCaseUrn, _testCaseId, CmsAuthValue, CorrelationId);
+                var response = await _ddeiClient.GetStatus();
 
-                return HealthCheckResult.Healthy($"{response.Length} document(s) for test case");
+                if (string.IsNullOrWhiteSpace(response))
+                    return HealthCheckResult.Unhealthy("Null or empty response");
+
+                return HealthCheckResult.Healthy($"DDEI Status : {response}");
             }
             catch (Exception ex)
             {

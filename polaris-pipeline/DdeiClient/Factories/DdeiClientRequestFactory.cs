@@ -74,6 +74,12 @@ namespace Ddei.Factories.Contracts
             return request;
         }
 
+        public HttpRequestMessage CreateStatusRequest()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/status");
+            return request;
+        }
+
         private void AddAuthHeaders(HttpRequestMessage request, DdeiCmsCaseDataArgDto arg)
         {
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);
