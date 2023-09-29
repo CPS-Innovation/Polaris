@@ -93,21 +93,16 @@ stages:
               sleep 5
 
               ifconfig tun0
+
               sudo rm /etc/resolv.conf
-              echo "nameserver 10.7.197.20" | sudo tee /etc/resolv.conf
-
-              sudo cat openvpn.log
-
-              nslookup fa-polaris-dev-gateway.azurewebsites.net
-              nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
-
-              sudo cat /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
             workingDirectory: $(templatesWorkingDir)
             env:
               PRESHAREDKEY: $(dev_pre-shared_key)
               PRIVATEKEY: $(dev_private_key)
               CLIENTCERTIFICATE: $(dev_client_cert)
               VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
             
           # Install Terraform based on version variable

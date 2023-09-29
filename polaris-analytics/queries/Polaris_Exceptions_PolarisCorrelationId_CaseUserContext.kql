@@ -1,0 +1,14 @@
+
+AppRequests
+| where AppRoleName in ('fa-polaris-gateway', 'fa-polaris-auth-handover')
+| where Name != 'Status'
+| extend PolarisCorrelationId = tostring(Properties.PolarisCorrelationId)
+| summarize  
+    Urn = max(iif(Name == 'InitiateCookies', "InitiateCookies", extract("/urns/(.*)/cases", 1, Url))), 
+    CaseId = max(iif(Name == 'InitiateCookies', "", extract("/cases/([0-9]*)(/|$)", 1, Url))),
+    DocumentId = make_set(iif(Name == 'InitiateCookies', "", extract("/documents/.*-([0-9]*)(/|$)", 1, Url))),
+    CmsUserId = max(tolong(Properties.CmsUserId)),
+    User = max(tostring(Properties.User)) by PolarisCorrelationId
+| where User != 'REDACTED@REDACTED.EMAIL.ADDRESS' and CmsUserId != -2147483648
+
+

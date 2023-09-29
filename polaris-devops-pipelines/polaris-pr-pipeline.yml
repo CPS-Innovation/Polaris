@@ -62,16 +62,10 @@ stages:
                     echo "run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -206,30 +200,25 @@ stages:
           #create vpn tunnel
           - bash: |
               sudo apt-get --assume-yes --no-install-recommends install openvpn
-              
+
               chmod 777 vpnconfig.ovpn
               envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-              
+
               sudo openvpn _vpnconfig.ovpn &
-              
+
               sleep 5
-              
+
               ifconfig tun0
+
               sudo rm /etc/resolv.conf
-              echo "nameserver 10.7.197.20" | sudo tee /etc/resolv.conf
-              
-              sudo cat openvpn.log
-              
-              nslookup fa-polaris-dev-gateway.azurewebsites.net
-              nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
-              
-              sudo cat /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
             workingDirectory: $(templatesWorkingDir)
             env:
               PRESHAREDKEY: $(dev_pre-shared_key)
               PRIVATEKEY: $(dev_private_key)
               CLIENTCERTIFICATE: $(dev_client_cert)
               VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
           
           # Install Terraform based on version variable
@@ -320,21 +309,16 @@ stages:
               sleep 5
 
               ifconfig tun0
+
               sudo rm /etc/resolv.conf
-              echo "nameserver 10.7.197.20" | sudo tee /etc/resolv.conf
-
-              sudo cat openvpn.log
-
-              nslookup fa-polaris-dev-gateway.azurewebsites.net
-              nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
-
-              sudo cat /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
             workingDirectory: $(templatesWorkingDir)
             env:
               PRESHAREDKEY: $(dev_pre-shared_key)
               PRIVATEKEY: $(dev_private_key)
               CLIENTCERTIFICATE: $(dev_client_cert)
               VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
           
           # Install Terraform based on version variable
@@ -425,21 +409,16 @@ stages:
               sleep 5
 
               ifconfig tun0
+
               sudo rm /etc/resolv.conf
-              echo "nameserver 10.7.197.20" | sudo tee /etc/resolv.conf
-
-              sudo cat openvpn.log
-
-              nslookup fa-polaris-dev-gateway.azurewebsites.net
-              nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
-
-              sudo cat /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
             workingDirectory: $(templatesWorkingDir)
             env:
               PRESHAREDKEY: $(dev_pre-shared_key)
               PRIVATEKEY: $(dev_private_key)
               CLIENTCERTIFICATE: $(dev_client_cert)
               VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
           
           # Install Terraform based on version variable
@@ -530,21 +509,16 @@ stages:
               sleep 5
 
               ifconfig tun0
+
               sudo rm /etc/resolv.conf
-              echo "nameserver 10.7.197.20" | sudo tee /etc/resolv.conf
-
-              sudo cat openvpn.log
-
-              nslookup fa-polaris-dev-gateway.azurewebsites.net
-              nslookup fa-polaris-dev-gateway.azurewebsites.net 10.7.197.20
-
-              sudo cat /etc/resolv.conf
+              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
             workingDirectory: $(templatesWorkingDir)
             env:
               PRESHAREDKEY: $(dev_pre-shared_key)
               PRIVATEKEY: $(dev_private_key)
               CLIENTCERTIFICATE: $(dev_client_cert)
               VPNSERVER: $(dev_vpn_server)
+              DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
           
           # Install Terraform based on version variable
