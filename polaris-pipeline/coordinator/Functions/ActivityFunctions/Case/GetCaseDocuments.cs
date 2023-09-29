@@ -60,11 +60,11 @@ namespace coordinator.Functions.ActivityFunctions.Case
             _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             CmsDocumentDto[] documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
-            var hteFeatureFlag = _configuration.IsSettingEnabled(FeatureFlags.HteFeatureFlag);
+            var hteFeatureFlagEnabled = _configuration.IsSettingEnabled(FeatureFlags.HteFeatureFlag);
 
             var cmsDocuments =
                 documents
-                    .Where(doc => hteFeatureFlag || doc.FileExtension != "HTE")
+                    .Where(doc => !doc.FileExtension.Equals(".hte", StringComparison.OrdinalIgnoreCase) || hteFeatureFlagEnabled)
                     .Select(doc => MapPresentationFlags(doc))
                     .ToArray();
 
