@@ -145,12 +145,9 @@ namespace pdf_generator.tests.Functions
         {
             _generatePdfRequest.CmsDocumentTracker.PresentationTitle = "Test.pdf";
             _mockDDeiClient
-                .Setup(service => service.GetDocumentAsync
+                .Setup(service => service.GetDocumentFromFileStoreAsync
                 (
-                    _generatePdfRequest.CmsCaseUrn,
-                    _generatePdfRequest.CmsCaseId.ToString(),
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocType.DocumentCategory,
-                    _generatePdfRequest.CmsDocumentTracker.CmsDocumentId,
+                    _generatePdfRequest.CmsDocumentTracker.Path,
                     It.IsAny<string>(),
                     It.IsAny<Guid>())
                 )
