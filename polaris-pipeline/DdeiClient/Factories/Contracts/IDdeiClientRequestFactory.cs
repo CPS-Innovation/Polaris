@@ -4,7 +4,7 @@ namespace Ddei.Factories.Contracts
 {
     public interface IDdeiClientRequestFactory
     {
-        HttpRequestMessage CreateCmsModernTokenRequest(DdeiCmsCaseDataArgDto arg);
+        HttpRequestMessage CreateCmsAuthValuesRequest(DdeiCmsCaseDataArgDto arg);
 
         HttpRequestMessage CreateUrnLookupRequest(DdeiCmsCaseIdArgDto arg);
 
