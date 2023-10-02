@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
+using Common.Extensions;
 
 namespace Common.Health
 {
@@ -16,18 +16,22 @@ namespace Common.Health
             _blobServiceClient = blobServiceClient;
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<HealthCheckResult> CheckHealthAsync(
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
             HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
             try
             {
-                var accountInfo = (AccountInfo)(await _blobServiceClient.GetAccountInfoAsync(cancellationToken));
+                var container 
+                    = await Task.Run(() => _blobServiceClient.GetBlobContainerClient("documents"))
+                                .WithTimeout(TimeSpan.FromSeconds(5)); 
 
-                string host = _blobServiceClient.Uri.Host;
-                var isAzuriteEmulator = (host == "localhost") || (host == "127.0.0.1");
+                if(!container.Uri.PathAndQuery.EndsWith("documents"))
+                    return HealthCheckResult.Unhealthy($"Container Uri is not correct: {container.Uri}");
 
-                return HealthCheckResult.Healthy($"{(isAzuriteEmulator ? "Azurite Emulator" : "Azure Blob Storage")} : {accountInfo.AccountKind}, {accountInfo.SkuName}"); 
+                return HealthCheckResult.Healthy(container.Uri.ToString()); 
             }
             catch(Exception e)
             {

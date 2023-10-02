@@ -8,5 +8,6 @@ resource "azurerm_service_plan" "asp_polaris_gateway" {
   os_type                      = "Linux"
   sku_name                     = var.app_service_plan_gateway_sku
   tags                         = local.common_tags
+  zone_balancing_enabled       = true
   maximum_elastic_worker_count = 10
 }

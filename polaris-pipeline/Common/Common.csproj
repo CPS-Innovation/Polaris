@@ -15,6 +15,7 @@
     <None Update="document-toggle.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Remove="Health\HealthCheck.pdf" />
     <None Remove="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
     <None Remove="Services\RenderHtmlService\PcdRequest.cshtml" />
     <None Remove="Wrappers\" />
@@ -22,6 +23,11 @@
     <None Remove="Domain\" />
     <None Remove="Domain\Exceptions\" />
     <None Remove="Handlers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Health\HealthCheck.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

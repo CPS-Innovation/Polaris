@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Configuration;
@@ -46,6 +47,14 @@ namespace Common.Clients
             Guid correlationId,
             Stream documentStream)
         {
+            // For integration testing allow disabling of text extraction
+            if (_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
+            {
+                // Use average time seen in production for text extraction to simulate time typically taken
+                Thread.Sleep(8000);
+                return;
+            }
+
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Extract}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());

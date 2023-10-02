@@ -1,12 +1,38 @@
-using Common.Dto.Tracker;
-using FluentAssertions;
 using polaris_gateway.integration.tests.Proxies;
 
 namespace polaris_integration.tests
 {
     public class BaseCoordinatorScalingTest : CoordinatorApiProxy
     {
-        protected async Task RefreshCaseAsync(string urn, int caseId)
+        protected static int _testCases;
+
+        protected string urn = null;
+        protected int caseId;
+
+        static BaseCoordinatorScalingTest()
+        {
+            _testCases = int.Parse(_config["ScalingTest:TestCases"]);
+        }
+
+        public BaseCoordinatorScalingTest(int instance)
+        {
+            if (instance <= _testCases)
+            {
+                urn = $"TEST100-0{instance.ToString("00")}";
+                caseId = 100 + instance;
+            }
+        }
+
+        public async Task BaseDeleteAndRefreshCase()
+        {
+            if(urn != null)
+            {
+                await CaseDeleteAsync(urn, caseId);
+                await CaseRefreshAsync(urn, caseId, Guid.NewGuid().ToString());
+            }
+        }
+
+        /*protected async Task RefreshCaseAsync(string urn, int caseId)
         {
             // Arrange
             var correlationId = Guid.NewGuid().ToString();
@@ -30,6 +56,6 @@ namespace polaris_integration.tests
                 Console.WriteLine(ex.Message);
                 throw;
             }   
-       }
+       }*/
     }
 }

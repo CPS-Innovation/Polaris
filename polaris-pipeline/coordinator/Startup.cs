@@ -85,7 +85,7 @@ namespace coordinator
             services.AddDdeiClient(Configuration);
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
-            BuildHealthChecks(builder);
+            BuildHealthChecks(builder, Configuration);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace coordinator
         /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
         /// </summary>
         /// <param name="builder"></param>
-        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
         {
             builder.Services.AddHttpClient();
 
@@ -115,12 +115,20 @@ namespace coordinator
                 client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
             });
 
-            builder.Services.AddHealthChecks()
+            var healthChecks = builder.Services.AddHealthChecks();
+            healthChecks
+                .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI")
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction })
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction })
-                .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI Document Extraction Service");
+                .AddCheck<PolarisBlobStorageServiceHealthCheck>("PolarisBlobStorageService");
+
+            if (!configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
+                healthChecks
+                    .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
+                    .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction });
+
+            if (!configuration.IsConfigSettingEnabled(FeatureFlags.DisableConvertToPdfFeatureFlag))
+                healthChecks
+                    .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction });
         }
     }
 }

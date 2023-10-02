@@ -7,17 +7,17 @@ namespace polaris_integration.tests
 {
     public class BaseFunctionTest : IDisposable
     {
-        // private List<Process> _hosts = new List<Process>();
+        protected static IConfigurationRoot _config;
+        private static string _ddeiAuthUrl;
+        protected static string _polarisGatewayUrl;
+        protected static string _polarisGatewayCode;
+        protected static string _polarisCoordinatorUrl;
+        protected static string _polarisCoordinatorCode;
+
         private string _adToken;
         private string _cmsAuth;
-        private IConfigurationRoot _config;
-        private string _ddeiAuthUrl;
-        protected string _polarisGatewayUrl;
-        protected string _polarisGatewayCode;
-        protected string _polarisCoordinatorUrl;
-        protected string _polarisCoordinatorCode;
 
-        public BaseFunctionTest()
+        static BaseFunctionTest()
         {
             var dir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
@@ -33,11 +33,14 @@ namespace polaris_integration.tests
             _polarisCoordinatorUrl = _config["BaseUrls:PolarisCoordinatorUrl"];
             _polarisCoordinatorCode = _config["BaseUrls:PolarisCoordinatorCode"];
 
-            _adToken = GetBearerToken();
-            _cmsAuth = GetCmsAuthCookieValues();
-
             //StartHost("polaris-gateway\\polaris-gateway", 7075);
             //StartHost("polaris-pipeline\\coordinator", 7072);
+        }
+
+        public BaseFunctionTest()
+        {
+            _adToken = GetBearerToken();
+            _cmsAuth = GetCmsAuthCookieValues();
         }
 
         public void Dispose()

@@ -24,8 +24,8 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip_corsham            = "10.2.177.14"
-  upstream_cms_modern_ip_corsham     = "10.2.177.55"
+  upstream_cms_ip_corsham        = "10.2.177.14"
+  upstream_cms_modern_ip_corsham = "10.2.177.55"
   // for non-prod environments, current thinking is to try to go to Corsham's IP
   //  even if we dtect a farnborough cookie
   upstream_cms_ip_farnborough        = "10.2.177.14"

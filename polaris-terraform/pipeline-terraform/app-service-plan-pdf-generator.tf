@@ -8,5 +8,6 @@ resource "azurerm_service_plan" "asp_polaris_pipeline_ep_pdf_generator" {
   os_type                      = "Windows"
   sku_name                     = var.pipeline_component_service_plans.pdf_generator_service_plan_sku
   tags                         = local.common_tags
+  zone_balancing_enabled       = true
   maximum_elastic_worker_count = var.pipeline_component_service_plans.pdf_generator_maximum_instances
 }

@@ -11,22 +11,29 @@ namespace polaris_gateway.integration.tests.Proxies
     {
         protected async Task CaseDeleteAsync(string caseUrn, int caseId)
         {
-            string url = MakeUrl(RestApi.Case, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
-
-            var response = await MakeHttpCall(url, HttpMethod.Delete);
-            if (response.IsSuccessStatusCode && await response.Content.ReadAsStringAsync() == string.Empty)
-                return;
-
-            foreach (var i in Fibonacci(10))
+            try
             {
-                await Task.Delay(i * 250);
+                string url = MakeUrl(RestApi.Case, new Dictionary<string, string>() { { "caseUrn", caseUrn }, { "caseId", $"{caseId}" } });
 
-                response = await MakeHttpCall(url, HttpMethod.Delete);
+                var response = await MakeHttpCall(url, HttpMethod.Delete);
                 if (response.IsSuccessStatusCode && await response.Content.ReadAsStringAsync() == string.Empty)
                     return;
-            }
 
-            return;
+                foreach (var i in Fibonacci(10))
+                {
+                    await Task.Delay(i * 250);
+
+                    response = await MakeHttpCall(url, HttpMethod.Delete);
+                    if (response.IsSuccessStatusCode && await response.Content.ReadAsStringAsync() == string.Empty)
+                        return;
+                }
+
+                return;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         protected async Task CaseRefreshAsync(string caseUrn, int caseId, string correlationId)
@@ -44,18 +51,24 @@ namespace polaris_gateway.integration.tests.Proxies
         {
             TrackerDto tracker;
 
-            do
+            while(true)
             {
                 tracker = await GetTrackerAsync(urn, caseId, correlationId);
 
-                if (tracker.Status == CaseRefreshStatus.Failed)
-                    throw new Exception("Case refresh failed");
+                switch(tracker?.Status)
+                {
+                    case CaseRefreshStatus.Completed:
+                        return tracker;
+
+                    case CaseRefreshStatus.Failed:
+                        throw new Exception($"Case refresh failed : {tracker.FailedReason}");
+
+                    default:
+                        Thread.Sleep(5000);
+                        break;
+                }
             }
-            while (tracker.Status != CaseRefreshStatus.Completed);
-
-            return tracker;
         }
-
 
         protected async Task<TrackerDto> GetTrackerAsync(string caseUrn, int caseId, string correlationId)
         {
@@ -91,8 +104,18 @@ namespace polaris_gateway.integration.tests.Proxies
         protected async Task<T> SendJsonRequestAsync<T>(string url, HttpMethod httpMethod, string correlationId = null)
         {
             var json = await SendRequestAsync(url, httpMethod, correlationId);
-            var dto = JsonConvert.DeserializeObject<T>(json);
+            T dto = default;
+            try
+            {
+                dto = JsonConvert.DeserializeObject<T>(json);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.StartsWith("No Case Entity found"))
+                    return default;
 
+                throw;
+            }
             return dto;
         }
     }

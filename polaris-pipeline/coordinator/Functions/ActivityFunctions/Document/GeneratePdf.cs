@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
-using Common.Domain.Extensions;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.RenderHtmlService.Contract;
