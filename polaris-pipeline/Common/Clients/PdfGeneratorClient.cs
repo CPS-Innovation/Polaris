@@ -24,6 +24,9 @@ namespace Common.Clients
         private readonly IConfiguration _configuration;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
+        // Observed average time for PDF generation in production
+        const int _pdfAveragePdfGenerationTime = 500;
+
         public PdfGeneratorClient(IPipelineClientRequestFactory pipelineClientRequestFactory,
             HttpClient httpClient,
             IConfiguration configuration,
@@ -40,7 +43,10 @@ namespace Common.Clients
             documentStream.Seek(0, SeekOrigin.Begin);
 
             if (fileType == FileType.PDF)
+            {
+                Thread.Sleep(_pdfAveragePdfGenerationTime);
                 return documentStream;
+            }
 
             // For integration testing allow, PDF generation to be disabled
             // By definition this only applies to non-PDFs
@@ -48,7 +54,7 @@ namespace Common.Clients
             if (_configuration.IsConfigSettingEnabled(FeatureFlags.DisableConvertToPdfFeatureFlag))
             {
                 // Use average time seen in production for PDF generation to simulate time typically taken
-                Thread.Sleep(500);
+                Thread.Sleep(_pdfAveragePdfGenerationTime);
                 throw new InvalidOperationException($"{FeatureFlags.DisableConvertToPdfFeatureFlag} is configured");
             }
 

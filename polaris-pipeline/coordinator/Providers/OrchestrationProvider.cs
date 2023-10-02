@@ -21,7 +21,6 @@ using coordinator.Domain.Dto;
 using coordinator.Domain.Extensions;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using coordinator.Health;
 
 namespace coordinator.Providers;
 
@@ -132,7 +131,6 @@ public class OrchestrationProvider : IOrchestrationProvider
     public async Task<HttpResponseMessage> DeleteCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId, 
         int caseId)
     {
-        OrchestrationProviderHealthCheck.DeleteCalled = DateTime.UtcNow;
         var telemetryEvent = new DeletedCaseEvent(
                 correlationId: correlationId,
                 caseId: caseId,
@@ -152,13 +150,11 @@ public class OrchestrationProvider : IOrchestrationProvider
             }
 
             await _blobStorageService.DeleteBlobsByCaseAsync(caseIdAsString, correlationId);
-            OrchestrationProviderHealthCheck.DeleteBlobsByCaseSucceeded = DateTime.UtcNow;
             telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
 
             // Terminate Orchestrations (can't terminate Durable Entities with Netherite backend, but can Purge - see below)
             var terminateOrchestrationQueries = GetOrchestrationQueries(_terminateStatuses, caseIdAsString);
             var terminateOrchestrationInstanceIds = await TerminateOrchestrations(orchestrationClient, terminateOrchestrationQueries, correlationId);
-            OrchestrationProviderHealthCheck.TerminatedOrchestrationInstancesSucceeded = DateTime.UtcNow;
             telemetryEvent.TerminatedInstancesCount = terminateOrchestrationInstanceIds.Count;
             telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
             telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
@@ -167,7 +163,6 @@ public class OrchestrationProvider : IOrchestrationProvider
             var purgeConditions = GetOrchestrationQueries(_purgeStatuses, caseIdAsString);
             purgeConditions.AddRange(GetDurableEntityQueries(_terminateStatuses, caseIdAsString));
             var success = await Purge(orchestrationClient, purgeConditions, correlationId);
-            OrchestrationProviderHealthCheck.PurgedOrchestrationsAndDurableEntitiesSucceeded = DateTime.UtcNow;
             telemetryEvent.EndTime = DateTime.UtcNow;
 
             _telemetryClient.TrackEvent(telemetryEvent);
