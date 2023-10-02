@@ -10,7 +10,6 @@ using Common.Services.BlobStorageService.Contracts;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
-using coordinator.Health;
 using DdeiClient.Services.Contracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -48,8 +47,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
         [FunctionName(nameof(GeneratePdf))]
         public async Task Run([ActivityTrigger] IDurableActivityContext context)
         {
-            GeneratePdfHealthCheck.RunCalled = DateTime.UtcNow;
-
             #region Validate-Inputs
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
@@ -61,8 +58,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
             var results = _validatorWrapper.Validate(payload);
             if (results?.Any() == true)
                 throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
-
-            GeneratePdfHealthCheck.InputsValidated = DateTime.UtcNow;
             #endregion
 
             Stream documentStream = null;
@@ -84,8 +79,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     );
                 string fileExtension = payload.CmsDocumentTracker.FileExtension.Replace(".", string.Empty).ToUpperInvariant();
                 fileType = Enum.Parse<FileType>(fileExtension);
-
-                GeneratePdfHealthCheck.CmsDocumentRetrieved = DateTime.UtcNow;
             }
             else if (payload.PcdRequestTracker != null)
             {
@@ -117,7 +110,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     payload.CmsVersionId.ToString(),
                     documentStream,
                     fileType);
-                GeneratePdfHealthCheck.ConvertedToPdf = DateTime.UtcNow;
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{payload.BlobName}'...");
                 await _blobStorageService.UploadDocumentAsync
@@ -129,7 +121,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CmsVersionId.ToString(),
                         payload.CorrelationId
                     );
-                GeneratePdfHealthCheck.UploadedToBlobStorage = DateTime.UtcNow;
 
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{payload.BlobName}' uploaded successfully");
             }
