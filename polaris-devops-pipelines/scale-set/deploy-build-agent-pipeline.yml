@@ -1,4 +1,7 @@
-trigger: none
+trigger:
+  branches:
+    include:
+      - "*" # will run on any change, but will only update the scale-set if any changes are merged into "main"
 
 schedules:
   - cron: "0 0 * * 0" # Weekly at Sunday night - ensure the build agent image is up-to-date
@@ -52,7 +55,7 @@ stages:
             displayName: Build Image with Packer
             inputs:
               templateType: "builtin"
-              ConnectedServiceName: "Innovation-Development: All-Information Management"
+              ConnectedServiceName: "$(innovation-development-subscription-name)"
               isManagedImage: true
               managedImageName: "build-agent-$(versionSha)"
               location: $(build-agent-location)
@@ -82,6 +85,30 @@ stages:
               az account set --subscription $ARM_SUBSCRIPTION_ID
               az tag create --resource-id /subscriptions/$ARM_SUBSCRIPTION_ID/resourcegroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha) --tags Temporary=True
             displayName: Tag image
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_RESOURCE_GROUP: $(innovation-development-build-agent-resource-group)
+              
+  - stage: update_scale_set
+    displayName: Configure Scale Set with new image
+    dependsOn:
+      - determine_version
+      - image_builder
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      versionSha: $[ stageDependencies.determine_version.determine_version.outputs['versioning.versionShortSha'] ]
+    jobs:
+      - job: activate
+        displayName: Activate new image
+        steps:
+          - bash: |
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              az account set --subscription $ARM_SUBSCRIPTION_ID
+              az vmss update --resource-group $ARM_RESOURCE_GROUP --name polaris-dev-vmss --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
+            displayName: Run script
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
