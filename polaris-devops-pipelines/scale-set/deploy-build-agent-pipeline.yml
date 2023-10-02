@@ -55,7 +55,7 @@ stages:
             displayName: Build Image with Packer
             inputs:
               templateType: "builtin"
-              ConnectedServiceName: "$(innovation-development-subscription-name)"
+              ConnectedServiceName: "Innovation-Development: All-Information Management"
               isManagedImage: true
               managedImageName: "build-agent-$(versionSha)"
               location: $(build-agent-location)
