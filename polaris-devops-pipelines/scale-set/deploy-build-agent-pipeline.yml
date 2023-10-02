@@ -74,7 +74,6 @@ stages:
               az resource delete --ids $(az resource list --tag Temporary=True --query "[].id" --output tsv)
             displayName: Remove older build-agent versioned images
             continueOnError: true
-            failOnStandardError: false
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
               ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
