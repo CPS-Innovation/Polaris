@@ -1,7 +1,11 @@
 trigger:
+  batch: true
   branches:
     include:
-      - "polaris-devops-pipelines/scale-set/*" # will run on any change to scale-set folder, but will only update the scale-set if any changes are merged into "main"
+      - "*" # will run on any change, but will only update the scale-set if any changes are merged into "main"
+  paths:
+    include:
+      - polaris-devops-pipelines/scale-set/*
 
 schedules:
   - cron: "0 0 * * 0" # Weekly at Sunday night - ensure the build agent image is up-to-date
