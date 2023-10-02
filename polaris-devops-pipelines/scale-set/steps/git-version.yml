@@ -3,17 +3,14 @@
     fetchDepth: 0
     persistCredentials: true
     
-  - task: gitversion/setup@0
+  - task: GitVersion.gitversion-preview.gitversion-task.GitVersion@5
     displayName: Install GitVersion
     inputs:
-      versionSpec: "5.9.x"
-
-  - task: gitversion/execute@0
-    displayName: Determine Version
-    inputs:
+      versionSpec: "5.x"
+      includePrerelease: true
       useConfigFile: true
       configFilePath: ./git-version-config.yml
-
+      
   - bash: |
       echo '##vso[task.setvariable variable=assemblyVersion]$(GitVersion.AssemblySemVer)'
       echo '##vso[task.setvariable variable=packageVersion]$(GitVersion.MajorMinorPatch)'
