@@ -15,6 +15,10 @@
     <DefineConstants>$(DefineConstants);INTEGRATION_TESTS</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);INTEGRATION_TESTS</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.55.0" />
@@ -41,4 +45,7 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>	
 </Project>

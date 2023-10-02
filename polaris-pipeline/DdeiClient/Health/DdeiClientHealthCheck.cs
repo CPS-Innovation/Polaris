@@ -1,4 +1,5 @@
-﻿using Common.Health;
+﻿using Common.Extensions;
+using Common.Health;
 using DdeiClient.Services.Contracts;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -7,9 +8,6 @@ namespace DDei.Health
     public class DdeiClientHealthCheck : AuthenticatedHealthCheck, IHealthCheck
     {
         private readonly IDdeiClient _ddeiClient;
-
-        static readonly string _testCaseUrn = "14XD1000422";
-        static readonly string _testCaseId = "2148897";
 
         public DdeiClientHealthCheck(IDdeiClient ddeiClient)
         {
@@ -22,9 +20,12 @@ namespace DDei.Health
         {
             try
             {
-                var response = await _ddeiClient.ListDocumentsAsync(_testCaseUrn, _testCaseId, CmsAuthValue, CorrelationId);
+                var response = await _ddeiClient.GetStatus().WithTimeout(TimeSpan.FromSeconds(10));
 
-                return HealthCheckResult.Healthy($"{response.Length} document(s) for test case");
+                if (string.IsNullOrWhiteSpace(response))
+                    return HealthCheckResult.Unhealthy("Null or empty response");
+
+                return HealthCheckResult.Healthy($"DDEI Status : {response}");
             }
             catch (Exception ex)
             {
