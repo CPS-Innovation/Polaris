@@ -27,5 +27,6 @@ mockCmsServiceSubnet               = "10.7.197.48/28"
 polarisAmplsSubnet                 = "10.7.197.96/27"
 polarisPipelineNetheriteSubnet     = "10.7.197.128/27"
 polarisPipelineSa2Subnet           = "10.7.197.160/27"
+polarisScaleSetSubnet              = "10.7.197.192/27"
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Development"
