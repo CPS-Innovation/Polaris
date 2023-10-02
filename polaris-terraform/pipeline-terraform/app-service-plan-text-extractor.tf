@@ -8,5 +8,6 @@ resource "azurerm_service_plan" "asp_polaris_ep_text_extractor" {
   os_type                      = "Linux"
   sku_name                     = var.pipeline_component_service_plans.text_extractor_plan_sku
   tags                         = local.common_tags
+  zone_balancing_enabled       = true
   maximum_elastic_worker_count = var.pipeline_component_service_plans.text_extractor_maximum_instances
 }

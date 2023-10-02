@@ -29,6 +29,6 @@ pipeline_event_hub_settings = {
   capacity = 1
 }
 
-sliding_clear_down_enabled      = false
-sliding_clear_down_input_days   = 31
-hte_feature_flag                = true
+sliding_clear_down_enabled    = false
+sliding_clear_down_input_days = 31
+hte_feature_flag              = true
