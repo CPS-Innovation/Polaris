@@ -18,7 +18,7 @@ variables:
   - group: polaris-build-agent
     
 stages:
-  - stage: determine_version
+  - stage: create_version
     displayName: Determine version number
     jobs:
       - job: determine_version
@@ -28,9 +28,9 @@ stages:
             
   - stage: image_builder
     displayName: DEV - Build Custom VM Image
-    dependsOn: determine_version
+    dependsOn: create_version
     variables:
-      versionSha: $[ stageDependencies.determine_version.determine_version.outputs['versioning.versionShortSha'] ]
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
       - job: build
         displayName: Build Image
@@ -95,11 +95,11 @@ stages:
   - stage: update_scale_set
     displayName: Configure Scale Set with new image
     dependsOn:
-      - determine_version
+      - create_version
       - image_builder
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     variables:
-      versionSha: $[ stageDependencies.determine_version.determine_version.outputs['versioning.versionShortSha'] ]
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
       - job: activate
         displayName: Activate new image
