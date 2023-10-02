@@ -9,7 +9,7 @@ apt-get upgrade -y
 
 echo '==== Install dependencies ===='
 DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
-apt-get install -y wget apt-utils apt-transport-https software-properties-common git ca-certificates curl iputils-ping jq lsb-release zip unzip
+apt-get install -y wget apt-utils apt-transport-https software-properties-common git gnupg ca-certificates curl iputils-ping jq lsb-release zip unzip
 apt-get clean
 
 echo '==== PowerShell ===='
@@ -29,8 +29,9 @@ echo '==== dotnet 7 ===='
 apt-get install -y dotnet-sdk-7.0
 
 echo '==== Node.js and Python3 ===='
+apt-get update -yq
 curl -sL https://deb.nodesource.com/setup_18.x | bash
-apt-get install -y npm
+apt-get install -y npm 
 apt-get install -y nodejs
 apt-get install -y build-essential
 apt-get install -y python3-pip

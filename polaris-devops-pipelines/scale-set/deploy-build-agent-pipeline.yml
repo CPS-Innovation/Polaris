@@ -1,0 +1,96 @@
+﻿trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+schedules:
+  - cron: "0 0 * * 0" # Weekly at Sunday night - ensure the build agent image is up-to-date
+    displayName: Weekly Sunday night build-agent refresh
+    branches:
+      include:
+        - main
+    always: true
+    
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-build-agent
+    
+stages:
+  - stage: determine_version
+    displayName: Determine version number
+    jobs:
+      - job: determine_version
+        displayName: Determine version
+        steps:
+          - template: steps/git-version.yml
+            
+  - stage: image_builder
+    displayName: DEV - Build Custom VM Image
+    dependsOn: determine_version
+    variables:
+      versionSha: $[ stageDependencies.determine_version.determine_version.outputs['versioning.versionShortSha'] ]
+    jobs:
+      - job: build
+        displayName: Build Image
+        steps:
+          - bash: |
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              az account set --subscription $ARM_SUBSCRIPTION_ID
+              az group create --location $ARM_LOCATION --name $ARM_RESOURCE_GROUP
+              az storage account create --name $ARM_STORAGE_ACCOUNT --location $ARM_LOCATION --kind StorageV2 --sku Standard_LRS --resource-group $ARM_RESOURCE_GROUP
+            displayName: Create storage account
+            continueOnError: true
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_RESOURCE_GROUP: $(innovation-development-build-agent-resource-group)
+              ARM_STORAGE_ACCOUNT: $(innovation-development-build-agent-storage-account)
+              ARM_LOCATION: $(build-agent-location)
+
+          - task: PackerBuild@1
+            displayName: Build Image with Packer
+            inputs:
+              templateType: "builtin"
+              ConnectedServiceName: $(innovation-development-subscription-name)
+              isManagedImage: true
+              managedImageName: "build-agent-$(versionSha)"
+              location: $(build-agent-location)
+              storageAccountName: $(innovation-development-build-agent-storage-account)
+              azureResourceGroup: $(innovation-development-build-agent-resource-group)
+              baseImageSource: "default"
+              baseImage: "Canonical:0001-com-ubuntu-server-focal:22_04-lts:linux"
+              packagePath: "pipelines/deployment"
+              deployScriptPath: "build-agent.sh"
+              additionalBuilderParameters: '{"vm_size":"Standard_D2_v3"}'
+              skipTempFileCleanupDuringVMDeprovision: false
+              
+          - bash: |
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              az account set --subscription $ARM_SUBSCRIPTION_ID
+              az resource delete --ids $(az resource list --tag Temporary=True --query "[].id" --output tsv)
+            displayName: Remove older build-agent versioned images
+            continueOnError: true
+            failOnStandardError: false
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              
+          - bash: |
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              az account set --subscription $ARM_SUBSCRIPTION_ID
+              az tag create --resource-id /subscriptions/$ARM_SUBSCRIPTION_ID/resourcegroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha) --tags Temporary=True
+            displayName: Tag image
+            continueOnError: true
+            failOnStandardError: false
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              ARM_RESOURCE_GROUP: $(innovation-development-build-agent-resource-group)
