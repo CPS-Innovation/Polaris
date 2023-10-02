@@ -59,7 +59,7 @@ stages:
               storageAccountName: $(innovation-development-build-agent-storage-account)
               azureResourceGroup: $(innovation-development-build-agent-resource-group)
               baseImageSource: "default"
-              baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:latest"
+              baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
               packagePath: "polaris-devops-pipelines/scale-set"
               deployScriptPath: "build-agent.sh"
               additionalBuilderParameters: '{"vm_size":"Standard_D2_v3"}'
