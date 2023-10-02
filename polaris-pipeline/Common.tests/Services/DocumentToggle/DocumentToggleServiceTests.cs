@@ -71,7 +71,20 @@ namespace Common.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "pdf", "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(
+                new PolarisDocumentId("DOC-ID"),
+                1,
+                "2",
+                3L,
+                new DocumentTypeDto(),
+                "foo/bar.pdf",
+                "pdf",
+                "fileCreated",
+                "filename",
+                "title",
+                true,
+                2,
+                new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
             // Assert
@@ -84,7 +97,20 @@ namespace Common.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "pdf", "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(
+                new PolarisDocumentId("DOC-ID"),
+                1,
+                "2",
+                3L,
+                new DocumentTypeDto(),
+                "foo/bar.pdf",
+                "pdf",
+                "fileCreated",
+                "filename",
+                "title",
+                true,
+                2,
+                new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.Ok;
 
             // Assert
@@ -97,7 +123,20 @@ namespace Common.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "pdf", "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(
+                new PolarisDocumentId("DOC-ID"),
+                1,
+                "2",
+                3L,
+                new DocumentTypeDto(),
+                "foo/bar.pdf",
+                "pdf",
+                "fileCreated",
+                "filename",
+                "title",
+                true,
+                2,
+                new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
 
@@ -111,7 +150,20 @@ namespace Common.tests.Services.DocumentToggle
         {
             // Arrange
             var documentToggleService = new DocumentToggleService("");
-            var document = new CmsDocumentEntity(new PolarisDocumentId("DOC-ID"), 1, "2", 3L, new DocumentTypeDto(), "pdf", "fileCreated", "filename", "title", true, 2, new PresentationFlagsDto());
+            var document = new CmsDocumentEntity(
+                new PolarisDocumentId("DOC-ID"),
+                1,
+                "2",
+                3L,
+                new DocumentTypeDto(),
+                "foo/bar.pdf",
+                "pdf",
+                "fileCreated",
+                "filename",
+                "title",
+                true,
+                2,
+                new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.Ok;
 
             // Assert
