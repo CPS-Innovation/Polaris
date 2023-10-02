@@ -1,7 +1,8 @@
 ﻿steps:
   - checkout: self
     fetchDepth: 0
-
+    persistCredentials: true
+    
   - task: gitversion/setup@0
     displayName: Install GitVersion
     inputs:
