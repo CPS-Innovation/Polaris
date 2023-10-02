@@ -39,7 +39,9 @@ export const ResultsModal: React.FC<Props> = ({
     PAUSE_PERIOD_MS,
     MANDATORY_WAIT_PERIOD
   );
-
+  if (!searchState.isResultsVisible) {
+    return null;
+  }
   if (waitStatus === "wait" && searchState.submittedSearchTerm) {
     return (
       <Modal

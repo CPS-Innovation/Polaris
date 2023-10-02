@@ -12,6 +12,10 @@
   border: 0;
 }
 
+.button:disabled {
+  cursor: none;
+  opacity: 0.5;
+}
 .button:after {
   content: "";
   position: absolute;
@@ -23,4 +27,9 @@
 
   /* The points are: (left top: x y, right top: x y, center bottom: x y) */
   clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.redactionModal {
+  width: 300px;
+  background-color: #fff;
+  border: 1px solid #000;
 }

@@ -22,7 +22,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [buttonOpen, setButtonOpen] = useState(false);
   const buttonOpenRef = useRef<boolean>(false);
-  useFocusTrap("#dropdown-panel");
+  // useFocusTrap("#dropdown-panel");
 
   const handleBtnClick = (id: string) => {
     setButtonOpen(false);

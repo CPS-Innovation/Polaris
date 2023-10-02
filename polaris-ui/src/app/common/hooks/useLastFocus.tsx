@@ -4,13 +4,13 @@ export const useLastFocus = (defaultFocus?: HTMLElement) => {
   useEffect(() => {
     const ref = lastFocusElementRef.current;
     return () => {
-      if (ref && document.contains(ref)) {
-        (ref as HTMLElement).focus();
-      } else {
-        if (defaultFocus) {
-          defaultFocus.focus();
-        }
-      }
+      // if (ref && document.contains(ref)) {
+      //   (ref as HTMLElement).focus();
+      // } else {
+      //   if (defaultFocus) {
+      //     defaultFocus.focus();
+      //   }
+      // }
     };
   }, [defaultFocus]);
 };

@@ -80,12 +80,6 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     return false;
   };
 
-  const getRedactBtn = useCallback(() => {
-    const activeTabPanel = document.querySelector("#active-tab-panel");
-    const redactBtn = activeTabPanel?.querySelector("#btn-redact");
-    return redactBtn;
-  }, []);
-
   const getDocumentPanel = useCallback(() => {
     return document.querySelector(`#active-tab-panel`);
   }, []);
@@ -125,14 +119,6 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     (e: KeyboardEvent) => {
       //this is temporary hack supply the keycode from console, for any further live test of key combination.
       const WORD_FOCUS_CODE = (window as any).wordFocusCode ?? "Comma";
-
-      if (e.code === TAB_KEY_CODE || e.key === TAB_KEY_CODE) {
-        const redactBtn = getRedactBtn();
-        if (redactBtn) {
-          (redactBtn as HTMLElement).focus();
-          e.preventDefault();
-        }
-      }
       if (!(e.code === WORD_FOCUS_CODE || e.key === WORD_FOCUS_KEY)) {
         return;
       }
@@ -148,7 +134,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
         setToggleRefresh((toggleRefresh) => !toggleRefresh);
       }
     },
-    [getRedactBtn, keyPress, sortedSpanElements.length]
+    [keyPress, sortedSpanElements.length]
   );
   // reset on tab change.
   useEffect(() => {

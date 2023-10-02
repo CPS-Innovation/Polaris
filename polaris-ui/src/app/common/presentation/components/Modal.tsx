@@ -28,6 +28,8 @@ export const Modal: React.FC<Props> = ({
     //  if we are hiding the modal. But see following comment....
     htmlElement.classList.remove(classes.stopHtmlScroll);
   }
+
+  console.log("hiiiiiiii Modal....");
   useLastFocus();
   useFocusTrap();
   useEffect(() => {
