@@ -9,7 +9,7 @@
       versionSpec: "5.x"
       includePrerelease: true
       useConfigFile: true
-      configFilePath: ./git-version-config.yml
+      configFilePath: polaris-devops-pipelines/scale-set/steps/git-version-config.yml
       
   - bash: |
       echo '##vso[task.setvariable variable=assemblyVersion]$(GitVersion.AssemblySemVer)'
