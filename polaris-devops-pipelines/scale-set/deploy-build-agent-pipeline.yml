@@ -113,6 +113,7 @@ stages:
               az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
               az account set --subscription $ARM_SUBSCRIPTION_ID
               az vmss update --resource-group $ARM_RESOURCE_GROUP --name polarisdevagentspool --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
+              az vmss update-instances --instance-ids * --name polarisdevagentspool --resource-group $ARM_RESOURCE_GROUP
             displayName: Run script
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
