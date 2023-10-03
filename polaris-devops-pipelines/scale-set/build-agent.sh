@@ -1,10 +1,4 @@
-﻿echo '==== Cleaning up inherited package sources first ===='
-sudo apt remove 'dotnet*'
-sudo apt remove 'aspnetcore*'
-sudo rm /etc/apt/sources.list.d/microsoft-prod.list
-sudo apt update
-
-echo '==== Add Microsoft package source ===='
+﻿echo '==== Add Microsoft package source ===='
 wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i ./packages-microsoft-prod.deb
 rm ./packages-microsoft-prod.deb
@@ -15,6 +9,12 @@ sudo apt upgrade -y
 
 echo '==== Install dependencies ===='
 DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt -y install tzdata
+
+echo '==== Cleaning up inherited package sources first ===='
+sudo apt remove 'dotnet*'
+sudo apt remove 'aspnetcore*'
+sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+sudo apt update
 
 echo '==== dotnet 3.1 ===='
 # dotnet 3.1 is used by azure devops itself
