@@ -10,10 +10,6 @@ type Props = {
 export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
   const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
-  useEffect(() => {
-    console.log("helloooo");
-  }, []);
-
   const items = [
     {
       children: "Select Redaction type",
@@ -29,7 +25,7 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
     },
   ];
   return (
-    <div id="redact-modal" className={classes.redactionModal}>
+    <div id="redact-modal" role="dialog" aria-modal="true" className={classes.redactionModal}>
       <Select
         data-testid="select-result-order"
         value={redactionType}
