@@ -29,7 +29,6 @@ export const Modal: React.FC<Props> = ({
     htmlElement.classList.remove(classes.stopHtmlScroll);
   }
 
-  console.log("hiiiiiiii Modal....");
   useLastFocus();
   useFocusTrap();
   useEffect(() => {

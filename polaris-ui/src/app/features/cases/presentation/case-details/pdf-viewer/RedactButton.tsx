@@ -25,7 +25,12 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
     },
   ];
   return (
-    <div id="redact-modal" role="dialog" aria-modal="true" className={classes.redactionModal}>
+    <div
+      id="redact-modal"
+      role="dialog"
+      aria-modal="true"
+      className={classes.redactionModal}
+    >
       <Select
         data-testid="select-result-order"
         value={redactionType}
@@ -35,7 +40,6 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
         }}
         onChange={(ev) => {
           setRedactionType(ev.target.value);
-          console.log("ev.target.value", ev.target.value);
         }}
       />
       <button
