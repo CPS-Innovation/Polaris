@@ -75,7 +75,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       id="document-tabs"
-      className={`${classes.tabsWrapper}`}
+      className={`${classes.tabsWrapper} ${classes.contentArea}`}
     >
       <div className={`${classes.arrowBtnsWrapper}`}>
         <LinkButton
