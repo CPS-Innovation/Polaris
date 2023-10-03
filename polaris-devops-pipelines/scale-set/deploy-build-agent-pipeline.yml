@@ -101,7 +101,8 @@ stages:
     dependsOn:
       - create_version
       - image_builder
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: succeeded()
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
