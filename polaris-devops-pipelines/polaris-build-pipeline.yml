@@ -20,14 +20,18 @@ trigger:
        
 pr: none
   
+variables:
+  - group: polaris-global
+  - name: buildConfiguration
+    value: "Release"
+  - name: majorMinorVersion
+    value: "1.0"
+  - name: semanticVersion
+    value: "$[counter(variables['majorMinorVersion'], 1)]"
+    
 pool:
   name: $(dev-build-agent)
   
-variables:
-  buildConfiguration: "Release"
-  majorMinorVersion: 1.0
-  semanticVersion: $[counter(variables['majorMinorVersion'], 1)]
-    
 stages:
   - stage: Determine_Changes
     displayName: Determine Changes
