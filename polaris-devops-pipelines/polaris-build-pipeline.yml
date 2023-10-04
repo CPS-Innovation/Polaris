@@ -20,6 +20,9 @@ trigger:
        
 pr: none
   
+pool:
+  name: $(dev-build-agent)
+  
 variables:
   buildConfiguration: "Release"
   majorMinorVersion: 1.0
@@ -30,8 +33,6 @@ stages:
     displayName: Determine Changes
     jobs:
       - job: Generate_Diff
-        pool:
-          vmImage: ubuntu-latest
         steps:
           - task: PowerShell@2
             inputs:
@@ -393,8 +394,6 @@ stages:
       runUICodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
     jobs:
       - job: Build_Artifacts
-        pool:
-          vmImage: ubuntu-latest
         steps:
           - task: PublishPipelineArtifact@1
             displayName: "Publish pipeline scripts"
