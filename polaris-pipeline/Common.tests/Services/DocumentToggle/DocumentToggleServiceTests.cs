@@ -229,10 +229,12 @@ namespace Common.tests.Services.DocumentToggle
             // Arrange
             var documentToggleService = new DocumentToggleService(configContent);
 
-            var document = new CmsDocumentDto();
-            document.FileExtension = inputDocumentExtension;
-            document.CmsDocType = new DocumentTypeDto();
-            document.CmsDocType.DocumentTypeId = inputDocumentCmsType;
+            var document = new CmsDocumentDto{
+              FileExtension = inputDocumentExtension,
+              CmsDocType = new DocumentTypeDto{
+                DocumentTypeId = inputDocumentCmsType
+              },
+            };
 
             // Act
             var presentationFlags = documentToggleService.GetDocumentPresentationFlags(document);

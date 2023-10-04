@@ -259,7 +259,7 @@ namespace Ddei.Mappers
             };
         }
 
-        private bool AreStringsEqual(string a, string b) => 
+        private bool AreStringsEqual(string a, string b) =>
         (
             string.IsNullOrEmpty(a) && string.IsNullOrEmpty(b))
             || string.Equals(a, b, StringComparison.CurrentCultureIgnoreCase
