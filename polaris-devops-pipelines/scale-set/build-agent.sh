@@ -80,10 +80,7 @@ sudo apt-get install -y xvfb
 sudo apt-get install -y python3-pip
 sudo apt-get clean
 
-sudo apt-get update
-sudo apt-get install dnf
-sudo dnf install -y mono-complete
-sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-sudo chmod +x /usr/local/bin/nuget
+sudo apt-get update -yq
+sudo apt-get install -y nuget
 nuget install Microsoft.ApplicationInsights
 sudo apt-get clean
