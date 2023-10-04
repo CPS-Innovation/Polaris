@@ -84,5 +84,5 @@ echo '==== Installing NuGet via Mono and Microsoft.ApplicationInsights ===='
 sudo apt-get install -y mono-complete
 sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
 sudo chmod +x /usr/local/bin/nuget.exe
-mono nuget.exe install Microsoft.ApplicationInsights
+sudo mono nuget.exe install Microsoft.ApplicationInsights
 sudo apt-get clean
