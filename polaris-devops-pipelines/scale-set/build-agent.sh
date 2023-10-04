@@ -28,6 +28,7 @@ sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
 
 echo '==== PowerShell ===='
 sudo snap install powershell --classic
+sudo apt-get update -y && sudo apt-get install -y powershell
 
 echo '==== Utils ===='
 sudo apt-get update -yq
