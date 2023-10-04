@@ -81,8 +81,11 @@ sudo apt-get install -y python3-pip
 sudo apt-get clean
 
 echo '==== Installing NuGet via Mono and Microsoft.ApplicationInsights ===='
-sudo apt-get install -y mono-complete
-sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-sudo chmod +x /usr/local/bin/nuget
-sudo mono nuget install Microsoft.ApplicationInsights
-sudo apt-get clean
+#sudo apt-get install -y mono-complete
+#sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+#sudo chmod +x /usr/local/bin/nuget
+#sudo mono nuget install Microsoft.ApplicationInsights
+#sudo apt-get clean
+sudo apt update -yq
+sudo apt install nuget
+sudo nuget install Microsoft.ApplicationInsights
