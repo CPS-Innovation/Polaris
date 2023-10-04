@@ -6,19 +6,24 @@
     outline: 0.2rem solid #ffdd00;
   }
 }
+
 .tabsWrapper {
   display: flex;
+  position: relative;
   padding-top: 0.3125rem;
-  overflow-y: hidden;
-  overflow-x: auto;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 0.0625rem solid $govuk-border-colour;
 }
 .tabsList {
   display: flex;
-  align-items: flex-end;
-  align-content: baseline;
-  margin-bottom: 0;
+  justify-content: flex-start;
+  align-items: baseline;
   padding: 0;
+  width: 100%;
+  margin: 0 2.8rem 0 3.4rem;
+  overflow-y: hidden;
+  overflow-x: auto;
 }
 
 .activeTab {
@@ -26,8 +31,7 @@
   border: 0.0625rem solid $govuk-border-colour;
   border-bottom: none;
   .tabButton {
-    padding-right: 3.125rem;
-    padding-top: 1.875rem;
+    padding-right: 2.5rem;
   }
 }
 .inactiveTab {
@@ -49,7 +53,7 @@
   display: flex;
   width: 100%;
   white-space: nowrap;
-  padding: 1.25rem;
+  padding: 1.25rem 1rem;
   font-size: 1.1875rem;
   border: none;
   background-color: transparent;
@@ -80,8 +84,8 @@
   background-color: transparent;
   position: absolute;
   border: none;
-  right: 0.9375rem;
-  top: 1.5625rem;
+  right: 0.5rem;
+  top: 1rem;
   padding: 0;
   color: white;
   cursor: pointer;
@@ -94,8 +98,54 @@
   }
 }
 
+.arrowBtnsWrapper {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 1.22rem;
+  left: 0.3125rem;
+}
+
+.tabNextButton,
+.tabPreviousButton {
+  padding: 0.3125rem 0;
+  margin: 0;
+  width: 100%;
+  svg {
+    fill: #1d70b8;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    svg {
+      fill: #b1b4b6;
+    }
+  }
+  &:hover:not(:disabled) {
+    svg {
+      fill: #fff;
+    }
+  }
+}
+
+.tabPreviousButton {
+  svg {
+    transform: rotate(90deg);
+  }
+}
+.tabNextButton {
+  svg {
+    transform: rotate(-90deg);
+  }
+}
+
 .contentArea {
   &:focus {
     outline: 0.2rem solid #ffdd00;
   }
+}
+
+.tabsDropDownWrapper {
+  position: absolute;
+  top: 1.1rem;
+  right: 0.3125rem;
 }

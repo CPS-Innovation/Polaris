@@ -867,6 +867,96 @@ describe("case details page", () => {
       cy.focused().should("have.id", "side-panel");
     });
   });
+
+  describe("Document Tabs", () => {
+    it("The previous and next tab btn should be disabled,when there no more tabs to go on their side ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("btn-tab-previous").should("be.disabled");
+      cy.findByTestId("btn-tab-next").should("be.disabled");
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("btn-tab-previous").should("not.be.disabled");
+      cy.findByTestId("btn-tab-next").should("be.disabled");
+      cy.findByTestId("btn-tab-previous").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("btn-tab-previous").should("be.disabled");
+      cy.findByTestId("btn-tab-next").should("not.be.disabled");
+    });
+
+    it("Should disable the tabsDropdown button, if there is only one tab opened and enable if more than one tab is opened", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tabs-dropdown").should("be.disabled");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown").should("not.be.disabled");
+    });
+
+    it("Should open and close the dropdown panel, when the  dropdown button is clicked ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tabs-dropdown").should("be.disabled");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown").should("not.be.disabled");
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+    });
+
+    it("Should be able make a tab active, by clicking on the open document link buttons from the dropdown panel and link button for current active tab should be disabled", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("not.be.disabled");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("CM01")
+        .should("be.disabled");
+      cy.findByTestId("tabs-dropdown-panel").contains("MCLOVEMG3").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("be.disabled");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("CM01")
+        .should("not.be.disabled");
+    });
+
+    it("Should be able close the dropdown panel when you press 'escape' key  or click outside of the panel", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("not.be.disabled");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("CM01")
+        .should("be.disabled");
+      cy.realPress("Escape");
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+    });
+  });
 });
 
 export {};

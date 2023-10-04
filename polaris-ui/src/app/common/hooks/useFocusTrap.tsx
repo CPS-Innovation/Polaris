@@ -1,11 +1,11 @@
 import { useEffect, useCallback, useState } from "react";
 
-export const useFocusTrap = () => {
+export const useFocusTrap = (id: string = "#modal") => {
   const [start, setStart] = useState(false);
 
   const getTabbableElements = () => {
     const tabbableElements = document
-      .querySelector("#modal")
+      .querySelector(id)
       ?.querySelectorAll(
         'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"], summary:not([disabled])'
       );

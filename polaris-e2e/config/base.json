@@ -22,7 +22,6 @@
   "TARGET_PEOPLE_DOC_NAME": "e2e-people",
   "TARGET_NOT_OCR_PROCESSED_DOCUMENT_NAME": "doc-toggle-not-redactable-on-ocr",
   "TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-doc-type",
-  "TARGET_NOT_CORRECT_FILE_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-file-type",
   "TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-checked-out",
   "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable",
 
