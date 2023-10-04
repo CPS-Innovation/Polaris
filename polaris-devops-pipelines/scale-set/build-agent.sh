@@ -79,3 +79,9 @@ sudo apt install -y xauth
 sudo apt install -y xvfb
 sudo apt install -y python3-pip
 sudo apt clean
+
+sudo yum install -y mono-complete
+sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
+sudo chmod +x /usr/local/bin/nuget
+nuget install Microsoft.ApplicationInsights
+sudo apt clean
