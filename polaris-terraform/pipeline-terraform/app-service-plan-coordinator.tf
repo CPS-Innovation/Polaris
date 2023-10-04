@@ -2,6 +2,7 @@
 
 resource "azurerm_service_plan" "asp_polaris_pipeline_ep_coordinator" {
   #checkov:skip=CKV_AZURE_212:Ensure App Service has a minimum number of instances for fail over
+  #checkov:skip=CKV_AZURE_225:Ensure the App Service Plan is zone redundant
   name                         = "asp-coordinator-ep-${local.resource_name}"
   location                     = azurerm_resource_group.rg.location
   resource_group_name          = azurerm_resource_group.rg.name

@@ -2,10 +2,8 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain;
-using coordinator.Functions.ActivityFunctions.Document;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Document
 {
@@ -15,8 +13,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         private readonly ITextExtractorClient _textExtractorClient;
 
         public ExtractText(IPolarisBlobStorageService blobStorageService,
-            ITextExtractorClient textExtractorClient,
-            ILogger<GeneratePdf> logger)
+            ITextExtractorClient textExtractorClient)
         {
             _blobStorageService = blobStorageService;
             _textExtractorClient = textExtractorClient;

@@ -69,8 +69,7 @@ namespace Common.Clients.Tests.Clients
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
-                mockJsonConvertWrapper.Object,
-                mockRedactionClientLogger.Object);
+                mockJsonConvertWrapper.Object);
         }
 
         [Fact]

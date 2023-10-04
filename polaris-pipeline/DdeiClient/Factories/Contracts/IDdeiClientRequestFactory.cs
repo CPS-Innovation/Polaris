@@ -20,7 +20,9 @@ namespace Ddei.Factories.Contracts
 
         HttpRequestMessage CreateDocumentRequest(DdeiCmsDocumentArgDto arg);
 
-        HttpRequestMessage CreateUploadPdfRequest(DdeiCmsDocumentArgDto arg, Stream stream);
+        HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiCmsFileStoreArgDto arg);
 
+        HttpRequestMessage CreateUploadPdfRequest(DdeiCmsDocumentArgDto arg, Stream stream);
+        HttpRequestMessage CreateStatusRequest();
     }
 }

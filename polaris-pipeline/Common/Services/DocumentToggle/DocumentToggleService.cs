@@ -186,8 +186,8 @@ namespace Common.Services.DocumentToggle
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.FileType
                         && (
-                          (def.Identifier == Domain.Constants.Wildcard ||
-                            def.Identifier.Equals(document.FileExtension, StringComparison.InvariantCultureIgnoreCase))));
+                          def.Identifier == Domain.Constants.Wildcard ||
+                            def.Identifier.Equals(document.FileExtension, StringComparison.InvariantCultureIgnoreCase)));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
         }
@@ -197,8 +197,8 @@ namespace Common.Services.DocumentToggle
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.DocType
                         && (
-                          (def.Identifier == Domain.Constants.Wildcard ||
-                            def.Identifier.Equals(document.CmsDocType.DocumentTypeId, StringComparison.InvariantCultureIgnoreCase))));
+                          def.Identifier == Domain.Constants.Wildcard ||
+                            def.Identifier.Equals(document.CmsDocType.DocumentTypeId, StringComparison.InvariantCultureIgnoreCase)));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
         }
