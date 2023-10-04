@@ -80,12 +80,9 @@ sudo apt-get install -y xvfb
 sudo apt-get install -y python3-pip
 sudo apt-get clean
 
-echo '==== Installing NuGet and Microsoft.ApplicationInsights ===='
-sudo apt-get update
-#sudo apt-get -y install nuget
-sudo apt-get install yum
-sudo yum install -y mono-complete
+echo '==== Installing NuGet via Mono and Microsoft.ApplicationInsights ===='
+sudo apt-get install -y mono-complete
 sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-sudo chmod +x /usr/local/bin/nuget
-nuget install Microsoft.ApplicationInsights
+sudo chmod +x /usr/local/bin/nuget.exe
+mono nuget.exe install Microsoft.ApplicationInsights
 sudo apt-get clean
