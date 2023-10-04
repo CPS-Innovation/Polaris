@@ -18,16 +18,16 @@ sudo apt-get update
 
 echo '==== dotnet 3.1 ===='
 # dotnet 3.1 is used by azure devops itself
-sudo apt-get update && sudo apt-get install -y dotnet-sdk-3.1
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-3.1
 
 echo '==== dotnet 6 ===='
-sudo apt-get update && sudo apt-get install -y dotnet-sdk-6.0
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
 
 echo '==== dotnet 7 ===='
-sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
 
 echo '==== PowerShell ===='
-sudo apt-get update && apt install -y powershell
+sudo snap install powershell --classic
 
 echo '==== Utils ===='
 sudo apt-get update -yq
