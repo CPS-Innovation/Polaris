@@ -39,85 +39,44 @@ stages:
       - job: build
         displayName: Build Image
         steps:
-          - bash: |
-              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-              az account set --subscription $ARM_SUBSCRIPTION_ID
-              az group create --location $ARM_LOCATION --name $ARM_RESOURCE_GROUP
-              az storage account create --name $ARM_STORAGE_ACCOUNT --location $ARM_LOCATION --kind StorageV2 --sku Standard_LRS --resource-group $ARM_RESOURCE_GROUP
-            displayName: Create storage account
-            continueOnError: true
-            env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-              ARM_RESOURCE_GROUP: $(innovation-development-build-agent-resource-group)
-              ARM_STORAGE_ACCOUNT: $(innovation-development-build-agent-storage-account)
-              ARM_LOCATION: $(build-agent-location)
-
-          - task: PackerBuild@1
-            displayName: Build Image with Packer
-            inputs:
-              templateType: "builtin"
-              ConnectedServiceName: "Innovation-Development: All-Information Management"
-              isManagedImage: true
-              managedImageName: "build-agent-$(versionSha)"
+          - template: steps/create-build-agent-image.yml
+            parameters:
+              clientId: $(innovation-development-spn-client-id)
+              clientSecret: $(innovation-development-spn-secret)
+              tenantId: (innovation-development-spn-tenant-id)
+              subscriptionId: $(innovation-development-subscription-id)
+              subscriptionName: "Innovation-Development: All-Information Management"
+              resourceGroup: $(innovation-development-build-agent-resource-group)
+              storageAccount: $(innovation-development-build-agent-storage-account)
               location: $(build-agent-location)
-              storageAccountName: $(innovation-development-build-agent-storage-account)
-              azureResourceGroup: $(innovation-development-build-agent-resource-group)
-              baseImageSource: "default"
+              versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
-              packagePath: "polaris-devops-pipelines/scale-set"
-              deployScriptPath: "build-agent.sh"
-              additionalBuilderParameters: '{"vm_size":"Standard_D2_v3"}'
-              skipTempFileCleanupDuringVMDeprovision: false
+              additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
               
-          - bash: |
-              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-              az account set --subscription $ARM_SUBSCRIPTION_ID
-              az resource delete --ids $(az resource list --tag Temporary=True --query "[].id" --output tsv)
-            displayName: Remove older build-agent versioned images
-            continueOnError: true
-            env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-              
-          - bash: |
-              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-              az account set --subscription $ARM_SUBSCRIPTION_ID
-              az tag create --resource-id /subscriptions/$ARM_SUBSCRIPTION_ID/resourcegroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha) --tags Temporary=True
-            displayName: Tag image
-            env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-              ARM_RESOURCE_GROUP: $(innovation-development-build-agent-resource-group)
-              
-  - stage: update_scale_set
-    displayName: Configure Scale Set with new image
+  - stage: update_image_gallery_and_scale_set
+    displayName: Update Image Gallery with new image and Update Scale Sets
     dependsOn:
       - create_version
       - image_builder
-    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    condition: succeeded()
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
-      - job: activate
-        displayName: Activate new image
+      - job: update
+        displayName: Update Image Gallery resource
         steps:
-          - bash: |
-              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-              az account set --subscription $ARM_SUBSCRIPTION_ID
-              az vmss update --resource-group $ARM_RESOURCE_GROUP --name polarisdevagentspool --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
-              az vmss update-instances --instance-ids "*" --name polarisdevagentspool --resource-group $ARM_RESOURCE_GROUP --no-wait
-            displayName: Run script
-            env:
-              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
-              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
-              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
-              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
-              ARM_RESOURCE_GROUP: $(innovation-development-build-agent-resource-group)
+          - template: steps/create-build-agent-image.yml
+            parameters:
+              devClientId: $(innovation-development-spn-client-id)
+              devClientSecret: $(innovation-development-spn-secret)
+              tenantId: (innovation-development-spn-tenant-id)
+              devSubscriptionId: $(innovation-development-subscription-id)
+              devResourceGroup: $(innovation-development-build-agent-resource-group)
+              qaClientId: $(innovation-qa-spn-client-id)
+              qaClientSecret: $(innovation-qa-spn-secret)
+              qaSubscriptionId: $(innovation-qa-subscription-id)
+              qaResourceGroup: $(innovation-qa-build-agent-resource-group)
+              prodClientId: $(innovation-prod-spn-client-id)
+              prodClientSecret: $(innovation-prod-spn-secret)
+              prodSubscriptionId: $(innovation-prod-subscription-id)
+              prodResourceGroup: $(innovation-prod-build-agent-resource-group)
+              versionSha: $(versionSha)
