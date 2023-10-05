@@ -31,11 +31,11 @@ steps:
     displayName: Create new image version in the gallery
     continueOnError: true
     env:
-      ARM_CLIENT_ID: ${{ parameters.clientId }}
-      ARM_CLIENT_SECRET: ${{ parameters.clientSecret }}
+      ARM_CLIENT_ID: ${{ parameters.devClientId }}
+      ARM_CLIENT_SECRET: ${{ parameters.devClientSecret }}
       ARM_TENANT_ID: ${{ parameters.tenantId }}
-      ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
-      ARM_RESOURCE_GROUP: ${{ parameters.resourceGroup }}
+      ARM_SUBSCRIPTION_ID: ${{ parameters.devSubscriptionId }}
+      ARM_RESOURCE_GROUP: ${{ parameters.devResourceGroup }}
       ARM_VERSION_SHA: ${{ parameters.versionSha }}
       
   - bash: |
