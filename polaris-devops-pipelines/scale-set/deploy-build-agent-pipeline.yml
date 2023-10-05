@@ -64,7 +64,7 @@ stages:
       - job: update
         displayName: Update Resources
         steps:
-          - template: steps/create-build-agent-image.yml
+          - template: steps/update-image-version.yml
             parameters:
               devClientId: $(innovation-development-spn-client-id)
               devClientSecret: $(innovation-development-spn-secret)
