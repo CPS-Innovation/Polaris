@@ -9,7 +9,6 @@ import {
  * to navigate forward and backward through the document words.
  */
 const WORD_FOCUS_KEY = ",";
-const TAB_KEY_CODE = "Tab";
 export const useDocumentFocus = (activeTabId: string | undefined) => {
   const getTextLayerChildren = () => {
     const textLayers = document
@@ -115,6 +114,17 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     []
   );
 
+  const triggerEscapeKeyPress = useCallback(() => {
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        keyCode: 27,
+        which: 27,
+        code: "Escape",
+      })
+    );
+  }, []);
+
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
       //this is temporary hack supply the keycode from console, for any further live test of key combination.
@@ -173,6 +183,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
       behavior: "smooth",
       block: "center",
     });
+    triggerEscapeKeyPress();
     const range = document.createRange();
     range.selectNodeContents(textToSelect);
     range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
@@ -185,6 +196,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     getDocumentPanel,
     sortedSpanElements,
     sortedSpanElements.length,
+    triggerEscapeKeyPress,
   ]);
 
   useEffect(() => {
