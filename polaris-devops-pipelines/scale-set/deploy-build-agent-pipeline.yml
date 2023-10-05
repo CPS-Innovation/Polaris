@@ -22,10 +22,6 @@ variables:
   - group: polaris-build-agent
   - name: "devSubscriptionName"
     value: "Innovation-Development: All-Information Management"
-  - name: "qaSubscriptionName"
-    value: "Innovation-QA: All-Information Management 2"
-  - name: "prodSubscriptionName"
-    value: "Innovation-Production: All-Information Management 2"
     
 stages:
   - stage: create_version
@@ -72,12 +68,19 @@ stages:
         steps:
           - template: steps/update-image-version.yml
             parameters:
+              devClientId: $(innovation-development-spn-client-id)
+              devClientSecret: $(innovation-development-spn-secret)
+              tenantId: $(innovation-development-spn-tenant-id)
               devSubscriptionId: $(innovation-development-subscription-id)
               devSubscriptionName: $(devSubscriptionName)
               devResourceGroup: $(innovation-development-build-agent-resource-group)
+              qaClientId: $(innovation-qa-spn-client-id)
+              qaClientSecret: $(innovation-qa-spn-secret)
               qaSubscriptionId: $(innovation-qa-subscription-id)
               qaSubscriptionName: $(qaSubscriptionName)
               qaResourceGroup: $(innovation-qa-build-agent-resource-group)
+              prodClientId: $(innovation-prod-spn-client-id)
+              prodClientSecret: $(innovation-prod-spn-secret)
               prodSubscriptionId: $(innovation-prod-subscription-id)
               prodSubscriptionName: $(prodSubscriptionName)
               prodResourceGroup: $(innovation-prod-build-agent-resource-group)

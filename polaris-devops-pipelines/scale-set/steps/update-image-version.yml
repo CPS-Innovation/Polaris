@@ -1,10 +1,17 @@
 ﻿parameters:
+  devClientId: ""
+  devClientSecret: ""
+  tenantId: ""
   devSubscriptionId: ""
   devSubscriptionName: ""
   devResourceGroup: ""
+  qaClientId: ""
+  qaClientSecret: ""
   qaSubscriptionId: ""
   qaSubscriptionName: ""
   qaResourceGroup: ""
+  prodClientId: ""
+  prodClientSecret: ""
   prodSubscriptionId: ""
   prodSubscriptionName: ""
   prodResourceGroup: ""
@@ -29,35 +36,50 @@ steps:
 
         Write-Host "##vso[task.setvariable variable=ImageId;]$imageId"
 
-  - task: AzureCLI@2
+  - bash: |
+      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az account set --subscription $ARM_SUBSCRIPTION_ID
+      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$ARM_IMAGE_ID
+      az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: DEV - Update Scale Set
     condition: succeeded()
-    inputs:
-      azureSubscription: '${{ parameters.devSubscriptionName }}'
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az vmss update --resource-group ${{ parameters.devResourceGroup }} --name ${{ parameters.devAgentPoolName }} --set virtualMachineProfile.storageProfile.imageReference.id=$(ImageId)
-        az vmss update-instances --instance-ids "*" --name ${{ parameters.devAgentPoolName }} --resource-group ${{ parameters.devResourceGroup }} --no-wait
-        
-  - task: AzureCLI@2
+    env:
+      ARM_CLIENT_ID: ${{ parameters.devClientId }}
+      ARM_CLIENT_SECRET: ${{ parameters.devClientSecret }}
+      ARM_TENANT_ID: ${{ parameters.tenantId }}
+      ARM_SUBSCRIPTION_ID: ${{ parameters.devSubscriptionId }}
+      ARM_RESOURCE_GROUP: ${{ parameters.devResourceGroup }}
+      ARM_POOL_NAME: ${{ parameters.devAgentPoolName }}
+      ARM_IMAGE_ID: $(ImageId)
+
+  - bash: |
+      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az account set --subscription $ARM_SUBSCRIPTION_ID
+      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$ARM_IMAGE_ID
+      az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: QA - Update Scale Set
     condition: succeeded()
-    inputs:
-      azureSubscription: '${{ parameters.qaSubscriptionName }}'
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az vmss update --resource-group ${{ parameters.qaResourceGroup }} --name ${{ parameters.qaAgentPoolName }} --set virtualMachineProfile.storageProfile.imageReference.id=$(ImageId)
-        az vmss update-instances --instance-ids "*" --name ${{ parameters.qaAgentPoolName }} --resource-group ${{ parameters.qaResourceGroup }} --no-wait
-        
-  - task: AzureCLI@2
+    env:
+      ARM_CLIENT_ID: ${{ parameters.qaClientId }}
+      ARM_CLIENT_SECRET: ${{ parameters.qaClientSecret }}
+      ARM_TENANT_ID: ${{ parameters.tenantId }}
+      ARM_SUBSCRIPTION_ID: ${{ parameters.qaSubscriptionId }}
+      ARM_RESOURCE_GROUP: ${{ parameters.qaResourceGroup }}
+      ARM_POOL_NAME: ${{ parameters.qaAgentPoolName }}
+      ARM_IMAGE_ID: $(ImageId)
+
+  - bash: |
+      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az account set --subscription $ARM_SUBSCRIPTION_ID
+      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$ARM_IMAGE_ID
+      az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: PROD - Update Scale Set
     condition: succeeded()
-    inputs:
-      azureSubscription: '${{ parameters.prodSubscriptionName }}'
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az vmss update --resource-group ${{ parameters.prodResourceGroup }} --name ${{ parameters.prodAgentPoolName }} --set virtualMachineProfile.storageProfile.imageReference.id=$(ImageId)
-        az vmss update-instances --instance-ids "*" --name ${{ parameters.prodAgentPoolName }} --resource-group ${{ parameters.prodResourceGroup }} --no-wait
+    env:
+      ARM_CLIENT_ID: ${{ parameters.prodClientId }}
+      ARM_CLIENT_SECRET: ${{ parameters.prodClientSecret }}
+      ARM_TENANT_ID: ${{ parameters.tenantId }}
+      ARM_SUBSCRIPTION_ID: ${{ parameters.prodSubscriptionId }}
+      ARM_RESOURCE_GROUP: ${{ parameters.prodResourceGroup }}
+      ARM_POOL_NAME: ${{ parameters.prodAgentPoolName }}
+      ARM_IMAGE_ID: $(ImageId)
