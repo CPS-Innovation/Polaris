@@ -43,7 +43,7 @@ stages:
             parameters:
               clientId: $(innovation-development-spn-client-id)
               clientSecret: $(innovation-development-spn-secret)
-              tenantId: (innovation-development-spn-tenant-id)
+              tenantId: $(innovation-development-spn-tenant-id)
               subscriptionId: $(innovation-development-subscription-id)
               subscriptionName: "Innovation-Development: All-Information Management"
               resourceGroup: $(innovation-development-build-agent-resource-group)
@@ -68,7 +68,7 @@ stages:
             parameters:
               devClientId: $(innovation-development-spn-client-id)
               devClientSecret: $(innovation-development-spn-secret)
-              tenantId: (innovation-development-spn-tenant-id)
+              tenantId: $(innovation-development-spn-tenant-id)
               devSubscriptionId: $(innovation-development-subscription-id)
               devResourceGroup: $(innovation-development-build-agent-resource-group)
               qaClientId: $(innovation-qa-spn-client-id)
