@@ -23,7 +23,7 @@ steps:
       az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
       az account set --subscription $ARM_SUBSCRIPTION_ID
       
-      $imageCreateResult = az sig image-version create --resource-group $ARM_RESOURCE_GROUP --gallery-name polaris_build_agent_gallery --gallery-image-definition polaris_build_agent --gallery-image-version 1.0.$(Build.BuildId) --managed-image /subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$ARM_VERSION_SHA
+      $imageCreateResult = $(az sig image-version create --resource-group $ARM_RESOURCE_GROUP --gallery-name polaris_build_agent_gallery --gallery-image-definition polaris_build_agent --gallery-image-version 1.0.$(Build.BuildId) --managed-image /subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$ARM_VERSION_SHA)
       $imageCreateResultObject = $imageCreateResult | ConvertFrom-Json
       $imageId = $imageCreateResultObject.id
       
