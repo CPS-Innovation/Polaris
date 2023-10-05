@@ -20,7 +20,7 @@ namespace coordinator.TelemetryEvents
         public DateTime RemovedCaseIndexTime;
         public DateTime IndexSettledTime;
         public DateTime BlobsDeletedTime;
-        public DateTime GotTerminateInstancesTime;
+        public DateTime FoundInstancesToTerminateTime;
         public DateTime TerminatedInstancesTime;
         public DateTime EndTime;
         public int TerminatedInstancesCount;
@@ -52,8 +52,8 @@ namespace coordinator.TelemetryEvents
                     { IndexDeletedDurationSeconds, GetDurationSeconds(StartTime, RemovedCaseIndexTime) },
                     { IndexSettledDurationSeconds, GetDurationSeconds(RemovedCaseIndexTime, IndexSettledTime) },
                     { BlobsDeletedDurationSeconds, GetDurationSeconds(IndexSettledTime, BlobsDeletedTime)},
-                    { GetInstancesToTerminateDurationSeconds, GetDurationSeconds(BlobsDeletedTime, GotTerminateInstancesTime) },
-                    { TerminateInstancesDurationSeconds, GetDurationSeconds(GotTerminateInstancesTime, TerminatedInstancesTime) },
+                    { GetInstancesToTerminateDurationSeconds, GetDurationSeconds(BlobsDeletedTime, FoundInstancesToTerminateTime) },
+                    { TerminateInstancesDurationSeconds, GetDurationSeconds(FoundInstancesToTerminateTime, TerminatedInstancesTime) },
                     { PurgedInstancesDurationSeconds, GetDurationSeconds(TerminatedInstancesTime, EndTime) },
                     { nameof(TerminatedInstancesCount), TerminatedInstancesCount },
                 }

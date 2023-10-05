@@ -154,7 +154,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             // Terminate Orchestrations (can't terminate Durable Entities with Netherite backend, but can Purge - see below)
             var terminateOrchestrationQueries = GetOrchestrationQueries(_terminateStatuses, caseIdAsString);
-            telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
+            telemetryEvent.FoundInstancesToTerminateTime = DateTime.UtcNow;
             var terminateOrchestrationInstanceIds = await TerminateOrchestrations(orchestrationClient, terminateOrchestrationQueries, correlationId);
             telemetryEvent.TerminatedInstancesCount = terminateOrchestrationInstanceIds.Count;
             telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
