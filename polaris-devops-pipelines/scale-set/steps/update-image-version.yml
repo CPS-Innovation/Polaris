@@ -3,17 +3,14 @@
   devClientSecret: ""
   tenantId: ""
   devSubscriptionId: ""
-  devSubscriptionName: ""
   devResourceGroup: ""
   qaClientId: ""
   qaClientSecret: ""
   qaSubscriptionId: ""
-  qaSubscriptionName: ""
   qaResourceGroup: ""
   prodClientId: ""
   prodClientSecret: ""
   prodSubscriptionId: ""
-  prodSubscriptionName: ""
   prodResourceGroup: ""
   versionSha: ""
   devAgentPoolName: "polarisdevagentspool"
@@ -22,64 +19,49 @@
 
 
 steps:
-  - task: AzureCLI@2
-    displayName: Create new image version in the gallery
-    condition: succeeded()
-    inputs:
-      azureSubscription: '${{ parameters.devSubscriptionName }}'
-      scriptType: 'pscore'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        $imageCreateResult = az sig image-version create --resource-group ${{ parameters.devResourceGroup }} --gallery-name polaris_build_agent_gallery --gallery-image-definition polaris_build_agent --gallery-image-version 1.0.$(Build.BuildId) --managed-image /subscriptions/${{ parameters.devSubscriptionId }}/resourceGroups/${{ parameters.devResourceGroup }}/providers/Microsoft.Compute/images/build-agent-${{ parameters.versionSha }}
-        $imageCreateResultObject = $imageCreateResult | ConvertFrom-Json
-        $imageId = $imageCreateResultObject.id
-
-        Write-Host "##vso[task.setvariable variable=ImageId;]$imageId"
-
-  - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-      az account set --subscription $ARM_SUBSCRIPTION_ID
-      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$ARM_IMAGE_ID
-      az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
-    displayName: DEV - Update Scale Set
-    condition: succeeded()
-    env:
-      ARM_CLIENT_ID: ${{ parameters.devClientId }}
-      ARM_CLIENT_SECRET: ${{ parameters.devClientSecret }}
-      ARM_TENANT_ID: ${{ parameters.tenantId }}
-      ARM_SUBSCRIPTION_ID: ${{ parameters.devSubscriptionId }}
-      ARM_RESOURCE_GROUP: ${{ parameters.devResourceGroup }}
-      ARM_POOL_NAME: ${{ parameters.devAgentPoolName }}
-      ARM_IMAGE_ID: $(ImageId)
-
-  - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-      az account set --subscription $ARM_SUBSCRIPTION_ID
-      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$ARM_IMAGE_ID
-      az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
-    displayName: QA - Update Scale Set
-    condition: succeeded()
-    env:
-      ARM_CLIENT_ID: ${{ parameters.qaClientId }}
-      ARM_CLIENT_SECRET: ${{ parameters.qaClientSecret }}
-      ARM_TENANT_ID: ${{ parameters.tenantId }}
-      ARM_SUBSCRIPTION_ID: ${{ parameters.qaSubscriptionId }}
-      ARM_RESOURCE_GROUP: ${{ parameters.qaResourceGroup }}
-      ARM_POOL_NAME: ${{ parameters.qaAgentPoolName }}
-      ARM_IMAGE_ID: $(ImageId)
-
-  - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-      az account set --subscription $ARM_SUBSCRIPTION_ID
-      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$ARM_IMAGE_ID
-      az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
-    displayName: PROD - Update Scale Set
-    condition: succeeded()
-    env:
-      ARM_CLIENT_ID: ${{ parameters.prodClientId }}
-      ARM_CLIENT_SECRET: ${{ parameters.prodClientSecret }}
-      ARM_TENANT_ID: ${{ parameters.tenantId }}
-      ARM_SUBSCRIPTION_ID: ${{ parameters.prodSubscriptionId }}
-      ARM_RESOURCE_GROUP: ${{ parameters.prodResourceGroup }}
-      ARM_POOL_NAME: ${{ parameters.prodAgentPoolName }}
-      ARM_IMAGE_ID: $(ImageId)
+  steps:
+    - bash: |
+        az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+        az account set --subscription $ARM_SUBSCRIPTION_ID
+        az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
+        az vmss update-instances --instance-ids "*" --name $ARM_AGENT_POOL --resource-group $ARM_RESOURCE_GROUP --no-wait
+      displayName: DEV - Update Scale Set
+      env:
+        ARM_CLIENT_ID: {{ parameters.devClientId }}
+        ARM_CLIENT_SECRET: {{ parameters.devClientSecret }}
+        ARM_TENANT_ID: {{ parameters.tenantId }}
+        ARM_SUBSCRIPTION_ID: {{ parameters.devSubscriptionId }}
+        ARM_RESOURCE_GROUP: {{ parameters.devResourceGroup }}
+        ARM_AGENT_POOL: {{ parameters.devAgentPoolName }}
+        
+    - bash: |
+        az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+        az account set --subscription $ARM_SUBSCRIPTION_ID
+        az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_DEV_SUBSCRIPTION_ID/resourceGroups/$ARM_DEV_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
+        az vmss update-instances --instance-ids "*" --name $ARM_AGENT_POOL --resource-group $ARM_RESOURCE_GROUP --no-wait
+      displayName: QA - Update Scale Set
+      env:
+        ARM_CLIENT_ID: {{ parameters.qaClientId }}
+        ARM_CLIENT_SECRET: {{ parameters.qaClientSecret }}
+        ARM_TENANT_ID: {{ parameters.tenantId }}
+        ARM_SUBSCRIPTION_ID: {{ parameters.qaSubscriptionId }}
+        ARM_RESOURCE_GROUP: {{ parameters.qaResourceGroup }}
+        ARM_AGENT_POOL: {{ parameters.qaAgentPoolName }}
+        ARM_DEV_SUBSCRIPTION_ID: {{ parameters.devSubscriptionId }}
+        ARM_DEV_RESOURCE_GROUP: {{ parameters.devResourceGroup }}
+        
+    - bash: |
+        az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+        az account set --subscription $ARM_SUBSCRIPTION_ID
+        az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_DEV_SUBSCRIPTION_ID/resourceGroups/$ARM_DEV_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
+        az vmss update-instances --instance-ids "*" --name $ARM_AGENT_POOL --resource-group $ARM_RESOURCE_GROUP --no-wait
+      displayName: PROD - Update Scale Set
+      env:
+        ARM_CLIENT_ID: {{ parameters.prodClientId }}
+        ARM_CLIENT_SECRET: {{ parameters.prodClientSecret }}
+        ARM_TENANT_ID: {{ parameters.tenantId }}
+        ARM_SUBSCRIPTION_ID: {{ parameters.prodSubscriptionId }}
+        ARM_RESOURCE_GROUP: {{ parameters.prodResourceGroup }}
+        ARM_AGENT_POOL: {{ parameters.prodAgentPoolName }}
+        ARM_DEV_SUBSCRIPTION_ID: {{ parameters.devSubscriptionId }}
+        ARM_DEV_RESOURCE_GROUP: {{ parameters.devResourceGroup }}

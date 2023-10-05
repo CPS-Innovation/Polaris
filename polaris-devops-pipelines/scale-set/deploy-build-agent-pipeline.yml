@@ -55,7 +55,7 @@ stages:
               baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
               
-  - stage: update_image_gallery_and_scale_set
+  - stage: update_scale_sets
     displayName: Update All Resources
     dependsOn:
       - create_version
@@ -72,16 +72,13 @@ stages:
               devClientSecret: $(innovation-development-spn-secret)
               tenantId: $(innovation-development-spn-tenant-id)
               devSubscriptionId: $(innovation-development-subscription-id)
-              devSubscriptionName: $(devSubscriptionName)
               devResourceGroup: $(innovation-development-build-agent-resource-group)
               qaClientId: $(innovation-qa-spn-client-id)
               qaClientSecret: $(innovation-qa-spn-secret)
               qaSubscriptionId: $(innovation-qa-subscription-id)
-              qaSubscriptionName: $(qaSubscriptionName)
               qaResourceGroup: $(innovation-qa-build-agent-resource-group)
               prodClientId: $(innovation-prod-spn-client-id)
               prodClientSecret: $(innovation-prod-spn-secret)
               prodSubscriptionId: $(innovation-prod-subscription-id)
-              prodSubscriptionName: $(prodSubscriptionName)
               prodResourceGroup: $(innovation-prod-build-agent-resource-group)
               versionSha: $(versionSha)
