@@ -220,7 +220,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             tabIndex={0}
             className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
           >
-            <span id ="side-panel-region-label"style={{opacity:0}}> Left side panel region</span>
+            <span
+              id="side-panel-region-label"
+              className={classes.sidePanelLabel}
+            >
+              Left side panel region
+            </span>
             <div>
               <KeyDetails
                 handleOpenPdf={() => {
