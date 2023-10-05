@@ -214,12 +214,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         <div className={`govuk-grid-row ${classes.mainContent}`}>
           <div
             role="region"
-            aria-label="Side Panel"
+            aria-labelledby="side-panel-region-label"
             id="side-panel"
             // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
             tabIndex={0}
             className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
           >
+            <span id ="side-panel-region-label"style={{opacity:0}}> Left side panel region</span>
             <div>
               <KeyDetails
                 handleOpenPdf={() => {

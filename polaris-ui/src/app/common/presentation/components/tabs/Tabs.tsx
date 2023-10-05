@@ -73,18 +73,19 @@ export const Tabs: React.FC<TabsProps> = ({
       key: panelId,
       role: "tabpanel",
       tabIndex: 0,
-      "aria-labelledby": `tab_${index}`,
       "data-testid": `tab-content-${itemId}`,
     };
 
     return (
       <div
         id={index === activeTabIndex ? "active-tab-panel" : `panel-${index}`}
+        aria-labelledby={index === activeTabIndex?"document-panel-region": `tab_${index}`}
         {...coreProps}
         className={`govuk-tabs__panel ${
           index !== activeTabIndex ? "govuk-tabs__panel--hidden" : ""
         }  ${classes.contentArea}`}
       >
+        {index === activeTabIndex && <span id ="document-panel-region"style={{opacity:0}}> Document Active Tab Panel region</span>}
         {panel.children}
       </div>
     );
@@ -108,8 +109,8 @@ export const Tabs: React.FC<TabsProps> = ({
           handleTabSelection={handleTabSelection}
           handleCloseTab={handleCloseTab}
           handleUnLockDocuments={handleUnLockDocuments}
-        />
-        {panels}
+        />  
+        {panels}   
       </div>
 
       {showDocumentNavAlert && (

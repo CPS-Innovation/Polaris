@@ -5,7 +5,10 @@ export const useLastFocus = (defaultFocus?: HTMLElement) => {
     const ref = lastFocusElementRef.current;
     return () => {
       if (ref && document.contains(ref)) {
-        (ref as HTMLElement).focus();
+        setTimeout(()=>{
+          (ref as HTMLElement).focus();
+        },100);
+       
       } else {
         if (defaultFocus) {
           defaultFocus.focus();
