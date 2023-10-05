@@ -1,0 +1,6 @@
+*.pdf
+before
+after
+*.lic
+bin
+obj
