@@ -29,7 +29,7 @@ steps:
       
       Write-Host "##vso[task.setvariable variable=ImageId;]$imageId"
     displayName: Create new image version in the gallery
-    continueOnError: true
+    condition: succeeded()
     env:
       ARM_CLIENT_ID: ${{ parameters.devClientId }}
       ARM_CLIENT_SECRET: ${{ parameters.devClientSecret }}
@@ -44,6 +44,7 @@ steps:
       az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$(ImageId)
       az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: DEV - Update Scale Set
+    condition: succeeded()
     env:
       ARM_CLIENT_ID: ${{ parameters.devClientId }}
       ARM_CLIENT_SECRET: ${{ parameters.devClientSecret }}
@@ -58,6 +59,7 @@ steps:
       az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$(ImageId)
       az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: QA - Update Scale Set
+    condition: succeeded()
     env:
       ARM_CLIENT_ID: ${{ parameters.qaClientId }}
       ARM_CLIENT_SECRET: ${{ parameters.qaClientSecret }}
@@ -72,6 +74,7 @@ steps:
       az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_POOL_NAME --set virtualMachineProfile.storageProfile.imageReference.id=$(ImageId)
       az vmss update-instances --instance-ids "*" --name $ARM_POOL_NAME --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: PROD - Update Scale Set
+    condition: succeeded()
     env:
       ARM_CLIENT_ID: ${{ parameters.prodClientId }}
       ARM_CLIENT_SECRET: ${{ parameters.prodClientSecret }}
