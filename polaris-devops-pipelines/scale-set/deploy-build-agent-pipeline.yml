@@ -31,7 +31,7 @@ stages:
           - template: steps/git-version.yml
             
   - stage: image_builder
-    displayName: DEV - Build Custom VM Image
+    displayName: Build Custom VM Image
     dependsOn: create_version
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
@@ -54,7 +54,7 @@ stages:
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
               
   - stage: update_image_gallery_and_scale_set
-    displayName: Update Image Gallery with new image and Update Scale Sets
+    displayName: Update All Resources
     dependsOn:
       - create_version
       - image_builder
@@ -62,7 +62,7 @@ stages:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
       - job: update
-        displayName: Update Image Gallery resource
+        displayName: Update Resources
         steps:
           - template: steps/create-build-agent-image.yml
             parameters:

@@ -33,7 +33,7 @@ steps:
     displayName: Build Image with Packer
     inputs:
       templateType: "builtin"
-      ConnectedServiceName: ${{ parameters.subscriptionName }}
+      ConnectedServiceName: "${{ parameters.subscriptionName }}"
       isManagedImage: true
       managedImageName: "build-agent-${{ parameters.versionSha }}"
       location: ${{ parameters.location }}
