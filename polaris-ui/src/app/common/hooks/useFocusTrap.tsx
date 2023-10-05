@@ -41,7 +41,7 @@ export const useFocusTrap = (id: string = "#modal") => {
   );
 
   useEffect(() => {
-    const bringFocus = () => {
+    const setFirstElementFocus = () => {
       const tabbableElements = getTabbableElements();
       if (tabbableElements) {
         setTimeout(() => {
@@ -49,9 +49,8 @@ export const useFocusTrap = (id: string = "#modal") => {
         }, 0);
       }
     };
-    bringFocus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setFirstElementFocus();
+  }, [getTabbableElements]);
 
   useEffect(() => {
     window.addEventListener("keydown", keyDownHandler);
