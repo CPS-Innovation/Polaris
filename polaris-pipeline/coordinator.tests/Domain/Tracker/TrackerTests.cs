@@ -52,8 +52,6 @@ namespace coordinator.tests.Domain.Tracker
 
         private readonly CaseDurableEntity _caseEntity;
         private readonly EntityStateResponse<CaseDurableEntity> _entityStateResponse;
-        private readonly CaseRefreshLogsDurableEntity _caseRefreshLogsEntity;
-        private readonly EntityStateResponse<CaseRefreshLogsDurableEntity> _caseRefreshLogsEntityStateResponse;
         private readonly TrackerClient _trackerStatus;
 
         public TrackerTests()
@@ -69,13 +67,11 @@ namespace coordinator.tests.Domain.Tracker
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
             _caseEntity = _fixture.Create<CaseDurableEntity>();
-            _caseRefreshLogsEntity = _fixture.Create<CaseRefreshLogsDurableEntity>();
 
             _pdfBlobName = _fixture.Create<string>();
 
             _synchroniseDocumentsArg = new (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
             _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState=_caseEntity };
-            _caseRefreshLogsEntityStateResponse = new EntityStateResponse<CaseRefreshLogsDurableEntity>() { EntityExists = true, EntityState = _caseRefreshLogsEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
             _services = new ServiceCollection();    
 
@@ -95,19 +91,6 @@ namespace coordinator.tests.Domain.Tracker
                         )
                 )
                 .ReturnsAsync(_entityStateResponse);
-
-            _mockDurableEntityClient
-                .Setup
-                (
-                    client =>
-                        client.ReadEntityStateAsync<CaseRefreshLogsDurableEntity>
-                        (
-                            It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsDurableEntity).ToLower() && e.EntityKey.StartsWith(_caseId.ToString())),
-                            null,
-                            null
-                        )
-                )
-                .ReturnsAsync(_caseRefreshLogsEntityStateResponse);
 
             _caseEntity = new CaseDurableEntity();
             _caseEntity.TransactionId = _transactionId;
@@ -615,11 +598,9 @@ namespace coordinator.tests.Domain.Tracker
             _services.RegisterMapsterConfiguration();
             var caseEntity = _fixture.Create<CaseDurableEntity>();
             caseEntity.CmsDocuments[0].CategoryListOrder = 1;
-            var caseRefreshLogsEntity = _fixture.Create<CaseRefreshLogsDurableEntity>();
-
 
             // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
+            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
 
 
             // Assert
@@ -633,16 +614,12 @@ namespace coordinator.tests.Domain.Tracker
             // Arrange
             _services.RegisterMapsterConfiguration();
             var caseEntity = new CaseDurableEntity();
-            var caseRefreshLogsEntity = new CaseRefreshLogsDurableEntity();
-
 
             // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
+            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
 
             // Assert
             trackerDto.Documents.Count.Should().Be(0);
-            trackerDto.Logs.Case.Count.Should().Be(0);
-            trackerDto.Logs.Documents.Count.Should().Be(0);
             trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
         }
 
@@ -652,16 +629,12 @@ namespace coordinator.tests.Domain.Tracker
             // Arrange
             _services.RegisterMapsterConfiguration();
             CaseDurableEntity caseEntity = null;
-            CaseRefreshLogsDurableEntity caseRefreshLogsEntity = null;
-
 
             // Act
-            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
+            var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
 
             // Assert
             trackerDto.Documents.Count.Should().Be(0);
-            trackerDto.Logs.Case.Count.Should().Be(0);
-            trackerDto.Logs.Documents.Count.Should().Be(0);
             trackerDto.Status.Should().Be(CaseRefreshStatus.NotStarted);
         }
     }

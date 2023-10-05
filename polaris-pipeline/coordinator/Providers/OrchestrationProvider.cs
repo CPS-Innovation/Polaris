@@ -298,18 +298,6 @@ public class OrchestrationProvider : IOrchestrationProvider
         };
         conditions.Add(caseDurableEntityCondition);
 
-        // e.g @caserefreshlogsdurableentity@[2149310]-1
-        var caseRefreshLogsDurableEntitiesCondition = new OrchestrationStatusQueryCondition
-        {
-            InstanceIdPrefix = CaseRefreshLogsDurableEntity.GetInstanceId(caseId, 0).Replace("-0", string.Empty),
-            CreatedTimeFrom = DateTime.MinValue,
-            CreatedTimeTo = DateTime.UtcNow,
-            RuntimeStatus = statusesList,
-            PageSize = DefaultPageSize,
-            ContinuationToken = null
-        };
-        conditions.Add(caseRefreshLogsDurableEntitiesCondition); 
-
         return conditions;
     }
 }

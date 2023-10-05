@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using AutoFixture;
+using Common.Domain.Extensions;
 using Common.Dto.Response;
 using Ddei.Domain;
 using Microsoft.Extensions.Logging;
@@ -15,6 +17,7 @@ using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
 using WireMock.Settings;
+using static Common.Extensions.AssemblyExtensions;
 
 namespace WireMock.Net.WebApplication;
 
@@ -104,7 +107,7 @@ public class WireMockService : IWireMockService
 
         var response = Response.Create()
             .WithStatusCode(200)
-            .WithBody("Running");
+            .WithBodyAsJson(Assembly.GetExecutingAssembly().CurrentStatus().ToJson());
 
         server
             .Given(request)
@@ -175,7 +178,7 @@ public class WireMockService : IWireMockService
                 for (var i=0; i < testCase.DocumentCount; i++)
                 {
                     var documentId = categoryDocumentIds[i];
-                    MockGetFile(server, $"urns/{testCase.Urn}/cases/{testCase.CaseId}/documents/{category}/{documentId}", $"Documents{separator}TestDocument.pdf", separator);
+                    MockGetFile(server, $"urns/{testCase.Urn}/cases/{testCase.CaseId}/documents/{category}/{documentId}", $"Documents{separator}TestDocument.pdf");
 
                     var documentDto = documentsDto.ElementAt(i);
 
@@ -188,8 +191,11 @@ public class WireMockService : IWireMockService
 
                     documentDto.OriginalFileName = Path.GetFileNameWithoutExtension(filename);
                     documentDto.FileExtension = Path.GetExtension(filename).Replace(".", string.Empty);
+                    documentDto.Path = $"/{documentDto.CmsDocCategory}/{documentDto.OriginalFileName}.{documentDto.FileExtension}";
                     // TODO
                     documentDto.MimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+                    MockDocument(server, documentDto.CmsDocCategory, $"{documentDto.OriginalFileName}.{documentDto.FileExtension}");
                 }
 
                 MockGetJson(server, $"/api/urns/{testCase.Urn}/cases/{testCase.CaseId}/documents", documentsDto);
@@ -292,7 +298,8 @@ public class WireMockService : IWireMockService
         int documentsCount = documentIds.Values.Sum(list => list.Count);
 
         var documentsDto = fixture.Build<DdeiCaseDocumentResponse>()
-            .CreateMany(documentsCount);
+            .CreateMany(documentsCount)
+            .ToList();
 
         for (int i = 0; i < documentIds.Keys.Count; i++)
         {
@@ -315,19 +322,26 @@ public class WireMockService : IWireMockService
 
                 documentDto.OriginalFileName = Path.GetFileNameWithoutExtension(filename);
                 documentDto.FileExtension = Path.GetExtension(filename).Replace(".", string.Empty);
+                documentDto.Path = $"/{documentDto.CmsDocCategory}/{documentDto.OriginalFileName}.{documentDto.FileExtension}";
                 // TODO
                 documentDto.MimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-                MockDocument(server, urn, @case, category, documentId, $"urns{separator}{urn}{separator}cases{separator}{@case}{separator}documents{separator}{category}{separator}{documentId}{separator}{filename}", separator);
+                MockDocument(server, urn, @case, category, documentId, $"urns{separator}{urn}{separator}cases{separator}{@case}{separator}documents{separator}{category}{separator}{documentId}{separator}{filename}");
+                MockDocument(server, documentDto.CmsDocCategory, documentDto.OriginalFileName);
             }
         }
 
         MockGetJson(server, $"/api/urns/{urn}/cases/{@case}/documents", documentsDto);
     }
 
-    static void MockDocument(WireMockServer server, string urn, int @case, DdeiCmsDocCategory category, int documentId, string filename, char separator)
+    static void MockDocument(WireMockServer server, string urn, int @case, DdeiCmsDocCategory category, int documentId, string filename)
     {
-        MockGetFile(server, $"urns/{urn}/cases/{@case}/documents/{category}/{documentId}", filename, separator);
+        MockGetFile(server, $"urns/{urn}/cases/{@case}/documents/{category}/{documentId}", filename);
+    }
+
+    static void MockDocument(WireMockServer server, string path, string filename)
+    {
+        MockGetFileStore(server, path, filename);
     }
 
     static void MockGetJson(WireMockServer server, string path, object result)
@@ -346,7 +360,7 @@ public class WireMockService : IWireMockService
             .RespondWith(response);
     }
 
-    static void MockGetFile(WireMockServer server, string path, string filename, char separator)
+    static void MockGetFile(WireMockServer server, string path, string filename)
     {
         var request = Request.Create()
             .WithPath($"/api/{path}")
@@ -358,6 +372,20 @@ public class WireMockService : IWireMockService
         server
             .Given(request)
             .RespondWith(response); 
+    }
+
+    static void MockGetFileStore(WireMockServer server, string path, string filename)
+    {
+        var request = Request.Create()
+            .WithPath($"/api/file-store/{path}/{filename}")
+            .UsingGet();
+        var response = Response.Create()
+            .WithStatusCode(200)
+            .WithHeader("Content-Type", "application/pdf")
+            .WithBodyFromFile($"Documents\\{filename}");
+        server
+            .Given(request)
+            .RespondWith(response);
     }
 
     static void MockCheckoutDocument(WireMockServer server)

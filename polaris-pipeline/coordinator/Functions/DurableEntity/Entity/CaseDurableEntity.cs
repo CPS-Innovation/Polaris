@@ -64,12 +64,6 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("Retrieved")]
         public float? Retrieved { get; set; }
 
-        [JsonProperty("pdfsGenerated")]
-        public float? PdfsGenerated { get; set; }
-
-        [JsonProperty("indexed")]
-        public float? Indexed { get; set; }
-
         [JsonProperty("completed")]
         public float? Completed { get; set; }
 
@@ -450,23 +444,6 @@ namespace coordinator.Functions.DurableEntity.Entity
                 document.PdfBlobName = pdfBlobName;
             }
         }
-
-        public void SetCaseTiming((DocumentLogType LogType, float? T) args)
-        {
-            var (logType, t) = args;
-
-            switch (logType)
-            {
-                case DocumentLogType.PdfGenerated:
-                    PdfsGenerated = t;
-                    break;
-
-                case DocumentLogType.Indexed:
-                    Indexed = t;
-                    break;
-            }
-        }
-
 
         // Only required when debugging to manually set the Tracker state
         public void SetValue(CaseDurableEntity tracker)
