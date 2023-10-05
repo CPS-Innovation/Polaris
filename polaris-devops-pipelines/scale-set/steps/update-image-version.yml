@@ -36,7 +36,7 @@ steps:
   - bash: |
       az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
       az account set --subscription $ARM_SUBSCRIPTION_ID
-      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_DEV_SUBSCRIPTION_ID/resourceGroups/$ARM_DEV_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
+      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
       az vmss update-instances --instance-ids "*" --name $ARM_AGENT_POOL --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: QA - Update Scale Set
     env:
@@ -46,13 +46,11 @@ steps:
       ARM_SUBSCRIPTION_ID: ${{ parameters.qaSubscriptionId }}
       ARM_RESOURCE_GROUP: ${{ parameters.qaResourceGroup }}
       ARM_AGENT_POOL: ${{ parameters.qaAgentPoolName }}
-      ARM_DEV_SUBSCRIPTION_ID: ${{ parameters.devSubscriptionId }}
-      ARM_DEV_RESOURCE_GROUP: ${{ parameters.devResourceGroup }}
       
   - bash: |
       az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
       az account set --subscription $ARM_SUBSCRIPTION_ID
-      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_DEV_SUBSCRIPTION_ID/resourceGroups/$ARM_DEV_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
+      az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
       az vmss update-instances --instance-ids "*" --name $ARM_AGENT_POOL --resource-group $ARM_RESOURCE_GROUP --no-wait
     displayName: PROD - Update Scale Set
     env:
@@ -62,5 +60,3 @@ steps:
       ARM_SUBSCRIPTION_ID: ${{ parameters.prodSubscriptionId }}
       ARM_RESOURCE_GROUP: ${{ parameters.prodResourceGroup }}
       ARM_AGENT_POOL: ${{ parameters.prodAgentPoolName }}
-      ARM_DEV_SUBSCRIPTION_ID: ${{ parameters.devSubscriptionId }}
-      ARM_DEV_RESOURCE_GROUP: ${{ parameters.devResourceGroup }}

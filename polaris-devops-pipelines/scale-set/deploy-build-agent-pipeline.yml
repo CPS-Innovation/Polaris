@@ -43,23 +43,53 @@ stages:
         steps:
           - template: steps/create-build-agent-image.yml
             parameters:
-              clientId: $(innovation-development-spn-client-id)
-              clientSecret: $(innovation-development-spn-secret)
+              devClientId: $(innovation-development-spn-client-id)
+              devClientSecret: $(innovation-development-spn-secret)
               tenantId: $(innovation-development-spn-tenant-id)
-              subscriptionId: $(innovation-development-subscription-id)
-              subscriptionName: $(devSubscriptionName)
-              resourceGroup: $(innovation-development-build-agent-resource-group)
-              storageAccount: $(innovation-development-build-agent-storage-account)
-              location: $(build-agent-location)
+              devSubscriptionId: $(innovation-development-subscription-id)
+              devSubscriptionName: $(devSubscriptionName)
+              devResourceGroup: $(innovation-development-build-agent-resource-group)
+              devStorageAccount: $(innovation-development-build-agent-storage-account)
+              qaClientId: $(innovation-qa-spn-client-id)
+              qaClientSecret: $(innovation-qa-spn-secret)
+              qaSubscriptionId: $(innovation-qa-subscription-id)
+              prodClientId: $(innovation-prod-spn-client-id)
+              prodClientSecret: $(innovation-prod-spn-secret)
+              prodSubscriptionId: $(innovation-prod-subscription-id)
               versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
+              
+  - stage: copy_image
+    displayName: Copy Image to QA and PROD
+    dependsOn:
+      - create_version
+      - image_builder
+    variables:
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+    jobs:
+      - job: copy
+        displayName: Copy Image
+        steps:
+          - template: steps/copy-build-agent-image.yml
+            parameters:
+              devClientId: $(innovation-development-spn-client-id)
+              devClientSecret: $(innovation-development-spn-secret)
+              tenantId: $(innovation-development-spn-tenant-id)
+              devSubscriptionId: $(innovation-development-subscription-id)
+              devResourceGroup: $(innovation-development-build-agent-resource-group)
+              qaSubscriptionId: $(innovation-qa-subscription-id)
+              qaResourceGroup: $(innovation-qa-build-agent-resource-group)
+              prodSubscriptionId: $(innovation-prod-subscription-id)
+              prodResourceGroup: $(innovation-prod-build-agent-resource-group)
+              versionSha: $(versionSha)
               
   - stage: update_scale_sets
     displayName: Update All Resources
     dependsOn:
       - create_version
       - image_builder
+      - copy_image
     variables:
       versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
     jobs:
