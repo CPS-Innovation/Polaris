@@ -43,9 +43,9 @@ namespace MyApp // Note: actual namespace depends on the project name.
             var annotation = new RedactionAnnotation(page, new Rectangle(x1, y2, x2, y1))
             {
                 FillColor = Color.Black,
-                OverlayText = i.ToString(),
-                Color = Color.White,
-                FontSize = 8,
+                // OverlayText = i.ToString(),
+                // Color = Color.White,
+                // FontSize = 8,
             };
 
             page.Annotations.Add(annotation);
