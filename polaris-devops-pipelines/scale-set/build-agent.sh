@@ -91,8 +91,8 @@ sudo apt-get clean
 
 echo '==== Install Terraform ===='
 sudo apt-get update -yq
-curl -L https://apt.releases.hashicorp.com/gpg | gpg — dearmor > hashicorp.gpg
-sudo install -o root -g root -m 644 hashicorp.gpg /etc/apt/trusted.gpg.d/
-sudo apt-add-repository “deb [arch=$(dpkg — print-architecture)]
-sudo apt-get install -y terraform
+sudo apt-get upgrade -y
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update -yq && sudo apt install -y terraform 
 sudo apt-get clean
