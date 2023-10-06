@@ -4,13 +4,14 @@ pr: none
 variables:
   - group: polaris-global
   - group: kv-qa-terraform
+  - group: kv-prod-terraform
   - group: polaris-build-agent
     
 stages:
   - stage: test_library_integration
     displayName: Test Integration
     jobs:
-      - job: Begin_Test
+      - job: Begin_Test_QA
         steps:
           - bash: |
               az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
@@ -26,4 +27,22 @@ stages:
               ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
               ARM_RESOURCE_GROUP: $(innovation-qa-build-agent-resource-group)
               ARM_STORAGE_ACCOUNT: $(innovation-qa-build-agent-storage-account)
+              ARM_LOCATION: "uksouth"
+              
+      - job: Begin_Test_PROD
+        steps:
+          - bash: |
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              az account set --subscription $ARM_SUBSCRIPTION_ID
+              az group create --location $ARM_LOCATION --name $ARM_RESOURCE_GROUP
+              az storage account create --name $ARM_STORAGE_ACCOUNT --location $ARM_LOCATION --kind StorageV2 --sku Standard_LRS --resource-group $ARM_RESOURCE_GROUP
+            displayName: Create storage account
+            continueOnError: true
+            env:
+              ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+              ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+              ARM_RESOURCE_GROUP: $(innovation-prod-build-agent-resource-group)
+              ARM_STORAGE_ACCOUNT: $(innovation-prod-build-agent-storage-account)
               ARM_LOCATION: "uksouth"
