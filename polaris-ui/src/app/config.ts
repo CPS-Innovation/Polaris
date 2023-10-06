@@ -32,7 +32,7 @@ export const PRIVATE_BETA_CHECK_IGNORE_USER =
   process.env.REACT_APP_PRIVATE_BETA_CHECK_IGNORE_USER;
 
 export const IS_REDACTION_SERVICE_OFFLINE =
-  process.env.REACT_APP_IS_REDACTION_SERVICE_OFFLINE === "true";
+  process.env.REACT_APP_IS_REDACTION_SERVICE_OFFLINE;
 
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
