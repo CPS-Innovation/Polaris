@@ -140,7 +140,7 @@ export const PdfViewer: React.FC<Props> = ({
                 // Danger: minification problem here (similar to PrivateBetaAuthorizationFilter)
                 //  `if(IS_REDACTION_SERVICE_OFFLINE)` just does not work in production. So work
                 //  by passing the original string around and comparing it here.
-                if (IS_REDACTION_SERVICE_OFFLINE === "true") {
+                if (String(IS_REDACTION_SERVICE_OFFLINE) === "true") {
                   return (
                     <RedactionWarning
                       documentWriteStatus={"IsRedactionServiceOffline"}
