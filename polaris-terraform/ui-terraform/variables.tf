@@ -95,6 +95,10 @@ variable "app_service_log_total_retention" {
   type = number
 }
 
+variable "is_redaction_service_offline" {
+   # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
 
 variable "private_beta" {
   type = object({
