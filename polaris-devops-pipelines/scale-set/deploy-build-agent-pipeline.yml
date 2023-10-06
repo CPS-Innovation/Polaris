@@ -1,19 +1,22 @@
-trigger:
-  batch: true
-  branches:
-    include:
-      - "*" # will run on any change, but will only update the scale-set if any changes are merged into "main"
-  paths:
-    include:
-      - polaris-devops-pipelines/scale-set/*
+#trigger:
+#  batch: true
+#  branches:
+#    include:
+#      - "*" # will run on any change, but will only update the scale-set if any changes are merged into "main"
+#  paths:
+#    include:
+#      - polaris-devops-pipelines/scale-set/*
 
-schedules:
-  - cron: "0 0 * * 0" # Weekly at Sunday night - ensure the build agent image is up-to-date
-    displayName: Weekly Sunday night build-agent refresh
-    branches:
-      include:
-        - main
-    always: true
+#schedules:
+#  - cron: "0 0 * * 0" # Weekly at Sunday night - ensure the build agent image is up-to-date
+#    displayName: Weekly Sunday night build-agent refresh
+#    branches:
+#      include:
+#        - main
+#    always: true
+
+trigger: none
+pr: none
     
 variables:
   - group: kv-dev-terraform
