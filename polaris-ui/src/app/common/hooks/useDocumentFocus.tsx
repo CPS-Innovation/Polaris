@@ -9,6 +9,7 @@ import {
  * to navigate forward and backward through the document words.
  */
 const WORD_FOCUS_KEY = ",";
+const ESCAPE_KEY_CODE = 27;
 export const useDocumentFocus = (activeTabId: string | undefined) => {
   const getTextLayerChildren = () => {
     const textLayers = document
@@ -118,8 +119,8 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     document.dispatchEvent(
       new KeyboardEvent("keydown", {
         key: "Escape",
-        keyCode: 27,
-        which: 27,
+        keyCode: ESCAPE_KEY_CODE,
+        which: ESCAPE_KEY_CODE,
         code: "Escape",
       })
     );
