@@ -19,6 +19,7 @@ import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
+import { REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -136,6 +137,13 @@ export const PdfViewer: React.FC<Props> = ({
                 }
               }}
               onSelectionFinished={(position, content, hideTipAndSelection) => {
+                if (REDACTION_SERVICE_OFFLINE) {
+                  return (
+                    <RedactionWarning
+                      documentWriteStatus={"IsRedactionServiceOffline"}
+                    />
+                  );
+                }
                 if (documentWriteStatus !== "Ok") {
                   return (
                     <RedactionWarning

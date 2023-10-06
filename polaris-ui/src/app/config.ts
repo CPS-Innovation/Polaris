@@ -36,3 +36,5 @@ export const PRIVATE_BETA_CHECK_IGNORE_USER =
 if (process.env.NODE_ENV !== "test") {
   console.log(JSON.stringify(process.env));
 }
+
+export const REDACTION_SERVICE_OFFLINE = true;
