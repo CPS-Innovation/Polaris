@@ -7,23 +7,23 @@ variables:
   - group: polaris-build-agent
     
 stages:
-  stage: test_library_integration
-  displayName: Test Integration
-  jobs:
-    - job: Begin_Test
-      steps:
-        - bash: |
-            az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-            az account set --subscription $ARM_SUBSCRIPTION_ID
-            az group create --location $ARM_LOCATION --name $ARM_RESOURCE_GROUP
-            az storage account create --name $ARM_STORAGE_ACCOUNT --location $ARM_LOCATION --kind StorageV2 --sku Standard_LRS --resource-group $ARM_RESOURCE_GROUP
-          displayName: Create storage account
-          continueOnError: true
-          env:
-            ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
-            ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
-            ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
-            ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
-            ARM_RESOURCE_GROUP: $(innovation-qa-build-agent-resource-group)
-            ARM_STORAGE_ACCOUNT: $(innovation-qa-build-agent-storage-account)
-            ARM_LOCATION: "uksouth"
+  - stage: test_library_integration
+    displayName: Test Integration
+    jobs:
+      - job: Begin_Test
+        steps:
+          - bash: |
+              az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+              az account set --subscription $ARM_SUBSCRIPTION_ID
+              az group create --location $ARM_LOCATION --name $ARM_RESOURCE_GROUP
+              az storage account create --name $ARM_STORAGE_ACCOUNT --location $ARM_LOCATION --kind StorageV2 --sku Standard_LRS --resource-group $ARM_RESOURCE_GROUP
+            displayName: Create storage account
+            continueOnError: true
+            env:
+              ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+              ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+              ARM_RESOURCE_GROUP: $(innovation-qa-build-agent-resource-group)
+              ARM_STORAGE_ACCOUNT: $(innovation-qa-build-agent-storage-account)
+              ARM_LOCATION: "uksouth"
