@@ -94,5 +94,5 @@ sudo apt-get update -yq
 sudo apt-get upgrade -y
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update -yq && sudo apt install -y terraform 
+sudo apt-get update -yq && sudo apt-get install -y terraform=1.5.3 
 sudo apt-get clean
