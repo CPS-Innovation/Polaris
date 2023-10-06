@@ -1,7 +1,7 @@
 trigger: none
 
 pool:
-  vmImage: ubuntu-latest
+  name: $(build-agent)
 
 schedules:
   # Switch off pre-midnight runs for now, devs still working/releasing
