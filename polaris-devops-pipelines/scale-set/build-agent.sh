@@ -88,3 +88,11 @@ sudo curl -o /usr/local/bin/nuget.exe https://dist.nuget.org/win-x86-commandline
 sudo chmod +x /usr/local/bin/nuget.exe
 sudo mono /usr/local/bin/nuget.exe install Microsoft.ApplicationInsights 
 sudo apt-get clean
+
+echo '==== Install Terraform ===='
+sudo apt-get update -yq
+curl -L https://apt.releases.hashicorp.com/gpg | gpg — dearmor > hashicorp.gpg
+sudo install -o root -g root -m 644 hashicorp.gpg /etc/apt/trusted.gpg.d/
+sudo apt-add-repository “deb [arch=$(dpkg — print-architecture)]
+sudo apt-get install -y terraform
+sudo apt-get clean

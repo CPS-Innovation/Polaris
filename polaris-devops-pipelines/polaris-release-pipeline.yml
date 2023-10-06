@@ -1660,7 +1660,7 @@ stages:
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_QA']]
       runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_QA']]"
     pool:
-      vmImage: ubuntu-latest
+      name: $(qa-build-agent)
     jobs:
       - deployment: CI_Deploy_Polaris
         environment: "QA"
@@ -1678,30 +1678,6 @@ stages:
                   displayName: Download Scripts
                   artifact: 'polaris-script-files'
 
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-                    chmod 777 vpnconfig.ovpn
-                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-                    sudo openvpn _vpnconfig.ovpn &
-
-                    sleep 5
-
-                    ifconfig tun0
-
-                    sudo rm /etc/resolv.conf
-                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-                  env:
-                    PRESHAREDKEY: $(qa_pre-shared_key)
-                    PRIVATEKEY: $(qa_private_key)
-                    CLIENTCERTIFICATE: $(qa_client_cert)
-                    VPNSERVER: $(qa_vpn_server)
-                    DNSSERVER: $(qa_dns_server)
-                  displayName: Creating QA VPN tunnel
-                  
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
@@ -1709,15 +1685,6 @@ stages:
                   inputs:
                     terraformVersion: $(terraform-version)
                     
-                #install nuget
-                - bash: |
-                    sudo yum install -y mono-complete
-                    sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-                    sudo chmod +x /usr/local/bin/nuget
-                    nuget install Microsoft.ApplicationInsights
-                  displayName: Installing Application Insights
-                  condition: succeeded()
-
                 #send custom event to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Trace'
@@ -2524,7 +2491,7 @@ stages:
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_QA']]
       runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_QA']]"
     pool:
-      vmImage: ubuntu-latest
+      name: $(qa-build-agent)
     jobs:
       - job: Run_Status_Checks
         steps:
@@ -2537,39 +2504,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(qa_pre-shared_key)
-              PRIVATEKEY: $(qa_private_key)
-              CLIENTCERTIFICATE: $(qa_client_cert)
-              VPNSERVER: $(qa_vpn_server)
-              DNSSERVER: $(qa_dns_server)
-            displayName: Creating QA VPN tunnel
-          
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
@@ -2736,7 +2670,7 @@ stages:
     jobs:
       - job: Create_QA_Report
         pool:
-          vmImage: ubuntu-latest
+          name: $(qa-build-agent)
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -2747,39 +2681,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(qa_pre-shared_key)
-              PRIVATEKEY: $(qa_private_key)
-              CLIENTCERTIFICATE: $(qa_client_cert)
-              VPNSERVER: $(qa_vpn_server)
-              DNSSERVER: $(qa_dns_server)
-            displayName: Creating QA VPN tunnel
-
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
@@ -2851,7 +2752,7 @@ stages:
     jobs:
       - job: Update_QA_Tag
         pool:
-          vmImage: ubuntu-latest
+          name: $(qa-build-agent)
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -2862,39 +2763,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(qa_pre-shared_key)
-              PRIVATEKEY: $(qa_private_key)
-              CLIENTCERTIFICATE: $(qa_client_cert)
-              VPNSERVER: $(qa_vpn_server)
-              DNSSERVER: $(qa_dns_server)
-            displayName: Creating QA VPN tunnel
-
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
@@ -2981,7 +2849,7 @@ stages:
     jobs:
       - job: Run_e2e_Tests_QA
         pool:
-          vmImage: ubuntu-latest
+          name: $(qa-build-agent)
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -2992,39 +2860,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(qa_pre-shared_key)
-              PRIVATEKEY: $(qa_private_key)
-              CLIENTCERTIFICATE: $(qa_client_cert)
-              VPNSERVER: $(qa_vpn_server)
-              DNSSERVER: $(qa_dns_server)
-            displayName: Creating QA VPN tunnel
-
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
@@ -3102,7 +2937,7 @@ stages:
       runUICodebase: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
       runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_PROD']]"
     pool:
-      vmImage: ubuntu-latest
+      name: $(prod-build-agent)
     jobs:
       - deployment: CI_Deploy_Polaris
         environment: "Prod"
@@ -3120,30 +2955,6 @@ stages:
                   displayName: Download Scripts
                   artifact: 'polaris-script-files'
 
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-                    chmod 777 vpnconfig.ovpn
-                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-                    sudo openvpn _vpnconfig.ovpn &
-
-                    sleep 5
-
-                    ifconfig tun0
-
-                    sudo rm /etc/resolv.conf
-                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-                  workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-                  env:
-                    PRESHAREDKEY: $(prod_pre-shared_key)
-                    PRIVATEKEY: $(prod_private_key)
-                    CLIENTCERTIFICATE: $(prod_client_cert)
-                    VPNSERVER: $(prod_vpn_server)
-                    DNSSERVER: $(prod_dns_server)
-                  displayName: Creating PROD VPN tunnel
-                  
                 # Install Terraform based on version variable
                 - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
                   displayName: Terraform > Install
@@ -3151,15 +2962,6 @@ stages:
                   inputs:
                     terraformVersion: $(terraform-version)
                     
-                #install nuget
-                - bash: |
-                    sudo yum install -y mono-complete
-                    sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-                    sudo chmod +x /usr/local/bin/nuget
-                    nuget install Microsoft.ApplicationInsights
-                  displayName: Installing Application Insights
-                  condition: succeeded()
-
                 #send custom event to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Trace'
@@ -3966,7 +3768,7 @@ stages:
       runUITerraform: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_TERRAFORM_PROD']]
       runPostPipelineScript: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_PIPELINE_POST_DEPLOYMENT_SCRIPT_PROD']]"
     pool:
-      vmImage: ubuntu-latest
+      name: $(prod-build-agent)
     jobs:
       - job: Run_Status_Checks
         steps:
@@ -3979,39 +3781,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(prod_pre-shared_key)
-              PRIVATEKEY: $(prod_private_key)
-              CLIENTCERTIFICATE: $(prod_client_cert)
-              VPNSERVER: $(prod_vpn_server)
-              DNSSERVER: $(prod_dns_server)
-            displayName: Creating PROD VPN tunnel
-            
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
@@ -4178,7 +3947,7 @@ stages:
     jobs:
       - job: Create_PROD_Report
         pool:
-          vmImage: ubuntu-latest
+          name: $(prod-build-agent)
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -4189,39 +3958,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(prod_pre-shared_key)
-              PRIVATEKEY: $(prod_private_key)
-              CLIENTCERTIFICATE: $(prod_client_cert)
-              VPNSERVER: $(prod_vpn_server)
-              DNSSERVER: $(prod_dns_server)
-            displayName: Creating PROD VPN tunnel
-
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
@@ -4293,7 +4029,7 @@ stages:
     jobs:
       - job: Update_PROD_Tag
         pool:
-          vmImage: ubuntu-latest
+          name: $(prod-build-agent)
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -4304,39 +4040,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(prod_pre-shared_key)
-              PRIVATEKEY: $(prod_private_key)
-              CLIENTCERTIFICATE: $(prod_client_cert)
-              VPNSERVER: $(prod_vpn_server)
-              DNSSERVER: $(prod_dns_server)
-            displayName: Creating PROD VPN tunnel
-
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
@@ -4423,7 +4126,7 @@ stages:
     jobs:
       - job: Run_e2e_Tests_PROD
         pool:
-          vmImage: ubuntu-latest
+          name: $(prod-build-agent)
         steps:
           #download templates artifact
           - download: PolarisBuild
@@ -4434,39 +4137,6 @@ stages:
           - download: PolarisBuild
             displayName: Download Scripts
             artifact: 'polaris-script-files'
-
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(Pipeline.Workspace)/PolarisBuild/polaris-template-files
-            env:
-              PRESHAREDKEY: $(prod_pre-shared_key)
-              PRIVATEKEY: $(prod_private_key)
-              CLIENTCERTIFICATE: $(prod_client_cert)
-              VPNSERVER: $(prod_vpn_server)
-              DNSSERVER: $(prod_dns_server)
-            displayName: Creating PROD VPN tunnel
-
-          #install nuget
-          - bash: |
-              sudo yum install -y mono-complete
-              sudo wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /usr/local/bin/nuget
-              sudo chmod +x /usr/local/bin/nuget
-              nuget install Microsoft.ApplicationInsights
-            displayName: Installing Application Insights
-            condition: succeeded()
 
           #send custom event to AppInsights
           - task: PowerShell@2
