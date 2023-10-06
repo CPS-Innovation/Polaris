@@ -39,6 +39,3 @@ export const IS_REDACTION_SERVICE_OFFLINE =
 if (process.env.NODE_ENV !== "test") {
   console.log(JSON.stringify(process.env));
 }
-
-export const IS_REDACTION_SERVICE_OFFLINE =
-  process.env.REACT_APP_IS_REDACTION_SERVICE_OFFLINE === "true";
