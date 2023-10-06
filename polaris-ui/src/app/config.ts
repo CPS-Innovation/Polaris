@@ -31,11 +31,11 @@ export const PRIVATE_BETA_SIGN_UP_URL =
 export const PRIVATE_BETA_CHECK_IGNORE_USER =
   process.env.REACT_APP_PRIVATE_BETA_CHECK_IGNORE_USER;
 
+export const IS_REDACTION_SERVICE_OFFLINE =
+  process.env.REACT_APP_IS_REDACTION_SERVICE_OFFLINE === "true";
+
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "test") {
   console.log(JSON.stringify(process.env));
 }
-
-export const IS_REDACTION_SERVICE_OFFLINE =
-  process.env.REACT_APP_IS_REDACTION_SERVICE_OFFLINE === "true";
