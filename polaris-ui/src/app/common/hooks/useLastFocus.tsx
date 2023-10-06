@@ -10,7 +10,9 @@ export const useLastFocus = (defaultFocus?: HTMLElement) => {
         }, 0);
       } else {
         if (defaultFocus) {
-          defaultFocus.focus();
+          setTimeout(() => {
+            defaultFocus.focus();
+          }, 0);
         }
       }
     };
