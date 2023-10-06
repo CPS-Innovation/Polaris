@@ -22,8 +22,7 @@ variables:
   - group: pipeline-terraform
   - group: ui-terraform
   - group: polaris-status-check-endpoints
-  - group: polaris-vpn
-
+  
 stages:
   - stage: Determine_Changes
     displayName: Determine Changes
@@ -401,13 +400,6 @@ stages:
                 - download: PolarisBuild
                   displayName: Download Scripts
                   artifact: 'polaris-script-files'
-                  
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
-                  inputs:
-                    terraformVersion: $(terraform-version)
                   
                 #send custom event to AppInsights
                 - task: PowerShell@2
@@ -1678,13 +1670,6 @@ stages:
                   displayName: Download Scripts
                   artifact: 'polaris-script-files'
 
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                    
                 #send custom event to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Trace'
@@ -2955,13 +2940,6 @@ stages:
                   displayName: Download Scripts
                   artifact: 'polaris-script-files'
 
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  condition: and(succeeded(), or(eq(variables.runPipelineTerraform, 'true'),eq(variables.runPipelineEventsTerraform, 'true'),eq(variables.runUITerraform, 'true'),eq(variables.runUIEventsTerraform, 'true')))
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                    
                 #send custom event to AppInsights
                 - task: PowerShell@2
                   displayName: 'AppInsights: Trace'

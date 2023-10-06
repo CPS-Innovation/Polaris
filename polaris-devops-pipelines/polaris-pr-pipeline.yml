@@ -163,12 +163,6 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -196,12 +190,6 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -239,12 +227,6 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -272,12 +254,6 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -315,12 +291,6 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -348,12 +318,6 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -391,12 +355,6 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -424,12 +382,6 @@ stages:
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
