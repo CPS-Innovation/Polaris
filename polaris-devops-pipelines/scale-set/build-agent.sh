@@ -78,6 +78,7 @@ sudo apt-get install -y libxtst6
 sudo apt-get install -y xauth
 sudo apt-get install -y xvfb
 sudo apt-get install -y python3-pip
+sudo apt-get install -y installation-report-generator
 sudo apt-get clean
 
 echo '==== Install Mono ===='
