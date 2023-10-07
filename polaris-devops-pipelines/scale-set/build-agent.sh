@@ -84,6 +84,10 @@ sudo apt-get install -y xvfb
 sudo apt-get install -y python3-pip
 sudo apt-get clean
 
+echo '=== Install Cobertura ===='
+sudo apt-get update -yq
+sudo apt-get -y install cobertura
+
 echo '==== Install Mono ===='
 sudo apt-get update -yq
 sudo apt-get install -y mono-complete
