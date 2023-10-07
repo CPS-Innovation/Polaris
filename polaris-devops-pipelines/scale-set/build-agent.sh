@@ -62,9 +62,9 @@ sudo apt-get install zlib1g
 echo '==== Node.js, related utils and Python3 ===='
 sudo apt-get update -yq
 sudo apt-get -yq install curl gnupg ca-certificates
-curl -L https://deb.nodesource.com/setup_18.x | bash
-sudo apt-get install -y npm 
-sudo apt-get install -y nodejs
+curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+sudo apt install nodejs
 sudo apt-get install -y build-essential
 sudo apt-get install -y libgtk2.0-0
 sudo apt-get install -y libgtk-3-0
@@ -78,7 +78,6 @@ sudo apt-get install -y libxtst6
 sudo apt-get install -y xauth
 sudo apt-get install -y xvfb
 sudo apt-get install -y python3-pip
-sudo apt-get install -y installation-report-generator
 sudo apt-get clean
 
 echo '==== Install Mono ===='

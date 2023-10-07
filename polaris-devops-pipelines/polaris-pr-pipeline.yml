@@ -704,6 +704,9 @@ stages:
               command: custom
               custom: tool
               arguments: 'install --global dotnet-reportgenerator-globaltool'
+              
+          - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
+            displayName: 'Update PATH'
 
           - download: current
             patterns: '**/*.cobertura.xml'
