@@ -111,3 +111,10 @@ echo "==== Giving AzDevOps user access to the '/home', '/usr/share', and '/opt' 
 sudo chmod -R 777 /home
 sudo chmod -R 777 /usr/share
 sudo chmod -R 777 /opt
+
+echo "==== Install Chrome ===="
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmour -o /usr/share/keyrings/chrome-keyring.gpg
+sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list'
+sudo apt-get update -yq
+sudo apt-get install -y google-chrome-stable
+sudo apt-get clean
