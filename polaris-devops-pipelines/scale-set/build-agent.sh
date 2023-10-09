@@ -66,12 +66,11 @@ curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
 sudo bash nodesource_setup.sh
 sudo apt-get install -y nodejs
 echo '==== ensure install npm is installed ===='
-sudo apt-get install -y npm
+sudo apt-get install -y build-essential
 sudo apt-get install -y gcc g++ make
 curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
 echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update && sudo apt-get install yarn
-sudo apt-get install -y build-essential
 sudo apt-get install -y libgtk2.0-0
 sudo apt-get install -y libgtk-3-0
 sudo apt-get install -y libgbm-dev
@@ -87,7 +86,7 @@ sudo apt-get install -y python3-pip
 sudo apt-get clean
 
 echo '==== Install Cypress ===='
-#sudo yarn add cypress --dev
+sudo yarn add cypress --dev
 
 echo '==== Install Cobertura ===='
 sudo apt-get update -yq
