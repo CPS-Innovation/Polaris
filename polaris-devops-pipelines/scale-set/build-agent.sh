@@ -65,12 +65,13 @@ sudo apt-get -yq install curl gnupg ca-certificates
 curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
 sudo bash nodesource_setup.sh
 sudo apt-get install -y nodejs
-echo '==== ensure install npm is installed ===='
 sudo apt-get install -y build-essential
 sudo apt-get install -y gcc g++ make
 curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
 echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update && sudo apt-get install yarn
+echo '==== Install Cypress ===='
+sudo npm install cypress --save-dev
 sudo apt-get install -y libgtk2.0-0
 sudo apt-get install -y libgtk-3-0
 sudo apt-get install -y libgbm-dev
@@ -84,9 +85,6 @@ sudo apt-get install -y xauth
 sudo apt-get install -y xvfb
 sudo apt-get install -y python3-pip
 sudo apt-get clean
-
-echo '==== Install Cypress ===='
-sudo yarn add cypress --dev
 
 echo '==== Install Cobertura ===='
 sudo apt-get update -yq
@@ -107,4 +105,23 @@ sudo apt-get upgrade -y
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt-get update -yq && sudo apt-get install -y terraform 
+sudo apt-get clean
+
+echo '==== Docker ===='
+# https://docs.docker.com/engine/install/ubuntu/
+apt-get remove docker docker-engine docker.io containerd runc
+apt-get install ca-certificates curl gnupg lsb-release
+sudo mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update -yq
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+echo '=== Kubectl ==='
+# https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
+apt-get install -y ca-certificates curl
+sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update -yq
+sudo apt-get install -y kubectl
 sudo apt-get clean
