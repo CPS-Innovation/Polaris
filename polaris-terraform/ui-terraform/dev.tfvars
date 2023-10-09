@@ -38,6 +38,8 @@ cms_details = {
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 
+is_redaction_service_offline = "false"
+
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
   user_group  = "1a9b08e8-5839-4953-a053-c1bc6dd02233" // the Polaris-Dev-VPN group

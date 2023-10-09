@@ -39,6 +39,8 @@ cms_details = {
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 
+is_redaction_service_offline = "false"
+
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
   user_group  = "" // allow any user to see qa for e.g. demo purposes 
