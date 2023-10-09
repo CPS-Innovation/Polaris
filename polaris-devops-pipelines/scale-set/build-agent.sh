@@ -109,6 +109,5 @@ sudo apt-get clean
 
 echo "==== Giving AzDevOps user access to the '/home', '/usr/share', and '/opt' directories ===="
 sudo chmod -R 777 /home
-sudo chmod -R 777 /home/AzDevOps
 sudo chmod -R 777 /usr/share
 sudo chmod -R 777 /opt
