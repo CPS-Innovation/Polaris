@@ -125,3 +125,14 @@ echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://a
 sudo apt-get update -yq
 sudo apt-get install -y kubectl
 sudo apt-get clean
+
+echo "==== Giving AzDevOps user access to the '/home', '/usr/share', and '/opt' directories ===="
+sudo chmod -R 777 /home
+setfacl -Rdm "u:AzDevOps:rwX" /home
+setfacl -Rb /home/AzDevOps
+
+sudo chmod -R 777 /usr/share
+setfacl -Rdm "u:AzDevOps:rwX" /usr/share
+
+sudo chmod -R 777 /opt
+setfacl -Rdm "u:AzDevOps:rwX" /opt
