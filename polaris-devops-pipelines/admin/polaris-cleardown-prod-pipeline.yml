@@ -123,11 +123,11 @@ stages:
               DNSSERVER: $(prod_dns_server)
             displayName: Creating PROD VPN tunnel
             
-          - task: AzureCLI@2
-            displayName: Refresh Blob Storage
-            inputs:
-              connectedServiceNameARM: '$(prod-azure-subscription)'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az storage blob delete-batch --account-name $(prod-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
+#          - task: AzureCLI@2
+#            displayName: Refresh Blob Storage
+#            inputs:
+#              connectedServiceNameARM: '$(prod-azure-subscription)'
+#              scriptType: 'bash'
+#              scriptLocation: 'inlineScript'
+#              inlineScript: |
+#                az storage blob delete-batch --account-name $(prod-document-storage-account) --source documents --connection-string '$(cpsdocumentstorage-connection-string)' --delete-snapshots include
