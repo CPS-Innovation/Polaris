@@ -73,18 +73,30 @@ export const Tabs: React.FC<TabsProps> = ({
       key: panelId,
       role: "tabpanel",
       tabIndex: 0,
-      "aria-labelledby": `tab_${index}`,
       "data-testid": `tab-content-${itemId}`,
     };
 
     return (
       <div
         id={index === activeTabIndex ? "active-tab-panel" : `panel-${index}`}
+        aria-labelledby={
+          index === activeTabIndex
+            ? "document-panel-region-label"
+            : `tab_${index}`
+        }
         {...coreProps}
         className={`govuk-tabs__panel ${
           index !== activeTabIndex ? "govuk-tabs__panel--hidden" : ""
         }  ${classes.contentArea}`}
       >
+        {index === activeTabIndex && (
+          <span
+            id="document-panel-region-label"
+            className={classes.tabPanelRegionLabel}
+          >
+            Document active tab panel region
+          </span>
+        )}
         {panel.children}
       </div>
     );

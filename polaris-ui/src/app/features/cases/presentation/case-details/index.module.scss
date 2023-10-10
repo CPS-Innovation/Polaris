@@ -38,7 +38,6 @@
   .rightColumn {
     margin-top: -3.4375rem;
     height: 100vh;
-    padding-left: 0;
   }
 }
 
@@ -72,7 +71,6 @@
   }
   li {
     margin: 0;
-
     padding: 0;
   }
 }
@@ -81,4 +79,10 @@
   &:focus {
     outline: 0.2rem solid #ffdd00;
   }
+}
+
+.sidePanelLabel {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
 }
