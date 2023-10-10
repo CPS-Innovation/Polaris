@@ -32,6 +32,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_SURVEY_LINK"                    = "https://www.smartsurvey.co.uk/s/DG5B6G/"
     "REACT_APP_PRIVATE_BETA_USER_GROUP"        = var.private_beta.user_group
     "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"       = var.private_beta.sign_up_url
+    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"   = var.is_redaction_service_offline
   }
 
   site_config {

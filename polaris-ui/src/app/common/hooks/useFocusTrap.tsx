@@ -1,9 +1,10 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback } from "react";
 
 export const useFocusTrap = (id: string = "#modal") => {
-  const [start, setStart] = useState(false);
-
-  const getTabbableElements = () => {
+  const getTabbableElements = useCallback(() => {
+    if (!document.querySelector(id)) {
+      return;
+    }
     const tabbableElements = document
       .querySelector(id)
       ?.querySelectorAll(
@@ -11,16 +12,11 @@ export const useFocusTrap = (id: string = "#modal") => {
       );
 
     return tabbableElements;
-  };
+  }, [id]);
+
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
       const tabbableElements = getTabbableElements();
-      if (!start) {
-        setStart(true);
-      }
-      if (tabbableElements && tabbableElements.length === 1) {
-        (tabbableElements[0] as HTMLElement).focus();
-      }
 
       if ((e.code === "Tab" || e.key === "Tab") && tabbableElements) {
         if (e.shiftKey) {
@@ -41,15 +37,20 @@ export const useFocusTrap = (id: string = "#modal") => {
         }
       }
     },
-    [start]
+    [getTabbableElements]
   );
 
   useEffect(() => {
-    const tabbableElements = getTabbableElements();
-    if (!start && tabbableElements) {
-      (tabbableElements[0] as HTMLElement).focus();
-    }
-  }, [start]);
+    const setFirstElementFocus = () => {
+      const tabbableElements = getTabbableElements();
+      if (tabbableElements) {
+        setTimeout(() => {
+          (tabbableElements[0] as HTMLElement).focus();
+        }, 0);
+      }
+    };
+    setFirstElementFocus();
+  }, [getTabbableElements]);
 
   useEffect(() => {
     window.addEventListener("keydown", keyDownHandler);

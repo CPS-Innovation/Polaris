@@ -19,6 +19,7 @@ import { PdfHighlight } from "./PdfHighlifght";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { useControlledRedactionFocus } from "../../../../../common/hooks/useControlledRedactionFocus";
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
+import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 
 const SCROLL_TO_OFFSET = 120;
 
@@ -136,6 +137,16 @@ export const PdfViewer: React.FC<Props> = ({
                 }
               }}
               onSelectionFinished={(position, content, hideTipAndSelection) => {
+                // Danger: minification problem here (similar to PrivateBetaAuthorizationFilter)
+                //  `if(IS_REDACTION_SERVICE_OFFLINE)` just does not work in production. So work
+                //  by passing the original string around and comparing it here.
+                if (String(IS_REDACTION_SERVICE_OFFLINE) === "true") {
+                  return (
+                    <RedactionWarning
+                      documentWriteStatus={"IsRedactionServiceOffline"}
+                    />
+                  );
+                }
                 if (documentWriteStatus !== "Ok") {
                   return (
                     <RedactionWarning

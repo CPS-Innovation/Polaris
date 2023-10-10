@@ -768,7 +768,8 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Escape");
-      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(["Tab"]);
       cy.focused().should("have.id", "btn-report-issue");
     });
 
