@@ -568,7 +568,7 @@ stages:
       - job:
         displayName: Build, Test, Report - UI
         pool:
-          name: $(dev-build-agent)
+          vmImage: ubuntu-latest
         steps:
           # Begin UI testing      
           # We want to rely only on the .env.production file, anything in .env is still included
