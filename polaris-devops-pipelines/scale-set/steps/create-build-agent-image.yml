@@ -1,0 +1,71 @@
+﻿parameters:
+  clientId: ""
+  clientSecret: ""
+  tenantId: ""
+  subscriptionId: ""
+  subscriptionName: ""
+  resourceGroup: ""
+  storageAccount: ""
+  versionSha: ""
+  baseImage: ""
+  additionalBuilderParams: ""
+
+
+steps:
+  - bash: |
+      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az account set --subscription $ARM_SUBSCRIPTION_ID
+      az group create --location $ARM_LOCATION --name $ARM_RESOURCE_GROUP
+      az storage account create --name $ARM_STORAGE_ACCOUNT --location $ARM_LOCATION --kind StorageV2 --sku Standard_LRS --resource-group $ARM_RESOURCE_GROUP
+    displayName: Create storage account
+    continueOnError: true
+    env:
+      ARM_CLIENT_ID: ${{ parameters.clientId }}
+      ARM_CLIENT_SECRET: ${{ parameters.clientSecret }}
+      ARM_TENANT_ID: ${{ parameters.tenantId }}
+      ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
+      ARM_RESOURCE_GROUP: ${{ parameters.resourceGroup }}
+      ARM_STORAGE_ACCOUNT: ${{ parameters.storageAccount }}
+      ARM_LOCATION: "uksouth"
+
+  - task: PackerBuild@1
+    displayName: Build Image with Packer
+    inputs:
+      templateType: "builtin"
+      ConnectedServiceName: "${{ parameters.subscriptionName }}"
+      isManagedImage: true
+      managedImageName: "build-agent-${{ parameters.versionSha }}"
+      location: "uksouth"
+      storageAccountName: ${{ parameters.storageAccount }}
+      azureResourceGroup: ${{ parameters.resourceGroup }}
+      baseImageSource: "default"
+      baseImage: ${{ parameters.baseImage }}
+      packagePath: "polaris-devops-pipelines/scale-set"
+      deployScriptPath: "build-agent.sh"
+      additionalBuilderParameters: ${{ parameters.additionalBuilderParams }}
+      skipTempFileCleanupDuringVMDeprovision: false
+
+  - bash: |
+      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az account set --subscription $ARM_SUBSCRIPTION_ID
+      az resource delete --ids $(az resource list --tag Temporary=True --query "[].id" --output tsv)
+    displayName: Remove older build-agent versioned images
+    continueOnError: true
+    env:
+      ARM_CLIENT_ID: ${{ parameters.clientId }}
+      ARM_CLIENT_SECRET: ${{ parameters.clientSecret }}
+      ARM_TENANT_ID: ${{ parameters.tenantId }}
+      ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
+      
+  - bash: |
+      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az account set --subscription $ARM_SUBSCRIPTION_ID
+      az tag create --resource-id /subscriptions/$ARM_SUBSCRIPTION_ID/resourcegroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$ARM_VERSION_SHA --tags Temporary=True
+    displayName: Tag image
+    env:
+      ARM_CLIENT_ID: ${{ parameters.clientId }}
+      ARM_CLIENT_SECRET: ${{ parameters.clientSecret }}
+      ARM_TENANT_ID: ${{ parameters.tenantId }}
+      ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
+      ARM_RESOURCE_GROUP: ${{ parameters.resourceGroup }}
+      ARM_VERSION_SHA: ${{ parameters.versionSha }}

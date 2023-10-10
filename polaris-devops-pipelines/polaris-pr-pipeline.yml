@@ -22,7 +22,6 @@ variables:
   - group: polaris-global
   - group: pipeline-terraform
   - group: ui-terraform
-  - group: polaris-vpn
   - name: buildConfiguration
     value: "Release"
   - name: pipelineTerraformWorkingDir
@@ -42,7 +41,7 @@ stages:
     jobs:
       - job: Generate_Diff
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
           - task: PowerShell@2
             inputs:
@@ -162,14 +161,8 @@ stages:
     jobs:
       - job: Validate
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -193,40 +186,10 @@ stages:
 
       - job: CheckPlan
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(templatesWorkingDir)
-            env:
-              PRESHAREDKEY: $(dev_pre-shared_key)
-              PRIVATEKEY: $(dev_private_key)
-              CLIENTCERTIFICATE: $(dev_client_cert)
-              VPNSERVER: $(dev_vpn_server)
-              DNSSERVER: $(dev_dns_server)
-            displayName: Creating DEV VPN tunnel
-          
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -262,14 +225,8 @@ stages:
     jobs:
       - job: Validate
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -293,40 +250,10 @@ stages:
 
       - job: CheckPlan
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(templatesWorkingDir)
-            env:
-              PRESHAREDKEY: $(dev_pre-shared_key)
-              PRIVATEKEY: $(dev_private_key)
-              CLIENTCERTIFICATE: $(dev_client_cert)
-              VPNSERVER: $(dev_vpn_server)
-              DNSSERVER: $(dev_dns_server)
-            displayName: Creating DEV VPN tunnel
-          
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -362,14 +289,8 @@ stages:
     jobs:
       - job: Validate
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -393,40 +314,10 @@ stages:
 
       - job: CheckPlan
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(templatesWorkingDir)
-            env:
-              PRESHAREDKEY: $(dev_pre-shared_key)
-              PRIVATEKEY: $(dev_private_key)
-              CLIENTCERTIFICATE: $(dev_client_cert)
-              VPNSERVER: $(dev_vpn_server)
-              DNSSERVER: $(dev_dns_server)
-            displayName: Creating DEV VPN tunnel
-          
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -462,14 +353,8 @@ stages:
     jobs:
       - job: Validate
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -493,40 +378,10 @@ stages:
 
       - job: CheckPlan
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         dependsOn: Validate
         displayName: Check Plan
         steps:
-          #create vpn tunnel
-          - bash: |
-              sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-              chmod 777 vpnconfig.ovpn
-              envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-              sudo openvpn _vpnconfig.ovpn &
-
-              sleep 5
-
-              ifconfig tun0
-
-              sudo rm /etc/resolv.conf
-              echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-            workingDirectory: $(templatesWorkingDir)
-            env:
-              PRESHAREDKEY: $(dev_pre-shared_key)
-              PRIVATEKEY: $(dev_private_key)
-              CLIENTCERTIFICATE: $(dev_client_cert)
-              VPNSERVER: $(dev_vpn_server)
-              DNSSERVER: $(dev_dns_server)
-            displayName: Creating DEV VPN tunnel
-          
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-          
           # Terraform Init
           - bash: |
               terraform init \
@@ -566,7 +421,7 @@ stages:
       - job:
         displayName: Build, Test, Report - Gateway
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
           - task: DotNetCoreCLI@2
             inputs:
@@ -609,7 +464,7 @@ stages:
       - job:
         displayName: Build, Test, Report - Pipeline (Ubuntu)
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
           - task: DotNetCoreCLI@2
             inputs:
@@ -841,7 +696,7 @@ stages:
       - job:
         displayName: Build, Test, Report - UI
         pool:
-          vmImage: ubuntu-latest
+          name: $(dev-build-agent)
         steps:
           - task: DotNetCoreCLI@2
             displayName: 'Install ReportGenerator'
@@ -849,6 +704,9 @@ stages:
               command: custom
               custom: tool
               arguments: 'install --global dotnet-reportgenerator-globaltool'
+              
+          - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
+            displayName: 'Update PATH'
 
           - download: current
             patterns: '**/*.cobertura.xml'

@@ -20,13 +20,12 @@ variables:
   - group: kv-prod-terraform
   - group: polaris-global
   - group: networking-terraform
-  - group: polaris-vpn
-
+  
 stages:
   - stage: Apply_DEV
     displayName: DEV Deployment
     pool:
-      vmImage: ubuntu-latest
+      name: $(dev-build-agent)
     jobs:
       - deployment: Networking_Terraform_Deployment
         environment: "Dev"
@@ -39,36 +38,6 @@ stages:
                   displayName: Download Templates
                   artifact: 'polaris-template-files'
                   
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-                    chmod 777 vpnconfig.ovpn
-                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-                    sudo openvpn _vpnconfig.ovpn &
-
-                    sleep 5
-
-                    ifconfig tun0
-
-                    sudo rm /etc/resolv.conf
-                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/polaris-template-files
-                  env:
-                    PRESHAREDKEY: $(dev_pre-shared_key)
-                    PRIVATEKEY: $(dev_private_key)
-                    CLIENTCERTIFICATE: $(dev_client_cert)
-                    VPNSERVER: $(dev_vpn_server)
-                    DNSSERVER: $(dev_dns_server)
-                  displayName: Creating DEV VPN tunnel
-                  
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                
                 #download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
@@ -117,7 +86,7 @@ stages:
   - stage: Apply_QA
     displayName: QA Deployment
     pool:
-      vmImage: ubuntu-latest
+      name: $(qa-build-agent)
     jobs:
       - deployment: Networking_Terraform_Deployment
         environment: "QA"
@@ -130,36 +99,6 @@ stages:
                   displayName: Download Templates
                   artifact: 'polaris-template-files'
                   
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-                    chmod 777 vpnconfig.ovpn
-                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-                    sudo openvpn _vpnconfig.ovpn &
-
-                    sleep 5
-
-                    ifconfig tun0
-
-                    sudo rm /etc/resolv.conf
-                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/polaris-template-files
-                  env:
-                    PRESHAREDKEY: $(qa_pre-shared_key)
-                    PRIVATEKEY: $(qa_private_key)
-                    CLIENTCERTIFICATE: $(qa_client_cert)
-                    VPNSERVER: $(qa_vpn_server)
-                    DNSSERVER: $(qa_dns_server)
-                  displayName: Creating QA VPN tunnel
-                  
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                
                 #download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
@@ -208,7 +147,7 @@ stages:
   - stage: Apply_PROD
     displayName: PROD Deployment
     pool:
-      vmImage: ubuntu-latest
+      name: $(prod-build-agent)
     jobs:
       - deployment: Networking_Terraform_Deployment
         environment: "Prod"
@@ -221,36 +160,6 @@ stages:
                   displayName: Download Templates
                   artifact: 'polaris-template-files'
                   
-                #create vpn tunnel
-                - bash: |
-                    sudo apt-get --assume-yes --no-install-recommends install openvpn
-
-                    chmod 777 vpnconfig.ovpn
-                    envsubst < vpnconfig.ovpn > _vpnconfig.ovpn
-
-                    sudo openvpn _vpnconfig.ovpn &
-
-                    sleep 5
-
-                    ifconfig tun0
-
-                    sudo rm /etc/resolv.conf
-                    echo "nameserver $DNSSERVER" | sudo tee /etc/resolv.conf
-                  workingDirectory: $(Pipeline.Workspace)/NetworkingBuild/polaris-template-files
-                  env:
-                    PRESHAREDKEY: $(prod_pre-shared_key)
-                    PRIVATEKEY: $(prod_private_key)
-                    CLIENTCERTIFICATE: $(prod_client_cert)
-                    VPNSERVER: $(prod_vpn_server)
-                    DNSSERVER: $(prod_dns_server)
-                  displayName: Creating PROD VPN tunnel
-                  
-                # Install Terraform based on version variable
-                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-                  displayName: Terraform > Install
-                  inputs:
-                    terraformVersion: $(terraform-version)
-                
                 #download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
