@@ -9,7 +9,7 @@ import {
  * to navigate forward and backward through the document words.
  */
 const WORD_FOCUS_KEY = ",";
-const TAB_KEY_CODE = "Tab";
+const ESCAPE_KEY_CODE = 27;
 export const useDocumentFocus = (activeTabId: string | undefined) => {
   const getTextLayerChildren = () => {
     const textLayers = document
@@ -80,12 +80,6 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     return false;
   };
 
-  const getRedactBtn = useCallback(() => {
-    const activeTabPanel = document.querySelector("#active-tab-panel");
-    const redactBtn = activeTabPanel?.querySelector("#btn-redact");
-    return redactBtn;
-  }, []);
-
   const getDocumentPanel = useCallback(() => {
     return document.querySelector(`#active-tab-panel`);
   }, []);
@@ -121,18 +115,22 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     []
   );
 
+  const triggerEscapeKeyPress = useCallback(() => {
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        keyCode: ESCAPE_KEY_CODE,
+        which: ESCAPE_KEY_CODE,
+        code: "Escape",
+      })
+    );
+  }, []);
+
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
       //this is temporary hack supply the keycode from console, for any further live test of key combination.
       const WORD_FOCUS_CODE = (window as any).wordFocusCode ?? "Comma";
 
-      if (e.code === TAB_KEY_CODE || e.key === TAB_KEY_CODE) {
-        const redactBtn = getRedactBtn();
-        if (redactBtn) {
-          (redactBtn as HTMLElement).focus();
-          e.preventDefault();
-        }
-      }
       if (!(e.code === WORD_FOCUS_CODE || e.key === WORD_FOCUS_KEY)) {
         return;
       }
@@ -148,7 +146,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
         setToggleRefresh((toggleRefresh) => !toggleRefresh);
       }
     },
-    [getRedactBtn, keyPress, sortedSpanElements.length]
+    [keyPress, sortedSpanElements.length]
   );
   // reset on tab change.
   useEffect(() => {
@@ -186,6 +184,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
       behavior: "smooth",
       block: "center",
     });
+    triggerEscapeKeyPress();
     const range = document.createRange();
     range.selectNodeContents(textToSelect);
     range.setStart(textToSelect.firstChild, wordFirstLetterIndex.current);
@@ -198,6 +197,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
     getDocumentPanel,
     sortedSpanElements,
     sortedSpanElements.length,
+    triggerEscapeKeyPress,
   ]);
 
   useEffect(() => {
