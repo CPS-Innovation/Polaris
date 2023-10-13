@@ -46,7 +46,6 @@ namespace coordinator.tests.Functions
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
-        private readonly Mock<ICaseRefreshLogsDurableEntity> _mockCaseRefreshLogsEntity;
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly RefreshCaseOrchestrator _coordinatorOrchestrator;
 
@@ -91,7 +90,6 @@ namespace coordinator.tests.Functions
             var mockLogger = new Mock<ILogger<RefreshCaseOrchestrator>>();
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
-            _mockCaseRefreshLogsEntity = new Mock<ICaseRefreshLogsDurableEntity>();
             _mockTelemetryClient = new Mock<ITelemetryClient>();
             mockConfiguration
                 .Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs])
@@ -116,10 +114,6 @@ namespace coordinator.tests.Functions
             _mockDurableOrchestrationContext
                 .Setup(context => context.CreateEntityProxy<ICaseDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == _transactionId)))
                 .Returns(_mockCaseEntity.Object);
-
-            _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ICaseRefreshLogsDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsDurableEntity).ToLower() && e.EntityKey.Contains(_payload.CmsCaseId.ToString()))))
-                .Returns(_mockCaseRefreshLogsEntity.Object);
 
             _mockDurableOrchestrationContext
                 .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
