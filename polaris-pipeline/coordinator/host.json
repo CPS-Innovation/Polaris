@@ -8,7 +8,6 @@
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
-      "DurableTask.Netherite": "Warning",
       "DurableTask.Core": "Information",
       "Microsoft.Azure.WebJobs.Host.Scale": "None"
     },
@@ -30,15 +29,8 @@
   },
   "extensions": {
     "durableTask": {
-      "useGracefulShutdown": true,
       "maxConcurrentActivityFunctions": 150,
       "maxConcurrentOrchestratorFunctions": 150,
-      "storageProvider": {
-        "type": "Netherite",
-        "PartitionCount": "12",
-        "StorageConnectionName": "AzureWebJobsStorage",
-        "EventHubsConnectionName": "EventHubsConnection"
-      },
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false
