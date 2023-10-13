@@ -64,12 +64,6 @@ namespace coordinator.Functions.DurableEntity.Entity
         [JsonProperty("Retrieved")]
         public float? Retrieved { get; set; }
 
-        [JsonProperty("pdfsGenerated")]
-        public float? PdfsGenerated { get; set; }
-
-        [JsonProperty("indexed")]
-        public float? Indexed { get; set; }
-
         [JsonProperty("completed")]
         public float? Completed { get; set; }
 
@@ -225,6 +219,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.DocumentId,
                         newDocument.VersionId,
                         newDocument.CmsDocType,
+                        newDocument.Path,
                         newDocument.FileExtension,
                         newDocument.DocumentDate,
                         newDocument.FileName,
@@ -252,6 +247,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.PolarisDocumentVersionId++;
                 trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
+                trackerDocument.Path = updatedDocument.Path;
                 trackerDocument.FileExtension = updatedDocument.FileExtension;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
@@ -449,23 +445,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             }
         }
 
-        public void SetCaseTiming((DocumentLogType LogType, float? T) args)
-        {
-            var (logType, t) = args;
-
-            switch (logType)
-            {
-                case DocumentLogType.PdfGenerated:
-                    PdfsGenerated = t;
-                    break;
-
-                case DocumentLogType.Indexed:
-                    Indexed = t;
-                    break;
-            }
-        }
-
-
         // Only required when debugging to manually set the Tracker state
         public void SetValue(CaseDurableEntity tracker)
         {
@@ -480,12 +459,6 @@ namespace coordinator.Functions.DurableEntity.Entity
             DefendantsAndCharges = tracker.DefendantsAndCharges;
         }
 
-        [FunctionName(nameof(CaseDurableEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext context)
-        {
-            return context.DispatchAsync<CaseDurableEntity>();
-        }
-
         public Task<DateTime> GetStartTime()
         {
             return Task.FromResult<DateTime>(Running.GetValueOrDefault());
@@ -494,6 +467,12 @@ namespace coordinator.Functions.DurableEntity.Entity
         public Task<float> GetDurationToCompleted()
         {
             return Task.FromResult<float>(Completed.GetValueOrDefault());
+        }
+
+        [FunctionName(nameof(CaseDurableEntity))]
+        public static Task Run([EntityTrigger] IDurableEntityContext context)
+        {
+            return context.DispatchAsync<CaseDurableEntity>();
         }
     }
 }

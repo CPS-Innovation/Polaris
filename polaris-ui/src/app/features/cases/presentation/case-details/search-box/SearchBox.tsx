@@ -60,7 +60,7 @@ export const SearchBox: React.FC<Props> = ({
               type="submit"
               onClick={handleSearch}
             >
-              <SearchIcon width={"20px"} height={"20px"} />
+              <SearchIcon width={"1.25rem"} height={"1.25rem"} />
             </button>
           ),
           className: classes.suffix,

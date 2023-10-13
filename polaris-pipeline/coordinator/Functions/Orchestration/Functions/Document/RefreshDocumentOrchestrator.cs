@@ -10,6 +10,7 @@ using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Microsoft.Rest;
 
 namespace coordinator.Functions.Orchestration.Functions.Document
 {
@@ -41,29 +42,25 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Get trackers for CaseId: '{payload.CmsCaseId}'");
-            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, payload.CmsCaseId, false, payload.CorrelationId, log);
+            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, false, payload.CorrelationId, log);
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the PDF Generator for PolarisDocumentId: '{payload.PolarisDocumentId}'");
-            await CallPdfGeneratorAsync(context, payload, caseEntity, caseRefreshLogsEntity, log);
+            await CallPdfGeneratorAsync(context, payload, caseEntity, log);
 
             if (payload.CmsDocumentTracker != null)
-            {
                 caseEntity.SetOcrProcessed((payload.PolarisDocumentId.ToString(), payload.CmsDocumentTracker.IsOcrProcessed));
-            }
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
-            caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.PdfGenerated, payload.PolarisDocumentId.ToString()));
 
             log.LogMethodFlow(payload.CorrelationId, loggingName, $"Calling the Text Extractor for PolarisDocumentId: '{payload.PolarisDocumentId}', BlobName: '{payload.BlobName}'");
-            await CallTextExtractorAsync(context, payload, payload.BlobName, caseEntity, caseRefreshLogsEntity, log);
+            await CallTextExtractorAsync(context, payload, payload.BlobName, caseEntity, log);
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, payload.BlobName));
-            caseRefreshLogsEntity.LogDocument((context.CurrentUtcDateTime, DocumentLogType.Indexed, payload.PolarisDocumentId.ToString()));
 
             log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
         }
 
-        private async Task CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, ILogger log)
+        private async Task CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallPdfGeneratorAsync), payload.ToJson());
             try
@@ -82,7 +79,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             }
         }
 
-        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseDurableEntity caseEntity, ICaseRefreshLogsDurableEntity caseRefreshLogsEntity, ILogger log)
+        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseDurableEntity caseEntity, ILogger log)
         {
             log.LogMethodEntry(payload.CorrelationId, nameof(CallTextExtractorAsync), payload.ToJson());
 

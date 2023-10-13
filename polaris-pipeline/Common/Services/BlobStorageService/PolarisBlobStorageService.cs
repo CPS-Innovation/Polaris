@@ -144,5 +144,27 @@ namespace Common.Services.BlobStorageService
                 _logger.LogMethodExit(correlationId, nameof(RemoveDocumentAsync), string.Empty);
             }
         }
+        
+        public async Task DeleteBlobsByCaseAsync(string caseId, Guid correlationId)
+        {
+            _logger.LogMethodEntry(correlationId, nameof(DeleteBlobsByCaseAsync), caseId);
+
+            var blobCount = 0;
+            var targetFolderPath = $"{caseId}/pdfs";
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
+            if (!await blobContainerClient.ExistsAsync())
+                throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
+            
+            await foreach (var blobItem in blobContainerClient.GetBlobsAsync(prefix: targetFolderPath))
+            {
+                var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+                var deleteResult = await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
+
+                if (deleteResult)
+                    blobCount++;
+            }
+            
+            _logger.LogMethodExit(correlationId, nameof(DeleteBlobsByCaseAsync), $"{blobCount} blobs deleted for caseId: {caseId}");
+        }
     }
 }

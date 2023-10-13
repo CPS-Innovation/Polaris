@@ -1,6 +1,6 @@
 .AreaHighlight {
-  /*border: 1px solid #333; see https://github.com/agentcooper/react-pdf-highlighter/issues/160#issuecomment-942854641*/
-  background-color: rgba(252, 232, 151, 1.0);
+  /*border: 0.0625rem solid #333; see https://github.com/agentcooper/react-pdf-highlighter/issues/160#issuecomment-942854641*/
+  background-color: rgba(252, 232, 151, 1);
   opacity: 1;
   mix-blend-mode: multiply;
 }

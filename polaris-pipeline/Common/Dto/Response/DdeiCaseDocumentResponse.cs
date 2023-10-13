@@ -13,6 +13,9 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("presentationTitle")]
     public string PresentationTitle { get; set; }
 
+    [JsonProperty("path")]
+    public string Path { get; set; }
+
     [JsonProperty("originalFileName")]
     public string OriginalFileName { get; set; }
 

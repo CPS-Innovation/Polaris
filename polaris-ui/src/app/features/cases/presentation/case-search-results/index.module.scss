@@ -4,50 +4,50 @@ $border-color: #b1b4b6; //govuk-colour("green");
   align-items: flex-end;
 
   button {
-    margin-left: 5px;
+    margin-left: 0.3125rem;
   }
 }
 
 .results {
-  margin-top: 40px;
+  margin-top: 2.5rem;
 }
 
 .filter {
-  border: 1px solid $border-color;
+  border: 0.0625rem solid $border-color;
 
   :global(.govuk-heading-m) {
-    border-bottom: 1px solid $border-color;
-    padding: 12px;
-    margin-bottom: 0px;
+    border-bottom: 0.0625rem solid $border-color;
+    padding: 0.75rem;
+    margin-bottom: 0;
   }
 
   & :global(.legend) {
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 0.625rem;
+    margin-bottom: 0.625rem;
   }
 
   :global(.govuk-form-group) {
-    padding: 0 10px;
+    padding: 0 0.625rem;
   }
 }
 
 .result {
-  margin-top: 30px;
+  margin-top: 1.875rem;
 }
 
 .defendantName {
-  margin: -17px 0 5px;
+  margin: -1rem 0 0.3125rem;
 }
 
 .result-offence + .result-offence {
-  margin-top: 25px;
+  margin-top: 1.5625rem;
 }
 
 .result-offence-line {
   display: flex;
 
   span:first-of-type {
-    min-width: 160px;
-    margin-right: 48px;
+    min-width: 10rem;
+    margin-right: 3rem;
   }
 }

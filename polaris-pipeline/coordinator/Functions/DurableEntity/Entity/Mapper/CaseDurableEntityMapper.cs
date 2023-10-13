@@ -5,15 +5,12 @@ namespace coordinator.Functions.DurableEntity.Entity.Mapper
 {
     public class CaseDurableEntityMapper
     {
-        public static TrackerDto MapCase(CaseDurableEntity caseEntity, CaseRefreshLogsDurableEntity caseRefreshLogsEntity)
+        public static TrackerDto MapCase(CaseDurableEntity caseEntity)
         {
             if(caseEntity == null)
                 caseEntity = new CaseDurableEntity { Status = CaseRefreshStatus.NotStarted };
 
-            if(caseRefreshLogsEntity == null)
-                caseRefreshLogsEntity = new CaseRefreshLogsDurableEntity();
-
-            var trackerDto = (caseEntity, caseRefreshLogsEntity).Adapt<TrackerDto>();
+            var trackerDto = caseEntity.Adapt<TrackerDto>();
 
             return trackerDto;
         }

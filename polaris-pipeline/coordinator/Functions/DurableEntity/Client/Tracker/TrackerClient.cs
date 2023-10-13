@@ -58,7 +58,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 log.LogMethodEntry(currentCorrelationId, loggingName, caseId);
                 #endregion
 
-                var (caseEntity, caseRefreshLogsEntity, errorMessage) = await GetCaseTrackersForEntity(client, caseId, currentCorrelationId, loggingName, log);
+                var (caseEntity, errorMessage) = await GetCaseTrackerForEntity(client, caseId, currentCorrelationId, loggingName, log);
 
                 if(errorMessage != null)
                 {
@@ -70,7 +70,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                 {
                     case "GET":
                         log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
-                        var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity, caseRefreshLogsEntity);
+                        var trackerDto = CaseDurableEntityMapper.MapCase(caseEntity);
                         return new OkObjectResult(trackerDto);
 
                     default:

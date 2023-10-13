@@ -1,11 +1,10 @@
 .content {
-  height: 50px;
   font-size: 1rem !important;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 20px;
-  border-bottom: 1px solid #b1b4b6;
+  padding: 0.25rem 1.25rem;
+  border-bottom: 0.0625rem solid #b1b4b6;
   .btnReportIssue {
     margin: 0;
   }

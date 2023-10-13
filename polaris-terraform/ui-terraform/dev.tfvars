@@ -24,12 +24,23 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip                   = "10.2.177.14"
-  upstream_cms_modern_ip            = "10.2.177.55"
-  upstream_cms_domain_name          = "cin3.cps.gov.uk"
-  upstream_cms_modern_domain_name   = "cmsmodcin3.cps.gov.uk"
-  upstream_cms_services_domain_name = "not-used-in-cin3.cps.gov.uk"
+  upstream_cms_ip_corsham        = "10.2.177.14"
+  upstream_cms_modern_ip_corsham = "10.2.177.55"
+  // for non-prod environments, current thinking is to try to go to Corsham's IP
+  //  even if we dtect a farnborough cookie
+  upstream_cms_ip_farnborough        = "10.2.177.14"
+  upstream_cms_modern_ip_farnborough = "10.2.177.55"
+  upstream_cms_domain_name           = "cin3.cps.gov.uk"
+  upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
+  upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
 }
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
+
+is_redaction_service_offline = "false"
+
+private_beta = {
+  sign_up_url = "https://forms.office.com/e/Af374akw0Q"
+  user_group  = "1a9b08e8-5839-4953-a053-c1bc6dd02233" // the Polaris-Dev-VPN group
+}

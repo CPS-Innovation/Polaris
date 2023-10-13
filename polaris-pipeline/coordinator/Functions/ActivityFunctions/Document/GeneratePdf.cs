@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
-using Common.Domain.Extensions;
 using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Common.Services.RenderHtmlService.Contract;
@@ -69,15 +68,13 @@ namespace coordinator.Functions.ActivityFunctions.Document
             {
                 _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
 
-                documentStream = await _ddeiClient.GetDocumentAsync
+                documentStream = await _ddeiClient.GetDocumentFromFileStoreAsync
                     (
-                        payload.CmsCaseUrn,
-                        payload.CmsCaseId.ToString(),
-                        payload.CmsDocumentTracker.CmsDocType.DocumentCategory,
-                        payload.CmsDocumentTracker.CmsDocumentId,
+                        payload.CmsDocumentTracker.Path,
                         payload.CmsAuthValues,
                         payload.CorrelationId
                     );
+
                 string fileExtension = payload.CmsDocumentTracker.FileExtension.Replace(".", string.Empty).ToUpperInvariant();
                 fileType = Enum.Parse<FileType>(fileExtension);
             }

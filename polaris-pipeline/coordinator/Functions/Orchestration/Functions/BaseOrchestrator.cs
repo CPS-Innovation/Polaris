@@ -10,9 +10,9 @@ namespace coordinator.Functions.Orchestration.Functions
 {
     public class PolarisOrchestrator
     {
-        protected async Task<(ICaseDurableEntity, ICaseRefreshLogsDurableEntity)> CreateOrGetCaseDurableEntities(IDurableOrchestrationContext context, long caseId, bool newVersion, Guid correlationId, ILogger log)
+        protected async Task<ICaseDurableEntity> CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, long caseId, bool newVersion, Guid correlationId, ILogger log)
         {
-            log.LogMethodEntry(correlationId, nameof(CreateOrGetCaseDurableEntities), $"CaseId: {caseId}");
+            log.LogMethodEntry(correlationId, nameof(CreateOrGetCaseDurableEntity), $"CaseId: {caseId}");
 
             var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId.ToString());
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
@@ -26,11 +26,7 @@ namespace coordinator.Functions.Orchestration.Functions
                 caseEntity.SetVersion(version.Value);
             }
 
-            var caseRefreshLogsEntityKey = CaseRefreshLogsDurableEntity.GetOrchestrationKey(caseId.ToString(), version);
-            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), caseRefreshLogsEntityKey);
-            var caseRefreshLogsEntity = context.CreateEntityProxy<ICaseRefreshLogsDurableEntity>(caseRefreshLogsEntityId);
-
-            return (caseEntity, caseRefreshLogsEntity);
+            return caseEntity;
         }
     }
 }

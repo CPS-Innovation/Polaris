@@ -20,7 +20,9 @@
         TIFF,
         PNG,
         VSD,
+        HTM,
         HTML,
-        MSG
+        MSG,
+        HTE     // Custom CMS Email Type, possibly "HyperText Email"
     }
 }

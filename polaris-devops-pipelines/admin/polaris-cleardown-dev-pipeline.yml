@@ -13,8 +13,7 @@ variables:
   - group: kv-dev-terraform
   - group: polaris-global
   - group: pipeline-terraform
-  - group: polaris-vpn
-
+  
 stages:
   - stage: Clear_down_SearchIndex
     displayName: Reset Search Index
@@ -47,12 +46,6 @@ stages:
               DNSSERVER: $(dev_dns_server)
             displayName: Creating DEV VPN tunnel
             
-          # Install Terraform based on version variable
-          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
-            displayName: Terraform > Install
-            inputs:
-              terraformVersion: $(terraform-version)
-                
           # Terraform Init
           - bash: |
               terraform init \

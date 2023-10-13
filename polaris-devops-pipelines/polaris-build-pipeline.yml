@@ -16,21 +16,27 @@ trigger:
       - polaris-gateway/*
       - polaris-pipeline/*
       - polaris-ui/*
+      - polaris-e2e/*
        
 pr: none
   
 variables:
-  buildConfiguration: "Release"
-  majorMinorVersion: 1.0
-  semanticVersion: $[counter(variables['majorMinorVersion'], 1)]
+  - group: polaris-global
+  - name: buildConfiguration
+    value: "Release"
+  - name: majorMinorVersion
+    value: "1.0"
+  - name: semanticVersion
+    value: "$[counter(variables['majorMinorVersion'], 1)]"
     
+pool:
+  name: $(dev-build-agent)
+  
 stages:
   - stage: Determine_Changes
     displayName: Determine Changes
     jobs:
       - job: Generate_Diff
-        pool:
-          vmImage: ubuntu-latest
         steps:
           - task: PowerShell@2
             inputs:
@@ -50,16 +56,10 @@ stages:
                     echo "run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_DEV;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_DEV;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_DEV;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -161,16 +161,10 @@ stages:
                     echo "QA: run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_QA;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_QA;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_QA;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -272,16 +266,10 @@ stages:
                     echo "PROD: run pipeline terraform..."
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_EVENTS_TERRAFORM_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_TERRAFORM_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_EVENTS_TERRAFORM_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR_PROD;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER_PROD;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE_PROD;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/pipeline-events-terraform/*')
                   {
@@ -410,8 +398,6 @@ stages:
       runUICodebasePROD: $[stageDependencies.Determine_Changes.Generate_Diff.outputs['Change_Results.RUN_UI_CODEBASE_PROD']]
     jobs:
       - job: Build_Artifacts
-        pool:
-          vmImage: ubuntu-latest
         steps:
           - task: PublishPipelineArtifact@1
             displayName: "Publish pipeline scripts"
@@ -513,7 +499,7 @@ stages:
               command: publish
               publishWebProjects: false
               projects: "polaris-pipeline/text-extractor/text-extractor.csproj"
-              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber)"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Text-Extractor package to publish"
             condition: or(eq(variables.runTextExtractorDEV, 'true'),eq(variables.runTextExtractorQA, 'true'),eq(variables.runTextExtractorPROD, 'true'))
