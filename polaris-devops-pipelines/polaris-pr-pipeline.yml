@@ -696,7 +696,7 @@ stages:
       - job:
         displayName: Build, Test, Report - UI
         pool:
-          name: $(dev-build-agent)
+          vmImage: ubuntu-latest
         steps:
           - task: DotNetCoreCLI@2
             displayName: 'Install ReportGenerator'
@@ -705,9 +705,6 @@ stages:
               custom: tool
               arguments: 'install --global dotnet-reportgenerator-globaltool'
               
-          - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
-            displayName: 'Update PATH'
-
           - download: current
             patterns: '**/*.cobertura.xml'
             displayName: Retrieve published test reports
