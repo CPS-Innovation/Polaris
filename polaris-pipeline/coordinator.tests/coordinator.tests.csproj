@@ -23,7 +23,6 @@
     <Folder Include="Factories\" />
     <Folder Include="Functions\ActivityFunctions\" />
     <Folder Include="Functions\SubOrchestrators\" />
-    <Folder Include="Domain\" />
     <Folder Include="Domain\Tracker\" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +40,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.3" />
     <PackageReference Include="xunit" Version="2.5.0" />
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">

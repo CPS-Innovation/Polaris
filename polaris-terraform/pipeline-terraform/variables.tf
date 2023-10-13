@@ -19,12 +19,18 @@ variable "env" {
   type = string
 }
 
-variable "coordinator_service_plan_sku" {
-  type = string
-}
-
-variable "app_service_plan_sku" {
-  type = string
+variable "pipeline_component_service_plans" {
+  type = object({
+    coordinator_service_plan_sku     = string
+    coordinator_minimum_instances    = number
+    coordinator_maximum_instances    = number
+    pdf_generator_service_plan_sku   = string
+    pdf_generator_minimum_instances  = number
+    pdf_generator_maximum_instances  = number
+    text_extractor_plan_sku          = string
+    text_extractor_minimum_instances = number
+    text_extractor_maximum_instances = number
+  })
 }
 
 variable "environment_tag" {
@@ -53,5 +59,24 @@ variable "pipeline_logging" {
 }
 
 variable "overnight_clear_down_enabled" {
+  type = bool
+}
+
+variable "pipeline_event_hub_settings" {
+  type = object({
+    sku      = string
+    capacity = number
+  })
+}
+
+variable "sliding_clear_down_enabled" {
+  type = bool
+}
+
+variable "sliding_clear_down_input_days" {
+  type = number
+}
+
+variable "hte_feature_flag" {
   type = bool
 }

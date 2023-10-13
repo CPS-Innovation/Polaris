@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Extensions;
 using Ddei.Domain.CaseData.Args;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,36 +13,35 @@ using DdeiClient.Services.Contracts;
 using Common.Configuration;
 using Common.Wrappers.Contracts;
 using Common.Domain.Extensions;
+using Common.Telemetry.Wrappers.Contracts;
+using PolarisAuthHandover.Domain.Dto;
+using PolarisAuthHandover.Domain.Enums;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
     public class InitiateCookies
     {
-        private static readonly string[] WhitelistedCookieNameRoots = new[] {
-          "ASP.NET_SessionId",
-          "UID",
-          "WindowID",
-          "CMSUSER", // the cookie name itself is not fixed e.g. CMSUSER246814=foo
-          ".CMSAUTH",
-          "BIGipServer" // the cookie name itself is not fixed e.g. BIGipServer~ent-s221~Cblahblahblah...=foo
-        };
-
         private readonly IDdeiClient _ddeiClient;
-
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
-        public InitiateCookies(IDdeiClient ddeiClient, IJsonConvertWrapper jsonConvertWrapper)
+        public InitiateCookies(
+            IDdeiClient ddeiClient,
+            IJsonConvertWrapper jsonConvertWrapper,
+            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
             _ddeiClient = ddeiClient;
             _jsonConvertWrapper = jsonConvertWrapper;
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         [FunctionName(nameof(InitiateCookies))]
         public async Task<IActionResult> Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req)
         {
+            _telemetryAugmentationWrapper.RegisterClientIp(req.GetClientIpAddress());
             var currentCorrelationId = Guid.NewGuid();
-
+            _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
             try
             {
                 return DetectAuthFlowMode(req) switch
@@ -65,10 +65,10 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
         private async Task<IActionResult> CmsLaunchMode(HttpRequest req, Guid correlationId)
         {
-            var polarisAuthCookieContent = await CommonAuthFlow(req, correlationId);
+            var cmsAuthValues = await CommonAuthFlow(req, correlationId);
 
-            var redirectUrl = polarisAuthCookieContent != null
-                ? await BuildCmsLaunchModeRedirectUrl(req, polarisAuthCookieContent, correlationId)
+            var redirectUrl = cmsAuthValues != null
+                ? await BuildCmsLaunchModeRedirectUrl(req, cmsAuthValues, correlationId)
                 : null;
 
             return new RedirectResult(redirectUrl ?? CmsAuthConstants.CmsLaunchModeFallbackRedirectUrl);
@@ -89,16 +89,18 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             {
                 return null;
             }
+            _telemetryAugmentationWrapper.RegisterCmsUserId(whitelistedCookies.ExtractCmsUserId());
+            _telemetryAugmentationWrapper.RegisterLoadBalancingCookie(whitelistedCookies.ExtractLoadBalancerCookies());
 
-            var cmsModernToken = await GetCmsModernToken(whitelistedCookies, correlationId);
-            if (cmsModernToken == null)
+            var fullCmsAuthValues = await GetFullCmsAuthValues(req, whitelistedCookies, correlationId);
+            if (fullCmsAuthValues == null)
             {
                 return null;
             }
 
-            var polarisAuthCookieContent = CreateAndAppendPolarisAuthCookie(req, whitelistedCookies, cmsModernToken);
+            AppendPolarisAuthCookie(req, fullCmsAuthValues);
 
-            return polarisAuthCookieContent;
+            return fullCmsAuthValues;
         }
 
         private static string ExtractWhitelistedCookies(HttpRequest req)
@@ -111,8 +113,10 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
             var whitelistedCookies = cookiesString
                 .Split(" ")
-                .Where(cookie => WhitelistedCookieNameRoots.Any(whitelistedCookieNameRoot => cookie.StartsWith(whitelistedCookieNameRoot)))
-                .Aggregate(string.Empty, (curr, next) => $"{curr} {next}");
+                .Where(cookie => AuthHandoverConstants.WhitelistedCookieNameRoots
+                    .Any(whitelistedCookieNameRoot => cookie.StartsWith(whitelistedCookieNameRoot)))
+                    .Aggregate(string.Empty, (curr, next) => $"{curr} {next}")
+                    .Trim();
 
             if (string.IsNullOrWhiteSpace(whitelistedCookies))
             {
@@ -122,14 +126,16 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             return whitelistedCookies;
         }
 
-        private async Task<string> GetCmsModernToken(string cmsCookiesString, Guid currentCorrelationId)
+        private async Task<string> GetFullCmsAuthValues(HttpRequest req, string cmsCookiesString, Guid currentCorrelationId)
         {
             try
             {
-                var token = await _ddeiClient.GetCmsModernToken(new DdeiCmsCaseDataArgDto
+                var partialCmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\", UserIpAddress: \"{req.GetClientIpAddress()}\"}}";
+
+                var fullCmsAuthValues = await _ddeiClient.GetFullCmsAuthValues(new DdeiCmsCaseDataArgDto
                 {
                     CorrelationId = currentCorrelationId,
-                    CmsAuthValues = $"{{Cookies: \"{cmsCookiesString}\"}}"
+                    CmsAuthValues = partialCmsAuthValues
                 });
                 // Note 1 of 2:  two things may be happening if have got this far.
                 //  a) we have new cookies that correspond to a live Modern session and we are on the happy path.
@@ -137,7 +143,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 //    good, but actually will be no use to the client as it has expired as far as Modern is concerned.
                 //  We can't tell here which scenario unless ( todo: ) we make a representative call to Modern to see if
                 //  it doesn't fail. So we just continue to set the cookie and let the client figure things out.
-                return token;
+                return _jsonConvertWrapper.SerializeObject(fullCmsAuthValues);
             }
             catch (Exception)
             {
@@ -151,10 +157,8 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             }
         }
 
-        private static string CreateAndAppendPolarisAuthCookie(HttpRequest req, string cmsCookiesString, string cmsToken)
+        private static void AppendPolarisAuthCookie(HttpRequest req, string cmsAuthValues)
         {
-            var polarisAuthCookieContent = $"{{Cookies: \"{cmsCookiesString}\", Token: \"{cmsToken}\"}}";
-
             var cookieOptions = req.IsHttps
                 ? new CookieOptions
                 {
@@ -171,9 +175,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     // in production we are on http so *have* to be lax with cookie characteristics
                 };
 
-            req.HttpContext.Response.Cookies.Append(HttpHeaderKeys.CmsAuthValues, polarisAuthCookieContent, cookieOptions);
-
-            return polarisAuthCookieContent;
+            req.HttpContext.Response.Cookies.Append(HttpHeaderKeys.CmsAuthValues, cmsAuthValues, cookieOptions);
         }
 
         private async Task<string> BuildCmsLaunchModeRedirectUrl(HttpRequest req, string polarisCmsAuthValues, Guid currentCorrelationId)
@@ -185,7 +187,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             }
 
             var decodedCmsRedirectParam = cmsRedirectParam.ToString().UrlDecodeString();
-            var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CMSParamObject>(decodedCmsRedirectParam);
+            var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CmsHandoverParams>(decodedCmsRedirectParam);
             if (cmsParamObject == null)
             {
                 return null;
@@ -212,24 +214,6 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             {
                 return null;
             }
-        }
-
-        private class CMSParamObject
-        {
-            public int CaseId { get; set; }
-        }
-
-        private enum AuthFlowMode
-        {
-            // There are two mechanisms for redirecting back to the client.  
-            //  Mechanism 1: the Polaris UI has detected missing or expired auth and redirects to this endpoint with
-            //    a query param that contains the URL to redirect to after auth.
-            PolarisAuthRedirect,
-            // Mechanism 2: we are brought here from CMS.  The scheme there is that we are passed a case id of a case.
-            //  This is passed in the form of `q=%7B%22caseId%22%3A2073383%7D` where there is a fragment of JSON that
-            //  contains the case id.  We need to extract this and then call Modern to get the URN to form our full
-            //  redirect URL.
-            CmsLaunch
         }
     }
 }

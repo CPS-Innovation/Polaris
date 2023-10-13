@@ -18,5 +18,7 @@ namespace Common.Services.BlobStorageService.Contracts
         Task UploadDocumentAsync(Stream stream, string blobName, string caseId, PolarisDocumentId polarisDocumentId, string versionId, Guid correlationId);
 
         Task<bool> RemoveDocumentAsync(string blobName, Guid correlationId);
+        
+        Task DeleteBlobsByCaseAsync(string caseId, Guid correlationId);
     }
 }

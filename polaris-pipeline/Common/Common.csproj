@@ -3,6 +3,10 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <!-- 
       Include document-toggle.config as well as embeddeding (see below) 
@@ -11,6 +15,7 @@
     <None Update="document-toggle.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Remove="Health\HealthCheck.pdf" />
     <None Remove="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
     <None Remove="Services\RenderHtmlService\PcdRequest.cshtml" />
     <None Remove="Wrappers\" />
@@ -18,6 +23,11 @@
     <None Remove="Domain\" />
     <None Remove="Domain\Exceptions\" />
     <None Remove="Handlers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Health\HealthCheck.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -43,8 +53,8 @@
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.1" />
     <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.6.3" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="2.2.0" />

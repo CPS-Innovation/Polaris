@@ -2,7 +2,7 @@ import {
   InteractionRequiredAuthError,
   SilentRequest,
 } from "@azure/msal-browser";
-import { msalInstance } from "./msalInstnce";
+import { msalInstance } from "./msalInstance";
 
 export const getAccessToken = async (scopes: string[]) => {
   const [account] = msalInstance.getAllAccounts();

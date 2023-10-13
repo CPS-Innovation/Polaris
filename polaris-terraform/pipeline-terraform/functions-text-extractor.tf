@@ -4,26 +4,28 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   name                          = "fa-${local.resource_name}-text-extractor"
   location                      = azurerm_resource_group.rg.location
   resource_group_name           = azurerm_resource_group.rg.name
-  service_plan_id               = azurerm_service_plan.asp_polaris_text_extractor.id
-  storage_account_name          = azurerm_storage_account.sa.name
-  storage_account_access_key    = azurerm_storage_account.sa.primary_access_key
+  service_plan_id               = azurerm_service_plan.asp_polaris_ep_text_extractor.id
+  storage_account_name          = azurerm_storage_account.sa_text_extractor.name
+  storage_account_access_key    = azurerm_storage_account.sa_text_extractor.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_textextractor_subnet.id
   tags                          = local.common_tags
   functions_extension_version   = "~4"
   https_only                    = true
-  
+  public_network_access_enabled = false
+
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"              = "~4"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
     "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
     "WEBSITE_DNS_SERVER"                       = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
     "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.text_extractor_scale_controller
-    "AzureWebJobsStorage"                      = azurerm_storage_account.sa.primary_connection_string
+    "AzureWebJobsStorage"                      = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
     "ComputerVisionClientServiceUrl"           = azurerm_cognitive_account.computer_vision_service.endpoint
     "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
@@ -36,7 +38,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     http2_enabled                          = true
     runtime_scale_monitoring_enabled       = true
     vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = 3
+    elastic_instance_minimum               = var.pipeline_component_service_plans.text_extractor_minimum_instances
+    app_scale_limit                        = var.pipeline_component_service_plans.text_extractor_maximum_instances
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
   }

@@ -35,18 +35,16 @@
 
 .mainContent {
   margin-top: -1.5625rem;
+  .rightColumn {
+    margin-top: -3.4375rem;
+    height: 100vh;
+  }
 }
 
 .leftColumn {
   padding-right: 3.125rem !important;
   overflow-y: auto;
   height: calc(100vh - 3.4375rem);
-}
-
-.rightColumn {
-  /* to compensate for the back link height pushing our right column content down*/
-  margin-top: -3.4375rem;
-  height: 100vh;
 }
 
 .chargesCustodyTime {
@@ -73,7 +71,18 @@
   }
   li {
     margin: 0;
-
     padding: 0;
   }
+}
+
+.contentArea {
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
+  }
+}
+
+.sidePanelLabel {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
 }

@@ -7,15 +7,16 @@
       "Function": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
-      "Host.Triggers.DurableTask": "Warning",
-      "DurableTask.AzureStorage": "Warning",
-      "DurableTask.Core": "Warning"
+      "Host.Triggers.DurableTask": "Information",
+      "DurableTask.Netherite": "Warning",
+      "DurableTask.Core": "Information",
+      "Microsoft.Azure.WebJobs.Host.Scale": "None"
     },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,
         "maxTelemetryItemsPerSecond": 20,
-        "excludedTypes": "Request;Exception;CustomEvents"
+        "excludedTypes": "Request;Exception;Event"
       },
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,
@@ -29,8 +30,15 @@
   },
   "extensions": {
     "durableTask": {
-      "maxConcurrentActivityFunctions": 10,
-      "maxConcurrentOrchestratorFunctions": 10,
+      "useGracefulShutdown": true,
+      "maxConcurrentActivityFunctions": 150,
+      "maxConcurrentOrchestratorFunctions": 150,
+      "storageProvider": {
+        "type": "Netherite",
+        "PartitionCount": "12",
+        "StorageConnectionName": "AzureWebJobsStorage",
+        "EventHubsConnectionName": "EventHubsConnection"
+      },
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false

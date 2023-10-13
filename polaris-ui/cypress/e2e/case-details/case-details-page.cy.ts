@@ -662,7 +662,7 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Shift", "Tab"]);
-      cy.focused().should("have.id", "panel-0");
+      cy.focused().should("have.id", "active-tab-panel");
       cy.findByTestId("link-removeAll").click();
     });
 
@@ -719,9 +719,9 @@ describe("case details page", () => {
       keyPressAndVerifySelection("forward", "W");
       keyPressAndVerifySelection("forward", "Y");
       keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "M");
-      keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("forward", "R");
+      keyPressAndVerifySelection("forward", "(");
+      keyPressAndVerifySelection("backward", "R");
       keyPressAndVerifySelection("backward", "P");
       keyPressAndVerifySelection("backward", "Y");
       keyPressAndVerifySelection("backward", "W");
@@ -768,7 +768,8 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "btn-redact");
       cy.realPress("Escape");
-      cy.realPress(["Shift", "Tab"]);
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(["Tab"]);
       cy.focused().should("have.id", "btn-report-issue");
     });
 
@@ -782,7 +783,7 @@ describe("case details page", () => {
       keyPressAndVerifySelection("forward", "W");
       cy.realPress(",");
       keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
       //open the next document
       cy.findByTestId("link-document-4").click();
@@ -793,15 +794,168 @@ describe("case details page", () => {
       cy.realPress(",");
       cy.realPress(",");
       cy.realPress(",");
-      keyPressAndVerifySelection("forward", "P");
-      keyPressAndVerifySelection("forward", "1");
-      keyPressAndVerifySelection("forward", "o");
-      keyPressAndVerifySelection("forward", "3");
       keyPressAndVerifySelection("forward", "R");
-      keyPressAndVerifySelection("backward", "3");
-      keyPressAndVerifySelection("backward", "o");
-      keyPressAndVerifySelection("backward", "1");
+      keyPressAndVerifySelection("forward", "w");
+      keyPressAndVerifySelection("forward", "c");
+      keyPressAndVerifySelection("forward", "M");
+      keyPressAndVerifySelection("forward", "6");
+      keyPressAndVerifySelection("backward", "M");
+      keyPressAndVerifySelection("backward", "c");
+      keyPressAndVerifySelection("backward", "w");
+      keyPressAndVerifySelection("backward", "R");
+      //switch back to the first document
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      keyPressAndVerifySelection("forward", "W");
+      cy.realPress(",");
+      keyPressAndVerifySelection("forward", "P");
+      keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
+    });
+  });
+
+  describe("Switch main content areas using the Period '.' key press", () => {
+    it("Should be able switch between main content areas using the Period '.' Key Press", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(".");
+      cy.focused().should("have.id", "document-tabs");
+      cy.realPress(".");
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+    });
+
+    it("Should continue from the last active content if the focus has been changed to the inner element", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(".");
+      cy.focused().should("have.id", "document-tabs");
+      cy.findAllByTestId("btn-tab-0").click();
+      cy.realPress(".");
+      cy.focused().should("have.id", "document-tabs");
+      cy.realPress(".");
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress("Tab");
+      cy.focused().should("have.id", "btn-report-issue");
+      cy.realPress(".");
+      cy.focused().should("have.id", "active-tab-panel");
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+    });
+
+    it("Should keep the focus on side-panel, if there are no documents open  while pressing the Period '.' Key", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+      cy.realPress(".");
+      cy.focused().should("have.id", "side-panel");
+    });
+  });
+
+  describe("Document Tabs", () => {
+    it("The previous and next tab btn should be disabled,when there no more tabs to go on their side ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("btn-tab-previous").should("be.disabled");
+      cy.findByTestId("btn-tab-next").should("be.disabled");
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("btn-tab-previous").should("not.be.disabled");
+      cy.findByTestId("btn-tab-next").should("be.disabled");
+      cy.findByTestId("btn-tab-previous").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("btn-tab-previous").should("be.disabled");
+      cy.findByTestId("btn-tab-next").should("not.be.disabled");
+    });
+
+    it("Should disable the tabsDropdown button, if there is only one tab opened and enable if more than one tab is opened", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tabs-dropdown").should("be.disabled");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown").should("not.be.disabled");
+    });
+
+    it("Should open and close the dropdown panel, when the  dropdown button is clicked ", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("tabs-dropdown").should("be.disabled");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown").should("not.be.disabled");
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+    });
+
+    it("Should be able make a tab active, by clicking on the open document link buttons from the dropdown panel and link button for current active tab should be disabled", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("not.be.disabled");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("CM01")
+        .should("be.disabled");
+      cy.findByTestId("tabs-dropdown-panel").contains("MCLOVEMG3").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_0");
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("be.disabled");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("CM01")
+        .should("not.be.disabled");
+    });
+
+    it("Should be able close the dropdown panel when you press 'escape' key  or click outside of the panel", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("MCLOVEMG3")
+        .should("not.be.disabled");
+      cy.findByTestId("tabs-dropdown-panel")
+        .contains("CM01")
+        .should("be.disabled");
+      cy.realPress("Escape");
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+      cy.findByTestId("tabs-dropdown").click();
+      cy.findByTestId("tabs-dropdown-panel").should("exist");
+      cy.findByTestId("link-document-2").click();
+      cy.findByTestId("tabs-dropdown-panel").should("not.exist");
     });
   });
 });

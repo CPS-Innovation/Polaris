@@ -24,12 +24,21 @@ ui_logging = {
 }
 
 cms_details = {
-  upstream_cms_ip                   = "10.2.177.2"
-  upstream_cms_modern_ip            = "10.2.177.50"
-  upstream_cms_domain_name          = "cms.cps.gov.uk"
-  upstream_cms_modern_domain_name   = "cmsmodern.cps.gov.uk"
-  upstream_cms_services_domain_name = "cms-services.cps.gov.uk"
+  upstream_cms_ip_corsham            = "10.2.177.2"
+  upstream_cms_modern_ip_corsham     = "10.2.177.50"
+  upstream_cms_ip_farnborough        = "10.3.177.2"
+  upstream_cms_modern_ip_farnborough = "10.3.177.50"
+  upstream_cms_domain_name           = "cms.cps.gov.uk"
+  upstream_cms_modern_domain_name    = "cmsmodern.cps.gov.uk"
+  upstream_cms_services_domain_name  = "cms-services.cps.gov.uk"
 }
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
+
+is_redaction_service_offline = "true"
+
+private_beta = {
+  sign_up_url = "https://forms.office.com/e/Af374akw0Q"
+  user_group  = "4d88565f-227b-4043-995c-038286b79869" // the Polaris-Production Access group
+}

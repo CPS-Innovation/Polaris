@@ -45,11 +45,11 @@ namespace Ddei.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task<string> GetCmsModernToken(DdeiCmsCaseDataArgDto arg)
+        public async Task<DdeiCmsAuthValuesDto> GetFullCmsAuthValues(DdeiCmsCaseDataArgDto arg)
         {
             try
             {
-                return await CallDdei<string>(_ddeiClientRequestFactory.CreateCmsModernTokenRequest(arg));
+                return await CallDdei<DdeiCmsAuthValuesDto>(_ddeiClientRequestFactory.CreateCmsAuthValuesRequest(arg));
             }
             catch (Exception exception)
             {
@@ -142,6 +142,21 @@ namespace Ddei.Services
             return await response.Content.ReadAsStreamAsync();
         }
 
+        public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
+        {
+            // todo: should this return a DocumentServiceException?
+            var response = await CallDdei(
+                _ddeiClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiCmsFileStoreArgDto
+                {
+                    Path = path,
+                    CmsAuthValues = cmsAuthValues,
+                    CorrelationId = correlationId
+                })
+            );
+
+            return await response.Content.ReadAsStreamAsync();
+        }
+
         public async Task<HttpResponseMessage> CheckoutDocument(DdeiCmsDocumentArgDto arg)
         {
             try
@@ -184,6 +199,15 @@ namespace Ddei.Services
         private async Task<DdeiCaseDetailsDto> GetCaseAsync(DdeiCmsCaseArgDto arg)
         {
             return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
+        }
+
+        public async Task<string> GetStatus()
+        {
+            var request = _ddeiClientRequestFactory.CreateStatusRequest();
+            using var response = await CallDdei(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            return content;
         }
 
         private async Task<T> CallDdei<T>(HttpRequestMessage request)

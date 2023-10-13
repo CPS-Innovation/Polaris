@@ -21,13 +21,8 @@ using Common.Clients.Contracts;
 using Common.Clients;
 using FluentValidation;
 using Common.Domain.Validators;
-using System.IO;
 using Common.Dto.Request;
 using Ddei.Services.Extensions;
-using Azure.Storage.Blobs;
-using Common.Services.BlobStorageService.Contracts;
-using Common.Services.BlobStorageService;
-using Microsoft.Extensions.Logging;
 using Common.Handlers.Contracts;
 using Common.Handlers;
 using coordinator.Domain;
@@ -36,58 +31,61 @@ using coordinator.Domain.Mapper;
 using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using coordinator.Providers;
 using Microsoft.Extensions.Azure;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
 {
     [ExcludeFromCodeCoverage]
-    internal class Startup : FunctionsStartup
+    internal class Startup : BaseDependencyInjectionStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-#if DEBUG
-                .SetBasePath(Directory.GetCurrentDirectory())
-#endif
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .Build();
+            var services = builder.Services;
 
-            builder.Services.AddSingleton<IConfiguration>(configuration);
-            builder.Services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
-            builder.Services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-            builder.Services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
-            builder.Services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
-            builder.Services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
-            builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
-            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
-            builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
-            builder.Services.AddBlobStorageWithDefaultAzureCredential(configuration);
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddTransient<IDefaultAzureCredentialFactory, DefaultAzureCredentialFactory>();
+            services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
+            services.AddTransient<IValidatorWrapper<CaseDocumentOrchestrationPayload>, ValidatorWrapper<CaseDocumentOrchestrationPayload>>();
+            services.AddSingleton<IGeneratePdfHttpRequestFactory, GeneratePdfHttpRequestFactory>();
+            services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
+            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
-            builder.Services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
+            services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
             {
-                client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
+                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineRedactPdfBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            builder.Services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
+            services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
             {
-                client.BaseAddress = new Uri(configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
+                client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            });
+            var pipelineCoordinatorBaseUrl = Configuration.GetValueFromConfig(PipelineSettings.PipelineCoordinatorBaseUrl);
+            var orchestrationLowLevelApiBaseUrl = pipelineCoordinatorBaseUrl.Replace("/api", string.Empty);
+            builder.Services.AddHttpClient($"Low-level{nameof(OrchestrationProvider)}", client =>
+            {
+                client.BaseAddress = new Uri(orchestrationLowLevelApiBaseUrl);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 
-            builder.Services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            builder.Services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
-            builder.Services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
-            builder.Services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
+            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
+            services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
+            builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
-            builder.Services.RegisterMapsterConfiguration();
-            builder.Services.AddBlobSasGenerator();
-            builder.Services.AddSearchClient(configuration);
-            builder.Services.AddDdeiClient(configuration);
+            services.RegisterMapsterConfiguration();
+            services.AddBlobSasGenerator();
+            services.AddSearchClient(Configuration);
+            services.AddDdeiClient(Configuration);
 
-            builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
-            BuildHealthChecks(builder);
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();
+            BuildHealthChecks(builder, Configuration);
         }
 
         /// <summary>
@@ -95,7 +93,7 @@ namespace coordinator
         /// Microsoft.Extensions.Diagnostics.HealthChecks Nuget downgraded to lower release to get package to work
         /// </summary>
         /// <param name="builder"></param>
-        private static void BuildHealthChecks(IFunctionsHostBuilder builder)
+        private static void BuildHealthChecks(IFunctionsHostBuilder builder, IConfigurationRoot configuration)
         {
             builder.Services.AddHttpClient();
 
@@ -117,12 +115,20 @@ namespace coordinator
                 client.DefaultRequestHeaders.Add("Correlation-Id", AuthenticatedHealthCheck.CorrelationId.ToString());
             });
 
-            builder.Services.AddHealthChecks()
+            var healthChecks = builder.Services.AddHealthChecks();
+            healthChecks
+                .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI")
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
-                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction })
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction })
-                .AddCheck<DDei.Health.DdeiClientHealthCheck>("DDEI Document Extraction Service");
+                .AddCheck<PolarisBlobStorageServiceHealthCheck>("PolarisBlobStorageService");
+
+            if (!configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
+                healthChecks
+                    .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
+                    .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction });
+
+            if (!configuration.IsConfigSettingEnabled(FeatureFlags.DisableConvertToPdfFeatureFlag))
+                healthChecks
+                    .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction });
         }
     }
 }

@@ -11,6 +11,7 @@
         public const string VersionId = nameof(VersionId);
         public const string PolarisDocumentId = nameof(PolarisDocumentId);
         public const string BlobName = nameof(BlobName);
+        public const string XForwardedFor = "X-Forwarded-For";
     }
 
     public static class HttpHeaderValues
@@ -46,6 +47,11 @@
 
     public static class FeatureFlags
     {
+        public const string HteFeatureFlag = nameof(HteFeatureFlag);
+
+        // The Disable flags should default to ON if not present, only required for integration testing
+        public const string DisableConvertToPdfFeatureFlag = nameof(DisableConvertToPdfFeatureFlag);
+        public const string DisableTextExtractorFeatureFlag = nameof(DisableTextExtractorFeatureFlag);
     }
 
 #if DEBUG
@@ -77,6 +83,8 @@
             public const string CoordinatorOrchestratorTimeoutSecs = "CoordinatorOrchestratorTimeoutSecs";
             public const string AzureWebJobsStorage = "AzureWebJobsStorage";
             public const string OvernightClearDownEnabled = "OvernightClearDownEnabled";
+            public const string SlidingClearDownEnabled = "SlidingClearDownEnabled";
+            public const string SlidingClearDownInputDays = "SlidingClearDownInputDays";
         }
 
         public static class TextExtractorKeys

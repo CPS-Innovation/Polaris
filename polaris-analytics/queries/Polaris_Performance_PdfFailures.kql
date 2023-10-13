@@ -1,0 +1,9 @@
+AppEvents
+| where ClientType == "PC"
+| where Name == "ConvertedDocument"
+| summarize 
+    FailureCount = countif(Properties.isFailure == "true"),
+    TotalCount = count()
+    by bin(TimeGenerated, 15m)
+| project FailurePercentage = round(100 * todouble(FailureCount)/todouble(TotalCount),2), TimeGenerated
+| render columnchart  

@@ -3,12 +3,17 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Common.Extensions
 {
     public static class HttpRequestExtensions
     {
+        private const string XForwardedForHeaderName = "X-Forwarded-For";
+
+        private const string EmptyClientIpAddress = "0.0.0.0";
+
         public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(this HttpRequest request)
             where V : AbstractValidator<T>, new()
         {
@@ -37,6 +42,17 @@ namespace Common.Extensions
         {
             var requestBody = await request.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(requestBody);
+        }
+
+        public static string GetClientIpAddress(this HttpRequest req)
+        {
+            return req.Headers[XForwardedForHeaderName]
+                .FirstOrDefault()
+                ?.Split(new char[] { ',' })
+                .FirstOrDefault()
+                ?.Split(new char[] { ':' })
+                .FirstOrDefault()
+                ?? EmptyClientIpAddress;
         }
     }
 }

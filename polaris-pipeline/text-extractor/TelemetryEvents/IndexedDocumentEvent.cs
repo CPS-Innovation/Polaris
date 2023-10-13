@@ -10,65 +10,44 @@ namespace text_extractor.TelemetryEvents
         private const string indexDurationSeconds = nameof(indexDurationSeconds);
         private const string indexSettledDurationSeconds = nameof(indexSettledDurationSeconds);
 
-        private readonly Guid _correlationId;
-        private readonly long _caseId;
-        private readonly string _documentId;
-        private readonly long _versionId;
-        private readonly DateTime _startTime;
-        private readonly DateTime _ocrCompletedTime;
-        private readonly DateTime _indexStoredTime;
-        private readonly DateTime _endTime;
-        private readonly int _pageCount;
-        private readonly int _lineCount;
-        private readonly int _wordCount;
+        public Guid CorrelationId { get; set; }
+        public long CaseId { get; set; }
+        public string DocumentId { get; set; }
+        public long VersionId { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime OcrCompletedTime { get; set; }
+        public DateTime IndexStoredTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public int PageCount { get; set; }
+        public int LineCount { get; set; }
+        public int WordCount { get; set; }
 
-        public IndexedDocumentEvent(
-            Guid correlationId,
-            long caseId,
-            string documentId,
-            long versionId,
-            int pageCount,
-            int lineCount,
-            int wordCount,
-            DateTime startTime,
-            DateTime ocrCompletedTime,
-            DateTime indexStoredTime,
-            DateTime endTime)
+        public IndexedDocumentEvent(Guid correlationId)
         {
-            _correlationId = correlationId;
-            _caseId = caseId;
-            _documentId = documentId;
-            _versionId = versionId;
-            _pageCount = pageCount;
-            _lineCount = lineCount;
-            _wordCount = wordCount;
-            _startTime = startTime;
-            _ocrCompletedTime = ocrCompletedTime;
-            _indexStoredTime = indexStoredTime;
-            _endTime = endTime;
+            CorrelationId = correlationId;
         }
 
-        public override (IDictionary<string, string>, IDictionary<string, double>) ToTelemetryEventProps()
+        public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
         {
             return (
                 new Dictionary<string, string>
                 {
-                    { nameof(_correlationId), _correlationId.ToString() },
-                    { nameof(_caseId), _caseId.ToString() },
-                    { nameof(_documentId), _documentId.ToString() },
-                    { nameof(_versionId), _versionId.ToString() },
-                    { nameof(_startTime), _startTime.ToString("o") },
-                    { nameof(_endTime), _endTime.ToString("o") },
+                    { nameof(CorrelationId), CorrelationId.ToString() },
+                    { nameof(CaseId), CaseId.ToString() },
+                    { nameof(DocumentId), DocumentId.ToString() },
+                    { nameof(VersionId), VersionId.ToString() },
+                    { nameof(StartTime), StartTime.ToString("o") },
+                    { nameof(EndTime), EndTime.ToString("o") },
                 },
-                new Dictionary<string, double>
+                new Dictionary<string, double?>
                 {
-                    { durationSeconds, GetDurationSeconds(_startTime, _endTime) },
-                    { nameof(_pageCount), _pageCount },
-                    { nameof(_lineCount), _lineCount },
-                    { nameof(_wordCount), _wordCount },
-                    { nameof(ocrDurationSeconds), GetDurationSeconds(_startTime, _ocrCompletedTime) },
-                    { nameof(indexDurationSeconds), GetDurationSeconds(_ocrCompletedTime, _indexStoredTime) },
-                    { nameof(indexSettledDurationSeconds), GetDurationSeconds(_indexStoredTime, _endTime) }
+                    { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
+                    { nameof(PageCount), PageCount },
+                    { nameof(LineCount), LineCount },
+                    { nameof(WordCount), WordCount },
+                    { nameof(ocrDurationSeconds), GetDurationSeconds(StartTime, OcrCompletedTime) },
+                    { nameof(indexDurationSeconds), GetDurationSeconds(OcrCompletedTime, IndexStoredTime) },
+                    { nameof(indexSettledDurationSeconds), GetDurationSeconds(IndexStoredTime, EndTime) }
                 }
             );
         }

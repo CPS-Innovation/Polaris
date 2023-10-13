@@ -7,6 +7,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   location                      = azurerm_resource_group.rg_polaris.location
   service_plan_id               = azurerm_service_plan.asp_polaris_proxy.id
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_proxy_subnet.id
+  public_network_access_enabled = false
 
   app_settings = {
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -28,8 +29,10 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.proxy_scale_controller
-    "UPSTREAM_CMS_IP"                                 = var.cms_details.upstream_cms_ip
-    "UPSTREAM_CMS_MODERN_IP"                          = var.cms_details.upstream_cms_modern_ip
+    "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
+    "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
+    "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
+    "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"              = var.cms_details.upstream_cms_modern_ip_farnborough
     "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
     "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"               = var.cms_details.upstream_cms_services_domain_name
     "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name

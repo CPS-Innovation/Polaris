@@ -61,7 +61,8 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
                 .ReturnsAsync(new ValidateTokenResult { IsValid = true, UserName = "user-name" });
 
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
-            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.AugmentRequestTelemetry(It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterUserName(It.IsAny<string>()));
+            _mockTelemetryAugmentationWrapper.Setup(wrapper => wrapper.RegisterCorrelationId(It.IsAny<Guid>()));
 
             _polarisPipelineTriggerCoordinator =
                 new PolarisPipelineCase(mockLogger.Object, _mockPipelineClient.Object, _mockTokenValidator.Object, mockTriggerCoordinatorResponseFactory.Object, _mockTelemetryAugmentationWrapper.Object);

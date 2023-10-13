@@ -8,6 +8,8 @@ type Props = {
 export const RedactionWarning: React.FC<Props> = ({ documentWriteStatus }) => {
   const getWarningText = (documentWriteStatus: PresentationFlags["write"]) => {
     switch (documentWriteStatus) {
+      case "IsRedactionServiceOffline":
+        return "Redaction is currently unavailable and undergoing maintenance.";
       case "OnlyAvailableInCms":
         return "This document can only be redacted in CMS.";
       case "DocTypeNotAllowed":

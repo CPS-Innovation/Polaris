@@ -1,0 +1,46 @@
+AppRequests
+| where AppRoleName == 'fa-polaris-auth-handover'
+| where Name == 'InitiateCookies'
+| where TimeGenerated > todatetime('2023-08-29')
+| project
+    OperationId,
+    TimeGenerated,
+    PolarisCorrelationId = tostring(Properties.PolarisCorrelationId),
+    ClientIPUnredacted = tostring(Properties.ClientIPUnredacted),
+    LoadBalancingCookie = tostring(Properties.LoadBalancingCookie),
+    CmsUserId = tolong(Properties.CmsUserId)
+| where ClientIPUnredacted !startswith "10.200"
+| where CmsUserId != 0 and isnotnull(CmsUserId)
+| extend
+    HasCorshamCookie = array_length(extract_all("(CPSAC)", LoadBalancingCookie)) > 0,
+    HasFarnboroughCookie = array_length(extract_all("(CPSAF)", LoadBalancingCookie)) > 0,
+    IPRoot = extract("(\\d+.\\d+)", 1, ClientIPUnredacted),
+    IsNewVersion = TimeGenerated > todatetime('2023-09-12T11:29:00')
+| extend
+    HasBothCookies = tobool(HasCorshamCookie and HasFarnboroughCookie)
+| join kind=leftouter (
+    Polaris_ProxyCmsLogs
+    | where Url endswith "uainGeneratedScript.aspx"
+    | extend Destination = extract("(corsham|farnborough)", 1, Url)
+    | extend IntendedDestination = iif(StatusCode == 302, iif(Destination == "farnborough", "corsham", "farnborough"), Destination)
+    ) on PolarisCorrelationId
+ | where Destination != ''  
+| project
+    PolarisCorrelationId,
+    CmsUserId,
+    TimeGenerated,
+    Day = startofday(TimeGenerated),
+    IsNewVersion,
+    ClientIPUnredacted,
+    IPRoot,
+    //LoadBalancingCookie,
+    HasCorshamCookie,
+    HasFarnboroughCookie,
+    HasBothCookies,
+    StatusCode,
+    Destination,
+    IntendedDestination
+| summarize Count = count() by IPRoot, Destination, IntendedDestination, HasBothCookies, StatusCode, IsNewVersion
+| order by IsNewVersion desc, StatusCode desc
+
+
