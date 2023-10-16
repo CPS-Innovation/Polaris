@@ -9,7 +9,7 @@
     "@cypress/instrument-cra": "^1.4.0",
     "@microsoft/applicationinsights-react-js": "^3.4.2",
     "@microsoft/applicationinsights-web": "^2.8.14",
-    "@microsoft/microsoft-graph-client": "^3.0.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@testing-library/cypress": "^9.0.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
