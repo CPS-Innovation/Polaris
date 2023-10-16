@@ -11,9 +11,9 @@ pipeline_logging = {
 }
 
 pipeline_component_service_plans = {
-  coordinator_service_plan_sku     = "EP1"
-  coordinator_minimum_instances    = 3
-  coordinator_maximum_instances    = 10
+  coordinator_service_plan_sku     = "EP2"
+  coordinator_minimum_instances    = 1
+  coordinator_maximum_instances    = 1
   pdf_generator_service_plan_sku   = "EP1"
   pdf_generator_minimum_instances  = 3
   pdf_generator_maximum_instances  = 10
