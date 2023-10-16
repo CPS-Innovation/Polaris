@@ -118,6 +118,6 @@
   "devDependencies": {
     "@types/sinon": "^10.0.13",
     "jest-fetch-mock": "^3.0.3",
-    "sinon": "^15.0.3"
+    "sinon": "^15.2.0"
   }
 }
