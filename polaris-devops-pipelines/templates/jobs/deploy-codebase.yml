@@ -1,0 +1,267 @@
+﻿parameters:
+  buildAgent: ""
+  buildLabel: ""
+  appInsightsKey: ""
+  devOpsEnv: "Polaris_DEV"
+  labelEnv: "DEV"
+  suffixEnv: "-dev"
+  azureSubscription: ""
+  pipelineLabel: "Pipeline Component Deployment"
+  uiLabel: "UI Component Deployment"
+  devOpsPatToken: ""
+
+jobs:
+- deployment: DeployPipelineComponents
+  environment: "Dev"
+  pool:
+    name: ${{ parameters.buildAgent }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          #download scripts artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Download Scripts
+          artifact: 'polaris-script-files'
+          
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Started"
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Publish Coordinator - Started"
+                
+          #download coordinator build artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Deploy > Download Coordinator Codebase Build
+          artifact: "polaris-coordinator-drop"
+        
+          # Deploy Related Codebase to Env
+        - task: AzureFunctionApp@1
+          displayName: 'Deploy Coordinator Azure Function App to ${{ parameters.labelEnv }}'
+          inputs:
+            azureSubscription: "${{ parameters.azureSubscription }}"
+            appType: functionAppLinux
+            appName: "fa-polaris-pipeline${{ parameters.suffixEnv }}-coordinator"
+            package: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-coordinator-drop
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Publish Coordinator - Completed"
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Publish Pdf Generator - Started"
+        
+          #download pdf-generator build artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Deploy > Download PDF Generator Codebase Build
+          artifact: "polaris-pdf-generator-drop"
+        
+          # Deploy Related Codebase to Env
+        - task: AzureFunctionApp@1
+          displayName: 'Deploy PDF Generator Azure Function App to ${{ parameters.labelEnv }}'
+          inputs:
+            azureSubscription: "${{ parameters.azureSubscription }}"
+            appType: functionApp
+            appName: "fa-polaris-pipeline${{ parameters.suffixEnv }}-pdf-generator"
+            package: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-pdf-generator-drop
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Publish Pdf Generator - Completed"
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Publish Text Extractor - Started"
+        
+          #download text-extractor build artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Deploy > Download Text Extractor Codebase Build
+          artifact: "polaris-text-extractor-drop"
+        
+          # Deploy Related Codebase to Env
+        - task: AzureFunctionApp@1
+          displayName: 'Deploy Text Extractor Azure Function App to ${{ parameters.labelEnv }}'
+          inputs:
+            azureSubscription: "${{ parameters.azureSubscription }}"
+            appType: functionAppLinux
+            appName: "fa-polaris-pipeline${{ parameters.suffixEnv }}-text-extractor"
+            package: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-text-extractor-drop
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Publish Text Extractor - Completed"
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}: Completed"
+          
+          #send any failures to AppInsights  
+        - template: ../tasks/send-failure-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            devOpsPatToken: "${{ parameters.devOpsPatToken }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.pipelineLabel }}"
+                        
+- deployment: DeployUIComponents
+  environment: "Dev"
+  pool:
+    name: $(dev-build-agent)
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          #download scripts artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Download Scripts
+          artifact: 'polaris-script-files'
+          
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Started"
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Publish SPA - Started"
+
+          #download UI build artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Deploy > Download SPA Codebase Build
+          artifact: "polaris-ui-drop"
+
+          #Deploy Related Codebase to Env
+        - task: AzureRmWebAppDeployment@4
+          displayName: 'Deploy SPA App Service to ${{ parameters.labelEnv }}'
+          inputs:
+            azureSubscription: "${{ parameters.azureSubscription }}"
+            appType: webAppLinux
+            WebAppName: "as-web-polaris${{ parameters.suffixEnv }}"
+            packageForLinux: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-ui-drop
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Publish SPA - Completed"
+
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Publish Gateway - Started"
+
+          #download gateway build artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Deploy > Download Gateway Codebase Build
+          artifact: "polaris-gateway-drop"
+
+          # Deploy Related Codebase to Env
+        - task: AzureFunctionApp@1
+          displayName: 'Deploy Gateway Azure Function App to ${{ parameters.labelEnv }}'
+          inputs:
+            azureSubscription: "${{ parameters.azureSubscription }}"
+            appType: functionAppLinux
+            appName: "fa-polaris${{ parameters.suffixEnv }}-gateway"
+            package: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-gateway-drop
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Publish Gateway - Completed"
+
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Publish Auth-Handover - Started"
+
+          #download gateway build artifact
+        - download: ${{ parameters.buildLabel }}
+          displayName: Deploy > Download Auth Handover Codebase Build
+          artifact: "polaris-auth-handover-drop"
+
+          # Deploy Related Codebase to Env
+        - task: AzureFunctionApp@1
+          displayName: 'Deploy Auth Handover Azure Function App to ${{ parameters.labelEnv }}'
+          inputs:
+            azureSubscription: "${{ parameters.azureSubscription }}"
+            appType: functionAppLinux
+            appName: "fa-polaris${{ parameters.suffixEnv }}-auth-handover"
+            package: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-auth-handover-drop
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Publish Auth-Handover - Completed"
+
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Restarting SPA - Started"
+
+          # Restart app service - moved away from deployment to buy some time    
+        - task: AzureAppServiceManage@0
+          displayName: 'Restart SPA Azure App Service'
+          inputs:
+            azureSubscription: "${{ parameters.azureSubscription }}"
+            Action: 'Restart Azure App Service'
+            WebAppName: "as-web-polaris${{ parameters.suffixEnv }}"
+            
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Restarting SPA - Completed"
+
+          #send custom event to AppInsights
+        - template: ../tasks/send-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}: Completed"    
+        
+        #send custom event to AppInsights
+        - task: PowerShell@2
+          displayName: 'AppInsights: Trace'
+          condition: succeeded()
+          inputs:
+            failOnStderr: true
+            targetType: 'filePath'
+            filePath: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-script-files/SendCustomEventToAppInsights.ps1
+            arguments: > # Use this to avoid newline characters in multi-line string
+              -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+              -PipelineName "$(resources.pipeline.${{ parameters.buildLabel }}.pipelineName)"
+              -CommitId "$(resources.pipeline.${{ parameters.buildLabel }}.sourceCommit)"
+              -BuildName "$(resources.pipeline.${{ parameters.buildLabel }}.runName)"
+              -Message "DEV UI Component Deployment: Completed"
+              
+          #send any failures to AppInsights  
+        - template: ../tasks/send-failure-to-app-insights.yml
+          parameters:
+            appInsightsKey: "${{ parameters.appInsightsKey }}"
+            devOpsPatToken: "${{ parameters.devOpsPatToken }}"
+            message: "${{ parameters.labelEnv }} ${{ parameters.uiLabel }}"

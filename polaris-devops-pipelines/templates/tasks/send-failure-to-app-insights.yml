@@ -1,0 +1,22 @@
+﻿parameters:
+  appInsightsKey: ""
+  devOpsPatToken: ""
+  message: ""
+  
+steps:
+  #send any errors to AppInsights
+  - task: PowerShell@2
+    displayName: 'AppInsights: Record Errors'
+    condition: failed()
+    inputs:
+      failOnStderr: true
+      targetType: 'filePath'
+      filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+      arguments: > # Use this to avoid newline characters in multi-line string
+        -InstrumentationKey "${{ parameters.appInsightsKey }}"
+        -PatToken: "${{ parameters.devOpsPatToken }}"
+        -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
+        -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
+        -ReleaseId "$(Build.BuildId)"
+        -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+        -Message "${{ parameters.message }}: Failed"
