@@ -24,11 +24,6 @@ pipeline_component_service_plans = {
 
 overnight_clear_down_enabled = false
 
-pipeline_event_hub_settings = {
-  sku      = "Standard"
-  capacity = 1
-}
-
 sliding_clear_down_enabled    = false
 sliding_clear_down_input_days = 31
 hte_feature_flag              = false
