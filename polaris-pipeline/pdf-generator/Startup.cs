@@ -36,7 +36,7 @@ namespace pdf_generator
 
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            services.AddTransient<IRedactionImplementation, DirectRedactionImplementation>();
+            services.AddTransient<IRedactionImplementation, ImageConversionImplementation>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
