@@ -69,6 +69,7 @@ namespace pdf_generator.Services.DocumentRedactionService
 
                 using var document = new Document(documentBlob);
 
+                telemetryEvent.PageCount = document.Pages.Count;
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 
                 AddAnnotations(document, redactPdfRequest, correlationId);

@@ -20,6 +20,7 @@ namespace pdf_generator.TelemetryEvents
     public ImplementationType ImplementationType;
     public int OriginalNullCharCount;
     public int NullCharCount;
+    public int PageCount;
 
     public RedactedDocumentEvent(
         Guid correlationId,
@@ -56,6 +57,7 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(Bytes), Bytes },
                     { nameof(OriginalNullCharCount), OriginalNullCharCount },
                     { nameof(NullCharCount), NullCharCount },
+                    { nameof(PageCount), PageCount }
           }
       );
     }
