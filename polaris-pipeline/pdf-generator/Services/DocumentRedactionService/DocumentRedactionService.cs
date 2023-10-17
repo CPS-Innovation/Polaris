@@ -61,7 +61,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                         Message = $"Invalid document - a document with filename '{fileName}' could not be retrieved for redaction purposes"
                     };
                 }
-
+                telemetryEvent.ImplementationType = _redactionImplementation.GetImplementationType();
                 telemetryEvent.StartTime = DateTime.UtcNow;
                 telemetryEvent.OriginalBytes = documentBlob.Length;
 
