@@ -57,6 +57,8 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
           isVisible={showConfirmationModal}
           handleClose={() => setShowConfirmationModal(false)}
           type="alert"
+          ariaLabel="Confirmation Modal"
+          ariaDescription="Thanks for reporting an issue with this document"
         >
           <ConfirmationModalContent
             message="Thanks for reporting an issue with this document."

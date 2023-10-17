@@ -7,12 +7,16 @@ import classes from "./Modal.module.scss";
 type Props = {
   isVisible: boolean | undefined;
   type?: "data" | "alert";
+  ariaLabel:string;
+  ariaDescription:string;
   handleClose: () => void;
 };
 
 export const Modal: React.FC<Props> = ({
   isVisible,
   children,
+  ariaLabel,
+  ariaDescription,
   type = "data",
   handleClose,
 }) => {
@@ -53,12 +57,20 @@ export const Modal: React.FC<Props> = ({
         data-testid="div-modal"
         role="dialog"
         aria-modal="true"
+        aria-labelledby={ariaLabel}
+        aria-describedby={ariaDescription}
         className={
           type === "data"
             ? `${classes.modalContent} ${classes.modalContentData}`
             : classes.modalContent
         }
       >
+      <span id="modal-label" className={classes.modalLabel}>
+      {ariaLabel}
+      </span>
+      <span id="modal-description" className={classes.modalDescription}>
+      {ariaDescription}
+      </span>
         <div
           role="presentation"
           onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {

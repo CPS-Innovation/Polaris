@@ -133,7 +133,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   return (
     <>
       {errorModal.show && (
-        <Modal isVisible handleClose={handleCloseErrorModal} type="alert">
+        <Modal
+          isVisible
+          handleClose={handleCloseErrorModal}
+          type="alert"
+          ariaLabel="Error Modal"
+          ariaDescription={errorModal.title}
+        >
           <ErrorModalContent
             title={errorModal.title}
             message={errorModal.message}
@@ -148,6 +154,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             setShowAlert(false);
           }}
           type="alert"
+          ariaLabel="Unsaved redaction warning modal"
+          ariaDescription="You are navigating away from documents with unsaved redactions"
         >
           <NavigationAwayAlertContent
             type="casefile"

@@ -39,24 +39,18 @@ export const ResultsModal: React.FC<Props> = ({
     PAUSE_PERIOD_MS,
     MANDATORY_WAIT_PERIOD
   );
-
-  if (waitStatus === "wait" && searchState.submittedSearchTerm) {
-    return (
-      <Modal
-        isVisible={searchState.isResultsVisible}
-        handleClose={handleCloseSearchResults}
-      >
+  return (
+    <Modal
+      isVisible={searchState.isResultsVisible}
+      handleClose={handleCloseSearchResults}
+      ariaLabel="Search Modal"
+      ariaDescription="Find your search results"
+    >
+      {waitStatus === "wait" && searchState.submittedSearchTerm ? (
         <PleaseWait />
-      </Modal>
-    );
-  } else {
-    return (
-      <Modal
-        isVisible={searchState.isResultsVisible}
-        handleClose={handleCloseSearchResults}
-      >
+      ) : (
         <Content {...restProps} />
-      </Modal>
-    );
-  }
+      )}
+    </Modal>
+  );
 };
