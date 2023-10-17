@@ -20,7 +20,6 @@ namespace coordinator.tests.Functions.SubOrchestrators
         private readonly CaseDocumentOrchestrationPayload _payload;
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
-        private readonly Mock<ICaseRefreshLogsDurableEntity> _mockCaseRefreshLogsEntity;
         private readonly RefreshDocumentOrchestrator _caseDocumentOrchestrator;
 
         public CaseDocumentOrchestratorTests()
@@ -45,7 +44,6 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
             _mockCaseEntity.Setup(entity => entity.GetVersion()).ReturnsAsync(1);
-            _mockCaseRefreshLogsEntity = new Mock<ICaseRefreshLogsDurableEntity>();
 
             _mockDurableOrchestrationContext
                 .Setup(context => context.GetInput<CaseDocumentOrchestrationPayload>())
@@ -54,9 +52,6 @@ namespace coordinator.tests.Functions.SubOrchestrators
             _mockDurableOrchestrationContext
                 .Setup(context => context.CreateEntityProxy<ICaseDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_payload.CmsCaseId}]")))
                 .Returns(_mockCaseEntity.Object);
-            _mockDurableOrchestrationContext
-                .Setup(context => context.CreateEntityProxy<ICaseRefreshLogsDurableEntity>(It.Is<EntityId>(e => e.EntityName == nameof(CaseRefreshLogsDurableEntity).ToLower() && e.EntityKey.Contains(_payload.CmsCaseId.ToString()))))
-                .Returns(_mockCaseRefreshLogsEntity.Object);
 
             _caseDocumentOrchestrator = new RefreshDocumentOrchestrator(mockLogger.Object);
         }

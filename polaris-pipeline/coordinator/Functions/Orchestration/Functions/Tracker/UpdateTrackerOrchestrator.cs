@@ -36,7 +36,7 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
             var currentCaseId = payload.CaseOrchestrationPayload.CmsCaseId;
 
             log.LogMethodFlow(payload.CaseOrchestrationPayload.CorrelationId, loggingName, $"Retrieve trackers for case {currentCaseId}");
-            var (caseEntity, caseRefreshLogsEntity) = await CreateOrGetCaseDurableEntities(context, currentCaseId, false, payload.CaseOrchestrationPayload.CorrelationId, log);
+            var caseEntity = await CreateOrGetCaseDurableEntity(context, currentCaseId, false, payload.CaseOrchestrationPayload.CorrelationId, log);
 
             try
             {

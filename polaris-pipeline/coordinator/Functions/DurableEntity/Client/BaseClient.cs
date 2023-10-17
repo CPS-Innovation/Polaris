@@ -32,7 +32,7 @@ namespace coordinator.Functions.DurableEntity.Client
     {
         const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
-        protected async Task<(CaseDurableEntity CaseEntity, CaseRefreshLogsDurableEntity CaseRefreshLogsEntity, string errorMessage)> GetCaseTrackersForEntity
+        protected async Task<(CaseDurableEntity CaseEntity, string errorMessage)> GetCaseTrackerForEntity
             (
                 IDurableEntityClient client,
                 string caseId,
@@ -49,20 +49,10 @@ namespace coordinator.Functions.DurableEntity.Client
             {
                 var errorMessage = $"No Case Entity found with id '{caseId}'";
                 log.LogMethodFlow(correlationId, loggingName, errorMessage);
-                return (null, null, errorMessage);
+                return (null, errorMessage);
             }
 
-            var caseRefreshLogsEntityKey = CaseRefreshLogsDurableEntity.GetOrchestrationKey(caseId, caseEntity.EntityState.Version);
-            if (caseRefreshLogsEntityKey == null)
-                return (caseEntity.EntityState, null, null);
-
-            var caseRefreshLogsEntityId = new EntityId(nameof(CaseRefreshLogsDurableEntity), caseRefreshLogsEntityKey);
-            var caseRefreshLogsEntity = await client.ReadEntityStateAsync<CaseRefreshLogsDurableEntity>(caseRefreshLogsEntityId);
-
-            if(!caseRefreshLogsEntity.EntityExists)
-                return (caseEntity.EntityState, null, null);
-
-            return (caseEntity.EntityState, caseRefreshLogsEntity.EntityState, null);
+            return (caseEntity.EntityState, null);
         }
 
         protected async Task<GetTrackerDocumentResponse> GetTrackerDocument

@@ -1,0 +1,26 @@
+﻿steps:
+  - checkout: self
+    fetchDepth: 0
+    persistCredentials: true
+    
+  - task: GitVersion.gitversion-preview.gitversion-task.GitVersion@5
+    displayName: Install GitVersion
+    inputs:
+      versionSpec: "5.x"
+      includePrerelease: true
+      useConfigFile: true
+      configFilePath: polaris-devops-pipelines/scale-set/steps/git-version-config.yml
+      
+  - bash: |
+      echo '##vso[task.setvariable variable=assemblyVersion]$(GitVersion.AssemblySemVer)'
+      echo '##vso[task.setvariable variable=packageVersion]$(GitVersion.MajorMinorPatch)'
+      echo '##vso[task.setvariable variable=semanticVersion]$(GitVersion.SemVer)'
+      echo '##vso[task.setvariable variable=versionNumber]$(GitVersion.MajorMinorPatch)'      
+    displayName: Setting version variables
+
+  - bash: |
+      echo '##vso[task.setvariable variable=versionNumberOutput;isOutput=true]$(GitVersion.MajorMinorPatch)'
+      echo '##vso[task.setvariable variable=versionShortSha;isOutput=true]$(GitVersion.ShortSha)'
+      echo '##vso[build.updatebuildnumber]Deployment-$(GitVersion.SemVer)'      
+    displayName: Output version variables
+    name: versioning

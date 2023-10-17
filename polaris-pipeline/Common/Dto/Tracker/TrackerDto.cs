@@ -29,12 +29,6 @@ namespace Common.Dto.Tracker
         [JsonProperty("retrieved")]
         public float? Retrieved { get; set; }
 
-        [JsonProperty("pdfsGenerated")]
-        public float? PdfsGenerated { get; set; }
-
-        [JsonProperty("indexed")]
-        public float? Indexed { get; set; }
-
         [JsonProperty("completed")]
         public float? Completed { get; set; }
 
@@ -46,9 +40,6 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("documents")]
         public List<DocumentDto> Documents { get; set; }
-
-        [JsonProperty("logs")]
-        public CaseLogsDto Logs { get; set; }
     }
 }
 
