@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
-//using Aspose.Pdf.Devices;
 using Aspose.Pdf.Facades;
 using Common.Domain.Extensions;
 using Common.Dto.Request;
@@ -14,6 +13,7 @@ using Common.Telemetry.Contracts;
 using Microsoft.Extensions.Logging;
 using pdf_generator.TelemetryEvents;
 using pdf_generator.TelemetryEvents.Extensions;
+using pdf_generator.Services.DocumentRedactionService.RedactionImplementation;
 
 namespace pdf_generator.Services.DocumentRedactionService
 {
@@ -21,17 +21,20 @@ namespace pdf_generator.Services.DocumentRedactionService
     {
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ICoordinateCalculator _coordinateCalculator;
+        private readonly IRedactionImplementation _redactionImplementation;
         private readonly ILogger<DocumentRedactionService> _logger;
         private readonly ITelemetryClient _telemetryClient;
 
         public DocumentRedactionService(
             IPolarisBlobStorageService blobStorageService,
             ICoordinateCalculator coordinateCalculator,
+            IRedactionImplementation redactionImplementation,
             ILogger<DocumentRedactionService> logger,
             ITelemetryClient telemetryClient)
         {
             _polarisBlobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _coordinateCalculator = coordinateCalculator ?? throw new ArgumentNullException(nameof(coordinateCalculator));
+            _redactionImplementation = redactionImplementation;
             _logger = logger;
             _telemetryClient = telemetryClient;
         }
@@ -47,100 +50,50 @@ namespace pdf_generator.Services.DocumentRedactionService
                     redactionPageCounts: redactPdfRequest.RedactionPageCounts());
 
                 _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
-                var saveResult = new RedactPdfResponse();
 
-                //1. Load PDF from BLOB storage
-                _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), $"Load '{redactPdfRequest.FileName}' from Blob Storage");
                 var fileName = redactPdfRequest.FileName;
-                var document = await _polarisBlobStorageService.GetDocumentAsync(fileName, correlationId);
-                if (document == null)
+                var documentBlob = await _polarisBlobStorageService.GetDocumentAsync(fileName, correlationId);
+                if (documentBlob == null)
                 {
-                    saveResult.Succeeded = false;
-                    saveResult.Message = $"Invalid document - a document with filename '{fileName}' could not be retrieved for redaction purposes";
-                    return saveResult;
+                    return new RedactPdfResponse
+                    {
+                        Succeeded = false,
+                        Message = $"Invalid document - a document with filename '{fileName}' could not be retrieved for redaction purposes"
+                    };
                 }
-
-                var fileNameWithoutExtension = fileName.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) > -1 ? fileName.Split(".pdf", StringSplitOptions.RemoveEmptyEntries)[0] : fileName;
-
-                var newFileName = $"{fileNameWithoutExtension}_{DateTime.Now.Ticks.GetHashCode().ToString("x").ToUpper()}.pdf"; //restore save redaction to same storage for now, but with additional randomised identifier
-                                                                                                                                //this will be replaced shortly by the DDEI upload call
-
-                //2. Apply UI instructions by drawing boxes according to co-ordinate data onto existing PDF
-                _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), "Apply UI instructions by drawing boxes according to co-ordinate data onto existing PDF");
 
                 telemetryEvent.StartTime = DateTime.UtcNow;
-                telemetryEvent.OriginalBytes = document.Length;
+                telemetryEvent.OriginalBytes = documentBlob.Length;
 
-                using var redactedDocument = new Document(document);
-                var pdfInfo = new PdfFileInfo(redactedDocument);
+                using var document = new Document(documentBlob);
+                AddAnnotations(document, redactPdfRequest, correlationId);
 
-                foreach (var redactionPage in redactPdfRequest.RedactionDefinitions)
+                Document sanitizedDocument;
+                try
                 {
-                    var currentPage = redactionPage.PageIndex;
-                    var annotationPage = redactedDocument.Pages[currentPage];
-
-                    foreach (var boxToDraw in redactionPage.RedactionCoordinates)
-                    {
-                        var translatedCoordinates = _coordinateCalculator.CalculateRelativeCoordinates(redactionPage.Width,
-                            redactionPage.Height, currentPage, boxToDraw, pdfInfo, correlationId);
-
-                        var annotationRectangle = new Rectangle(translatedCoordinates.X1, translatedCoordinates.Y1, translatedCoordinates.X2, translatedCoordinates.Y2);
-                        var redactionAnnotation = new RedactionAnnotation(annotationPage, annotationRectangle)
-                        {
-                            FillColor = Color.Black
-                        };
-
-                        redactedDocument.Pages[currentPage].Annotations.Add(redactionAnnotation, true);
-                        redactionAnnotation.Redact();
-                    }
+                    sanitizedDocument = _redactionImplementation.SanitizeDocument(document);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogMethodError(correlationId, nameof(RedactPdfAsync), "Could not sanitize document", ex);
+                    sanitizedDocument = document;
                 }
 
-                _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), "Remove redacted document metadata");
-                redactedDocument.RemoveMetadata();
+                using var redactedDocumentStream = SaveToStream(sanitizedDocument);
 
-                //3. Save the flattened PDF into BLOB storage but with a new filename (FOR NOW, until we have a tactical or "for-reals" API solution/integration in place)
-                // Check the redacted document version - if less than 1.7 then attempt to convert 
-                _logger.LogMethodFlow(correlationId, nameof(RedactPdfAsync), $"Save the flattened PDF into 'local' BLOB storage but with a new filename, for now - new filename: {newFileName}");
-
-                using var redactedDocumentStream = new MemoryStream();
-                if (IsCandidateForConversion(redactedDocument.PdfFormat))
-                {
-                    var conversionOptions = new PdfFormatConversionOptions(PdfFormat.v_1_7);
-                    if (redactedDocument.Validate(conversionOptions))
-                    {
-                        try
-                        {
-                            using var convertedDocumentSteam = new MemoryStream();
-                            redactedDocument.Convert(convertedDocumentSteam, PdfFormat.v_1_7, ConvertErrorAction.Delete);
-                            redactedDocument.Save(redactedDocumentStream);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogMethodError(correlationId, nameof(RedactPdfAsync), "Could not convert the PDF document to version 1.7, saving 'as-is' in original format", ex);
-                            redactedDocument.Save(redactedDocumentStream);
-                        }
-                    }
-                    else
-                    {
-                        redactedDocument.Save(redactedDocumentStream);
-                    }
-                }
-                else
-                {
-                    redactedDocument.Save(redactedDocumentStream);
-                }
                 telemetryEvent.Bytes = redactedDocumentStream.Length;
                 telemetryEvent.EndTime = DateTime.UtcNow;
 
-                await _polarisBlobStorageService.UploadDocumentAsync(redactedDocumentStream, newFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.PolarisDocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
-
-                saveResult.Succeeded = true;
-                saveResult.RedactedDocumentName = newFileName;
-
-                _logger.LogMethodExit(correlationId, nameof(RedactPdfAsync), saveResult.ToJson());
+                var uploadFileName = GetUploadFileName(fileName);
+                await _polarisBlobStorageService.UploadDocumentAsync(redactedDocumentStream, uploadFileName, redactPdfRequest.CaseId.ToString(), redactPdfRequest.PolarisDocumentId, redactPdfRequest.VersionId.ToString(), correlationId);
 
                 _telemetryClient.TrackEvent(telemetryEvent);
-                return saveResult;
+
+                return new RedactPdfResponse
+                {
+                    Succeeded = true,
+                    RedactedDocumentName = uploadFileName
+                };
             }
             catch (Exception)
             {
@@ -149,9 +102,42 @@ namespace pdf_generator.Services.DocumentRedactionService
             }
         }
 
-        private static bool IsCandidateForConversion(PdfFormat currentVersion)
+        private void AddAnnotations(Document document, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
-            return currentVersion is PdfFormat.v_1_0 or PdfFormat.v_1_1 or PdfFormat.v_1_2 or PdfFormat.v_1_3 or PdfFormat.v_1_4 or PdfFormat.v_1_5 or PdfFormat.v_1_6;
+            var pdfInfo = new PdfFileInfo(document);
+
+            foreach (var redactionPage in redactPdfRequest.RedactionDefinitions)
+            {
+                var currentPage = redactionPage.PageIndex;
+                var annotationPage = document.Pages[currentPage];
+
+                foreach (var boxToDraw in redactionPage.RedactionCoordinates)
+                {
+                    var translatedCoordinates = _coordinateCalculator.CalculateRelativeCoordinates(redactionPage.Width,
+                        redactionPage.Height, currentPage, boxToDraw, pdfInfo, correlationId);
+
+                    var annotationRectangle = new Rectangle(
+                        translatedCoordinates.X1,
+                        translatedCoordinates.Y1,
+                        translatedCoordinates.X2,
+                        translatedCoordinates.Y2);
+
+                    _redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
+                }
+            }
+        }
+
+        private Stream SaveToStream(Document inputDocument)
+        {
+            var stream = new MemoryStream();
+            inputDocument.Save(stream);
+            return stream;
+        }
+
+        private string GetUploadFileName(string fileName)
+        {
+            var fileNameWithoutExtension = fileName.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) > -1 ? fileName.Split(".pdf", StringSplitOptions.RemoveEmptyEntries)[0] : fileName;
+            return $"{fileNameWithoutExtension}_{DateTime.Now.Ticks.GetHashCode().ToString("x").ToUpper()}.pdf"; //restore save redaction to same storage for now, but with additional randomised identifier
         }
     }
 }
