@@ -9,7 +9,6 @@ namespace pdf_generator.TelemetryEvents
   public class RedactedDocumentEvent : BaseTelemetryEvent
   {
     private const string redactionCount = nameof(redactionCount);
-
     public Guid CorrelationId;
     public string CaseId;
     public string DocumentId;
@@ -19,6 +18,8 @@ namespace pdf_generator.TelemetryEvents
     public DateTime StartTime;
     public DateTime EndTime;
     public ImplementationType ImplementationType;
+    public int OriginalNullCharCount;
+    public int NullCharCount;
 
     public RedactedDocumentEvent(
         Guid correlationId,
@@ -45,14 +46,16 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
                     { nameof(RedactionPageCounts), string.Join(",", RedactionPageCounts.Select(x => $"{x.Key}:{x.Value}")) },
-                    { nameof(ImplementationType), ImplementationType.ToString()}
+                    { nameof(ImplementationType), ImplementationType.ToString() }
           },
           new Dictionary<string, double?>
           {
-                    { redactionCount, RedactionPageCounts.Select(x => x.Value).Sum()},
+                    { redactionCount, RedactionPageCounts.Select(x => x.Value).Sum() },
                     { durationSeconds, GetDurationSeconds(StartTime, EndTime) },
                     { nameof(OriginalBytes), OriginalBytes },
-                    { nameof(Bytes), Bytes }
+                    { nameof(Bytes), Bytes },
+                    { nameof(OriginalNullCharCount), OriginalNullCharCount },
+                    { nameof(NullCharCount), NullCharCount },
           }
       );
     }

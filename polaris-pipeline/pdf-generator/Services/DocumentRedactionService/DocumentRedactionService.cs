@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using pdf_generator.TelemetryEvents;
 using pdf_generator.TelemetryEvents.Extensions;
 using pdf_generator.Services.DocumentRedactionService.RedactionImplementation;
+using Aspose.Pdf.Text;
+using System.Linq;
 
 namespace pdf_generator.Services.DocumentRedactionService
 {
@@ -66,6 +68,9 @@ namespace pdf_generator.Services.DocumentRedactionService
                 telemetryEvent.OriginalBytes = documentBlob.Length;
 
                 using var document = new Document(documentBlob);
+
+                telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
+
                 AddAnnotations(document, redactPdfRequest, correlationId);
 
                 Document sanitizedDocument;
@@ -79,6 +84,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                     sanitizedDocument = document;
                 }
 
+                telemetryEvent.NullCharCount = GetNullCharacterCount(sanitizedDocument);
                 using var redactedDocumentStream = SaveToStream(sanitizedDocument);
 
                 telemetryEvent.Bytes = redactedDocumentStream.Length;
@@ -127,10 +133,26 @@ namespace pdf_generator.Services.DocumentRedactionService
             }
         }
 
-        private Stream SaveToStream(Document inputDocument)
+        private int GetNullCharacterCount(Document document)
+        {
+            try
+            {
+                var textAbsorber = new TextAbsorber();
+                textAbsorber.ExtractionOptions.FormattingMode = TextExtractionOptions.TextFormattingMode.Raw;
+                document.Pages.Accept(textAbsorber);
+                var extractedText = textAbsorber.Text;
+                return extractedText.Count(c => c == 0);
+            }
+            catch (Exception)
+            {
+                return -1;
+            }
+        }
+
+        private Stream SaveToStream(Document document)
         {
             var stream = new MemoryStream();
-            inputDocument.Save(stream);
+            document.Save(stream);
             return stream;
         }
 
