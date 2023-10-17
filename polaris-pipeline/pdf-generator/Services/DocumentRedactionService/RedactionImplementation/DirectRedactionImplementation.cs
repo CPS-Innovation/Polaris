@@ -7,6 +7,8 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionImplementatio
 {
     public class DirectRedactionImplementation : IRedactionImplementation
     {
+        public ImplementationType GetImplementationType() => ImplementationType.DirectRedaction;
+
         public void AttachAnnotation(Page page, Rectangle rect)
         {
             var hardAnnotation = new RedactionAnnotation(page, rect)

@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
 
@@ -7,6 +5,7 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionImplementatio
 {
     public class ImageConversionImplementation : IRedactionImplementation
     {
+        public ImplementationType GetImplementationType() => ImplementationType.ImageConversion;
         public void AttachAnnotation(Page page, Rectangle rect)
         {
             var softAnnotation = new SquareAnnotation(page, rect)
