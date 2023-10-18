@@ -1,1 +1,1 @@
-updated task-23936 - 06/10/2023 - b
+updated bugfix - correct plan scale out variables - introduce separation between global plan and app-specific plan implementation values 18/10/2023 - a
