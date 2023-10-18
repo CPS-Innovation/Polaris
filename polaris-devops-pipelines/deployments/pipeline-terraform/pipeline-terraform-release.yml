@@ -1,0 +1,1606 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PipelineTerraformBuild
+      source: Polaris Pipeline Terraform - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: terraform-containers
+  - group: polaris-status-check-endpoints
+  
+stages:
+  - stage: Apply_DEV
+    displayName: Deployment > DEV
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: PipelineTerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Started"
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Pipeline Terraform - Started"
+                      
+                #download pipeline terraform build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Terraform > Download Pipeline terraform build
+                  artifact: "pipeline-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init Main Pipeline
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+                  displayName: Terraform > Write Pipeline Plan
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve dev.tfplan
+                  displayName: Terraform > Apply Main Pipeline
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                # Set Durable Extension Code app setting, post Coordinator creation
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-pipeline-dev-coordinator --resource-group rg-polaris-pipeline-dev --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Pipeline Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Publish Coordinator - Started"
+                    
+                #download coordinator build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download Coordinator Codebase Build
+                  artifact: "polaris-coordinator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Coordinator Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-dev-coordinator"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-coordinator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Publish Coordinator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Publish Pdf Generator - Started"
+                
+                #download pdf-generator build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-dev-pdf-generator"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-pdf-generator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Publish Pdf Generator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Publish Text Extractor - Started"
+                
+                #download text-extractor build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-dev-text-extractor"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-text-extractor-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Publish Text Extractor - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Pipeline Events Terraform - Started"
+                
+                #download pipeline events terraform build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Terraform > Download Pipeline Events terraform build
+                  artifact: "pipeline-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init Pipeline Events
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+                  displayName: Terraform > Write Pipeline Events Plan
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve dev.tfplan
+                  displayName: Terraform > Apply Pipeline Events
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Pipeline Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Completed"
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "DEV Pipeline Terraform CI Deployment: Failed"
+                    
+  - stage: Check_DEV
+    displayName: Status Checks > DEV
+    dependsOn: Apply_DEV
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: PipelineTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "DEV Pipeline Terraform CI Deployment: Status Checks - Started"
+
+          #query coordinator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Coordinator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-coordinator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV PDF-Generator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query text-extractor status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Text-Extractor status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-text-extractor-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "DEV Pipeline Terraform CI Deployment: Status Checks - Completed"
+                
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "DEV Pipeline Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_DEV
+    displayName: Run e2e tests > DEV
+    dependsOn: 
+      - Apply_DEV
+      - Check_DEV
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_DEV
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          #download scripts artifact
+          - download: PipelineTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "DEV Pipeline Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: DEV'
+            inputs:
+              buildDefinition: 129
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "DEV Pipeline Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "DEV Pipeline Terraform CI Deployment: Run e2e Tests - Failed"
+
+  - stage: Apply_QA
+    displayName: Deployment > QA
+    dependsOn: Run_e2e_Tests_DEV
+    condition: succeeded()
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: PipelineTerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Pipeline Terraform - Started"
+                
+                #download pipeline terraform build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Terraform > Download Pipeline terraform build
+                  artifact: "pipeline-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                  displayName: 'Terraform > Write Pipeline Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve qa.tfplan
+                  displayName: Terraform > Apply to QA
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                    
+                # Set Durable Extension Code app setting, post Coordinator creation
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-pipeline-qa-coordinator --resource-group rg-polaris-pipeline-qa --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Pipeline Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Publish Coordinator - Started"
+                    
+                #download coordinator build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download Coordinator Codebase Build
+                  artifact: "polaris-coordinator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Coordinator Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-qa-coordinator"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-coordinator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Publish Coordinator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Publish PDF Generator - Started"
+                
+                #download pdf-generator build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-qa-pdf-generator"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-pdf-generator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Publish PDF Generator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Publish Text Extractor - Started"
+                
+                #download text-extractor build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-qa-text-extractor"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-text-extractor-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Publish Text Extractor - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Pipeline Events Terraform - Started"
+                
+                #download pipeline events terraform build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Terraform > Download Pipeline Events terraform build
+                  artifact: "pipeline-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                  displayName: 'Terraform > Write Pipeline Events Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve qa.tfplan
+                  displayName: Terraform > Apply to QA
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Pipeline Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Completed"
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "QA Pipeline Terraform CI Deployment: Failed"
+                    
+  - stage: Check_QA
+    displayName: Status Checks > QA
+    dependsOn: Apply_QA
+    condition: succeeded()
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: PipelineTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "QA Pipeline Terraform CI Deployment: Status Checks - Started"  
+          
+          #query coordinator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Coordinator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-coordinator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA PDF-Generator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query text-extractor status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Text-Extractor status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-text-extractor-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "QA Pipeline Terraform CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "QA Pipeline Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_QA
+    displayName: Run e2e tests > QA
+    dependsOn:
+      - Apply_QA
+      - Check_QA
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_QA
+        pool:
+          name: $(qa-build-agent)
+        steps:
+          #download scripts artifact
+          - download: PipelineTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "QA Pipeline Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: QA'
+            inputs:
+              buildDefinition: 210
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "QA Pipeline Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "QA Pipeline Terraform CI Deployment: Run e2e Tests - Failed"
+
+  - stage: Apply_PROD
+    displayName: Deployment > PROD
+    dependsOn: Run_e2e_Tests_DEV
+    condition: succeeded()
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "Prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: PipelineTerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Pipeline Terraform - Started"
+                
+                #download pipeline terraform build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Terraform > Download Pipeline terraform build
+                  artifact: "pipeline-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write Pipeline Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                    
+                # Set Durable Extension Code app setting, post Coordinator creation
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-pipeline-coordinator --resource-group rg-polaris-pipeline --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Pipeline Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Publish Coordinator - Started"
+                    
+                #download coordinator build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download Coordinator Codebase Build
+                  artifact: "polaris-coordinator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Coordinator Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-coordinator"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-coordinator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Publish Coordinator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Publish PDF Generator - Started"
+                
+                #download pdf-generator build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download PDF Generator Codebase Build
+                  artifact: "polaris-pdf-generator-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy PDF Generator Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionApp
+                    appName: "fa-polaris-pipeline-pdf-generator"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-pdf-generator-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Publish PDF Generator - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Publish Text Extractor - Started"
+                
+                #download text-extractor build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Deploy > Download Text Extractor Codebase Build
+                  artifact: "polaris-text-extractor-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Text Extractor Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-pipeline-text-extractor"
+                    package: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-text-extractor-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Publish Text Extractor - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Pipeline Events Terraform - Started"
+                
+                #download pipeline events terraform build artifact
+                - download: PipelineTerraformBuild
+                  displayName: Terraform > Download Pipeline Events terraform build
+                  artifact: "pipeline-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(pipeline-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write Pipeline Events Plan'
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/PipelineTerraformBuild/pipeline-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Pipeline Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Completed"
+
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                      -Message "PROD Pipeline Terraform CI Deployment: Failed"
+                    
+  - stage: Check_PROD
+    displayName: Status Checks > PROD
+    dependsOn: Apply_PROD
+    condition: succeeded()
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: PipelineTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "PROD Pipeline Terraform CI Deployment: Status Checks - Started"
+            
+          #query coordinator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Coordinator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-coordinator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query pdf-generator status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD PDF-Generator status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-pdf-generator-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query text-extractor status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Text-Extractor status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-text-extractor-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "PROD Pipeline Terraform CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "PROD Pipeline Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_PROD
+    displayName: Run e2e tests > PROD
+    dependsOn: 
+      - Apply_PROD
+      - Check_PROD
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_PROD
+        pool:
+          name: $(prod-build-agent)
+        steps:
+          #download scripts artifact
+          - download: PipelineTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "PROD Pipeline Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: PROD'
+            inputs:
+              buildDefinition: 240
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "PROD Pipeline Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PipelineTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PipelineTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PipelineTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PipelineTerraformBuild.runName)"
+                -Message "PROD Pipeline Terraform CI Deployment: Run e2e Tests - Failed"

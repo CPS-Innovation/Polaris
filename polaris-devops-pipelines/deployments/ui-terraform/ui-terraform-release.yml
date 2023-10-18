@@ -1,0 +1,1944 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: UITerraformBuild
+      source: Polaris UI Terraform - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: terraform-containers
+  - group: polaris-status-check-endpoints
+  
+stages:
+  - stage: Apply_DEV
+    displayName: Deployment > DEV
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: UITerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Started"
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: UI Terraform - Started"
+                
+                #download ui terraform build artifact
+                - download: UITerraformBuild
+                  displayName: Terraform > Download UI terraform build
+                  artifact: "ui-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init UI Terraform
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+                  displayName: Terraform > Write UI Plan
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve dev.tfplan
+                  displayName: Terraform > Apply UI Terraform
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: UI Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Publish SPA - Started"
+                    
+                #download UI build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy SPA App Service to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris-dev"
+                    packageForLinux: $(Pipeline.Workspace)/UITerraformBuild/polaris-ui-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Publish SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Publish Gateway - Started"
+                                
+                #download gateway build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download Gateway Codebase Build
+                  artifact: "polaris-gateway-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Gateway Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-dev-gateway"
+                    package: $(Pipeline.Workspace)/UITerraformBuild/polaris-gateway-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Publish Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Publish Auth-Handover - Started"
+                
+                #download gateway build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download Auth Handover Codebase Build
+                  artifact: "polaris-auth-handover-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Auth Handover Azure Function App to DEV'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-dev-auth-handover"
+                    package: $(Pipeline.Workspace)/UITerraformBuild/polaris-auth-handover-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Publish Auth-Handover - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Set Log Analytics Archival Periods - Started"
+                    
+                # Set Log Analytics Archival Period - remove when supported natively by Terraform
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-dev --workspace-name la-polaris-dev --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  displayName: Script > Set Log Analytics Archival Periods
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    LOG_RETENTION_TIME: $(log-retention-time)
+                    TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Set Log Analytics Archival Periods - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Restarting SPA - Started"
+                
+                # Restart app service - moved away from deployment to buy some time    
+                - task: AzureAppServiceManage@0
+                  displayName: 'Restart SPA Azure App Service'
+                  inputs:
+                    azureSubscription: $(dev-azure-subscription)
+                    Action: 'Restart Azure App Service'
+                    WebAppName: "as-web-polaris-dev"
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Restarting SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: UI Events Terraform - Started"
+                    
+                #download ui events terraform build artifact
+                - download: UITerraformBuild
+                  displayName: Terraform > Download UI Events terraform build
+                  artifact: "ui-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init UI Events
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+                  displayName: Terraform > Write UI Events Plan
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve dev.tfplan
+                  displayName: Terraform > Apply UI Events
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: UI Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Update Coordinator App Keys in Gateway - Started"
+                      
+                # if pipeline components deployed, update Coordinator function keys in deployed Gateway
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --query 'functionKeys.default' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-dev --name fa-polaris-pipeline-dev-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-dev-gateway --resource-group rg-polaris-dev --settings "PolarisPipelineCoordinatorFunctionAppKey=$default_code"
+                    az functionapp config appsettings set --name fa-polaris-dev-gateway --resource-group rg-polaris-dev --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Update Coordinator Keys In Gateway Config
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Update Coordinator App Keys in Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Completed"
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "DEV UI Terraform CI Deployment: Failed"
+                    
+  - stage: Check_DEV
+    displayName: Status Checks > DEV
+    dependsOn: Apply_DEV
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: UITerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "DEV UI Terraform CI Deployment: Status Checks - Started"
+
+          #query auth-handover status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Auth-Handover status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-auth-handover-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query gateway status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Gateway status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-gateway-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query ui status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV UI status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-ui-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+                
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "DEV UI Terraform CI Deployment: Status Checks - Completed"
+                
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "DEV UI Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_DEV
+    displayName: Run e2e tests > DEV
+    dependsOn: 
+      - Apply_DEV
+      - Check_DEV
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_DEV
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          #download scripts artifact
+          - download: UITerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "DEV UI Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: DEV'
+            inputs:
+              buildDefinition: 129
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "DEV UI Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "DEV UI Terraform CI Deployment: Run e2e Tests - Failed"
+
+  - stage: Apply_QA
+    displayName: Deployment > QA
+    dependsOn: Run_e2e_Tests_DEV
+    condition: succeeded()
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: UITerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: UI Terraform - Started"
+                
+                #download ui terraform build artifact
+                - download: UITerraformBuild
+                  displayName: Terraform > Download UI terraform build
+                  artifact: "ui-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                  displayName: 'Terraform > Write UI Plan'
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve qa.tfplan
+                  displayName: Terraform > Apply to QA
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: UI Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Publish SPA - Started"
+                    
+                #download UI build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy UI App Service to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris-qa"
+                    packageForLinux: $(Pipeline.Workspace)/UITerraformBuild/polaris-ui-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Publish SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Publish Gateway - Started"
+                
+                #download gateway build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download Gateway Codebase Build
+                  artifact: "polaris-gateway-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Gateway Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-qa-gateway"
+                    package: $(Pipeline.Workspace)/UITerraformBuild/polaris-gateway-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Publish Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Publish Auth Handover - Started"
+                
+                #download gateway build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download Auth Handover Codebase Build
+                  artifact: "polaris-auth-handover-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Auth Handover Azure Function App to QA'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-qa-auth-handover"
+                    package: $(Pipeline.Workspace)/UITerraformBuild/polaris-auth-handover-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Publish Auth Handover - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Set Log Analytics Archival Period - Started"
+                    
+                # Set Log Analytics Archival Period - remove when supported natively by Terraform
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics-qa --workspace-name la-polaris-qa --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  displayName: Script > Set Log Analytics Archival Periods
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    LOG_RETENTION_TIME: $(log-retention-time)
+                    TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
+                    TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Set Log Analytics Archival Period - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Restart SPA - Started"
+                
+                # Restart app service    
+                - task: AzureAppServiceManage@0
+                  displayName: 'Restart Azure App Service'
+                  inputs:
+                    azureSubscription: $(qa-azure-subscription)
+                    Action: 'Restart Azure App Service'
+                    WebAppName: "as-web-polaris-qa"
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Restart SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: UI Events Terraform - Started"
+                        
+                #download ui events terraform build artifact
+                - download: UITerraformBuild
+                  displayName: Terraform > Download UI Events terraform build
+                  artifact: "ui-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                  displayName: 'Terraform > Write UI Events Plan'
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve qa.tfplan
+                  displayName: Terraform > Apply to QA
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: UI Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Update Coordinator App Keys in Gateway - Started"
+
+                # if pipeline components deployed, update Coordinator function keys in deployed Gateway
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --query 'functionKeys.default' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline-qa --name fa-polaris-pipeline-qa-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-qa-gateway --resource-group rg-polaris-qa --settings "PolarisPipelineCoordinatorFunctionAppKey=$default_code"
+                    az functionapp config appsettings set --name fa-polaris-qa-gateway --resource-group rg-polaris-qa --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Update Coordinator Keys In Gateway Config
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Update Coordinator App Keys in Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Completed"
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "QA UI Terraform CI Deployment: Failed"
+                    
+  - stage: Check_QA
+    displayName: Status Checks > QA
+    dependsOn: Apply_QA
+    condition: succeeded()
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: UITerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "QA UI Terraform CI Deployment: Status Checks - Started"  
+          
+          #query auth-handover status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Auth-Handover status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-auth-handover-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query gateway status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Gateway status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-gateway-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query ui status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA UI status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-ui-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+                
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "QA UI Terraform CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "QA UI Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_QA
+    displayName: Run e2e tests > QA
+    dependsOn:
+      - Apply_QA
+      - Check_QA
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_QA
+        pool:
+          name: $(qa-build-agent)
+        steps:
+          #download scripts artifact
+          - download: UITerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "QA UI Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: QA'
+            inputs:
+              buildDefinition: 210
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "QA UI Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "QA UI Terraform CI Deployment: Run e2e Tests - Failed"
+
+  - stage: Apply_PROD
+    displayName: Deployment > PROD
+    dependsOn: Run_e2e_Tests_DEV
+    condition: succeeded()
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "Prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: UITerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: UI Terraform - Started"
+                
+                #download ui terraform build artifact
+                - download: UITerraformBuild
+                  displayName: Terraform > Download UI terraform build
+                  artifact: "ui-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write UI Plan'
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: UI Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Publish SPA - Started"
+                    
+                #download UI build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download SPA Codebase Build
+                  artifact: "polaris-ui-drop"
+
+                # Deploy Related Codebase to Env
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy UI App Service to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: webAppLinux
+                    WebAppName: "as-web-polaris"
+                    packageForLinux: $(Pipeline.Workspace)/UITerraformBuild/polaris-ui-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Publish SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Publish Gateway - Started"
+                
+                #download gateway build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download Gateway Codebase Build
+                  artifact: "polaris-gateway-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Gateway Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-gateway"
+                    package: $(Pipeline.Workspace)/UITerraformBuild/polaris-gateway-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Publish Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Publish Auth Handover - Started"
+                
+                #download gateway build artifact
+                - download: UITerraformBuild
+                  displayName: Deploy > Download Auth Handover Codebase Build
+                  artifact: "polaris-auth-handover-drop"
+                
+                # Deploy Related Codebase to Env
+                - task: AzureFunctionApp@1
+                  displayName: 'Deploy Auth Handover Azure Function App to PROD'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    appType: functionAppLinux
+                    appName: "fa-polaris-auth-handover"
+                    package: $(Pipeline.Workspace)/UITerraformBuild/polaris-auth-handover-drop
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Publish Auth Handover - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Set Log Analytics Archival Period - Started"
+                    
+                # Set Log Analytics Archival Period - remove when supported natively by Terraform
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                    az monitor log-analytics workspace table update --resource-group rg-polaris-analytics --workspace-name la-polaris --name AppServiceConsoleLogs --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
+                  displayName: Script > Set Log Analytics Archival Periods
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    LOG_RETENTION_TIME: $(log-retention-time)
+                    TOTAL_LOG_RETENTION_TIME: $(total-log-retention-time)
+                    TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Set Log Analytics Archival Period - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Restart SPA - Started"
+                
+                # Restart app service    
+                - task: AzureAppServiceManage@0
+                  displayName: 'Restart Azure App Service'
+                  inputs:
+                    azureSubscription: $(prod-azure-subscription)
+                    Action: 'Restart Azure App Service'
+                    WebAppName: "as-web-polaris"
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Restart SPA - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: UI Events Terraform - Started"
+                    
+                #download ui events terraform build artifact
+                - download: UITerraformBuild
+                  displayName: Terraform > Download UI Events terraform build
+                  artifact: "ui-events-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(ui-events-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write UI Events Plan'
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/ui-events-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: UI Events Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Update Coordinator App Keys in Gateway - Started"
+
+                # if pipeline components deployed, update Coordinator function keys in deployed Gateway
+                - bash: |
+                    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --query 'functionKeys.default' --output tsv)
+                    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline --name fa-polaris-pipeline-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                    az functionapp config appsettings set --name fa-polaris-gateway --resource-group rg-polaris --settings "PolarisPipelineCoordinatorFunctionAppKey=$default_code"
+                    az functionapp config appsettings set --name fa-polaris-gateway --resource-group rg-polaris --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                  displayName: Script > Update Coordinator Keys In Gateway Config
+                  workingDirectory: $(Pipeline.Workspace)/UITerraformBuild/pipeline-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Update Coordinator App Keys in Gateway - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Completed"
+
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                      -Message "PROD UI Terraform CI Deployment: Failed"
+                    
+  - stage: Check_PROD
+    displayName: Status Checks > PROD
+    dependsOn: Apply_PROD
+    condition: succeeded()
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: UITerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "PROD UI Terraform CI Deployment: Status Checks - Started"
+            
+          #query auth-handover status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Auth-Handover status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-auth-handover-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query gateway status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Gateway status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-gateway-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #query ui status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD UI status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-ui-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "$(resources.pipeline.UITerraformBuild.runName)"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+                
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "PROD UI Terraform CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "PROD UI Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_PROD
+    displayName: Run e2e tests > PROD
+    dependsOn:
+      - Apply_PROD
+      - Check_PROD
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_PROD
+        pool:
+          name: $(prod-build-agent)
+        steps:
+          #download templates artifact
+          - download: UITerraformBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: UITerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "PROD UI Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: PROD'
+            inputs:
+              buildDefinition: 240
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "PROD UI Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/UITerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.UITerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.UITerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.UITerraformBuild.runName)"
+                -Message "PROD UI Terraform CI Deployment: Run e2e Tests - Failed"

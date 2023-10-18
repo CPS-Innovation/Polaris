@@ -1,0 +1,847 @@
+# Unified Build and Release Azure DevOps pipeline for Polaris Terraform and Codebase
+
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: ProxyTerraformBuild
+      source: Polaris Proxy Terraform - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: terraform-containers
+  - group: polaris-status-check-endpoints
+  
+stages:
+  - stage: Apply_DEV
+    displayName: Deployment > DEV
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "Dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: ProxyTerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "DEV Proxy Terraform CI Deployment: Started"
+                  
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "DEV Proxy Terraform CI Deployment: Proxy Terraform - Started"
+                
+                #download proxy terraform build artifact
+                - download: ProxyTerraformBuild
+                  displayName: Terraform > Download UI terraform build
+                  artifact: "proxy-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init UI Terraform
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(proxy-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+                  displayName: Terraform > Write UI Plan
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve dev.tfplan
+                  displayName: Terraform > Apply UI Terraform
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+                    ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+                    TF_LOG: $(dev-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "DEV Proxy Terraform CI Deployment: Proxy Terraform - Completed"
+                    
+  - stage: Check_DEV
+    displayName: Status Checks > DEV
+    dependsOn: Apply_DEV
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: ProxyTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "DEV Proxy Terraform CI Deployment: Status Checks - Started"
+
+          #query proxy status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking DEV Proxy status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(dev-proxy-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "Polaris Proxy is online"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "DEV Proxy Terraform CI Deployment: Status Checks - Completed"
+                
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "DEV Proxy Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_DEV
+    displayName: Run e2e tests > DEV
+    dependsOn: 
+      - Apply_DEV
+      - Check_DEV
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_DEV
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          #download scripts artifact
+          - download: ProxyTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "DEV Proxy Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: DEV'
+            inputs:
+              buildDefinition: 129
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "DEV Proxy Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "DEV Proxy Terraform CI Deployment: Run e2e Tests - Failed"
+
+  - stage: Apply_QA
+    displayName: Deployment > QA
+    dependsOn: Run_e2e_Tests_DEV
+    condition: succeeded()
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "QA"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: ProxyTerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "QA Proxy Terraform CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "QA Proxy Terraform CI Deployment: Proxy Terraform - Started"
+                
+                #download ui terraform build artifact
+                - download: ProxyTerraformBuild
+                  displayName: Terraform > Download UI terraform build
+                  artifact: "proxy-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(qa-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(proxy-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
+                  displayName: 'Terraform > Write UI Plan'
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve qa.tfplan
+                  displayName: Terraform > Apply to QA
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-qa-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-qa-spn-secret)
+                    ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
+                    TF_LOG: $(qa-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "QA Proxy Terraform CI Deployment: Proxy Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "QA Proxy Terraform CI Deployment: Completed"
+                      
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "QA Proxy Terraform CI Deployment: Failed"
+                    
+  - stage: Check_QA
+    displayName: Status Checks > QA
+    dependsOn: Apply_QA
+    condition: succeeded()
+    pool:
+      name: $(qa-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: ProxyTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "QA Proxy Terraform CI Deployment: Status Checks - Started"  
+
+          #query proxy status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking QA Proxy status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(qa-proxy-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "Polaris Proxy is online"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+                
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "QA Proxy Terraform CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "QA Proxy Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_QA
+    displayName: Run e2e tests > QA
+    dependsOn:
+      - Apply_QA
+      - Check_QA
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_QA
+        pool:
+          name: $(qa-build-agent)
+        steps:
+          #download scripts artifact
+          - download: ProxyTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "QA Proxy Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: QA'
+            inputs:
+              buildDefinition: 210
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "QA Proxy Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-qa-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "QA Proxy Terraform CI Deployment: Run e2e Tests - Failed"
+
+  - stage: Apply_PROD
+    displayName: Deployment > PROD
+    dependsOn: Run_e2e_Tests_DEV
+    condition: succeeded()
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - deployment: CI_Deploy_Polaris
+        environment: "Prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                #download scripts artifact
+                - download: ProxyTerraformBuild
+                  displayName: Download Scripts
+                  artifact: 'polaris-script-files'
+
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "PROD Proxy Terraform CI Deployment: Started"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "PROD Proxy Terraform CI Deployment: Proxy Terraform - Started"
+                
+                #download ui terraform build artifact
+                - download: ProxyTerraformBuild
+                  displayName: Terraform > Download UI terraform build
+                  artifact: "proxy-terraform-files"
+                
+                # Terraform Init
+                - bash: |
+                    terraform init \
+                      -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                      -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                      -backend-config="key=$TF_STATE_KEY" \
+                      -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+                  displayName: Terraform > Init
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    TF_STATE_ACCOUNT_NAME: $(prod-terraform-storage-account)
+                    TF_STATE_CONTAINER_NAME: $(proxy-terraform-container-name)
+                    TF_STATE_KEY: $(terraform-key)
+                    TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Plan
+                - bash: |
+                    terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
+                  displayName: 'Terraform > Write UI Plan'
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                
+                # Terraform Apply
+                - bash: |
+                    terraform apply -auto-approve prod.tfplan
+                  displayName: Terraform > Apply to PROD
+                  workingDirectory: $(Pipeline.Workspace)/ProxyTerraformBuild/proxy-terraform-files
+                  env:
+                    ARM_CLIENT_ID: $(innovation-prod-spn-client-id)
+                    ARM_CLIENT_SECRET: $(innovation-prod-spn-secret)
+                    ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
+                    ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
+                    TF_LOG: $(prod-log-level)
+                    
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "PROD Proxy Terraform CI Deployment: Proxy Terraform - Completed"
+                      
+                #send custom event to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Trace'
+                  condition: succeeded()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "PROD Proxy Terraform CI Deployment: Completed"
+
+                #send any errors to AppInsights
+                - task: PowerShell@2
+                  displayName: 'AppInsights: Record Errors'
+                  condition: failed()
+                  inputs:
+                    failOnStderr: true
+                    targetType: 'filePath'
+                    filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+                    arguments: > # Use this to avoid newline characters in multi-line string
+                      -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                      -PatToken: "$(devops-pat-token)"
+                      -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                      -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                      -ReleaseId "$(Build.BuildId)"
+                      -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                      -Message "PROD Proxy Terraform CI Deployment: Failed"
+                    
+  - stage: Check_PROD
+    displayName: Status Checks > PROD
+    dependsOn: Apply_PROD
+    condition: succeeded()
+    pool:
+      name: $(prod-build-agent)
+    jobs:
+      - job: Run_Status_Checks
+        steps:
+          #download scripts artifact
+          - download: ProxyTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "PROD Proxy Terraform CI Deployment: Status Checks - Started"
+            
+          #query proxy status endpoint
+          - task: PowerShell@2
+            displayName: 'Checking PROD Proxy status'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -URI $(prod-proxy-status-url)
+                -Method $(status-check-method)
+                -SuccessTextContent "Polaris Proxy is online"
+                -Retries $(status-check-retries)
+                -SecondsDelay $(status-check-delay-seconds)
+                -TimeoutSec $(status-check-timeout-seconds)
+                
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "PROD Proxy Terraform CI Deployment: Status Checks - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "PROD Proxy Terraform CI Deployment: Status Checks - Failed"
+                
+  - stage: Run_e2e_Tests_PROD
+    displayName: Run e2e tests > PROD
+    dependsOn:
+      - Apply_PROD
+      - Check_PROD
+    condition: succeeded()
+    jobs:
+      - job: Run_e2e_Tests_PROD
+        pool:
+          name: $(prod-build-agent)
+        steps:
+          #download templates artifact
+          - download: ProxyTerraformBuild
+            displayName: Download Templates
+            artifact: 'polaris-template-files'
+
+          #download scripts artifact
+          - download: ProxyTerraformBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "PROD Proxy Terraform CI Deployment: Run e2e Tests - Started"
+                
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: PROD'
+            inputs:
+              buildDefinition: 240
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: $(devops-pat-token)
+              
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "PROD Proxy Terraform CI Deployment: Run e2e Tests - Completed"
+
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/ProxyTerraformBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-prod-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.ProxyTerraformBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.ProxyTerraformBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.ProxyTerraformBuild.runName)"
+                -Message "PROD Proxy Terraform CI Deployment: Run e2e Tests - Failed"

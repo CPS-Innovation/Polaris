@@ -1,0 +1,83 @@
+# Pull Request Azure DevOps pipeline for the entire Polaris Codebase
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/proxy-terraform/*
+
+variables:
+  - group: kv-dev-terraform
+  - group: polaris-global
+  - group: terraform-containers
+  - name: buildConfiguration
+    value: "Release"
+  - name: proxyTerraformWorkingDir
+    value: "$(System.DefaultWorkingDirectory)/polaris-terraform/proxy-terraform"
+
+stages:
+  - stage: Validate_Proxy_Terraform
+    displayName: Validate Proxy Terraform
+    jobs:
+      - job: Validate
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(proxyTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(proxy-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_LOG: $(dev-log-level)
+          
+          # Validate
+          - bash: terraform validate
+            displayName: Terraform > Validate Config
+            workingDirectory: $(proxyTerraformWorkingDir)
+
+      - job: CheckPlan
+        pool:
+          name: $(dev-build-agent)
+        dependsOn: Validate
+        displayName: Check Plan
+        steps:
+          # Terraform Init
+          - bash: |
+              terraform init \
+                -backend-config="storage_account_name=$TF_STATE_ACCOUNT_NAME" \
+                -backend-config="container_name=$TF_STATE_CONTAINER_NAME" \
+                -backend-config="key=$TF_STATE_KEY" \
+                -backend-config="access_key=$TF_STATE_ACCESS_KEY"
+            displayName: Terraform > Init
+            workingDirectory: $(proxyTerraformWorkingDir)
+            env:
+              TF_STATE_ACCOUNT_NAME: $(dev-terraform-storage-account)
+              TF_STATE_CONTAINER_NAME: $(proxy-terraform-container-name)
+              TF_STATE_KEY: $(terraform-key)
+              TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
+              TF_LOG: $(dev-log-level)
+          
+          # Terraform Plan
+          - bash: |
+              terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
+            displayName: 'Terraform > Write UI Plan'
+            workingDirectory: $(proxyTerraformWorkingDir)
+            env:
+              ARM_CLIENT_ID: $(innovation-development-spn-client-id)
+              ARM_CLIENT_SECRET: $(innovation-development-spn-secret)
+              ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
+              ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
+              TF_LOG: $(dev-log-level)

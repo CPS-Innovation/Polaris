@@ -17,8 +17,6 @@ variables:
   - group: polaris-global
   - name: buildConfiguration
     value: "Release"
-  - name: templatesWorkingDir
-    value: "$(System.DefaultWorkingDirectory)/polaris-devops-pipelines/templates"
 
 stages:
   - stage: Determine_Changes
@@ -84,7 +82,6 @@ stages:
                   if ($name -like 'polaris-pipeline/DdeiClient/*')
                   {
                     echo "changes to DdeiClient detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
@@ -92,7 +89,6 @@ stages:
                   if ($name -like 'polaris-pipeline/Common/*')
                   {
                     echo "changes to the Pipeline's Common library detected run dependent code-bases..."
-                    Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_COORDINATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_PDF_GENERATOR;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_PIPELINE_TEXT_EXTRACTOR;isOutput=true]true"
