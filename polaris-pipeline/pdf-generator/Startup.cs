@@ -18,7 +18,8 @@ using pdf_generator.Services.DocumentRedactionService;
 using pdf_generator.Services.Extensions;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
-using pdf_generator.Services.DocumentRedactionService.RedactionImplementation;
+using pdf_generator.Services.DocumentRedactionService.RedactionProvider;
+using pdf_generator.Services.DocumentRedactionService.RedactionProvider.ImageConversion;
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
@@ -31,12 +32,18 @@ namespace pdf_generator
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
+            services.Configure<ImageConversionOptions>(Configuration.GetSection(ImageConversionOptions.ConfigKey));
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
             services.AddPdfGenerator(Configuration);
 
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            services.AddTransient<IRedactionImplementation, ImageConversionImplementation>();
+            services.AddSingleton(_ => new ImageConversionOptions
+            {
+                Resolution = 150, //default for Aspsose
+                QualityPercent = 33
+            });
+            services.AddTransient<IRedactionProvider, ImageConversionProvider>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();

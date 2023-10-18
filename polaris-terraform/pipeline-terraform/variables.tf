@@ -76,3 +76,10 @@ variable "sliding_clear_down_input_days" {
 variable "hte_feature_flag" {
   type = bool
 }
+
+variable "image_conversion_redaction" {
+  type = object({
+    resolution = number
+    quality_percent = number
+  })
+}
