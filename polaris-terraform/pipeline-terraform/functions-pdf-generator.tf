@@ -29,6 +29,8 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobServiceContainerName"                 = "documents"
     "HteFeatureFlag"                           = var.hte_feature_flag
+    "ImageConversion__Resolution"              = var.image_conversion_redaction.resolution
+    "ImageConversion__QualityPercent"          = var.image_conversion_redaction.quality_percent
   }
 
   site_config {

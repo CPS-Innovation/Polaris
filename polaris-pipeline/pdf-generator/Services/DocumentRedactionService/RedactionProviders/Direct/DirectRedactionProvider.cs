@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
@@ -7,7 +8,7 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.Dire
 {
     public class DirectRedactionProvider : IRedactionProvider
     {
-        public ProviderType GetProviderType() => ProviderType.DirectRedaction;
+        public (ProviderType, string) GetProviderDetails() => (ProviderType.DirectRedaction, "");
 
         public void AttachAnnotation(Page page, Rectangle rect)
         {
@@ -20,7 +21,7 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.Dire
             hardAnnotation.Redact();
         }
 
-        public Document SanitizeDocument(Document document)
+        public void SanitizeDocument(ref Document document)
         {
             document.RemoveMetadata();
 
@@ -31,8 +32,6 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.Dire
                     PdfFormat.v_1_7,
                     ConvertErrorAction.Delete);
             }
-
-            return document;
         }
 
         private static bool IsCandidateForConversion(Document document)

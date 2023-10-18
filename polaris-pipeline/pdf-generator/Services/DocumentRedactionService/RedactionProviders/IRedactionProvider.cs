@@ -1,13 +1,14 @@
+using System.Collections.Generic;
 using Aspose.Pdf;
 
 namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider
 {
     public interface IRedactionProvider
     {
-        ProviderType GetProviderType();
+        (ProviderType, string) GetProviderDetails();
 
         void AttachAnnotation(Page page, Rectangle rect);
 
-        Document SanitizeDocument(Document document);
+        void SanitizeDocument(ref Document document);
     }
 }

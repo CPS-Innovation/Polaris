@@ -27,3 +27,8 @@ overnight_clear_down_enabled = false
 sliding_clear_down_enabled    = false
 sliding_clear_down_input_days = 31
 hte_feature_flag              = true
+
+image_conversion_redaction = {
+  resolution = 150
+  quality_percent = 33
+}

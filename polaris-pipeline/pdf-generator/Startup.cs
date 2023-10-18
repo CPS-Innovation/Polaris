@@ -32,12 +32,13 @@ namespace pdf_generator
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
+            services.Configure<ImageConversionOptions>(Configuration.GetSection(ImageConversionOptions.ConfigKey));
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
             services.AddPdfGenerator(Configuration);
 
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            services.AddSingleton(_ => new ImageConversionConfig
+            services.AddSingleton(_ => new ImageConversionOptions
             {
                 Resolution = 150, //default for Aspsose
                 QualityPercent = 33

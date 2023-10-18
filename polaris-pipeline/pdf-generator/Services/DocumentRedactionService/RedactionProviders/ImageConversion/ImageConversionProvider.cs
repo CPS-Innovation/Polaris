@@ -3,24 +3,31 @@ using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
 using Aspose.Pdf.Devices;
+using Microsoft.Extensions.Options;
 
 namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.ImageConversion
 {
     public class ImageConversionProvider : IRedactionProvider
     {
+        private readonly ImageConversionOptions _imageConversionOptions;
         private readonly ImageDevice _imageDevice;
 
-        public ImageConversionProvider(ImageConversionConfig config)
+        public ImageConversionProvider(IOptions<ImageConversionOptions> options)
         {
-            if (config == null)
+            if (options == null)
             {
-                throw new ArgumentNullException(nameof(config));
+                throw new ArgumentNullException(nameof(options));
             }
 
-            _imageDevice = new JpegDevice(new Resolution(config.Resolution), config.QualityPercent);
+            _imageConversionOptions = options.Value;
+            _imageDevice = new JpegDevice(
+                new Resolution(_imageConversionOptions.Resolution),
+                _imageConversionOptions.QualityPercent);
         }
 
-        public ProviderType GetProviderType() => ProviderType.ImageConversion;
+        public (ProviderType, string) GetProviderDetails() =>
+            (ProviderType.ImageConversion,
+            $"Resolution: {_imageConversionOptions.Resolution}, QualityPercent: {_imageConversionOptions.QualityPercent}");
 
         public void AttachAnnotation(Page page, Rectangle rect)
         {
@@ -33,7 +40,7 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.Imag
             page.Annotations.Add(softAnnotation, true);
         }
 
-        public Document SanitizeDocument(Document document)
+        public void SanitizeDocument(ref Document document)
         {
             var outputDoc = new Document();
             foreach (var page in document.Pages)
@@ -58,7 +65,7 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.Imag
                 outputPage.Paragraphs.Add(outputImage);
             }
 
-            return outputDoc;
+            document = outputDoc;
         }
     }
 }

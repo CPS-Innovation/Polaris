@@ -21,6 +21,7 @@ namespace pdf_generator.TelemetryEvents
     public DateTime SanitizedTime;
     public DateTime EndTime;
     public ProviderType ProviderType;
+    public string ProviderDetails;
     public ProviderReason ProviderReason;
     public int OriginalNullCharCount;
     public int NullCharCount;
@@ -32,13 +33,15 @@ namespace pdf_generator.TelemetryEvents
         string caseId,
         string documentId,
         Dictionary<int, int> redactionPageCounts,
-        ProviderType providerType)
+        ProviderType providerType,
+        string providerDetails)
     {
       CorrelationId = correlationId;
       CaseId = caseId;
       DocumentId = documentId;
       RedactionPageCounts = redactionPageCounts;
       ProviderType = providerType;
+      ProviderDetails = providerDetails;
     }
 
     public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
@@ -54,6 +57,7 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(EndTime), EndTime.ToString("o") },
                     { nameof(RedactionPageCounts), string.Join(",", RedactionPageCounts.Select(x => $"{x.Key}:{x.Value}")) },
                     { nameof(ProviderType), ProviderType.ToString() },
+                    { nameof(ProviderDetails), ProviderDetails.ToString() },
                     { nameof(ProviderReason), ProviderReason.ToString() },
                     { nameof(IsSanitizeBroken), IsSanitizeBroken.ToString() },
           },

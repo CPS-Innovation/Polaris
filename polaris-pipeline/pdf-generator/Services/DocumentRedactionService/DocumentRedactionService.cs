@@ -45,11 +45,13 @@ namespace pdf_generator.Services.DocumentRedactionService
             RedactedDocumentEvent telemetryEvent = default;
             try
             {
+                var (providerType, providerDetails) = _redactionProvider.GetProviderDetails();
                 telemetryEvent = new RedactedDocumentEvent(correlationId: correlationId,
                     caseId: redactPdfRequest.CaseId.ToString(),
                     documentId: redactPdfRequest.PolarisDocumentIdValue,
                     redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
-                    providerType: _redactionProvider.GetProviderType());
+                    providerType: providerType,
+                    providerDetails: providerDetails);
 
                 _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
 
@@ -66,7 +68,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                 telemetryEvent.StartTime = DateTime.UtcNow;
                 telemetryEvent.OriginalBytes = documentBlob.Length;
 
-                using var document = new Document(documentBlob);
+                var document = new Document(documentBlob);
 
                 telemetryEvent.ProviderReason = ProviderReason.HardCoded;
                 telemetryEvent.PageCount = document.Pages.Count;
@@ -74,21 +76,20 @@ namespace pdf_generator.Services.DocumentRedactionService
 
                 AddAnnotations(document, redactPdfRequest, correlationId);
 
-                Document sanitizedDocument;
                 try
                 {
-                    sanitizedDocument = _redactionProvider.SanitizeDocument(document);
+                    _redactionProvider.SanitizeDocument(ref document);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogMethodError(correlationId, nameof(RedactPdfAsync), "Could not sanitize document", ex);
-                    sanitizedDocument = document;
                     telemetryEvent.IsSanitizeBroken = true;
                 }
-                telemetryEvent.SanitizedTime = DateTime.UtcNow;
-                telemetryEvent.NullCharCount = GetNullCharacterCount(sanitizedDocument);
 
-                using var redactedDocumentStream = SaveToStream(sanitizedDocument);
+                telemetryEvent.SanitizedTime = DateTime.UtcNow;
+                telemetryEvent.NullCharCount = GetNullCharacterCount(document);
+                using var redactedDocumentStream = SaveToStream(document);
+                document.Dispose();
 
                 telemetryEvent.Bytes = redactedDocumentStream.Length;
                 telemetryEvent.EndTime = DateTime.UtcNow;
