@@ -49,7 +49,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                     caseId: redactPdfRequest.CaseId.ToString(),
                     documentId: redactPdfRequest.PolarisDocumentIdValue,
                     redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
-                    implementationType: _redactionProvider.GetProviderType());
+                    providerType: _redactionProvider.GetProviderType());
 
                 _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
 

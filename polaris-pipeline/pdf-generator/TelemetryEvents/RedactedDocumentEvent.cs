@@ -32,13 +32,13 @@ namespace pdf_generator.TelemetryEvents
         string caseId,
         string documentId,
         Dictionary<int, int> redactionPageCounts,
-        ProviderType implementationType)
+        ProviderType providerType)
     {
       CorrelationId = correlationId;
       CaseId = caseId;
       DocumentId = documentId;
       RedactionPageCounts = redactionPageCounts;
-      ProviderType = implementationType;
+      ProviderType = providerType;
     }
 
     public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
