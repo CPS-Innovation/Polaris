@@ -36,6 +36,7 @@ AppServiceConsoleLogs
     CmsUserId = tolong(extract('CMS-USER-ID:([0-9]*)', 1, ResultDescription)),
     Verb = extract('"(.*)\\s/', 1, ResultDescription),
     Url=extract('\\s/(.*)\\sHTTP', 1, ResultDescription),
-    
-    ResultDescription
+    ResultDescription,
+    _ResourceId
 | extend LoadBalancerTarget = coalesce(extract("(corsham|farnborough)", 1, ResultDescription), "corsham")
+| extend OutboundUrl = strcat(DestinationIp, "/", replace_regex(Url, "(internal-implementation/(?:corsham|farnborough)/modern/)", ""))
