@@ -21,18 +21,18 @@ variable "env" {
 
 variable "pipeline_component_service_plans" {
   type = object({
-    coordinator_service_plan_sku     = string
-    coordinator_always_ready_instances    = number
+    coordinator_service_plan_sku           = string
+    coordinator_always_ready_instances     = number
     coordinator_maximum_scale_out_limit    = number
-    coordinator_plan_maximum_burst = number
-    pdf_generator_service_plan_sku   = string
-    pdf_generator_always_ready_instances  = number
+    coordinator_plan_maximum_burst         = number
+    pdf_generator_service_plan_sku         = string
+    pdf_generator_always_ready_instances   = number
     pdf_generator_maximum_scale_out_limit  = number
-    pdf_generator_plan_maximum_burst  = number
-    text_extractor_plan_sku          = string
-    text_extractor_always_ready_instances = number
+    pdf_generator_plan_maximum_burst       = number
+    text_extractor_plan_sku                = string
+    text_extractor_always_ready_instances  = number
     text_extractor_maximum_scale_out_limit = number
-    text_extractor_plan_maximum_burst = number
+    text_extractor_plan_maximum_burst      = number
   })
 }
 
