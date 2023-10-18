@@ -38,8 +38,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     http2_enabled                          = true
     runtime_scale_monitoring_enabled       = true
     vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = var.pipeline_component_service_plans.text_extractor_minimum_instances
-    app_scale_limit                        = var.pipeline_component_service_plans.text_extractor_maximum_instances
+    elastic_instance_minimum               = var.pipeline_component_service_plans.text_extractor_always_ready_instances
+    app_scale_limit                        = var.pipeline_component_service_plans.text_extractor_maximum_scale_out_limit
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
   }
