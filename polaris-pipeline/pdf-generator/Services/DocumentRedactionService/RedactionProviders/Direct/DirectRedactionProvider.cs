@@ -3,7 +3,7 @@ using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
 
-namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider
+namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.Direct
 {
     public class DirectRedactionProvider : IRedactionProvider
     {

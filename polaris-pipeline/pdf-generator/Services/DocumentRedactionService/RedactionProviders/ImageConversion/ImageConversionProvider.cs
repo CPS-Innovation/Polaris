@@ -1,13 +1,24 @@
+using System;
 using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
 using Aspose.Pdf.Devices;
 
-namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider
+namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.ImageConversion
 {
     public class ImageConversionProvider : IRedactionProvider
     {
-        private readonly ImageDevice _imageDevice = new JpegDevice();
+        private readonly ImageDevice _imageDevice;
+
+        public ImageConversionProvider(ImageConversionConfig config)
+        {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            _imageDevice = new JpegDevice(new Resolution(config.Resolution), config.QualityPercent);
+        }
 
         public ProviderType GetProviderType() => ProviderType.ImageConversion;
 
@@ -35,6 +46,7 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider
                     outputPage.PageInfo.Margin.Right =
                     outputPage.PageInfo.Margin.Left = 0;
 
+                // do not dispose `memoryStream` here, cannot be disposed until the document is saved
                 var memoryStream = new MemoryStream();
                 _imageDevice.Process(page, memoryStream);
 

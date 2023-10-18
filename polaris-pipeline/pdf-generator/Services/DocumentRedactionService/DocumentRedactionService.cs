@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using Aspose.Pdf;
-using Aspose.Pdf.Annotations;
 using Aspose.Pdf.Facades;
 using Common.Domain.Extensions;
 using Common.Dto.Request;
@@ -64,12 +63,12 @@ namespace pdf_generator.Services.DocumentRedactionService
                         Message = $"Invalid document - a document with filename '{fileName}' could not be retrieved for redaction purposes"
                     };
                 }
-
                 telemetryEvent.StartTime = DateTime.UtcNow;
                 telemetryEvent.OriginalBytes = documentBlob.Length;
 
                 using var document = new Document(documentBlob);
 
+                telemetryEvent.ProviderReason = ProviderReason.HardCoded;
                 telemetryEvent.PageCount = document.Pages.Count;
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 

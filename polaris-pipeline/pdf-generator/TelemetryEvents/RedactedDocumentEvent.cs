@@ -21,6 +21,7 @@ namespace pdf_generator.TelemetryEvents
     public DateTime SanitizedTime;
     public DateTime EndTime;
     public ProviderType ProviderType;
+    public ProviderReason ProviderReason;
     public int OriginalNullCharCount;
     public int NullCharCount;
     public int PageCount;
@@ -53,6 +54,7 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(EndTime), EndTime.ToString("o") },
                     { nameof(RedactionPageCounts), string.Join(",", RedactionPageCounts.Select(x => $"{x.Key}:{x.Value}")) },
                     { nameof(ProviderType), ProviderType.ToString() },
+                    { nameof(ProviderReason), ProviderReason.ToString() },
                     { nameof(IsSanitizeBroken), IsSanitizeBroken.ToString() },
           },
           new Dictionary<string, double?>
