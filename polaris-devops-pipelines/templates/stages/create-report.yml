@@ -1,0 +1,58 @@
+﻿parameters:
+  stageName: ""
+  displayName: ""
+  buildAgent: ""
+  buildLabel: ""
+  appInsightsKey: ""
+  dependsOn: ""
+  envLabel: ""
+  reportLabel: ""
+  
+stages:
+  - stage: ${{ parameters.stageName }}
+    displayName: ${{ parameters.displayName }}
+    dependsOn:
+      - ${{ parameters.dependsOn }}
+    pool:
+      name: ${{ parameters.buildAgent }}
+    condition: succeeded()
+    jobs:
+      #download scripts artifact
+      - download: ${{ parameters.buildLabel }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+      
+      #send custom event to AppInsights
+      - template: jobs/steps/tasks/send-to-app-insights.yml
+        parameters:
+          appInsightsKey: "${{ parameters.appInsightsKey }}"
+          message: "${{ parameters.envLabel }} Create Report: Started"
+          
+      - checkout: self
+        persistCredentials: true
+
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            git log ${{ parameters.reportLabel }}...HEAD --oneline --pretty=format:%h,%an,%ae,%s > commit-report-${{ parameters.reportLabel }}.csv
+        displayName: "Generate commit report for ${{ parameters.envLabel }}"
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Build.Repository.LocalPath)/commit-report-${{ parameters.envLabel }}.csv"
+          artifact: "Commit Report - ${{ parameters.envLabel }} ($(System.JobAttempt))"
+        displayName: "Publish Commit report for ${{ parameters.envLabel }}"
+        
+      #send custom event to AppInsights
+      - template: jobs/steps/tasks/send-to-app-insights.yml
+        parameters:
+          appInsightsKey: "${{ parameters.appInsightsKey }}"
+          message: "${{ parameters.envLabel }} Create Report: Completed"
+
+        #send any failures to AppInsights  
+      - template: jobs/steps/tasks/send-failure-to-app-insights.yml
+        parameters:
+          appInsightsKey: "${{ parameters.appInsightsKey }}"
+          devOpsPatToken: "${{ parameters.devOpsPatToken }}"
+          message: "${{ parameters.envLabel }} Create Report: Failed"

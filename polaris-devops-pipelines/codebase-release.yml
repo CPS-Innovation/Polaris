@@ -22,190 +22,40 @@ variables:
 - group: kv-prod-terraform
 
 stages:
-- stage: DeployDEV
-  displayName: Deployment > DEV
-  jobs:
-  - template: templates/deploy-codebase.yml
-    parameters:
-      buildAgent: $(dev-build-agent)
-      buildLabel: PolarisCodebaseBuild
-      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-      devOpsEnv: "Polaris_DEV"
-      labelEnv: "DEV"
-      suffixEnv: "-dev"
-      azureSubscription: $(dev-azure-subscription)
-      devOpsPatToken: $(devops-pat-token)
-      
-- stage: CheckDEV
-  displayName: Status Checks > DEV
-  dependsOn:
-    - DeployDEV
-  condition: succeeded()
-  pool:
-    name: $(dev-build-agent)
-  jobs:
-    - job: Run_Status_Checks
-      steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-        
-        #download scripts artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Scripts
-          artifact: 'polaris-script-files'
+- template: stages/deploy-codebase.yml
+  parameters:
+    stageName: "DeployDEV"
+    displayName: "Deployment > DEV"
+    buildAgent: $(dev-build-agent)
+    buildLabel: "PolarisCodebaseBuild"
+    appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+    devOpsEnv: "Dev"
+    envLabel: "DEV"
+    envSuffix: "-dev"
+    azureSubscription: $(dev-azure-subscription)
+    devOpsPatToken: $(devops-pat-token)
 
-        #send custom event to AppInsights
-        - task: PowerShell@2
-          displayName: 'AppInsights: Trace'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-              -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-              -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
-              -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Message "DEV CI Codebase Deployment: Status Checks - Started"
-
-        #query coordinator status endpoint
-        - task: PowerShell@2
-          displayName: 'Checking DEV Coordinator status'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -URI $(dev-coordinator-status-url)
-              -Method $(status-check-method)
-              -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Retries $(status-check-retries)
-              -SecondsDelay $(status-check-delay-seconds)
-              -TimeoutSec $(status-check-timeout-seconds)
-
-        #query pdf-generator status endpoint
-        - task: PowerShell@2
-          displayName: 'Checking DEV PDF-Generator status'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -URI $(dev-pdf-generator-status-url)
-              -Method $(status-check-method)
-              -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Retries $(status-check-retries)
-              -SecondsDelay $(status-check-delay-seconds)
-              -TimeoutSec $(status-check-timeout-seconds)
-
-        #query text-extractor status endpoint
-        - task: PowerShell@2
-          displayName: 'Checking DEV Text-Extractor status'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -URI $(dev-text-extractor-status-url)
-              -Method $(status-check-method)
-              -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Retries $(status-check-retries)
-              -SecondsDelay $(status-check-delay-seconds)
-              -TimeoutSec $(status-check-timeout-seconds)
-
-        #query auth-handover status endpoint
-        - task: PowerShell@2
-          displayName: 'Checking DEV Auth-Handover status'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -URI $(dev-auth-handover-status-url)
-              -Method $(status-check-method)
-              -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Retries $(status-check-retries)
-              -SecondsDelay $(status-check-delay-seconds)
-              -TimeoutSec $(status-check-timeout-seconds)
-
-        #query gateway status endpoint
-        - task: PowerShell@2
-          displayName: 'Checking DEV Gateway status'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -URI $(dev-gateway-status-url)
-              -Method $(status-check-method)
-              -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Retries $(status-check-retries)
-              -SecondsDelay $(status-check-delay-seconds)
-              -TimeoutSec $(status-check-timeout-seconds)
-
-        #query proxy status endpoint
-        - task: PowerShell@2
-          displayName: 'Checking DEV Proxy status'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -URI $(dev-proxy-status-url)
-              -Method $(status-check-method)
-              -SuccessTextContent "Polaris Proxy is online"
-              -Retries $(status-check-retries)
-              -SecondsDelay $(status-check-delay-seconds)
-              -TimeoutSec $(status-check-timeout-seconds)
-        
-        #query proxy status endpoint
-        - task: PowerShell@2
-          displayName: 'Checking DEV UI status'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -URI $(dev-ui-status-url)
-              -Method $(status-check-method)
-              -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Retries $(status-check-retries)
-              -SecondsDelay $(status-check-delay-seconds)
-              -TimeoutSec $(status-check-timeout-seconds)
-        
-        #send custom event to AppInsights
-        - task: PowerShell@2
-          displayName: 'AppInsights: Trace'
-          condition: succeeded()
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-              -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-              -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
-              -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Message "DEV CI Codebase Deployment: Status Checks - Completed"
-        
-        #send any errors to AppInsights
-        - task: PowerShell@2
-          displayName: 'AppInsights: Record Errors'
-          condition: failed()
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-              -PatToken: "$(devops-pat-token)"
-              -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-              -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
-              -ReleaseId "$(Build.BuildId)"
-              -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Message "DEV CI Codebase Deployment: Status Checks - Failed"
+- template: stages/status-checks.yml
+  parameters:
+    stageName: "CheckDEV"
+    displayName: "Status Checks > DEV"
+    buildAgent: $(dev-build-agent)
+    buildLabel: "PolarisCodebaseBuild"
+    appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+    dependsOn: "DeployDEV"
+    envLabel: "DEV"
+    successText: $(resources.pipeline.PolarisBuild.runName)
+    statusCheckMethod: $(status-check-method)
+    statusCheckRetries: $(status-check-retries)
+    statusCheckDelay: $(status-check-delay-seconds)
+    statusCheckTimeout: $(status-check-timeout-seconds)
+    coordinatorStatusUrl: $(dev-coordinator-status-url)
+    pdfGeneratorStatusUrl: $(dev-pdf-generator-status-url)
+    textExtractorStatusUrl: $(dev-text-extractor-status-url)
+    authHandoverStatusUrl: $(dev-auth-handover-status-url)
+    gatewayStatusUrl: $(dev-gateway-status-url)
+    proxyStatusUrl: $(dev-proxy-status-url)
+    uiStatusUrl: $(dev-ui-status-url)
 
 - stage: Create_DEV_Report
   displayName: Create Report > DEV

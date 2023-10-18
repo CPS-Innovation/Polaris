@@ -3,8 +3,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   #checkov:skip=CKV_AZURE_13:Ensure App Service Authentication is set on Azure App Service
   #checkov:skip=CKV_AZURE_17:Ensure the web app has 'Client Certificates (Incoming client certificates)' set
   name                          = "${local.resource_name}-cmsproxy"
-  resource_group_name           = azurerm_resource_group.rg_polaris.name
-  location                      = azurerm_resource_group.rg_polaris.location
+  resource_group_name           = data.azurerm_resource_group.polaris_resource_group.name
+  location                      = data.azurerm_resource_group.polaris_resource_group.location
   service_plan_id               = azurerm_service_plan.asp_polaris_proxy.id
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_proxy_subnet.id
   public_network_access_enabled = false
@@ -26,7 +26,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "XDT_MicrosoftApplicationInsights_BaseExtensions" = "disabled"
     "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = data.azurerm_storage_account.polaris_storage_account.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.proxy_scale_controller
     "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
@@ -36,17 +36,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "UPSTREAM_CMS_DOMAIN_NAME"                        = var.cms_details.upstream_cms_domain_name
     "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"               = var.cms_details.upstream_cms_services_domain_name
     "UPSTREAM_CMS_MODERN_DOMAIN_NAME"                 = var.cms_details.upstream_cms_modern_domain_name
-    "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
+    "APP_ENDPOINT_DOMAIN_NAME"                        = "${data.azurerm_linux_web_app.polaris_spa.name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
-    "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
-    "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
+    "API_ENDPOINT_DOMAIN_NAME"                        = "${data.azurerm_linux_function_app.polaris_gateway.name}.azurewebsites.net"
+    "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${data.azurerm_linux_function_app.polaris_auth_handover.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
     "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
-    "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
+    "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.pipeline_documents_storage_account.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
-    "DOCKER_REGISTRY_SERVER_URL"                      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
-    "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
-    "DOCKER_REGISTRY_SERVER_PASSWORD"                 = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
@@ -57,8 +54,10 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     ftps_state    = "FtpsOnly"
     http2_enabled = true
     application_stack {
-      docker_image     = "nginx"
-      docker_image_tag = "latest"
+      docker_image_name = "nginx:latest"
+      docker_registry_url = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
+      docker_registry_username = data.azurerm_container_registry.polaris_container_registry.admin_username
+      docker_registry_password = data.azurerm_container_registry.polaris_container_registry.admin_password
     }
     always_on                               = true
     vnet_route_all_enabled                  = true
@@ -86,8 +85,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   }
 
   storage_account {
-    access_key   = azurerm_storage_account.sacpspolaris.primary_access_key
-    account_name = azurerm_storage_account.sacpspolaris.name
+    access_key   = data.azurerm_storage_account.polaris_storage_account.primary_access_key
+    account_name = data.azurerm_storage_account.polaris_storage_account.name
     name         = "config"
     share_name   = azurerm_storage_container.polaris_proxy_content.name
     type         = "AzureBlob"
@@ -154,13 +153,13 @@ resource "azurerm_role_assignment" "ra_blob_data_contributor_polaris_proxy" {
   scope                = azurerm_storage_container.polaris_proxy_content.resource_manager_id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_linux_web_app.polaris_proxy.identity[0].principal_id
-  depends_on           = [azurerm_storage_account.sacpspolaris, azurerm_storage_container.polaris_proxy_content]
+  depends_on           = [azurerm_storage_container.polaris_proxy_content]
 }
 
 resource "azurerm_storage_blob" "nginx_config" {
   name                   = "nginx.conf.template"
   content_md5            = md5(file("nginx.conf"))
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_account_name   = data.azurerm_storage_account.polaris_storage_account.name
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "nginx.conf"
@@ -170,7 +169,7 @@ resource "azurerm_storage_blob" "nginx_config" {
 resource "azurerm_storage_blob" "nginx_js" {
   name                   = "nginx.js"
   content_md5            = md5(file("nginx.js"))
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_account_name   = data.azurerm_storage_account.polaris_storage_account.name
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "nginx.js"
@@ -180,7 +179,7 @@ resource "azurerm_storage_blob" "nginx_js" {
 resource "azurerm_storage_blob" "nginx_injected_js" {
   name                   = "polaris-script.js"
   content_md5            = md5(file("polaris-script.js"))
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_account_name   = data.azurerm_storage_account.polaris_storage_account.name
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "polaris-script.js"
@@ -190,8 +189,8 @@ resource "azurerm_storage_blob" "nginx_injected_js" {
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "polaris_proxy_pe" {
   name                = "${azurerm_linux_web_app.polaris_proxy.name}-pe"
-  resource_group_name = azurerm_resource_group.rg_polaris.name
-  location            = azurerm_resource_group.rg_polaris.location
+  resource_group_name = data.azurerm_resource_group.polaris_resource_group.name
+  location            = data.azurerm_resource_group.polaris_resource_group.location
   subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
   tags                = local.common_tags
 

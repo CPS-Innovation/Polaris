@@ -1,0 +1,33 @@
+﻿parameters:
+  buildLabel: ""
+  appInsightsKey: ""
+  envLabel: ""
+  envSuffix: ""
+  azureSubscription: ""
+
+steps:
+  #send custom event to AppInsights
+  - template: tasks/send-to-app-insights.yml
+    parameters:
+      appInsightsKey: "${{ parameters.appInsightsKey }}"
+      message: "${{ parameters.envLabel }} Pipeline Component Deployment: Publish Text Extractor - Started"
+
+    #download text-extractor build artifact
+  - download: ${{ parameters.buildLabel }}
+    displayName: Deploy > Download Text Extractor Codebase Build
+    artifact: "polaris-text-extractor-drop"
+
+    # Deploy Related Codebase to Env
+  - task: AzureFunctionApp@1
+    displayName: 'Deploy Text Extractor Azure Function App to ${{ parameters.envLabel }}'
+    inputs:
+      azureSubscription: "${{ parameters.azureSubscription }}"
+      appType: functionAppLinux
+      appName: "fa-polaris-pipeline${{ parameters.envSuffix }}-text-extractor"
+      package: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-text-extractor-drop
+
+    #send custom event to AppInsights
+  - template: tasks/send-to-app-insights.yml
+    parameters:
+      appInsightsKey: "${{ parameters.appInsightsKey }}"
+      message: "${{ parameters.envLabel }} Pipeline Component Deployment: Publish Text Extractor - Completed"
