@@ -27,6 +27,7 @@ namespace pdf_generator.TelemetryEvents
     public int NullCharCount;
     public int PageCount;
     public bool IsSanitizeBroken;
+    public string PdfFormat;
 
     public RedactedDocumentEvent(
         Guid correlationId,
@@ -60,6 +61,7 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(ProviderDetails), ProviderDetails.ToString() },
                     { nameof(ProviderReason), ProviderReason.ToString() },
                     { nameof(IsSanitizeBroken), IsSanitizeBroken.ToString() },
+                    { nameof(PdfFormat), PdfFormat.ToString() },
           },
           new Dictionary<string, double?>
           {

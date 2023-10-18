@@ -33,5 +33,5 @@ hte_feature_flag              = true
 
 image_conversion_redaction = {
   resolution = 150
-  quality_percent = 33
+  quality_percent = 50
 }

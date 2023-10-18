@@ -70,6 +70,7 @@ namespace pdf_generator.Services.DocumentRedactionService
 
                 var document = new Document(documentBlob);
 
+                telemetryEvent.PdfFormat = document.PdfFormat.ToString();
                 telemetryEvent.ProviderReason = ProviderReason.HardCoded;
                 telemetryEvent.PageCount = document.Pages.Count;
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
