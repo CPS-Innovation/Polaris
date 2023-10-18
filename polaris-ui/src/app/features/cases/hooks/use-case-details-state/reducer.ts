@@ -102,6 +102,13 @@ export const reducer = (
         };
       }
     | {
+        type: "SAVING_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          isSaving: boolean;
+        };
+      }
+    | {
         type: "REMOVE_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
@@ -693,6 +700,23 @@ export const reducer = (
                       redactionAddedOrder: item.redactionHighlights.length,
                     },
                   ],
+                }
+              : item
+          ),
+        },
+      };
+    }
+    case "SAVING_REDACTION": {
+      const { documentId, isSaving } = action.payload;
+      return {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  isSaving: isSaving,
                 }
               : item
           ),

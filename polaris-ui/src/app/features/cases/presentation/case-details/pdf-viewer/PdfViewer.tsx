@@ -31,6 +31,7 @@ type Props = {
   contextData: {
     documentType: string;
     documentId: string;
+    isSaving: boolean;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];

@@ -91,7 +91,7 @@ export const setupHandlers = ({
     }),
 
     rest.put(makeApiPath(routes.SAVE_REDACTION_ROUTE), (req, res, ctx) => {
-      return res(ctx.json({}));
+      return res(delay(ctx), ctx.json({}));
       // return res(ctx.status(500));
     }),
 

@@ -287,8 +287,15 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         redactionHighlights
       );
       try {
+        dispatch({
+          type: "SAVING_REDACTION",
+          payload: { documentId, isSaving: true },
+        });
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
-
+        dispatch({
+          type: "SAVING_REDACTION",
+          payload: { documentId, isSaving: false },
+        });
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
           payload: { documentId },
@@ -311,6 +318,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             title: "Something went wrong!",
             message: "Failed to save redaction. Please try again later.",
           },
+        });
+        dispatch({
+          type: "SAVING_REDACTION",
+          payload: { documentId, isSaving: false },
         });
       }
 
