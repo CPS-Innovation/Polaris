@@ -3,11 +3,11 @@ using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
 
-namespace pdf_generator.Services.DocumentRedactionService.RedactionImplementation
+namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider
 {
-    public class DirectRedactionImplementation : IRedactionImplementation
+    public class DirectRedactionProvider : IRedactionProvider
     {
-        public ImplementationType GetImplementationType() => ImplementationType.DirectRedaction;
+        public ProviderType GetProviderType() => ProviderType.DirectRedaction;
 
         public void AttachAnnotation(Page page, Rectangle rect)
         {

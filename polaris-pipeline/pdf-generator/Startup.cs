@@ -18,7 +18,7 @@ using pdf_generator.Services.DocumentRedactionService;
 using pdf_generator.Services.Extensions;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
-using pdf_generator.Services.DocumentRedactionService.RedactionImplementation;
+using pdf_generator.Services.DocumentRedactionService.RedactionProvider;
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
@@ -36,7 +36,7 @@ namespace pdf_generator
 
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
             services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            services.AddTransient<IRedactionImplementation, ImageConversionImplementation>();
+            services.AddTransient<IRedactionProvider, ImageConversionProvider>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();

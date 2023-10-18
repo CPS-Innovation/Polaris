@@ -1,12 +1,16 @@
+using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
+using Aspose.Pdf.Devices;
 
-namespace pdf_generator.Services.DocumentRedactionService.RedactionImplementation
+namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider
 {
-    public class ImageConversionImplementation : IRedactionImplementation
+    public class ImageConversionProvider : IRedactionProvider
     {
-        public ImplementationType GetImplementationType() => ImplementationType.ImageConversion;
-        
+        private readonly ImageDevice _imageDevice = new JpegDevice();
+
+        public ProviderType GetProviderType() => ProviderType.ImageConversion;
+
         public void AttachAnnotation(Page page, Rectangle rect)
         {
             var softAnnotation = new SquareAnnotation(page, rect)
@@ -21,19 +25,22 @@ namespace pdf_generator.Services.DocumentRedactionService.RedactionImplementatio
         public Document SanitizeDocument(Document document)
         {
             var outputDoc = new Document();
-            foreach (var inputPage in document.Pages)
+            foreach (var page in document.Pages)
             {
                 var outputPage = outputDoc.Pages.Add();
-                outputPage.PageInfo.Height = inputPage.PageInfo.Height;
-                outputPage.PageInfo.Width = inputPage.PageInfo.Width;
+                outputPage.PageInfo.Height = page.PageInfo.Height;
+                outputPage.PageInfo.Width = page.PageInfo.Width;
                 outputPage.PageInfo.Margin.Bottom =
                     outputPage.PageInfo.Margin.Top =
                     outputPage.PageInfo.Margin.Right =
                     outputPage.PageInfo.Margin.Left = 0;
 
+                var memoryStream = new MemoryStream();
+                _imageDevice.Process(page, memoryStream);
+
                 var outputImage = new Image()
                 {
-                    ImageStream = inputPage.ConvertToPNGMemoryStream()
+                    ImageStream = memoryStream
                 };
 
                 outputPage.Paragraphs.Add(outputImage);

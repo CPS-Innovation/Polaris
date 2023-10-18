@@ -13,7 +13,7 @@ using Common.Telemetry.Contracts;
 using Microsoft.Extensions.Logging;
 using pdf_generator.TelemetryEvents;
 using pdf_generator.TelemetryEvents.Extensions;
-using pdf_generator.Services.DocumentRedactionService.RedactionImplementation;
+using pdf_generator.Services.DocumentRedactionService.RedactionProvider;
 using Aspose.Pdf.Text;
 using System.Linq;
 
@@ -23,20 +23,20 @@ namespace pdf_generator.Services.DocumentRedactionService
     {
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ICoordinateCalculator _coordinateCalculator;
-        private readonly IRedactionImplementation _redactionImplementation;
+        private readonly IRedactionProvider _redactionProvider;
         private readonly ILogger<DocumentRedactionService> _logger;
         private readonly ITelemetryClient _telemetryClient;
 
         public DocumentRedactionService(
             IPolarisBlobStorageService blobStorageService,
             ICoordinateCalculator coordinateCalculator,
-            IRedactionImplementation redactionImplementation,
+            IRedactionProvider redactionProvider,
             ILogger<DocumentRedactionService> logger,
             ITelemetryClient telemetryClient)
         {
             _polarisBlobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
             _coordinateCalculator = coordinateCalculator ?? throw new ArgumentNullException(nameof(coordinateCalculator));
-            _redactionImplementation = redactionImplementation;
+            _redactionProvider = redactionProvider;
             _logger = logger;
             _telemetryClient = telemetryClient;
         }
@@ -50,7 +50,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                     caseId: redactPdfRequest.CaseId.ToString(),
                     documentId: redactPdfRequest.PolarisDocumentIdValue,
                     redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
-                    implementationType: _redactionImplementation.GetImplementationType());
+                    implementationType: _redactionProvider.GetProviderType());
 
                 _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
 
@@ -64,6 +64,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                         Message = $"Invalid document - a document with filename '{fileName}' could not be retrieved for redaction purposes"
                     };
                 }
+
                 telemetryEvent.StartTime = DateTime.UtcNow;
                 telemetryEvent.OriginalBytes = documentBlob.Length;
 
@@ -77,15 +78,17 @@ namespace pdf_generator.Services.DocumentRedactionService
                 Document sanitizedDocument;
                 try
                 {
-                    sanitizedDocument = _redactionImplementation.SanitizeDocument(document);
+                    sanitizedDocument = _redactionProvider.SanitizeDocument(document);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogMethodError(correlationId, nameof(RedactPdfAsync), "Could not sanitize document", ex);
                     sanitizedDocument = document;
+                    telemetryEvent.IsSanitizeBroken = true;
                 }
-
+                telemetryEvent.SanitizedTime = DateTime.UtcNow;
                 telemetryEvent.NullCharCount = GetNullCharacterCount(sanitizedDocument);
+
                 using var redactedDocumentStream = SaveToStream(sanitizedDocument);
 
                 telemetryEvent.Bytes = redactedDocumentStream.Length;
@@ -129,7 +132,7 @@ namespace pdf_generator.Services.DocumentRedactionService
                         translatedCoordinates.X2,
                         translatedCoordinates.Y2);
 
-                    _redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
+                    _redactionProvider.AttachAnnotation(annotationPage, annotationRectangle);
                 }
             }
         }
