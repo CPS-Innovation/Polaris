@@ -25,25 +25,25 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      job:
-        #download scripts artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Scripts
-          artifact: 'polaris-script-files'
-
-        #send custom event to AppInsights
-        - task: PowerShell@2
-          displayName: 'AppInsights: Trace'
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-              -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-              -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
-              -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Message "DEV Codebase CI Deployment: Started"
+      - job:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+  
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+                -Message "DEV Codebase CI Deployment: Started"
         
   - stage: Deploy_DEV
     displayName: Deploy > DEV
@@ -411,43 +411,43 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      job:
-        #download scripts artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Scripts
-          artifact: 'polaris-script-files'
-
-        #send custom event to AppInsights
-        - task: PowerShell@2
-          displayName: 'AppInsights: Trace'
-          condition: succeeded()
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-              -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-              -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
-              -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Message "DEV Codebase CI Deployment: Completed"
-
-        #send any errors to AppInsights
-        - task: PowerShell@2
-          displayName: 'AppInsights: Record Errors'
-          condition: failed()
-          inputs:
-            failOnStderr: true
-            targetType: 'filePath'
-            filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
-            arguments: > # Use this to avoid newline characters in multi-line string
-              -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
-              -PatToken: "$(devops-pat-token)"
-              -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-              -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
-              -ReleaseId "$(Build.BuildId)"
-              -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-              -Message "DEV Codebase CI Deployment: Failed"               
+      - job:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+  
+          #send custom event to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Trace'
+            condition: succeeded()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
+                -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+                -Message "DEV Codebase CI Deployment: Completed"
+  
+          #send any errors to AppInsights
+          - task: PowerShell@2
+            displayName: 'AppInsights: Record Errors'
+            condition: failed()
+            inputs:
+              failOnStderr: true
+              targetType: 'filePath'
+              filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+              arguments: > # Use this to avoid newline characters in multi-line string
+                -InstrumentationKey "$(innovation-development-app-insights-instrumentation-key)"
+                -PatToken: "$(devops-pat-token)"
+                -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
+                -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
+                -ReleaseId "$(Build.BuildId)"
+                -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+                -Message "DEV Codebase CI Deployment: Failed"               
 
   - stage: Check_DEV
     displayName: Status Checks > DEV
