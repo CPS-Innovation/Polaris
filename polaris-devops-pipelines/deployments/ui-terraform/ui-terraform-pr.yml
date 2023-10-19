@@ -1,13 +1,14 @@
 trigger: none
+pr: none # testing only
 
-pr:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - polaris-terraform/ui-terraform/*
-      - polaris-terraform/ui-events-terraform/*
+#pr:
+#  branches:
+#    include:
+#      - main
+#  paths:
+#    include:
+#      - polaris-terraform/ui-terraform/*
+#      - polaris-terraform/ui-events-terraform/*
 
 variables:
   - group: kv-dev-terraform
