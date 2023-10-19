@@ -486,7 +486,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job: Check Coordinator
+      - job: CheckCoordinator
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -508,7 +508,7 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
-      - job: Check PDF Generator
+      - job: CheckPDFGenerator
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -530,7 +530,7 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
-      - job: Check Text Extractor
+      - job: CheckTextExtractor
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -552,7 +552,7 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
-      - job: Check Auth Handover
+      - job: CheckAuthHandover
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -574,7 +574,7 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
-      - job: Check Gateway
+      - job: CheckGateway
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -596,7 +596,7 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
-      - job: Check SPA
+      - job: CheckSPA
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
