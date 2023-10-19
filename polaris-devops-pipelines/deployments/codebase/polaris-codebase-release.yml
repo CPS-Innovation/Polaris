@@ -604,7 +604,7 @@ stages:
   - stage: Run_e2e_Tests_DEV
     displayName: Run e2e tests > DEV
     dependsOn:
-      - Apply_DEV
+      - Finalise_DEV
       - Check_DEV
     condition: succeeded()
     jobs:
