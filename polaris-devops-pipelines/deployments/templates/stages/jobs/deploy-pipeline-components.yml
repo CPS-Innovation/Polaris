@@ -24,7 +24,7 @@ jobs:
               artifact: 'polaris-script-files'
 
             #send custom event to AppInsights
-            - template: tasks/send-to-app-insights.yml
+            - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Coordinator - Started"
@@ -44,7 +44,7 @@ jobs:
                 package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-coordinator-drop
 
             #send custom event to AppInsights
-            - template: tasks/send-to-app-insights.yml
+            - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Coordinator - Completed"
@@ -62,7 +62,7 @@ jobs:
               artifact: 'polaris-script-files'
 
             #send custom event to AppInsights
-            - template: tasks/send-to-app-insights.yml
+            - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Pdf Generator - Started"
@@ -82,7 +82,7 @@ jobs:
                 package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-pdf-generator-drop
 
             #send custom event to AppInsights
-            - template: tasks/send-to-app-insights.yml
+            - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Pdf Generator - Completed"
@@ -100,7 +100,7 @@ jobs:
               artifact: 'polaris-script-files'
 
             #send custom event to AppInsights
-            - template: tasks/send-to-app-insights.yml
+            - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Text Extractor - Started"
@@ -120,7 +120,7 @@ jobs:
                 package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-text-extractor-drop
 
             #send custom event to AppInsights
-            - template: tasks/send-to-app-insights.yml
+            - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Text Extractor - Completed"

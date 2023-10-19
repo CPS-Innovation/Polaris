@@ -1,6 +1,8 @@
 ﻿parameters:
-  appInsightsKey: ""
-  message: ""
+  - name: appInsightsKey
+    type: string
+  - name: message
+    type: string
   
 steps:
 #send custom event to AppInsights

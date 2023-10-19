@@ -1,7 +1,10 @@
 ﻿parameters:
-  appInsightsKey: ""
-  devOpsPatToken: ""
-  message: ""
+  - name: appInsightsKey
+    type: string
+  - name: devOpsPatToken
+    type: string
+  - name: message
+    type: string
   
 steps:
   #send any errors to AppInsights
