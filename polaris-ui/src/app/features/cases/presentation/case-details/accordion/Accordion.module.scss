@@ -23,7 +23,7 @@
   }
 }
 
-.accordion .accordion-section[aria-expanded="false"] .accordion-section-body {
+.accordion .accordionSectionClosed .accordion-section-body {
   display: none;
 }
 
@@ -103,7 +103,7 @@
   margin-top: 0.9375rem;
 }
 
-.accordion .accordion-section[aria-expanded="true"] .icon {
+.accordion .accordionSectionOpened .icon {
   background-position: 0 0;
 }
 
