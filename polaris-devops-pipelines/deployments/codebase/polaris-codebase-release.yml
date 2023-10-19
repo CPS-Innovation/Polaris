@@ -736,6 +736,7 @@ stages:
 
   - stage: Init_Deploy_QA
     displayName: Init > QA
+    dependsOn: Run_e2e_Tests_DEV
     pool:
       name: $(qa-build-agent)
     jobs:
@@ -1450,6 +1451,7 @@ stages:
 
   - stage: Init_Deploy_PROD
     displayName: Init > PROD
+    dependsOn: Run_e2e_Tests_DEV
     pool:
       name: $(prod-build-agent)
     jobs:
