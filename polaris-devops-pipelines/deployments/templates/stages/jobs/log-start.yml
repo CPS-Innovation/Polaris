@@ -1,0 +1,25 @@
+﻿parameters:
+  - name: envLabel
+    type: string
+  - name: targetLabel
+    type: string
+  - name: appInsightsKey
+    type: string
+
+jobs:
+  - deployment: LogStart
+    environment: ${{ parameters.envLabel }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            #download scripts artifact
+            - download: PolarisCodebaseBuild
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+            
+            #send custom event to AppInsights
+            - template: tasks/send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Started"

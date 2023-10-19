@@ -1,0 +1,126 @@
+﻿parameters:
+  - name: envLabel
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: azureSubscription
+    type: string
+
+jobs:
+  - deployment: DeployCoordinator
+    dependsOn: LogStart
+    environment: ${{ parameters.envLabel }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            #download scripts artifact
+            - download: PolarisCodebaseBuild
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+
+            #send custom event to AppInsights
+            - template: tasks/send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Coordinator - Started"
+            
+            #download coordinator build artifact
+            - download: PolarisCodebaseBuild
+              displayName: Deploy > Download Coordinator Codebase Build
+              artifact: "polaris-coordinator-drop"
+
+            # Deploy Related Codebase to Env
+            - task: AzureFunctionApp@1
+              displayName: 'Deploy Coordinator Azure Function App to ${{ parameters.targetLabel }}'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                appType: functionAppLinux
+                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-coordinator"
+                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-coordinator-drop
+
+            #send custom event to AppInsights
+            - template: tasks/send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Coordinator - Completed"
+
+  - deployment: DeployPdfGenerator
+    dependsOn: LogStart
+    environment: ${{ parameters.envLabel }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            #download scripts artifact
+            - download: PolarisCodebaseBuild
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+
+            #send custom event to AppInsights
+            - template: tasks/send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Pdf Generator - Started"
+
+            #download pdf-generator build artifact
+            - download: PolarisCodebaseBuild
+              displayName: Deploy > Download PDF Generator Codebase Build
+              artifact: "polaris-pdf-generator-drop"
+
+            # Deploy Related Codebase to Env
+            - task: AzureFunctionApp@1
+              displayName: 'Deploy PDF Generator Azure Function App to ${{ parameters.targetLabel }}'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                appType: functionApp
+                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-pdf-generator"
+                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-pdf-generator-drop
+
+            #send custom event to AppInsights
+            - template: tasks/send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Pdf Generator - Completed"
+
+  - deployment: DeployTextGenerator
+    dependsOn: LogStart
+    environment: ${{ parameters.envLabel }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            #download scripts artifact
+            - download: PolarisCodebaseBuild
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+
+            #send custom event to AppInsights
+            - template: tasks/send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Text Extractor - Started"
+
+            #download text-extractor build artifact
+            - download: PolarisCodebaseBuild
+              displayName: Deploy > Download Text Extractor Codebase Build
+              artifact: "polaris-text-extractor-drop"
+
+            # Deploy Related Codebase to Env
+            - task: AzureFunctionApp@1
+              displayName: 'Deploy Text Extractor Azure Function App to ${{ parameters.targetLabel }}'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                appType: functionAppLinux
+                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-text-extractor"
+                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-text-extractor-drop
+
+            #send custom event to AppInsights
+            - template: tasks/send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Text Extractor - Completed"
