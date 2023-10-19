@@ -1,0 +1,52 @@
+﻿parameters:
+  - name: stageBuildAgent
+    type: string
+  - name: targetLabel
+    type: string
+  - name: buildDefinitionId
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: devOpsPatToken
+    type: string
+  
+stages:
+  - stage: Run_e2e_Tests_${{ parameters.targetLabel }}
+    displayName: e2e tests > ${{ parameters.targetLabel }}
+    dependsOn: Check_${{ parameters.targetLabel }}
+    condition: succeeded()
+    jobs:
+      - job: Run_Tests
+        pool:
+          name: ${{ parameters.stageBuildAgent }}
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
+          #send custom event to AppInsights
+          - template: jobs/steps/tasks/send-to-app-insights.yml
+            parameters:
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              message: "${{ parameters.targetLabel }} e2e Tests: Started"
+          
+          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+            displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
+            inputs:
+              buildDefinition: ${{ parameters.buildDefinitionId }}
+              waitForQueuedBuildsToFinish: true
+              cancelBuildsIfAnyFails: true
+              password: "${{ parameters.devOpsPatToken }}"
+              
+          #send custom event to AppInsights
+          - template: jobs/steps/tasks/send-to-app-insights.yml
+            parameters:
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              message: "${{ parameters.targetLabel }} e2e Tests: Completed"
+
+          - template: steps/tasks/send-failure-to-app-insights.yml
+            parameters:
+              appInsightsKey: ${{ parameters.appInsightsKey }}
+              devOpsPatToken: ${{ parameters.devOpsPatToken }}
+              message: "${{ parameters.targetLabel }} e2e Tests: Failed"

@@ -1,0 +1,88 @@
+﻿parameters:
+  - name: targetLabel
+    type: string
+  - name: coordinatorStatusUrl
+    type: string
+  - name: pdfGeneratorStatusUrl
+    type: string
+  - name: textExtractorStatusUrl
+    type: string
+  - name: statusCheckMethod
+    type: string
+  - name: statusCheckRetries
+    type: string
+  - name: statusCheckDelaySeconds
+    type: string
+  - name: statusCheckTimeoutSeconds
+    type: string
+    
+  
+jobs:
+  - job: CheckCoordinator
+    dependsOn: LogStart
+    steps:
+      #download scripts artifact
+      - download: PolarisCodebaseBuild
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      #query coordinator status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Coordinator status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.coordinatorStatusUrl }}
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckPDFGenerator
+    dependsOn: LogStart
+    steps:
+      #download scripts artifact
+      - download: PolarisCodebaseBuild
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      #query pdf-generator status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} PDF-Generator status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.pdfGeneratorStatusUrl }}
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckTextExtractor
+    dependsOn: LogStart
+    steps:
+      #download scripts artifact
+      - download: PolarisCodebaseBuild
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      #query text-extractor status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Text-Extractor status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.textExtractorStatusUrl }}
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}

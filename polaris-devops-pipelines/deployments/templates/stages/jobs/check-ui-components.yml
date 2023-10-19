@@ -1,0 +1,112 @@
+﻿parameters:
+  - name: targetLabel
+    type: string
+  - name: authHandoverStatusUrl
+    type: string
+  - name: gatewayStatusUrl
+    type: string
+  - name: proxyStatusUrl
+    type: string
+  - name: spaStatusUrl
+    type: string
+  - name: statusCheckMethod
+    type: string
+  - name: statusCheckRetries
+    type: string
+  - name: statusCheckDelaySeconds
+    type: string
+  - name: statusCheckTimeoutSeconds
+    type: string
+    
+jobs:
+  - job: CheckAuthHandover
+    dependsOn: LogStart
+    steps:
+      #download scripts artifact
+      - download: PolarisCodebaseBuild
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      #query auth-handover status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Auth-Handover status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.authHandoverStatusUrl }}
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckGateway
+    dependsOn: LogStart
+    steps:
+      #download scripts artifact
+      - download: PolarisCodebaseBuild
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      #query gateway status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Gateway status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.gatewayStatusUrl }}
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckProxy
+    dependsOn: LogStart
+    steps:
+      #download scripts artifact
+      - download: PolarisCodebaseBuild
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      #query proxy status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Proxy status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.proxyStatusUrl }}
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "Polaris Proxy is online"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckSPA
+    dependsOn: LogStart
+    steps:
+      #download scripts artifact
+      - download: PolarisCodebaseBuild
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      #query spa status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} UI status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.spaStatusUrl }}
+            -Method $${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}

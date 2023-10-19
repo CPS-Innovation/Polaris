@@ -22,4 +22,4 @@ steps:
         -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
         -ReleaseId "$(Build.BuildId)"
         -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-        -Message "${{ parameters.message }}: Failed"
+        -Message "${{ parameters.message }}"

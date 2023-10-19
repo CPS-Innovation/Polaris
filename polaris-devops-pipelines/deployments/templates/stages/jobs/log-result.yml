@@ -35,4 +35,4 @@ jobs:
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 devOpsPatToken: ${{ parameters.devOpsPatToken }}
-                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}"
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Failed"
