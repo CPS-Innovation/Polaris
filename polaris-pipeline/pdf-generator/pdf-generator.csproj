@@ -79,10 +79,4 @@
     <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
 
   </Target>
-  <Target Name="CopyLibSkiaSharpForMac" AfterTargets="Build" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
-    <ItemGroup>
-      <NativeAssetToCopy Include="$(OutputPath)runtimes\osx\native\libSkiaSharp.dylib" />
-    </ItemGroup>
-    <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(OutputPath)bin" />
-  </Target>
 </Project>

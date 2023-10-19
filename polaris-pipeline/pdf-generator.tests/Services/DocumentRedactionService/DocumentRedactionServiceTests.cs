@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using pdf_generator.Factories.Contracts;
 using pdf_generator.Services.DocumentRedactionService;
-using pdf_generator.Services.DocumentRedactionService.RedactionImplementation;
+using pdf_generator.Services.DocumentRedactionService.RedactionProvider;
 using pdf_generator.Services.PdfService;
 using Xunit;
 
@@ -25,7 +25,7 @@ public class DocumentRedactionServiceTests
 {
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
     private readonly Mock<ITelemetryClient> _mockTelemetryClient;
-    private readonly Mock<IRedactionImplementation> _mockRedactionImplementation;
+    private readonly Mock<IRedactionProvider> _mockRedactionProvider;
     private readonly IDocumentRedactionService _documentRedactionService;
 
     private readonly RedactPdfRequestDto _redactPdfRequest;
@@ -36,7 +36,7 @@ public class DocumentRedactionServiceTests
         var fixture = new Fixture();
         _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
         _mockTelemetryClient = new Mock<ITelemetryClient>();
-        _mockRedactionImplementation = new Mock<IRedactionImplementation>();
+        _mockRedactionProvider = new Mock<IRedactionProvider>();
         var mockLogger = new Mock<ILogger<pdf_generator.Services.DocumentRedactionService.DocumentRedactionService>>();
         var mockCalculatorLogger = new Mock<ILogger<CoordinateCalculator>>();
         ICoordinateCalculator coordinateCalculator = new CoordinateCalculator(mockCalculatorLogger.Object);
@@ -49,7 +49,7 @@ public class DocumentRedactionServiceTests
         _documentRedactionService = new pdf_generator.Services.DocumentRedactionService.DocumentRedactionService(
             _mockBlobStorageService.Object,
             coordinateCalculator,
-            _mockRedactionImplementation.Object,
+            _mockRedactionProvider.Object,
             mockLogger.Object,
             _mockTelemetryClient.Object);
 
