@@ -19,7 +19,7 @@ jobs:
               artifact: 'polaris-script-files'
             
             #send custom event to AppInsights
-            - template: tasks/send-to-app-insights.yml
+            - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} Codebase CI Deployment: Started"
