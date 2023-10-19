@@ -750,6 +750,7 @@ stages:
           #send custom event to AppInsights
           - task: PowerShell@2
             displayName: 'AppInsights: Trace'
+            target: "QA"
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -1137,6 +1138,7 @@ stages:
           #send custom event to AppInsights
           - task: PowerShell@2
             displayName: 'AppInsights: Trace'
+            target: "QA"
             condition: succeeded()
             inputs:
               failOnStderr: true
@@ -1465,6 +1467,7 @@ stages:
           #send custom event to AppInsights
           - task: PowerShell@2
             displayName: 'AppInsights: Trace'
+            target: "Prod"
             inputs:
               failOnStderr: true
               targetType: 'filePath'
@@ -2065,6 +2068,7 @@ stages:
           #send custom event to AppInsights
           - task: PowerShell@2
             displayName: 'AppInsights: Trace'
+            target: "Prod"
             condition: succeeded()
             inputs:
               failOnStderr: true
