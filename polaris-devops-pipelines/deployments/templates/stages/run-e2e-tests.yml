@@ -1,6 +1,8 @@
 ﻿parameters:
   - name: stageBuildAgent
     type: string
+  - name: targetBuild
+    type: string
   - name: targetLabel
     type: string
   - name: buildDefinitionId
@@ -21,7 +23,7 @@ stages:
           name: ${{ parameters.stageBuildAgent }}
         steps:
           #download scripts artifact
-          - download: PolarisCodebaseBuild
+          - download: ${{ parameters.targetBuild }}
             displayName: Download Scripts
             artifact: 'polaris-script-files'
 

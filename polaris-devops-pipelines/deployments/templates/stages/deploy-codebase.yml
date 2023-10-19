@@ -5,6 +5,8 @@
     type: object
   - name: envLabel
     type: string
+  - name: targetBuild
+    type: string
   - name: targetLabel
     type: string
   - name: targetName
@@ -31,6 +33,7 @@ stages:
       - template: jobs/log-start.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
@@ -38,6 +41,7 @@ stages:
       - template: jobs/deploy-pipeline-components.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
           targetSuffix: ${{ parameters.targetSuffix }}
@@ -47,6 +51,7 @@ stages:
       - template: jobs/deploy-ui-components.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
           targetSuffix: ${{ parameters.targetSuffix }}
@@ -56,6 +61,7 @@ stages:
       - template: jobs/log-result.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}

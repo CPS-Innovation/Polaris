@@ -25,6 +25,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
       envLabel: "Dev"
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "Codebase CI Deployment"
       targetSuffix: "-dev"
@@ -45,6 +46,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Deploy_DEV
       envLabel: "Dev"
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -72,6 +74,7 @@ stages:
   - template: ../templates/stages/run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       buildDefinitionId: 129
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -82,6 +85,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "QA"
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "Codebase CI Deployment"
       targetSuffix: "-qa"
@@ -102,6 +106,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Deploy_QA
       envLabel: "QA"
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -129,6 +134,7 @@ stages:
   - template: ../templates/stages/run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -139,6 +145,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "Prod"
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "Codebase CI Deployment"
       targetSuffix: ""
@@ -159,6 +166,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Deploy_PROD
       envLabel: "Prod"
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -186,6 +194,7 @@ stages:
   - template: ../templates/stages/run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
+      targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       buildDefinitionId: 240
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"

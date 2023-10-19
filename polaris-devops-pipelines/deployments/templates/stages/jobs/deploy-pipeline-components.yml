@@ -1,6 +1,8 @@
 ﻿parameters:
   - name: envLabel
     type: string
+  - name: targetBuild
+    type: string
   - name: targetLabel
     type: string
   - name: targetName
@@ -21,7 +23,7 @@ jobs:
         deploy:
           steps:
             #download scripts artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
@@ -32,7 +34,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Started"
             
             #download coordinator build artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Coordinator Codebase Build
               artifact: "polaris-coordinator-drop"
 
@@ -43,7 +45,7 @@ jobs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
                 appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-coordinator"
-                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-coordinator-drop
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
 
             #send custom event to AppInsights
             - template: steps/tasks/send-to-app-insights.yml
@@ -59,7 +61,7 @@ jobs:
         deploy:
           steps:
             #download scripts artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
@@ -70,7 +72,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Started"
 
             #download pdf-generator build artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download PDF Generator Codebase Build
               artifact: "polaris-pdf-generator-drop"
 
@@ -81,7 +83,7 @@ jobs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionApp
                 appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-pdf-generator"
-                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-pdf-generator-drop
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
 
             #send custom event to AppInsights
             - template: steps/tasks/send-to-app-insights.yml
@@ -97,7 +99,7 @@ jobs:
         deploy:
           steps:
             #download scripts artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
@@ -108,7 +110,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Started"
 
             #download text-extractor build artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Text Extractor Codebase Build
               artifact: "polaris-text-extractor-drop"
 
@@ -119,7 +121,7 @@ jobs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
                 appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-text-extractor"
-                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-text-extractor-drop
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
 
             #send custom event to AppInsights
             - template: steps/tasks/send-to-app-insights.yml

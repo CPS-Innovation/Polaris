@@ -5,6 +5,8 @@
     type: object
   - name: envLabel
     type: string
+  - name: targetBuild
+    type: string
   - name: targetLabel
     type: string
   - name: targetName
@@ -50,12 +52,14 @@ stages:
       - template: jobs/log-start.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
 
       - template: jobs/check-pipeline-components.yml
         parameters:
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           coordinatorStatusUrl: ${{ parameters.coordinatorStatusUrl }}
           pdfGeneratorStatusUrl: ${{ parameters.pdfGeneratorStatusUrl }}
@@ -67,6 +71,7 @@ stages:
           
       - template: jobs/check-ui-components.yml
         parameters:
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           authHandoverStatusUrl: ${{ parameters.authHandoverStatusUrl }}
           gatewayStatusUrl: ${{ parameters.gatewayStatusUrl }}
@@ -80,6 +85,7 @@ stages:
       - template: jobs/log-result.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}

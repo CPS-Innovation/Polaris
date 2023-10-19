@@ -1,4 +1,6 @@
 ﻿parameters:
+  - name: targetBuild
+    type: string
   - name: targetLabel
     type: string
   - name: authHandoverStatusUrl
@@ -23,7 +25,7 @@ jobs:
     dependsOn: LogStart
     steps:
       #download scripts artifact
-      - download: PolarisCodebaseBuild
+      - download: ${{ parameters.targetBuild }}
         displayName: Download Scripts
         artifact: 'polaris-script-files'
 
@@ -33,11 +35,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI ${{ parameters.authHandoverStatusUrl }}
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
@@ -46,7 +48,7 @@ jobs:
     dependsOn: LogStart
     steps:
       #download scripts artifact
-      - download: PolarisCodebaseBuild
+      - download: ${{ parameters.targetBuild }}
         displayName: Download Scripts
         artifact: 'polaris-script-files'
 
@@ -56,11 +58,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI ${{ parameters.gatewayStatusUrl }}
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
@@ -69,7 +71,7 @@ jobs:
     dependsOn: LogStart
     steps:
       #download scripts artifact
-      - download: PolarisCodebaseBuild
+      - download: ${{ parameters.targetBuild }}
         displayName: Download Scripts
         artifact: 'polaris-script-files'
 
@@ -79,7 +81,7 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/PolarisBuild/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI ${{ parameters.proxyStatusUrl }}
             -Method ${{ parameters.statusCheckMethod }}
@@ -92,7 +94,7 @@ jobs:
     dependsOn: LogStart
     steps:
       #download scripts artifact
-      - download: PolarisCodebaseBuild
+      - download: ${{ parameters.targetBuild }}
         displayName: Download Scripts
         artifact: 'polaris-script-files'
 
@@ -102,11 +104,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI ${{ parameters.spaStatusUrl }}
             -Method $${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}

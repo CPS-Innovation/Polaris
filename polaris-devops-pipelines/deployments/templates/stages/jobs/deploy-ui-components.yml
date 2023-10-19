@@ -1,6 +1,8 @@
 ﻿parameters:
   - name: envLabel
     type: string
+  - name: targetBuild
+    type: string
   - name: targetLabel
     type: string
   - name: targetName
@@ -21,7 +23,7 @@ jobs:
         deploy:
           steps:
             #download scripts artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
@@ -32,7 +34,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish SPA - Started"
                 
             #download UI build artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download SPA Codebase Build
               artifact: "polaris-ui-drop"
 
@@ -43,7 +45,7 @@ jobs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: webAppLinux
                 WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
-                packageForLinux: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-ui-drop
+                packageForLinux: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-ui-drop
 
             #send custom event to AppInsights
             - template: steps/tasks/send-to-app-insights.yml
@@ -79,7 +81,7 @@ jobs:
         deploy:
           steps:
             #download scripts artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
@@ -90,7 +92,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Gateway - Started"
                 
             #download gateway build artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Gateway Codebase Build
               artifact: "polaris-gateway-drop"
 
@@ -101,7 +103,7 @@ jobs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
-                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-gateway-drop
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
 
             #send custom event to AppInsights
             - template: steps/tasks/send-to-app-insights.yml
@@ -117,7 +119,7 @@ jobs:
         deploy:
           steps:
             #download scripts artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
@@ -128,7 +130,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Auth-Handover - Started"
             
             #download gateway build artifact
-            - download: PolarisCodebaseBuild
+            - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Auth Handover Codebase Build
               artifact: "polaris-auth-handover-drop"
 
@@ -139,7 +141,7 @@ jobs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
-                package: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-auth-handover-drop
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-auth-handover-drop
 
             #send custom event to AppInsights
             - template: steps/tasks/send-to-app-insights.yml
