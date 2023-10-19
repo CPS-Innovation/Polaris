@@ -137,7 +137,7 @@ stages:
   - template: ../templates/stages/deploy-codebase.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Run_e2e_Tests_QA
+      stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "Prod"
       targetLabel: "PROD"
       targetName: "Codebase CI Deployment"
