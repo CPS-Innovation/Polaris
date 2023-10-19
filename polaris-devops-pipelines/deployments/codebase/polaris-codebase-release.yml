@@ -20,7 +20,7 @@ variables:
   - group: polaris-status-check-endpoints
 
 stages:
-  - template: ../templates/deploy-codebase.yml
+  - template: ../templates/stages/deploy-codebase.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
