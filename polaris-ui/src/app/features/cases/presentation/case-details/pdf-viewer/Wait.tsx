@@ -9,7 +9,9 @@ export const Wait: React.FC<WaitProps> = ({
 }) => {
   return (
     <div className={classes.content} data-testid={dataTestId}>
-      <Spinner diameterPx={50} />
+      <div className={classes.spinnerWrapper}>
+        <Spinner diameterPx={50} />
+      </div>
     </div>
   );
 };
