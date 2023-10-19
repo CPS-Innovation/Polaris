@@ -1,0 +1,33 @@
+﻿parameters:
+  buildLabel: ""
+  appInsightsKey: ""
+  envLabel: ""
+  envSuffix: ""
+  azureSubscription: ""
+  
+steps:
+  #send custom event to AppInsights
+- template: tasks/send-to-app-insights.yml
+  parameters:
+    appInsightsKey: "${{ parameters.appInsightsKey }}"
+    message: "${{ parameters.envLabel }} Pipeline Component Deployment: Publish Coordinator - Started"
+  
+  #download coordinator build artifact
+- download: ${{ parameters.buildLabel }}
+  displayName: Deploy > Download Coordinator Codebase Build
+  artifact: "polaris-coordinator-drop"
+  
+  # Deploy Related Codebase to Env
+- task: AzureFunctionApp@1
+  displayName: 'Deploy Coordinator Azure Function App to ${{ parameters.envLabel }}'
+  inputs:
+    azureSubscription: "${{ parameters.azureSubscription }}"
+    appType: functionAppLinux
+    appName: "fa-polaris-pipeline${{ parameters.envSuffix }}-coordinator"
+    package: $(Pipeline.Workspace)/${{ parameters.buildLabel }}/polaris-coordinator-drop
+  
+  #send custom event to AppInsights
+- template: tasks/send-to-app-insights.yml
+  parameters:
+    appInsightsKey: "${{ parameters.appInsightsKey }}"
+    message: "${{ parameters.envLabel }} Pipeline Component Deployment: Publish Coordinator - Completed"
