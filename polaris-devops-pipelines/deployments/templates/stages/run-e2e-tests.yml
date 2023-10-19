@@ -45,7 +45,7 @@ stages:
               appInsightsKey: ${{ parameters.appInsightsKey }}
               message: "${{ parameters.targetLabel }} e2e Tests: Completed"
 
-          - template: steps/tasks/send-failure-to-app-insights.yml
+          - template: jobs/steps/tasks/send-failure-to-app-insights.yml
             parameters:
               appInsightsKey: ${{ parameters.appInsightsKey }}
               devOpsPatToken: ${{ parameters.devOpsPatToken }}
