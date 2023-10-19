@@ -22,7 +22,7 @@
     
 stages:
   - stage: Deploy_${{ parameters.targetLabel }}
-    displayName: ${{ parameters.stageDisplayName }} Deploy > ${{ parameters.targetLabel }}
+    displayName: Deploy > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     pool:
