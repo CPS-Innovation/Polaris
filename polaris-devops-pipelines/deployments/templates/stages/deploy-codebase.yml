@@ -26,7 +26,7 @@ stages:
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     pool:
-      name: ${{ parameters.stageBuildAgent }} $(dev-build-agent)
+      name: ${{ parameters.stageBuildAgent }}
     jobs:
       - template: jobs/log-start.yml
         parameters:
