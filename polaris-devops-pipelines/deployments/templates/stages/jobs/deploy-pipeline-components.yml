@@ -3,6 +3,8 @@
     type: string
   - name: targetLabel
     type: string
+  - name: targetName
+    type: string
   - name: targetSuffix
     type: string
   - name: appInsightsKey
@@ -27,7 +29,7 @@ jobs:
             - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Coordinator - Started"
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Started"
             
             #download coordinator build artifact
             - download: PolarisCodebaseBuild
@@ -47,7 +49,7 @@ jobs:
             - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Coordinator - Completed"
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Completed"
 
   - deployment: DeployPdfGenerator
     dependsOn: LogStart
@@ -65,7 +67,7 @@ jobs:
             - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Pdf Generator - Started"
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Started"
 
             #download pdf-generator build artifact
             - download: PolarisCodebaseBuild
@@ -85,7 +87,7 @@ jobs:
             - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Pdf Generator - Completed"
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Completed"
 
   - deployment: DeployTextGenerator
     dependsOn: LogStart
@@ -103,7 +105,7 @@ jobs:
             - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Text Extractor - Started"
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Started"
 
             #download text-extractor build artifact
             - download: PolarisCodebaseBuild
@@ -123,4 +125,4 @@ jobs:
             - template: steps/tasks/send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} Codebase CI Deployment: Publish Text Extractor - Completed"
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Completed"

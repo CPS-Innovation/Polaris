@@ -8,6 +8,7 @@ steps:
 #send custom event to AppInsights
 - task: PowerShell@2
   displayName: 'AppInsights: Trace'
+  condition: succeeded()
   inputs:
     failOnStderr: true
     targetType: 'filePath'
