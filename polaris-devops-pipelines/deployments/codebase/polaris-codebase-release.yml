@@ -20,12 +20,12 @@ variables:
   - group: polaris-status-check-endpoints
 
 stages:
-  - stage: Init_DEV
+  - stage: Init_Deploy_DEV
     displayName: Init > DEV
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job:
+      - job: LogStart
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -48,7 +48,7 @@ stages:
         
   - stage: Deploy_DEV
     displayName: Deploy > DEV
-    dependsOn: Init_DEV
+    dependsOn: Init_Deploy_DEV
     pool:
       name: $(dev-build-agent)
     jobs:
@@ -412,7 +412,7 @@ stages:
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job:
+      - job: LogResult
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -449,16 +449,16 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
                 -ReleaseId "$(Build.BuildId)"
                 -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
-                -Message "DEV Codebase CI Deployment: Failed"               
-
-  - stage: Check_DEV
-    displayName: Status Checks > DEV
+                -Message "DEV Codebase CI Deployment: Failed"
+                
+  - stage: Init_Check_DEV
+    displayName: Init Checks > DEV
     dependsOn: Finalise_DEV
     condition: succeeded()
     pool:
       name: $(dev-build-agent)
     jobs:
-      - job: Run_Status_Checks
+      - job: LogStart
         steps:
           #download scripts artifact
           - download: PolarisCodebaseBuild
@@ -479,6 +479,20 @@ stages:
                 -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
                 -Message "DEV Codebase CI Deployment: Status Checks - Started"
 
+  - stage: Check_DEV
+    displayName: Status Checks > DEV
+    dependsOn: Init_Check_DEV
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: Check Coordinator
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
           #query coordinator status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Coordinator status'
@@ -494,6 +508,13 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
+      - job: Check PDF Generator
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+            
           #query pdf-generator status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV PDF-Generator status'
@@ -509,6 +530,13 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
+      - job: Check Text Extractor
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+            
           #query text-extractor status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Text-Extractor status'
@@ -524,6 +552,13 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
+      - job: Check Auth Handover
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+            
           #query auth-handover status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Auth-Handover status'
@@ -539,6 +574,13 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
+      - job: Check Gateway
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+            
           #query gateway status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV Gateway status'
@@ -554,6 +596,13 @@ stages:
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
 
+      - job: Check SPA
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+            
           #query spa status endpoint
           - task: PowerShell@2
             displayName: 'Checking DEV UI status'
@@ -568,7 +617,21 @@ stages:
                 -Retries $(status-check-retries)
                 -SecondsDelay $(status-check-delay-seconds)
                 -TimeoutSec $(status-check-timeout-seconds)
-          
+                
+  - stage: Finalise_Check_DEV
+    displayName: Finalise Checks > DEV
+    dependsOn: Check_DEV
+    condition: succeeded()
+    pool:
+      name: $(dev-build-agent)
+    jobs:
+      - job: LogStart
+        steps:
+          #download scripts artifact
+          - download: PolarisCodebaseBuild
+            displayName: Download Scripts
+            artifact: 'polaris-script-files'
+
           #send custom event to AppInsights
           - task: PowerShell@2
             displayName: 'AppInsights: Trace'
@@ -583,7 +646,7 @@ stages:
                 -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
                 -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
                 -Message "DEV Codebase CI Deployment: Status Checks - Completed"
-          
+
           #send any errors to AppInsights
           - task: PowerShell@2
             displayName: 'AppInsights: Record Errors'
@@ -602,13 +665,13 @@ stages:
                 -Message "DEV Codebase CI Deployment: Status Checks - Failed"
 
   - stage: Run_e2e_Tests_DEV
-    displayName: Run e2e tests > DEV
+    displayName: e2e tests > DEV
     dependsOn:
       - Finalise_DEV
-      - Check_DEV
+      - Finalise_Check_DEV
     condition: succeeded()
     jobs:
-      - job: Run_e2e_Tests_DEV
+      - job: Run_Tests
         pool:
           name: $(dev-build-agent)
         steps:
