@@ -1877,11 +1877,6 @@ stages:
         pool:
           name: $(prod-build-agent)
         steps:
-          #download templates artifact
-          - download: UITerraformBuild
-            displayName: Download Templates
-            artifact: 'polaris-template-files'
-
           #download scripts artifact
           - download: UITerraformBuild
             displayName: Download Scripts

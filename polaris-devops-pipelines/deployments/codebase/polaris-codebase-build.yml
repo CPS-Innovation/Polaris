@@ -40,13 +40,6 @@ stages:
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
 
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline templates'
-            inputs:
-              targetPath: '$(Pipeline.Workspace)/s/polaris-devops-pipelines/templates'
-              artifact: 'polaris-template-files'
-              publishLocation: 'pipeline'
-
           - task: DotNetCoreCLI@2
             inputs:
               command: publish

@@ -117,11 +117,6 @@ stages:
         runOnce:
           deploy:
             steps:
-              #download templates artifact
-              - download: PolarisCodebaseBuild
-                displayName: Download Templates
-                artifact: 'polaris-template-files'
-              
               #download scripts artifact
               - download: PolarisCodebaseBuild
                 displayName: Download Scripts
@@ -471,11 +466,6 @@ stages:
   jobs:
     - job: Run_Status_Checks
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-        
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts
@@ -641,11 +631,6 @@ stages:
       pool:
         name: $(qa-build-agent)
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts
@@ -723,11 +708,6 @@ stages:
       pool:
         name: $(qa-build-agent)
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts
@@ -807,11 +787,6 @@ stages:
       pool:
         name: $(qa-build-agent)
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts
@@ -885,11 +860,6 @@ stages:
         runOnce:
           deploy:
             steps:
-              #download templates artifact
-              - download: PolarisCodebaseBuild
-                displayName: Download Templates
-                artifact: 'polaris-template-files'
-              
               #download scripts artifact
               - download: PolarisCodebaseBuild
                 displayName: Download Scripts
@@ -1240,11 +1210,6 @@ stages:
   jobs:
     - job: Run_Status_Checks
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-        
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts
@@ -1409,11 +1374,6 @@ stages:
       pool:
         name: $(prod-build-agent)
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts
@@ -1491,11 +1451,6 @@ stages:
       pool:
         name: $(prod-build-agent)
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts
@@ -1575,11 +1530,6 @@ stages:
       pool:
         name: $(prod-build-agent)
       steps:
-        #download templates artifact
-        - download: PolarisCodebaseBuild
-          displayName: Download Templates
-          artifact: 'polaris-template-files'
-
         #download scripts artifact
         - download: PolarisCodebaseBuild
           displayName: Download Scripts

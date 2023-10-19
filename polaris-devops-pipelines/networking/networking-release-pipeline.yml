@@ -33,11 +33,6 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download templates artifact
-                - download: NetworkingBuild
-                  displayName: Download Templates
-                  artifact: 'polaris-template-files'
-                  
                 #download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
@@ -94,11 +89,6 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download templates artifact
-                - download: NetworkingBuild
-                  displayName: Download Templates
-                  artifact: 'polaris-template-files'
-                  
                 #download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
@@ -155,11 +145,6 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download templates artifact
-                - download: NetworkingBuild
-                  displayName: Download Templates
-                  artifact: 'polaris-template-files'
-                  
                 #download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
