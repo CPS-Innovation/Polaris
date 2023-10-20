@@ -56,7 +56,7 @@ stages:
           envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
-          targetName: ${{ parameters.targetName }}
+          targetName: "UI Terraform CI Deployment"
           appInsightsKey: ${{ parameters.appInsightsKey }}
 
       - template: jobs/job_apply-terraform.yml
