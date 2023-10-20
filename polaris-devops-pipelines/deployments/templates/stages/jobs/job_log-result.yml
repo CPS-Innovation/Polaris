@@ -1,7 +1,5 @@
 ﻿---
 parameters:
-  - name: envLabel
-    type: string
   - name: targetBuild
     type: string
   - name: targetLabel
@@ -16,27 +14,22 @@ parameters:
     type: object
 
 jobs:
-  - deployment: LogResult
+  - job: LogResult
     dependsOn: ${{ parameters.dependsOn }}
-    ${{ if ne(parameters.envLabel, 'IGNORE')}}:
-      environment: ${{ parameters.envLabel }}
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            # download scripts artifact
-            - download: ${{ parameters.targetBuild }}
-              displayName: Download Scripts
-              artifact: 'polaris-script-files'
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
 
-            # send custom event to AppInsights
-            - template: steps/tasks/task_send-to-app-insights.yml
-              parameters:
-                appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Completed"
+      # send custom event to AppInsights
+      - template: steps/tasks/task_send-to-app-insights.yml
+        parameters:
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Completed"
 
-            - template: steps/tasks/task_send-failure-to-app-insights.yml
-              parameters:
-                appInsightsKey: ${{ parameters.appInsightsKey }}
-                devOpsPatToken: ${{ parameters.devOpsPatToken }}
-                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Failed"
+      - template: steps/tasks/task_send-failure-to-app-insights.yml
+        parameters:
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          devOpsPatToken: ${{ parameters.devOpsPatToken }}
+          message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Failed"

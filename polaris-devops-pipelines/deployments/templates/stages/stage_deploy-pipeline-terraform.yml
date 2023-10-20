@@ -49,7 +49,6 @@ stages:
     jobs:
       - template: jobs/job_log-start.yml
         parameters:
-          envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
@@ -128,7 +127,6 @@ stages:
 
       - template: jobs/job_log-result.yml
         parameters:
-          envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}

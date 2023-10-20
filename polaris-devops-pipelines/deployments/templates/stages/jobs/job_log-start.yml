@@ -1,7 +1,5 @@
 ﻿---
 parameters:
-  - name: envLabel
-    type: string
   - name: targetBuild
     type: string
   - name: targetLabel
@@ -12,20 +10,15 @@ parameters:
     type: string
 
 jobs:
-  - deployment: LogStart
-    ${{ if ne(parameters.envLabel, 'IGNORE')}}:
-      environment: ${{ parameters.envLabel }}
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            # download scripts artifact
-            - download: ${{ parameters.targetBuild }}
-              displayName: Download Scripts
-              artifact: 'polaris-script-files'
+  - job: LogStart
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
 
-            # send custom event to AppInsights
-            - template: steps/tasks/task_send-to-app-insights.yml
-              parameters:
-                appInsightsKey: ${{ parameters.appInsightsKey }}
-                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Started"
+      # send custom event to AppInsights
+      - template: steps/tasks/task_send-to-app-insights.yml
+        parameters:
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Started"
