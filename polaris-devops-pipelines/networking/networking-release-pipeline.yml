@@ -1,3 +1,4 @@
+---
 # Unified Build and Release Azure DevOps networking for the Networking and Networking-Events Terraform
 
 trigger: none
@@ -20,7 +21,7 @@ variables:
   - group: kv-prod-terraform
   - group: polaris-global
   - group: networking-terraform
-  
+
 stages:
   - stage: Apply_DEV
     displayName: DEV Deployment
@@ -33,11 +34,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download networking terraform build artifact
+                # download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
-                
+
                 # Terraform Init
                 - bash: |
                     terraform init \
@@ -53,7 +54,7 @@ stages:
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
                     TF_LOG: $(dev-log-level)
-                
+
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -65,7 +66,7 @@ stages:
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
-                
+
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve dev.tfplan
@@ -77,7 +78,7 @@ stages:
                     ARM_TENANT_ID: $(innovation-development-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-development-subscription-id)
                     TF_LOG: $(dev-log-level)
-                    
+
   - stage: Apply_QA
     displayName: QA Deployment
     pool:
@@ -89,11 +90,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download networking terraform build artifact
+                # download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
-                
+
                 # Terraform Init
                 - bash: |
                     terraform init \
@@ -109,7 +110,7 @@ stages:
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsqastorageterraform-key1)
                     TF_LOG: $(qa-log-level)
-                
+
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=qa.tfplan -var-file="qa.tfvars"
@@ -121,7 +122,7 @@ stages:
                     ARM_TENANT_ID: $(innovation-qa-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-qa-subscription-id)
                     TF_LOG: $(qa-log-level)
-                
+
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve qa.tfplan
@@ -145,11 +146,11 @@ stages:
           runOnce:
             deploy:
               steps:
-                #download networking terraform build artifact
+                # download networking terraform build artifact
                 - download: NetworkingBuild
                   displayName: Terraform > Download Networking terraform build
                   artifact: "networking-terraform-files"
-                
+
                 # Terraform Init
                 - bash: |
                     terraform init \
@@ -165,7 +166,7 @@ stages:
                     TF_STATE_KEY: $(terraform-key)
                     TF_STATE_ACCESS_KEY: $(cpsprodstorageterraform-key1)
                     TF_LOG: $(prod-log-level)
-                
+
                 # Terraform Plan
                 - bash: |
                     terraform plan -input=false -out=prod.tfplan -var-file="prod.tfvars"
@@ -177,7 +178,7 @@ stages:
                     ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
                     ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                     TF_LOG: $(prod-log-level)
-                
+
                 # Terraform Apply
                 - bash: |
                     terraform apply -auto-approve prod.tfplan

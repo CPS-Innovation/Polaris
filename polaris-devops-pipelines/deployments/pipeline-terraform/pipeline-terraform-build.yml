@@ -1,6 +1,7 @@
+---
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
-#trigger:
+# trigger:
 #  batch: true
 #  branches:
 #    include:
@@ -10,9 +11,9 @@ name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 #      - polaris-terraform/pipeline-terraform/*
 #      - polaris-terraform/pipeline-events-terraform/*
 
-trigger: none # for testing only       
+trigger: none  # for testing only
 pr: none
-  
+
 variables:
   - group: polaris-global
   - name: buildConfiguration
@@ -21,10 +22,10 @@ variables:
     value: "1.0"
   - name: semanticVersion
     value: "$[counter(variables['majorMinorVersion'], 1)]"
-    
+
 pool:
   name: $(dev-build-agent)
-  
+
 stages:
   - stage: Publish_Artifacts
     displayName: Publish artifacts
@@ -37,7 +38,7 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
-              
+
           - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline terraform artifact'
             inputs:
@@ -51,7 +52,7 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/pipeline-events-terraform/"
               artifact: "pipeline-events-terraform-files"
               publishLocation: "pipeline"
-              
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -60,19 +61,19 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Coordinator package to publish"
-            
+
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
               artifact: "polaris-coordinator-drop"
             displayName: "Publish Coordinator codebase artifact"
-            
+
           - task: DownloadSecureFile@1
             name: licence
             inputs:
               secureFile: 'Aspose.Total.NET.lic'
             displayName: 'Download Aspose Licence'
-            
+
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
@@ -80,7 +81,7 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-            
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -89,13 +90,13 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create PDF-Generator package to publish"
-            
+
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
-            
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -104,7 +105,7 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Text-Extractor package to publish"
-            
+
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"

@@ -1,3 +1,4 @@
+---
 # Build and Publish Artifact Azure DevOps pipeline for Networking and Networking-Events Terraform files
 
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
@@ -10,9 +11,9 @@ trigger:
   paths:
     include:
       - polaris-terraform/networking-terraform/*
-       
+
 pr: none
-  
+
 variables:
   - group: polaris-global
   - name: buildConfiguration
@@ -21,10 +22,10 @@ variables:
     value: "1.0"
   - name: semanticVersion
     value: "$[counter(variables['majorMinorVersion'], 1)]"
-  
+
 pool:
   name: $(dev-build-agent)
-    
+
 stages:
   - stage: Publish_Artifacts
     displayName: Publish artifacts

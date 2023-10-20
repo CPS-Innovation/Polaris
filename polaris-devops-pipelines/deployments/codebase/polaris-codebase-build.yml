@@ -1,6 +1,7 @@
+---
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
-#trigger:
+# trigger:
 #  batch: true
 #  branches:
 #    include:
@@ -12,7 +13,7 @@ name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 #      - polaris-ui/*
 #      - polaris-e2e/*
 
-trigger: none # for testing only
+trigger: none  # for testing only
 pr: none
 
 variables:
@@ -48,7 +49,7 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Coordinator package to publish"
-    
+
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
@@ -70,7 +71,7 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-    
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -79,13 +80,13 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create PDF-Generator package to publish"
-    
+
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
-            
+
       - job: Build_Text_Extractor_Artifact
         steps:
           - task: DotNetCoreCLI@2
@@ -96,7 +97,7 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Text-Extractor package to publish"
-    
+
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
@@ -138,7 +139,7 @@ stages:
             displayName: "Publish Gateway codebase artifact"
 
       - job: Build_SPA_Artifacts
-        steps:    
+        steps:
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
@@ -146,7 +147,7 @@ stages:
             inputs:
               contents: |
                 polaris-ui/.env
-          
+
           # Add build version
           - task: PowerShell@2
             displayName: "Record build version"
@@ -163,21 +164,21 @@ stages:
               command: "install"
               workingDir: "polaris-ui"
             displayName: "npm install"
-            
+
           - task: Npm@1
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
               customCommand: "run prettier"
             displayName: "npm prettier"
-            
+
           - task: Npm@1
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
               customCommand: "run build"
             displayName: "npm build"
-            
+
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/build"

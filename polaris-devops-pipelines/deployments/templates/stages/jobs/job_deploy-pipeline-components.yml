@@ -1,4 +1,5 @@
-﻿parameters:
+﻿---
+parameters:
   - name: envLabel
     type: string
   - name: targetBuild
@@ -13,27 +14,29 @@
     type: string
   - name: azureSubscription
     type: string
+  - name: jobDependsOn
+    type: object
 
 jobs:
   - deployment: DeployCoordinator
-    dependsOn: LogStart
+    dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
         deploy:
           steps:
-            #download scripts artifact
+            # download scripts artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Started"
-            
-            #download coordinator build artifact
+
+            # download coordinator build artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Coordinator Codebase Build
               artifact: "polaris-coordinator-drop"
@@ -47,31 +50,31 @@ jobs:
                 appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-coordinator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Completed"
 
   - deployment: DeployPdfGenerator
-    dependsOn: LogStart
+    dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
         deploy:
           steps:
-            #download scripts artifact
+            # download scripts artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Started"
 
-            #download pdf-generator build artifact
+            # download pdf-generator build artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download PDF Generator Codebase Build
               artifact: "polaris-pdf-generator-drop"
@@ -85,31 +88,31 @@ jobs:
                 appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-pdf-generator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Completed"
 
   - deployment: DeployTextGenerator
-    dependsOn: LogStart
+    dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
         deploy:
           steps:
-            #download scripts artifact
+            # download scripts artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Started"
 
-            #download text-extractor build artifact
+            # download text-extractor build artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Text Extractor Codebase Build
               artifact: "polaris-text-extractor-drop"
@@ -123,8 +126,8 @@ jobs:
                 appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-text-extractor"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Completed"

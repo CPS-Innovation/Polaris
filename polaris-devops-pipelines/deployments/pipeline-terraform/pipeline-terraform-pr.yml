@@ -1,7 +1,8 @@
+---
 trigger: none
-pr: none # testing only
+pr: none  # testing only
 
-#pr:
+# pr:
 #  branches:
 #    include:
 #      - main
@@ -9,7 +10,7 @@ pr: none # testing only
 #    include:
 #      - polaris-terraform/pipeline-terraform/*
 #      - polaris-terraform/pipeline-events-terraform/*
-      
+
 variables:
   - group: kv-dev-terraform
   - group: polaris-global
@@ -37,7 +38,7 @@ stages:
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "Total changed $count files"
-                
+
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
                   $name=$temp[$i]
@@ -117,7 +118,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -144,7 +145,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -181,7 +182,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -208,7 +209,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -345,7 +346,7 @@ stages:
               command: custom
               custom: tool
               arguments: 'install --global dotnet-reportgenerator-globaltool'
-              
+
           - download: current
             patterns: '**/*.cobertura.xml'
             displayName: Retrieve published test reports

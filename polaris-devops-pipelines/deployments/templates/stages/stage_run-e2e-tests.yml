@@ -1,4 +1,5 @@
-﻿parameters:
+﻿---
+parameters:
   - name: stageBuildAgent
     type: string
   - name: targetBuild
@@ -11,7 +12,7 @@
     type: string
   - name: devOpsPatToken
     type: string
-  
+
 stages:
   - stage: Run_e2e_Tests_${{ parameters.targetLabel }}
     displayName: e2e tests > ${{ parameters.targetLabel }}
@@ -22,17 +23,17 @@ stages:
         pool:
           name: ${{ parameters.stageBuildAgent }}
         steps:
-          #download scripts artifact
+          # download scripts artifact
           - download: ${{ parameters.targetBuild }}
             displayName: Download Scripts
             artifact: 'polaris-script-files'
 
-          #send custom event to AppInsights
-          - template: jobs/steps/tasks/send-to-app-insights.yml
+          # send custom event to AppInsights
+          - template: jobs/steps/tasks/task_send-to-app-insights.yml
             parameters:
               appInsightsKey: ${{ parameters.appInsightsKey }}
               message: "${{ parameters.targetLabel }} e2e Tests: Started"
-          
+
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
             inputs:
@@ -40,14 +41,14 @@ stages:
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "${{ parameters.devOpsPatToken }}"
-              
-          #send custom event to AppInsights
-          - template: jobs/steps/tasks/send-to-app-insights.yml
+
+          # send custom event to AppInsights
+          - template: jobs/steps/tasks/task_send-to-app-insights.yml
             parameters:
               appInsightsKey: ${{ parameters.appInsightsKey }}
               message: "${{ parameters.targetLabel }} e2e Tests: Completed"
 
-          - template: jobs/steps/tasks/send-failure-to-app-insights.yml
+          - template: jobs/steps/tasks/task_send-failure-to-app-insights.yml
             parameters:
               appInsightsKey: ${{ parameters.appInsightsKey }}
               devOpsPatToken: ${{ parameters.devOpsPatToken }}

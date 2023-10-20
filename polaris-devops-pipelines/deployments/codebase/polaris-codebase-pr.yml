@@ -1,7 +1,8 @@
-﻿trigger: none
-pr: none # testing only
+﻿---
+trigger: none
+pr: none  # testing only
 
-#pr:
+# pr:
 #  branches:
 #    include:
 #      - main
@@ -33,7 +34,7 @@ stages:
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "Total changed $count files"
-                
+
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
                   $name=$temp[$i]
@@ -266,7 +267,7 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          # Begin UI testing      
+          # Begin UI testing
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
@@ -317,7 +318,7 @@ stages:
             displayName: "combine unit and cypress coverage"
 
           - task: PublishBuildArtifacts@1
-            condition: always() # this step will always run, helpful to diagnose failing cypress testts
+            condition: always()  # this step will always run, helpful to diagnose failing cypress tests
             inputs:
               PathtoPublish: "polaris-ui/cypress/videos"
               ArtifactName: "Cypress failure vidoes"

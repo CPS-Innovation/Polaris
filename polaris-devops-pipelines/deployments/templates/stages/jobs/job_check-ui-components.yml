@@ -1,13 +1,16 @@
-﻿parameters:
+﻿---
+parameters:
   - name: targetBuild
     type: string
   - name: targetLabel
     type: string
-  - name: coordinatorStatusUrl
+  - name: authHandoverStatusUrl
     type: string
-  - name: pdfGeneratorStatusUrl
+  - name: gatewayStatusUrl
     type: string
-  - name: textExtractorStatusUrl
+  - name: proxyStatusUrl
+    type: string
+  - name: spaStatusUrl
     type: string
   - name: statusCheckMethod
     type: string
@@ -17,73 +20,97 @@
     type: string
   - name: statusCheckTimeoutSeconds
     type: string
-    
-  
+  - name: jobDependsOn
+    type: object
+
 jobs:
-  - job: CheckCoordinator
-    dependsOn: LogStart
+  - job: CheckAuthHandover
+    dependsOn: ${{ parameters.jobDependsOn }}
     steps:
-      #download scripts artifact
+      # download scripts artifact
       - download: ${{ parameters.targetBuild }}
         displayName: Download Scripts
         artifact: 'polaris-script-files'
 
-      #query coordinator status endpoint
+      # query auth-handover status endpoint
       - task: PowerShell@2
-        displayName: 'Checking ${{ parameters.targetLabel }} Coordinator status'
+        displayName: 'Checking ${{ parameters.targetLabel }} Auth-Handover status'
         inputs:
           failOnStderr: true
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI ${{ parameters.coordinatorStatusUrl }}
+            -URI ${{ parameters.authHandoverStatusUrl }}
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
 
-  - job: CheckPDFGenerator
-    dependsOn: LogStart
+  - job: CheckGateway
+    dependsOn: ${{ parameters.jobDependsOn }}
     steps:
-      #download scripts artifact
+      # download scripts artifact
       - download: ${{ parameters.targetBuild }}
         displayName: Download Scripts
         artifact: 'polaris-script-files'
 
-      #query pdf-generator status endpoint
+      # query gateway status endpoint
       - task: PowerShell@2
-        displayName: 'Checking ${{ parameters.targetLabel }} PDF-Generator status'
+        displayName: 'Checking ${{ parameters.targetLabel }} Gateway status'
         inputs:
           failOnStderr: true
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI ${{ parameters.pdfGeneratorStatusUrl }}
+            -URI ${{ parameters.gatewayStatusUrl }}
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
 
-  - job: CheckTextExtractor
-    dependsOn: LogStart
+  - job: CheckProxy
+    dependsOn: ${{ parameters.jobDependsOn }}
     steps:
-      #download scripts artifact
+      # download scripts artifact
       - download: ${{ parameters.targetBuild }}
         displayName: Download Scripts
         artifact: 'polaris-script-files'
 
-      #query text-extractor status endpoint
+      # query proxy status endpoint
       - task: PowerShell@2
-        displayName: 'Checking ${{ parameters.targetLabel }} Text-Extractor status'
+        displayName: 'Checking ${{ parameters.targetLabel }} Proxy status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI ${{ parameters.proxyStatusUrl }}
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "Polaris Proxy is online"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckSPA
+    dependsOn: ${{ parameters.jobDependsOn }}
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      # query spa status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} UI status'
         inputs:
           failOnStderr: true
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI ${{ parameters.textExtractorStatusUrl }}
-            -Method ${{ parameters.statusCheckMethod }}
+            -URI ${{ parameters.spaStatusUrl }}
+            -Method $${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}

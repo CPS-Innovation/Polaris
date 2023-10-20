@@ -1,4 +1,5 @@
-﻿parameters:
+﻿---
+parameters:
   - name: stageBuildAgent
     type: string
   - name: stageDependsOn
@@ -12,12 +13,6 @@
   - name: targetName
     type: string
   - name: appInsightsKey
-    type: string
-  - name: coordinatorStatusUrl
-    type: string
-  - name: pdfGeneratorStatusUrl
-    type: string
-  - name: textExtractorStatusUrl
     type: string
   - name: authHandoverStatusUrl
     type: string
@@ -39,7 +34,7 @@
     type: string
   - name: logResultDependsOn
     type: object
-    
+
 stages:
   - stage: Check_${{ parameters.targetLabel }}
     displayName: Status Checks > ${{ parameters.targetLabel }}
@@ -49,7 +44,7 @@ stages:
     pool:
       name: ${{ parameters.stageBuildAgent }}
     jobs:
-      - template: jobs/log-start.yml
+      - template: jobs/job_log-start.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
@@ -57,19 +52,7 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
 
-      - template: jobs/check-pipeline-components.yml
-        parameters:
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          coordinatorStatusUrl: ${{ parameters.coordinatorStatusUrl }}
-          pdfGeneratorStatusUrl: ${{ parameters.pdfGeneratorStatusUrl }}
-          textExtractorStatusUrl: ${{ parameters.textExtractorStatusUrl }}
-          statusCheckMethod: ${{ parameters.statusCheckMethod }}
-          statusCheckRetries: ${{ parameters.statusCheckRetries }}
-          statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
-          statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
-          
-      - template: jobs/check-ui-components.yml
+      - template: jobs/job_check-ui-components.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
@@ -81,8 +64,10 @@ stages:
           statusCheckRetries: ${{ parameters.statusCheckRetries }}
           statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
           statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
-      
-      - template: jobs/log-result.yml
+          jobDependsOn:
+            - LogStart
+
+      - template: jobs/job_log-result.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}

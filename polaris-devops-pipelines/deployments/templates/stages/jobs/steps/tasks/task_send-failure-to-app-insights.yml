@@ -1,13 +1,14 @@
-﻿parameters:
+﻿---
+parameters:
   - name: appInsightsKey
     type: string
   - name: devOpsPatToken
     type: string
   - name: message
     type: string
-  
+
 steps:
-  #send any errors to AppInsights
+  # send any errors to AppInsights
   - task: PowerShell@2
     displayName: 'AppInsights: Record Errors'
     condition: failed()

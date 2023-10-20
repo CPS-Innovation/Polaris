@@ -1,7 +1,8 @@
+---
 trigger: none
-pr: none # testing only
+pr: none  # testing only
 
-#pr:
+# pr:
 #  branches:
 #    include:
 #      - main
@@ -37,7 +38,7 @@ stages:
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "Total changed $count files"
-                
+
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
                   $name=$temp[$i]
@@ -50,7 +51,7 @@ stages:
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_CODEBASE;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
-                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"                    
+                    Write-Host "##vso[task.setvariable variable=RUN_UI_CODEBASE;isOutput=true]true"
                   }
                   if ($name -like 'polaris-terraform/ui-events-terraform/*')
                   {
@@ -123,7 +124,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -150,7 +151,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -187,7 +188,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -214,7 +215,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
@@ -279,7 +280,7 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          # Begin UI testing      
+          # Begin UI testing
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
@@ -330,7 +331,7 @@ stages:
             displayName: "combine unit and cypress coverage"
 
           - task: PublishBuildArtifacts@1
-            condition: always() # this step will always run, helpful to diagnose failing cypress testts
+            condition: always()  # this step will always run, helpful to diagnose failing cypress tests
             inputs:
               PathtoPublish: "polaris-ui/cypress/videos"
               ArtifactName: "Cypress failure vidoes"
@@ -412,7 +413,7 @@ stages:
               command: custom
               custom: tool
               arguments: 'install --global dotnet-reportgenerator-globaltool'
-              
+
           - download: current
             patterns: '**/*.cobertura.xml'
             displayName: Retrieve published test reports

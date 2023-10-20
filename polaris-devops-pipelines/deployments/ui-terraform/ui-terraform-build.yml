@@ -1,6 +1,7 @@
+---
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
-#trigger:
+# trigger:
 #  batch: true
 #  branches:
 #    include:
@@ -10,9 +11,9 @@ name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 #      - polaris-terraform/ui-terraform/*
 #      - polaris-terraform/ui-events-terraform/*
 
-trigger: none # for testing only       
+trigger: none  # for testing only
 pr: none
-  
+
 variables:
   - group: polaris-global
   - name: buildConfiguration
@@ -21,10 +22,10 @@ variables:
     value: "1.0"
   - name: semanticVersion
     value: "$[counter(variables['majorMinorVersion'], 1)]"
-    
+
 pool:
   name: $(dev-build-agent)
-  
+
 stages:
   - stage: Publish_Artifacts
     displayName: Publish artifacts
@@ -37,21 +38,21 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
-              
+
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI terraform artifact'
             inputs:
               targetPath: '$(Pipeline.Workspace)/s/polaris-terraform/ui-terraform/'
               artifact: 'ui-terraform-files'
               publishLocation: 'pipeline'
-              
+
           - task: PublishPipelineArtifact@1
             displayName: 'Publish UI events terraform artifact'
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/ui-events-terraform/"
               artifact: "ui-events-terraform-files"
               publishLocation: "pipeline"
-  
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -68,7 +69,7 @@ stages:
               artifact: "polaris-auth-handover-drop"
             displayName: "Publish Auth Handover codebase artifact"
             condition: or(eq(variables.runAuthHandoverDEV, 'true'),eq(variables.runAuthHandoverQA, 'true'),eq(variables.runAuthHandoverPROD, 'true'))
-            
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -85,7 +86,7 @@ stages:
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
             condition: or(eq(variables.runGatewayDEV, 'true'),eq(variables.runGatewayQA, 'true'),eq(variables.runGatewayPROD, 'true'))
-            
+
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
@@ -94,7 +95,7 @@ stages:
             inputs:
               contents: |
                 polaris-ui/.env
-                
+
           # Add build version
           - task: PowerShell@2
             displayName: "Record build version"

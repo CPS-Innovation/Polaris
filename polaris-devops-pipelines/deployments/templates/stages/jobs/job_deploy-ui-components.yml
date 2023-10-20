@@ -1,4 +1,5 @@
-﻿parameters:
+﻿---
+parameters:
   - name: envLabel
     type: string
   - name: targetBuild
@@ -13,27 +14,29 @@
     type: string
   - name: azureSubscription
     type: string
-    
+  - name: jobDependsOn
+    type: object
+
 jobs:
   - deployment: DeploySpa
-    dependsOn: LogStart
+    dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
         deploy:
           steps:
-            #download scripts artifact
+            # download scripts artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish SPA - Started"
-                
-            #download UI build artifact
+
+            # download UI build artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download SPA Codebase Build
               artifact: "polaris-ui-drop"
@@ -47,19 +50,19 @@ jobs:
                 WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
                 packageForLinux: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-ui-drop
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish SPA - Completed"
-                
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Started"
-            
-            # Restart app service - moved away from deployment to buy some time    
+
+            # Restart app service - moved away from deployment to buy some time
             - task: AzureAppServiceManage@0
               displayName: 'Restart SPA Azure App Service'
               inputs:
@@ -67,31 +70,31 @@ jobs:
                 Action: 'Restart Azure App Service'
                 WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Completed"
 
   - deployment: DeployGateway
-    dependsOn: LogStart
+    dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
         deploy:
           steps:
-            #download scripts artifact
+            # download scripts artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Gateway - Started"
-                
-            #download gateway build artifact
+
+            # download gateway build artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Gateway Codebase Build
               artifact: "polaris-gateway-drop"
@@ -105,31 +108,31 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Gateway - Completed"
 
   - deployment: DeployAuthHandover
-    dependsOn: LogStart
+    dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
         deploy:
           steps:
-            #download scripts artifact
+            # download scripts artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Download Scripts
               artifact: 'polaris-script-files'
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Auth-Handover - Started"
-            
-            #download gateway build artifact
+
+            # download gateway build artifact
             - download: ${{ parameters.targetBuild }}
               displayName: Deploy > Download Auth Handover Codebase Build
               artifact: "polaris-auth-handover-drop"
@@ -143,8 +146,8 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-auth-handover-drop
 
-            #send custom event to AppInsights
-            - template: steps/tasks/send-to-app-insights.yml
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Auth-Handover - Completed"
