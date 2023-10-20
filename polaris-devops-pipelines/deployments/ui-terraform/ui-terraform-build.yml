@@ -61,15 +61,13 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Auth Handover package to publish"
-            condition: or(eq(variables.runAuthHandoverDEV, 'true'),eq(variables.runAuthHandoverQA, 'true'),eq(variables.runAuthHandoverPROD, 'true'))
-
+            
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-auth-handover"
               artifact: "polaris-auth-handover-drop"
             displayName: "Publish Auth Handover codebase artifact"
-            condition: or(eq(variables.runAuthHandoverDEV, 'true'),eq(variables.runAuthHandoverQA, 'true'),eq(variables.runAuthHandoverPROD, 'true'))
-
+            
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -78,20 +76,17 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Create Gateway package to publish"
-            condition: or(eq(variables.runGatewayDEV, 'true'),eq(variables.runGatewayQA, 'true'),eq(variables.runGatewayPROD, 'true'))
-
+            
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
             displayName: "Publish Gateway codebase artifact"
-            condition: or(eq(variables.runGatewayDEV, 'true'),eq(variables.runGatewayQA, 'true'),eq(variables.runGatewayPROD, 'true'))
-
+            
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
             displayName: "Remove .env file"
-            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
             inputs:
               contents: |
                 polaris-ui/.env
@@ -99,7 +94,6 @@ stages:
           # Add build version
           - task: PowerShell@2
             displayName: "Record build version"
-            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
             inputs:
               targetType: 'inline'
               workingDirectory: polaris-ui/public
@@ -113,28 +107,24 @@ stages:
               command: "install"
               workingDir: "polaris-ui"
             displayName: "npm install"
-            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
-
+            
           - task: Npm@1
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
               customCommand: "run prettier"
             displayName: "npm prettier"
-            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
-
+            
           - task: Npm@1
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
               customCommand: "run build"
             displayName: "npm build"
-            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
-
+            
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/build"
               ArtifactName: "polaris-ui-drop"
               publishLocation: "Container"
             displayName: Publish UI artifact
-            condition: or(eq(variables.runUICodebaseDEV, 'true'),eq(variables.runUICodebaseQA, 'true'),eq(variables.runUICodebasePROD, 'true'))
