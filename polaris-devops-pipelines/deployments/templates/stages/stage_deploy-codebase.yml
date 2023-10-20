@@ -31,8 +31,9 @@ stages:
     pool:
       name: ${{ parameters.stageBuildAgent }}
     jobs:
-      - template: jobs/job_log-start.yml
+      - template: jobs/job_log-start-deployment.yml
         parameters:
+          envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
@@ -62,8 +63,9 @@ stages:
           jobDependsOn:
             - LogStart
 
-      - template: jobs/job_log-result.yml
+      - template: jobs/job_log-result-deployment.yml
         parameters:
+          envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}

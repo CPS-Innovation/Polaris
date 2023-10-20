@@ -1,0 +1,30 @@
+﻿---
+parameters:
+  - name: envLabel
+    type: string
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetName
+    type: string
+  - name: appInsightsKey
+    type: string
+
+jobs:
+  - deployment: LogStart
+    environment: ${{ parameters.envLabel }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # download scripts artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Started"
