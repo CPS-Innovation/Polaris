@@ -69,7 +69,7 @@ stages:
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
-      stageBuildAgent: $(prod-build-agent)
+      stageBuildAgent: $(dev-build-agent)
       targetBuild: PipelineTerraformBuild
       targetLabel: "DEV"
       buildDefinitionId: 129
@@ -123,9 +123,9 @@ stages:
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
-      stageBuildAgent: $(prod-build-agent)
+      stageBuildAgent: $(qa-build-agent)
       targetBuild: PipelineTerraformBuild
-      targetLabel: "DEV"
+      targetLabel: "QA"
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"

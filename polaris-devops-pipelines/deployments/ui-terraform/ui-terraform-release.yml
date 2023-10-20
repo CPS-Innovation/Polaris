@@ -139,7 +139,7 @@ stages:
     parameters:
       stageBuildAgent: $(qa-build-agent)
       targetBuild: UITerraformBuild
-      targetLabel: "DEV"
+      targetLabel: "QA"
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
