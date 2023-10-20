@@ -21,8 +21,8 @@ steps:
       arguments: > # Use this to avoid newline characters in multi-line string
         -InstrumentationKey "${{ parameters.appInsightsKey }}"
         -PatToken: "${{ parameters.devOpsPatToken }}"
-        -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-        -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
+        -PipelineName "$(resources.pipeline.${{ parameters.targetBuild }}.pipelineName)"
+        -CommitId "$(resources.pipeline.${{ parameters.targetBuild }}.sourceCommit)"
         -ReleaseId "$(Build.BuildId)"
-        -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+        -BuildName "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
         -Message "${{ parameters.message }}"

@@ -18,7 +18,7 @@ steps:
       filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/SendCustomEventToAppInsights.ps1
       arguments: > # Use this to avoid newline characters in multi-line string
         -InstrumentationKey "${{ parameters.appInsightsKey }}"
-        -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"
-        -CommitId "$(resources.pipeline.PolarisCodebaseBuild.sourceCommit)"
-        -BuildName "$(resources.pipeline.PolarisCodebaseBuild.runName)"
+        -PipelineName "$(resources.pipeline.${{ parameters.targetBuild }}.pipelineName)"
+        -CommitId "$(resources.pipeline.${{ parameters.targetBuild }}.sourceCommit)"
+        -BuildName "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
         -Message "${{ parameters.message }}"
