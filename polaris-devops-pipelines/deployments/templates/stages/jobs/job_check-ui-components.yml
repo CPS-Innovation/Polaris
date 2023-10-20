@@ -110,7 +110,7 @@ jobs:
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI ${{ parameters.spaStatusUrl }}
-            -Method $${{ parameters.statusCheckMethod }}
+            -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
