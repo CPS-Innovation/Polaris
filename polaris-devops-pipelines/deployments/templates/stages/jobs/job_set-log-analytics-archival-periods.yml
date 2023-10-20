@@ -68,4 +68,5 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Set Log Analytics Archival Periods - Completed"
