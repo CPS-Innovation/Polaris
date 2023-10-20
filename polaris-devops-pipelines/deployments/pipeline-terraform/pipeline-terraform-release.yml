@@ -48,7 +48,7 @@ stages:
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Terraform_DEV
-      envLabel: ""
+      envLabel: " "
       targetBuild: PipelineTerraformBuild
       targetLabel: "DEV"
       targetName: "Pipeline Terraform CI Deployment"
@@ -102,7 +102,7 @@ stages:
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Terraform_QA
-      envLabel: ""
+      envLabel: " "
       targetBuild: PipelineTerraformBuild
       targetLabel: "QA"
       targetName: "Pipeline Terraform CI Deployment"
@@ -156,7 +156,7 @@ stages:
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Terraform_PROD
-      envLabel: ""
+      envLabel: " "
       targetBuild: PipelineTerraformBuild
       targetLabel: "PROD"
       targetName: "Pipeline Terraform CI Deployment"

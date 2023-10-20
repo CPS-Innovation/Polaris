@@ -18,7 +18,7 @@ parameters:
 jobs:
   - deployment: LogResult
     dependsOn: ${{ parameters.dependsOn }}
-    ${{ if ne(parameters.envLabel, '')}}:
+    ${{ if ne(parameters.envLabel, ' ')}}:
       environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
