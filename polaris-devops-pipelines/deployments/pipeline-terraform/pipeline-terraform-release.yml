@@ -1,0 +1,182 @@
+---
+trigger: none
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: PipelineTerraformBuild
+      source: Polaris Pipeline Terraform - Build
+      trigger:
+        branches:
+          include:
+            - refs/heads/main
+        stages:
+          - Publish_Artifacts
+
+variables:
+  - group: kv-dev-terraform
+  - group: kv-qa-terraform
+  - group: kv-prod-terraform
+  - group: polaris-global
+  - group: terraform-containers
+  - group: polaris-status-check-endpoints
+
+stages:
+  - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      stageDependsOn:
+      envLabel: "Dev"
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "DEV"
+      targetSuffix: "-dev"
+      targetPlanName: "dev"
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformPipelineContainerName: $(pipeline-terraform-container-name)
+      terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsdevstorageterraform-key1)
+      armClientId: $(innovation-development-spn-client-id)
+      armClientSecret: $(innovation-development-spn-secret)
+      armTenantId: $(innovation-development-spn-tenant-id)
+      armSubscriptionId: $(innovation-development-subscription-id)
+      devOpsPatToken: $(devops-pat-token)
+      azureSubscription: $(dev-azure-subscription)
+
+  - template: ../templates/stages/stage_status-checks-pipeline-terraform.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      stageDependsOn: Terraform_DEV
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "DEV"
+      targetName: "Pipeline Terraform CI Deployment"
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      coordinatorStatusUrl: $(dev-coordinator-status-url)
+      pdfGeneratorStatusUrl: $(dev-pdf-generator-status-url)
+      textExtractorStatusUrl: $(dev-text-extractor-status-url)
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      devOpsPatToken: "$(devops-pat-token)"
+      logResultDependsOn:
+        - LogStart
+        - CheckCoordinator
+        - CheckPDFGenerator
+        - CheckTextExtractor
+
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "DEV"
+      buildDefinitionId: 129
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Run_e2e_Tests_DEV
+      envLabel: "QA"
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "QA"
+      targetSuffix: "-qa"
+      targetPlanName: "qa"
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      terraformStorageAccount: $(qa-terraform-storage-account)
+      terraformPipelineContainerName: $(pipeline-terraform-container-name)
+      terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsqastorageterraform-key1)
+      armClientId: $(innovation-qa-spn-client-id)
+      armClientSecret: $(innovation-qa-spn-secret)
+      armTenantId: $(innovation-qa-spn-tenant-id)
+      armSubscriptionId: $(innovation-qa-subscription-id)
+      devOpsPatToken: $(devops-pat-token)
+      azureSubscription: $(qa-azure-subscription)
+
+  - template: ../templates/stages/stage_status-checks-pipeline-terraform.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Terraform_QA
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "QA"
+      targetName: "Pipeline Terraform CI Deployment"
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      coordinatorStatusUrl: $(qa-coordinator-status-url)
+      pdfGeneratorStatusUrl: $(qa-pdf-generator-status-url)
+      textExtractorStatusUrl: $(qa-text-extractor-status-url)
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      devOpsPatToken: "$(devops-pat-token)"
+      logResultDependsOn:
+        - LogStart
+        - CheckCoordinator
+        - CheckPDFGenerator
+        - CheckTextExtractor
+
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "QA"
+      buildDefinitionId: 210
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
+  - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Run_e2e_Tests_DEV
+      envLabel: "Prod"
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "PROD"
+      targetSuffix: ""
+      targetPlanName: "prod"
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      terraformStorageAccount: $(prod-terraform-storage-account)
+      terraformPipelineContainerName: $(pipeline-terraform-container-name)
+      terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsprodstorageterraform-key1)
+      armClientId: $(innovation-prod-spn-client-id)
+      armClientSecret: $(innovation-prod-spn-secret)
+      armTenantId: $(innovation-prod-spn-tenant-id)
+      armSubscriptionId: $(innovation-prod-subscription-id)
+      devOpsPatToken: $(devops-pat-token)
+      azureSubscription: $(prod-azure-subscription)
+
+  - template: ../templates/stages/stage_status-checks-pipeline-terraform.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Terraform_PROD
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "PROD"
+      targetName: "Pipeline Terraform CI Deployment"
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      coordinatorStatusUrl: $(prod-coordinator-status-url)
+      pdfGeneratorStatusUrl: $(prod-pdf-generator-status-url)
+      textExtractorStatusUrl: $(prod-text-extractor-status-url)
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      devOpsPatToken: "$(devops-pat-token)"
+      logResultDependsOn:
+        - LogStart
+        - CheckCoordinator
+        - CheckPDFGenerator
+        - CheckTextExtractor
+
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "PROD"
+      buildDefinitionId: 240
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"

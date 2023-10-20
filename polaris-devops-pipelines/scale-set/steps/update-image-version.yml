@@ -1,4 +1,5 @@
-﻿parameters:
+﻿---
+parameters:
   clientId: ""
   clientSecret: ""
   tenantId: ""

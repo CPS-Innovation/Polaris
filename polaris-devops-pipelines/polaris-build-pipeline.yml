@@ -407,13 +407,6 @@ stages:
               publishLocation: "pipeline"
               
           - task: PublishPipelineArtifact@1
-            displayName: 'Publish pipeline templates'
-            inputs:
-              targetPath: '$(Pipeline.Workspace)/s/polaris-devops-pipelines/templates'
-              artifact: 'polaris-template-files'
-              publishLocation: 'pipeline'
-              
-          - task: PublishPipelineArtifact@1
             displayName: 'Publish pipeline terraform artifact'
             condition: or(eq(variables.runPipelineTerraformDEV, 'true'),eq(variables.runPipelineTerraformQA, 'true'),eq(variables.runPipelineTerraformPROD, 'true'))
             inputs:

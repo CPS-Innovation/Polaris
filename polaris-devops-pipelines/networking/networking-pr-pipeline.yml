@@ -1,3 +1,4 @@
+---
 # Pull Request Azure DevOps pipeline for the Networking and Networking-Events Terraform files
 
 trigger: none
@@ -18,7 +19,7 @@ variables:
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/networking-terraform"
   - name: templatesWorkingDir
     value: "$(System.DefaultWorkingDirectory)/polaris-devops-pipelines/templates"
-  
+
 stages:
   - stage: Validate_Networking_Terraform
     displayName: Validate Net Terraform
@@ -42,7 +43,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -68,7 +69,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
