@@ -152,7 +152,7 @@ stages:
           envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
-          targetName: ${{ parameters.targetName }}
+          targetName: "UI Terraform CI Deployment"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
           dependsOn:
