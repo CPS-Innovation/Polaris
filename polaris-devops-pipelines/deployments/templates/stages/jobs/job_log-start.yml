@@ -13,7 +13,7 @@ parameters:
 
 jobs:
   - deployment: LogStart
-    ${{ if ne(parameters.envLabel, ' ')}}:
+    ${{ if ne(parameters.envLabel, 'IGNORE')}}:
       environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
