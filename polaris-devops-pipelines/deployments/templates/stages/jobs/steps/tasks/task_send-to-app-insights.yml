@@ -2,6 +2,8 @@
 parameters:
   - name: appInsightsKey
     type: string
+  - name: targetBuild
+    type: string
   - name: message
     type: string
 
@@ -13,7 +15,7 @@ steps:
     inputs:
       failOnStderr: true
       targetType: 'filePath'
-      filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomEventToAppInsights.ps1
+      filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/SendCustomEventToAppInsights.ps1
       arguments: > # Use this to avoid newline characters in multi-line string
         -InstrumentationKey "${{ parameters.appInsightsKey }}"
         -PipelineName "$(resources.pipeline.PolarisCodebaseBuild.pipelineName)"

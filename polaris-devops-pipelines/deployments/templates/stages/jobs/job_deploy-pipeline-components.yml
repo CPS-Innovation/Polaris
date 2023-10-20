@@ -34,6 +34,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Started"
 
             # download coordinator build artifact
@@ -54,6 +55,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Completed"
 
   - deployment: DeployPdfGenerator
@@ -72,6 +74,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Started"
 
             # download pdf-generator build artifact
@@ -92,6 +95,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Completed"
 
   - deployment: DeployTextGenerator
@@ -110,6 +114,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Started"
 
             # download text-extractor build artifact
@@ -130,4 +135,5 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Completed"

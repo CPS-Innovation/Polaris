@@ -4,6 +4,8 @@ parameters:
     type: string
   - name: devOpsPatToken
     type: string
+  - name: targetBuild
+    type: string
   - name: message
     type: string
 
@@ -15,7 +17,7 @@ steps:
     inputs:
       failOnStderr: true
       targetType: 'filePath'
-      filePath: $(Pipeline.Workspace)/PolarisCodebaseBuild/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
+      filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/SendCustomErrorEventToAppInsights.ps1
       arguments: > # Use this to avoid newline characters in multi-line string
         -InstrumentationKey "${{ parameters.appInsightsKey }}"
         -PatToken: "${{ parameters.devOpsPatToken }}"

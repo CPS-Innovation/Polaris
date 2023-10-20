@@ -34,6 +34,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish SPA - Started"
 
             # download UI build artifact
@@ -54,12 +55,14 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish SPA - Completed"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Started"
 
             # Restart app service - moved away from deployment to buy some time
@@ -74,6 +77,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Completed"
 
   - deployment: DeployGateway
@@ -92,6 +96,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Gateway - Started"
 
             # download gateway build artifact
@@ -112,6 +117,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Gateway - Completed"
 
   - deployment: DeployAuthHandover
@@ -130,6 +136,7 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Auth-Handover - Started"
 
             # download gateway build artifact
@@ -150,4 +157,5 @@ jobs:
             - template: steps/tasks/task_send-to-app-insights.yml
               parameters:
                 appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Auth-Handover - Completed"
