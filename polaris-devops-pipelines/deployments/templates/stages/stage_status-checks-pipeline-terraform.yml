@@ -4,8 +4,6 @@ parameters:
     type: string
   - name: stageDependsOn
     type: object
-  - name: envLabel
-    type: string
   - name: targetBuild
     type: string
   - name: targetLabel

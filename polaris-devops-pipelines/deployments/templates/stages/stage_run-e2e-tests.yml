@@ -32,6 +32,7 @@ stages:
           - template: jobs/steps/tasks/task_send-to-app-insights.yml
             parameters:
               appInsightsKey: ${{ parameters.appInsightsKey }}
+              targetBuild: ${{ parameters.targetBuild }}
               message: "${{ parameters.targetLabel }} e2e Tests: Started"
 
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
@@ -46,10 +47,12 @@ stages:
           - template: jobs/steps/tasks/task_send-to-app-insights.yml
             parameters:
               appInsightsKey: ${{ parameters.appInsightsKey }}
+              targetBuild: ${{ parameters.targetBuild }}
               message: "${{ parameters.targetLabel }} e2e Tests: Completed"
 
           - template: jobs/steps/tasks/task_send-failure-to-app-insights.yml
             parameters:
               appInsightsKey: ${{ parameters.appInsightsKey }}
               devOpsPatToken: ${{ parameters.devOpsPatToken }}
+              targetBuild: ${{ parameters.targetBuild }}
               message: "${{ parameters.targetLabel }} e2e Tests: Failed"
