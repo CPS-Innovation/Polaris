@@ -4,7 +4,7 @@ import { LinkButton } from "../components/LinkButton";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import classes from "./DropdownButton.module.scss";
 export type DropdownButtonProps = {
-  dropDownItems: { id: string; label: string }[];
+  dropDownItems: { id: string; label: string; ariaLabel: string }[];
   callBackFn: (id: string) => void;
   currentSelectionId?: string;
   ariaLabel?: string;
@@ -85,6 +85,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
             {dropDownItems.map((item) => (
               <li key={item.id} className={classes.tabListItem}>
                 <LinkButton
+                  ariaLabel={item.ariaLabel}
                   disabled={item.id === currentSelectionId}
                   onClick={() => {
                     handleBtnClick(item.id);

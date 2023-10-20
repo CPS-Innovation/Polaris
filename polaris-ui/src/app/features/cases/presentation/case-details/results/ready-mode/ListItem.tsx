@@ -29,20 +29,19 @@ export const ListItem: React.FC<Props> = ({
   const trackEvent = useAppInsightsTrackEvent();
   return (
     <div data-testid={`div-search-result-${documentId}`}>
-      <h2 className="govuk-heading-s results-header">
-        <LinkButton
-          onClick={() => {
-            trackEvent("Open Document From Document Search", {
-              documentId: documentId,
-            });
-            handleOpenPdf({ documentId, mode: "search" });
-          }}
-          dataTestId={`link-result-document-${documentId}`}
-          className={classes.headingLinkButton}
-        >
-          {presentationFileName}
-        </LinkButton>
-      </h2>
+      <LinkButton
+        onClick={() => {
+          trackEvent("Open Document From Document Search", {
+            documentId: documentId,
+          });
+          handleOpenPdf({ documentId, mode: "search" });
+        }}
+        ariaLabel={`Open Document ${presentationFileName}`}
+        dataTestId={`link-result-document-${documentId}`}
+        className={classes.headingLinkButton}
+      >
+        {presentationFileName}
+      </LinkButton>
 
       <div className="govuk-body-s">
         <div>

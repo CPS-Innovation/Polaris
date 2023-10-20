@@ -6,7 +6,7 @@ import { LinkButton } from "../../../../common/presentation/components/LinkButto
 import { DropdownButton } from "../../../../common/presentation/components";
 
 export type TabButtonProps = {
-  items: { id: string; label: string }[];
+  items: { id: string; label: string; ariaLabel: string }[];
   activeTabIndex: number;
   handleTabSelection: (documentId: string) => void;
   handleCloseTab: () => void;
@@ -107,7 +107,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
 
       <ul className={`${classes.tabsList}`} role="tablist">
         {items.map((item, index) => {
-          const { id: itemId, label } = item;
+          const { id: itemId, label, ariaLabel } = item;
 
           return (
             <li
@@ -123,6 +123,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
               <button
                 id={`tab_${index}`}
                 aria-controls={`panel-${index}`}
+                aria-label={ariaLabel}
                 role="tab"
                 className={classes.tabButton}
                 data-testid={
