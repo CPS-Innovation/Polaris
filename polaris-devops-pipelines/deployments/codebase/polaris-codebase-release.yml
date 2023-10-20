@@ -46,7 +46,7 @@ stages:
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Deploy_DEV
-      envLabel: "IGNORE"
+      envLabel: "Dev"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
@@ -106,7 +106,7 @@ stages:
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Deploy_QA
-      envLabel: "IGNORE"
+      envLabel: "QA"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
@@ -166,7 +166,7 @@ stages:
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Deploy_PROD
-      envLabel: "IGNORE"
+      envLabel: "Prod"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
