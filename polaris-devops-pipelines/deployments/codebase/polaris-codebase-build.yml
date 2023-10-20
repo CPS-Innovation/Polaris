@@ -1,19 +1,18 @@
 ---
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
-# trigger:
-#  batch: true
-#  branches:
-#    include:
-#      - main
-#  paths:
-#    include:
-#      - polaris-gateway/*
-#      - polaris-pipeline/*
-#      - polaris-ui/*
-#      - polaris-e2e/*
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-gateway/*
+      - polaris-pipeline/*
+      - polaris-ui/*
+      - polaris-e2e/*
 
-trigger: none  # for testing only
 pr: none
 
 variables:

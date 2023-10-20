@@ -1,17 +1,16 @@
 ---
 name: '$(majorMinorVersion).$(Year:yy)$(DayOfYear).$(semanticVersion)-ci'
 
-# trigger:
-#  batch: true
-#  branches:
-#    include:
-#      - main
-#  paths:
-#    include:
-#      - polaris-terraform/pipeline-terraform/*
-#      - polaris-terraform/pipeline-events-terraform/*
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/pipeline-terraform/*
+      - polaris-terraform/pipeline-events-terraform/*
 
-trigger: none  # for testing only
 pr: none
 
 variables:

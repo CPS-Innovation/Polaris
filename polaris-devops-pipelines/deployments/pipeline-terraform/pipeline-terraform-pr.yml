@@ -1,15 +1,14 @@
 ---
 trigger: none
-pr: none  # testing only
 
-# pr:
-#  branches:
-#    include:
-#      - main
-#  paths:
-#    include:
-#      - polaris-terraform/pipeline-terraform/*
-#      - polaris-terraform/pipeline-events-terraform/*
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - polaris-terraform/pipeline-terraform/*
+      - polaris-terraform/pipeline-events-terraform/*
 
 variables:
   - group: kv-dev-terraform
