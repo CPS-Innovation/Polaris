@@ -35,6 +35,7 @@ export const AccordionDocument: React.FC<Props> = ({
             }}
             className={`${classes["accordion-document-link-button"]}`}
             dataTestId={`link-document-${caseDocument.documentId}`}
+            ariaLabel={`Open Document ${caseDocument.presentationFileName}`}
           >
             {caseDocument.presentationFileName}
           </LinkButton>
@@ -47,6 +48,7 @@ export const AccordionDocument: React.FC<Props> = ({
           </span>
         )}
         <span className={`${classes["accordion-document-date"]}`}>
+          <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
           {caseDocument.cmsFileCreatedDate &&
             formatDate(
               caseDocument.cmsFileCreatedDate,

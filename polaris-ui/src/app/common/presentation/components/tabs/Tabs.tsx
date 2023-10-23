@@ -105,6 +105,7 @@ export const Tabs: React.FC<TabsProps> = ({
   const tabItems = items.map((item) => ({
     id: item.id,
     label: item.label,
+    ariaLabel: `Document ${item.label}`,
   }));
 
   return (

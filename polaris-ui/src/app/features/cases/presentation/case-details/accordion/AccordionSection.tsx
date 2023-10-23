@@ -34,13 +34,17 @@ export const AccordionSection: React.FC<Props> = ({
   };
   return (
     <div
-      className={`${classes["accordion-section"]}`}
-      aria-expanded={isOpen}
+      className={
+        isOpen
+          ? `${classes["accordion-section"]} ${classes.accordionSectionOpened}`
+          : `${classes["accordion-section"]} ${classes.accordionSectionClosed}`
+      }
       data-testid={`${formatTestIdText(sectionId)}`}
     >
       <button
         className={`${classes["accordion-section-header"]}`}
         onClick={() => handleToggleOpenSection(sectionId, sectionLabel)}
+        aria-expanded={isOpen}
       >
         <h2 className="govuk-heading-s">{sectionLabel}</h2>
         <span className={`${classes["icon"]}`}></span>
