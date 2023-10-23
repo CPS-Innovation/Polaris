@@ -1,0 +1,22 @@
+Polaris_ProxyCmsLogs_Core
+| where ClassicModernUiOrGraphQL == "GraphQL"
+| summarize 
+    Corsham_OK_GraphQL =  countif(StatusCode == 200 and PolarisOperationName != "Ping" and LoadBalancerTarget == "corsham"),
+    Farnborough_OK_GraphQL =  countif(StatusCode == 200 and PolarisOperationName != "Ping" and LoadBalancerTarget == "farnborough"),
+    Corsham_Fail_GraphQL =  countif(StatusCode != 200 and PolarisOperationName != "Ping" and LoadBalancerTarget == "corsham"),
+    Farnborough_Fail_GraphQL =  countif(StatusCode != 200 and PolarisOperationName != "Ping" and LoadBalancerTarget == "farnborough"),
+    Corsham_OK_Ping =  countif(StatusCode == 200 and PolarisOperationName == "Ping" and LoadBalancerTarget == "corsham"),
+    Farnborough_OK_Ping =  countif(StatusCode == 200 and PolarisOperationName == "Ping" and LoadBalancerTarget == "farnborough"),
+    Corsham_Fail_Ping =  countif(StatusCode != 200 and PolarisOperationName == "Ping" and LoadBalancerTarget == "corsham"),
+    Farnborough_Fail_Ping =  countif(StatusCode != 200 and PolarisOperationName == "Ping" and LoadBalancerTarget == "farnborough"),
+    Total_GraphQL =  countif(PolarisOperationName != "Ping"),
+    Total_Ping =  countif(PolarisOperationName == "Ping")
+ by bin(TimeGenerated, ts)
+ | extend 
+    Fail_GraphQL = Corsham_Fail_GraphQL + Farnborough_Fail_GraphQL,
+    Fail_Ping = Corsham_Fail_Ping + Farnborough_Fail_Ping
+| extend 
+    PercentageSuccess_GraphQL = 100.0 * (Total_GraphQL - Fail_GraphQL) / Total_GraphQL,
+    PercentageSuccess_Ping = 100.0 * (Total_Ping - Fail_Ping) / Total_Ping
+| where TimeGenerated between (todatetime("2023-09-20T20:20:00") .. todatetime("2023-09-21T07:30:00"))
+

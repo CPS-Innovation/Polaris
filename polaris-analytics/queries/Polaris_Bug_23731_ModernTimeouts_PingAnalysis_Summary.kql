@@ -1,0 +1,3 @@
+Polaris_Bug_23731_ModernTimeouts_PingAnalysis_Core
+| where Fail_GraphQL > 0 or Fail_Ping > 0
+| project TimeGenerated, Fail_GraphQL, Fail_Ping

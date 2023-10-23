@@ -1,8 +1,9 @@
+---
 trigger: none
 pr: none
 
 schedules:
-  - cron: "0 0 * * 0" # Weekly at Sunday night - ensure the build agent image is up-to-date
+  - cron: "0 0 * * 0"  # Weekly at Sunday night - ensure the build agent image is up-to-date
     displayName: Weekly Sunday night build-agent refresh
     branches:
       include:
@@ -20,8 +21,8 @@ variables:
     value: "Innovation-QA: All-Information Management"
   - name: "prodSubscriptionName"
     value: "Innovation-Production: All-Information Management"
-  
-    
+
+
 stages:
   - stage: create_version
     displayName: Determine version number
@@ -30,7 +31,7 @@ stages:
         displayName: Determine version
         steps:
           - template: steps/git-version.yml
-            
+
   - stage: image_builder_dev
     displayName: DEV - Build Custom VM Image
     dependsOn: create_version
@@ -52,7 +53,7 @@ stages:
               versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
-              
+
   - stage: image_builder_qa
     displayName: QA - Build Custom VM Image
     dependsOn: create_version
@@ -74,7 +75,7 @@ stages:
               versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
-              
+
   - stage: image_builder_prod
     displayName: PROD - Build Custom VM Image
     dependsOn: create_version
@@ -96,7 +97,7 @@ stages:
               versionSha: $(versionSha)
               baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
-                            
+
   - stage: update_scale_set_dev
     displayName: Update All DEV Resources
     dependsOn:
@@ -117,7 +118,7 @@ stages:
               resourceGroup: $(innovation-development-build-agent-resource-group)
               agentPoolName: $(innovation-development-agent-pool-name)
               versionSha: $(versionSha)
-              
+
   - stage: update_scale_set_qa
     displayName: Update All QA Resources
     dependsOn:
@@ -138,7 +139,7 @@ stages:
               resourceGroup: $(innovation-qa-build-agent-resource-group)
               agentPoolName: $(innovation-qa-agent-pool-name)
               versionSha: $(versionSha)
-              
+
   - stage: update_scale_set_prod
     displayName: Update All PROD Resources
     dependsOn:

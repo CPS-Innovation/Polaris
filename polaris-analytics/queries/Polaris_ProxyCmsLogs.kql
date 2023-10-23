@@ -1,6 +1,7 @@
 
 Polaris_ProxyCmsLogs_Core
 | where PolarisOrCmsProxy == "Polaris"
+| where PolarisOperationName != "Ping"
 | project 
     TimeGenerated, 
     StatusCode,
@@ -11,7 +12,9 @@ Polaris_ProxyCmsLogs_Core
     Url,
     RequestBytes,
     ResponseBytes,
-    ClassicModernUiOrGraphQL
+    RequestTimeMs,
+    ClassicModernUiOrGraphQL,
+    _ResourceId
 
 
 

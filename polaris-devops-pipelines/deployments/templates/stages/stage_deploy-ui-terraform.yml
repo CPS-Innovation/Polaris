@@ -1,0 +1,165 @@
+﻿---
+parameters:
+  - name: stageBuildAgent
+    type: string
+  - name: stageDependsOn
+    type: object
+  - name: envLabel
+    type: string
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: targetPlanName
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: terraformStorageAccount
+    type: string
+  - name: terraformUIContainerName
+    type: string
+  - name: terraformUIEventsContainerName
+    type: string
+  - name: terraformStateKey
+    type: string
+  - name: terraformStateAccessKey
+    type: string
+  - name: armClientId
+    type: string
+  - name: armClientSecret
+    type: string
+  - name: armTenantId
+    type: string
+  - name: armSubscriptionId
+    type: string
+  - name: devOpsPatToken
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: logRetentionTime
+    type: string
+  - name: totalLogRetentionTime
+    type: string
+
+stages:
+  - stage: Terraform_${{ parameters.targetLabel }}
+    displayName: Terraform > ${{ parameters.targetLabel }}
+    ${{ if parameters.stageDependsOn }}:
+      dependsOn: ${{ parameters.stageDependsOn }}
+    pool:
+      name: ${{ parameters.stageBuildAgent }}
+    jobs:
+      - template: jobs/job_log-start-deployment.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+
+      - template: jobs/job_apply-terraform.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetTerraformArtifact: "ui-terraform-files"
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetPlanName: ${{ parameters.targetPlanName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+          terraformContainerName: ${{ parameters.terraformUIContainerName }}
+          terraformStateKey: ${{ parameters.terraformStateKey }}
+          terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          terraformType: "UI"
+          jobDependsOn:
+            - LogStart
+
+      - template: jobs/job_deploy-ui-components.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          azureSubscription: ${{ parameters.azureSubscription }}
+          jobDependsOn:
+            - ApplyUITerraform
+
+      - template: jobs/job_apply-terraform.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetTerraformArtifact: "ui-events-terraform-files"
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Events Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetPlanName: ${{ parameters.targetPlanName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+          terraformContainerName: ${{ parameters.terraformUIEventsContainerName }}
+          terraformStateKey: ${{ parameters.terraformStateKey }}
+          terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          terraformType: "UIEvents"
+          jobDependsOn:
+            - ApplyUITerraform
+
+      - template: jobs/job_set-log-analytics-archival-periods.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          logRetentionTime: ${{ parameters.logRetentionTime }}
+          totalLogRetentionTime: ${{ parameters.totalLogRetentionTime }}
+          jobDependsOn:
+            - ApplyUITerraform
+
+      - template: jobs/job_update-coordinator-keys-in-gateway.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          jobDependsOn:
+            - ApplyUITerraform
+
+      - template: jobs/job_log-result-deployment.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          devOpsPatToken: ${{ parameters.devOpsPatToken }}
+          dependsOn:
+            - ApplyUITerraform
+            - ApplyUIEventsTerraform
+            - DeploySpa
+            - DeployGateway
+            - DeployAuthHandover
+            - SetLogAnalyticsArchivalPeriods
+            - UpdateGatewayCoordinatorKeys

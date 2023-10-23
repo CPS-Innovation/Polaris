@@ -17,7 +17,7 @@ let CaseDocumentRedactedCounts = AppEvents
 | project TimeGenerated, CaseId = tolong(Properties.caseId)
 | summarize CaseDocumentRedactedCount = count_distinct(CaseId) by bin(TimeGenerated, 1h);
 
-let BrokenCaseCounts = Polaris_Exceptions_Core
+let BrokenCaseCounts = Polaris_Exceptions_List
 | summarize BrokenCaseCount = count_distinct(CaseId) by TimeGenerated = bin(EarliestExceptionTimeGenerated, 1h);
 
 CaseCounts
