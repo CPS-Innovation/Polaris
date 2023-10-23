@@ -85,13 +85,10 @@ sudo apt-get install -y xauth
 sudo apt-get install -y xvfb
 sudo apt-get clean
 
-echo '==== Install Python3 and Checkov'
-sudo apt update
-sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt install python3.7
-sudo apt install python3-pip
-sudo python3.7 -m pip install -U checkov #to install or upgrade checkov
+echo '==== Install Python, Pip and Checkov'
+sudo apt-get update -yq
+sudo apt-get install -y python3-pip
+sudo pip3 install -U checkov
 
 echo '==== Install Cobertura ===='
 sudo apt-get update -yq
