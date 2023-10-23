@@ -196,28 +196,29 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           }}
         />
       )}
-      <PhaseBanner
-        className={classes["phaseBanner"]}
-        data-testid="feedback-banner"
-      >
-        Your{" "}
-        <a
-          className="govuk-link"
-          href={SURVEY_LINK}
-          target="_blank"
-          rel="noreferrer"
+      <nav>
+        <PhaseBanner
+          className={classes["phaseBanner"]}
+          data-testid="feedback-banner"
         >
-          feedback (opens in a new tab)
-        </a>{" "}
-        will help us to improve this service.
-      </PhaseBanner>
-      <BackLink
-        to={backLinkProps.to}
-        onClick={() => trackEvent("Back to Case Search Results")}
-      >
-        {backLinkProps.label}
-      </BackLink>
-
+          Your{" "}
+          <a
+            className="govuk-link"
+            href={SURVEY_LINK}
+            target="_blank"
+            rel="noreferrer"
+          >
+            feedback (opens in a new tab)
+          </a>{" "}
+          will help us to improve this service.
+        </PhaseBanner>
+        <BackLink
+          to={backLinkProps.to}
+          onClick={() => trackEvent("Back to Case Search Results")}
+        >
+          {backLinkProps.label}
+        </BackLink>
+      </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
           <div
