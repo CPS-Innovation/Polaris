@@ -91,7 +91,7 @@ let isKnownBug = (
             me contains "Netherite" and om contains "Timeout",
         "23754 - Netherite timeouts",
 
-            op contains "SlidingCaseClearDown" and om contains "Timeout",
+            op contains "SlidingCaseClearDown" and (om contains "Timeout" or om contains "502"),
         "23755 - SlidingCaseClearDown timeouts",
 
     "");

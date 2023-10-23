@@ -1,5 +1,6 @@
 
 Polaris_ProxyCmsLogs_Core
+| where PolarisOperationName != "Ping"
 | summarize 
     Total = count(),
     Ok_200s = countif(StatusCode <=299),
