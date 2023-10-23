@@ -31,6 +31,7 @@ type Props = {
   contextData: {
     documentType: string;
     documentId: string;
+    isSaving: boolean;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -119,6 +120,12 @@ export const PdfViewer: React.FC<Props> = ({
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
+        {contextData.isSaving && (
+          <div className={classes.spinner}>
+            <Wait />
+          </div>
+        )}
+
         <PdfLoader url={url} headers={headers} beforeLoad={<Wait />}>
           {(pdfDocument) => (
             <PdfHighlighter
