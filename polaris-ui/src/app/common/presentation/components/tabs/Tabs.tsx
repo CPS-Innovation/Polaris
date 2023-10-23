@@ -129,6 +129,8 @@ export const Tabs: React.FC<TabsProps> = ({
           isVisible
           handleClose={handleNavigateAwayCancelAction}
           type={"alert"}
+          ariaLabel="Unsaved redaction warning modal"
+          ariaDescription="You are navigating away from document with unsaved redaction"
         >
           <NavigationAwayAlertContent
             type="document"
