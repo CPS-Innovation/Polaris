@@ -1,4 +1,4 @@
-namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider.ImageConversion
+namespace pdf_generator.Services.DocumentRedactionService.Aspose.RedactionProvider.ImageConversion
 {
   public class ImageConversionOptions
   {
