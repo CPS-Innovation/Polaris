@@ -18,11 +18,16 @@ using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+<<<<<<< HEAD
 using pdf_generator.Services.DocumentRedaction.Aspose;
 using pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations;
+
+=======
+using pdf_generator.Services.DocumentRedactionService.RedactionProvider;
+using pdf_generator.Services.DocumentRedactionService.RedactionProvider.ImageConversion;
 using System;
 using pdf_generator.Domain.Exceptions;
-
+>>>>>>> main
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
