@@ -2,7 +2,7 @@
 using Aspose.Pdf.Facades;
 using Common.Dto.Request.Redaction;
 
-namespace pdf_generator.Services.DocumentRedactionService.Aspose
+namespace pdf_generator.Services.DocumentRedaction.Aspose
 {
     public interface ICoordinateCalculator
     {

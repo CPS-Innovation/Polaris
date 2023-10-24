@@ -1,9 +1,9 @@
 using Aspose.Pdf;
 using Aspose.Pdf.Annotations;
 
-namespace pdf_generator.Services.DocumentRedactionService.Aspose.RedactionProvider.Direct
+namespace pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations
 {
-    public class DirectImplementation : IImplementation
+    public class DirectImplementation : IRedactionImplementation
     {
         public void AttachAnnotation(Page page, Rectangle rect)
         {
@@ -17,5 +17,10 @@ namespace pdf_generator.Services.DocumentRedactionService.Aspose.RedactionProvid
         }
 
         public void FinaliseAnnotations(ref Document doc) { }
+
+        public (ProviderType, string) GetProviderType()
+        {
+            return (ProviderType.DirectRedaction, null);
+        }
     }
 }

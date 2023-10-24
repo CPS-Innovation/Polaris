@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.Telemetry;
-using pdf_generator.Services.DocumentRedactionService;
+using pdf_generator.Services.DocumentRedaction.Aspose;
 
 namespace pdf_generator.TelemetryEvents
 {
@@ -32,7 +32,9 @@ namespace pdf_generator.TelemetryEvents
         string documentId,
         Dictionary<int, int> redactionPageCounts,
         ProviderType providerType,
-        string providerDetails)
+        string providerDetails,
+        DateTime startTime,
+        long originalBytes)
     {
       CorrelationId = correlationId;
       CaseId = caseId;
@@ -40,6 +42,8 @@ namespace pdf_generator.TelemetryEvents
       RedactionPageCounts = redactionPageCounts;
       ProviderType = providerType;
       ProviderDetails = providerDetails;
+      StartTime = startTime;
+      OriginalBytes = originalBytes;
     }
 
     public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()

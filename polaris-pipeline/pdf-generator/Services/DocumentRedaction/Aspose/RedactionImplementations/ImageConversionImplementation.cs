@@ -6,9 +6,9 @@ using Aspose.Pdf.Annotations;
 using Aspose.Pdf.Devices;
 using Microsoft.Extensions.Options;
 
-namespace pdf_generator.Services.DocumentRedactionService.Aspose.RedactionProvider.ImageConversion
+namespace pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations
 {
-    public class ImageConversionImplementation : IImplementation
+    public class ImageConversionImplementation : IRedactionImplementation
     {
         private readonly ImageConversionOptions _imageConversionOptions;
         private readonly ImageDevice _imageDevice;
@@ -74,6 +74,11 @@ namespace pdf_generator.Services.DocumentRedactionService.Aspose.RedactionProvid
 
                 pageToSwapIn.Paragraphs.Add(i);
             }
+        }
+
+        public (ProviderType, string) GetProviderType()
+        {
+            return (ProviderType.ImageConversion, null);
         }
     }
 }

@@ -5,25 +5,24 @@ using Aspose.Pdf.Facades;
 using Common.Dto.Request;
 using Common.Telemetry.Contracts;
 using pdf_generator.TelemetryEvents;
-using pdf_generator.TelemetryEvents.Extensions;
 using Aspose.Pdf.Text;
 using System.Linq;
 
-namespace pdf_generator.Services.DocumentRedactionService.Aspose
+namespace pdf_generator.Services.DocumentRedaction.Aspose
 {
     public class AsposeRedactionProvider : IRedactionProvider
     {
-        private readonly IImplementation _implementation;
+        private readonly IRedactionImplementation _redactionImplementation;
         private readonly ICoordinateCalculator _coordinateCalculator;
 
         private readonly ITelemetryClient _telemetryClient;
 
         public AsposeRedactionProvider(
-            IImplementation implementation,
+            IRedactionImplementation implementation,
             ICoordinateCalculator coordinateCalculator,
             ITelemetryClient telemetryClient)
         {
-            _implementation = implementation;
+            _redactionImplementation = implementation;
             _coordinateCalculator = coordinateCalculator ?? throw new ArgumentNullException(nameof(coordinateCalculator));
             _telemetryClient = telemetryClient;
         }
@@ -33,15 +32,15 @@ namespace pdf_generator.Services.DocumentRedactionService.Aspose
             RedactedDocumentEvent telemetryEvent = default;
             try
             {
+                var (providerType, providerDetails) = _redactionImplementation.GetProviderType();
                 telemetryEvent = new RedactedDocumentEvent(correlationId: correlationId,
                     caseId: redactPdfRequest.CaseId.ToString(),
                     documentId: redactPdfRequest.PolarisDocumentIdValue,
                     redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
                     providerType: providerType,
-                    providerDetails: providerDetails);
-
-                telemetryEvent.StartTime = DateTime.UtcNow;
-                telemetryEvent.OriginalBytes = stream.Length;
+                    providerDetails: providerDetails,
+                    startTime: DateTime.UtcNow,
+                    originalBytes: stream.Length);
 
                 var document = new Document(stream);
 
@@ -50,18 +49,17 @@ namespace pdf_generator.Services.DocumentRedactionService.Aspose
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 
                 AddAnnotations(document, redactPdfRequest, correlationId);
-                _implementation.FinaliseAnnotations(ref document);
+                _redactionImplementation.FinaliseAnnotations(ref document);
                 SanitizeDocument(document);
 
                 telemetryEvent.NullCharCount = GetNullCharacterCount(document);
 
                 var outputStream = new MemoryStream();
+                document.Save(outputStream);
+                document.Dispose();
                 telemetryEvent.Bytes = outputStream.Length;
                 telemetryEvent.EndTime = DateTime.UtcNow;
                 outputStream.Position = 0;
-
-                document.Save(outputStream);
-                document.Dispose();
 
                 _telemetryClient.TrackEvent(telemetryEvent);
                 return outputStream;
@@ -93,7 +91,7 @@ namespace pdf_generator.Services.DocumentRedactionService.Aspose
                         translatedCoordinates.X2,
                         translatedCoordinates.Y2);
 
-                    _implementation.AttachAnnotation(annotationPage, annotationRectangle);
+                    _redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
                 }
             }
         }

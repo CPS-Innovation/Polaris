@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories;
 using pdf_generator.Factories.Contracts;
-using pdf_generator.Services.DocumentRedactionService;
+using pdf_generator.Services.DocumentRedaction;
+using pdf_generator.Services.DocumentRedaction.Aspose;
 using pdf_generator.Services.PdfService;
 using System.Linq;
 
@@ -40,8 +41,6 @@ namespace pdf_generator.Services.Extensions
                 return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
                     diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, loggingService, configuration);
             });
-
-            services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
         }

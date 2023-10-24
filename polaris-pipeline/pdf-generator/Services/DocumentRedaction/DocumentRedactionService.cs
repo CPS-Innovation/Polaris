@@ -7,7 +7,7 @@ using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace pdf_generator.Services.DocumentRedactionService
+namespace pdf_generator.Services.DocumentRedaction
 {
     public class DocumentRedactionService : IDocumentRedactionService
     {
@@ -27,25 +27,36 @@ namespace pdf_generator.Services.DocumentRedactionService
 
         public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
-
-            var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
-            var redactedDocumentStream = _redactionProvider.Redact(documentStream, redactPdfRequest, correlationId);
-
-            var uploadFileName = GetUploadFileName(redactPdfRequest.FileName);
-            await _polarisBlobStorageService.UploadDocumentAsync(
-                redactedDocumentStream,
-                uploadFileName,
-                redactPdfRequest.CaseId.ToString(),
-                redactPdfRequest.PolarisDocumentId,
-                redactPdfRequest.VersionId.ToString(),
-                correlationId);
-
-            return new RedactPdfResponse
+            try
             {
-                Succeeded = true,
-                RedactedDocumentName = uploadFileName
-            };
+                _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
+
+                var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
+                var redactedDocumentStream = _redactionProvider.Redact(documentStream, redactPdfRequest, correlationId);
+
+                var uploadFileName = GetUploadFileName(redactPdfRequest.FileName);
+                await _polarisBlobStorageService.UploadDocumentAsync(
+                    redactedDocumentStream,
+                    uploadFileName,
+                    redactPdfRequest.CaseId.ToString(),
+                    redactPdfRequest.PolarisDocumentId,
+                    redactPdfRequest.VersionId.ToString(),
+                    correlationId);
+
+                return new RedactPdfResponse
+                {
+                    Succeeded = true,
+                    RedactedDocumentName = uploadFileName
+                };
+            }
+            catch (Exception ex)
+            {
+                return new RedactPdfResponse
+                {
+                    Succeeded = false,
+                    Message = ex.Message
+                };
+            }
         }
         private string GetUploadFileName(string fileName)
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Common.Domain.Exceptions;
 using FluentAssertions;
 using Newtonsoft.Json;
-using pdf_generator.Services.DocumentRedactionService;
+using pdf_generator.Services.DocumentRedaction;
 using Xunit;
 using System;
 using System.Threading;
