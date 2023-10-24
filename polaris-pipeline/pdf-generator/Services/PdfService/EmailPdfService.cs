@@ -2,9 +2,7 @@
 using System.IO;
 using Aspose.Email;
 using Aspose.Words;
-using pdf_generator.Domain.Exceptions;
 using pdf_generator.Factories.Contracts;
-using License = Aspose.Email.License;
 
 namespace pdf_generator.Services.PdfService
 {
@@ -14,16 +12,6 @@ namespace pdf_generator.Services.PdfService
 
         public EmailPdfService(IAsposeItemFactory asposeItemFactory)
         {
-            try
-            {
-                var license = new License();
-                license.SetLicense("Aspose.Total.NET.lic");
-            }
-            catch (Exception exception)
-            {
-                throw new AsposeLicenseException(exception.Message);
-            }
-
             _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
         }
 
