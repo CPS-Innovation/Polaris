@@ -31,7 +31,7 @@ namespace pdf_generator
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            SetAsposeLicense();
+            SetAsposeLicence();
 
             var services = builder.Services;
             services.AddSingleton<IConfiguration>(Configuration);
@@ -60,7 +60,7 @@ namespace pdf_generator
                  .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client");
         }
 
-        private static void SetAsposeLicense()
+        private static void SetAsposeLicence()
         {
             try
             {
