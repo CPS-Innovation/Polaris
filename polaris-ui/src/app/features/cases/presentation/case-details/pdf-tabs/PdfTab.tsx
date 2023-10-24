@@ -120,6 +120,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             correlationId: contextData.correlationId,
             documentId: documentId,
             polarisDocumentVersionId: polarisDocumentVersionId,
+            tabIndex: tabIndex,
           }}
         />
       )}
@@ -147,7 +148,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleSavedRedactions={localHandleSavedRedactions}
         />
       ) : (
-        <Wait dataTestId={`pdfTab-spinner-${tabIndex}`} />
+        <Wait
+          dataTestId={`pdfTab-spinner-${tabIndex}`}
+          ariaLabel="Refreshing document, please wait"
+        />
       )}
     </>
   );

@@ -41,10 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
         </div>
       </header>
 
-      <div
-        id="main-content"
-        className={`${containerCssClass} ${classes["cps-main-container"]}`}
-      >
+      <div className={`${containerCssClass} ${classes["cps-main-container"]}`}>
         {children}
       </div>
 
