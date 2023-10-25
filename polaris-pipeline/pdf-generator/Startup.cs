@@ -36,18 +36,11 @@ namespace pdf_generator
 
             var services = builder.Services;
             services.AddSingleton<IConfiguration>(Configuration);
+            services.AddPdfGenerator(Configuration);
+            services.AddRedactionServices(Configuration);
 
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
-            services.AddPdfGenerator(Configuration);
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
-
-            services.AddTransient<IUploadFileNameFactory, UploadFileNameFactory>();
-            services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            services.AddTransient<IRedactionProvider, AsposeRedactionProvider>();
-            services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();
-            services.AddTransient<IRedactionImplementation, ImageConversionImplementation>();
-            services.Configure<ImageConversionOptions>(Configuration.GetSection(ImageConversionOptions.ConfigKey));
-
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
