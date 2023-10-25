@@ -49,7 +49,7 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
             addToReportedDocuments(documentId);
             handleIssueReporting(documentId);
           }}
-          data-testid="btn-report-issue"
+          data-testid={`btn-report-issue-${tabIndex}`}
         >
           {disableReportBtn ? "Issue reported" : "Report an issue"}
         </Button>

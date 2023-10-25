@@ -159,7 +159,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("btn-save-redaction-0").click();
     cy.findByTestId("btn-save-redaction-0").should("be.disabled");
-    cy.findByTestId("link-removeAll").should("be.disabled");
+    cy.findByTestId("btn-link-removeAll-0").should("be.disabled");
   });
   it("Should show error message when failed to save the redaction and should enable back the save redaction button", () => {
     cy.overrideRoute(
@@ -182,14 +182,14 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("btn-save-redaction-0").click();
     cy.findByTestId("btn-save-redaction-0").should("be.disabled");
-    cy.findByTestId("link-removeAll").should("be.disabled");
+    cy.findByTestId("btn-link-removeAll-0").should("be.disabled");
     cy.findByTestId("div-modal")
       .should("exist")
       .contains("Failed to save redaction. Please try again later.");
     cy.findByTestId("btn-error-modal-ok").click();
     cy.findByTestId("div-modal").should("not.exist");
     cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
-    cy.findByTestId("link-removeAll").should("not.be.disabled");
+    cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
   });
   it("Should handle the deleted document opened in a tab after the pipeline refresh and display document deleted message to user", () => {
     cy.overrideRoute(TRACKER_ROUTE, {
