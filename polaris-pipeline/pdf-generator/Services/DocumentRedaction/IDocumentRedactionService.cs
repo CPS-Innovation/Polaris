@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Common.Dto.Request;
 using Common.Dto.Response;
 
-namespace pdf_generator.Services.DocumentRedactionService
+namespace pdf_generator.Services.DocumentRedaction
 {
     public interface IDocumentRedactionService
     {

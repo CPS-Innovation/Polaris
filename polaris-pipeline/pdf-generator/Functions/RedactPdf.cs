@@ -18,7 +18,7 @@ using FluentValidation;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using pdf_generator.Services.DocumentRedactionService;
+using pdf_generator.Services.DocumentRedaction;
 
 namespace pdf_generator.Functions
 {

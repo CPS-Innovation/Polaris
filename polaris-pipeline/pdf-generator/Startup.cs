@@ -14,14 +14,15 @@ using FluentValidation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using pdf_generator.Services.DocumentRedactionService;
+using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
-using pdf_generator.Services.DocumentRedactionService.RedactionProvider;
-using pdf_generator.Services.DocumentRedactionService.RedactionProvider.ImageConversion;
+using pdf_generator.Services.DocumentRedaction.Aspose;
+using pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementations;
 using System;
 using pdf_generator.Domain.Exceptions;
+
 
 [assembly: FunctionsStartup(typeof(pdf_generator.Startup))]
 namespace pdf_generator
@@ -35,12 +36,11 @@ namespace pdf_generator
 
             var services = builder.Services;
             services.AddSingleton<IConfiguration>(Configuration);
-            services.Configure<ImageConversionOptions>(Configuration.GetSection(ImageConversionOptions.ConfigKey));
-            services.AddBlobStorageWithDefaultAzureCredential(Configuration);
             services.AddPdfGenerator(Configuration);
+            services.AddRedactionServices(Configuration);
+
+            services.AddBlobStorageWithDefaultAzureCredential(Configuration);
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
-            services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
-            services.AddTransient<IRedactionProvider, ImageConversionProvider>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
