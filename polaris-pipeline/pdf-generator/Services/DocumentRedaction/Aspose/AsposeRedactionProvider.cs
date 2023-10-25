@@ -14,7 +14,6 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
     {
         private readonly IRedactionImplementation _redactionImplementation;
         private readonly ICoordinateCalculator _coordinateCalculator;
-
         private readonly ITelemetryClient _telemetryClient;
 
         public AsposeRedactionProvider(
@@ -49,19 +48,20 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
                 telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 
                 AddAnnotations(document, redactPdfRequest, correlationId);
-                _redactionImplementation.FinaliseAnnotations(ref document);
-                SanitizeDocument(document);
+                FinaliseAnnotations(document);
+                SanitiseDocument(document);
 
                 telemetryEvent.NullCharCount = GetNullCharacterCount(document);
 
                 var outputStream = new MemoryStream();
                 document.Save(outputStream);
+                outputStream.Position = 0;
                 document.Dispose();
+
                 telemetryEvent.Bytes = outputStream.Length;
                 telemetryEvent.EndTime = DateTime.UtcNow;
-                outputStream.Position = 0;
-
                 _telemetryClient.TrackEvent(telemetryEvent);
+
                 return outputStream;
             }
             catch (Exception)
@@ -96,6 +96,11 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
             }
         }
 
+        private void FinaliseAnnotations(Document document)
+        {
+            _redactionImplementation.FinaliseAnnotations(ref document);
+        }
+
         private static int GetNullCharacterCount(Document document)
         {
             try
@@ -111,7 +116,7 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
                 return -1;
             }
         }
-        public static void SanitizeDocument(Document document)
+        public static void SanitiseDocument(Document document)
         {
             document.RemoveMetadata();
 
