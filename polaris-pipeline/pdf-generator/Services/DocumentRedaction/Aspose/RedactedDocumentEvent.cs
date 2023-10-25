@@ -56,9 +56,9 @@ namespace pdf_generator.TelemetryEvents
                     { nameof(DocumentId), EnsureNumericId(DocumentId) },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
-                    { nameof(RedactionPageCounts), string.Join(",", RedactionPageCounts.Select(x => $"{x.Key}:{x.Value}")) },
+                    { nameof(RedactionPageCounts), string.Join(",", RedactionPageCounts?.Select(x => $"{x.Key}:{x.Value}")) },
                     { nameof(ProviderType), ProviderType.ToString() },
-                    { nameof(ProviderDetails), ProviderDetails.ToString() },
+                    { nameof(ProviderDetails), ProviderDetails?.ToString() },
                     { nameof(PdfFormat), PdfFormat.ToString() },
           },
           new Dictionary<string, double?>
