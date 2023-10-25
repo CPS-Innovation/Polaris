@@ -10,7 +10,7 @@ report
 report-cypress
 .nyc_output
 
-public/mockServiceWorker.js
+public/*.js
 src/react-pdf-highlighter
 src/mock-api/data/pdfs/pdf-strings.json
 deploy-pipeline.yml
