@@ -126,7 +126,14 @@ export const PdfViewer: React.FC<Props> = ({
           </div>
         )}
 
-        <PdfLoader url={url} headers={headers} beforeLoad={<Wait />}>
+        <PdfLoader
+          url={url}
+          headers={headers}
+          beforeLoad={<Wait />}
+          // To avoid reaching out to an internet-hosted asset we have taken a local copy
+          //  of the library that PdfHighlighter links to and put that in our `public` folder.
+          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.11.338.js`}
+        >
           {(pdfDocument) => (
             <PdfHighlighter
               onWheelDownwards={ensureAllPdfInView}
