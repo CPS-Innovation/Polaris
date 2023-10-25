@@ -41,6 +41,7 @@ namespace pdf_generator
             services.AddPdfGenerator(Configuration);
             services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
 
+            services.AddTransient<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddTransient<IDocumentRedactionService, DocumentRedactionService>();
             services.AddTransient<IRedactionProvider, AsposeRedactionProvider>();
             services.AddTransient<ICoordinateCalculator, CoordinateCalculator>();

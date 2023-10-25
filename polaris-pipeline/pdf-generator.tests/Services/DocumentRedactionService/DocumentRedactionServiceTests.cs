@@ -17,27 +17,31 @@ namespace pdf_generator.tests.Services.DocumentRedaction;
 public class DocumentRedactionServiceTests
 {
     private readonly Mock<IPolarisBlobStorageService> _mockBlobStorageService;
-    private readonly Mock<IRedactionProvider> _mockRedactionProvider;
     private readonly IDocumentRedactionService _documentRedactionService;
     private readonly RedactPdfRequestDto _redactPdfRequest;
     private readonly Guid _correlationId;
     private readonly string _errorMessage;
-
+    private string _uploadFileName;
     public DocumentRedactionServiceTests()
     {
         var fixture = new Fixture();
 
         _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
-        _mockRedactionProvider = new Mock<IRedactionProvider>();
+        var mockUploadFileNameFactory = new Mock<IUploadFileNameFactory>();
+
+        var mockRedactionProvider = new Mock<IRedactionProvider>();
         var mockLogger = new Mock<ILogger<DocumentRedactionService>>();
 
         _documentRedactionService = new DocumentRedactionService(
             _mockBlobStorageService.Object,
-            _mockRedactionProvider.Object,
+            mockUploadFileNameFactory.Object,
+            mockRedactionProvider.Object,
             mockLogger.Object);
 
         _redactPdfRequest = fixture.Create<RedactPdfRequestDto>();
         _correlationId = fixture.Create<Guid>();
+        _uploadFileName = fixture.Create<string>();
+
         var inputStream = new MemoryStream();
         var outputStream = new MemoryStream();
 
@@ -46,7 +50,11 @@ public class DocumentRedactionServiceTests
                 It.Is<Guid>(g => g == _correlationId)))
             .ReturnsAsync(inputStream);
 
-        _mockRedactionProvider.Setup(s => s.Redact(
+        mockUploadFileNameFactory.Setup(f => f.BuildUploadFileName(
+            It.Is<string>(s => s == _redactPdfRequest.FileName)
+        )).Returns(_uploadFileName);
+
+        mockRedactionProvider.Setup(s => s.Redact(
                 It.Is<Stream>(s => s == inputStream),
                 It.Is<RedactPdfRequestDto>(r => r == _redactPdfRequest),
                 It.Is<Guid>(g => g == _correlationId)
@@ -57,7 +65,7 @@ public class DocumentRedactionServiceTests
 
         _mockBlobStorageService.Setup(s => s.UploadDocumentAsync(
             It.Is<Stream>(s => s == outputStream),
-            It.IsAny<string>(),
+            It.Is<string>(s => s == _uploadFileName),
             It.Is<string>(s => s == _redactPdfRequest.CaseId.ToString()),
             It.Is<PolarisDocumentId>(s => s == _redactPdfRequest.PolarisDocumentId),
             It.Is<string>(s => s == _redactPdfRequest.VersionId.ToString()),
@@ -87,6 +95,7 @@ public class DocumentRedactionServiceTests
         {
             saveResult.Succeeded.Should().BeFalse();
             saveResult.Message.Should().Be(_errorMessage);
+            saveResult.RedactedDocumentName.Should().BeNull();
         }
     }
 
@@ -100,7 +109,8 @@ public class DocumentRedactionServiceTests
         using (new AssertionScope())
         {
             saveResult.Succeeded.Should().BeTrue();
-            saveResult.Message.Should().Be(_errorMessage);
+            saveResult.Message.Should().BeNull();
+            saveResult.RedactedDocumentName.Should().Be(_uploadFileName);
         }
     }
 }

@@ -12,15 +12,18 @@ namespace pdf_generator.Services.DocumentRedaction
     public class DocumentRedactionService : IDocumentRedactionService
     {
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
+        private readonly IUploadFileNameFactory _uploadFileNameFactory;
         private readonly IRedactionProvider _redactionProvider;
         private readonly ILogger<DocumentRedactionService> _logger;
 
         public DocumentRedactionService(
             IPolarisBlobStorageService blobStorageService,
+            IUploadFileNameFactory uploadFileNameFactory,
             IRedactionProvider redactionProvider,
             ILogger<DocumentRedactionService> logger)
         {
             _polarisBlobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
+            _uploadFileNameFactory = uploadFileNameFactory;
             _redactionProvider = redactionProvider;
             _logger = logger;
         }
@@ -32,9 +35,10 @@ namespace pdf_generator.Services.DocumentRedaction
                 _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
 
                 var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
+
                 var redactedDocumentStream = _redactionProvider.Redact(documentStream, redactPdfRequest, correlationId);
 
-                var uploadFileName = GetUploadFileName(redactPdfRequest.FileName);
+                var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactPdfRequest.FileName);
                 await _polarisBlobStorageService.UploadDocumentAsync(
                     redactedDocumentStream,
                     uploadFileName,
@@ -57,13 +61,6 @@ namespace pdf_generator.Services.DocumentRedaction
                     Message = ex.Message
                 };
             }
-        }
-        private string GetUploadFileName(string fileName)
-        {
-            var fileNameWithoutExtension = fileName.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) > -1
-                ? fileName.Split(".pdf", StringSplitOptions.RemoveEmptyEntries)[0]
-                : fileName;
-            return $"{fileNameWithoutExtension}_{DateTime.Now.Ticks.GetHashCode().ToString("x").ToUpper()}.pdf"; //restore save redaction to same storage for now, but with additional randomised identifier
         }
     }
 }
