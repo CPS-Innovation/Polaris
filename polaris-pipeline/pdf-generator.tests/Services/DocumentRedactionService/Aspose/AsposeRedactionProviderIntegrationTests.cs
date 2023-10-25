@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using Aspose.Pdf;
 using AutoFixture;
 using Common.Dto.Request;
@@ -54,10 +53,9 @@ public class AsposeRedactionProviderIntegrationTests
     };
 
     using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestPdf.pdf");
+    using var originalDocument = new Document(inputStream);
 
-    var originalDocument = new Document(inputStream);
-
-    // set up a redaction on page 2 and 4
+    // set up a redaction each on page 2 and page 4
     var redactPdfRequestDto = new RedactPdfRequestDto
     {
       RedactionDefinitions = new[] {
@@ -91,8 +89,8 @@ public class AsposeRedactionProviderIntegrationTests
     };
 
     // Act
-    var outputStream = _asposeRedactionProvider.Redact(inputStream, redactPdfRequestDto, _correlationId);
-    var redactedDocument = new Document(outputStream);
+    using var outputStream = _asposeRedactionProvider.Redact(inputStream, redactPdfRequestDto, _correlationId);
+    using var redactedDocument = new Document(outputStream);
 
     // Assert
     // expect no images in our source document
@@ -101,7 +99,7 @@ public class AsposeRedactionProviderIntegrationTests
     assertPageImageCount(originalDocument.Pages[3], 0);
     assertPageImageCount(originalDocument.Pages[4], 0);
 
-    // expect an image each on page 2 and page 4
+    // expect an image each on redacted document on pages 2 and page 4
     assertPageImageCount(redactedDocument.Pages[1], 0);
     assertPageImageCount(redactedDocument.Pages[2], 1);
     assertPageImageCount(redactedDocument.Pages[3], 0);
