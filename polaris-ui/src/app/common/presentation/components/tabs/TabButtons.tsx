@@ -122,7 +122,11 @@ const TabButtons: React.FC<TabButtonProps> = ({
             >
               <button
                 id={`tab_${index}`}
-                aria-controls={`panel-${index}`}
+                aria-controls={
+                  index === activeTabIndex
+                    ? "active-tab-panel"
+                    : `panel-${index}`
+                }
                 aria-label={ariaLabel}
                 role="tab"
                 className={classes.tabButton}
