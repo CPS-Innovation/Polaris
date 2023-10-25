@@ -77,7 +77,7 @@ export class PdfLoader extends Component<Props, State> {
         if (!url) {
           return;
         }
-
+  
         return getDocument({
           ...this.props,
           httpHeaders: headers,
