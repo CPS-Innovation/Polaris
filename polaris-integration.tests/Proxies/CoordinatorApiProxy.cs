@@ -109,9 +109,9 @@ namespace polaris_gateway.integration.tests.Proxies
             {
                 dto = JsonConvert.DeserializeObject<T>(json);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                if (e.Message.StartsWith("No Case Entity found"))
+                if (json.StartsWith("No Case Entity found"))
                     return default;
 
                 throw;
