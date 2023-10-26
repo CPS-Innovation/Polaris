@@ -150,7 +150,7 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("CASE OUTLINE");
-
+      cy.wait(500);
       cy.selectPDFTextElement("This is a DV case.");
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-warning").should("have.length", 1);
@@ -761,6 +761,7 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION ");
+      cy.wait(500);
       cy.realPress(",");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
@@ -790,6 +791,7 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.wait(500);
       cy.realPress(",");
       cy.realPress(",");
       cy.realPress(",");

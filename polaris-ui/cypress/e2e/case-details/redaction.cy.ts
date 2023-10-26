@@ -53,6 +53,7 @@ describe("redaction refresh flow", () => {
       .last()
       .should("exist")
       .contains("CASE FILE EVIDENCE and INFORMATION ");
+    cy.wait(500);
     cy.selectPDFTextElement("MCLOVE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").click({ force: true });
