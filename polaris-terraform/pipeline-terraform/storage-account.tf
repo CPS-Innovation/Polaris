@@ -252,6 +252,14 @@ resource "azurerm_storage_container" "container" {
   depends_on            = [azurerm_storage_account.sa]
 }
 
+resource "azurerm_storage_container" "container" {
+  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
+  name                  = "redaction-json"
+  storage_account_name  = azurerm_storage_account.sa.name
+  container_access_type = "private"
+  depends_on            = [azurerm_storage_account.sa]
+}
+
 data "azurerm_function_app_host_keys" "fa_text_extractor_generator_host_keys" {
   name                = "fa-${local.resource_name}-text-extractor"
   resource_group_name = azurerm_resource_group.rg.name

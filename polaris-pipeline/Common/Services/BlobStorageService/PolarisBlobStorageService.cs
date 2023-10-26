@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
@@ -22,15 +23,21 @@ namespace Common.Services.BlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _blobServiceContainerName;
+        private readonly string _redactionJsonContainerName;
         private readonly ILogger<PolarisBlobStorageService> _logger;
 
-        public PolarisBlobStorageService(BlobServiceClient blobServiceClient, string blobServiceContainerName, ILogger<PolarisBlobStorageService> logger)
+        public PolarisBlobStorageService(
+            BlobServiceClient blobServiceClient,
+            string blobServiceContainerName,
+            string redactionJsonContainerName,
+            ILogger<PolarisBlobStorageService> logger)
         {
             _blobServiceClient = blobServiceClient;
             _blobServiceContainerName = blobServiceContainerName;
+            _redactionJsonContainerName = redactionJsonContainerName;
             _logger = logger;
         }
-        
+
         public async Task<bool> DocumentExistsAsync(string blobName, Guid correlationId)
         {
             var decodedBlobName = blobName.UrlDecodeString();
@@ -39,7 +46,7 @@ namespace Common.Services.BlobStorageService
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-            
+
             var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
             return await blobClient.ExistsAsync();
         }
@@ -48,12 +55,12 @@ namespace Common.Services.BlobStorageService
         {
             _logger.LogMethodEntry(correlationId, nameof(FindBlobsByPrefixAsync), blobPrefix);
             var result = new List<BlobSearchResult>();
-            
+
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-            
-            await foreach (var blobItem in blobContainerClient.GetBlobsAsync (BlobTraits.Metadata, BlobStates.None, blobPrefix))
+
+            await foreach (var blobItem in blobContainerClient.GetBlobsAsync(BlobTraits.Metadata, BlobStates.None, blobPrefix))
             {
                 blobItem.Metadata.TryGetValue(DocumentTags.VersionId, out var blobVersionAsString);
                 var convResult = long.TryParse(blobVersionAsString, out var versionId);
@@ -75,11 +82,11 @@ namespace Common.Services.BlobStorageService
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-            
+
             var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
             if (!await blobClient.ExistsAsync())
                 return null;
-            
+
             var blob = await blobClient.DownloadContentAsync();
 
             _logger.LogMethodExit(correlationId, nameof(GetDocumentAsync), string.Empty);
@@ -94,7 +101,7 @@ namespace Common.Services.BlobStorageService
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-            
+
             var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
 
             await blobClient.UploadAsync(stream, true);
@@ -120,23 +127,23 @@ namespace Common.Services.BlobStorageService
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-            
+
             var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
 
             try
             {
                 var deleteResult = await blobClient.DeleteIfExistsAsync();
-                _logger.LogMethodFlow(correlationId, nameof(RemoveDocumentAsync), deleteResult ? $"Blob '{decodedBlobName}' deleted successfully from '{_blobServiceContainerName}'" 
+                _logger.LogMethodFlow(correlationId, nameof(RemoveDocumentAsync), deleteResult ? $"Blob '{decodedBlobName}' deleted successfully from '{_blobServiceContainerName}'"
                     : $"Blob '{decodedBlobName}' deleted unsuccessfully from '{_blobServiceContainerName}'");
                 return true;
             }
             catch (StorageException e)
             {
-                if (e.RequestInformation.HttpStatusCode != (int) HttpStatusCode.NotFound) throw;
+                if (e.RequestInformation.HttpStatusCode != (int)HttpStatusCode.NotFound) throw;
 
                 if (e.RequestInformation.ExtendedErrorInformation != null && e.RequestInformation.ExtendedErrorInformation.ErrorCode == BlobErrorCodeStrings.BlobNotFound)
                     return true; //nothing to remove, probably because it is the first time for the case or the blob storage has undergone lifecycle management
-                
+
                 throw;
             }
             finally
@@ -144,7 +151,7 @@ namespace Common.Services.BlobStorageService
                 _logger.LogMethodExit(correlationId, nameof(RemoveDocumentAsync), string.Empty);
             }
         }
-        
+
         public async Task DeleteBlobsByCaseAsync(string caseId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(DeleteBlobsByCaseAsync), caseId);
@@ -154,7 +161,7 @@ namespace Common.Services.BlobStorageService
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);
             if (!await blobContainerClient.ExistsAsync())
                 throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
-            
+
             await foreach (var blobItem in blobContainerClient.GetBlobsAsync(prefix: targetFolderPath))
             {
                 var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
@@ -163,8 +170,26 @@ namespace Common.Services.BlobStorageService
                 if (deleteResult)
                     blobCount++;
             }
-            
+
             _logger.LogMethodExit(correlationId, nameof(DeleteBlobsByCaseAsync), $"{blobCount} blobs deleted for caseId: {caseId}");
         }
+
+        public async Task UploadRedactionJsonAsync(Stream stream, string blobName, Guid correlationId)
+        {
+            var decodedBlobName = blobName.UrlDecodeString();
+            _logger.LogMethodEntry(correlationId, nameof(UploadRedactionJsonAsync), decodedBlobName);
+
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_redactionJsonContainerName);
+            if (!await blobContainerClient.ExistsAsync())
+                throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_redactionJsonContainerName}' does not exist");
+
+            var blobClient = blobContainerClient.GetBlobClient(decodedBlobName);
+
+            await blobClient.UploadAsync(stream, true);
+            stream.Close();
+
+            _logger.LogMethodExit(correlationId, nameof(UploadRedactionJsonAsync), string.Empty);
+        }
+
     }
 }

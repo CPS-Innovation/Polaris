@@ -5,6 +5,7 @@ using AutoFixture;
 using Common.Dto.Request;
 using Common.Services.BlobStorageService.Contracts;
 using Common.ValueObjects;
+using Common.Wrappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,11 @@ public class DocumentRedactionServiceTests
     private readonly RedactPdfRequestDto _redactPdfRequest;
     private readonly Guid _correlationId;
     private readonly string _errorMessage;
-    private string _uploadFileName;
+    private readonly string _uploadFileName;
+    private readonly string _redactionJsonUploadFileName;
+    private readonly Stream _outputStream;
+    private readonly MemoryStream _redactionJsonStream;
+
     public DocumentRedactionServiceTests()
     {
         var fixture = new Fixture();
@@ -30,20 +35,25 @@ public class DocumentRedactionServiceTests
         var mockUploadFileNameFactory = new Mock<IUploadFileNameFactory>();
 
         var mockRedactionProvider = new Mock<IRedactionProvider>();
+
+        var mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
         var mockLogger = new Mock<ILogger<DocumentRedactionService>>();
 
         _documentRedactionService = new DocumentRedactionService(
             _mockBlobStorageService.Object,
             mockUploadFileNameFactory.Object,
             mockRedactionProvider.Object,
+            mockJsonConvertWrapper.Object,
             mockLogger.Object);
 
         _redactPdfRequest = fixture.Create<RedactPdfRequestDto>();
         _correlationId = fixture.Create<Guid>();
         _uploadFileName = fixture.Create<string>();
+        _redactionJsonUploadFileName = fixture.Create<string>();
 
         var inputStream = new MemoryStream();
-        var outputStream = new MemoryStream();
+        _outputStream = new MemoryStream();
+        _redactionJsonStream = new MemoryStream();
 
         _mockBlobStorageService.Setup(s => s.GetDocumentAsync(
                 It.Is<string>((s) => s == _redactPdfRequest.FileName),
@@ -54,17 +64,25 @@ public class DocumentRedactionServiceTests
             It.Is<string>(s => s == _redactPdfRequest.FileName)
         )).Returns(_uploadFileName);
 
+        mockUploadFileNameFactory.Setup(f => f.BuildRedactionJsonFileName(
+            It.Is<string>(s => s == _uploadFileName)
+        )).Returns(_redactionJsonUploadFileName);
+
         mockRedactionProvider.Setup(s => s.Redact(
                 It.Is<Stream>(s => s == inputStream),
                 It.Is<RedactPdfRequestDto>(r => r == _redactPdfRequest),
                 It.Is<Guid>(g => g == _correlationId)
             ))
-            .Returns(outputStream);
+            .Returns(_outputStream);
+
+        mockJsonConvertWrapper.Setup(s => s.SerializeObjectToStream(
+            It.Is<object>(o => o == _redactPdfRequest)
+        )).Returns(_redactionJsonStream);
 
         _errorMessage = fixture.Create<string>();
 
         _mockBlobStorageService.Setup(s => s.UploadDocumentAsync(
-            It.Is<Stream>(s => s == outputStream),
+            It.Is<Stream>(s => s == _outputStream),
             It.Is<string>(s => s == _uploadFileName),
             It.Is<string>(s => s == _redactPdfRequest.CaseId.ToString()),
             It.Is<PolarisDocumentId>(s => s == _redactPdfRequest.PolarisDocumentId),
@@ -111,6 +129,21 @@ public class DocumentRedactionServiceTests
             saveResult.Succeeded.Should().BeTrue();
             saveResult.Message.Should().BeNull();
             saveResult.RedactedDocumentName.Should().Be(_uploadFileName);
+
+            _mockBlobStorageService.Verify(s => s.UploadDocumentAsync(
+                It.Is<Stream>(s => s == _outputStream),
+                It.Is<string>(s => s == _uploadFileName),
+                It.Is<string>(s => s == _redactPdfRequest.CaseId.ToString()),
+                It.Is<PolarisDocumentId>(s => s == _redactPdfRequest.PolarisDocumentId),
+                It.Is<string>(s => s == _redactPdfRequest.VersionId.ToString()),
+                It.Is<Guid>(g => g == _correlationId))
+            );
+
+            _mockBlobStorageService.Verify(s => s.UploadRedactionJsonAsync(
+                It.Is<Stream>(s => s == _redactionJsonStream),
+                It.Is<string>(s => s == _redactionJsonUploadFileName),
+                It.Is<Guid>(g => g == _correlationId))
+            );
         }
     }
 }

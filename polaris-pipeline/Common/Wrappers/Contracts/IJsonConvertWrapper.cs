@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 
 namespace Common.Wrappers.Contracts
 {
     public interface IJsonConvertWrapper
     {
         string SerializeObject(object objectToSerialize);
+
+        MemoryStream SerializeObjectToStream(object objectToSerialize);
 
         T DeserializeObject<T>(string value);
 

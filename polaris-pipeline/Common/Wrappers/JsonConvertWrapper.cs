@@ -3,6 +3,8 @@ using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.IO;
+using System.Text;
 
 namespace Common.Wrappers
 {
@@ -22,6 +24,12 @@ namespace Common.Wrappers
         public string SerializeObject(object objectToSerialize)
         {
             return JsonConvert.SerializeObject(objectToSerialize, Formatting.None, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+        }
+
+        public MemoryStream SerializeObjectToStream(object objectToSerialize)
+        {
+            var json = JsonConvert.SerializeObject(objectToSerialize, Formatting.None, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            return new MemoryStream(Encoding.UTF8.GetBytes(json));
         }
 
         public T DeserializeObject<T>(string value)

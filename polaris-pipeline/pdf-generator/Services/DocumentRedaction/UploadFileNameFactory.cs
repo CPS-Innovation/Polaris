@@ -4,6 +4,11 @@ namespace pdf_generator.Services.DocumentRedaction
 {
   public class UploadFileNameFactory : IUploadFileNameFactory
   {
+    public string BuildRedactionJsonFileName(string documentFileName)
+    {
+      return $"{documentFileName}.json";
+    }
+
     public string BuildUploadFileName(string fileName)
     {
       var fileNameWithoutExtension = fileName.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) > -1

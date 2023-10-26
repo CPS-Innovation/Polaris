@@ -38,7 +38,8 @@ namespace Common.Services.Extensions
                 var logger = serviceProvider.GetService<ILogger<PolarisBlobStorageService>>();
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 var blobServiceContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceContainerName);
-                return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName, logger);
+                var redactionJsonContainerName = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.RedactionJsonContainerName);
+                return new PolarisBlobStorageService(blobServiceClient, blobServiceContainerName, redactionJsonContainerName, logger);
             }));
         }
 

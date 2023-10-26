@@ -100,6 +100,7 @@
             public const string SearchClientAuthorizationKey = "SearchClientAuthorizationKey";
 
             public const string BlobServiceContainerName = "BlobServiceContainerName";
+            public const string RedactionJsonContainerName = "RedactionJsonContainerName";
             public const string BlobExpirySecs = "BlobExpirySecs";
             public const string BlobUserDelegationKeyExpirySecs = "BlobUserDelegationKeyExpirySecs";
             public const string BlobServiceUrl = nameof(BlobServiceUrl);
