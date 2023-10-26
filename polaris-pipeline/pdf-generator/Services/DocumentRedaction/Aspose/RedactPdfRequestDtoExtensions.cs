@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Dto.Request;
 
-namespace pdf_generator.TelemetryEvents.Extensions
+namespace pdf_generator.Services.DocumentRedaction.Aspose
 {
   public static class RedactPdfRequestDtoExtensions
   {

@@ -4,7 +4,7 @@ using Common.Dto.Request.Redaction;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 
-namespace pdf_generator.Services.DocumentRedactionService
+namespace pdf_generator.Services.DocumentRedaction.Aspose
 {
     public class CoordinateCalculator : ICoordinateCalculator
     {
@@ -14,11 +14,11 @@ namespace pdf_generator.Services.DocumentRedactionService
         {
             _logger = logger;
         }
-        
+
         public RedactionCoordinatesDto CalculateRelativeCoordinates(double pageWidth, double pageHeight, int pageIndex, RedactionCoordinatesDto originatorCoordinates, PdfFileInfo targetPdfInfo, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(CalculateRelativeCoordinates), string.Empty);
-            
+
             var pdfTranslatedCoordinates = new RedactionCoordinatesDto();
             var x1Cent = originatorCoordinates.X1 * 100 / pageWidth;
             var y1Cent = originatorCoordinates.Y1 * 100 / pageHeight;

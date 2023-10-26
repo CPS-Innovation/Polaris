@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
-using pdf_generator.TelemetryEvents.Extensions;
+using pdf_generator.Services.DocumentRedaction.Aspose;
 using Xunit;
 
-namespace pdf_generator.tests.TelemetryEvents.Extensions
+namespace pdf_generator.tests.Services.DocumentRedaction.Aspose
 {
   public class RedactPdfRequestDtoHelperTests
   {
