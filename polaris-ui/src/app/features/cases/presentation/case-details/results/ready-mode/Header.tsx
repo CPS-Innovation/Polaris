@@ -82,6 +82,12 @@ export const Header: React.FC<Props> = ({
         </div>
         {!!filteredDocumentCount && (
           <Select
+            label={{
+              htmlFor: "select-result-order",
+              children: "Sort by",
+              className: classes.sortLabel,
+            }}
+            id="select-result-order"
             data-testid="select-result-order"
             value={resultsOrder}
             items={items}
