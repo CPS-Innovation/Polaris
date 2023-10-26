@@ -14,7 +14,6 @@ export const LoaderUpdate: React.FC<Props> = ({ textContent }) => {
   }, []);
   return (
     <div
-      role="status"
       aria-live="polite"
       className={classes.visuallyHidden}
       aria-hidden={hideContent}
