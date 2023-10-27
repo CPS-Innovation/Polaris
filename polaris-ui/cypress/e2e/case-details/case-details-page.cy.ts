@@ -698,10 +698,10 @@ describe("case details page", () => {
       text: string
     ) => {
       if (direction === "forward") {
-        cy.realPress(",");
+        cy.realPress(["Control", ","]);
       }
       if (direction === "backward") {
-        cy.realPress(["Shift", ","]);
+        cy.realPress(["Shift", "Control", ","]);
       }
 
       cy.window().then((win) => {
@@ -762,7 +762,7 @@ describe("case details page", () => {
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION ");
       cy.wait(500);
-      cy.realPress(",");
+      cy.realPress(["Control", ","]);
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-redact");
@@ -782,7 +782,7 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       keyPressAndVerifySelection("forward", "W");
-      cy.realPress(",");
+      cy.realPress(["Control", ","]);
       keyPressAndVerifySelection("forward", "P");
       keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
@@ -792,10 +792,10 @@ describe("case details page", () => {
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
       cy.wait(500);
-      cy.realPress(",");
-      cy.realPress(",");
-      cy.realPress(",");
-      cy.realPress(",");
+      cy.realPress(["Control", ","]);
+      cy.realPress(["Control", ","]);
+      cy.realPress(["Control", ","]);
+      cy.realPress(["Control", ","]);
       keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("forward", "w");
       keyPressAndVerifySelection("forward", "c");
@@ -811,7 +811,7 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       keyPressAndVerifySelection("forward", "W");
-      cy.realPress(",");
+      cy.realPress(["Control", ","]);
       keyPressAndVerifySelection("forward", "P");
       keyPressAndVerifySelection("forward", "R");
       keyPressAndVerifySelection("backward", "P");
@@ -826,13 +826,13 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "side-panel");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "document-tabs");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "active-tab-panel");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "side-panel");
     });
 
@@ -844,29 +844,29 @@ describe("case details page", () => {
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "side-panel");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "document-tabs");
       cy.findAllByTestId("btn-tab-0").click();
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "document-tabs");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "active-tab-panel");
       cy.realPress("Tab");
       cy.focused().should("have.id", "btn-report-issue-0");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "active-tab-panel");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "side-panel");
     });
 
     it("Should keep the focus on side-panel, if there are no documents open  while pressing the Period '.' Key", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "side-panel");
-      cy.realPress(".");
+      cy.realPress(["Control", "."]);
       cy.focused().should("have.id", "side-panel");
     });
   });
