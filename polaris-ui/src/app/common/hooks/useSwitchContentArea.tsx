@@ -18,7 +18,7 @@ export const useSwitchContentArea = () => {
 
   const keyDownHandler = useCallback((e: KeyboardEvent) => {
     //key combination of ctrlKey and comma
-    if (!e.ctrlKey || !(e.key === SWITCH_CONTENT_AREA_KEY)) return;
+    if (!e.ctrlKey || e.key !== SWITCH_CONTENT_AREA_KEY) return;
 
     e.preventDefault();
     const contentAreas = getContentAreas();

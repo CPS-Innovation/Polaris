@@ -129,9 +129,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
       //key combination of ctrlKey and comma
-      if (!e.ctrlKey || !(e.key === WORD_FOCUS_KEY)) {
-        return;
-      }
+      if (!e.ctrlKey || e.key !== WORD_FOCUS_KEY) return;
 
       e.preventDefault();
       e.altKey
