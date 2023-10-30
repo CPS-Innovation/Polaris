@@ -701,7 +701,7 @@ describe("case details page", () => {
         cy.realPress(["Control", ","]);
       }
       if (direction === "backward") {
-        cy.realPress(["Shift", "Control", ","]);
+        cy.realPress(["Alt", "Control", ","]);
       }
 
       cy.window().then((win) => {
