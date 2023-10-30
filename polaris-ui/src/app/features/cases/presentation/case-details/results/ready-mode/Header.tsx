@@ -46,7 +46,11 @@ export const Header: React.FC<Props> = ({
   return (
     <>
       <div className={classes.container}>
-        <div className={classes.textSection}>
+        <div
+          className={classes.textSection}
+          aria-live="polite"
+          aria-atomic="true"
+        >
           <div
             data-testid="div-results-header"
             className={classes.resultsHeader}

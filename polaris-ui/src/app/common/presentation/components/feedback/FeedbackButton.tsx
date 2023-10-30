@@ -12,11 +12,13 @@ export type FeedbackButtonProps = {
   documentId: string;
   correlationId: string;
   polarisDocumentVersionId: number;
+  tabIndex: number;
 };
 export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
   documentId,
   correlationId,
   polarisDocumentVersionId,
+  tabIndex,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -38,7 +40,7 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
     <>
       <div className={`${classes.content}`}>
         <Button
-          id="btn-report-issue"
+          id={`btn-report-issue-${tabIndex}`}
           name="secondary"
           className={`${classes.btnReportIssue} govuk-button--secondary`}
           disabled={disableReportBtn}
@@ -47,7 +49,7 @@ export const FeedbackButton: React.FC<FeedbackButtonProps> = ({
             addToReportedDocuments(documentId);
             handleIssueReporting(documentId);
           }}
-          data-testid="btn-report-issue"
+          data-testid={`btn-report-issue-${tabIndex}`}
         >
           {disableReportBtn ? "Issue reported" : "Report an issue"}
         </Button>

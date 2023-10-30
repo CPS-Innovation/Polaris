@@ -34,15 +34,16 @@ export const useControlledRedactionFocus = (
   const getRemoveAllRedactionBtn = useCallback(() => {
     const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
     const removeAllRedactionBtn = pdfHighlighters[tabIndex].querySelector(
-      "#btn-link-removeAll"
+      `#btn-link-removeAll-${tabIndex}`
     );
     return removeAllRedactionBtn;
   }, [tabIndex]);
 
   const getEntryElement = useCallback(() => {
     const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
-    const reportIssueBtn =
-      pdfHighlighters[tabIndex].querySelector("#btn-report-issue");
+    const reportIssueBtn = pdfHighlighters[tabIndex].querySelector(
+      `#btn-report-issue-${tabIndex}`
+    );
     const openPdfBtn = pdfHighlighters[tabIndex].querySelector("#btn-open-pdf");
     const tabPanel = pdfHighlighters[tabIndex];
     const entryElement = (reportIssueBtn as HTMLButtonElement).disabled
