@@ -78,7 +78,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
       className={`${classes.tabsWrapper} ${classes.contentArea}`}
     >
       <span id="document-tabs-region-label" className={classes.tabsRegionLabel}>
-        Document tabs region
+        Document control area
       </span>
       <div className={`${classes.arrowBtnsWrapper}`}>
         <LinkButton

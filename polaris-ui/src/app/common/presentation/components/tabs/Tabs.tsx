@@ -94,7 +94,7 @@ export const Tabs: React.FC<TabsProps> = ({
             id="document-panel-region-label"
             className={classes.tabPanelRegionLabel}
           >
-            Document active tab panel region
+            Document view port
           </span>
         )}
         {panel.children}
