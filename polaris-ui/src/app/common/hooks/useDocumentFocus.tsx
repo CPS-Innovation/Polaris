@@ -134,7 +134,7 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
       }
 
       e.preventDefault();
-      e.shiftKey
+      e.altKey
         ? setKeyPress({ count: keyPress.count + 1, direction: "backward" })
         : setKeyPress({ count: keyPress.count + 1, direction: "forward" });
 
