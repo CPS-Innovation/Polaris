@@ -36,7 +36,7 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
                 </span>
               </span>
             </a>
-            <span className="govuk-header__link--homepage">Polaris</span>
+            <span className="govuk-header__link--homepage">Casework App</span>
           </div>
         </div>
       </header>
