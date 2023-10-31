@@ -60,10 +60,20 @@ namespace pdf_generator.Factories
 		public Aspose.Pdf.Document CreateHtmlDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateHtmlDocument), string.Empty);
-			
-			var result = new Aspose.Pdf.Document(inputStream, new Aspose.Pdf.HtmlLoadOptions());
+
+            // TODO - https://dev.azure.com/CPSDTS/Information%20Management/_workitems/edit/21851
+			// Aspose is splitting the HTML into sections with whitespace between them. 
+			// Only a single PDF page is rendered with these gaps present
+			// Looks like the definition of a "page" is not quite right, likely configured here
+            var options = new Aspose.Pdf.HtmlLoadOptions();
+			options.IsRenderToSinglePage = false;
+			options.PageInfo.IsLandscape = false;
+			options.PageLayoutOption = Aspose.Pdf.HtmlPageLayoutOption.None;
+
+            var document = new Aspose.Pdf.Document(inputStream, options);
+
 			_logger.LogMethodExit(correlationId, nameof(CreateHtmlDocument), string.Empty);
-			return result;
+			return document;
 		}
 
 		public Aspose.Imaging.Image CreateImage(Stream inputStream, Guid correlationId)

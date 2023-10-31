@@ -2,6 +2,10 @@
 @using RazorLight
 @inherits TemplatePage<PcdRequestDto>
 
+@{
+    DisableEncoding = true;
+}
+
 <!DOCTYPE html>
 
 <html>
@@ -14,12 +18,7 @@
 
         body {
             font-family: "TransportNew", "Arial", sans-serif;
-            font-size: 12px;
-        }
-
-        section {
-            padding-top: 8px;
-            padding-bottom: 14px;
+            font-size: 15px;
         }
 
         div {
@@ -60,66 +59,54 @@
 </head>
 
 <body style="width:800px">
-    <section>
-        <h2>PCD Request</h2>
-        <table id="pcd-request">
-            <tr>
-                <td>Decision required by</td>
-                <td>@Model.DecisionRequiredBy</td>
-            </tr>
-            <tr>
-                <td>Decision requested</td>
-                <td>@Model.DecisionRequested</td>
-            </tr>
-        </table>
-    </section>
+    <h2>PCD Request</h2>
+    <table id="pcd-request">
+        <tr>
+            <td>Decision required by</td>
+            <td>@Model.DecisionRequiredBy</td>
+        </tr>
+        <tr>
+            <td>Decision requested</td>
+            <td>@Model.DecisionRequested</td>
+        </tr>
+    </table>
 
-    <section>
-        <h2>Case Outline</h2>
-        @for (var i = 0; i < Model.CaseOutline.Count; i++)
+    <h2>Case Outline</h2>
+    @for (var i = 0; i < Model.CaseOutline.Count; i++)
+    {
+        <h4>@Model.CaseOutline[i].Heading</h4>
+        @Model.CaseOutline[i].TextWithCmsMarkup
+    }
+
+    <h2>Supervising Officer's Comments</h2>
+    @Model.Comments.TextWithCmsMarkup
+
+    <h2>Proposed Charges</h2>
+    @for (var i = 0; i < @Model.Suspects.Count; i++)
+    {
+        <h3>@Model.Suspects[i].Surname, @Model.Suspects[i].FirstNames - DOB @Model.Suspects[i].Dob</h3>
+        @for (var c = 0; c < @Model.Suspects[i].ProposedCharges.Count; c++)
         {
-            <div>
-                <h4>@Model.CaseOutline[i].Heading</h4>
-                <blockquote>@Model.CaseOutline[i].Text</blockquote>
-            </div>
+            <table>
+                <tr>
+                    <td>Category</td>
+                    <td>@Model.Suspects[i].ProposedCharges[c].Category</td>
+                </tr>
+                <tr>
+                    <td>Proposed Charge</td>
+                    <td>@Model.Suspects[i].ProposedCharges[c].Charge</td>
+                </tr>
+                <tr>
+                    <td>Location</td>
+                    <td>@Model.Suspects[i].ProposedCharges[c].Location</td>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td>@Model.Suspects[i].ProposedCharges[c].Date</td>
+                </tr>
+            </table>
         }
-    </section>
-
-    <section>
-        <h2>Supervising Officer's Comments</h2>
-        <blockquote>@Model.Comments.Text</blockquote>
-    </section>
-
-    <section>
-        <h2>Proposed Charges</h2>
-        @for (var i = 0; i < @Model.Suspects.Count; i++)
-        {
-            <div>
-            <h3>@Model.Suspects[i].Surname, @Model.Suspects[i].FirstNames - DOB @Model.Suspects[i].Dob</h3>
-            @for (var c = 0; c < @Model.Suspects[i].ProposedCharges.Count; c++)
-            {
-                <table>
-                    <tr>
-                        <td>Description</td>
-                        <td>@Model.Suspects[i].ProposedCharges[c].Category</td>
-                    </tr>
-                    <tr>
-                        <td>Proposed Charge</td>
-                        <td>@Model.Suspects[i].ProposedCharges[c].Charge</td>
-                    </tr>
-                    <tr>
-                        <td>Location</td>
-                        <td>@Model.Suspects[i].ProposedCharges[c].Location</td>
-                    </tr>
-                    <tr>
-                        <td>Date</td>
-                        <td>@Model.Suspects[i].ProposedCharges[c].Date</td>
-                    </tr>
-                </table>
-            }
-            </div>
-        }
-    </section>
+    }
 
 </body>
 </html>
