@@ -233,7 +233,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               id="side-panel-region-label"
               className={classes.sidePanelLabel}
             >
-              Left side panel region
+              Case navigation panel
             </span>
             <div>
               <KeyDetails

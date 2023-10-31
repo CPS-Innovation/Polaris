@@ -12,6 +12,11 @@
   svg {
     fill: #1d70b8;
   }
+  &:focus {
+    svg {
+      fill: #000;
+    }
+  }
   &:disabled {
     cursor: not-allowed;
     svg {
