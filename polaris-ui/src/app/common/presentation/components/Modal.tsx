@@ -93,9 +93,8 @@ export const Modal: React.FC<Props> = ({
             </div>
           )}
           {type === "alert" && (
-            <header
+            <div
               className={`govuk-header ${classes.modalHeader}`}
-              role="banner"
               data-module="govuk-header"
             >
               <div
@@ -111,7 +110,7 @@ export const Modal: React.FC<Props> = ({
                   <CloseIcon height={"1.5625rem"} width={"1.5625rem"} />
                 </button>
               </div>
-            </header>
+            </div>
           )}
           <div className={classes.contentContainer}>{children}</div>
         </div>

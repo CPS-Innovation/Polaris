@@ -1,4 +1,4 @@
-namespace pdf_generator.Services.DocumentRedactionService.RedactionProvider
+namespace pdf_generator.Services.DocumentRedaction.Aspose
 {
     public enum ProviderType
     {

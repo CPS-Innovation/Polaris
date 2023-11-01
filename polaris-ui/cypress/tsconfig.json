@@ -8,7 +8,12 @@
     "lib": ["es5", "dom"],
     // be explicit about types included
     // to avoid clashing with Jest types
-    "types": ["cypress", "@testing-library/cypress", "cypress-real-events"]
+    "types": [
+      "cypress",
+      "@testing-library/cypress",
+      "cypress-real-events",
+      "cypress-axe"
+    ]
   },
   "include": ["./**/*.ts"]
 }

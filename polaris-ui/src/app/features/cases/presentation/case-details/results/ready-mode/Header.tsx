@@ -46,7 +46,11 @@ export const Header: React.FC<Props> = ({
   return (
     <>
       <div className={classes.container}>
-        <div className={classes.textSection}>
+        <div
+          className={classes.textSection}
+          aria-live="polite"
+          aria-atomic="true"
+        >
           <div
             data-testid="div-results-header"
             className={classes.resultsHeader}
@@ -82,6 +86,12 @@ export const Header: React.FC<Props> = ({
         </div>
         {!!filteredDocumentCount && (
           <Select
+            label={{
+              htmlFor: "select-result-order",
+              children: "Sort by",
+              className: classes.sortLabel,
+            }}
+            id="select-result-order"
             data-testid="select-result-order"
             value={resultsOrder}
             items={items}

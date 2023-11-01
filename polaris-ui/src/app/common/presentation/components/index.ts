@@ -17,3 +17,4 @@ export { WaitPage } from "./WaitPage";
 export { ErrorModalContent } from "./ErrorModalContent";
 export { PhaseBanner } from "./PhaseBanner";
 export { DropdownButton } from "./DropdownButton";
+export { LoaderUpdate } from "./LoaderUpdate";

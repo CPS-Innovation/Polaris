@@ -128,15 +128,11 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
 
   const keyDownHandler = useCallback(
     (e: KeyboardEvent) => {
-      //this is temporary hack supply the keycode from console, for any further live test of key combination.
-      const WORD_FOCUS_CODE = (window as any).wordFocusCode ?? "Comma";
-
-      if (!(e.code === WORD_FOCUS_CODE || e.key === WORD_FOCUS_KEY)) {
-        return;
-      }
+      //key combination of ctrlKey and comma
+      if (!e.ctrlKey || e.key !== WORD_FOCUS_KEY) return;
 
       e.preventDefault();
-      e.shiftKey
+      e.altKey
         ? setKeyPress({ count: keyPress.count + 1, direction: "backward" })
         : setKeyPress({ count: keyPress.count + 1, direction: "forward" });
 
