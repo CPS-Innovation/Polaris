@@ -1,0 +1,35 @@
+﻿---
+parameters:
+  - name: targetSuffix
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: jobDependsOn
+    type: object
+  
+jobs:
+  - job: Swap_App_Slots
+    dependsOn:
+      - ${{ parameters.jobDependsOn }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    strategy:
+      matrix:
+        DDEI:
+          Name: "DDEI"
+          AppServiceName: "fa-polaris-ddei${{ parameters.targetSuffix }}"
+        DDEIMock:
+          Name: "DDEI Mock"
+          AppServiceName: "as-mock-polaris-ddei${{ parameters.targetSuffix }}"
+    displayName: Swap slots
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap $(slotName) slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: $(slotName)
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris-ddei${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true
