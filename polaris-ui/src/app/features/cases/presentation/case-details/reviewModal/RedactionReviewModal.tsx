@@ -43,6 +43,7 @@ export const RedactionReviewModal: React.FC<Props> = ({
 
     console.log("unsavedRedactions>>", tabItem?.documentId);
     const rows = tabItem?.redactionHighlights?.reduce((acc, current, index) => {
+      console.log("highlight image>>", current);
       acc.push({
         cells: [
           { children: <span>{`${index + 1}`}</span> },
@@ -73,7 +74,8 @@ export const RedactionReviewModal: React.FC<Props> = ({
       ariaLabel="Search Modal"
       ariaDescription="Find your search results"
     >
-      <h2>Review unsaved redactions</h2>
+      {" "}
+      <h2 className={classes.heading}>Unsaved redactions</h2>
       <div className={classes.contentWrapper}>
         <div className={classes.tableWrapper}>{renderUnsavedRedactions()}</div>
       </div>
