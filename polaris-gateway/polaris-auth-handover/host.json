@@ -3,7 +3,7 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Warning",
+      "default": "Information",
       "Function": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information"
@@ -12,7 +12,7 @@
       "samplingSettings": {
         "isEnabled": false,
         "maxTelemetryItemsPerSecond": 20,
-        "excludedTypes": "Request;Exception;CustomEvents"
+        "excludedTypes": "Request;Exception;CustomEvents;Trace"
       },
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,
