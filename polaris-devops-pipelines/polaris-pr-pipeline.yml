@@ -45,13 +45,13 @@ stages:
         steps:
           - task: PowerShell@2
             inputs:
-              targetType: 'inline'
+              targetType: "inline"
               script: |
                 $files = $(git diff --name-only origin/main)
                 $temp=$files -split ' '
                 $count=$temp.Length
                 echo "Total changed $count files"
-                
+
                 For ($i=0; $i -lt $temp.Length; $i++)
                 {
                   $name=$temp[$i]
@@ -116,7 +116,7 @@ stages:
                     echo "run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
                   }
-                  if ($name -like 'polaris-gateway/polaris-auth-handover/*')
+                  if ($name -like 'polaris-gateway/polaris-auth-handover/*' -Or $name -like 'polaris-gateway/polaris-auth-handover.tests/*')
                   {
                     echo "run auth handover..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
@@ -178,7 +178,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -205,11 +205,11 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write Pipeline Plan'
+            displayName: "Terraform > Write Pipeline Plan"
             workingDirectory: $(pipelineTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -242,7 +242,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -269,11 +269,11 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write Pipeline Events Plan'
+            displayName: "Terraform > Write Pipeline Events Plan"
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -306,7 +306,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -333,11 +333,11 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write UI Plan'
+            displayName: "Terraform > Write UI Plan"
             workingDirectory: $(uiTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -370,7 +370,7 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Validate
           - bash: terraform validate
             displayName: Terraform > Validate Config
@@ -397,11 +397,11 @@ stages:
               TF_STATE_KEY: $(terraform-key)
               TF_STATE_ACCESS_KEY: $(cpsdevstorageterraform-key1)
               TF_LOG: $(dev-log-level)
-          
+
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write UI Events Plan'
+            displayName: "Terraform > Write UI Events Plan"
             workingDirectory: $(uiEventsTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -429,6 +429,19 @@ stages:
               projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
               arguments: "--configuration Release"
             displayName: "Build Auth Handover"
+            condition: eq(variables.runAuthHandover, 'true')
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway/polaris-auth-handover.tests/polaris-auth-handover.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Auth Handover tests"
+            condition: eq(variables.runAuthHandover, 'true')
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-auth-handover.tests/coverage.cobertura.xml
+            artifact: AuthHandoverTestResults
+            displayName: Publish Auth Handover Test Results
             condition: eq(variables.runAuthHandover, 'true')
 
           - task: DotNetCoreCLI@2
@@ -527,16 +540,16 @@ stages:
           - task: DownloadSecureFile@1
             name: licence
             inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
+              secureFile: "Aspose.Total.NET.lic"
+            displayName: "Download Aspose Licence"
             condition: eq(variables.runPdfGenerator, 'true')
 
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
               contents: Aspose.Total.NET.lic
-              targetFolder: 'polaris-pipeline/pdf-generator'
-            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+              targetFolder: "polaris-pipeline/pdf-generator"
+            displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
             condition: eq(variables.runPdfGenerator, 'true')
 
           - task: DotNetCoreCLI@2
@@ -570,7 +583,7 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          # Begin UI testing      
+          # Begin UI testing
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
           - task: DeleteFiles@1
@@ -680,7 +693,7 @@ stages:
 
           - script: |
               cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
-            displayName: 'Moving ui coverage results'
+            displayName: "Moving ui coverage results"
 
           - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
             artifact: UITestResults
@@ -699,22 +712,22 @@ stages:
           vmImage: ubuntu-latest
         steps:
           - task: DotNetCoreCLI@2
-            displayName: 'Install ReportGenerator'
+            displayName: "Install ReportGenerator"
             inputs:
               command: custom
               custom: tool
-              arguments: 'install --global dotnet-reportgenerator-globaltool'
-              
+              arguments: "install --global dotnet-reportgenerator-globaltool"
+
           - download: current
-            patterns: '**/*.cobertura.xml'
+            patterns: "**/*.cobertura.xml"
             displayName: Retrieve published test reports
 
           - script: |
               reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
-            displayName: 'Create code coverage report'
+            displayName: "Create code coverage report"
 
           - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage report'
+            displayName: "Publish code coverage report"
             inputs:
-              codeCoverageTool: 'cobertura'
-              summaryFileLocation: '$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml'
+              codeCoverageTool: "cobertura"
+              summaryFileLocation: "$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml"
