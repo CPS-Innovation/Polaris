@@ -45,6 +45,9 @@ export const initialState = {
     show: false,
     message: "",
   },
+  redactionReviewModal: {
+    show: false,
+  },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -270,6 +273,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleReviewRedactions = useCallback(
+    (value: boolean) =>
+      dispatch({
+        type: "SHOW_HIDE_REDACTION_REVIEW_MODAL",
+        payload: value,
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdfInNewTab,
@@ -287,5 +299,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleSavedRedactions,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleReviewRedactions,
   };
 };

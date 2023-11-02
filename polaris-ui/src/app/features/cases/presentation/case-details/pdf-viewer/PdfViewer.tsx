@@ -44,6 +44,7 @@ type Props = {
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
+  handleReviewRedactions: (value: boolean) => void;
 };
 
 const ensureAllPdfInView = () =>
@@ -65,6 +66,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleRemoveRedaction,
   handleRemoveAllRedactions,
   handleSavedRedactions,
+  handleReviewRedactions,
   focussedHighlightIndex,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -221,6 +223,7 @@ export const PdfViewer: React.FC<Props> = ({
             isOkToSave={isOkToSave}
             handleRemoveAllRedactions={handleRemoveAllRedactions}
             handleSavedRedactions={handleSavedRedactions}
+            handleReviewRedactions={handleReviewRedactions}
           />
         )}
       </div>

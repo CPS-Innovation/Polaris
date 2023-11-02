@@ -138,6 +138,10 @@ export const reducer = (
     | {
         type: "HIDE_ERROR_MODAL";
       }
+    | {
+        type: "SHOW_HIDE_REDACTION_REVIEW_MODAL";
+        payload: boolean;
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -798,6 +802,14 @@ export const reducer = (
           show: false,
           message: "",
           title: "",
+        },
+      };
+    }
+    case "SHOW_HIDE_REDACTION_REVIEW_MODAL": {
+      return {
+        ...state,
+        redactionReviewModal: {
+          show: action.payload,
         },
       };
     }

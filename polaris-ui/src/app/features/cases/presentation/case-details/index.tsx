@@ -16,6 +16,7 @@ import { useCaseDetailsState } from "../../hooks/use-case-details-state/useCaseD
 import { PdfTabsEmpty } from "./pdf-tabs/PdfTabsEmpty";
 import { SearchBox } from "./search-box/SearchBox";
 import { ResultsModal } from "./results/ResultsModal";
+import { RedactionReviewModal } from "./reviewModal/RedactionReviewModal";
 import { Charges } from "./Charges";
 import { Modal } from "../../../../common/presentation/components/Modal";
 import { NavigationAwayAlertContent } from "./navigation-alerts/NavigationAwayAlertContent";
@@ -52,6 +53,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     pipelineRefreshData,
     errorModal,
+    redactionReviewModal,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -67,6 +69,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleOpenPdfInNewTab,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleReviewRedactions,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -196,6 +199,13 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           }}
         />
       )}
+      {redactionReviewModal.show && (
+        <RedactionReviewModal
+          tabsState={tabsState}
+          handleReviewRedactions={handleReviewRedactions}
+          handleRemoveRedaction={handleRemoveRedaction}
+        />
+      )}
       <nav>
         <PhaseBanner
           className={classes["phaseBanner"]}
@@ -292,6 +302,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleSavedRedactions={handleSavedRedactions}
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
+                handleReviewRedactions={handleReviewRedactions}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}

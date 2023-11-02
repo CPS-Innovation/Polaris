@@ -15,6 +15,7 @@ type Props = {
   isOkToSave: boolean;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
+  handleReviewRedactions: (value: boolean) => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -24,6 +25,7 @@ export const Footer: React.FC<Props> = ({
   isOkToSave,
   handleRemoveAllRedactions,
   handleSavedRedactions,
+  handleReviewRedactions,
 }) => {
   const { documentType, documentId, isSaving } = contextData;
   const trackEvent = useAppInsightsTrackEvent();
@@ -61,6 +63,17 @@ export const Footer: React.FC<Props> = ({
         ) : (
           <>There are {redactionHighlights.length} redactions</>
         )}
+        <LinkButton
+          id={`btn-link-view-redactions-${tabIndex}`}
+          onClick={() => {
+            handleReviewRedactions(true);
+          }}
+          dataTestId={`btn-link-view-redactions-${tabIndex}`}
+          disabled={isSaving}
+          className={classes.removeButton}
+        >
+          View redactions
+        </LinkButton>
       </div>
 
       <Button
