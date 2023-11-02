@@ -27,6 +27,7 @@ type PdfTabsProps = {
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
   handleUnLockDocuments: CaseDetailsState["handleUnLockDocuments"];
+  handleUpdateRedactionHighlight: CaseDetailsState["handleUpdateRedactionHighlight"];
   handleReviewRedactions: (value: boolean) => void;
 };
 
@@ -45,6 +46,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleOpenPdfInNewTab,
   handleUnLockDocuments,
   handleReviewRedactions,
+  handleUpdateRedactionHighlight,
 }) => {
   return (
     <Tabs
@@ -69,6 +71,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleSavedRedactions={handleSavedRedactions}
               handleOpenPdfInNewTab={handleOpenPdfInNewTab}
               handleReviewRedactions={handleReviewRedactions}
+              handleUpdateRedactionHighlight={handleUpdateRedactionHighlight}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}

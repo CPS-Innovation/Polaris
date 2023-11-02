@@ -16,3 +16,19 @@
   display: block;
   text-align: center;
 }
+.imageContainer {
+  width: 25rem;
+  height: 12.5rem;
+  overflow: hidden;
+  position: relative;
+}
+.image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

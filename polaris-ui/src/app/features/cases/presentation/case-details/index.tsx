@@ -70,6 +70,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleReviewRedactions,
+    handleUpdateRedactionHighlight,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -303,6 +304,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
                 handleReviewRedactions={handleReviewRedactions}
+                handleUpdateRedactionHighlight={handleUpdateRedactionHighlight}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}

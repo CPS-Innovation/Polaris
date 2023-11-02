@@ -41,6 +41,7 @@ type Props = {
   focussedHighlightIndex: number;
   isOkToSave: boolean;
   handleAddRedaction: (newRedaction: NewPdfHighlight) => void;
+  handleUpdateRedactionHighlight: (id: string, image: string) => void;
   handleRemoveRedaction: (id: string) => void;
   handleRemoveAllRedactions: () => void;
   handleSavedRedactions: () => void;
@@ -66,6 +67,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleRemoveRedaction,
   handleRemoveAllRedactions,
   handleSavedRedactions,
+  handleUpdateRedactionHighlight,
   handleReviewRedactions,
   focussedHighlightIndex,
 }) => {
@@ -195,10 +197,11 @@ export const PdfViewer: React.FC<Props> = ({
                   index,
                   setTip,
                   hideTip,
-                  _, // viewPortToScaled helper function
-                  __, // screenshot (an image if this is an area highlight)
+                  viewPortToScaled,
+                  screenshot, // screenshot (an image if this is an area highlight)
                   isScrolledTo
                 ) => {
+                  console.log("highlightTransform........");
                   return (
                     <PdfHighlight
                       highlight={highlight}
@@ -207,6 +210,10 @@ export const PdfViewer: React.FC<Props> = ({
                       hideTip={hideTip}
                       isScrolledTo={isScrolledTo}
                       handleRemoveRedaction={removeRedaction}
+                      screenshot={screenshot}
+                      handleUpdateRedactionHighlight={
+                        handleUpdateRedactionHighlight
+                      }
                     />
                   );
                 }}

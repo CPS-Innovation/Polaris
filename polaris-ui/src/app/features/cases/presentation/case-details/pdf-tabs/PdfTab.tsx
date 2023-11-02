@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useState } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../../domain/NewPdfHighlight";
+import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
@@ -30,6 +31,7 @@ type PdfTabProps = {
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
+  handleUpdateRedactionHighlight: CaseDetailsState["handleUpdateRedactionHighlight"];
   handleReviewRedactions: (value: boolean) => void;
 };
 
@@ -50,6 +52,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleSavedRedactions,
   handleOpenPdfInNewTab,
   handleReviewRedactions,
+  handleUpdateRedactionHighlight,
 }) => {
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -71,6 +74,17 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   const localHandleAddRedaction = useCallback(
     (redaction: NewPdfHighlight) => handleAddRedaction(documentId, redaction),
     [documentId, handleAddRedaction]
+  );
+
+  const localHandleUpdateRedactionHighlight = useCallback(
+    (id: string, image: string) => {
+      const highlight = redactionHighlights.find((item) => item.id === id)!;
+      const newHighlight = { ...highlight, image: image };
+
+      handleUpdateRedactionHighlight(documentId, newHighlight);
+    },
+
+    [documentId, redactionHighlights, handleUpdateRedactionHighlight]
   );
 
   const localHandleRemoveRedaction = useCallback(
@@ -149,6 +163,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           handleRemoveAllRedactions={localHandleRemoveAllRedactions}
           handleSavedRedactions={localHandleSavedRedactions}
           handleReviewRedactions={handleReviewRedactions}
+          handleUpdateRedactionHighlight={localHandleUpdateRedactionHighlight}
         />
       ) : (
         <Wait

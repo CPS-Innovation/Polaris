@@ -16,6 +16,7 @@ import { isDocumentVisible } from "./is-document-visible";
 import { AsyncPipelineResult } from "../use-pipeline-api/AsyncPipelineResult";
 import { mapSearchHighlights } from "./map-search-highlights";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { sortSearchHighlights } from "./sort-search-highlights";
 import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
@@ -99,6 +100,13 @@ export const reducer = (
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
           redaction: NewPdfHighlight;
+        };
+      }
+    | {
+        type: "UPDATE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          redaction: IPdfHighlight;
         };
       }
     | {
@@ -704,6 +712,34 @@ export const reducer = (
                       redactionAddedOrder: item.redactionHighlights.length,
                     },
                   ],
+                }
+              : item
+          ),
+        },
+      };
+    }
+    case "UPDATE_REDACTION": {
+      const { documentId, redaction } = action.payload;
+
+      const redactedDocument = state.tabsState.items.find(
+        (item) => item.documentId === documentId
+      );
+
+      const updatedRedactionHighlights =
+        redactedDocument?.redactionHighlights.map((item) =>
+          item.id === redaction.id ? redaction : item
+        ) ?? [];
+      // yArray.map(item => (item === itemToFind ? replacement : item));
+
+      return {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  redactionHighlights: updatedRedactionHighlights,
                 }
               : item
           ),

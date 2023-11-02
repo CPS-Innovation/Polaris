@@ -6,6 +6,7 @@ import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
+import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
@@ -223,6 +224,18 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleUpdateRedactionHighlight = useCallback(
+    (
+      documentId: CaseDocumentViewModel["documentId"],
+      redaction: IPdfHighlight
+    ) =>
+      dispatch({
+        type: "UPDATE_REDACTION",
+        payload: { documentId, redaction },
+      }),
+    [dispatch]
+  );
+
   const handleRemoveRedaction = useCallback(
     (documentId: CaseDocumentViewModel["documentId"], redactionId: string) =>
       dispatch({
@@ -300,5 +313,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleReviewRedactions,
+    handleUpdateRedactionHighlight,
   };
 };

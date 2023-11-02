@@ -47,7 +47,24 @@ export const RedactionReviewModal: React.FC<Props> = ({
       acc.push({
         cells: [
           { children: <span>{`${index + 1}`}</span> },
-          { children: <span>{current.textContent}</span> },
+          {
+            children: (
+              <div>
+                {current.image ? (
+                  <div
+                    className={classes.imageContainer}
+                    style={{ marginTop: "0.5rem" }}
+                  >
+                    <img
+                      className={classes.image}
+                      src={current.image}
+                      alt={"Screenshot"}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ),
+          },
           {
             children: (
               <Button

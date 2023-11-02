@@ -4,6 +4,8 @@ import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { PdfAreaHighlight } from "./PdfAreaHighlight";
 import { PdfLinearHighlight } from "./PdfLinearHighlight";
 import { RemoveButton } from "./RemoveButton";
+import { useEffect } from "react";
+import { LTWH } from "../../../../../../react-pdf-highlighter/src/types";
 
 type Props = {
   highlight: T_ViewportHighlight<IPdfHighlight>;
@@ -15,6 +17,8 @@ type Props = {
   hideTip: () => void;
   isScrolledTo: boolean;
   handleRemoveRedaction: (id: string) => void;
+  screenshot: (position: LTWH) => string;
+  handleUpdateRedactionHighlight: (id: string, image: string) => void;
 };
 
 export const PdfHighlight: React.FC<Props> = ({
@@ -24,7 +28,22 @@ export const PdfHighlight: React.FC<Props> = ({
   hideTip,
   isScrolledTo,
   handleRemoveRedaction,
+  handleUpdateRedactionHighlight,
+  screenshot,
 }) => {
+  useEffect(() => {
+    const image = screenshot(highlight.position.boundingRect);
+    console.log("mounting pdfHighlight...", image);
+    if (!highlight.image) {
+      handleUpdateRedactionHighlight(highlight.id, image);
+    }
+
+    return () => {
+      console.log("unmounting pdfHighlight...");
+    };
+  }, []);
+
+  // console.log("highlight.image>>>>", highlight.image);
   const component =
     highlight.highlightType === "linear" ? (
       <PdfLinearHighlight
