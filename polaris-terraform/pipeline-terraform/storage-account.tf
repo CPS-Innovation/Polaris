@@ -14,6 +14,7 @@ resource "azurerm_storage_account" "sa" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 
@@ -72,6 +73,7 @@ resource "azurerm_storage_account" "sa_coordinator" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 
@@ -136,6 +138,7 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 
@@ -200,6 +203,7 @@ resource "azurerm_storage_account" "sa_text_extractor" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 

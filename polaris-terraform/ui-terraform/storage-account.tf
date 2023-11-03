@@ -14,6 +14,7 @@ resource "azurerm_storage_account" "sacpspolaris" {
   min_tls_version                 = "TLS1_2"
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   network_rules {
     default_action = "Deny"
