@@ -20,8 +20,14 @@ public class HttpRequestExtensionsTests
   [InlineData("?foo.CMSAUTH=ABC123;bar", "?foo.CMSAUTH=REDACTED;bar")]
   public void GetLogSafeQueryString_ReturnsAStringWithCMSAuthInformationRedacted(string inputQueryString, string expectedQueryString)
   {
+    // Arrange
     var request = CreateMockHttpRequestWithQueryString(inputQueryString);
-    request.GetLogSafeQueryString().Should().Be(expectedQueryString);
+
+    // Act
+    var safeQueryString = request.GetLogSafeQueryString();
+
+    // Assert
+    safeQueryString.Should().Be(expectedQueryString);
   }
 
   private HttpRequest CreateMockHttpRequestWithQueryString(string query)

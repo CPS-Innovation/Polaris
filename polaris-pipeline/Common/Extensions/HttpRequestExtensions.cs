@@ -18,6 +18,8 @@ namespace Common.Extensions
 
         private const string CmsAuthCookieName = ".CMSAUTH";
 
+        private const string CmsAuthCookieContentReplacementText = "REDACTED";
+
         public static async Task<ValidatableRequest<T>> GetJsonBody<T, V>(this HttpRequest request)
             where V : AbstractValidator<T>, new()
         {
@@ -66,7 +68,7 @@ namespace Common.Extensions
             return Regex.Replace(
                 queryString,
                 $"({CmsAuthCookieName})(=|%3D)(.*?)(;|%3B|$)",
-                "$1$2REDACTED$4",
+                $"$1$2{CmsAuthCookieContentReplacementText}$4",
                 RegexOptions.None,
                 TimeSpan.FromSeconds(1));
         }
