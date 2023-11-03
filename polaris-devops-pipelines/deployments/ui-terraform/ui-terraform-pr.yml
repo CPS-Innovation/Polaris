@@ -67,7 +67,7 @@ stages:
                     echo "run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
                   }
-                  if ($name -like 'polaris-gateway/polaris-auth-handover/*')
+                  if ($name -like 'polaris-gateway/polaris-auth-handover/*' -Or $name -like 'polaris-gateway/polaris-auth-handover.tests/*')
                   {
                     echo "run auth handover..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
@@ -154,7 +154,7 @@ stages:
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write UI Plan'
+            displayName: "Terraform > Write UI Plan"
             workingDirectory: $(uiTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -218,7 +218,7 @@ stages:
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write UI Events Plan'
+            displayName: "Terraform > Write UI Events Plan"
             workingDirectory: $(uiEventsTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -246,6 +246,19 @@ stages:
               projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
               arguments: "--configuration Release"
             displayName: "Build Auth Handover"
+            condition: eq(variables.runAuthHandover, 'true')
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway/polaris-auth-handover.tests/polaris-auth-handover.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Auth Handover tests"
+            condition: eq(variables.runAuthHandover, 'true')
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-auth-handover.tests/coverage.cobertura.xml
+            artifact: AuthHandoverTestResults
+            displayName: Publish Auth Handover Test Results
             condition: eq(variables.runAuthHandover, 'true')
 
           - task: DotNetCoreCLI@2
@@ -389,7 +402,7 @@ stages:
 
           - script: |
               cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
-            displayName: 'Moving ui coverage results'
+            displayName: "Moving ui coverage results"
 
           - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
             artifact: UITestResults
@@ -407,22 +420,22 @@ stages:
           vmImage: ubuntu-latest
         steps:
           - task: DotNetCoreCLI@2
-            displayName: 'Install ReportGenerator'
+            displayName: "Install ReportGenerator"
             inputs:
               command: custom
               custom: tool
-              arguments: 'install --global dotnet-reportgenerator-globaltool'
+              arguments: "install --global dotnet-reportgenerator-globaltool"
 
           - download: current
-            patterns: '**/*.cobertura.xml'
+            patterns: "**/*.cobertura.xml"
             displayName: Retrieve published test reports
 
           - script: |
               reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
-            displayName: 'Create code coverage report'
+            displayName: "Create code coverage report"
 
           - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage report'
+            displayName: "Publish code coverage report"
             inputs:
-              codeCoverageTool: 'cobertura'
-              summaryFileLocation: '$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml'
+              codeCoverageTool: "cobertura"
+              summaryFileLocation: "$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml"

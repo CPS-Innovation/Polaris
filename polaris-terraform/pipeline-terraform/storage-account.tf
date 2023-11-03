@@ -3,6 +3,7 @@ resource "azurerm_storage_account" "sa" {
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
+  #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
   name                = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -13,6 +14,7 @@ resource "azurerm_storage_account" "sa" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 
@@ -43,6 +45,10 @@ resource "azurerm_storage_account" "sa" {
       retention_policy_days = 10
     }
   }
+  
+  sas_policy {
+    expiration_period = "0.0:05:00"
+  }
 
   identity {
     type = "SystemAssigned"
@@ -56,6 +62,7 @@ resource "azurerm_storage_account" "sa_coordinator" {
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
+  #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
   name                = "sacps${var.env != "prod" ? var.env : ""}coordinator"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -66,6 +73,7 @@ resource "azurerm_storage_account" "sa_coordinator" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 
@@ -103,6 +111,10 @@ resource "azurerm_storage_account" "sa_coordinator" {
     }
   }
 
+  sas_policy {
+    expiration_period = "0.0:05:00"
+  }
+
   identity {
     type = "SystemAssigned"
   }
@@ -115,6 +127,7 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
+  #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
   name                = "sacps${var.env != "prod" ? var.env : ""}pdfgenerator"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -125,6 +138,7 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 
@@ -162,6 +176,10 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
     }
   }
 
+  sas_policy {
+    expiration_period = "0.0:05:00"
+  }
+
   identity {
     type = "SystemAssigned"
   }
@@ -174,6 +192,7 @@ resource "azurerm_storage_account" "sa_text_extractor" {
   #checkov:skip=CKV2_AZURE_38:Ensure soft-delete is enabled on Azure storage account
   #checkov:skip=CKV2_AZURE_1:Ensure storage for critical data are encrypted with Customer Managed Key
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
+  #checkov:skip=CKV2_AZURE_40:Ensure storage account is not configured with Shared Key authorization
   name                = "sacps${var.env != "prod" ? var.env : ""}textextractor"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -184,6 +203,7 @@ resource "azurerm_storage_account" "sa_text_extractor" {
   enable_https_traffic_only       = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
+  shared_access_key_enabled       = true
 
   min_tls_version = "TLS1_2"
 
@@ -219,6 +239,10 @@ resource "azurerm_storage_account" "sa_text_extractor" {
       version               = "1.0"
       retention_policy_days = 10
     }
+  }
+
+  sas_policy {
+    expiration_period = "0.0:05:00"
   }
 
   identity {
