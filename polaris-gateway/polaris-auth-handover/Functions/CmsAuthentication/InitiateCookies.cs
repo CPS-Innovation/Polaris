@@ -14,8 +14,10 @@ using Common.Configuration;
 using Common.Wrappers.Contracts;
 using Common.Domain.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
+using Common.Logging;
 using PolarisAuthHandover.Domain.Dto;
 using PolarisAuthHandover.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
@@ -24,15 +26,20 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         private readonly IDdeiClient _ddeiClient;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
+        private readonly ILogger<InitiateCookies> _logger;
+        private readonly Guid _correlationId;
 
         public InitiateCookies(
             IDdeiClient ddeiClient,
             IJsonConvertWrapper jsonConvertWrapper,
-            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
+            ILogger<InitiateCookies> logger)
         {
             _ddeiClient = ddeiClient;
             _jsonConvertWrapper = jsonConvertWrapper;
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
+            _logger = logger;
+            _correlationId = Guid.NewGuid();
         }
 
         [FunctionName(nameof(InitiateCookies))]
@@ -40,18 +47,24 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.AuthInitialisation)] HttpRequest req)
         {
             _telemetryAugmentationWrapper.RegisterClientIp(req.GetClientIpAddress());
-            var currentCorrelationId = Guid.NewGuid();
-            _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
+            _telemetryAugmentationWrapper.RegisterCorrelationId(_correlationId);
             try
             {
-                return DetectAuthFlowMode(req) switch
+                var authFlowMode = DetectAuthFlowMode(req);
+                _logger.LogMethodFlow(_correlationId, nameof(Get), $"{authFlowMode} detected");
+
+                var redirectUrl = authFlowMode switch
                 {
-                    AuthFlowMode.PolarisAuthRedirect => await PolarisAuthRedirectMode(req, currentCorrelationId),
-                    _ => await CmsLaunchMode(req, currentCorrelationId)
+                    AuthFlowMode.PolarisAuthRedirect => await PolarisAuthRedirectMode(req, _correlationId),
+                    _ => await CmsLaunchMode(req, _correlationId)
                 };
+
+                _logger.LogMethodFlow(_correlationId, nameof(Get), $"Redirecting to {redirectUrl}");
+                return new RedirectResult(redirectUrl);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogException(nameof(Get), ex);
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
@@ -63,7 +76,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 : AuthFlowMode.CmsLaunch;
         }
 
-        private async Task<IActionResult> CmsLaunchMode(HttpRequest req, Guid correlationId)
+        private async Task<string> CmsLaunchMode(HttpRequest req, Guid correlationId)
         {
             var cmsAuthValues = await CommonAuthFlow(req, correlationId);
 
@@ -71,15 +84,22 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 ? await BuildCmsLaunchModeRedirectUrl(req, cmsAuthValues, correlationId)
                 : null;
 
-            return new RedirectResult(redirectUrl ?? CmsAuthConstants.CmsLaunchModeFallbackRedirectUrl);
+            if (redirectUrl == null)
+            {
+                LogEmptyValue(nameof(CmsLaunchMode), nameof(redirectUrl));
+                return CmsAuthConstants.CmsLaunchModeFallbackRedirectUrl;
+            }
+            else
+            {
+                return redirectUrl;
+            }
         }
 
-        private async Task<IActionResult> PolarisAuthRedirectMode(HttpRequest req, Guid correlationId)
+        private async Task<string> PolarisAuthRedirectMode(HttpRequest req, Guid correlationId)
         {
             await CommonAuthFlow(req, correlationId);
 
-            var redirectUrl = req.Query[CmsAuthConstants.PolarisUiQueryParamName];
-            return new RedirectResult(redirectUrl);
+            return req.Query[CmsAuthConstants.PolarisUiQueryParamName];
         }
 
         private async Task<string> CommonAuthFlow(HttpRequest req, Guid correlationId)
@@ -87,6 +107,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             var whitelistedCookies = ExtractWhitelistedCookies(req);
             if (whitelistedCookies == null)
             {
+                LogEmptyValue(nameof(CommonAuthFlow), nameof(whitelistedCookies));
                 return null;
             }
             _telemetryAugmentationWrapper.RegisterCmsUserId(whitelistedCookies.ExtractCmsUserId());
@@ -95,6 +116,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             var fullCmsAuthValues = await GetFullCmsAuthValues(req, whitelistedCookies, correlationId);
             if (fullCmsAuthValues == null)
             {
+                LogEmptyValue(nameof(CommonAuthFlow), nameof(fullCmsAuthValues));
                 return null;
             }
 
@@ -103,11 +125,12 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             return fullCmsAuthValues;
         }
 
-        private static string ExtractWhitelistedCookies(HttpRequest req)
+        private string ExtractWhitelistedCookies(HttpRequest req)
         {
             string cookiesString = req.Query[CmsAuthConstants.CookieQueryParamName];
             if (string.IsNullOrWhiteSpace(cookiesString))
             {
+                LogEmptyValue(nameof(ExtractWhitelistedCookies), nameof(cookiesString));
                 return null;
             }
 
@@ -120,6 +143,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
             if (string.IsNullOrWhiteSpace(whitelistedCookies))
             {
+                LogEmptyValue(nameof(ExtractWhitelistedCookies), nameof(whitelistedCookies));
                 return null;
             }
 
@@ -145,8 +169,9 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 //  it doesn't fail. So we just continue to set the cookie and let the client figure things out.
                 return _jsonConvertWrapper.SerializeObject(fullCmsAuthValues);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogException(nameof(GetFullCmsAuthValues), ex);
                 // Note 2 of 2:  there is an unhappy path that leads here.  If the cookies we have got represent a 
                 //  failed CMS login or a no longer recognised CMS Classic session then the attempt to get the Modern
                 //  token will throw.  In this case just redirect back to the client, no point even setting the cookie.
@@ -183,6 +208,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             var cmsRedirectParam = req.Query[CmsAuthConstants.CmsRedirectQueryParamName];
             if (string.IsNullOrWhiteSpace(cmsRedirectParam))
             {
+                LogEmptyValue(nameof(BuildCmsLaunchModeRedirectUrl), nameof(cmsRedirectParam));
                 return null;
             }
 
@@ -190,12 +216,14 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             var cmsParamObject = _jsonConvertWrapper.DeserializeObject<CmsHandoverParams>(decodedCmsRedirectParam);
             if (cmsParamObject == null)
             {
+                LogEmptyValue(nameof(BuildCmsLaunchModeRedirectUrl), nameof(cmsParamObject));
                 return null;
             }
 
             var caseId = cmsParamObject.CaseId;
             if (caseId == 0)
             {
+                LogEmptyValue(nameof(BuildCmsLaunchModeRedirectUrl), nameof(caseId));
                 return null;
             }
 
@@ -210,10 +238,21 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
 
                 return $"{CmsAuthConstants.CmsLaunchModeUiRootUrl}/{urnLookupResponse.Urn}/{caseId}";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogException(nameof(BuildCmsLaunchModeRedirectUrl), ex);
                 return null;
             }
+        }
+
+        private void LogEmptyValue(string methodName, string valueName)
+        {
+            _logger.LogMethodFlow(_correlationId, methodName, $"{valueName} is empty");
+        }
+
+        private void LogException(string methodName, Exception ex)
+        {
+            _logger.LogMethodError(_correlationId, methodName, ex.Message, ex);
         }
     }
 }
