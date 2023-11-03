@@ -6,10 +6,7 @@
       "default": "Warning",
       "Function": "Information",
       "Host.Aggregator": "Error",
-      "Host.Results": "Information",
-      "Host.Triggers.DurableTask": "Warning",
-      "DurableTask.AzureStorage": "Warning",
-      "DurableTask.Core": "Warning"
+      "Host.Results": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
