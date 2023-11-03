@@ -47,7 +47,7 @@ resource "azurerm_storage_account" "sa" {
   }
   
   sas_policy {
-    expiration_period = "2.12:00:00"
+    expiration_period = "0.0:05:00"
   }
 
   identity {
@@ -112,7 +112,7 @@ resource "azurerm_storage_account" "sa_coordinator" {
   }
 
   sas_policy {
-    expiration_period = "2.12:00:00"
+    expiration_period = "0.0:05:00"
   }
 
   identity {
@@ -177,7 +177,7 @@ resource "azurerm_storage_account" "sa_pdf_generator" {
   }
 
   sas_policy {
-    expiration_period = "2.12:00:00"
+    expiration_period = "0.0:05:00"
   }
 
   identity {
@@ -242,7 +242,7 @@ resource "azurerm_storage_account" "sa_text_extractor" {
   }
 
   sas_policy {
-    expiration_period = "2.12:00:00"
+    expiration_period = "0.0:05:00"
   }
 
   identity {

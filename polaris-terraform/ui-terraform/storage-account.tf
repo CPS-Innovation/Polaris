@@ -45,7 +45,7 @@ resource "azurerm_storage_account" "sacpspolaris" {
   }
 
   sas_policy {
-    expiration_period = "2.12:00:00"
+    expiration_period = "0.0:05:00"
   }
 
   identity {
