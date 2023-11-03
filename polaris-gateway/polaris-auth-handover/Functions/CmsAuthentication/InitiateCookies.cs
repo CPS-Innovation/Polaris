@@ -18,6 +18,7 @@ using Common.Logging;
 using PolarisAuthHandover.Domain.Dto;
 using PolarisAuthHandover.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {
@@ -48,15 +49,21 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
         {
             _telemetryAugmentationWrapper.RegisterClientIp(req.GetClientIpAddress());
             _telemetryAugmentationWrapper.RegisterCorrelationId(_correlationId);
+
+            _logger.LogMethodFlow(_correlationId, nameof(Get), $"Referrer: {req.Headers[HeaderNames.Referer]}");
+            _logger.LogMethodFlow(_correlationId, nameof(Get), $"Query: {req.GetLogSafeQueryString()}");
+
             try
             {
                 var authFlowMode = DetectAuthFlowMode(req);
                 _logger.LogMethodFlow(_correlationId, nameof(Get), $"{authFlowMode} detected");
 
+                var polarisCookie = await ApplyPolarisAuthCookie(req, _correlationId);
+
                 var redirectUrl = authFlowMode switch
                 {
-                    AuthFlowMode.PolarisAuthRedirect => await PolarisAuthRedirectMode(req, _correlationId),
-                    _ => await CmsLaunchMode(req, _correlationId)
+                    AuthFlowMode.PolarisAuthRedirect => await GetPolarisAuthRedirectModeRedirectUrl(req, polarisCookie, _correlationId),
+                    _ => await GetCmsLaunchModeRedirectUrl(req, polarisCookie, _correlationId)
                 };
 
                 _logger.LogMethodFlow(_correlationId, nameof(Get), $"Redirecting to {redirectUrl}");
@@ -68,46 +75,12 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
-
-        private static AuthFlowMode DetectAuthFlowMode(HttpRequest req)
-        {
-            return !string.IsNullOrEmpty(req.Query[CmsAuthConstants.PolarisUiQueryParamName])
-                ? AuthFlowMode.PolarisAuthRedirect
-                : AuthFlowMode.CmsLaunch;
-        }
-
-        private async Task<string> CmsLaunchMode(HttpRequest req, Guid correlationId)
-        {
-            var cmsAuthValues = await CommonAuthFlow(req, correlationId);
-
-            var redirectUrl = cmsAuthValues != null
-                ? await BuildCmsLaunchModeRedirectUrl(req, cmsAuthValues, correlationId)
-                : null;
-
-            if (redirectUrl == null)
-            {
-                LogEmptyValue(nameof(CmsLaunchMode), nameof(redirectUrl));
-                return CmsAuthConstants.CmsLaunchModeFallbackRedirectUrl;
-            }
-            else
-            {
-                return redirectUrl;
-            }
-        }
-
-        private async Task<string> PolarisAuthRedirectMode(HttpRequest req, Guid correlationId)
-        {
-            await CommonAuthFlow(req, correlationId);
-
-            return req.Query[CmsAuthConstants.PolarisUiQueryParamName];
-        }
-
-        private async Task<string> CommonAuthFlow(HttpRequest req, Guid correlationId)
+        private async Task<string> ApplyPolarisAuthCookie(HttpRequest req, Guid correlationId)
         {
             var whitelistedCookies = ExtractWhitelistedCookies(req);
             if (whitelistedCookies == null)
             {
-                LogEmptyValue(nameof(CommonAuthFlow), nameof(whitelistedCookies));
+                LogEmptyValue(nameof(ApplyPolarisAuthCookie), nameof(whitelistedCookies));
                 return null;
             }
             _telemetryAugmentationWrapper.RegisterCmsUserId(whitelistedCookies.ExtractCmsUserId());
@@ -116,13 +89,46 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
             var fullCmsAuthValues = await GetFullCmsAuthValues(req, whitelistedCookies, correlationId);
             if (fullCmsAuthValues == null)
             {
-                LogEmptyValue(nameof(CommonAuthFlow), nameof(fullCmsAuthValues));
+                LogEmptyValue(nameof(ApplyPolarisAuthCookie), nameof(fullCmsAuthValues));
                 return null;
             }
 
             AppendPolarisAuthCookie(req, fullCmsAuthValues);
 
             return fullCmsAuthValues;
+        }
+
+        private static AuthFlowMode DetectAuthFlowMode(HttpRequest req)
+        {
+            return !string.IsNullOrEmpty(req.Query[CmsAuthConstants.PolarisUiQueryParamName])
+                ? AuthFlowMode.PolarisAuthRedirect
+                : AuthFlowMode.CmsLaunch;
+        }
+
+        private async Task<string> GetCmsLaunchModeRedirectUrl(HttpRequest req, string polarisCookie, Guid correlationId)
+        {
+            if (polarisCookie == null)
+            {
+                LogEmptyValue(nameof(GetCmsLaunchModeRedirectUrl), nameof(polarisCookie));
+                return CmsAuthConstants.CmsLaunchModeFallbackRedirectUrl;
+            }
+
+            var redirectUrl = await BuildCmsLaunchModeRedirectUrl(req, polarisCookie, correlationId);
+
+            if (redirectUrl == null)
+            {
+                LogEmptyValue(nameof(GetCmsLaunchModeRedirectUrl), nameof(redirectUrl));
+                return CmsAuthConstants.CmsLaunchModeFallbackRedirectUrl;
+            }
+            else
+            {
+                return redirectUrl;
+            }
+        }
+
+        private Task<string> GetPolarisAuthRedirectModeRedirectUrl(HttpRequest req, string polarisCookie, Guid correlationId)
+        {
+            return Task.FromResult(req.Query[CmsAuthConstants.PolarisUiQueryParamName].ToString());
         }
 
         private string ExtractWhitelistedCookies(HttpRequest req)
@@ -191,7 +197,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     HttpOnly = true,
                     // in production we are https so we need to be restrictive with cookie characteristics 
                     Secure = true,
-                    SameSite = SameSiteMode.None
+                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None
                 }
                 : new CookieOptions
                 {
