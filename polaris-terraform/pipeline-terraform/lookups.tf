@@ -46,12 +46,6 @@ data "azurerm_subnet" "polaris_textextractor_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
-data "azurerm_subnet" "polaris_key_vault_subnet" {
-  name                 = "${var.resource_name_prefix}-keyvault-subnet"
-  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
-  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
-}
-
 data "azurerm_subnet" "polaris_gateway_subnet" {
   name                 = "${var.polaris_resource_name_prefix}-gateway-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
@@ -66,12 +60,6 @@ data "azurerm_subnet" "polaris_apps_subnet" {
 
 data "azurerm_subnet" "polaris_ci_subnet" {
   name                 = "${var.polaris_resource_name_prefix}-ci-subnet"
-  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
-  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
-}
-
-data "azurerm_subnet" "polaris_netherite_subnet" {
-  name                 = "${var.resource_name_prefix}-netherite-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }

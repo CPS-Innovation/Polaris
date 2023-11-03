@@ -35,7 +35,7 @@ resource "azurerm_private_endpoint" "pipeline_key_vault_pe" {
   name                = "${azurerm_key_vault.kv.name}-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  subnet_id           = data.azurerm_subnet.polaris_key_vault_subnet.id
+  subnet_id           = data.azurerm_subnet.polaris_sa_subnet.id
   tags                = local.common_tags
 
   private_dns_zone_group {
