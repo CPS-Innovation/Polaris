@@ -24,6 +24,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.text_extractor_scale_controller
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
@@ -55,6 +57,16 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
     unauthenticated_client_action = "AllowAnonymous"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["FUNCTIONS_EXTENSION_VERSION"],
+      app_settings["AzureWebJobsStorage"],
+      app_settings["WEBSITE_CONTENTSHARE"]
+    ]
   }
 }
 

@@ -24,6 +24,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_DNS_ALT_SERVER"                     = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"   = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTSHARE"                       = azapi_resource.pipeline_sa_coordinator_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"           = var.pipeline_logging.coordinator_scale_controller
     "AzureWebJobsStorage"                        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"         = "600"
@@ -44,6 +46,11 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "OvernightClearDownEnabled"                  = var.overnight_clear_down_enabled
     "SlidingClearDownEnabled"                    = var.sliding_clear_down_enabled
     "SlidingClearDownInputDays"                  = var.sliding_clear_down_input_days
+  }
+  
+  sticky_settings {
+    connection_string_names = ["PolarisPipelineCoordinatorBaseUrl","PolarisPipelineTextExtractorBaseUrl",
+      "PolarisPipelineTextExtractorFunctionAppKey","PolarisPipelineRedactPdfBaseUrl","PolarisPipelineRedactPdfFunctionAppKey"]
   }
 
   site_config {
@@ -68,6 +75,16 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     enabled                       = false
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
     unauthenticated_client_action = "AllowAnonymous"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["FUNCTIONS_EXTENSION_VERSION"],
+      app_settings["AzureWebJobsStorage"],
+      app_settings["WEBSITE_CONTENTSHARE"]
+    ]
   }
 }
 

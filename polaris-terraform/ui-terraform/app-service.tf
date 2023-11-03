@@ -34,7 +34,11 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"       = var.private_beta.sign_up_url
     "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"   = var.is_redaction_service_offline
   }
-
+  
+  sticky_settings {
+    app_setting_names = ["REACT_APP_CLIENT_ID","REACT_APP_GATEWAY_SCOPE"]
+  }
+  
   site_config {
     ftps_state    = "FtpsOnly"
     http2_enabled = true
@@ -74,6 +78,12 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   logs {
     detailed_error_messages = true
     failed_request_tracing  = true
+  }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["WEBSITE_CONTENTSHARE"]
+    ]
   }
 }
 

@@ -39,6 +39,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
+  
+  sticky_settings {
+    app_setting_names = ["ClientId","ClientSecret","PolarisPipelineCoordinatorBaseUrl","PolarisPipelineCoordinatorFunctionAppKey","PolarisPipelineCoordinatorDurableExtensionCode"]
+  }
 
   site_config {
     always_on     = false
@@ -88,7 +92,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   lifecycle {
     ignore_changes = [
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"]
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["WEBSITE_CONTENTSHARE"]
     ]
   }
 
