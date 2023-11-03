@@ -242,7 +242,7 @@ namespace PolarisAuthHandover.Functions.CmsAuthentication
                     CaseId = caseId
                 });
 
-                return $"{CmsAuthConstants.CmsLaunchModeUiRootUrl}/{urnLookupResponse.Urn}/{caseId}";
+                return $"{CmsAuthConstants.CmsLaunchModeUiRootUrl}/{urnLookupResponse.UrnRoot}/{caseId}";
             }
             catch (Exception ex)
             {
