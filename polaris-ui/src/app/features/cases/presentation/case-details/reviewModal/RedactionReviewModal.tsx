@@ -3,6 +3,7 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { Button } from "../../../../../common/presentation/components/Button";
 import { Table } from "govuk-react-jsx";
+import { ReactComponent as DeleteIcon } from "../../../../../common/presentation/svgs/delete.svg";
 import classes from "./RedactionReviewModal.module.scss";
 type Props = {
   //   // This is intentionally narrower than ApiResult<...> as we definitely have
@@ -29,6 +30,9 @@ export const RedactionReviewModal: React.FC<Props> = ({
   tabsState,
   handleRemoveRedaction,
 }) => {
+  const getActiveTabItem = () =>
+    tabsState.items.find((item) => item.documentId === tabsState.activeTabId);
+
   const handleCloseModal = () => {
     handleReviewRedactions(false);
   };
@@ -37,19 +41,21 @@ export const RedactionReviewModal: React.FC<Props> = ({
   // };
 
   const renderUnsavedRedactions = () => {
-    const tabItem = tabsState.items.find(
-      (item) => item.documentId === tabsState.activeTabId
-    );
+    const tabItem = getActiveTabItem();
 
-    console.log("unsavedRedactions>>", tabItem?.documentId);
+    console.log("unsavedRedactions>>", tabItem);
     const rows = tabItem?.redactionHighlights?.reduce((acc, current, index) => {
       console.log("highlight image>>", current);
       acc.push({
         cells: [
-          { children: <span>{`${index + 1}`}</span> },
           {
             children: (
-              <div>
+              <h3 className={classes.tableCell}>{`Redaction ${index + 1}`}</h3>
+            ),
+          },
+          {
+            children: (
+              <div className={classes.tableCell}>
                 {current.image ? (
                   <div
                     className={classes.imageContainer}
@@ -67,14 +73,16 @@ export const RedactionReviewModal: React.FC<Props> = ({
           },
           {
             children: (
-              <Button
-                className={classes.errorOkBtn}
-                onClick={() =>
-                  handleRemoveRedaction(tabItem?.documentId, current.id)
-                }
-              >
-                remove redaction
-              </Button>
+              <div className={classes.tableCell}>
+                <button
+                  className={classes.deleteButton}
+                  onClick={() =>
+                    handleRemoveRedaction(tabItem?.documentId, current.id)
+                  }
+                >
+                  <DeleteIcon />
+                </button>
+              </div>
             ),
           },
         ],
@@ -91,8 +99,12 @@ export const RedactionReviewModal: React.FC<Props> = ({
       ariaLabel="Search Modal"
       ariaDescription="Find your search results"
     >
-      {" "}
-      <h2 className={classes.heading}>Unsaved redactions</h2>
+      <div className={classes.modalHeader}>
+        <h1>{`"${getActiveTabItem()?.presentationFileName}" redactions`}</h1>
+      </div>
+      <div className={classes.modalSubHeader}>
+        <h2>Review your redactions</h2>
+      </div>
       <div className={classes.contentWrapper}>
         <div className={classes.tableWrapper}>{renderUnsavedRedactions()}</div>
       </div>
