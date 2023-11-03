@@ -148,7 +148,7 @@ stages:
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write Pipeline Plan'
+            displayName: "Terraform > Write Pipeline Plan"
             workingDirectory: $(pipelineTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -212,7 +212,7 @@ stages:
           # Terraform Plan
           - bash: |
               terraform plan -input=false -out=dev.tfplan -var-file="dev.tfvars"
-            displayName: 'Terraform > Write Pipeline Events Plan'
+            displayName: "Terraform > Write Pipeline Events Plan"
             workingDirectory: $(pipelineEventsTerraformWorkingDir)
             env:
               ARM_CLIENT_ID: $(innovation-development-spn-client-id)
@@ -296,16 +296,16 @@ stages:
           - task: DownloadSecureFile@1
             name: licence
             inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
+              secureFile: "Aspose.Total.NET.lic"
+            displayName: "Download Aspose Licence"
             condition: eq(variables.runPdfGenerator, 'true')
 
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
               contents: Aspose.Total.NET.lic
-              targetFolder: 'polaris-pipeline/pdf-generator'
-            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+              targetFolder: "polaris-pipeline/pdf-generator"
+            displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
             condition: eq(variables.runPdfGenerator, 'true')
 
           - task: DotNetCoreCLI@2
@@ -340,22 +340,22 @@ stages:
           vmImage: ubuntu-latest
         steps:
           - task: DotNetCoreCLI@2
-            displayName: 'Install ReportGenerator'
+            displayName: "Install ReportGenerator"
             inputs:
               command: custom
               custom: tool
-              arguments: 'install --global dotnet-reportgenerator-globaltool'
+              arguments: "install --global dotnet-reportgenerator-globaltool"
 
           - download: current
-            patterns: '**/*.cobertura.xml'
+            patterns: "**/*.cobertura.xml"
             displayName: Retrieve published test reports
 
           - script: |
               reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
-            displayName: 'Create code coverage report'
+            displayName: "Create code coverage report"
 
           - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage report'
+            displayName: "Publish code coverage report"
             inputs:
-              codeCoverageTool: 'cobertura'
-              summaryFileLocation: '$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml'
+              codeCoverageTool: "cobertura"
+              summaryFileLocation: "$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml"
