@@ -729,7 +729,6 @@ export const reducer = (
         redactedDocument?.redactionHighlights.map((item) =>
           item.id === redaction.id ? redaction : item
         ) ?? [];
-      // yArray.map(item => (item === itemToFind ? replacement : item));
 
       return {
         ...state,
