@@ -1,26 +1,11 @@
+import { useRef } from "react";
 import { Modal } from "../../../../../common/presentation/components";
-import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-import { Button } from "../../../../../common/presentation/components/Button";
 import { Table } from "govuk-react-jsx";
 import { ReactComponent as DeleteIcon } from "../../../../../common/presentation/svgs/delete.svg";
 import classes from "./RedactionReviewModal.module.scss";
 type Props = {
-  //   // This is intentionally narrower than ApiResult<...> as we definitely have
-  //   //  the Api result and means we do not have to check for the "loading" case
-  //   //  from here onwards.
-  //   caseState: SucceededApiResult<CaseDetails>;
-  //   searchTerm: CaseDetailsState["searchTerm"];
-  //   searchState: CaseDetailsState["searchState"];
-  //   pipelineState: CaseDetailsState["pipelineState"];
-  //   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
-  //   handleCloseSearchResults: CaseDetailsState["handleCloseSearchResults"];
-  //   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
-  //   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
-  //   handleUpdateFilter: CaseDetailsState["handleUpdateFilter"];
-  //   handleOpenPdf: CaseDetailsState["handleOpenPdf"];
   tabsState: CaseDetailsState["tabsState"];
-
   handleReviewRedactions: (value: boolean) => void;
   handleRemoveRedaction: (documentId: string, redactionId: string) => void;
 };
@@ -30,22 +15,30 @@ export const RedactionReviewModal: React.FC<Props> = ({
   tabsState,
   handleRemoveRedaction,
 }) => {
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
   const getActiveTabItem = () =>
     tabsState.items.find((item) => item.documentId === tabsState.activeTabId);
+
+  const getSubHeading = () => {
+    if (!tabItem.redactionHighlights.length) {
+      return `You have ${tabItem.redactionHighlights.length} unsaved redactions`;
+    }
+    if (tabItem.redactionHighlights.length === 1) {
+      return `You have ${tabItem.redactionHighlights.length} unsaved redaction,
+      review your redaction`;
+    }
+    return `You have ${tabItem.redactionHighlights.length} unsaved redactions,
+    review your redactions`;
+  };
 
   const handleCloseModal = () => {
     handleReviewRedactions(false);
   };
-  // const handleRemoveRedaction = (id: string) => {
-  //   console.log("handle remove redaction::", id);
-  // };
+
+  const tabItem = getActiveTabItem()!;
 
   const renderUnsavedRedactions = () => {
-    const tabItem = getActiveTabItem();
-
-    console.log("unsavedRedactions>>", tabItem);
     const rows = tabItem?.redactionHighlights?.reduce((acc, current, index) => {
-      console.log("highlight image>>", current);
       acc.push({
         cells: [
           {
@@ -64,7 +57,11 @@ export const RedactionReviewModal: React.FC<Props> = ({
                     <img
                       className={classes.image}
                       src={current.image}
-                      alt={"Screenshot"}
+                      alt={
+                        current.highlightType === "area"
+                          ? `Screenshot of area redaction, the redacted content is unavailable to read`
+                          : `Screenshot of text redaction, the redacted text is ${current.textContent}`
+                      }
                     />
                   </div>
                 ) : null}
@@ -76,9 +73,17 @@ export const RedactionReviewModal: React.FC<Props> = ({
               <div className={classes.tableCell}>
                 <button
                   className={classes.deleteButton}
-                  onClick={() =>
-                    handleRemoveRedaction(tabItem?.documentId, current.id)
+                  aria-label={
+                    current.highlightType === "area"
+                      ? `Delete redaction button, redacted content is unavailable to read`
+                      : `Delete redaction button, the redacted text is ${current.textContent}`
                   }
+                  onClick={() => {
+                    handleRemoveRedaction(tabItem?.documentId, current.id);
+                    if (closeBtnRef.current) {
+                      closeBtnRef.current?.focus();
+                    }
+                  }}
                 >
                   <DeleteIcon />
                 </button>
@@ -98,15 +103,20 @@ export const RedactionReviewModal: React.FC<Props> = ({
       handleClose={handleCloseModal}
       ariaLabel="Search Modal"
       ariaDescription="Find your search results"
+      forwardedRef={closeBtnRef}
     >
       <div className={classes.modalHeader}>
-        <h1>{`"${getActiveTabItem()?.presentationFileName}" redactions`}</h1>
+        <h1>{`"${tabItem?.presentationFileName}" redactions`}</h1>
       </div>
       <div className={classes.modalSubHeader}>
-        <h2>Review your redactions</h2>
+        <h2 aria-live="polite">{getSubHeading()}</h2>
       </div>
       <div className={classes.contentWrapper}>
-        <div className={classes.tableWrapper}>{renderUnsavedRedactions()}</div>
+        {!!tabItem?.redactionHighlights.length && (
+          <div className={classes.tableWrapper}>
+            {renderUnsavedRedactions()}
+          </div>
+        )}
       </div>
     </Modal>
   );

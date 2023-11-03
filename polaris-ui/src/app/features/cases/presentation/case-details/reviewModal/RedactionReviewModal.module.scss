@@ -5,17 +5,19 @@
 
 .tableWrapper {
   width: 100%;
-  max-height: 500px;
+  max-height: 37.5rem;
   overflow-y: scroll;
-  & :global(.govuk-table__row) {
+  & :global(.govuk-table__body) :global(.govuk-table__row) {
     display: flex;
-    // background-color: rgb(128, 0, 107);
-    justify-content: space-evenly;
+    justify-content: space-around;
     align-items: center;
     border-bottom: 1px solid #b1b4b6;
   }
   & :global(.govuk-table__cell) {
     border: none;
+  }
+  & :global(.govuk-table__head) {
+    display: none;
   }
 }
 
@@ -25,19 +27,19 @@
 }
 .imageContainer {
   width: 25rem;
-  height: 12.5rem;
-  overflow: hidden;
+  min-height: 10rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
+  user-select: none;
 }
 .image {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  overflow: auto;
+  max-width: 18.75rem;
+  height: 100%;
+  border: 1px dashed;
+  padding: 0.625rem;
 }
 
 .modalHeader {
@@ -51,6 +53,7 @@
 .modalSubHeader {
   display: flex;
   padding: 0 1rem;
+  border-bottom: 1px solid #b1b4b6;
 }
 
 .deleteButton {
@@ -60,7 +63,6 @@
   padding: 0;
   border: 0;
   fill: #1d70b8;
-  /* color: #d30a0a; */
   cursor: pointer;
   display: flex;
   flex-direction: column;

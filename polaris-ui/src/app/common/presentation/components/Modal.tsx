@@ -10,6 +10,7 @@ type Props = {
   ariaLabel: string;
   ariaDescription: string;
   handleClose: () => void;
+  forwardedRef?: React.RefObject<HTMLButtonElement>;
 };
 
 export const Modal: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Modal: React.FC<Props> = ({
   ariaDescription,
   type = "data",
   handleClose,
+  forwardedRef,
 }) => {
   // govuk styling seems to lead to the html element being the thing
   //  that scrolls rather than body.  We want to prevent the main content
@@ -32,6 +34,7 @@ export const Modal: React.FC<Props> = ({
     //  if we are hiding the modal. But see following comment....
     htmlElement.classList.remove(classes.stopHtmlScroll);
   }
+
   useLastFocus();
   useFocusTrap();
   useEffect(() => {
@@ -82,6 +85,7 @@ export const Modal: React.FC<Props> = ({
           {type === "data" && (
             <div className={classes.closeContainer}>
               <button
+                ref={forwardedRef}
                 data-testid="btn-modal-close"
                 type="button"
                 className={classes.dataModalClose}
@@ -101,6 +105,7 @@ export const Modal: React.FC<Props> = ({
                 className={`govuk-header__container  ${classes.alertModalHeader}`}
               >
                 <button
+                  ref={forwardedRef}
                   data-testid="btn-modal-close"
                   type="button"
                   className={classes.alertModalClose}
