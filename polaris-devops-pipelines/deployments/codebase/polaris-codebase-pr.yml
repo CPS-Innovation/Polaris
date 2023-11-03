@@ -27,7 +27,7 @@ stages:
         steps:
           - task: PowerShell@2
             inputs:
-              targetType: 'inline'
+              targetType: "inline"
               script: |
                 $files = $(git diff --name-only origin/main)
                 $temp=$files -split ' '
@@ -68,7 +68,7 @@ stages:
                     echo "run gateway..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_GATEWAY;isOutput=true]true"
                   }
-                  if ($name -like 'polaris-gateway/polaris-auth-handover/*')
+                  if ($name -like 'polaris-gateway/polaris-auth-handover/*' -Or $name -like 'polaris-gateway/polaris-auth-handover.tests/*')
                   {
                     echo "run auth handover..."
                     Write-Host "##vso[task.setvariable variable=RUN_GATEWAY_AUTH_HANDOVER;isOutput=true]true"
@@ -125,6 +125,19 @@ stages:
               projects: "polaris-gateway/polaris-auth-handover/polaris-auth-handover.csproj"
               arguments: "--configuration Release"
             displayName: "Build Auth Handover"
+            condition: eq(variables.runAuthHandover, 'true')
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "test"
+              projects: "polaris-gateway/polaris-auth-handover.tests/polaris-auth-handover.tests.csproj"
+              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+            displayName: "Run Auth Handover tests"
+            condition: eq(variables.runAuthHandover, 'true')
+
+          - publish: $(System.DefaultWorkingDirectory)/polaris-gateway/polaris-auth-handover.tests/coverage.cobertura.xml
+            artifact: AuthHandoverTestResults
+            displayName: Publish Auth Handover Test Results
             condition: eq(variables.runAuthHandover, 'true')
 
           - task: DotNetCoreCLI@2
@@ -223,16 +236,16 @@ stages:
           - task: DownloadSecureFile@1
             name: licence
             inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
+              secureFile: "Aspose.Total.NET.lic"
+            displayName: "Download Aspose Licence"
             condition: eq(variables.runPdfGenerator, 'true')
 
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
               contents: Aspose.Total.NET.lic
-              targetFolder: 'polaris-pipeline/pdf-generator'
-            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+              targetFolder: "polaris-pipeline/pdf-generator"
+            displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
             condition: eq(variables.runPdfGenerator, 'true')
 
           - task: DotNetCoreCLI@2
@@ -376,7 +389,7 @@ stages:
 
           - script: |
               cp $(System.DefaultWorkingDirectory)/polaris-ui/coverage-merged/cobertura-coverage.xml $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
-            displayName: 'Moving ui coverage results'
+            displayName: "Moving ui coverage results"
 
           - publish: $(System.DefaultWorkingDirectory)/uiresults.cobertura.xml
             artifact: UITestResults
@@ -395,14 +408,14 @@ stages:
           vmImage: ubuntu-latest
         steps:
           - task: DotNetCoreCLI@2
-            displayName: 'Install ReportGenerator'
+            displayName: "Install ReportGenerator"
             inputs:
               command: custom
               custom: tool
-              arguments: 'install --global dotnet-reportgenerator-globaltool'
+              arguments: "install --global dotnet-reportgenerator-globaltool"
 
           - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
-            displayName: 'Update PATH'
+            displayName: "Update PATH"
 
           - download: current
             patterns: '**/*.cobertura.xml'
@@ -410,10 +423,10 @@ stages:
 
           - script: |
               reportgenerator -reports:$(Pipeline.Workspace)/**/*.cobertura.xml -targetdir:$(Pipeline.Workspace)/CodeCoverage -reporttypes:Cobertura
-            displayName: 'Create code coverage report'
+            displayName: "Create code coverage report"
 
           - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage report'
+            displayName: "Publish code coverage report"
             inputs:
-              codeCoverageTool: 'cobertura'
-              summaryFileLocation: '$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml'
+              codeCoverageTool: "cobertura"
+              summaryFileLocation: "$(Pipeline.Workspace)/CodeCoverage/Cobertura.xml"

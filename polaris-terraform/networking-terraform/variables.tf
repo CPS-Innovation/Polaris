@@ -19,9 +19,6 @@ variable "location" {
 variable "vnetAddressSpace" {
 }
 
-variable "cmsServicesSubnet" {
-}
-
 variable "ddeiServicesSubnet" {
 }
 
@@ -35,9 +32,6 @@ variable "polarisPipelinePdfGeneratorSubnet" {
 }
 
 variable "polarisPipelineTextExtractorSubnet" {
-}
-
-variable "polarisPipelineKeyVaultSubnet" {
 }
 
 variable "polarisGatewaySubnet" {
@@ -70,13 +64,13 @@ variable "mockCmsServiceSubnet" {
 variable "polarisAmplsSubnet" {
 }
 
-variable "polarisPipelineNetheriteSubnet" {
-}
-
 variable "polarisPipelineSa2Subnet" {
 }
 
 variable "polarisScaleSetSubnet" {
+}
+
+variable "polarisApps2Subnet" {
 }
 
 variable "terraform_service_principal_display_name" {
