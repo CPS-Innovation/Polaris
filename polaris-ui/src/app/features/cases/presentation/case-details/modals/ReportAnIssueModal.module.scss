@@ -1,0 +1,50 @@
+.reportIssueModal {
+  width: 80%;
+  max-width: 50rem;
+  margin-left: 1rem;
+  height: 50%;
+  & :global(.govuk-form-group) {
+    width: 64%;
+  }
+  & :global(.govuk-textarea) {
+    min-height: 11.25rem;
+  }
+}
+.contentWrapper {
+  padding: 0 2rem;
+}
+
+.mainContentWrapper {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.heading {
+  display: block;
+  text-align: center;
+}
+
+.modalHeader {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid #b1b4b6;
+  background: #f3f2f1;
+  padding: 0 2rem;
+}
+
+.subHeaderWrapper {
+  display: flex;
+
+  flex-direction: column;
+}
+.modalSubHeader {
+  padding: 0;
+  margin: 0.75rem 0;
+}
+.actionWrapper {
+  display: flex;
+  align-items: baseline;
+  .saveBtn {
+    margin-right: 1rem;
+  }
+}

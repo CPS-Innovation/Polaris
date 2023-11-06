@@ -10,6 +10,7 @@ type Props = {
   ariaLabel: string;
   ariaDescription: string;
   handleClose: () => void;
+  className?: string;
 };
 
 export const Modal: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Modal: React.FC<Props> = ({
   ariaDescription,
   type = "data",
   handleClose,
+  className,
 }) => {
   // govuk styling seems to lead to the html element being the thing
   //  that scrolls rather than body.  We want to prevent the main content
@@ -61,8 +63,8 @@ export const Modal: React.FC<Props> = ({
         aria-describedby="modal-description"
         className={
           type === "data"
-            ? `${classes.modalContent} ${classes.modalContentData}`
-            : classes.modalContent
+            ? `${classes.modalContent} ${classes.modalContentData} ${className}`
+            : `${classes.modalContent} ${className}`
         }
       >
         <span id="modal-label" className={classes.modalLabel}>
