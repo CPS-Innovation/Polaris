@@ -32,8 +32,6 @@ namespace pdf_generator.Services.DocumentRedaction
         {
             try
             {
-                _logger.LogMethodEntry(correlationId, nameof(RedactPdfAsync), redactPdfRequest.ToJson());
-
                 var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
 
                 var redactedDocumentStream = _redactionProvider.Redact(documentStream, redactPdfRequest, correlationId);
@@ -55,6 +53,7 @@ namespace pdf_generator.Services.DocumentRedaction
             }
             catch (Exception ex)
             {
+                _logger.LogMethodError(correlationId, nameof(RedactPdfAsync), ex.Message, ex);
                 return new RedactPdfResponse
                 {
                     Succeeded = false,
