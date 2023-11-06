@@ -27,6 +27,9 @@ describe("useNavigationAlert hook", () => {
       presentationFileName: "MCLOVEMG3  very long",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -61,6 +64,9 @@ describe("useNavigationAlert hook", () => {
       presentationFileName: "MCLOVEMG4 test",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",

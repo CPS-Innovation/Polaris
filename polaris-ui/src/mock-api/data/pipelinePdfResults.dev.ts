@@ -22,6 +22,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 1029,
         documentType: "MG3",
@@ -43,6 +46,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 1029,
         documentType: "MG11",
@@ -64,6 +70,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 5,
         documentType: "MG5",
@@ -85,6 +94,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 6,
         documentType: "MG6",
@@ -106,6 +118,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 3,
         documentType: "MG3",
@@ -127,6 +142,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 3,
         documentType: "MG3",
@@ -148,6 +166,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: -1,
         documentType: "Other Comm (In)",
@@ -169,6 +190,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 5,
         documentType: "MG5",
@@ -191,6 +215,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 6,
         documentType: "MG6",
@@ -213,6 +240,9 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      fileExtension: ".pdf",
+      hasAttachments: false,
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 6,
         documentType: "DAC",

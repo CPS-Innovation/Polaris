@@ -36,6 +36,9 @@ export type PresentationDocumentProperties = {
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
+  fileExtension: string;
+  hasAttachments: boolean;
+  parentDocumentId: string | null;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

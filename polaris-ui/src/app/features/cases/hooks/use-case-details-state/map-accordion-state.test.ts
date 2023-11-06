@@ -447,6 +447,9 @@ describe("mapAccordionState", () => {
           presentationFileName: "foo!",
           polarisDocumentVersionId: 1,
           categoryListOrder: null,
+          fileExtension: ".pdf",
+          hasAttachments: false,
+          parentDocumentId: null,
           cmsDocType: {
             documentTypeId: 1,
             documentType: "DAC",
@@ -468,6 +471,9 @@ describe("mapAccordionState", () => {
           presentationFileName: "bar!",
           polarisDocumentVersionId: 1,
           categoryListOrder: null,
+          fileExtension: ".pdf",
+          hasAttachments: false,
+          parentDocumentId: null,
           cmsDocType: {
             documentTypeId: 2,
             documentType: "MG12",
@@ -501,6 +507,9 @@ describe("mapAccordionState", () => {
               presentationFileName: "bar!",
               polarisDocumentVersionId: 1,
               categoryListOrder: null,
+              fileExtension: ".pdf",
+              hasAttachments: false,
+              parentDocumentId: null,
               cmsDocType: {
                 documentTypeId: 2,
                 documentType: "MG12",
