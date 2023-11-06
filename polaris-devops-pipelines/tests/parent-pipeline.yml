@@ -15,7 +15,7 @@ stages:
           - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
             displayName: 'Call Child Pipeline'
             inputs:
-              buildDefinition:
+              buildDefinition: 312
               buildParameters: "test_value: staging1"
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true

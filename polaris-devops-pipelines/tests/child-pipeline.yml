@@ -12,6 +12,4 @@ stages:
         displayName: Print
         steps:
           - bash: |
-              echo "Test Value: $testValue"
-            env:
-              testValue: $(test_value)
+              echo "Test Value: $(test_value)"
