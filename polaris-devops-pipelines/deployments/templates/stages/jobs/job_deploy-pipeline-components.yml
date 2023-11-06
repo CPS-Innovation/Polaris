@@ -21,6 +21,8 @@ jobs:
   - deployment: DeployCoordinator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -48,8 +50,11 @@ jobs:
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
-                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-coordinator"
+                appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
+                deployToSlotOrASE: true
+                resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -61,6 +66,8 @@ jobs:
   - deployment: DeployPdfGenerator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -88,8 +95,11 @@ jobs:
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionApp
-                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-pdf-generator"
+                appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
+                deployToSlotOrASE: true
+                resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -101,6 +111,8 @@ jobs:
   - deployment: DeployTextGenerator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -128,8 +140,11 @@ jobs:
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
-                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-text-extractor"
+                appName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
+                deployToSlotOrASE: true
+                resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml

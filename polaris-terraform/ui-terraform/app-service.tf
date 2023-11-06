@@ -22,6 +22,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_ui_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
     "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id

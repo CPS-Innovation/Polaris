@@ -204,22 +204,6 @@ resource "azapi_resource" "polaris_sacpspolaris_proxy_file_share" {
   depends_on = [azurerm_storage_account.sacpspolaris]
 }
 
-resource "azapi_resource" "polaris_sacpspolaris_proxy_staging1_file_share" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "polaris-proxy-content-share-1"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
-
-  depends_on = [azurerm_storage_account.sacpspolaris]
-}
-
-resource "azapi_resource" "polaris_sacpspolaris_proxy_staging2_file_share" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "polaris-proxy-content-share-2"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg_polaris.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sacpspolaris.name}/fileServices/default"
-
-  depends_on = [azurerm_storage_account.sacpspolaris]
-}
-
 resource "azapi_resource" "polaris_sacpspolaris_ui_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "polaris-ui-content-share"
@@ -271,24 +255,6 @@ resource "azapi_resource" "polaris_sacpspolaris_auth_handover_staging2_file_shar
 resource "azurerm_storage_container" "polaris_proxy_content" {
   #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
   name                  = "content"
-  storage_account_name  = azurerm_storage_account.sacpspolaris.name
-  container_access_type = "private"
-
-  depends_on = [azurerm_storage_account.sacpspolaris]
-}
-
-resource "azurerm_storage_container" "polaris_proxy_staging1_content" {
-  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
-  name                  = "content-1"
-  storage_account_name  = azurerm_storage_account.sacpspolaris.name
-  container_access_type = "private"
-
-  depends_on = [azurerm_storage_account.sacpspolaris]
-}
-
-resource "azurerm_storage_container" "polaris_proxy_staging2_content" {
-  #checkov:skip=CKV2_AZURE_21:Ensure Storage logging is enabled for Blob service for read requests
-  name                  = "content-2"
   storage_account_name  = azurerm_storage_account.sacpspolaris.name
   container_access_type = "private"
 

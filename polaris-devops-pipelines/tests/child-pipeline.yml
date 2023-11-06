@@ -1,0 +1,17 @@
+﻿---
+trigger: none
+pr: none
+
+stages:
+  - stage: print_value
+    pool:
+      vmImage: ubuntu-latest
+    displayName: Print Context Value
+    jobs:
+      - job: Print
+        displayName: Print
+        steps:
+          - bash: |
+              echo "Test Value: $testValue"
+            env:
+              testValue: $(test_value)

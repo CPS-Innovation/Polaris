@@ -50,6 +50,7 @@ stages:
       stageDependsOn: Terraform_DEV
       targetBuild: PipelineTerraformBuild
       targetLabel: "DEV"
+      targetSuffix: "-dev"
       targetName: "Pipeline Terraform CI Deployment"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       coordinatorStatusUrl: $(dev-coordinator-status-url)
@@ -59,12 +60,11 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      armClientId: $(innovation-development-spn-client-id)
+      armClientSecret: $(innovation-development-spn-secret)
+      armTenantId: $(innovation-development-spn-tenant-id)
+      armSubscriptionId: $(innovation-development-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckCoordinator
-        - CheckPDFGenerator
-        - CheckTextExtractor
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
@@ -102,6 +102,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Terraform_QA
       targetBuild: PipelineTerraformBuild
+      targetSuffix: "-qa"
       targetLabel: "QA"
       targetName: "Pipeline Terraform CI Deployment"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -112,12 +113,11 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      armClientId: $(innovation-qa-spn-client-id)
+      armClientSecret: $(innovation-qa-spn-secret)
+      armTenantId: $(innovation-qa-spn-tenant-id)
+      armSubscriptionId: $(innovation-qa-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckCoordinator
-        - CheckPDFGenerator
-        - CheckTextExtractor
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
@@ -155,6 +155,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Terraform_PROD
       targetBuild: PipelineTerraformBuild
+      targetSuffix: ""
       targetLabel: "PROD"
       targetName: "Pipeline Terraform CI Deployment"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
@@ -165,12 +166,11 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      armClientId: $(innovation-prod-spn-client-id)
+      armClientSecret: $(innovation-prod-spn-secret)
+      armTenantId: $(innovation-prod-spn-tenant-id)
+      armSubscriptionId: $(innovation-prod-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckCoordinator
-        - CheckPDFGenerator
-        - CheckTextExtractor
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:

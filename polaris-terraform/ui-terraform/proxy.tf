@@ -53,10 +53,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT"                                  = "128r/s"
   }
   
-  sticky_settings {
-    app_setting_names = ["APP_ENDPOINT_DOMAIN_NAME","API_ENDPOINT_DOMAIN_NAME","AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"]
-  }
-
   site_config {
     ftps_state    = "FtpsOnly"
     http2_enabled = true

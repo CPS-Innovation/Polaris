@@ -53,6 +53,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Terraform_DEV
       targetBuild: UITerraformBuild
+      targetSuffix: "-dev"
       targetLabel: "DEV"
       targetName: "UI Terraform CI Deployment"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
@@ -64,13 +65,11 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      armClientId: $(innovation-development-spn-client-id)
+      armClientSecret: $(innovation-development-spn-secret)
+      armTenantId: $(innovation-development-spn-tenant-id)
+      armSubscriptionId: $(innovation-development-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckAuthHandover
-        - CheckGateway
-        - CheckProxy
-        - CheckSPA
 
   # run DEV e2e tests
   - template: ../templates/stages/stage_run-e2e-tests.yml
@@ -113,6 +112,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Terraform_QA
       targetBuild: UITerraformBuild
+      targetSuffix: "-qa"
       targetLabel: "QA"
       targetName: "UI Terraform CI Deployment"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
@@ -124,13 +124,11 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      armClientId: $(innovation-qa-spn-client-id)
+      armClientSecret: $(innovation-qa-spn-secret)
+      armTenantId: $(innovation-qa-spn-tenant-id)
+      armSubscriptionId: $(innovation-qa-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckAuthHandover
-        - CheckGateway
-        - CheckProxy
-        - CheckSPA
 
   # run QA e2e tests
   - template: ../templates/stages/stage_run-e2e-tests.yml
@@ -174,6 +172,7 @@ stages:
       stageDependsOn: Terraform_PROD
       targetBuild: UITerraformBuild
       targetLabel: "PROD"
+      targetSuffix: ""
       targetName: "Pipeline Terraform CI Deployment"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       authHandoverStatusUrl: $(prod-auth-handover-status-url)
@@ -184,13 +183,11 @@ stages:
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      armClientId: $(innovation-prod-spn-client-id)
+      armClientSecret: $(innovation-prod-spn-secret)
+      armTenantId: $(innovation-prod-spn-tenant-id)
+      armSubscriptionId: $(innovation-prod-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckAuthHandover
-        - CheckGateway
-        - CheckProxy
-        - CheckSPA
 
   # run PROD e2e tests
   - template: ../templates/stages/stage_run-e2e-tests.yml
