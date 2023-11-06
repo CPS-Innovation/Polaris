@@ -12,6 +12,8 @@ parameters:
     type: string
   - name: devOpsPatToken
     type: string
+  - name: targetTestEnv
+    type: string
 
 stages:
   - stage: Run_e2e_Tests_${{ parameters.targetLabel }}
@@ -39,6 +41,7 @@ stages:
             displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
             inputs:
               buildDefinition: ${{ parameters.buildDefinitionId }}
+              buildParameters: "cypress_environment: ${{ parameters.targetTestEnv }}"
               waitForQueuedBuildsToFinish: true
               cancelBuildsIfAnyFails: true
               password: "${{ parameters.devOpsPatToken }}"
