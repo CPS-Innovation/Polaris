@@ -80,7 +80,7 @@ stages:
   # Swap DEV
   - template: ../templates/stages/stage_swap-pipeline-slots.yml
     parameters:
-      buildAgent: $(dev-build-agent)
+      stageBuildAgent: $(dev-build-agent)
       targetSuffix: "-dev"
       targetBuild: PipelineTerraformBuild
       targetLabel: "DEV"
@@ -146,7 +146,7 @@ stages:
   # Swap QA
   - template: ../templates/stages/stage_swap-pipeline-slots.yml
     parameters:
-      buildAgent: $(qa-build-agent)
+      stageBuildAgent: $(qa-build-agent)
       targetSuffix: "-qa"
       targetBuild: PipelineTerraformBuild
       targetLabel: "QA"
@@ -212,7 +212,7 @@ stages:
   # Swap PROD
   - template: ../templates/stages/stage_swap-pipeline-slots.yml
     parameters:
-      buildAgent: $(prod-build-agent)
+      stageBuildAgent: $(prod-build-agent)
       targetSuffix: ""
       targetBuild: PipelineTerraformBuild
       targetLabel: "PROD"

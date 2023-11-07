@@ -1,6 +1,6 @@
 ﻿---
 parameters:
-  - name: buildAgent
+  - name: stageBuildAgent
     type: string
   - name: targetSuffix
     type: string
@@ -21,7 +21,7 @@ stages:
     dependsOn: Run_e2e_Tests_${{ parameters.targetLabel }}
     condition: succeeded()
     pool:
-      name: ${{ parameters.buildAgent }}
+      name: ${{ parameters.stageBuildAgent }}
     jobs:
       - template: jobs/job_log-start.yml
         parameters:
