@@ -1,4 +1,4 @@
-﻿#################### Staging1 ######################
+#################### Staging1 ######################
 resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
   name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_polaris_auth_handover.id
@@ -195,8 +195,8 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
     "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_staging2_file_share.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.ui_logging.gateway_scale_controller
     "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
     "TenantId"                                       = data.azurerm_client_config.current.tenant_id

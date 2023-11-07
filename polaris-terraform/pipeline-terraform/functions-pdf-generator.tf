@@ -14,25 +14,25 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   public_network_access_enabled = false
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
-    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
-    "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_pdf_generator.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_pdf_generator_file_share.name
+    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
+    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
+    "WEBSITE_CONTENTOVERVNET"                      = "1"
+    "WEBSITE_DNS_SERVER"                           = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_pdf_generator.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_pdf_generator_file_share.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.pdf_generator_scale_controller
-    "AzureWebJobsStorage"                      = azurerm_storage_account.sa_pdf_generator.primary_connection_string
-    "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                 = "documents"
-    "HteFeatureFlag"                           = var.hte_feature_flag
-    "ImageConversion__Resolution"              = var.image_conversion_redaction.resolution
-    "ImageConversion__QualityPercent"          = var.image_conversion_redaction.quality_percent
+    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.pdf_generator_scale_controller
+    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_pdf_generator.primary_connection_string
+    "BlobServiceUrl"                               = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobServiceContainerName"                     = "documents"
+    "HteFeatureFlag"                               = var.hte_feature_flag
+    "ImageConversion__Resolution"                  = var.image_conversion_redaction.resolution
+    "ImageConversion__QualityPercent"              = var.image_conversion_redaction.quality_percent
   }
 
   site_config {

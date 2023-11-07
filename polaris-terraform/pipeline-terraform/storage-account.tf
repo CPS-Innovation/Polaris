@@ -45,7 +45,7 @@ resource "azurerm_storage_account" "sa" {
       retention_policy_days = 10
     }
   }
-  
+
   sas_policy {
     expiration_period = "0.0:05:00"
   }

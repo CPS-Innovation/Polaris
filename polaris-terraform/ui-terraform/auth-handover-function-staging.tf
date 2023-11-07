@@ -1,4 +1,4 @@
-﻿#################### Staging1 ######################
+#################### Staging1 ######################
 resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging1" {
   name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_polaris_auth_handover.id

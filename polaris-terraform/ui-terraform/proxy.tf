@@ -52,7 +52,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
   }
-  
+
   site_config {
     ftps_state    = "FtpsOnly"
     http2_enabled = true

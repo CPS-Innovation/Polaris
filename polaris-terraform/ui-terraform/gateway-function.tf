@@ -21,8 +21,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.ui_logging.gateway_scale_controller
     "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
     "TenantId"                                       = data.azurerm_client_config.current.tenant_id
@@ -41,9 +41,9 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
-  
+
   sticky_settings {
-    app_setting_names = ["ClientId","ClientSecret","PolarisPipelineCoordinatorBaseUrl","PolarisPipelineCoordinatorFunctionAppKey","PolarisPipelineCoordinatorDurableExtensionCode"]
+    app_setting_names = ["ClientId", "ClientSecret", "PolarisPipelineCoordinatorBaseUrl", "PolarisPipelineCoordinatorFunctionAppKey", "PolarisPipelineCoordinatorDurableExtensionCode"]
   }
 
   site_config {
