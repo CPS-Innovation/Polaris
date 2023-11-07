@@ -5,23 +5,15 @@
   height: 50%;
   & :global(.govuk-form-group) {
     width: 64%;
+    margin-bottom: 0;
   }
   & :global(.govuk-textarea) {
     min-height: 11.25rem;
+    margin-bottom: 0.5rem;
   }
 }
 .contentWrapper {
-  padding: 0 2rem;
-}
-
-.mainContentWrapper {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.heading {
-  display: block;
-  text-align: center;
+  padding: 2rem 2rem;
 }
 
 .modalHeader {
@@ -32,19 +24,14 @@
   padding: 0 2rem;
 }
 
-.subHeaderWrapper {
-  display: flex;
-
-  flex-direction: column;
-}
-.modalSubHeader {
-  padding: 0;
-  margin: 0.75rem 0;
-}
 .actionWrapper {
   display: flex;
   align-items: baseline;
+  margin-top: 2rem;
   .saveBtn {
     margin-right: 1rem;
   }
+}
+.textAreaLabel {
+  font-weight: bold;
 }

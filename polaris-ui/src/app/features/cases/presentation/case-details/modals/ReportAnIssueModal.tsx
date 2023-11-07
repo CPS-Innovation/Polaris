@@ -55,63 +55,64 @@ export const ReportAnIssueModal: React.FC<Props> = ({
   };
   return (
     <>
-      {!showConfirmationModal && (
-        <Modal
-          isVisible={true}
-          handleClose={handleDocumentIssueModalClose}
-          className={classes.reportIssueModal}
-          ariaLabel="Report an Issue Modal"
-          ariaDescription="Report a problem with this document"
-        >
-          <div className={classes.modalHeader}>
-            <h1>{`Report a problem with: "${presentationTitle}"`}</h1>
+      <Modal
+        isVisible={!showConfirmationModal}
+        handleClose={handleDocumentIssueModalClose}
+        className={classes.reportIssueModal}
+        ariaLabel="Report an Issue Modal"
+        ariaDescription={` Report a problem with the document "${presentationTitle}"`}
+      >
+        <div className={classes.modalHeader}>
+          <h2>{`Report a problem with: "${presentationTitle}"`}</h2>
+        </div>
+        <div className={classes.contentWrapper}>
+          <div>
+            <TextArea
+              name="more-details"
+              id="more-details"
+              label={{
+                children: (
+                  <span className={classes.textAreaLabel}>
+                    Tell us what went wrong with this document
+                  </span>
+                ),
+              }}
+              onChange={handleTextAreaChange}
+              value={issueDescription}
+            />
           </div>
-          <div className={classes.contentWrapper}>
-            <div className={classes.subHeaderWrapper}>
-              <h3 className={classes.modalSubHeader}>
-                Tell us what went wrong with this document
-              </h3>
-              <span>
-                Don't include personal or sensitive information about the case
-              </span>
-            </div>
 
-            <div>
-              <TextArea
-                onChange={handleTextAreaChange}
-                value={issueDescription}
-              />
-            </div>
+          <span className={classes.additionalInfo}>
+            Don't include personal or sensitive information about the case.
+          </span>
 
-            <div className={classes.actionWrapper}>
-              <Button
-                disabled={!issueDescription}
-                className={classes.saveBtn}
-                onClick={handleIssueReporting}
-              >
-                Save and return
-              </Button>
-              <LinkButton onClick={handleDocumentIssueModalClose}>
-                Close
-              </LinkButton>
-            </div>
+          <div className={classes.actionWrapper}>
+            <Button
+              disabled={!issueDescription}
+              className={classes.saveBtn}
+              onClick={handleIssueReporting}
+            >
+              Save and return
+            </Button>
+            <LinkButton onClick={handleDocumentIssueModalClose}>
+              Close
+            </LinkButton>
           </div>
-        </Modal>
-      )}
-      {showConfirmationModal && (
-        <Modal
-          isVisible={showConfirmationModal}
+        </div>
+      </Modal>
+
+      <Modal
+        isVisible={showConfirmationModal}
+        handleClose={handleConfirmationModalClose}
+        type="alert"
+        ariaLabel="Confirmation Modal"
+        ariaDescription="Thanks for reporting an issue with this document"
+      >
+        <ConfirmationModalContent
+          message="Thanks for reporting an issue with this document."
           handleClose={handleConfirmationModalClose}
-          type="alert"
-          ariaLabel="Confirmation Modal"
-          ariaDescription="Thanks for reporting an issue with this document"
-        >
-          <ConfirmationModalContent
-            message="Thanks for reporting an issue with this document."
-            handleClose={handleConfirmationModalClose}
-          />
-        </Modal>
-      )}
+        />
+      </Modal>
     </>
   );
 };

@@ -2,6 +2,11 @@ import React from "react";
 import * as GDS from "govuk-react-jsx";
 
 type TextAreaProps = {
+  name: string;
+  id: string;
+  label: {
+    children: React.ReactNode;
+  };
   value: string;
   onChange: (value: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
