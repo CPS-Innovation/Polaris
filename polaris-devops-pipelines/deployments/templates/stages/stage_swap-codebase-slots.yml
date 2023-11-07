@@ -51,4 +51,5 @@ stages:
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
           jobDependsOn:
-            - Swap_App_Slots
+            - Swap_Pipeline_Slots
+            - Swap_UI_Slots

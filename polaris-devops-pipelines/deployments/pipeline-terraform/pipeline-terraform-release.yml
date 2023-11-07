@@ -76,11 +76,22 @@ stages:
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       targetTestEnv: "dev"
+      
+  # Swap DEV
+  - template: ../templates/stages/stage_swap-pipeline-slots.yml
+    parameters:
+      buildAgent: $(dev-build-agent)
+      targetSuffix: "-dev"
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "DEV"
+      azureSubscription: $(dev-azure-subscription)
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+      devOpsPatToken: $(devops-pat-token)
 
   - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Swap_DEV
       envLabel: "QA"
       targetBuild: PipelineTerraformBuild
       targetLabel: "QA"
@@ -131,11 +142,22 @@ stages:
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       targetTestEnv: "qa"
+      
+  # Swap QA
+  - template: ../templates/stages/stage_swap-pipeline-slots.yml
+    parameters:
+      buildAgent: $(qa-build-agent)
+      targetSuffix: "-qa"
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "QA"
+      azureSubscription: $(qa-azure-subscription)
+      appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
+      devOpsPatToken: $(devops-pat-token)
 
   - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Swap_DEV
       envLabel: "Prod"
       targetBuild: PipelineTerraformBuild
       targetLabel: "PROD"
@@ -186,3 +208,14 @@ stages:
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       targetTestEnv: "prod"
+  
+  # Swap PROD
+  - template: ../templates/stages/stage_swap-pipeline-slots.yml
+    parameters:
+      buildAgent: $(prod-build-agent)
+      targetSuffix: ""
+      targetBuild: PipelineTerraformBuild
+      targetLabel: "PROD"
+      azureSubscription: $(prod-azure-subscription)
+      appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
+      devOpsPatToken: $(devops-pat-token)

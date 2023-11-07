@@ -82,12 +82,23 @@ stages:
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       targetTestEnv: "dev"
+      
+  # Swap DEV
+  - template: ../templates/stages/stage_swap-ui-slots.yml
+    parameters:
+      buildAgent: $(dev-build-agent)
+      targetSuffix: "-dev"
+      targetBuild: UITerraformBuild
+      targetLabel: "DEV"
+      azureSubscription: $(dev-azure-subscription)
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+      devOpsPatToken: $(devops-pat-token)
 
   # deploy UI terraform to QA
   - template: ../templates/stages/stage_deploy-ui-terraform.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Swap_DEV
       envLabel: "QA"
       targetBuild: UITerraformBuild
       targetLabel: "QA"
@@ -143,12 +154,23 @@ stages:
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       targetTestEnv: "qa"
+      
+  # Swap QA
+  - template: ../templates/stages/stage_swap-ui-slots.yml
+    parameters:
+      buildAgent: $(qa-build-agent)
+      targetSuffix: "-qa"
+      targetBuild: UITerraformBuild
+      targetLabel: "QA"
+      azureSubscription: $(qa-azure-subscription)
+      appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
+      devOpsPatToken: $(devops-pat-token)
 
   # deploy UI terraform to PROD
   - template: ../templates/stages/stage_deploy-ui-terraform.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Swap_DEV
       envLabel: "Prod"
       targetBuild: UITerraformBuild
       targetLabel: "PROD"
@@ -204,3 +226,14 @@ stages:
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       targetTestEnv: "prod"
+      
+  # Swap PROD
+  - template: ../templates/stages/stage_swap-ui-slots.yml
+    parameters:
+      buildAgent: $(qa-build-agent)
+      targetSuffix: ""
+      targetBuild: UITerraformBuild
+      targetLabel: "PROD"
+      azureSubscription: $(prod-azure-subscription)
+      appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
+      devOpsPatToken: $(devops-pat-token)
