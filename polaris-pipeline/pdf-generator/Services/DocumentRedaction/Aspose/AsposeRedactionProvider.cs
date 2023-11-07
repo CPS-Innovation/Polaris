@@ -123,7 +123,11 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
             if (IsCandidateForConversion(document))
             {
                 document.Convert(
-                    new MemoryStream(), // `Convert` streams feedback here, we are not interested currently
+                    // `Convert` streams feedback here, we are not interested currently
+                    //  Note: if we let Aspose do its default behaviour it tries to write
+                    //  to a ConversionLog.xml file, which blows up in production as our azure function
+                    //  is set as read-only due to our packaged deployment.
+                    new MemoryStream(),
                     PdfFormat.v_1_7,
                     ConvertErrorAction.Delete);
             }
@@ -131,6 +135,7 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
 
         private static bool IsCandidateForConversion(Document document)
         {
+
             return (document.PdfFormat is PdfFormat.v_1_0
                         or PdfFormat.v_1_1
                         or PdfFormat.v_1_2
@@ -138,7 +143,13 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
                         or PdfFormat.v_1_4
                         or PdfFormat.v_1_5
                         or PdfFormat.v_1_6)
-                    && document.Validate(new PdfFormatConversionOptions(PdfFormat.v_1_7));
+                    && document.Validate(
+                        // `Validate` streams feedback here, we are not interested currently
+                        //  Note: if we let Aspose do its default behaviour it tries to write
+                        //  to a ConversionLog.xml file, which blows up in production as our azure function
+                        //  is set as read-only due to our packaged deployment.
+                        new MemoryStream(),
+                        PdfFormat.v_1_7);
         }
     }
 }
