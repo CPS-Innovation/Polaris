@@ -97,7 +97,7 @@ module "azurerm_app_reg_fa_pdf_generator_staging1" {
 }
 
 data "azurerm_function_app_host_keys" "ak_pdf_generator_staging1" {
-  name                = "fa-${local.global_name}-pdf-generator-staging1"
+  name                = "${azurerm_windows_function_app.fa_pdf_generator.name}/slots/${azurerm_windows_function_app_slot.fa_pdf_generator_staging1.name}"
   resource_group_name = azurerm_resource_group.rg.name
   depends_on          = [azurerm_windows_function_app_slot.fa_pdf_generator_staging1]
 }
@@ -227,7 +227,7 @@ module "azurerm_app_reg_fa_pdf_generator_staging2" {
 }
 
 data "azurerm_function_app_host_keys" "ak_pdf_generator_staging2" {
-  name                = "fa-${local.global_name}-pdf-generator-staging2"
+  name                = "${azurerm_windows_function_app.fa_pdf_generator.name}/slots/${azurerm_windows_function_app_slot.fa_pdf_generator_staging2.name}"
   resource_group_name = azurerm_resource_group.rg.name
   depends_on          = [azurerm_windows_function_app_slot.fa_pdf_generator_staging2]
 }

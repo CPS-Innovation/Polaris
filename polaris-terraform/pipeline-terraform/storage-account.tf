@@ -277,7 +277,7 @@ resource "azurerm_storage_container" "container" {
 }
 
 data "azurerm_function_app_host_keys" "fa_text_extractor_generator_host_keys" {
-  name                = "fa-${local.resource_name}-text-extractor"
+  name                = "fa-${local.global_name}-text-extractor"
   resource_group_name = azurerm_resource_group.rg.name
 
   depends_on = [azurerm_linux_function_app.fa_text_extractor]

@@ -81,7 +81,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
 }
 
 data "azurerm_function_app_host_keys" "ak_coordinator_staging1" {
-  name                = "fa-${local.global_name}-coordinator-staging1"
+  name                = "${azurerm_linux_function_app.fa_coordinator.name}/slots/${azurerm_linux_function_app_slot.fa_coordinator_staging1.name}"
   resource_group_name = azurerm_resource_group.rg.name
   depends_on          = [azurerm_linux_function_app_slot.fa_coordinator_staging1]
 }
@@ -179,8 +179,6 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
     "SlidingClearDownInputDays"                    = var.sliding_clear_down_input_days
   }
 
-
-
   site_config {
     ftps_state                             = "FtpsOnly"
     http2_enabled                          = true
@@ -217,7 +215,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
 }
 
 data "azurerm_function_app_host_keys" "ak_coordinator_staging2" {
-  name                = "fa-${local.global_name}-coordinator-staging2"
+  name                = "${azurerm_linux_function_app.fa_coordinator.name}/slots/${azurerm_linux_function_app_slot.fa_coordinator_staging2.name}"
   resource_group_name = azurerm_resource_group.rg.name
   depends_on          = [azurerm_linux_function_app_slot.fa_coordinator_staging2]
 }
