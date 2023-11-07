@@ -35,7 +35,7 @@ export const ReportAnIssueModal: React.FC<Props> = ({
       documentId: documentId,
       polarisVersionId: correlationId,
       correlationId: polarisDocumentVersionId,
-      description: issueDescription,
+      moreDetails: issueDescription,
     });
     setShowConfirmationModal(true);
     addToReportedDocuments(documentId);
