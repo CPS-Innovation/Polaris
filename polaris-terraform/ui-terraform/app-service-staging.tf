@@ -1,9 +1,7 @@
-#################### Staging1 ######################
+﻿#################### Staging1 ######################
 resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
   name                          = "staging1"
   app_service_id                = azurerm_linux_web_app.as_web_polaris.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
   tags                          = local.common_tags
   public_network_access_enabled = false
@@ -166,8 +164,6 @@ resource "azurerm_private_endpoint" "polaris_ui_staging1_pe" {
 resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
   name                          = "staging2"
   app_service_id                = azurerm_linux_web_app.as_web_polaris.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
   tags                          = local.common_tags
   public_network_access_enabled = false

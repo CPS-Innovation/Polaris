@@ -1,9 +1,7 @@
-#################### Staging1 ######################
+﻿#################### Staging1 ######################
 resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
   name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_polaris_auth_handover.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_gateway_subnet.id
   tags                          = local.common_tags
   functions_extension_version   = "~4"
@@ -26,7 +24,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "TenantId"                                       = data.azurerm_client_config.current.tenant_id
     "ClientId"                                       = module.azurerm_app_reg_fa_polaris_staging1.client_id
     "ClientSecret"                                   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_staging1_client_secret.id})"
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator-staging1.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.resource_name}-coordinator-staging1.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_staging1_host_keys.default_function_key
     "PolarisPipelineCoordinatorDurableExtensionCode" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_staging1_host_keys.durabletask_extension_key
     "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
@@ -176,8 +174,6 @@ resource "azurerm_private_endpoint" "polaris_gateway_staging1_pe" {
 resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
   name                          = "staging2"
   function_app_id               = azurerm_linux_function_app.fa_polaris_auth_handover.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_gateway_subnet.id
   tags                          = local.common_tags
   functions_extension_version   = "~4"
@@ -202,7 +198,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
     "TenantId"                                       = data.azurerm_client_config.current.tenant_id
     "ClientId"                                       = module.azurerm_app_reg_fa_polaris_staging2.client_id
     "ClientSecret"                                   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_staging2_client_secret.id})"
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator-staging2.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.resource_name}-coordinator-staging2.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_staging2_host_keys.default_function_key
     "PolarisPipelineCoordinatorDurableExtensionCode" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_staging2_host_keys.durabletask_extension_key
     "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"

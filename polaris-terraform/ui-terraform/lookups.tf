@@ -1,11 +1,11 @@
 data "azuread_client_config" "current" {}
 
 data "azuread_application" "fa_pipeline_coordinator" {
-  display_name = "fa-${local.pipeline_resource_name}-coordinator-appreg"
+  display_name = "fa-${local.resource_name}-coordinator-appreg"
 }
 
 data "azuread_application" "fa_pipeline_pdf_generator" {
-  display_name = "fa-${local.pipeline_resource_name}-pdf-generator-appreg"
+  display_name = "fa-${local.resource_name}-pdf-generator-appreg"
 }
 
 data "azuread_application" "fa_ddei" {
@@ -13,12 +13,32 @@ data "azuread_application" "fa_ddei" {
 }
 
 data "azurerm_function_app_host_keys" "fa_pipeline_coordinator_host_keys" {
-  name                = "fa-${local.pipeline_resource_name}-coordinator"
+  name                = "fa-${local.resource_name}-coordinator"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
 data "azurerm_function_app_host_keys" "fa_pipeline_pdf_generator_host_keys" {
-  name                = "fa-${local.pipeline_resource_name}-pdf-generator"
+  name                = "fa-${local.resource_name}-pdf-generator"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
+data "azurerm_function_app_host_keys" "fa_pipeline_coordinator_staging1_host_keys" {
+  name                = "fa-${local.resource_name}-coordinator-staging1"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
+data "azurerm_function_app_host_keys" "fa_pipeline_pdf_generator_staging1_host_keys" {
+  name                = "fa-${local.resource_name}-pdf-generator-staging1"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
+data "azurerm_function_app_host_keys" "fa_pipeline_coordinator_staging2_host_keys" {
+  name                = "fa-${local.resource_name}-coordinator-staging2"
+  resource_group_name = "rg-${local.pipeline_resource_name}"
+}
+
+data "azurerm_function_app_host_keys" "fa_pipeline_pdf_generator_staging2_host_keys" {
+  name                = "fa-${local.resource_name}-pdf-generator-staging2"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 

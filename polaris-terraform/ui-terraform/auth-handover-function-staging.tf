@@ -1,9 +1,7 @@
-#################### Staging1 ######################
+﻿#################### Staging1 ######################
 resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging1" {
   name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_polaris_auth_handover.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_auth_handover_subnet.id
   tags                          = local.common_tags
   functions_extension_version   = "~4"
@@ -121,8 +119,6 @@ resource "azurerm_private_endpoint" "polaris_auth_handover_staging1_pe" {
 resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging2" {
   name                          = "staging1"
   function_app_id               = azurerm_linux_function_app.fa_polaris_auth_handover.id
-  storage_account_name          = azurerm_storage_account.sacpspolaris.name
-  storage_account_access_key    = azurerm_storage_account.sacpspolaris.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_auth_handover_subnet.id
   tags                          = local.common_tags
   functions_extension_version   = "~4"
