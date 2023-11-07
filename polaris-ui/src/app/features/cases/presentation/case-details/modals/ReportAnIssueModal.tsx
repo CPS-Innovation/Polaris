@@ -71,6 +71,7 @@ export const ReportAnIssueModal: React.FC<Props> = ({
               <TextArea
                 name="more-details"
                 id="more-details"
+                data-testid="report-issue-more-details"
                 label={{
                   children: (
                     <span className={classes.textAreaLabel}>
@@ -92,10 +93,14 @@ export const ReportAnIssueModal: React.FC<Props> = ({
                 disabled={!issueDescription}
                 className={classes.saveBtn}
                 onClick={handleIssueReporting}
+                data-testid="btn-report-issue-save"
               >
                 Save and return
               </Button>
-              <LinkButton onClick={handleDocumentIssueModalClose}>
+              <LinkButton
+                dataTestId="btn-report-issue-close"
+                onClick={handleDocumentIssueModalClose}
+              >
                 Close
               </LinkButton>
             </div>
