@@ -35,3 +35,8 @@ image_conversion_redaction = {
   resolution = 150
   quality_percent = 50
 }
+
+search_service_config = {
+  replica_count = 3
+  partition_count = 1
+}

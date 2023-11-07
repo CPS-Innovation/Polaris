@@ -83,3 +83,10 @@ variable "image_conversion_redaction" {
     quality_percent = number
   })
 }
+
+variable "search_service_config" {
+  type = object({
+    replica_count = number
+    partition_count = number
+  })
+}

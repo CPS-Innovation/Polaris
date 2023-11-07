@@ -4,8 +4,8 @@ resource "azurerm_search_service" "ss" {
   resource_group_name           = azurerm_resource_group.rg.name
   location                      = azurerm_resource_group.rg.location
   sku                           = "standard"
-  replica_count                 = 3
-  partition_count               = 2 
+  replica_count                 = var.search_service_config.replica_count
+  partition_count               = var.search_service_config.partition_count
   public_network_access_enabled = false
   tags                          = local.common_tags
 }
