@@ -80,7 +80,7 @@ jobs:
 
             # Terraform Plan
             - bash: |
-                terraform plan -input=false -out=$ARM_ENV.tfplan -var-file="$ARM_ENV.tfvars"
+                terraform plan -input=false -out="$ARM_ENV.tfplan" -var-file="$ARM_ENV.tfvars"
               displayName: Terraform > Write Plan
               workingDirectory: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}
               env:
@@ -93,7 +93,7 @@ jobs:
 
             # Terraform Apply
             - bash: |
-                terraform apply -auto-approve $ARM_ENV.tfplan
+                terraform apply -auto-approve "$ARM_ENV.tfplan"
               displayName: Terraform > Apply
               workingDirectory: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}
               env:
