@@ -90,7 +90,7 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
-          dependsOn:
+          jobDependsOn:
             - LogStart
             - CheckAuthHandover
             - CheckGateway

@@ -134,7 +134,7 @@ stages:
           targetName: "Pipeline Terraform CI Deployment"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
-          dependsOn:
+          jobDependsOn:
             - ApplyPipelineTerraform
             - ApplyPipelineEventsTerraform
             - DeployCoordinator

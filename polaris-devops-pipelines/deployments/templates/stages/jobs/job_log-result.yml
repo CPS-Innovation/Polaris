@@ -10,12 +10,12 @@ parameters:
     type: string
   - name: devOpsPatToken
     type: string
-  - name: dependsOn
+  - name: jobDependsOn
     type: object
 
 jobs:
   - job: LogResult
-    dependsOn: ${{ parameters.dependsOn }}
+    dependsOn: ${{ parameters.jobDependsOn }}
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}

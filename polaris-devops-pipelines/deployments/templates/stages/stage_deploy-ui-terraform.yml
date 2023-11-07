@@ -155,7 +155,7 @@ stages:
           targetName: "UI Terraform CI Deployment"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
-          dependsOn:
+          jobDependsOn:
             - ApplyUITerraform
             - ApplyUIEventsTerraform
             - DeploySpa
