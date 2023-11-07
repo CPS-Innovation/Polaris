@@ -10,6 +10,7 @@ using System.Linq;
 using coordinator.Functions.DurableEntity.Entity;
 using Common.ValueObjects;
 using Common.Domain.Entity;
+using Microsoft.WindowsAzure.Storage;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -36,14 +37,30 @@ namespace coordinator.Functions.DurableEntity.Client
             (
                 IDurableEntityClient client,
                 string caseId,
-                Guid correlationId, 
+                Guid correlationId,
                 string loggingName,
                 ILogger log
             )
         {
             var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId);
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
-            var caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
+
+            EntityStateResponse<CaseDurableEntity> caseEntity = default;
+            try
+            {
+                caseEntity = await client.ReadEntityStateAsync<CaseDurableEntity>(caseEntityId);
+            }
+            catch (StorageException ex)
+            {
+                // #23618 - Race condition: if a case orchestrator has just been kicked off then there is a possibility that 
+                //  the entity calls that create (or reset) the entity are still queued up by the time the UI calls
+                //  this endpoint. In this scenario, a StorageException is thrown and we are told the blob does not exist.
+                //  AppInsights so far shows the orchestrator eventually executes and the entity becomes available, so
+                //  lets just let the caller have the same experience as `!caseEntity.EntityExists`
+                var errorMessage = $"No Case Entity found with id '{caseId}' with exception '{ex.Message}";
+                log.LogMethodFlow(correlationId, loggingName, errorMessage);
+                return (null, errorMessage);
+            }
 
             if (!caseEntity.EntityExists)
             {
@@ -100,13 +117,13 @@ namespace coordinator.Functions.DurableEntity.Client
 
             CaseDurableEntity entityState = stateResponse.EntityState;
             response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
-            if(response.CmsDocument == null )
+            if (response.CmsDocument == null)
             {
                 response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.PolarisDocumentId.Equals(polarisDocumentId));
 
                 if (response.PcdRequest == null)
                 {
-                    if(polarisDocumentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
+                    if (polarisDocumentId.Equals(entityState.DefendantsAndCharges.PolarisDocumentId))
                     {
                         response.DefendantsAndCharges = entityState.DefendantsAndCharges;
                     }
