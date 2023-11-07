@@ -21,6 +21,8 @@ jobs:
   - deployment: DeployCoordinator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
+    workspace:
+      clean: all
     variables:
       slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
