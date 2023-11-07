@@ -72,6 +72,11 @@ stages:
           statusCheckRetries: ${{ parameters.statusCheckRetries }}
           statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
           statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          
           jobDependsOn:
             - GenerateSlotName
 
