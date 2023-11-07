@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
-import {
-  FeedbackButton,
-  FeedbackButtonProps,
-} from "../../../../../common/presentation/components/feedback/FeedbackButton";
+import { FeedbackButton } from "../../../../../common/presentation/components/feedback/FeedbackButton";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
 import classes from "./HeaderReadMode.module.scss";

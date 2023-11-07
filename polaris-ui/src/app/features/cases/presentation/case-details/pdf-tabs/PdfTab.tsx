@@ -60,7 +60,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     isDeleted,
     isSaving,
     cmsDocType: { documentType },
-    polarisDocumentVersionId,
   } = caseDocumentViewModel;
 
   const searchHighlights =
