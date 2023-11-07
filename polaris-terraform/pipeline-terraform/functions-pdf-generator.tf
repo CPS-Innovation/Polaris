@@ -45,7 +45,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {
-      dotnet_version = "6.0"
+      dotnet_version = "v6.0"
     }
   }
 
