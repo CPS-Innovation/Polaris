@@ -9,8 +9,7 @@ parameters:
 
 jobs:
   - job: Swap_Pipeline_Slots
-    dependsOn:
-      - ${{ parameters.jobDependsOn }}
+    dependsOn: ${{ parameters.jobDependsOn }}
     variables:
       slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:

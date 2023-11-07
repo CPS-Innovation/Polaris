@@ -7,8 +7,7 @@ parameters:
 
 jobs:
   - job: GenerateSlotName
-    dependsOn:
-      ${{ parameters.jobDependsOn }}
+    dependsOn: ${{ parameters.jobDependsOn }}
     steps:
       - bash: |
           slotNum=0
