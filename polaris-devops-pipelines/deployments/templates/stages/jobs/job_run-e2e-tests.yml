@@ -1,0 +1,27 @@
+﻿---
+parameters:
+  - name: targetLabel
+    type: string
+  - name: buildDefinitionId
+    type: string
+  - name: targetTestEnv
+    type: string
+  - name: devOpsPatToken
+    type: string
+  - name: jobDependsOn
+    type: object
+
+jobs:
+  - job: RunE2ETests
+    dependsOn: ${{ parameters.jobDependsOn }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    steps:
+      - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+        displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
+        inputs:
+          buildDefinition: ${{ parameters.buildDefinitionId }}
+          buildParameters: "cypress_environment: ${{ parameters.targetTestEnv }}-$(slotName)"
+          waitForQueuedBuildsToFinish: true
+          cancelBuildsIfAnyFails: true
+          password: "${{ parameters.devOpsPatToken }}"

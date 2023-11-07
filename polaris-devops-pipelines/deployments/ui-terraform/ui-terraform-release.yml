@@ -77,9 +77,11 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       targetBuild: UITerraformBuild
       targetLabel: "DEV"
+      targetName: "e2e Tests"
       buildDefinitionId: 129
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      targetTestEnv: "dev"
 
   # deploy UI terraform to QA
   - template: ../templates/stages/stage_deploy-ui-terraform.yml
@@ -136,9 +138,11 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       targetBuild: UITerraformBuild
       targetLabel: "QA"
+      targetName: "e2e Tests"
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      targetTestEnv: "qa"
 
   # deploy UI terraform to PROD
   - template: ../templates/stages/stage_deploy-ui-terraform.yml
@@ -195,6 +199,8 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       targetBuild: UITerraformBuild
       targetLabel: "PROD"
+      targetName: "e2e Tests"
       buildDefinitionId: 240
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      targetTestEnv: "prod"

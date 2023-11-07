@@ -6,6 +6,8 @@ parameters:
     type: string
   - name: targetLabel
     type: string
+  - name: targetName
+    type: string
   - name: buildDefinitionId
     type: string
   - name: appInsightsKey
@@ -25,37 +27,35 @@ stages:
         pool:
           name: ${{ parameters.stageBuildAgent }}
         steps:
-          # download scripts artifact
-          - download: ${{ parameters.targetBuild }}
-            displayName: Download Scripts
-            artifact: 'polaris-script-files'
-
-          # send custom event to AppInsights
-          - template: jobs/steps/tasks/task_send-to-app-insights.yml
+          - template: jobs/job_log-start.yml
             parameters:
-              appInsightsKey: ${{ parameters.appInsightsKey }}
               targetBuild: ${{ parameters.targetBuild }}
-              message: "${{ parameters.targetLabel }} e2e Tests: Started"
-
-          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
-            displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
-            inputs:
-              buildDefinition: ${{ parameters.buildDefinitionId }}
-              buildParameters: "cypress_environment: ${{ parameters.targetTestEnv }}"
-              waitForQueuedBuildsToFinish: true
-              cancelBuildsIfAnyFails: true
-              password: "${{ parameters.devOpsPatToken }}"
-
-          # send custom event to AppInsights
-          - template: jobs/steps/tasks/task_send-to-app-insights.yml
-            parameters:
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: ${{ parameters.targetName }}
               appInsightsKey: ${{ parameters.appInsightsKey }}
-              targetBuild: ${{ parameters.targetBuild }}
-              message: "${{ parameters.targetLabel }} e2e Tests: Completed"
 
-          - template: jobs/steps/tasks/task_send-failure-to-app-insights.yml
+          - template: jobs/job_generate-slot-name.yml
             parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              jobDependsOn:
+                - LogStart
+                  
+          - template: jobs/job_run-e2e-tests.yml
+            parameters:
+              targetLabel: ${{ parameters.targetLabel }}
+              buildDefinitionId: ${{ parameters.buildDefinitionId }}
+              targetTestEnv: ${{ parameters.targetTestEnv }}
+              devOpsPatToken: ${{ parameters.devOpsPatToken }}
+              jobDependsOn:
+                - GenerateSlotName
+                
+          - template: jobs/job_log-result.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetLabel: ${{ parameters.targetLabel }}
+              targetName: ${{ parameters.targetName }}
               appInsightsKey: ${{ parameters.appInsightsKey }}
               devOpsPatToken: ${{ parameters.devOpsPatToken }}
-              targetBuild: ${{ parameters.targetBuild }}
-              message: "${{ parameters.targetLabel }} e2e Tests: Failed"
+              dependsOn:
+                - LogStart
+                - RunE2ETests

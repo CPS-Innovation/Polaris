@@ -71,9 +71,11 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       targetBuild: PipelineTerraformBuild
       targetLabel: "DEV"
+      targetName: "e2e Tests"
       buildDefinitionId: 129
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      targetTestEnv: "dev"
 
   - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
     parameters:
@@ -124,9 +126,11 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       targetBuild: PipelineTerraformBuild
       targetLabel: "QA"
+      targetName: "e2e Tests"
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      targetTestEnv: "qa"
 
   - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
     parameters:
@@ -177,6 +181,8 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       targetBuild: PipelineTerraformBuild
       targetLabel: "PROD"
+      targetName: "e2e Tests"
       buildDefinitionId: 240
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      targetTestEnv: "prod"
