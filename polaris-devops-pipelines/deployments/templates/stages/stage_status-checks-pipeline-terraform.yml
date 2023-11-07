@@ -64,6 +64,7 @@ stages:
       - template: jobs/job_check-pipeline-components.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
+          targetSuffix: ${{ parameters.targetSuffix }}
           targetLabel: ${{ parameters.targetLabel }}
           coordinatorStatusUrl: ${{ parameters.coordinatorStatusUrl }}
           pdfGeneratorStatusUrl: ${{ parameters.pdfGeneratorStatusUrl }}

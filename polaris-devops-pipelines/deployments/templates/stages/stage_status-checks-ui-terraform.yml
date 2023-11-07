@@ -66,6 +66,7 @@ stages:
       - template: jobs/job_check-ui-components.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
+          targetSuffix: ${{ parameters.targetSuffix }}
           targetLabel: ${{ parameters.targetLabel }}
           authHandoverStatusUrl: ${{ parameters.authHandoverStatusUrl }}
           gatewayStatusUrl: ${{ parameters.gatewayStatusUrl }}
