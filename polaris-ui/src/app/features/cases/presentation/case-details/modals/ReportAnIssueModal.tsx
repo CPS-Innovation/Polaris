@@ -72,6 +72,14 @@ export const ReportAnIssueModal: React.FC<Props> = ({
                 name="more-details"
                 id="more-details"
                 data-testid="report-issue-more-details"
+                hint={{
+                  children: (
+                    <span>
+                      Don't include personal or sensitive information about the
+                      case.
+                    </span>
+                  ),
+                }}
                 label={{
                   children: (
                     <span className={classes.textAreaLabel}>
@@ -83,10 +91,6 @@ export const ReportAnIssueModal: React.FC<Props> = ({
                 value={issueDescription}
               />
             </div>
-
-            <span className={classes.additionalInfo}>
-              Don't include personal or sensitive information about the case.
-            </span>
 
             <div className={classes.actionWrapper}>
               <Button
