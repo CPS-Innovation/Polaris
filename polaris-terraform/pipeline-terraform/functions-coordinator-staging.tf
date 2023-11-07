@@ -134,7 +134,7 @@ resource "azurerm_private_endpoint" "pipeline_coordinator_staging1_pe" {
 
 #################### Staging2 ######################
 resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
-  name                          = "staging1"
+  name                          = "staging2"
   function_app_id               = azurerm_linux_function_app.fa_coordinator.id
   storage_account_name          = azurerm_storage_account.sa_coordinator.name
   storage_account_access_key    = azurerm_storage_account.sa_coordinator.primary_access_key

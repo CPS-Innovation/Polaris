@@ -99,7 +99,7 @@ module "azurerm_app_reg_fa_pdf_generator_staging1" {
 data "azurerm_function_app_host_keys" "ak_pdf_generator_staging1" {
   name                = "${azurerm_windows_function_app.fa_pdf_generator.name}/slots/${azurerm_windows_function_app_slot.fa_pdf_generator_staging1.name}"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_windows_function_app_slot.fa_pdf_generator_staging1]
+  depends_on          = [azurerm_windows_function_app.fa_pdf_generator,azurerm_windows_function_app_slot.fa_pdf_generator_staging1]
 }
 
 resource "azuread_application_password" "faap_fa_pdf_generator_app_service_staging1" {
@@ -229,7 +229,7 @@ module "azurerm_app_reg_fa_pdf_generator_staging2" {
 data "azurerm_function_app_host_keys" "ak_pdf_generator_staging2" {
   name                = "${azurerm_windows_function_app.fa_pdf_generator.name}/slots/${azurerm_windows_function_app_slot.fa_pdf_generator_staging2.name}"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_windows_function_app_slot.fa_pdf_generator_staging2]
+  depends_on          = [azurerm_windows_function_app.fa_pdf_generator,azurerm_windows_function_app_slot.fa_pdf_generator_staging2]
 }
 
 resource "azuread_application_password" "faap_fa_pdf_generator_app_service_staging2" {
