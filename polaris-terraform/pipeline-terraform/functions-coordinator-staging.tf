@@ -83,7 +83,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
 data "azurerm_function_app_host_keys" "ak_coordinator_staging1" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}/slots/${azurerm_linux_function_app_slot.fa_coordinator_staging1.name}"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_linux_function_app_slot.fa_coordinator_staging1]
+  depends_on          = [azurerm_linux_function_app.fa_coordinator,azurerm_linux_function_app_slot.fa_coordinator_staging1]
 }
 
 module "azurerm_app_reg_fa_coordinator_staging1" {
@@ -217,7 +217,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
 data "azurerm_function_app_host_keys" "ak_coordinator_staging2" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}/slots/${azurerm_linux_function_app_slot.fa_coordinator_staging2.name}"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_linux_function_app_slot.fa_coordinator_staging2]
+  depends_on          = [azurerm_linux_function_app.fa_coordinator,azurerm_linux_function_app_slot.fa_coordinator_staging2]
 }
 
 module "azurerm_app_reg_fa_coordinator_staging2" {

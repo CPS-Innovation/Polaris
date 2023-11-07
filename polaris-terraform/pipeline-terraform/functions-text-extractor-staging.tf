@@ -97,9 +97,9 @@ module "azurerm_app_reg_fa_text_extractor_staging1" {
 }
 
 data "azurerm_function_app_host_keys" "ak_text_extractor_staging1" {
-  name                = "${azurerm_linux_function_app.fa_text_extractor.name}/slots/${azurerm_linux_function_app_slot.fa_coordinator_staging1.name}"
+  name                = "${azurerm_linux_function_app.fa_text_extractor.name}/slots/${azurerm_linux_function_app_slot.fa_text_extractor_staging1.name}"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_linux_function_app_slot.fa_text_extractor_staging1]
+  depends_on          = [azurerm_linux_function_app.fa_text_extractor,azurerm_linux_function_app_slot.fa_text_extractor_staging1]
 }
 
 resource "azuread_application_password" "faap_fa_text_extractor_app_service_staging1" {
@@ -229,7 +229,7 @@ module "azurerm_app_reg_fa_text_extractor_staging2" {
 data "azurerm_function_app_host_keys" "ak_text_extractor_staging2" {
   name                = "${azurerm_linux_function_app.fa_text_extractor.name}/slots/${azurerm_linux_function_app_slot.fa_text_extractor_staging2.name}"
   resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_linux_function_app_slot.fa_text_extractor_staging2]
+  depends_on          = [azurerm_linux_function_app.fa_text_extractor,azurerm_linux_function_app_slot.fa_text_extractor_staging2]
 }
 
 resource "azuread_application_password" "faap_fa_text_extractor_app_service_staging2" {
