@@ -89,6 +89,7 @@ describe("useCaseDetailsState", () => {
         handleTabSelection,
         handleCloseErrorModal,
         handleUnLockDocuments,
+        handleShowHideDocumentIssueModal,
         ...stateProperties
       } = result.current;
 

@@ -41,12 +41,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = "" //set in deployment script
     "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
-    "DOCKER_REGISTRY_SERVER_URL"                      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
-    "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
-    "DOCKER_REGISTRY_SERVER_PASSWORD"                 = data.azurerm_container_registry.polaris_container_registry.admin_password
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}::${md5(file("polaris-script.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
@@ -57,8 +54,10 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     ftps_state    = "FtpsOnly"
     http2_enabled = true
     application_stack {
-      docker_image     = "nginx"
-      docker_image_tag = "latest"
+      docker_image_name        = "nginx:latest"
+      docker_registry_url      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
+      docker_registry_username = data.azurerm_container_registry.polaris_container_registry.admin_username
+      docker_registry_password = data.azurerm_container_registry.polaris_container_registry.admin_password
     }
     always_on                               = true
     vnet_route_all_enabled                  = true

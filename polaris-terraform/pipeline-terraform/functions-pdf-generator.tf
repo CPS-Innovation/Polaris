@@ -1,7 +1,7 @@
 #################### Functions ####################
 
 resource "azurerm_windows_function_app" "fa_pdf_generator" {
-  name                          = "fa-${local.global_name}-pdf-generator"
+  name                          = "fa-${local.resource_name}-pdf-generator"
   location                      = azurerm_resource_group.rg.location
   resource_group_name           = azurerm_resource_group.rg.name
   service_plan_id               = azurerm_service_plan.asp_polaris_pipeline_ep_pdf_generator.id
@@ -14,25 +14,23 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   public_network_access_enabled = false
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
-    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_pdf_generator.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_pdf_generator_file_share.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.pdf_generator_scale_controller
-    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_pdf_generator.primary_connection_string
-    "BlobServiceUrl"                               = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                     = "documents"
-    "HteFeatureFlag"                               = var.hte_feature_flag
-    "ImageConversion__Resolution"                  = var.image_conversion_redaction.resolution
-    "ImageConversion__QualityPercent"              = var.image_conversion_redaction.quality_percent
+    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
+    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
+    "WEBSITE_CONTENTOVERVNET"                  = "1"
+    "WEBSITE_DNS_SERVER"                       = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_pdf_generator.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_pdf_generator_file_share.name
+    "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.pdf_generator_scale_controller
+    "AzureWebJobsStorage"                      = azurerm_storage_account.sa_pdf_generator.primary_connection_string
+    "BlobServiceUrl"                           = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobServiceContainerName"                 = "documents"
+    "HteFeatureFlag"                           = var.hte_feature_flag
+    "ImageConversion__Resolution"              = var.image_conversion_redaction.resolution
+    "ImageConversion__QualityPercent"          = var.image_conversion_redaction.quality_percent
   }
 
   site_config {
@@ -44,9 +42,6 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     app_scale_limit                        = var.pipeline_component_service_plans.pdf_generator_maximum_scale_out_limit
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
-    application_stack {
-      dotnet_version = "v6.0"
-    }
   }
 
   identity {
@@ -58,22 +53,12 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     issuer                        = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/"
     unauthenticated_client_action = "AllowAnonymous"
   }
-
-  lifecycle {
-    ignore_changes = [
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
-      app_settings["FUNCTIONS_EXTENSION_VERSION"],
-      app_settings["AzureWebJobsStorage"],
-      app_settings["WEBSITE_CONTENTSHARE"]
-    ]
-  }
 }
 
 module "azurerm_app_reg_fa_pdf_generator" {
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-pdf-generator-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-pdf-generator"]
+  display_name            = "fa-${local.resource_name}-pdf-generator-appreg"
+  identifier_uris         = ["api://fa-${local.resource_name}-pdf-generator"]
   prevent_duplicate_names = true
   #use this code for adding app_roles
   /*app_role = [
@@ -97,12 +82,6 @@ module "azurerm_app_reg_fa_pdf_generator" {
   }]
 
   tags = ["terraform"]
-}
-
-data "azurerm_function_app_host_keys" "ak_pdf_generator" {
-  name                = "fa-${local.global_name}-pdf-generator"
-  resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_windows_function_app.fa_pdf_generator]
 }
 
 resource "azuread_application_password" "faap_fa_pdf_generator_app_service" {
