@@ -140,4 +140,4 @@ stages:
             - DeployCoordinator
             - DeployPdfGenerator
             - DeployTextGenerator
-            - UpdateDurableExtensionCode
+            - UpdatePipelineComponentAppKeys

@@ -162,4 +162,4 @@ stages:
             - DeployGateway
             - DeployAuthHandover
             - SetLogAnalyticsArchivalPeriods
-            - UpdateGatewayCoordinatorKeys
+            - UpdateUIComponentAppKeys
