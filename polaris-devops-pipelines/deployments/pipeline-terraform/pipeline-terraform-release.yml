@@ -75,7 +75,6 @@ stages:
       buildDefinitionId: 129
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
-      targetTestEnv: "dev"
       
   # Swap DEV
   - template: ../templates/stages/stage_swap-pipeline-slots.yml
@@ -141,7 +140,6 @@ stages:
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
-      targetTestEnv: "qa"
       
   # Swap QA
   - template: ../templates/stages/stage_swap-pipeline-slots.yml
@@ -207,8 +205,7 @@ stages:
       buildDefinitionId: 240
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
-      targetTestEnv: "prod"
-  
+      
   # Swap PROD
   - template: ../templates/stages/stage_swap-pipeline-slots.yml
     parameters:
