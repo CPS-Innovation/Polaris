@@ -24,7 +24,7 @@ parameters:
     type: object
 
 jobs:
-  - deployment: UpdateGatewayCoordinatorKeys
+  - deployment: UpdateUIAppKeys
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
