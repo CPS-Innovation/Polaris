@@ -45,6 +45,9 @@ export const initialState = {
     show: false,
     message: "",
   },
+  documentIssueModal: {
+    show: false,
+  },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -261,6 +264,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleShowHideDocumentIssueModal = useCallback(
+    (value: boolean) =>
+      dispatch({
+        type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL",
+        payload: value,
+      }),
+    [dispatch]
+  );
+
   const handleUnLockDocuments = useCallback(
     (documentIds: CaseDocumentViewModel["documentId"][]) =>
       dispatch({
@@ -287,5 +299,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleSavedRedactions,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleShowHideDocumentIssueModal,
   };
 };
