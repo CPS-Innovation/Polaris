@@ -27,8 +27,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "ClientId"                                       = module.azurerm_app_reg_fa_polaris.client_id
     "ClientSecret"                                   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
-    "PolarisPipelineCoordinatorDurableExtensionCode" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.durabletask_extension_key
+    "PolarisPipelineCoordinatorFunctionAppKey"       = "" //set in deployment script
+    "PolarisPipelineCoordinatorDurableExtensionCode" = "" //set in deployment script
     "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                              = "documents"
     "BlobExpirySecs"                                 = 3600
@@ -37,7 +37,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
     "CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
     "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiAccessKey"                                  = "" //set in deployment script
   }
 
   site_config {

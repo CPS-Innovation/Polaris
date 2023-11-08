@@ -45,7 +45,7 @@ resource "azurerm_storage_account" "sa" {
       retention_policy_days = 10
     }
   }
-  
+
   sas_policy {
     expiration_period = "0.0:05:00"
   }
@@ -274,13 +274,6 @@ resource "azurerm_storage_container" "container" {
   storage_account_name  = azurerm_storage_account.sa.name
   container_access_type = "private"
   depends_on            = [azurerm_storage_account.sa]
-}
-
-data "azurerm_function_app_host_keys" "fa_text_extractor_generator_host_keys" {
-  name                = "fa-${local.resource_name}-text-extractor"
-  resource_group_name = azurerm_resource_group.rg.name
-
-  depends_on = [azurerm_linux_function_app.fa_text_extractor]
 }
 
 # Create Private Endpoint for Blobs
