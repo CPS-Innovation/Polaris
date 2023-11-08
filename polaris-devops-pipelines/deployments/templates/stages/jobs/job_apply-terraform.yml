@@ -41,6 +41,8 @@ jobs:
   - deployment: Apply${{ parameters.terraformType }}Terraform
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
+    workspace:
+      clean: all
     strategy:
       runOnce:
         deploy:

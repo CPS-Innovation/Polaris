@@ -21,6 +21,8 @@ jobs:
   - deployment: DeploySpa
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
+    workspace:
+      clean: all
     strategy:
       runOnce:
         deploy:

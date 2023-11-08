@@ -43,14 +43,18 @@ jobs:
                 targetBuild: ${{ parameters.targetBuild }}
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Update Coordinator App Keys in Gateway - Started"
 
-            # Set Durable Extension Code app setting, post Coordinator creation
+            # Set Durable Extension Code app settings
             - bash: |
                 az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
                 az account set --subscription $ARM_SUBSCRIPTION_ID
-                default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris-pipeline$ARM_SUFFIX-coordinator --query 'functionKeys.default' --output tsv)
-                durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris-pipeline$ARM_SUFFIX-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
-                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-gateway --resource-group rg-polaris$ARM_SUFFIX --settings "PolarisPipelineCoordinatorFunctionAppKey=$default_code"
-                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-gateway --resource-group rg-polaris$ARM_SUFFIX --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+                coordinator_default_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris-pipeline$ARM_SUFFIX-coordinator --query 'functionKeys.default' --output tsv)
+                coordinator_durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris-pipeline$ARM_SUFFIX-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+                ddei_default_code=$(az functionapp keys list --resource-group rg-polaris-ddei$ARM_SUFFIX --name fa-polaris-ddei$ARM_SUFFIX --query 'functionKeys.default' --output tsv)
+                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-gateway --resource-group rg-polaris$ARM_SUFFIX --settings "PolarisPipelineCoordinatorFunctionAppKey=$coordinator_default_code"
+                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-gateway --resource-group rg-polaris$ARM_SUFFIX --settings "PolarisPipelineCoordinatorDurableExtensionCode=$coordinator_durable_code"
+                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-gateway --resource-group rg-polaris$ARM_SUFFIX --settings "DdeiAccessKey=$ddei_default_code"
+                az webapp config appsettings set --name polaris$ARM_SUFFIX-cmsproxy --resource-group rg-polaris$ARM_SUFFIX --settings "DDEI_ENDPOINT_FUNCTION_APP_KEY=$ddei_default_code"
+                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-auth-handover --resource-group rg-polaris$ARM_SUFFIX --settings "DdeiAccessKey=$ddei_default_code"
               displayName: Script > Update Coordinator Keys In Gateway Config
               env:
                 ARM_CLIENT_ID: ${{ parameters.armClientId }}

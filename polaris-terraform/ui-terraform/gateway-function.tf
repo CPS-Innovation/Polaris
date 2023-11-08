@@ -21,14 +21,15 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
+    "WEBSITE_RUN_FROM_PACKAGE"                       = "1"
     "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.ui_logging.gateway_scale_controller
     "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
     "TenantId"                                       = data.azurerm_client_config.current.tenant_id
     "ClientId"                                       = module.azurerm_app_reg_fa_polaris.client_id
     "ClientSecret"                                   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
     "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.pipeline_resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorFunctionAppKey"       = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.default_function_key
-    "PolarisPipelineCoordinatorDurableExtensionCode" = data.azurerm_function_app_host_keys.fa_pipeline_coordinator_host_keys.durabletask_extension_key
+    "PolarisPipelineCoordinatorFunctionAppKey"       = "" //set in deployment script
+    "PolarisPipelineCoordinatorDurableExtensionCode" = "" //set in deployment script
     "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobContainerName"                              = "documents"
     "BlobExpirySecs"                                 = 3600
@@ -37,7 +38,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
     "CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
     "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiAccessKey"                                  = "" //set in deployment script
   }
 
   site_config {
@@ -88,7 +89,13 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   lifecycle {
     ignore_changes = [
       app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"]
+      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
+      app_settings["FUNCTIONS_EXTENSION_VERSION"],
+      app_settings["AzureWebJobsStorage"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["PolarisPipelineCoordinatorFunctionAppKey"],
+      app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
+      app_settings["DdeiAccessKey"]
     ]
   }
 

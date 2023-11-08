@@ -84,12 +84,6 @@ module "azurerm_app_reg_fa_pdf_generator" {
   tags = ["terraform"]
 }
 
-data "azurerm_function_app_host_keys" "ak_pdf_generator" {
-  name                = "fa-${local.resource_name}-pdf-generator"
-  resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_windows_function_app.fa_pdf_generator]
-}
-
 resource "azuread_application_password" "faap_fa_pdf_generator_app_service" {
   application_object_id = module.azurerm_app_reg_fa_pdf_generator.object_id
   end_date_relative     = "17520h"
@@ -131,24 +125,4 @@ resource "azurerm_private_endpoint" "pipeline_pdf_generator_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_dns_a" {
-  name                = azurerm_windows_function_app.fa_pdf_generator.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_pdf_generator_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
-# Create DNS A to match for SCM record for SCM deployments
-resource "azurerm_private_dns_a_record" "pipeline_pdf_generator_scm_dns_a" {
-  name                = "${azurerm_windows_function_app.fa_pdf_generator.name}.scm"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_pdf_generator_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
 }

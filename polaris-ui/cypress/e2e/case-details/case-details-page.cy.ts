@@ -440,12 +440,28 @@ describe("case details page", () => {
       cy.findByTestId("btn-report-issue-0").should("exist");
       cy.findByTestId("btn-report-issue-0").contains("Report an issue");
       cy.findByTestId("btn-report-issue-0").click();
-      cy.findByTestId("btn-report-issue-0").contains("Issue reported");
-      cy.findByTestId("btn-report-issue-0").should("be.disabled");
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "MCLOVEMG3"`);
+      cy.findByTestId("btn-report-issue-save").should("be.disabled");
+      cy.findByTestId("btn-report-issue-close").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("btn-report-issue-0").contains("Report an issue");
+      cy.findByTestId("btn-report-issue-0").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "MCLOVEMG3"`);
+      cy.findByTestId("btn-report-issue-save").should("be.disabled");
+      cy.findByTestId("report-issue-more-details").type("hello");
+      cy.findByTestId("btn-report-issue-save").should("not.be.disabled");
+      cy.findByTestId("btn-report-issue-save").click();
+
       cy.findByTestId("div-modal")
         .should("exist")
         .contains("Thanks for reporting an issue with this document.");
-      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("btn-feedback-modal-ok").click();
+      cy.findByTestId("btn-report-issue-0").contains("Issue reported");
+      cy.findByTestId("btn-report-issue-0").should("be.disabled");
       cy.findByTestId("div-modal").should("not.exist");
       cy.findByTestId("tab-remove").click();
       cy.findByTestId("link-document-1").click();
@@ -648,7 +664,18 @@ describe("case details page", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.findByTestId("btn-report-issue-0").click();
-      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains(`Report a problem with: "MCLOVEMG3"`);
+      cy.findByTestId("btn-report-issue-save").should("be.disabled");
+      cy.findByTestId("report-issue-more-details").type("hello");
+      cy.findByTestId("btn-report-issue-save").should("not.be.disabled");
+      cy.findByTestId("btn-report-issue-save").click();
+
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("Thanks for reporting an issue with this document.");
+      cy.findByTestId("btn-feedback-modal-ok").click();
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").click();
       cy.findByTestId("tab-remove").focus();

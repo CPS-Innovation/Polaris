@@ -84,12 +84,6 @@ module "azurerm_app_reg_fa_text_extractor" {
   tags = ["terraform"]
 }
 
-data "azurerm_function_app_host_keys" "ak_text_extractor" {
-  name                = "fa-${local.resource_name}-text-extractor"
-  resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_linux_function_app.fa_text_extractor]
-}
-
 resource "azuread_application_password" "faap_fa_text_extractor_app_service" {
   application_object_id = module.azurerm_app_reg_fa_text_extractor.object_id
   end_date_relative     = "17520h"
@@ -131,24 +125,4 @@ resource "azurerm_private_endpoint" "pipeline_text_extractor_pe" {
     is_manual_connection           = false
     subresource_names              = ["sites"]
   }
-}
-
-# Create DNS A Record
-resource "azurerm_private_dns_a_record" "pipeline_text_extractor_dns_a" {
-  name                = azurerm_linux_function_app.fa_text_extractor.name
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_text_extractor_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
-}
-
-# Create DNS A to match for SCM record for SCM deployments
-resource "azurerm_private_dns_a_record" "pipeline_text_extractor_scm_dns_a" {
-  name                = "${azurerm_linux_function_app.fa_text_extractor.name}.scm"
-  zone_name           = data.azurerm_private_dns_zone.dns_zone_apps.name
-  resource_group_name = "rg-${var.networking_resource_name_suffix}"
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.pipeline_text_extractor_pe.private_service_connection.0.private_ip_address]
-  tags                = local.common_tags
 }

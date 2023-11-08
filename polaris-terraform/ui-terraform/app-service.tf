@@ -75,6 +75,12 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     detailed_error_messages = true
     failed_request_tracing  = true
   }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["WEBSITE_CONTENTSHARE"]
+    ]
+  }
 }
 
 module "azurerm_app_reg_as_web_polaris" {
