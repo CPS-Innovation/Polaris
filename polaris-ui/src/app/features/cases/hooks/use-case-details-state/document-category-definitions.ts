@@ -5,7 +5,13 @@ import {
   sortAscendingByDocumentTypeAndCreationDate,
   sortAscendingByListOrderAndId,
   isUnusedCommunicationMaterial,
+  getCommunicationsSubCategory,
 } from "./document-category-helpers";
+
+export enum CommunicationSubCategory {
+  catA = "Emails",
+  catB = "Communication files",
+}
 
 const docTypeTest = (
   caseDocument: PresentationDocumentProperties,
@@ -16,15 +22,18 @@ const docTypeTest = (
 
 const documentCategoryDefinitions: {
   category: string;
+  subCategory: string[];
   showIfEmpty: boolean;
   testFn: (caseDocument: PresentationDocumentProperties) => boolean;
   sortFn: (
     caseDocuments: PresentationDocumentProperties[]
   ) => PresentationDocumentProperties[];
+  subCategoryFn?: (caseDocument: PresentationDocumentProperties) => string;
 }[] = [
   // todo: when we know, write the `test` logic to identify which document goes in which section
   {
     category: "Reviews",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       // todo: PCD are artificial documents, write a unit test for this
@@ -34,6 +43,7 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Case overview",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -44,6 +54,7 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Statements",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       doc.cmsDocType.documentCategory !== "UnusedStatement" &&
@@ -53,6 +64,7 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Exhibits",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -66,12 +78,14 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Forensics",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) => docTypeTest(doc, [1027, 1048, 1049, 1203]),
     sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Unused material",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       isUnusedCommunicationMaterial(
@@ -85,6 +99,7 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Defendant",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(doc, [1056, 1057, 1058, 225357, 225638, 225654]),
@@ -92,6 +107,7 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Court preparation",
+    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -106,6 +122,7 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Communications",
+    subCategory: [CommunicationSubCategory.catA, CommunicationSubCategory.catB],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -133,10 +150,12 @@ const documentCategoryDefinitions: {
         ]
       ),
     sortFn: sortDocumentsByCreatedDate,
+    subCategoryFn: getCommunicationsSubCategory,
   },
   // have Uncategorised last so it can scoop up any unmatched documents
   {
     category: "Uncategorised",
+    subCategory: [],
     showIfEmpty: false,
     testFn: (doc) =>
       docTypeTest(doc, [1051, 1052, 1053, 1054]) ||
@@ -151,8 +170,22 @@ export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
   ({ category }) => category
 );
 
-export const getCategory = (item: PresentationDocumentProperties) =>
-  documentCategoryDefinitions.find(({ testFn: test }) => test(item))!.category;
+export const getCategory = (item: PresentationDocumentProperties) => {
+  let subCategory;
+  const category = documentCategoryDefinitions.find(({ testFn: test }) =>
+    test(item)
+  )!.category;
+  const categoryDef = documentCategoryDefinitions.find(
+    ({ category: categoryName }) => categoryName === category
+  )!;
+  if (categoryDef.subCategoryFn) {
+    subCategory = categoryDef.subCategoryFn(item);
+  }
+  return {
+    category,
+    subCategory,
+  };
+};
 
 export const getCategorySort = (item: AccordionDocumentSection) =>
   documentCategoryDefinitions.find(

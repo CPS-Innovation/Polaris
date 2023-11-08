@@ -94,7 +94,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
-      fileExtension: ".pdf",
+      fileExtension: ".hte",
       hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
@@ -118,7 +118,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
-      fileExtension: ".pdf",
+      fileExtension: ".hte",
       hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {

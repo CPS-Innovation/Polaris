@@ -1,4 +1,5 @@
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
+import { CommunicationSubCategory } from "./document-category-definitions";
 
 export const sortDocumentsByCreatedDate = (
   cmsDocuments: PresentationDocumentProperties[],
@@ -117,4 +118,11 @@ export const isUnusedCommunicationMaterial = (
   }
 
   return false;
+};
+
+export const getCommunicationsSubCategory = (
+  doc: PresentationDocumentProperties
+): CommunicationSubCategory => {
+  if (doc.fileExtension === ".hte") return CommunicationSubCategory.catA;
+  return CommunicationSubCategory.catB;
 };

@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from "react";
 import { AccordionDocument } from "./AccordionDocument";
 import classes from "./Accordion.module.scss";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
@@ -29,9 +30,58 @@ export const AccordionSection: React.FC<Props> = ({
   handleToggleOpenSection,
   handleOpenPdf,
 }) => {
+  const groupIntoSubCategory = useCallback(() => {
+    return docs.reduce((acc, doc) => {
+      if (doc.presentationSubCategory) {
+        if (!acc[`${doc.presentationSubCategory}`]) {
+          acc[`${doc.presentationSubCategory}`] = [doc];
+        } else {
+          acc[`${doc.presentationSubCategory}`].push(doc);
+        }
+      }
+      return acc;
+    }, {} as Record<string, MappedCaseDocument[]>);
+  }, [docs]);
+
+  const subCategories = useMemo(() => {
+    return groupIntoSubCategory();
+  }, [groupIntoSubCategory]);
+
   const documentsWithLimitedView = () => {
     return docs.filter((doc) => doc.presentationFlags?.read !== "Ok");
   };
+
+  const renderAccordionDocument = (
+    docs: MappedCaseDocument[],
+    subCategoryName?: string
+  ) => {
+    return (
+      <>
+        {subCategoryName && <h3>{subCategoryName}</h3>}
+        <div className={`${classes["accordion-section-document"]}`}>
+          {!docs.length ? (
+            <div className={`${classes["accordion-section-no-document"]}`}>
+              No Documents
+            </div>
+          ) : (
+            <div>
+              <ul className={`${classes["accordion-document-list"]}`}>
+                {docs.map((caseDocument) => (
+                  <AccordionDocument
+                    key={caseDocument.documentId}
+                    caseDocument={caseDocument}
+                    handleOpenPdf={handleOpenPdf}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </>
+    );
+  };
+
+  console.log("subCategoreis >>", subCategories);
   return (
     <div
       className={
@@ -58,30 +108,11 @@ export const AccordionSection: React.FC<Props> = ({
             Some documents for this case are only available in CMS
           </span>
         )}
-
-        <div className={`${classes["accordion-section-document"]}`}>
-          {!docs.length ? (
-            <div className={`${classes["accordion-section-no-document"]}`}>
-              No Documents
-            </div>
-          ) : (
-            <div>
-              <span className={`${classes["accordion-document-date-title"]}`}>
-                Date added
-              </span>
-
-              <ul className={`${classes["accordion-document-list"]}`}>
-                {docs.map((caseDocument) => (
-                  <AccordionDocument
-                    key={caseDocument.documentId}
-                    caseDocument={caseDocument}
-                    handleOpenPdf={handleOpenPdf}
-                  />
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        {Object.keys(subCategories).length
+          ? Object.keys(subCategories).map((subCategory) =>
+              renderAccordionDocument(subCategories[subCategory], subCategory)
+            )
+          : renderAccordionDocument(docs)}
       </div>
     </div>
   );
