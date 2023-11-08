@@ -24,7 +24,7 @@ parameters:
     type: object
 
 jobs:
-  - deployment: UpdateDurableExtensionCode
+  - deployment: UpdatePipelineAppKeys
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
