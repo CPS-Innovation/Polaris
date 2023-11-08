@@ -84,12 +84,6 @@ module "azurerm_app_reg_fa_text_extractor" {
   tags = ["terraform"]
 }
 
-data "azurerm_function_app_host_keys" "ak_text_extractor" {
-  name                = "fa-${local.resource_name}-text-extractor"
-  resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_linux_function_app.fa_text_extractor]
-}
-
 resource "azuread_application_password" "faap_fa_text_extractor_app_service" {
   application_object_id = module.azurerm_app_reg_fa_text_extractor.object_id
   end_date_relative     = "17520h"

@@ -79,7 +79,7 @@ variable "hte_feature_flag" {
 
 variable "image_conversion_redaction" {
   type = object({
-    resolution = number
+    resolution      = number
     quality_percent = number
   })
 }
