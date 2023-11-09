@@ -50,7 +50,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Pipeline_Terraform_DEV
       envLabel: "Dev"
-      targetBuild: UITerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "DEV"
       targetSuffix: "-dev"
       targetPlanName: "dev"
@@ -131,7 +131,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Pipeline_Terraform_QA
       envLabel: "QA"
-      targetBuild: UITerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "QA"
       targetSuffix: "-qa"
       targetPlanName: "qa"
@@ -212,7 +212,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Pipeline_Terraform_PROD
       envLabel: "Prod"
-      targetBuild: UITerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "PROD"
       targetSuffix: ""
       targetPlanName: "prod"
