@@ -13,16 +13,6 @@ data "azurerm_linux_function_app" "fa_text_extractor" {
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
 
-data "azurerm_linux_function_app" "fa_text_extractor_staging1" {
-  name                = "fa-${local.polaris_resource_name}-text-extractor-staging1"
-  resource_group_name = "rg-${local.pipeline_resource_name}"
-}
-
-data "azurerm_linux_function_app" "fa_text_extractor_staging2" {
-  name                = "fa-${local.polaris_resource_name}-text-extractor-staging2"
-  resource_group_name = "rg-${local.pipeline_resource_name}"
-}
-
 data "azurerm_storage_container" "pipeline_storage_container" {
   name                 = "documents"
   storage_account_name = "sacps${var.env != "prod" ? var.env : ""}polarispipeline"
