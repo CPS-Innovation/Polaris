@@ -1,0 +1,103 @@
+let OperationCmsBackends = datatable(OperationName: string, IsClassic: bool, IsModern: bool)[
+    "GetDocumentFromFileStore", true, false,
+    "ListCases", false, true,
+    "GetCase", true, true,
+    "GetCmsAuthValues", true, false,
+    "LookupUrn", false, true,
+    "ListDocuments", false, true,
+    "CheckoutDocument", false, true,
+    "UploadDocument", false, true,
+    "CancelCheckoutDocument", false, true
+]
+;
+
+let AR = AppRequests
+| where AppRoleName == 'fa-polaris-ddei'
+| where OperationName !in ("Ping", "SimulatedCmsLoginPageSubmit", "DevelopmentTimeFullCookiePost")
+| project 
+    TimeGenerated, 
+    OperationName, 
+    OperationId, 
+    ResultCode,
+    CmsUserId = toint(Properties.CmsUserId)
+;
+
+let FailedCalls = materialize(AR
+| where ResultCode !in (200, 201, 409)
+| where OperationName != "GetCmsAuthValues"
+| extend 
+    FailedOperationId = OperationId,
+    FailedTimeGenerated = TimeGenerated
+| partition hint.strategy = native by OperationId ( top 1 by TimeGenerated)
+) 
+
+;
+
+
+let AuthCallsBase = materialize(AR
+| where ResultCode in (200, 201, 409)
+| where OperationName == "GetCmsAuthValues")
+;
+
+let AuthCallsPre = AuthCallsBase 
+| extend 
+    AuthTimeGeneratedPre = TimeGenerated
+;
+
+let AuthCallsPost = AuthCallsBase
+| extend 
+    AuthTimeGeneratedPost = TimeGenerated
+;
+
+let OkCalls = AR
+| where ResultCode in (200, 201, 409)
+| join kind=leftouter OperationCmsBackends on OperationName
+//| where OperationName != "GetCmsAuthValues"
+| extend 
+    OkTimeGenerated = TimeGenerated
+;
+
+let LastAuthCalls = FailedCalls
+| join kind = leftouter AuthCallsPre on CmsUserId
+| where AuthTimeGeneratedPre < FailedTimeGenerated
+| summarize 
+    LastAuthTimeGenerated =  max(AuthTimeGeneratedPre)
+    by CmsUserId, FailedOperationId
+;
+
+let LastOkCalls = FailedCalls
+| join kind = leftouter OkCalls on CmsUserId
+| where OkTimeGenerated < FailedTimeGenerated
+| summarize 
+    LastOkTimeGenerated = max(OkTimeGenerated),
+    LastOkClassicTimeGenerated = maxif(OkTimeGenerated, IsClassic),
+    LastOkModernTimeGenerated = maxif(OkTimeGenerated, IsModern)
+    by CmsUserId, FailedOperationId
+;
+
+let NextAuthCalls = FailedCalls
+| join kind = leftouter AuthCallsPost on CmsUserId
+| where AuthTimeGeneratedPost > FailedTimeGenerated
+| summarize 
+    NextAuthTimeGenerated =  min(AuthTimeGeneratedPost)
+    by CmsUserId, FailedOperationId
+;
+
+FailedCalls
+| join kind = leftouter LastAuthCalls on FailedOperationId
+| join kind = leftouter LastOkCalls on FailedOperationId
+| join kind = leftouter NextAuthCalls on FailedOperationId
+| project
+    OperationId = FailedOperationId,
+    TimeGenerated = FailedTimeGenerated,
+    LastAuthTimeGenerated,
+    LastOkTimeGenerated,
+    LastOkClassicTimeGenerated,
+    LastOkModernTimeGenerated,
+    NextAuthTimeGenerated,
+    MinutesSinceLastAuthTimeGenerated = datetime_diff("minute", FailedTimeGenerated, LastAuthTimeGenerated),
+    MinutesSinceLastOkTimeGenerated = datetime_diff("minute", FailedTimeGenerated, LastOkTimeGenerated),
+    MinutesSinceLastOkClassicTimeGenerated = datetime_diff("minute", FailedTimeGenerated, LastOkClassicTimeGenerated),
+    MinutesSinceLastOkModernTimeGenerated = datetime_diff("minute", FailedTimeGenerated, LastOkModernTimeGenerated),
+    MinutesUntilNextAuthTimeGenerated = datetime_diff("minute", NextAuthTimeGenerated, FailedTimeGenerated)
+;

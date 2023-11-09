@@ -1,11 +1,11 @@
 data "azuread_client_config" "current" {}
 
 data "azuread_application" "fa_pipeline_coordinator" {
-  display_name = "fa-${local.pipeline_resource_name}-coordinator-appreg"
+  display_name = "fa-${local.resource_name}-coordinator-appreg"
 }
 
 data "azuread_application" "fa_pipeline_pdf_generator" {
-  display_name = "fa-${local.pipeline_resource_name}-pdf-generator-appreg"
+  display_name = "fa-${local.resource_name}-pdf-generator-appreg"
 }
 
 data "azuread_application" "fa_ddei" {

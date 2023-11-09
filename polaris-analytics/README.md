@@ -7,6 +7,8 @@ Useful for disaster recovery and tracking changes.
 
 ## Steps
 
-- In the terminal use `az login` to log in to our tenant.
 - Make sure the `const`s at the top of the `Program.cs` file are accurate (there shouldn't be much reason for these to change).
+- In the terminal use `az login` to log in to our tenant.
+- Verify you are attached to the prod subscription with `az account show`.
+  - If not attached to prod then `az account set --subscription Innovation_Production`
 - `cd app` then `dotnet run` to run the export.
