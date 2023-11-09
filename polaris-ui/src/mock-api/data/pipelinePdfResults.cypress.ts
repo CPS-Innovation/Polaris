@@ -23,7 +23,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 1,
@@ -47,7 +46,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 1019,
@@ -71,7 +69,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 1012,
@@ -95,7 +92,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 4,
@@ -119,7 +115,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 5,
@@ -143,7 +138,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 1029,
@@ -165,7 +159,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 7,
@@ -189,7 +182,6 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 4,
@@ -257,7 +249,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 3,
@@ -281,7 +273,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 11,
@@ -305,7 +297,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 5,
@@ -329,7 +321,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 6,
@@ -353,7 +345,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 3,
@@ -386,7 +378,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 3,
@@ -410,7 +402,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 11,
@@ -434,7 +426,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 5,
@@ -458,7 +450,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 6,
@@ -482,7 +474,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 3,

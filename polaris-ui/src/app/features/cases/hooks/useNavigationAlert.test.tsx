@@ -28,7 +28,7 @@ describe("useNavigationAlert hook", () => {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+      attachments: [],
       parentDocumentId: null,
       presentationFlags: {
         read: "Ok",
@@ -65,7 +65,7 @@ describe("useNavigationAlert hook", () => {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      hasAttachments: false,
+      attachments: [],
       parentDocumentId: null,
       presentationFlags: {
         read: "Ok",

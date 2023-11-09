@@ -30,13 +30,17 @@ describe("mapDocumentsState", () => {
       data: [
         {
           ...doc1,
+          attachments: [],
           presentationCategory: "category0",
           presentationFileName: "foo",
+          presentationSubCategory: undefined,
         },
         {
           ...doc2,
+          attachments: [],
           presentationCategory: "category1",
           presentationFileName: "bar",
+          presentationSubCategory: undefined,
         },
       ] as MappedCaseDocument[],
     };

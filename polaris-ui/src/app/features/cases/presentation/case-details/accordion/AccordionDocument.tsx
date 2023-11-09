@@ -22,6 +22,13 @@ export const AccordionDocument: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
+  const getAttachmentText = () => {
+    if (caseDocument.attachments.length === 1) {
+      return "1 attachment";
+    }
+    return `${caseDocument.attachments.length} attachments`;
+  };
+
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>
       <div className={`${classes["accordion-document-item-wrapper"]}`}>
@@ -55,6 +62,9 @@ export const AccordionDocument: React.FC<Props> = ({
               CommonDateTimeFormats.ShortDateTextMonth
             )}
         </span>
+        {!!caseDocument.attachments.length && (
+          <span>{getAttachmentText()}</span>
+        )}
       </div>
       {!canViewDocument && (
         <span

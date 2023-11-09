@@ -37,7 +37,6 @@ export type PresentationDocumentProperties = {
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
   fileExtension: string;
-  hasAttachments: boolean;
   parentDocumentId: string | null;
 };
 

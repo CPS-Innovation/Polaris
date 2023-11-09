@@ -448,8 +448,8 @@ describe("mapAccordionState", () => {
           polarisDocumentVersionId: 1,
           categoryListOrder: null,
           fileExtension: ".pdf",
-          hasAttachments: false,
           parentDocumentId: null,
+          attachments: [],
           cmsDocType: {
             documentTypeId: 1,
             documentType: "DAC",
@@ -472,7 +472,7 @@ describe("mapAccordionState", () => {
           polarisDocumentVersionId: 1,
           categoryListOrder: null,
           fileExtension: ".pdf",
-          hasAttachments: false,
+          attachments: [],
           parentDocumentId: null,
           cmsDocType: {
             documentTypeId: 2,
@@ -508,7 +508,7 @@ describe("mapAccordionState", () => {
               polarisDocumentVersionId: 1,
               categoryListOrder: null,
               fileExtension: ".pdf",
-              hasAttachments: false,
+              attachments: [],
               parentDocumentId: null,
               cmsDocType: {
                 documentTypeId: 2,

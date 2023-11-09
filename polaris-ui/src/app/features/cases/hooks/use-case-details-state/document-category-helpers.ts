@@ -126,3 +126,20 @@ export const getCommunicationsSubCategory = (
   if (doc.fileExtension === ".hte") return CommunicationSubCategory.catA;
   return CommunicationSubCategory.catB;
 };
+
+export const getDocumentAttachments = (
+  item: PresentationDocumentProperties,
+  docs: PresentationDocumentProperties[]
+) => {
+  if (item.fileExtension !== ".hte") return [];
+
+  const attachments = docs
+    .filter((doc) => doc.parentDocumentId === item.documentId)
+    .map(({ documentId, presentationTitle }) => {
+      return {
+        documentId: documentId,
+        name: presentationTitle,
+      };
+    });
+  return attachments;
+};
