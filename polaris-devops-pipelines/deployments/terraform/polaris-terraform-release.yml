@@ -80,10 +80,10 @@ stages:
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      statusCheckMethod: $(status-check-method)
-      statusCheckRetries: $(status-check-retries)
-      statusCheckDelaySeconds: $(status-check-delay-seconds)
-      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      statusCheckMethod: "GET"
+      statusCheckRetries: "30"
+      statusCheckDelaySeconds: "15"
+      statusCheckTimeoutSeconds: "60"
       armClientId: $(innovation-development-spn-client-id)
       armClientSecret: $(innovation-development-spn-secret)
       armTenantId: $(innovation-development-spn-tenant-id)
@@ -161,10 +161,10 @@ stages:
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      statusCheckMethod: $(status-check-method)
-      statusCheckRetries: $(status-check-retries)
-      statusCheckDelaySeconds: $(status-check-delay-seconds)
-      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      statusCheckMethod: "GET"
+      statusCheckRetries: "30"
+      statusCheckDelaySeconds: "15"
+      statusCheckTimeoutSeconds: "60"
       armClientId: $(innovation-qa-spn-client-id)
       armClientSecret: $(innovation-qa-spn-secret)
       armTenantId: $(innovation-qa-spn-tenant-id)
@@ -242,10 +242,10 @@ stages:
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      statusCheckMethod: $(status-check-method)
-      statusCheckRetries: $(status-check-retries)
-      statusCheckDelaySeconds: $(status-check-delay-seconds)
-      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
+      statusCheckMethod: "GET"
+      statusCheckRetries: "30"
+      statusCheckDelaySeconds: "15"
+      statusCheckTimeoutSeconds: "60"
       armClientId: $(innovation-prod-spn-client-id)
       armClientSecret: $(innovation-prod-spn-secret)
       armTenantId: $(innovation-prod-spn-tenant-id)
