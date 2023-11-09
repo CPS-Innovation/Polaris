@@ -1,0 +1,10 @@
+Polaris_Exceptions_List
+| where IsKnownBug startswith "23611"
+| extend OperationId = extract('\\["([^"]+)"\\]', 1, tostring(OperationId))
+| join (AppTraces| where AppRoleName =="fa-polaris-auth-handover") on OperationId
+| where Message contains "Method"
+| where Message contains "Query: "
+| project PolarisCorrelationId, OperationId, TimeGenerated, Message = replace_regex(Message, "[('{]?[a-fA-F0-9]{8}[-]?([a-fA-F0-9]{4}[-]?){3}[a-fA-F0-9]{12}[}')]?:", "")
+| extend Cookie = url_decode(extract("cookie=([^&'$]+)", 1, Message))
+| extend Q = url_decode(extract("q=([^&'$]+)", 1, Message))
+| extend Referer = extract("referer=([^&'$]+)", 1, Message)
