@@ -67,5 +67,9 @@ namespace Common.Domain.Entity
 
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
+
+        [JsonProperty("cmsParentDocumentId")]
+        [AdaptIgnore]
+        public string CmsParentDocumentId { get; set; }
     }
 }

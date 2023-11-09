@@ -200,7 +200,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                     updatedDefendantsAndCharges = incomingDefendantsAndCharges;
             }
 
-            var deletedDefendantsAndCharges = (DefendantsAndCharges != null && incomingDefendantsAndCharges == null);
+            var deletedDefendantsAndCharges = DefendantsAndCharges != null && incomingDefendantsAndCharges == null;
 
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
@@ -226,6 +226,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.PresentationTitle,
                         newDocument.IsOcrProcessed,
                         newDocument.CategoryListOrder,
+                        newDocument.ParentDocumentId,
                         newDocument.PresentationFlags
                     );
 

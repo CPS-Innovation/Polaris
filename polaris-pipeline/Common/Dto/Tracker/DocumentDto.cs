@@ -8,7 +8,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Common.Dto.Tracker
 {
-    public class DocumentDto 
+    public class DocumentDto
     {
         public DocumentDto()
         { }
@@ -68,5 +68,21 @@ namespace Common.Dto.Tracker
 
         [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
+
+        [JsonIgnore]
+        public PolarisDocumentId PolarisParentDocumentId { get; set; }
+
+        [JsonProperty("polarisParentDocumentId")]
+        public string PolarisParentDocumentIdValue
+        {
+            get
+            {
+                return PolarisParentDocumentId.ToString();
+            }
+            set
+            {
+                PolarisParentDocumentId = new PolarisDocumentId(value);
+            }
+        }
     }
 }
