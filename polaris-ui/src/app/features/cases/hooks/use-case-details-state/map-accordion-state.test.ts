@@ -457,6 +457,7 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
+          polarisParentDocumentId: null,
         },
         {
           documentId: "2",
@@ -478,6 +479,7 @@ describe("mapAccordionState", () => {
             read: "Ok",
             write: "Ok",
           },
+          polarisParentDocumentId: null,
         },
       ],
     };
@@ -511,6 +513,7 @@ describe("mapAccordionState", () => {
                 read: "Ok",
                 write: "Ok",
               },
+              polarisParentDocumentId: null,
             },
           ],
         },

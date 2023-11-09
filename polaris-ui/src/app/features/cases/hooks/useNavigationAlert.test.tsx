@@ -41,6 +41,7 @@ describe("useNavigationAlert hook", () => {
       ],
       sasUrl: undefined,
       url: undefined,
+      polarisParentDocumentId: null,
     },
     {
       clientLockedState: "unlocked",
@@ -74,8 +75,8 @@ describe("useNavigationAlert hook", () => {
         },
       ],
       sasUrl: undefined,
-
       url: undefined,
+      polarisParentDocumentId: null,
     },
   ];
 
