@@ -19,6 +19,7 @@ import "@cypress/code-coverage/support";
 import "cypress-hmr-restarter";
 import "cypress-real-events";
 import { setupMockApi } from "../../src/mock-api/browser";
+import "cypress-axe";
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
@@ -49,7 +50,12 @@ declare global {
       overrideRoute(
         apiRoute: string,
         response:
-          | { type: "break"; httpStatusCode: number; body?: any }
+          | {
+              type: "break";
+              httpStatusCode: number;
+              timeMs?: number;
+              body?: any;
+            }
           | { type: "delay"; timeMs: number }
           | { type?: false; body: any },
         method?: "get" | "post" | "put"

@@ -21,7 +21,11 @@ export const RedactionWarning: React.FC<Props> = ({ documentWriteStatus }) => {
     }
   };
   return (
-    <div className={classes.redactionWarning} data-testid="redaction-warning">
+    <div
+      className={classes.redactionWarning}
+      data-testid="redaction-warning"
+      aria-live="polite"
+    >
       {getWarningText(documentWriteStatus)}
     </div>
   );

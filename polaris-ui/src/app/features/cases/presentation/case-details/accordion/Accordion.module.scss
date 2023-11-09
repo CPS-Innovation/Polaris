@@ -23,11 +23,12 @@
   }
 }
 
-.accordion .accordion-section[aria-expanded="false"] .accordion-section-body {
+.accordion .accordionSectionClosed .accordion-section-body {
   display: none;
 }
 
 .accordion {
+  position: relative;
   border-bottom-width: 0.0625rem;
   border-bottom-color: #bfc1c3;
   border-bottom-style: solid;
@@ -103,7 +104,7 @@
   margin-top: 0.9375rem;
 }
 
-.accordion .accordion-section[aria-expanded="true"] .icon {
+.accordion .accordionSectionOpened .icon {
   background-position: 0 0;
 }
 
@@ -160,4 +161,13 @@
 
 .accordion .accordion-document-read-warning {
   margin-bottom: 0.3125rem;
+}
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

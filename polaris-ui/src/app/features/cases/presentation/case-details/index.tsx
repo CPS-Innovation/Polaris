@@ -33,6 +33,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { SURVEY_LINK } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
+import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -52,6 +53,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     pipelineRefreshData,
     errorModal,
+    documentIssueModal,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -67,6 +69,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleOpenPdfInNewTab,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleShowHideDocumentIssueModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -130,10 +133,22 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
+  const getActiveTabDocument = () => {
+    return tabsState.items.find(
+      (item) => item.documentId === tabsState.activeTabId
+    );
+  };
+
   return (
     <>
       {errorModal.show && (
-        <Modal isVisible handleClose={handleCloseErrorModal} type="alert">
+        <Modal
+          isVisible
+          handleClose={handleCloseErrorModal}
+          type="alert"
+          ariaLabel="Error Modal"
+          ariaDescription={errorModal.title}
+        >
           <ErrorModalContent
             title={errorModal.title}
             message={errorModal.message}
@@ -148,6 +163,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             setShowAlert(false);
           }}
           type="alert"
+          ariaLabel="Unsaved redaction warning modal"
+          ariaDescription="You are navigating away from documents with unsaved redactions"
         >
           <NavigationAwayAlertContent
             type="casefile"
@@ -169,6 +186,18 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           />
         </Modal>
       )}
+
+      {documentIssueModal.show && (
+        <ReportAnIssueModal
+          documentId={getActiveTabDocument()?.documentId!}
+          presentationTitle={getActiveTabDocument()?.presentationTitle!}
+          polarisDocumentVersionId={
+            getActiveTabDocument()?.polarisDocumentVersionId!
+          }
+          correlationId={pipelineState?.correlationId}
+          handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
+        />
+      )}
       {searchState.isResultsVisible && (
         <ResultsModal
           {...{
@@ -188,28 +217,29 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           }}
         />
       )}
-      <PhaseBanner
-        className={classes["phaseBanner"]}
-        data-testid="feedback-banner"
-      >
-        Your{" "}
-        <a
-          className="govuk-link"
-          href={SURVEY_LINK}
-          target="_blank"
-          rel="noreferrer"
+      <nav>
+        <PhaseBanner
+          className={classes["phaseBanner"]}
+          data-testid="feedback-banner"
         >
-          feedback (opens in a new tab)
-        </a>{" "}
-        will help us to improve this service.
-      </PhaseBanner>
-      <BackLink
-        to={backLinkProps.to}
-        onClick={() => trackEvent("Back to Case Search Results")}
-      >
-        {backLinkProps.label}
-      </BackLink>
-
+          Your{" "}
+          <a
+            className="govuk-link"
+            href={SURVEY_LINK}
+            target="_blank"
+            rel="noreferrer"
+          >
+            feedback (opens in a new tab)
+          </a>{" "}
+          will help us to improve this service.
+        </PhaseBanner>
+        <BackLink
+          to={backLinkProps.to}
+          onClick={() => trackEvent("Back to Case Search Results")}
+        >
+          {backLinkProps.label}
+        </BackLink>
+      </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
           <div
@@ -224,7 +254,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               id="side-panel-region-label"
               className={classes.sidePanelLabel}
             >
-              Left side panel region
+              Case navigation panel
             </span>
             <div>
               <KeyDetails
@@ -283,6 +313,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleSavedRedactions={handleSavedRedactions}
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
+                handleShowHideDocumentIssueModal={
+                  handleShowHideDocumentIssueModal
+                }
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}

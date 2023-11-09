@@ -80,12 +80,14 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
 
   return (
     <>
-      <BackLink
-        to={backLinkProps.to}
-        onClick={() => trackEvent("Back To Search URN")}
-      >
-        {backLinkProps.label}
-      </BackLink>
+      <nav>
+        <BackLink
+          to={backLinkProps.to}
+          onClick={() => trackEvent("Back To Search URN")}
+        >
+          {backLinkProps.label}
+        </BackLink>
+      </nav>
       <PageContentWrapper>
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

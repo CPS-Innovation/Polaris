@@ -102,6 +102,13 @@ export const reducer = (
         };
       }
     | {
+        type: "SAVING_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          isSaving: boolean;
+        };
+      }
+    | {
         type: "REMOVE_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
@@ -130,6 +137,10 @@ export const reducer = (
       }
     | {
         type: "HIDE_ERROR_MODAL";
+      }
+    | {
+        type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
+        payload: boolean;
       }
 ): CombinedState => {
   switch (action.type) {
@@ -699,6 +710,23 @@ export const reducer = (
         },
       };
     }
+    case "SAVING_REDACTION": {
+      const { documentId, isSaving } = action.payload;
+      return {
+        ...state,
+        tabsState: {
+          ...state.tabsState,
+          items: state.tabsState.items.map((item) =>
+            item.documentId === documentId
+              ? {
+                  ...item,
+                  isSaving: isSaving,
+                }
+              : item
+          ),
+        },
+      };
+    }
     case "REMOVE_REDACTION": {
       const { redactionId, documentId } = action.payload;
 
@@ -774,6 +802,14 @@ export const reducer = (
           show: false,
           message: "",
           title: "",
+        },
+      };
+    }
+    case "SHOW_HIDE_DOCUMENT_ISSUE_MODAL": {
+      return {
+        ...state,
+        documentIssueModal: {
+          show: action.payload,
         },
       };
     }

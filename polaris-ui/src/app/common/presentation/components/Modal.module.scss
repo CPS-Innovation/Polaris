@@ -52,10 +52,12 @@
 }
 
 .closeContainer {
-  margin-top: 1.25rem;
-  margin-right: 1.25rem;
   display: flex;
   justify-content: flex-end;
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  z-index: 5;
 }
 
 .dataModalClose {
@@ -108,4 +110,11 @@
     outline-offset: 0;
     box-shadow: inset 0 0 0 0.25rem #0b0c0c;
   }
+}
+
+.modalLabel,
+.modalDescription {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }

@@ -94,7 +94,7 @@ export const Tabs: React.FC<TabsProps> = ({
             id="document-panel-region-label"
             className={classes.tabPanelRegionLabel}
           >
-            Document active tab panel region
+            Document view port
           </span>
         )}
         {panel.children}
@@ -105,6 +105,7 @@ export const Tabs: React.FC<TabsProps> = ({
   const tabItems = items.map((item) => ({
     id: item.id,
     label: item.label,
+    ariaLabel: `Document ${item.label}`,
   }));
 
   return (
@@ -129,6 +130,8 @@ export const Tabs: React.FC<TabsProps> = ({
           isVisible
           handleClose={handleNavigateAwayCancelAction}
           type={"alert"}
+          ariaLabel="Unsaved redaction warning modal"
+          ariaDescription="You are navigating away from document with unsaved redaction"
         >
           <NavigationAwayAlertContent
             type="document"

@@ -53,4 +53,7 @@ export type CombinedState = {
     message: string;
     title: string;
   };
+  documentIssueModal: {
+    show: boolean;
+  };
 };

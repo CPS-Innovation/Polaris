@@ -2,6 +2,7 @@ import { IPdfHighlight } from "./IPdfHighlight";
 import { MappedCaseDocument } from "./MappedCaseDocument";
 
 export type CaseDocumentViewModel = MappedCaseDocument & {
+  isSaving?: boolean;
   isDeleted?: boolean;
   url: string | undefined;
   pdfBlobName: string | undefined;

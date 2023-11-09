@@ -1,0 +1,141 @@
+﻿---
+parameters:
+  - name: envLabel
+    type: string
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: targetName
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: jobDependsOn
+    type: object
+
+jobs:
+  - deployment: DeployCoordinator
+    dependsOn: ${{ parameters.jobDependsOn }}
+    environment: ${{ parameters.envLabel }}
+    workspace:
+      clean: all
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # download scripts artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Started"
+
+            # download coordinator build artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Deploy > Download Coordinator Codebase Build
+              artifact: "polaris-coordinator-drop"
+
+            # Deploy Related Codebase to Env
+            - task: AzureFunctionApp@1
+              displayName: 'Deploy Coordinator Azure Function App to ${{ parameters.targetLabel }}'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                appType: functionAppLinux
+                appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Completed"
+
+  - deployment: DeployPdfGenerator
+    dependsOn: ${{ parameters.jobDependsOn }}
+    environment: ${{ parameters.envLabel }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # download scripts artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Started"
+
+            # download pdf-generator build artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Deploy > Download PDF Generator Codebase Build
+              artifact: "polaris-pdf-generator-drop"
+
+            # Deploy Related Codebase to Env
+            - task: AzureFunctionApp@1
+              displayName: 'Deploy PDF Generator Azure Function App to ${{ parameters.targetLabel }}'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                appType: functionApp
+                appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Completed"
+
+  - deployment: DeployTextGenerator
+    dependsOn: ${{ parameters.jobDependsOn }}
+    environment: ${{ parameters.envLabel }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # download scripts artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Started"
+
+            # download text-extractor build artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Deploy > Download Text Extractor Codebase Build
+              artifact: "polaris-text-extractor-drop"
+
+            # Deploy Related Codebase to Env
+            - task: AzureFunctionApp@1
+              displayName: 'Deploy Text Extractor Azure Function App to ${{ parameters.targetLabel }}'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                appType: functionAppLinux
+                appName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+                package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
+
+            # send custom event to AppInsights
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Completed"

@@ -1,23 +1,22 @@
 import { useEffect } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
-import {
-  FeedbackButton,
-  FeedbackButtonProps,
-} from "../../../../../common/presentation/components/feedback/FeedbackButton";
+import { FeedbackButton } from "../../../../../common/presentation/components/feedback/FeedbackButton";
+import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
-  handleOpenPdfInNewTab: (
-    documentId: CaseDocumentViewModel["documentId"]
-  ) => void;
-  contextData: FeedbackButtonProps;
+  handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
+  contextData: {
+    documentId: string;
+    tabIndex: number;
+  };
 };
 
 export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { sasUrl },
-  handleOpenPdfInNewTab,
+  handleShowHideDocumentIssueModal,
   contextData,
 }) => {
   useEffect(() => {
@@ -28,7 +27,12 @@ export const HeaderReadMode: React.FC<Props> = ({
 
   return (
     <div className={classes.content}>
-      {REPORT_ISSUE && <FeedbackButton {...contextData} />}
+      {REPORT_ISSUE && (
+        <FeedbackButton
+          {...contextData}
+          handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
+        />
+      )}
     </div>
   );
 };

@@ -31,6 +31,7 @@
     <EmbeddedResource Include="TestResources\TestDiagram.vsd" />
     <EmbeddedResource Include="TestResources\TestImage.png" />
     <EmbeddedResource Include="TestResources\TestPresentation.pptx" />
+    <EmbeddedResource Include="TestResources\TestPdf.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Factories\" />

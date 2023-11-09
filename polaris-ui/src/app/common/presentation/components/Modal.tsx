@@ -7,14 +7,20 @@ import classes from "./Modal.module.scss";
 type Props = {
   isVisible: boolean | undefined;
   type?: "data" | "alert";
+  ariaLabel: string;
+  ariaDescription: string;
   handleClose: () => void;
+  className?: string;
 };
 
 export const Modal: React.FC<Props> = ({
   isVisible,
   children,
+  ariaLabel,
+  ariaDescription,
   type = "data",
   handleClose,
+  className,
 }) => {
   // govuk styling seems to lead to the html element being the thing
   //  that scrolls rather than body.  We want to prevent the main content
@@ -53,12 +59,20 @@ export const Modal: React.FC<Props> = ({
         data-testid="div-modal"
         role="dialog"
         aria-modal="true"
+        aria-labelledby="modal-label"
+        aria-describedby="modal-description"
         className={
           type === "data"
-            ? `${classes.modalContent} ${classes.modalContentData}`
-            : classes.modalContent
+            ? `${classes.modalContent} ${classes.modalContentData} ${className}`
+            : `${classes.modalContent} ${className}`
         }
       >
+        <span id="modal-label" className={classes.modalLabel}>
+          {ariaLabel}
+        </span>
+        <span id="modal-description" className={classes.modalDescription}>
+          {ariaDescription}
+        </span>
         <div
           role="presentation"
           onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -81,9 +95,8 @@ export const Modal: React.FC<Props> = ({
             </div>
           )}
           {type === "alert" && (
-            <header
+            <div
               className={`govuk-header ${classes.modalHeader}`}
-              role="banner"
               data-module="govuk-header"
             >
               <div
@@ -99,7 +112,7 @@ export const Modal: React.FC<Props> = ({
                   <CloseIcon height={"1.5625rem"} width={"1.5625rem"} />
                 </button>
               </div>
-            </header>
+            </div>
           )}
           <div className={classes.contentContainer}>{children}</div>
         </div>

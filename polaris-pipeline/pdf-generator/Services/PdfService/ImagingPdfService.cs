@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using Aspose.Imaging;
 using Aspose.Imaging.FileFormats.Pdf;
 using Aspose.Imaging.ImageOptions;
-using pdf_generator.Domain.Exceptions;
 using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
@@ -14,16 +12,6 @@ namespace pdf_generator.Services.PdfService
 
         public ImagingPdfService(IAsposeItemFactory asposeItemFactory)
         {
-            try
-            {
-                var license = new License();
-                license.SetLicense("Aspose.Total.NET.lic");
-            }
-            catch (Exception exception)
-            {
-                throw new AsposeLicenseException(exception.Message);
-            }
-
             _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
         }
 

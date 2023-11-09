@@ -6,7 +6,7 @@ import { LinkButton } from "../../../../common/presentation/components/LinkButto
 import { DropdownButton } from "../../../../common/presentation/components";
 
 export type TabButtonProps = {
-  items: { id: string; label: string }[];
+  items: { id: string; label: string; ariaLabel: string }[];
   activeTabIndex: number;
   handleTabSelection: (documentId: string) => void;
   handleCloseTab: () => void;
@@ -78,7 +78,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
       className={`${classes.tabsWrapper} ${classes.contentArea}`}
     >
       <span id="document-tabs-region-label" className={classes.tabsRegionLabel}>
-        Document tabs region
+        Document control area
       </span>
       <div className={`${classes.arrowBtnsWrapper}`}>
         <LinkButton
@@ -107,7 +107,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
 
       <ul className={`${classes.tabsList}`} role="tablist">
         {items.map((item, index) => {
-          const { id: itemId, label } = item;
+          const { id: itemId, label, ariaLabel } = item;
 
           return (
             <li
@@ -122,7 +122,12 @@ const TabButtons: React.FC<TabButtonProps> = ({
             >
               <button
                 id={`tab_${index}`}
-                aria-controls={`panel-${index}`}
+                aria-controls={
+                  index === activeTabIndex
+                    ? "active-tab-panel"
+                    : `panel-${index}`
+                }
+                aria-label={ariaLabel}
                 role="tab"
                 className={classes.tabButton}
                 data-testid={

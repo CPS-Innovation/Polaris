@@ -32,6 +32,11 @@ sliding_clear_down_input_days = 31
 hte_feature_flag              = true
 
 image_conversion_redaction = {
-  resolution = 150
+  resolution      = 150
   quality_percent = 50
+}
+
+search_service_config = {
+  replica_count   = 3
+  partition_count = 1
 }

@@ -83,8 +83,12 @@ sudo apt-get install -y libasound2
 sudo apt-get install -y libxtst6
 sudo apt-get install -y xauth
 sudo apt-get install -y xvfb
-sudo apt-get install -y python3-pip
 sudo apt-get clean
+
+echo '==== Install Python, Pip and Checkov'
+sudo apt-get update -yq
+sudo apt-get install -y python3-pip
+sudo pip3 install -U checkov
 
 echo '==== Install Cobertura ===='
 sudo apt-get update -yq
