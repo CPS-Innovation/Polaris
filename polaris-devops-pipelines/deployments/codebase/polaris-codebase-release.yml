@@ -33,7 +33,7 @@ stages:
       azureSubscription: $(dev-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_slot-status-checks.yml
+  - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Deploy_DEV
@@ -89,7 +89,7 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_slot-status-checks.yml
+  - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Deploy_QA
@@ -145,7 +145,7 @@ stages:
       azureSubscription: $(prod-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_slot-status-checks.yml
+  - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Deploy_PROD

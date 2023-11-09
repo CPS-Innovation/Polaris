@@ -51,7 +51,13 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
-      - template: jobs/job_check-statuses.yml
+      - template: jobs/job_generate-slot-name.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          jobDependsOn:
+            - LogStart
+
+      - template: jobs/job_check-slot-statuses.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
           targetSuffix: ${{ parameters.targetSuffix }}
@@ -65,7 +71,7 @@ stages:
           armTenantId: ${{ parameters.armTenantId }}
           armSubscriptionId: ${{ parameters.armSubscriptionId }}
           jobDependsOn:
-            - LogStart
+            - GenerateSlotName
 
       - template: jobs/job_log-result.yml
         parameters:
@@ -82,5 +88,4 @@ stages:
             - CheckTextExtractor
             - CheckAuthHandover
             - CheckGateway
-            - CheckProxy
             - CheckSPA
