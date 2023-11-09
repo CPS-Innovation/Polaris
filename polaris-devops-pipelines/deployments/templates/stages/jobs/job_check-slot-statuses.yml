@@ -44,11 +44,12 @@ jobs:
 
           echo "##vso[task.setvariable variable=coordinatorSlotUri;isOutput=true]$coordinatorLocation"
           echo "##vso[task.setvariable variable=pdfGeneratorSlotUri;isOutput=true]$pdfGeneratorLocation"
-          echo "##vso[task.setvariable variable=extractorSlotUri;isOutput=true]$textExtractorLocation"
+          echo "##vso[task.setvariable variable=textExtractorSlotUri;isOutput=true]$textExtractorLocation"
           echo "##vso[task.setvariable variable=authHandoverSlotUri;isOutput=true]$authHandoverLocation"
           echo "##vso[task.setvariable variable=gatewaySlotUri;isOutput=true]$gatewayLocation"
           echo "##vso[task.setvariable variable=spaSlotUri;isOutput=true]$spaLocation"
         displayName: Get URIs of Pipeline Components
+        name: uris
         env:
           clientId: ${{ parameters.armClientId }}
           clientSecret: ${{ parameters.armClientSecret }}
@@ -66,6 +67,8 @@ jobs:
       
   - job: CheckCoordinator
     dependsOn: GetStatusURIs
+    variables:
+      uri: $[dependencies.GetStatusURIs.outputs['uris.coordinatorSlotUri']]
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
@@ -80,7 +83,7 @@ jobs:
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(coordinatorSlotUri)/api/status"
+            -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
@@ -89,6 +92,8 @@ jobs:
 
   - job: CheckPDFGenerator
     dependsOn: GetStatusURIs
+    variables:
+      uri: $[dependencies.GetStatusURIs.outputs['uris.pdfGeneratorSlotUri']]
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
@@ -103,7 +108,7 @@ jobs:
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(pdfGeneratorSlotUri)/api/status"
+            -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
@@ -112,6 +117,8 @@ jobs:
 
   - job: CheckTextExtractor
     dependsOn: GetStatusURIs
+    variables:
+      uri: $[dependencies.GetStatusURIs.outputs['uris.textExtractorSlotUri']]
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
@@ -126,7 +133,7 @@ jobs:
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(textExtractorSlotUri)/api/status"
+            -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
@@ -135,6 +142,8 @@ jobs:
             
   - job: CheckAuthHandover
     dependsOn: GetStatusURIs
+    variables:
+      uri: $[dependencies.GetStatusURIs.outputs['uris.authHandoverSlotUri']]
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
@@ -149,7 +158,7 @@ jobs:
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(authHandoverSlotUri)/api/status"
+            -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
@@ -158,6 +167,8 @@ jobs:
 
   - job: CheckGateway
     dependsOn: GetStatusURIs
+    variables:
+      uri: $[dependencies.GetStatusURIs.outputs['uris.gatewaySlotUri']]
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
@@ -172,7 +183,7 @@ jobs:
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(gatewaySlotUri)/api/status"
+            -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
@@ -181,6 +192,8 @@ jobs:
 
   - job: CheckSPA
     dependsOn: GetStatusURIs
+    variables:
+      uri: $[dependencies.GetStatusURIs.outputs['uris.spaSlotUri']]
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
@@ -195,7 +208,7 @@ jobs:
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(spaSlotUri)/api/status"
+            -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
