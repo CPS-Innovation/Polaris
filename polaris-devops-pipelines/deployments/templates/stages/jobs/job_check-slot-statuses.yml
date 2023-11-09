@@ -42,12 +42,12 @@ jobs:
           gatewayLocation=https://$(az webapp config hostname list --webapp-name $gatewayAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
           spaLocation=https://$(az webapp config hostname list --webapp-name $spaAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
 
-          echo "##vso[task.setvariable variable=coordinatorSlotUri;]$coordinatorLocation"
-          echo "##vso[task.setvariable variable=pdfGeneratorSlotUri;]$pdfGeneratorLocation"
-          echo "##vso[task.setvariable variable=extractorSlotUri;]$textExtractorLocation"
-          echo "##vso[task.setvariable variable=authHandoverSlotUri;]$authHandoverLocation"
-          echo "##vso[task.setvariable variable=gatewaySlotUri;]$gatewayLocation"
-          echo "##vso[task.setvariable variable=spaSlotUri;]$spaLocation"
+          echo "##vso[task.setvariable variable=coordinatorSlotUri;isOutput=true]$coordinatorLocation"
+          echo "##vso[task.setvariable variable=pdfGeneratorSlotUri;isOutput=true]$pdfGeneratorLocation"
+          echo "##vso[task.setvariable variable=extractorSlotUri;isOutput=true]$textExtractorLocation"
+          echo "##vso[task.setvariable variable=authHandoverSlotUri;isOutput=true]$authHandoverLocation"
+          echo "##vso[task.setvariable variable=gatewaySlotUri;isOutput=true]$gatewayLocation"
+          echo "##vso[task.setvariable variable=spaSlotUri;isOutput=true]$spaLocation"
         displayName: Get URIs of Pipeline Components
         env:
           clientId: ${{ parameters.armClientId }}

@@ -41,13 +41,13 @@ jobs:
           spaLocation=https://$(az webapp config hostname list --webapp-name $spaAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
           proxyLocation=spaLocation=https://$(az webapp config hostname list --webapp-name $proxyAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
 
-          echo "##vso[task.setvariable variable=coordinatorUri;]$coordinatorLocation"
-          echo "##vso[task.setvariable variable=pdfGeneratorUri;]$pdfGeneratorLocation"
-          echo "##vso[task.setvariable variable=extractorUri;]$textExtractorLocation"
-          echo "##vso[task.setvariable variable=authHandoverUri;]$authHandoverLocation"
-          echo "##vso[task.setvariable variable=gatewayUri;]$gatewayLocation"
-          echo "##vso[task.setvariable variable=spaUri;]$spaLocation"
-          echo "##vso[task.setvariable variable=proxyUri;]$proxyLocation"
+          echo "##vso[task.setvariable variable=coordinatorUri;isOutput=true]$coordinatorLocation"
+          echo "##vso[task.setvariable variable=pdfGeneratorUri;isOutput=true]$pdfGeneratorLocation"
+          echo "##vso[task.setvariable variable=extractorUri;isOutput=true]$textExtractorLocation"
+          echo "##vso[task.setvariable variable=authHandoverUri;isOutput=true]$authHandoverLocation"
+          echo "##vso[task.setvariable variable=gatewayUri;isOutput=true]$gatewayLocation"
+          echo "##vso[task.setvariable variable=spaUri;isOutput=true]$spaLocation"
+          echo "##vso[task.setvariable variable=proxyUri;isOutput=true]$proxyLocation"
         displayName: Get URIs of Pipeline Components
         env:
           clientId: ${{ parameters.armClientId }}
@@ -180,7 +180,7 @@ jobs:
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
 
   - job: CheckProxy
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: GetStatusURIs
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
@@ -203,7 +203,7 @@ jobs:
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
 
   - job: CheckSPA
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: GetStatusURIs
     steps:
       # download scripts artifact
       - download: ${{ parameters.targetBuild }}
