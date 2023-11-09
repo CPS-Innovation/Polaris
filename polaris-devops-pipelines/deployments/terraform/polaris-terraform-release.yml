@@ -4,8 +4,8 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: PipelineTerraformBuild
-      source: Polaris Pipeline Terraform - Build
+    - pipeline: PolarisTerraformBuild
+      source: Polaris Terraform - Build
       trigger:
         branches:
           include:
@@ -27,7 +27,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
       envLabel: "Dev"
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "DEV"
       targetSuffix: "-dev"
       targetPlanName: "dev"
@@ -75,7 +75,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: UI_Terraform_DEV
       envLabel: "Dev"
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetSuffix: "-dev"
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
@@ -95,7 +95,7 @@ stages:
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Check_DEV
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "DEV"
       targetName: "e2e Tests"
       buildDefinitionId: 129
@@ -108,7 +108,7 @@ stages:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "QA"
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "QA"
       targetSuffix: "-qa"
       targetPlanName: "qa"
@@ -156,7 +156,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: UI_Terraform_QA
       envLabel: "QA"
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetSuffix: "-qa"
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
@@ -176,7 +176,7 @@ stages:
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Check_QA
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "QA"
       targetName: "e2e Tests"
       buildDefinitionId: 210
@@ -189,7 +189,7 @@ stages:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "Prod"
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "PROD"
       targetSuffix: ""
       targetPlanName: "prod"
@@ -237,7 +237,7 @@ stages:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: UI_Terraform_PROD
       envLabel: "Prod"
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetSuffix: ""
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
@@ -257,7 +257,7 @@ stages:
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Check_PROD
-      targetBuild: PipelineTerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "PROD"
       targetName: "e2e Tests"
       buildDefinitionId: 240
