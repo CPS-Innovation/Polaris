@@ -226,6 +226,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         newDocument.PresentationTitle,
                         newDocument.IsOcrProcessed,
                         newDocument.CategoryListOrder,
+                        new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
                         newDocument.ParentDocumentId,
                         newDocument.PresentationFlags
                     );

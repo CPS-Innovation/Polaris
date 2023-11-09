@@ -77,12 +77,16 @@ namespace Common.Dto.Tracker
         {
             get
             {
-                return PolarisParentDocumentId.ToString();
+                return PolarisParentDocumentId?.ToString();
             }
             set
             {
                 PolarisParentDocumentId = new PolarisDocumentId(value);
             }
         }
+
+        [JsonProperty("cmsParentDocumentId")]
+        [JsonIgnore]
+        public string CmsParentDocumentId { get; set; }
     }
 }
