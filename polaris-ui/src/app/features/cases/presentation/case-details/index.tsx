@@ -33,6 +33,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { SURVEY_LINK } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
+import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -52,6 +53,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState,
     pipelineRefreshData,
     errorModal,
+    documentIssueModal,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -67,6 +69,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleOpenPdfInNewTab,
     handleCloseErrorModal,
     handleUnLockDocuments,
+    handleShowHideDocumentIssueModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -131,6 +134,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
 
+  const getActiveTabDocument = () => {
+    return tabsState.items.find(
+      (item) => item.documentId === tabsState.activeTabId
+    );
+  };
+
   return (
     <>
       {errorModal.show && (
@@ -177,6 +186,18 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             }}
           />
         </Modal>
+      )}
+
+      {documentIssueModal.show && (
+        <ReportAnIssueModal
+          documentId={getActiveTabDocument()?.documentId!}
+          presentationTitle={getActiveTabDocument()?.presentationTitle!}
+          polarisDocumentVersionId={
+            getActiveTabDocument()?.polarisDocumentVersionId!
+          }
+          correlationId={pipelineState?.correlationId}
+          handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
+        />
       )}
       {searchState.isResultsVisible && (
         <ResultsModal
@@ -293,6 +314,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleSavedRedactions={handleSavedRedactions}
                 handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
+                handleShowHideDocumentIssueModal={
+                  handleShowHideDocumentIssueModal
+                }
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}

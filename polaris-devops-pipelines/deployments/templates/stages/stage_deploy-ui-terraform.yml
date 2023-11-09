@@ -132,7 +132,7 @@ stages:
           jobDependsOn:
             - ApplyUITerraform
 
-      - template: jobs/job_update-coordinator-keys-in-gateway.yml
+      - template: jobs/job_update-app-keys-in-ui-components.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
@@ -162,4 +162,4 @@ stages:
             - DeployGateway
             - DeployAuthHandover
             - SetLogAnalyticsArchivalPeriods
-            - UpdateGatewayCoordinatorKeys
+            - UpdateUIAppKeys

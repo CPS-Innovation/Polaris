@@ -21,6 +21,8 @@ jobs:
   - deployment: DeployCoordinator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
+    workspace:
+      clean: all
     strategy:
       runOnce:
         deploy:
@@ -48,7 +50,7 @@ jobs:
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
-                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-coordinator"
+                appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
 
             # send custom event to AppInsights
@@ -88,7 +90,7 @@ jobs:
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionApp
-                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-pdf-generator"
+                appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
 
             # send custom event to AppInsights
@@ -128,7 +130,7 @@ jobs:
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 appType: functionAppLinux
-                appName: "fa-polaris-pipeline${{ parameters.targetSuffix }}-text-extractor"
+                appName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
 
             # send custom event to AppInsights

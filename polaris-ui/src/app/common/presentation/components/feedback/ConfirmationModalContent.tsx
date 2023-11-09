@@ -15,7 +15,7 @@ export const ConfirmationModalContent: React.FC<
         <Button
           className={classes.confirmationOkBtn}
           onClick={handleClose}
-          data-testid="btn-feeedback-modal-ok"
+          data-testid="btn-feedback-modal-ok"
         >
           Ok
         </Button>
