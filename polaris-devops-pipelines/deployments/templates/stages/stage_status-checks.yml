@@ -57,7 +57,7 @@ stages:
           jobDependsOn:
             - LogStart
 
-      - template: jobs/job_check-slot-statuses.yml
+      - template: jobs/job_check-statuses.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
           targetSuffix: ${{ parameters.targetSuffix }}
