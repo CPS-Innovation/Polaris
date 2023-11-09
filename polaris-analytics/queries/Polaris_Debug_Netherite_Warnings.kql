@@ -1,6 +1,6 @@
 
 AppTraces
-| where AppRoleName == "fa-polaris-coordinator"
+| where AppRoleName == "fa-polaris-pipeline-coordinator"
 | extend Category = tostring(Properties.Category)
 | where Category startswith "DurableTask.Netherite"
 | where SeverityLevel > 1

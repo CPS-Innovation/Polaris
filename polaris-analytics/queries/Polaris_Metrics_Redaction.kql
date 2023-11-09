@@ -1,0 +1,28 @@
+AppEvents
+| where ClientType == "PC"
+| where AppRoleName == "fa-polaris-pipeline-pdf-generator"
+| where Name == "RedactedDocument"
+| where Properties.correlationId !startswith "e2e"
+| project 
+    TimeGenerated,
+    IsFailure = tobool(Properties.isFailure),
+    CaseId = toint(Properties.caseId),
+    DocumentId = tolong(Properties.documentId),
+    InflationFactor = 1 * Measurements.bytes / Measurements.originalBytes,
+    ProviderType = tostring(Properties.providerType),
+    PageCount = toint(Measurements.pageCount),
+    RedactionCount = toint(Measurements.redactionCount),
+    DurationSeconds = round(todecimal(Measurements.durationSeconds), 2),
+    SanitizedDurationSeconds = round(todecimal(Measurements.sanitizedDurationSeconds), 2),
+    OriginalMegabytes = round(Measurements.originalBytes / (1000.0 * 1000.0),2),
+    Megabytes = round(Measurements.bytes / (1000.0 * 1000.0),2),
+    OriginalNullCharCount = toint(Measurements.originalNullCharCount),
+    NullCharCount = toint(Measurements.nullCharCount),
+    RedactionPageCounts = tostring(Properties.redactionPageCounts),
+    PdfFormat = tostring(Properties.pdfFormat),
+    ProviderReason = tostring(Properties.providerReason),
+    ProviderDetails = tostring(Properties.providerDetails),
+    PolarisCorrelationId = tostring(Properties.correlationId),
+    AppRoleInstance,
+    OperationId
+    

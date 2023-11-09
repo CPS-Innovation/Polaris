@@ -1,5 +1,5 @@
 // let DocumentRequests = AppRequests
-// | where AppRoleName == 'fa-polaris-pdf-generator'
+// | where AppRoleName == 'fa-polaris-pipeline-pdf-generator'
 // | where TimeGenerated > todatetime('2023-01-01') 
 // | where Properties.DocumentId !contains "PCD"
 // | distinct Name, DocumentId = tolong(extract("(\\d+)", 1, tostring(Properties.DocumentId)))

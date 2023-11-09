@@ -4,7 +4,7 @@ let FilteredExceptions = AppExceptions
 //| where InnermostMessage notcontains "HTE" and OuterMessage notcontains "HTE" 
 // Elastic premium scaling is currently spamming AppExceptions
 | where not (Method == "System.ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException"
-    and AppRoleName == "fa-polaris-coordinator")
+    and AppRoleName == "fa-polaris-pipeline-coordinator")
 // RefreshDocumentOrchestrator is always preceded by the original and more interesting exception
 | where OperationName !in ('RefreshDocumentOrchestrator', 'RefreshCaseOrchestrator')
 | where OperationId != ''
