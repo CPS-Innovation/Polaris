@@ -18,6 +18,10 @@ let isKnownBug = (
     let lbd = tostring(loadBalancedDestination);
 
     case(
+                om contains "System.OutOfMemoryException" and op contains "ConvertToPdf",
+        "24379 - System.OutOfMemoryException in Pdf Generator",
+                me contains "Ddei.Mappers.CaseDetailsMapper.FindHeadlineCharge",
+        "24083 - Headline charge mapping error",
                 op contains "RedactPdf"
         and om contains "At most 4 elements (for any collection) can be viewed in evaluation mode",
         "22794 - Aspose 4 elements",
@@ -53,7 +57,8 @@ let isKnownBug = (
             op contains "ExtractText"
         and (om contains "The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing."
                 or 
-             om contains "Search index update failed, timeout waiting for indexation validation"), 
+             om contains "Search index update failed, timeout waiting for indexation validation")
+                or om contains "Exception while executing function: ExtractText", 
         "23495 - Search Index",
 
             op contains "ExtractText"
@@ -76,6 +81,10 @@ let isKnownBug = (
             op contains "GeneratePdf"
         and im contains "'HTM'",
         "23615 - HTM document conversion",
+
+            op contains "GeneratePdf"
+        and im contains "'MHT'",
+        "24091 - HTM document conversion",
 
             op contains "RedactPdf"
         and om contains "ConversionLog.xml' is denied",
