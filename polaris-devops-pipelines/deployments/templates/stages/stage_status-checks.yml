@@ -16,20 +16,6 @@ parameters:
     type: string
   - name: appInsightsKey
     type: string
-  - name: coordinatorStatusUrl
-    type: string
-  - name: pdfGeneratorStatusUrl
-    type: string
-  - name: textExtractorStatusUrl
-    type: string
-  - name: authHandoverStatusUrl
-    type: string
-  - name: gatewayStatusUrl
-    type: string
-  - name: proxyStatusUrl
-    type: string
-  - name: spaStatusUrl
-    type: string
   - name: statusCheckMethod
     type: string
   - name: statusCheckRetries
@@ -65,40 +51,21 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
-      - template: jobs/job_generate-slot-name.yml
+      - template: jobs/job_check-statuses.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetLabel: ${{ parameters.targetLabel }}
+          statusCheckMethod: ${{ parameters.statusCheckMethod }}
+          statusCheckRetries: ${{ parameters.statusCheckRetries }}
+          statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
+          statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
           jobDependsOn:
             - LogStart
-
-      - template: jobs/job_check-pipeline-components.yml
-        parameters:
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          coordinatorStatusUrl: ${{ parameters.coordinatorStatusUrl }}
-          pdfGeneratorStatusUrl: ${{ parameters.pdfGeneratorStatusUrl }}
-          textExtractorStatusUrl: ${{ parameters.textExtractorStatusUrl }}
-          statusCheckMethod: ${{ parameters.statusCheckMethod }}
-          statusCheckRetries: ${{ parameters.statusCheckRetries }}
-          statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
-          statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
-          jobDependsOn:
-            - GenerateSlotName
-
-      - template: jobs/job_check-ui-components.yml
-        parameters:
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          authHandoverStatusUrl: ${{ parameters.authHandoverStatusUrl }}
-          gatewayStatusUrl: ${{ parameters.gatewayStatusUrl }}
-          proxyStatusUrl: ${{ parameters.proxyStatusUrl }}
-          spaStatusUrl: ${{ parameters.spaStatusUrl }}
-          statusCheckMethod: ${{ parameters.statusCheckMethod }}
-          statusCheckRetries: ${{ parameters.statusCheckRetries }}
-          statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
-          statusCheckTimeoutSeconds: ${{ parameters.statusCheckTimeoutSeconds }}
-          jobDependsOn:
-            - GenerateSlotName
 
       - template: jobs/job_log-result.yml
         parameters:
@@ -109,9 +76,11 @@ stages:
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
           jobDependsOn:
             - LogStart
+            - GetStatusURIs
             - CheckCoordinator
             - CheckPDFGenerator
             - CheckTextExtractor
             - CheckAuthHandover
             - CheckGateway
+            - CheckProxy
             - CheckSPA

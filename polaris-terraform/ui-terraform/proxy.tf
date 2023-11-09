@@ -14,11 +14,9 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
     "WEBSITE_SCHEME"                                  = "https"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "APPINSIGHTS_PROFILERFEATURE_VERSION"             = "1.0.0"
     "APPINSIGHTS_SNAPSHOTFEATURE_VERSION"             = "1.0.0"
     "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"       = ""
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"           = data.azurerm_application_insights.global_ai.connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION"      = "~3"
     "DiagnosticServices_EXTENSION_VERSION"            = "~3"
     "InstrumentationEngine_EXTENSION_VERSION"         = "disabled"
@@ -54,6 +52,8 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   }
 
   site_config {
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     ftps_state    = "FtpsOnly"
     http2_enabled = true
     application_stack {

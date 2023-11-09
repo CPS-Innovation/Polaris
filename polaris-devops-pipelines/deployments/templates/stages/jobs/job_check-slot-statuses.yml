@@ -1,0 +1,203 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: targetLabel
+    type: string
+  - name: statusCheckMethod
+    type: string
+  - name: statusCheckRetries
+    type: string
+  - name: statusCheckDelaySeconds
+    type: string
+  - name: statusCheckTimeoutSeconds
+    type: string
+  - name: armClientId
+    type: string
+  - name: armClientSecret
+    type: string
+  - name: armTenantId
+    type: string
+  - name: armSubscriptionId
+    type: string
+  - name: jobDependsOn
+    type: object
+
+jobs:
+  - job: GetStatusURIs
+    dependsOn: ${{ parameters.jobDependsOn }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    steps:
+      #retrieve app service status endpoints in their correct staging slots
+      - bash: |
+          az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+          az account set --subscription $subscriptionId
+          coordinatorLocation=https://$(az webapp config hostname list --webapp-name $coordinatorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
+          pdfGeneratorLocation=https://$(az webapp config hostname list --webapp-name $pdfGeneratorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
+          textExtractorLocation=https://$(az webapp config hostname list --webapp-name $textExtractorAppName --resource-group $pipelineResourceGroup --slot $targetSlot --query '[0].name' -o tsv)
+          authHandoverLocation=https://$(az webapp config hostname list --webapp-name $authHandoverAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
+          gatewayLocation=https://$(az webapp config hostname list --webapp-name $gatewayAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
+          spaLocation=https://$(az webapp config hostname list --webapp-name $spaAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
+
+          echo "##vso[task.setvariable variable=coordinatorSlotUri;]$coordinatorLocation"
+          echo "##vso[task.setvariable variable=pdfGeneratorSlotUri;]$pdfGeneratorLocation"
+          echo "##vso[task.setvariable variable=extractorSlotUri;]$textExtractorLocation"
+          echo "##vso[task.setvariable variable=authHandoverSlotUri;]$authHandoverLocation"
+          echo "##vso[task.setvariable variable=gatewaySlotUri;]$gatewayLocation"
+          echo "##vso[task.setvariable variable=spaSlotUri;]$spaLocation"
+        displayName: Get URIs of Pipeline Components
+        env:
+          clientId: ${{ parameters.armClientId }}
+          clientSecret: ${{ parameters.armClientSecret }}
+          tenantId: ${{ parameters.armTenantId }}
+          subscriptionId: ${{ parameters.armSubscriptionId }}
+          targetSlot: $(slotName)
+          coordinatorAppName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+          pdfGeneratorAppName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+          textExtractorAppName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+          authHandoverAppName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
+          gatewayAppName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+          spaAppName: "as-web-polaris${{ parameters.targetSuffix }}"
+          pipelineResourceGroup: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          uiResourceGroup: "rg-polaris${{ parameters.targetSuffix }}"
+      
+  - job: CheckCoordinator
+    dependsOn: GetStatusURIs
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+      
+      # query coordinator status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Coordinator status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI "$(coordinatorSlotUri)/api/status"
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckPDFGenerator
+    dependsOn: GetStatusURIs
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      # query pdf-generator status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} PDF-Generator status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI "$(pdfGeneratorSlotUri)/api/status"
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckTextExtractor
+    dependsOn: GetStatusURIs
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      # query text-extractor status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Text-Extractor Slot status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI "$(textExtractorSlotUri)/api/status"
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+            
+  - job: CheckAuthHandover
+    dependsOn: GetStatusURIs
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      # query auth-handover status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Auth-Handover status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI "$(authHandoverSlotUri)/api/status"
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckGateway
+    dependsOn: GetStatusURIs
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      # query gateway status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} Gateway status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI "$(gatewaySlotUri)/api/status"
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
+
+  - job: CheckSPA
+    dependsOn: GetStatusURIs
+    steps:
+      # download scripts artifact
+      - download: ${{ parameters.targetBuild }}
+        displayName: Download Scripts
+        artifact: 'polaris-script-files'
+
+      # query spa status endpoint
+      - task: PowerShell@2
+        displayName: 'Checking ${{ parameters.targetLabel }} UI status'
+        inputs:
+          failOnStderr: true
+          targetType: 'filePath'
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          arguments: > # Use this to avoid newline characters in multi-line string
+            -URI "$(spaSlotUri)/api/status"
+            -Method ${{ parameters.statusCheckMethod }}
+            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -Retries ${{ parameters.statusCheckRetries }}
+            -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
+            -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}

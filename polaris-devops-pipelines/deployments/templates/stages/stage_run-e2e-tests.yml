@@ -2,6 +2,8 @@
 parameters:
   - name: stageBuildAgent
     type: string
+  - name: stageDependsOn
+    type: object
   - name: targetBuild
     type: string
   - name: targetLabel
@@ -18,7 +20,8 @@ parameters:
 stages:
   - stage: Run_e2e_Tests_${{ parameters.targetLabel }}
     displayName: e2e tests > ${{ parameters.targetLabel }}
-    dependsOn: Check_${{ parameters.targetLabel }}
+    ${{ if parameters.stageDependsOn }}:
+      dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
     pool:
       name: ${{ parameters.stageBuildAgent }}

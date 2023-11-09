@@ -36,6 +36,20 @@ variable "pipeline_component_service_plans" {
   })
 }
 
+variable "pipeline_component_staging_service_plans" {
+  type = object({
+    coordinator_always_ready_instances     = number
+    coordinator_maximum_scale_out_limit    = number
+    coordinator_plan_maximum_burst         = number
+    pdf_generator_always_ready_instances   = number
+    pdf_generator_maximum_scale_out_limit  = number
+    pdf_generator_plan_maximum_burst       = number
+    text_extractor_always_ready_instances  = number
+    text_extractor_maximum_scale_out_limit = number
+    text_extractor_plan_maximum_burst      = number
+  })
+}
+
 variable "environment_tag" {
   type        = string
   description = "Environment tag value"

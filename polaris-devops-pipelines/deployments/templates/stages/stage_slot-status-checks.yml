@@ -4,6 +4,8 @@ parameters:
     type: string
   - name: stageDependsOn
     type: object
+  - name: envLabel
+    type: string
   - name: targetBuild
     type: string
   - name: targetSuffix
@@ -13,12 +15,6 @@ parameters:
   - name: targetName
     type: string
   - name: appInsightsKey
-    type: string
-  - name: coordinatorStatusUrl
-    type: string
-  - name: pdfGeneratorStatusUrl
-    type: string
-  - name: textExtractorStatusUrl
     type: string
   - name: statusCheckMethod
     type: string
@@ -61,14 +57,11 @@ stages:
           jobDependsOn:
             - LogStart
 
-      - template: jobs/job_check-pipeline-components.yml
+      - template: jobs/job_check-slot-statuses.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
           targetSuffix: ${{ parameters.targetSuffix }}
           targetLabel: ${{ parameters.targetLabel }}
-          coordinatorStatusUrl: ${{ parameters.coordinatorStatusUrl }}
-          pdfGeneratorStatusUrl: ${{ parameters.pdfGeneratorStatusUrl }}
-          textExtractorStatusUrl: ${{ parameters.textExtractorStatusUrl }}
           statusCheckMethod: ${{ parameters.statusCheckMethod }}
           statusCheckRetries: ${{ parameters.statusCheckRetries }}
           statusCheckDelaySeconds: ${{ parameters.statusCheckDelaySeconds }}
@@ -77,7 +70,6 @@ stages:
           armClientSecret: ${{ parameters.armClientSecret }}
           armTenantId: ${{ parameters.armTenantId }}
           armSubscriptionId: ${{ parameters.armSubscriptionId }}
-          
           jobDependsOn:
             - GenerateSlotName
 
@@ -90,6 +82,10 @@ stages:
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
           jobDependsOn:
             - LogStart
+            - GetStatusURIs
             - CheckCoordinator
             - CheckPDFGenerator
             - CheckTextExtractor
+            - CheckAuthHandover
+            - CheckGateway
+            - CheckSPA

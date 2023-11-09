@@ -2,6 +2,8 @@
 parameters:
   - name: stageBuildAgent
     type: string
+  - name: stageDependsOn
+    type: object
   - name: targetSuffix
     type: string
   - name: targetBuild
@@ -18,7 +20,8 @@ parameters:
 stages:
   - stage: Swap_${{ parameters.targetLabel }}
     displayName: Swap Slots > ${{ parameters.targetLabel }}
-    dependsOn: Run_e2e_Tests_${{ parameters.targetLabel }}
+    ${{ if parameters.stageDependsOn }}:
+      dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
     pool:
       name: ${{ parameters.stageBuildAgent }}

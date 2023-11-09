@@ -44,8 +44,8 @@ parameters:
     type: string
 
 stages:
-  - stage: Terraform_${{ parameters.targetLabel }}
-    displayName: Terraform > ${{ parameters.targetLabel }}
+  - stage: UI_Terraform_${{ parameters.targetLabel }}
+    displayName: UI Terraform > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     pool:
@@ -80,18 +80,6 @@ stages:
           terraformType: "UI"
           jobDependsOn:
             - LogStart
-
-      - template: jobs/job_deploy-ui-components.yml
-        parameters:
-          envLabel: ${{ parameters.envLabel }}
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          targetName: "UI Terraform CI Deployment"
-          targetSuffix: ${{ parameters.targetSuffix }}
-          appInsightsKey: ${{ parameters.appInsightsKey }}
-          azureSubscription: ${{ parameters.azureSubscription }}
-          jobDependsOn:
-            - ApplyUITerraform
 
       - template: jobs/job_apply-terraform.yml
         parameters:
@@ -158,8 +146,5 @@ stages:
           jobDependsOn:
             - ApplyUITerraform
             - ApplyUIEventsTerraform
-            - DeploySpa
-            - DeployGateway
-            - DeployAuthHandover
             - SetLogAnalyticsArchivalPeriods
             - UpdateUIComponentAppKeys

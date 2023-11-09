@@ -13,7 +13,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"                 = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = "true"
     "WEBSITE_CONTENTOVERVNET"                        = "1"
@@ -42,9 +41,11 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   }
 
   site_config {
-    always_on     = false
-    ftps_state    = "FtpsOnly"
-    http2_enabled = true
+    always_on                              = false
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     cors {
       allowed_origins = [
         "https://as-web-${local.resource_name}.azurewebsites.net",
@@ -54,9 +55,14 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       ]
       support_credentials = true
     }
-    vnet_route_all_enabled           = true
-    runtime_scale_monitoring_enabled = true
-    elastic_instance_minimum         = 3
+    vnet_route_all_enabled            = true
+    runtime_scale_monitoring_enabled  = true
+    elastic_instance_minimum          = 3
+    health_check_path                 = "/api/status"
+    health_check_eviction_time_in_min = "2" 
+    application_stack {
+      dotnet_version = "6.0"
+    }
   }
 
   tags = local.common_tags

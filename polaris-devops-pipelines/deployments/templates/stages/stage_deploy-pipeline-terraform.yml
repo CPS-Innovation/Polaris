@@ -40,8 +40,8 @@ parameters:
     type: string
 
 stages:
-  - stage: Terraform_${{ parameters.targetLabel }}
-    displayName: Terraform > ${{ parameters.targetLabel }}
+  - stage: Pipeline_Terraform_${{ parameters.targetLabel }}
+    displayName: Pipeline Terraform > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     pool:
@@ -76,18 +76,6 @@ stages:
           terraformType: "Pipeline"
           jobDependsOn:
             - LogStart
-
-      - template: jobs/job_deploy-pipeline-components.yml
-        parameters:
-          envLabel: ${{ parameters.envLabel }}
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          targetName: "Pipeline Terraform CI Deployment"
-          targetSuffix: ${{ parameters.targetSuffix }}
-          appInsightsKey: ${{ parameters.appInsightsKey }}
-          azureSubscription: ${{ parameters.azureSubscription }}
-          jobDependsOn:
-            - ApplyPipelineTerraform
 
       - template: jobs/job_apply-terraform.yml
         parameters:
@@ -137,7 +125,4 @@ stages:
           jobDependsOn:
             - ApplyPipelineTerraform
             - ApplyPipelineEventsTerraform
-            - DeployCoordinator
-            - DeployPdfGenerator
-            - DeployTextGenerator
             - UpdatePipelineComponentAppKeys

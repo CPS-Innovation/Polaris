@@ -45,6 +45,8 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     application_stack {
       dotnet_version = "v6.0"
     }
+    health_check_path                      = "/api/status"
+    health_check_eviction_time_in_min      = "2"
   }
 
   identity {

@@ -18,7 +18,6 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-global
-  - group: polaris-status-check-endpoints
 
 stages:
   - template: ../templates/stages/stage_deploy-codebase.yml
@@ -34,7 +33,7 @@ stages:
       azureSubscription: $(dev-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_status-checks-codebase.yml
+  - template: ../templates/stages/stage_slot-status-checks.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Deploy_DEV
@@ -44,13 +43,6 @@ stages:
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      coordinatorStatusUrl: $(dev-coordinator-status-url)
-      pdfGeneratorStatusUrl: $(dev-pdf-generator-status-url)
-      textExtractorStatusUrl: $(dev-text-extractor-status-url)
-      authHandoverStatusUrl: $(dev-auth-handover-status-url)
-      gatewayStatusUrl: $(dev-gateway-status-url)
-      proxyStatusUrl: $(dev-proxy-status-url)
-      spaStatusUrl: $(dev-ui-status-url)
       statusCheckMethod: $(status-check-method)
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
@@ -61,31 +53,33 @@ stages:
       armSubscriptionId: $(innovation-development-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_run-e2e-tests.yml
-    parameters:
-      stageBuildAgent: $(dev-build-agent)
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "DEV"
-      targetName: "e2e Tests"
-      buildDefinitionId: 129
-      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
-      
   # Swap DEV
   - template: ../templates/stages/stage_swap-codebase-slots.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
+      stageDependsOn: Check_DEV
       targetSuffix: "-dev"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
       azureSubscription: $(dev-azure-subscription)
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       devOpsPatToken: $(devops-pat-token)
+  
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      stageDependsOn: Swap_DEV
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "DEV"
+      targetName: "e2e Tests"
+      buildDefinitionId: 129
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
 
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Swap_DEV
+      stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "QA"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
@@ -95,7 +89,7 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_status-checks-codebase.yml
+  - template: ../templates/stages/stage_slot-status-checks.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Deploy_QA
@@ -105,13 +99,6 @@ stages:
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      coordinatorStatusUrl: $(qa-coordinator-status-url)
-      pdfGeneratorStatusUrl: $(qa-pdf-generator-status-url)
-      textExtractorStatusUrl: $(qa-text-extractor-status-url)
-      authHandoverStatusUrl: $(qa-auth-handover-status-url)
-      gatewayStatusUrl: $(qa-gateway-status-url)
-      proxyStatusUrl: $(qa-proxy-status-url)
-      spaStatusUrl: $(qa-ui-status-url)
       statusCheckMethod: $(status-check-method)
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
@@ -121,21 +108,12 @@ stages:
       armTenantId: $(innovation-qa-spn-tenant-id)
       armSubscriptionId: $(innovation-qa-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-
-  - template: ../templates/stages/stage_run-e2e-tests.yml
-    parameters:
-      stageBuildAgent: $(qa-build-agent)
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "QA"
-      targetName: "e2e Tests"
-      buildDefinitionId: 210
-      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
-
+      
   # Swap QA
   - template: ../templates/stages/stage_swap-codebase-slots.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Check_QA
       targetSuffix: "-qa"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
@@ -143,10 +121,21 @@ stages:
       appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
       devOpsPatToken: $(devops-pat-token)
 
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Swap_QA
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "QA"
+      targetName: "e2e Tests"
+      buildDefinitionId: 210
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Swap_DEV
+      stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "Prod"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
@@ -156,7 +145,7 @@ stages:
       azureSubscription: $(prod-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_status-checks-codebase.yml
+  - template: ../templates/stages/stage_slot-status-checks.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Deploy_PROD
@@ -166,13 +155,6 @@ stages:
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      coordinatorStatusUrl: $(prod-coordinator-status-url)
-      pdfGeneratorStatusUrl: $(prod-pdf-generator-status-url)
-      textExtractorStatusUrl: $(prod-text-extractor-status-url)
-      authHandoverStatusUrl: $(prod-auth-handover-status-url)
-      gatewayStatusUrl: $(prod-gateway-status-url)
-      proxyStatusUrl: $(prod-proxy-status-url)
-      spaStatusUrl: $(prod-ui-status-url)
       statusCheckMethod: $(status-check-method)
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
@@ -182,24 +164,26 @@ stages:
       armTenantId: $(innovation-prod-spn-tenant-id)
       armSubscriptionId: $(innovation-prod-subscription-id)
       devOpsPatToken: "$(devops-pat-token)"
-
-  - template: ../templates/stages/stage_run-e2e-tests.yml
-    parameters:
-      stageBuildAgent: $(prod-build-agent)
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "PROD"
-      targetName: "e2e Tests"
-      buildDefinitionId: 240
-      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
       
   # Swap PROD
   - template: ../templates/stages/stage_swap-codebase-slots.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Check_PROD
       targetSuffix: ""
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
       azureSubscription: $(prod-azure-subscription)
       appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
       devOpsPatToken: $(devops-pat-token)
+
+  - template: ../templates/stages/stage_run-e2e-tests.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Swap_PROD
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "PROD"
+      targetName: "e2e Tests"
+      buildDefinitionId: 240
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"

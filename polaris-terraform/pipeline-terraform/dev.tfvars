@@ -25,6 +25,18 @@ pipeline_component_service_plans = {
   text_extractor_plan_maximum_burst      = 10
 }
 
+pipeline_component_staging_service_plans = {
+  coordinator_always_ready_instances     = 1
+  coordinator_maximum_scale_out_limit    = 1
+  coordinator_plan_maximum_burst         = 1
+  pdf_generator_always_ready_instances   = 1
+  pdf_generator_maximum_scale_out_limit  = 1
+  pdf_generator_plan_maximum_burst       = 1
+  text_extractor_always_ready_instances  = 1
+  text_extractor_maximum_scale_out_limit = 1
+  text_extractor_plan_maximum_burst      = 1
+}
+
 overnight_clear_down_enabled = false
 
 sliding_clear_down_enabled    = false

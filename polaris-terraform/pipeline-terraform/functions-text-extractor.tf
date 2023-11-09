@@ -24,6 +24,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.text_extractor_scale_controller
     "AzureWebJobsStorage"                      = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
@@ -45,6 +47,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     application_stack {
       dotnet_version = "6.0"
     }
+    health_check_path                      = "/api/status"
+    health_check_eviction_time_in_min      = "2"
   }
 
   identity {
