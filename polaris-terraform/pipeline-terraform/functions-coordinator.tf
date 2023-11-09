@@ -59,8 +59,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     application_stack {
       dotnet_version = "6.0"
     }
-    health_check_path                      = "/api/status"
-    health_check_eviction_time_in_min      = "2"
+    health_check_path                 = "/api/status"
+    health_check_eviction_time_in_min = "2"
   }
 
   identity {
