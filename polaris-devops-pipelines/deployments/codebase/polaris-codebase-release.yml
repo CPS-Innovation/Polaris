@@ -18,6 +18,7 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-global
+  - group: polaris-status-check-endpoints
 
 stages:
   - template: ../templates/stages/stage_deploy-codebase.yml
@@ -32,6 +33,14 @@ stages:
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       azureSubscription: $(dev-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
+      logResultDependsOn:
+        - LogStart
+        - DeployCoordinator
+        - DeployPdfGenerator
+        - DeployTextGenerator
+        - DeploySpa
+        - DeployGateway
+        - DeployAuthHandover
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
@@ -39,39 +48,29 @@ stages:
       stageDependsOn: Deploy_DEV
       envLabel: "Dev"
       targetBuild: PolarisCodebaseBuild
-      targetSuffix: "-dev"
       targetLabel: "DEV"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      statusCheckMethod: "GET"
-      statusCheckRetries: "30"
-      statusCheckDelaySeconds: "15"
-      statusCheckTimeoutSeconds: "60"
-      armClientId: $(innovation-development-spn-client-id)
-      armClientSecret: $(innovation-development-spn-secret)
-      armTenantId: $(innovation-development-spn-tenant-id)
-      armSubscriptionId: $(innovation-development-subscription-id)
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
+      logResultDependsOn:
+        - LogStart
+        - CheckCoordinator
+        - CheckPDFGenerator
+        - CheckTextExtractor
+        - CheckAuthHandover
+        - CheckGateway
+        - CheckProxy
+        - CheckSPA
 
-  # Swap DEV
-  - template: ../templates/stages/stage_swap-codebase-slots.yml
-    parameters:
-      stageBuildAgent: $(dev-build-agent)
-      stageDependsOn: Check_DEV
-      targetSuffix: "-dev"
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "DEV"
-      azureSubscription: $(dev-azure-subscription)
-      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-      devOpsPatToken: $(devops-pat-token)
-  
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
-      stageDependsOn: Swap_DEV
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
-      targetName: "e2e Tests"
       buildDefinitionId: 129
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
@@ -88,6 +87,14 @@ stages:
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       azureSubscription: $(qa-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
+      logResultDependsOn:
+        - LogStart
+        - DeployCoordinator
+        - DeployPdfGenerator
+        - DeployTextGenerator
+        - DeploySpa
+        - DeployGateway
+        - DeployAuthHandover
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
@@ -95,39 +102,29 @@ stages:
       stageDependsOn: Deploy_QA
       envLabel: "QA"
       targetBuild: PolarisCodebaseBuild
-      targetSuffix: "-qa"
       targetLabel: "QA"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      statusCheckMethod: "GET"
-      statusCheckRetries: "30"
-      statusCheckDelaySeconds: "15"
-      statusCheckTimeoutSeconds: "60"
-      armClientId: $(innovation-qa-spn-client-id)
-      armClientSecret: $(innovation-qa-spn-secret)
-      armTenantId: $(innovation-qa-spn-tenant-id)
-      armSubscriptionId: $(innovation-qa-subscription-id)
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
-      
-  # Swap QA
-  - template: ../templates/stages/stage_swap-codebase-slots.yml
-    parameters:
-      stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Check_QA
-      targetSuffix: "-qa"
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "QA"
-      azureSubscription: $(qa-azure-subscription)
-      appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
-      devOpsPatToken: $(devops-pat-token)
+      logResultDependsOn:
+        - LogStart
+        - CheckCoordinator
+        - CheckPDFGenerator
+        - CheckTextExtractor
+        - CheckAuthHandover
+        - CheckGateway
+        - CheckProxy
+        - CheckSPA
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Swap_QA
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
-      targetName: "e2e Tests"
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
@@ -144,6 +141,14 @@ stages:
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       azureSubscription: $(prod-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
+      logResultDependsOn:
+        - LogStart
+        - DeployCoordinator
+        - DeployPdfGenerator
+        - DeployTextGenerator
+        - DeploySpa
+        - DeployGateway
+        - DeployAuthHandover
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
@@ -151,39 +156,30 @@ stages:
       stageDependsOn: Deploy_PROD
       envLabel: "Prod"
       targetBuild: PolarisCodebaseBuild
-      targetSuffix: ""
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      statusCheckMethod: "GET"
-      statusCheckRetries: "30"
-      statusCheckDelaySeconds: "15"
-      statusCheckTimeoutSeconds: "60"
-      armClientId: $(innovation-prod-spn-client-id)
-      armClientSecret: $(innovation-prod-spn-secret)
-      armTenantId: $(innovation-prod-spn-tenant-id)
-      armSubscriptionId: $(innovation-prod-subscription-id)
+      spaStatusUrl: $(prod-ui-status-url)
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
-      
-  # Swap PROD
-  - template: ../templates/stages/stage_swap-codebase-slots.yml
-    parameters:
-      stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Check_PROD
-      targetSuffix: ""
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "PROD"
-      azureSubscription: $(prod-azure-subscription)
-      appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-      devOpsPatToken: $(devops-pat-token)
+      logResultDependsOn:
+        - LogStart
+        - CheckCoordinator
+        - CheckPDFGenerator
+        - CheckTextExtractor
+        - CheckAuthHandover
+        - CheckGateway
+        - CheckProxy
+        - CheckSPA
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Swap_PROD
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
-      targetName: "e2e Tests"
       buildDefinitionId: 240
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
