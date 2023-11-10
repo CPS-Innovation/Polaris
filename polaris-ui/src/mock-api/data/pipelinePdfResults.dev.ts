@@ -161,7 +161,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      parentDocumentId: "4",
+      parentDocumentId: null,
       cmsDocType: {
         documentTypeId: -1,
         documentType: "Other Comm (In)",

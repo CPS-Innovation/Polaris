@@ -30,6 +30,7 @@ export const HeaderAttachmentMode: React.FC<Props> = ({
           <li key={item.documentId} className={classes.tabListItem}>
             <Attachment className={classes.attachmentIcon} />
             <LinkButton
+              className={classes.documentBtn}
               onClick={() => {
                 handleAttachmentClick(item.documentId);
               }}
