@@ -235,7 +235,7 @@ jobs:
           targetType: 'filePath'
           filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
-            -URI "$(uri)/api/status"
+            -URI "$(uri)/polaris-ui/build-version.txt"
             -Method ${{ parameters.statusCheckMethod }}
             -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
             -Retries ${{ parameters.statusCheckRetries }}
