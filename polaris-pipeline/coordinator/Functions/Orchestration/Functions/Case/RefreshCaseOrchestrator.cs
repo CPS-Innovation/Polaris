@@ -60,10 +60,18 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
+            RefreshedCaseEvent telemetryEvent = default;
             try
             {
+                telemetryEvent = new RefreshedCaseEvent(
+                    correlationId: payload.CorrelationId,
+                    caseId: payload.CmsCaseId,
+                    versionId: await caseEntity.GetVersion(),
+                    startTime: await caseEntity.GetStartTime()
+                );
+
                 log.LogMethodFlow(payload.CorrelationId, loggingName, $"Run main orchestration for case {payload.CmsCaseId}");
-                var orchestratorTask = RunCaseOrchestrator(context, caseEntity, payload);
+                var orchestratorTask = RunCaseOrchestrator(context, caseEntity, payload, telemetryEvent);
 
                 using var cts = new CancellationTokenSource();
                 var deadline = context.CurrentUtcDateTime.Add(_timeout);
@@ -74,6 +82,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 {
                     // success case
                     cts.Cancel();
+                    _telemetryClient.TrackEvent(telemetryEvent);
                     return await orchestratorTask;
                 }
 
@@ -84,6 +93,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed, exception.Message));
 
                 log.LogMethodError(payload.CorrelationId, loggingName, $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
+                _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;
             }
             finally
@@ -92,52 +102,35 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             }
         }
 
-        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CaseOrchestrationPayload payload)
+        private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CaseOrchestrationPayload payload, RefreshedCaseEvent telemetryEvent)
         {
             const string loggingName = nameof(RunCaseOrchestrator);
-            RefreshedCaseEvent telemetryEvent = default;
-            try
-            {
-                telemetryEvent = new RefreshedCaseEvent(
-                    correlationId: payload.CorrelationId,
-                    caseId: payload.CmsCaseId,
-                    versionId: await caseEntity.GetVersion(),
-                    startTime: await caseEntity.GetStartTime()
-                );
-                var log = context.CreateReplaySafeLogger(_log);
 
-                log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
-                caseEntity.Reset(context.InstanceId);
-                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
+            var log = context.CreateReplaySafeLogger(_log);
 
-                var documents = await GetDocuments(context, loggingName, log, payload);
-                telemetryEvent.CmsDocsCount = documents.CmsDocuments.Length;
-                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
+            log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
+            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
+            caseEntity.Reset(context.InstanceId);
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
-                var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, payload, documents, log);
-                telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
-                telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
-                await Task.WhenAll(documentTasks.Select(BufferCall));
+            var documents = await GetDocuments(context, loggingName, log, payload);
+            telemetryEvent.CmsDocsCount = documents.CmsDocuments.Length;
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
 
-                if (await caseEntity.AllDocumentsFailed())
-                    throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
+            var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, payload, documents, log);
+            telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
+            telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
+            await Task.WhenAll(documentTasks.Select(BufferCall));
 
-                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
+            if (await caseEntity.AllDocumentsFailed())
+                throw new CaseOrchestrationException("CMS Documents, PCD Requests or Defendants and Charges failed to process during orchestration.");
 
-                log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
-                telemetryEvent.EndTime = context.CurrentUtcDateTime;
+            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
 
-                var trackerDto = caseEntity.Adapt<TrackerDto>();
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return trackerDto;
+            log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
+            telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
-            }
-            catch (Exception)
-            {
-                _telemetryClient.TrackEventFailure(telemetryEvent);
-                throw;
-            }
+            return caseEntity.Adapt<TrackerDto>();
         }
 
         private async static Task<(List<Task>, int, int)> GetDocumentTasks
