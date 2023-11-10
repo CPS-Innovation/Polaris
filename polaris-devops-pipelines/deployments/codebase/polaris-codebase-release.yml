@@ -132,7 +132,6 @@ stages:
       targetLabel: "PROD"
       targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      spaStatusUrl: $(prod-ui-status-url)
       statusCheckMethod: $(status-check-method)
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
