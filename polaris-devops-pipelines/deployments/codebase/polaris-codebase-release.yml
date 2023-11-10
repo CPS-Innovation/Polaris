@@ -87,14 +87,6 @@ stages:
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       azureSubscription: $(qa-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - DeployCoordinator
-        - DeployPdfGenerator
-        - DeployTextGenerator
-        - DeploySpa
-        - DeployGateway
-        - DeployAuthHandover
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
@@ -141,14 +133,6 @@ stages:
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       azureSubscription: $(prod-azure-subscription)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - DeployCoordinator
-        - DeployPdfGenerator
-        - DeployTextGenerator
-        - DeploySpa
-        - DeployGateway
-        - DeployAuthHandover
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
@@ -165,15 +149,6 @@ stages:
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckCoordinator
-        - CheckPDFGenerator
-        - CheckTextExtractor
-        - CheckAuthHandover
-        - CheckGateway
-        - CheckProxy
-        - CheckSPA
 
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
