@@ -6,6 +6,8 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { ReactComponent as DateIcon } from "../../../../../common/presentation/svgs/date.svg";
+import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 
 import classes from "./Accordion.module.scss";
 
@@ -54,16 +56,21 @@ export const AccordionDocument: React.FC<Props> = ({
             {caseDocument.presentationFileName}
           </span>
         )}
-        <span className={`${classes["accordion-document-date"]}`}>
+        <div className={`${classes["accordion-document-date"]}`}>
           <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
+          <DateIcon className={classes.dateIcon} />
           {caseDocument.cmsFileCreatedDate &&
             formatDate(
               caseDocument.cmsFileCreatedDate,
               CommonDateTimeFormats.ShortDateTextMonth
             )}
-        </span>
+        </div>
+
         {!!caseDocument.attachments.length && (
-          <span>{getAttachmentText()}</span>
+          <div className={classes.attachmentWrapper}>
+            <AttachmentIcon className={classes.attachmentIcon} />
+            <span>{getAttachmentText()}</span>
+          </div>
         )}
       </div>
       {!canViewDocument && (
