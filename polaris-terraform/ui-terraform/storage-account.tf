@@ -65,7 +65,9 @@ resource "azurerm_storage_account_network_rules" "polaris_sacpspolaris_rules" {
     data.azurerm_subnet.polaris_ui_subnet.id,
     data.azurerm_subnet.polaris_gateway_subnet.id,
     data.azurerm_subnet.polaris_proxy_subnet.id,
-    data.azurerm_subnet.polaris_auth_handover_subnet.id
+    data.azurerm_subnet.polaris_auth_handover_subnet.id,
+    data.azurerm_subnet.polaris_apps_subnet.id,
+    data.azurerm_subnet.polaris_apps2_subnet.id
   ]
 
   depends_on = [
