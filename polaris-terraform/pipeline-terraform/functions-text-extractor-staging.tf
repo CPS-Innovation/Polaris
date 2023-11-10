@@ -9,6 +9,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
+  tags                          = local.common_tags
 
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
@@ -136,6 +137,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
+  tags                          = local.common_tags
 
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
