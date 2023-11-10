@@ -24,6 +24,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTSHARE"                           = azapi_resource.pipeline_sa_coordinator_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.pipeline_logging.coordinator_scale_controller
     "AzureWebJobsStorage"                            = azurerm_storage_account.sa_coordinator.primary_connection_string
     "CoordinatorOrchestratorTimeoutSecs"             = "600"
@@ -45,6 +47,10 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "OvernightClearDownEnabled"                      = var.overnight_clear_down_enabled
     "SlidingClearDownEnabled"                        = var.sliding_clear_down_enabled
     "SlidingClearDownInputDays"                      = var.sliding_clear_down_input_days
+  }
+
+  sticky_settings {
+    app_setting_names = ["PolarisPipelineCoordinatorDurableExtensionCode", "PolarisPipelineTextExtractorFunctionAppKey", "PolarisPipelineRedactPdfFunctionAppKey", "DdeiAccessKey"]
   }
 
   site_config {
@@ -83,15 +89,11 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
       app_settings["PolarisPipelineTextExtractorFunctionAppKey"],
       app_settings["DdeiAccessKey"],
-      app_settings["PolarisPipelineRedactPdfFunctionAppKey"]
+      app_settings["PolarisPipelineRedactPdfFunctionAppKey"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-data "azurerm_function_app_host_keys" "ak_coordinator" {
-  name                = "fa-${local.global_name}-coordinator"
-  resource_group_name = azurerm_resource_group.rg.name
-  depends_on          = [azurerm_linux_function_app.fa_coordinator]
 }
 
 module "azurerm_app_reg_fa_coordinator" {
@@ -178,19 +180,5 @@ resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_secrets_use
     azurerm_linux_function_app.fa_coordinator,
     azurerm_role_assignment.terraform_kv_role_terraform_sp,
     azurerm_key_vault_access_policy.terraform_kvap_terraform_sp
-  ]
-}
-
-resource "azurerm_key_vault_secret" "kvs_terraform_pipeline_coordinator_function_key" {
-  name            = "reset-function-key"
-  value           = data.azurerm_function_app_host_keys.ak_coordinator.default_function_key
-  key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
-  expiration_date = timeadd(timestamp(), "8760h")
-  content_type    = "password"
-
-  depends_on = [
-    azurerm_role_assignment.kv_terraform_role_fa_coordinator_crypto_user,
-    azurerm_role_assignment.kv_terraform_role_fa_coordinator_secrets_user,
-    azurerm_linux_function_app.fa_coordinator
   ]
 }

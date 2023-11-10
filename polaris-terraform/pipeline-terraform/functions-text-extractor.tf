@@ -67,7 +67,9 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
       app_settings["FUNCTIONS_EXTENSION_VERSION"],
       app_settings["AzureWebJobsStorage"],
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 }
