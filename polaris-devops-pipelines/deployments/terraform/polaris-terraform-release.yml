@@ -21,8 +21,8 @@ variables:
   - group: terraform-containers
 
 stages:
-  # Apply Pipeline terraform to DEV
-  - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
+  # Apply terraform to DEV
+  - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
@@ -35,27 +35,6 @@ stages:
       terraformStorageAccount: $(dev-terraform-storage-account)
       terraformPipelineContainerName: $(pipeline-terraform-container-name)
       terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformStateAccessKey: $(cpsdevstorageterraform-key1)
-      armClientId: $(innovation-development-spn-client-id)
-      armClientSecret: $(innovation-development-spn-secret)
-      armTenantId: $(innovation-development-spn-tenant-id)
-      armSubscriptionId: $(innovation-development-subscription-id)
-      devOpsPatToken: $(devops-pat-token)
-      azureSubscription: $(dev-azure-subscription)
-      
-  # Apply UI terraform to DEV
-  - template: ../templates/stages/stage_deploy-ui-terraform.yml
-    parameters:
-      stageBuildAgent: $(dev-build-agent)
-      stageDependsOn: Pipeline_Terraform_DEV
-      envLabel: "Dev"
-      targetBuild: PolarisTerraformBuild
-      targetLabel: "DEV"
-      targetSuffix: "-dev"
-      targetPlanName: "dev"
-      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      terraformStorageAccount: $(dev-terraform-storage-account)
       terraformUIContainerName: $(ui-terraform-container-name)
       terraformUIEventsContainerName: $(ui-events-terraform-container-name)
       terraformStateKey: $(terraform-key)
@@ -68,12 +47,12 @@ stages:
       azureSubscription: $(dev-azure-subscription)
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
-
+      
   # Env Check: Run e2e Tests against DEV
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
-      stageDependsOn: UI_Terraform_DEV
+      stageDependsOn: Terraform_DEV
       targetBuild: PolarisTerraformBuild
       targetLabel: "DEV"
       targetName: "e2e Tests"
@@ -81,7 +60,7 @@ stages:
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       
-  # Apply Pipeline Terraform to QA
+  # Apply Terraform to QA
   - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
@@ -95,27 +74,6 @@ stages:
       terraformStorageAccount: $(qa-terraform-storage-account)
       terraformPipelineContainerName: $(pipeline-terraform-container-name)
       terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformStateAccessKey: $(cpsqastorageterraform-key1)
-      armClientId: $(innovation-qa-spn-client-id)
-      armClientSecret: $(innovation-qa-spn-secret)
-      armTenantId: $(innovation-qa-spn-tenant-id)
-      armSubscriptionId: $(innovation-qa-subscription-id)
-      devOpsPatToken: $(devops-pat-token)
-      azureSubscription: $(qa-azure-subscription)
-
-  # Apply UI terraform to QA
-  - template: ../templates/stages/stage_deploy-ui-terraform.yml
-    parameters:
-      stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Pipeline_Terraform_QA
-      envLabel: "QA"
-      targetBuild: PolarisTerraformBuild
-      targetLabel: "QA"
-      targetSuffix: "-qa"
-      targetPlanName: "qa"
-      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      terraformStorageAccount: $(qa-terraform-storage-account)
       terraformUIContainerName: $(ui-terraform-container-name)
       terraformUIEventsContainerName: $(ui-events-terraform-container-name)
       terraformStateKey: $(terraform-key)
@@ -133,7 +91,7 @@ stages:
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: UI_Terraform_QA
+      stageDependsOn: Terraform_QA
       targetBuild: PolarisTerraformBuild
       targetLabel: "QA"
       targetName: "e2e Tests"
@@ -141,8 +99,8 @@ stages:
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
 
-  # Apply Pipeline Terraform to PROD
-  - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
+  # Apply Terraform to PROD
+  - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
@@ -155,27 +113,6 @@ stages:
       terraformStorageAccount: $(prod-terraform-storage-account)
       terraformPipelineContainerName: $(pipeline-terraform-container-name)
       terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
-      terraformStateKey: $(terraform-key)
-      terraformStateAccessKey: $(cpsprodstorageterraform-key1)
-      armClientId: $(innovation-prod-spn-client-id)
-      armClientSecret: $(innovation-prod-spn-secret)
-      armTenantId: $(innovation-prod-spn-tenant-id)
-      armSubscriptionId: $(innovation-prod-subscription-id)
-      devOpsPatToken: $(devops-pat-token)
-      azureSubscription: $(prod-azure-subscription)
-      
-  # Apply UI terraform to PROD
-  - template: ../templates/stages/stage_deploy-ui-terraform.yml
-    parameters:
-      stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Pipeline_Terraform_PROD
-      envLabel: "Prod"
-      targetBuild: PolarisTerraformBuild
-      targetLabel: "PROD"
-      targetSuffix: ""
-      targetPlanName: "prod"
-      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      terraformStorageAccount: $(prod-terraform-storage-account)
       terraformUIContainerName: $(ui-terraform-container-name)
       terraformUIEventsContainerName: $(ui-events-terraform-container-name)
       terraformStateKey: $(terraform-key)
@@ -188,12 +125,12 @@ stages:
       azureSubscription: $(prod-azure-subscription)
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
-
+      
   # Env Check: Run e2e Tests Against PROD  
   - template: ../templates/stages/stage_run-e2e-tests.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: UI_Terraform_PROD
+      stageDependsOn: Terraform_PROD
       targetBuild: PolarisTerraformBuild
       targetLabel: "PROD"
       targetName: "e2e Tests"
