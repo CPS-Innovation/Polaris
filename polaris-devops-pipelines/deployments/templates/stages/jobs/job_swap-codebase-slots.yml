@@ -1,0 +1,65 @@
+﻿---
+parameters:
+  - name: targetSuffix
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: jobDependsOn
+    type: object
+  
+jobs:
+  - job: Swap_Pipeline_Slots
+    dependsOn: ${{ parameters.jobDependsOn }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    strategy:
+      matrix:
+        Coordinator:
+          Name: "Coordinator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+        PDFGenerator:
+          Name: "PDF Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+        TextExtractor:
+          Name: "Text Extractor"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+    displayName: Swap Pipeline slots
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap $(slotName) slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: $(slotName)
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true
+          
+  - job: Swap_UI_Slots
+    dependsOn: ${{ parameters.jobDependsOn }}
+    variables:
+      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    strategy:
+      matrix:
+        SPA:
+          Name: "SPA"
+          AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
+        AuthHandover:
+          Name: "Auth Handover"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
+        PolarisGateway:
+          Name: "Polaris Gateway"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+    displayName: Swap UI slots
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Swap $(slotName) slot
+        inputs:
+          action: "Swap Slots"
+          sourceSlot: $(slotName)
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true

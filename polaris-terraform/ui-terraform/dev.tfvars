@@ -14,9 +14,6 @@ polaris_webapp_details = {
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Development"
 
-certificate_name   = "polaris-dev-notprod3536a9f3-a9a0-48b4-9b40-8c76083cad2e"
-custom_domain_name = "polaris-dev-notprod.cps.gov.uk"
-
 ui_logging = {
   gateway_scale_controller       = "AppInsights:Verbose"
   auth_handover_scale_controller = "AppInsights:Verbose"

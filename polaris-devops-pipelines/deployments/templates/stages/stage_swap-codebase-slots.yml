@@ -4,37 +4,33 @@ parameters:
     type: string
   - name: stageDependsOn
     type: object
-  - name: envLabel
+  - name: targetSuffix
     type: string
   - name: targetBuild
     type: string
   - name: targetLabel
     type: string
-  - name: targetName
-    type: string
-  - name: targetSuffix
+  - name: azureSubscription
     type: string
   - name: appInsightsKey
     type: string
-  - name: azureSubscription
-    type: string
   - name: devOpsPatToken
     type: string
-
+    
 stages:
-  - stage: Deploy_${{ parameters.targetLabel }}
-    displayName: Deploy > ${{ parameters.targetLabel }}
+  - stage: Swap_${{ parameters.targetLabel }}
+    displayName: Swap Slots > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
+    condition: succeeded()
     pool:
       name: ${{ parameters.stageBuildAgent }}
     jobs:
-      - template: jobs/job_log-start-deployment.yml
+      - template: jobs/job_log-start.yml
         parameters:
-          envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
-          targetName: ${{ parameters.targetName }}
+          targetName: "Swap Polaris Codebase Slots"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
       - template: jobs/job_generate-slot-name.yml
@@ -42,32 +38,21 @@ stages:
           targetBuild: ${{ parameters.targetBuild }}
           jobDependsOn:
             - LogStart
-
-      - template: jobs/job_deploy-codebase.yml
+            
+      - template: jobs/job_swap-codebase-slots.yml
         parameters:
-          envLabel: ${{ parameters.envLabel }}
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          targetName: ${{ parameters.targetName }}
           targetSuffix: ${{ parameters.targetSuffix }}
-          appInsightsKey: ${{ parameters.appInsightsKey }}
           azureSubscription: ${{ parameters.azureSubscription }}
           jobDependsOn:
             - GenerateSlotName
-
-      - template: jobs/job_log-result-deployment.yml
+              
+      - template: jobs/job_log-result.yml
         parameters:
-          envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
-          targetName: ${{ parameters.targetName }}
+          targetName: "Swap Polaris Codebase Slots"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
           jobDependsOn:
-            - LogStart
-            - DeployCoordinator
-            - DeployPdfGenerator
-            - DeployTextGenerator
-            - DeploySpa
-            - DeployGateway
-            - DeployAuthHandover
+            - Swap_Pipeline_Slots
+            - Swap_UI_Slots

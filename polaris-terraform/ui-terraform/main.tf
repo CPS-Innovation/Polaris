@@ -4,12 +4,12 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.71.0"
+      version = "3.80.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.38.0"
+      version = "2.45.0"
     }
 
     random = {
@@ -68,7 +68,7 @@ data "azurerm_subscription" "current" {}
 data "azuread_application_published_app_ids" "well_known" {}
 
 resource "random_uuid" "random_id" {
-  count = 1
+  count = 3
 }
 
 resource "azuread_service_principal" "msgraph" {

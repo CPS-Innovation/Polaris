@@ -24,7 +24,7 @@ parameters:
     type: object
 
 jobs:
-  - deployment: UpdateUIAppKeys
+  - deployment: UpdateUIComponentAppKeys
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
