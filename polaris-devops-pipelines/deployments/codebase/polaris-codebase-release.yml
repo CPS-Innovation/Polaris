@@ -60,6 +60,7 @@ stages:
       stageDependsOn: Check_DEV
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
+      targetName: "e2e Tests"
       buildDefinitionId: 129
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
@@ -103,6 +104,7 @@ stages:
       stageDependsOn: Check_QA
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
+      targetName: "e2e Tests"
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
@@ -147,6 +149,7 @@ stages:
       stageDependsOn: Check_PROD
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
+      targetName: "e2e Tests"
       buildDefinitionId: 240
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
