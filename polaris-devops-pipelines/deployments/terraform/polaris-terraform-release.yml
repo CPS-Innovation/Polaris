@@ -107,7 +107,7 @@ stages:
   # Apply UI terraform to QA
   - template: ../templates/stages/stage_deploy-ui-terraform.yml
     parameters:
-      stageBuildAgent: $(dev-build-agent)
+      stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Pipeline_Terraform_QA
       envLabel: "QA"
       targetBuild: PolarisTerraformBuild
@@ -167,7 +167,7 @@ stages:
   # Apply UI terraform to PROD
   - template: ../templates/stages/stage_deploy-ui-terraform.yml
     parameters:
-      stageBuildAgent: $(dev-build-agent)
+      stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Pipeline_Terraform_PROD
       envLabel: "Prod"
       targetBuild: PolarisTerraformBuild
