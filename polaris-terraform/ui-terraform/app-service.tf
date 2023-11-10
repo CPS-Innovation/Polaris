@@ -84,7 +84,10 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["AzureWebJobsStorage"],
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 }
