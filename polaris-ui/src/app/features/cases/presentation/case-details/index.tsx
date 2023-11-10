@@ -82,7 +82,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   useSwitchContentArea();
   useDocumentFocus(tabsState.activeTabId);
 
-  console.log("accordionState>>>", accordionState);
   useEffect(() => {
     if (accordionState.status === "succeeded") {
       const categorisedData = accordionState.data.reduce(

@@ -57,7 +57,11 @@ export const AccordionSection: React.FC<Props> = ({
   ) => {
     return (
       <>
-        {subCategoryName && <h3>{subCategoryName}</h3>}
+        {subCategoryName && (
+          <div className={classes.subCategory}>
+            <h3>{subCategoryName}</h3>
+          </div>
+        )}
         <div className={`${classes["accordion-section-document"]}`}>
           {!docs.length ? (
             <div className={`${classes["accordion-section-no-document"]}`}>
@@ -81,7 +85,6 @@ export const AccordionSection: React.FC<Props> = ({
     );
   };
 
-  console.log("subCategoreis >>", subCategories);
   return (
     <div
       className={
