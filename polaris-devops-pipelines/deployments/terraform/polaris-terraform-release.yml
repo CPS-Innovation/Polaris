@@ -61,7 +61,7 @@ stages:
       devOpsPatToken: "$(devops-pat-token)"
       
   # Apply Terraform to QA
-  - template: ../templates/stages/stage_deploy-pipeline-terraform.yml
+  - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
