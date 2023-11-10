@@ -49,7 +49,7 @@ parameters:
 
 stages:
   - stage: Terraform_${{ parameters.targetLabel }}
-    displayName: Pipeline Terraform > ${{ parameters.targetLabel }}
+    displayName: Terraform > ${{ parameters.targetLabel }}
     ${{ if parameters.stageDependsOn }}:
       dependsOn: ${{ parameters.stageDependsOn }}
     pool:
