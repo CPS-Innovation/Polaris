@@ -41,7 +41,7 @@ jobs:
           authHandoverLocation=https://$(az webapp config hostname list --webapp-name $authHandoverAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
           gatewayLocation=https://$(az webapp config hostname list --webapp-name $gatewayAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
           spaLocation=https://$(az webapp config hostname list --webapp-name $spaAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
-          proxyLocation=spaLocation=https://$(az webapp config hostname list --webapp-name $proxyAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
+          proxyLocation=https://$(az webapp config hostname list --webapp-name $proxyAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
 
           echo "##vso[task.setvariable variable=coordinatorUri;isOutput=true]$coordinatorLocation"
           echo "##vso[task.setvariable variable=pdfGeneratorUri;isOutput=true]$pdfGeneratorLocation"
