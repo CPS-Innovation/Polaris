@@ -9,11 +9,12 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_gateway_subnet.id
   functions_extension_version   = "~4"
   public_network_access_enabled = false
+  https_only                    = true
+  tags                          = local.common_tags
 
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"                 = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = "false"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = "true"
     "WEBSITE_CONTENTOVERVNET"                        = "1"
@@ -22,6 +23,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_file_share.name
     "WEBSITE_RUN_FROM_PACKAGE"                       = "1"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.ui_logging.gateway_scale_controller
     "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
     "TenantId"                                       = data.azurerm_client_config.current.tenant_id
@@ -41,10 +44,16 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "DdeiAccessKey"                                  = "" //set in deployment script
   }
 
+  sticky_settings {
+    app_setting_names = ["PolarisPipelineCoordinatorFunctionAppKey", "PolarisPipelineCoordinatorDurableExtensionCode", "DdeiAccessKey"]
+  }
+
   site_config {
-    always_on     = false
-    ftps_state    = "FtpsOnly"
-    http2_enabled = true
+    always_on                              = false
+    ftps_state                             = "FtpsOnly"
+    http2_enabled                          = true
+    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
+    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     cors {
       allowed_origins = [
         "https://as-web-${local.resource_name}.azurewebsites.net",
@@ -54,12 +63,15 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       ]
       support_credentials = true
     }
-    vnet_route_all_enabled           = true
-    runtime_scale_monitoring_enabled = true
-    elastic_instance_minimum         = 3
+    vnet_route_all_enabled            = true
+    runtime_scale_monitoring_enabled  = true
+    elastic_instance_minimum          = 3
+    health_check_path                 = "/api/status"
+    health_check_eviction_time_in_min = "2"
+    application_stack {
+      dotnet_version = "6.0"
+    }
   }
-
-  tags = local.common_tags
 
   identity {
     type = "SystemAssigned"
@@ -95,7 +107,9 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["PolarisPipelineCoordinatorFunctionAppKey"],
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
-      app_settings["DdeiAccessKey"]
+      app_settings["DdeiAccessKey"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 

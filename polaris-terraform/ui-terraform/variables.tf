@@ -59,14 +59,6 @@ variable "terraform_service_principal_display_name" {
   type = string
 }
 
-variable "certificate_name" {
-  type = string
-}
-
-variable "custom_domain_name" {
-  type = string
-}
-
 variable "ui_logging" {
   type = object({
     gateway_scale_controller       = string

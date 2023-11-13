@@ -2,9 +2,13 @@
 parameters:
   - name: stageBuildAgent
     type: string
+  - name: stageDependsOn
+    type: object
   - name: targetBuild
     type: string
   - name: targetLabel
+    type: string
+  - name: targetName
     type: string
   - name: buildDefinitionId
     type: string
@@ -16,43 +20,32 @@ parameters:
 stages:
   - stage: Run_e2e_Tests_${{ parameters.targetLabel }}
     displayName: e2e tests > ${{ parameters.targetLabel }}
-    dependsOn: Check_${{ parameters.targetLabel }}
+    ${{ if parameters.stageDependsOn }}:
+      dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
+    pool:
+      name: ${{ parameters.stageBuildAgent }}
     jobs:
-      - job: Run_Tests
-        pool:
-          name: ${{ parameters.stageBuildAgent }}
-        steps:
-          # download scripts artifact
-          - download: ${{ parameters.targetBuild }}
-            displayName: Download Scripts
-            artifact: 'polaris-script-files'
+      - template: jobs/job_log-start.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: ${{ parameters.targetName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
 
-          # send custom event to AppInsights
-          - template: jobs/steps/tasks/task_send-to-app-insights.yml
-            parameters:
-              appInsightsKey: ${{ parameters.appInsightsKey }}
-              targetBuild: ${{ parameters.targetBuild }}
-              message: "${{ parameters.targetLabel }} e2e Tests: Started"
-
-          - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
-            displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
-            inputs:
-              buildDefinition: ${{ parameters.buildDefinitionId }}
-              waitForQueuedBuildsToFinish: true
-              cancelBuildsIfAnyFails: true
-              password: "${{ parameters.devOpsPatToken }}"
-
-          # send custom event to AppInsights
-          - template: jobs/steps/tasks/task_send-to-app-insights.yml
-            parameters:
-              appInsightsKey: ${{ parameters.appInsightsKey }}
-              targetBuild: ${{ parameters.targetBuild }}
-              message: "${{ parameters.targetLabel }} e2e Tests: Completed"
-
-          - template: jobs/steps/tasks/task_send-failure-to-app-insights.yml
-            parameters:
-              appInsightsKey: ${{ parameters.appInsightsKey }}
-              devOpsPatToken: ${{ parameters.devOpsPatToken }}
-              targetBuild: ${{ parameters.targetBuild }}
-              message: "${{ parameters.targetLabel }} e2e Tests: Failed"
+      - template: jobs/job_run-e2e-tests.yml
+        parameters:
+          targetLabel: ${{ parameters.targetLabel }}
+          buildDefinitionId: ${{ parameters.buildDefinitionId }}
+          devOpsPatToken: ${{ parameters.devOpsPatToken }}
+            
+      - template: jobs/job_log-result.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: ${{ parameters.targetName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          devOpsPatToken: ${{ parameters.devOpsPatToken }}
+          jobDependsOn:
+            - LogStart
+            - RunE2ETests
