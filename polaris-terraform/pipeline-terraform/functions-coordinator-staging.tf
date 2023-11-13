@@ -21,7 +21,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "WEBSITE_DNS_SERVER"                             = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sa_coordinator.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                           = azapi_resource.pipeline_sa_pdf_generator_file_share_staging1.name
+    "WEBSITE_CONTENTSHARE"                           = azapi_resource.pipeline_sa_coordinator_file_share_staging1.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.pipeline_logging.coordinator_scale_controller
@@ -159,7 +159,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
     "WEBSITE_DNS_SERVER"                             = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sa_coordinator.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                           = azapi_resource.pipeline_sa_pdf_generator_file_share_staging2.name
+    "WEBSITE_CONTENTSHARE"                           = azapi_resource.pipeline_sa_coordinator_file_share_staging2.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
     "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.pipeline_logging.coordinator_scale_controller
