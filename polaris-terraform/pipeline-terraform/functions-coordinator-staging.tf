@@ -45,6 +45,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "OvernightClearDownEnabled"                      = var.overnight_clear_down_enabled
     "SlidingClearDownEnabled"                        = var.sliding_clear_down_enabled
     "SlidingClearDownInputDays"                      = var.sliding_clear_down_input_days
+    "CoordinatorTaskHub"                             = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging1"
   }
 
   site_config {
@@ -182,6 +183,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
     "OvernightClearDownEnabled"                      = var.overnight_clear_down_enabled
     "SlidingClearDownEnabled"                        = var.sliding_clear_down_enabled
     "SlidingClearDownInputDays"                      = var.sliding_clear_down_input_days
+    "CoordinatorTaskHub"                             = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging2"
   }
 
   site_config {

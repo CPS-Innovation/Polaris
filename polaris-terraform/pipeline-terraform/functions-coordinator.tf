@@ -47,10 +47,12 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "OvernightClearDownEnabled"                      = var.overnight_clear_down_enabled
     "SlidingClearDownEnabled"                        = var.sliding_clear_down_enabled
     "SlidingClearDownInputDays"                      = var.sliding_clear_down_input_days
+    "CoordinatorTaskHub"                             = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
   }
 
   sticky_settings {
-    app_setting_names = ["PolarisPipelineCoordinatorDurableExtensionCode", "PolarisPipelineTextExtractorFunctionAppKey", "PolarisPipelineRedactPdfFunctionAppKey", "DdeiAccessKey"]
+    app_setting_names = ["PolarisPipelineCoordinatorDurableExtensionCode", "PolarisPipelineTextExtractorFunctionAppKey", 
+      "PolarisPipelineRedactPdfFunctionAppKey", "DdeiAccessKey", "CoordinatorTaskHub"]
   }
 
   site_config {
