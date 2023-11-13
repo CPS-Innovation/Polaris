@@ -69,7 +69,9 @@ export const AccordionDocument: React.FC<Props> = ({
         {!!caseDocument.attachments.length && (
           <div className={classes.attachmentWrapper}>
             <AttachmentIcon className={classes.attachmentIcon} />
-            <span>{getAttachmentText()}</span>
+            <span data-testid={`attachment-text-${caseDocument.documentId}`}>
+              {getAttachmentText()}
+            </span>
           </div>
         )}
       </div>

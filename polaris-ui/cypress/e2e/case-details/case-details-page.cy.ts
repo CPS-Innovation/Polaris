@@ -987,6 +987,51 @@ describe("case details page", () => {
       cy.findByTestId("tabs-dropdown-panel").should("not.exist");
     });
   });
+
+  describe("Hte emails", () => {
+    it("Should show communication sub categories", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h2").contains("Communications").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h3").contains("Communication files").should("be.visible");
+      cy.get("h3").contains("Emails").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("h3").contains("Communication files").should("not.be.visible");
+      cy.get("h3").contains("Emails").should("not.be.visible");
+    });
+    it("Should show number of attachments in the accordion, list attachment document name  in the document attachment head and clicking on it should open the corresponding documents", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h2").contains("Communications").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h3").contains("Communication files").should("be.visible");
+      cy.get("h3").contains("Emails").should("be.visible");
+      cy.findByTestId("attachment-text-4").should("have.text", "2 attachments");
+      cy.findByTestId("link-document-4").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.findByTestId("doc-attach-btn-1").should("have.text", "MCLOVEMG3,");
+      cy.findByTestId("doc-attach-btn-2").should("have.text", "CM01,");
+      cy.findByTestId("doc-attach-btn-1").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("tab-active").should("contain", "MCLOVEMG3");
+      cy.findByTestId("btn-tab-0").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.findByTestId("doc-attach-btn-2").click();
+      cy.findByTestId("tab-active").should("contain", "CM01");
+      cy.findByTestId("div-pdfviewer-2")
+        .should("exist")
+        .contains("CASE OUTLINE");
+    });
+  });
 });
 
 export {};

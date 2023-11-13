@@ -23,7 +23,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      parentDocumentId: null,
+      parentDocumentId: "4",
       cmsDocType: {
         documentTypeId: 1,
         documentType: "MG11",
@@ -46,7 +46,7 @@ const pipelinePdfResult: PipelineResults = {
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       fileExtension: ".pdf",
-      parentDocumentId: null,
+      parentDocumentId: "4",
       cmsDocType: {
         documentTypeId: 1019,
         documentType: "MG12",
@@ -91,7 +91,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-04",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
-      fileExtension: ".pdf",
+      fileExtension: ".hte",
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 4,
@@ -114,7 +114,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
-      fileExtension: ".pdf",
+      fileExtension: ".hte",
       parentDocumentId: null,
       cmsDocType: {
         documentTypeId: 5,
