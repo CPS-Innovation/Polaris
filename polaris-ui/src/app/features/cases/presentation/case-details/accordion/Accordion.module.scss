@@ -192,7 +192,12 @@
 .subCategory {
   background-color: #fff;
   display: flex;
+  align-items: center;
   h3 {
     margin: 0.75rem 0.5rem;
   }
+}
+.emailIcon {
+  width: 1.25rem;
+  padding-bottom: 0.25rem;
 }

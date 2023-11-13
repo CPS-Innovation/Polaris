@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from "react";
 import { AccordionDocument } from "./AccordionDocument";
 import classes from "./Accordion.module.scss";
+import { ReactComponent as EmailIcon } from "../../../../../common/presentation/svgs/email.svg";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 
@@ -59,6 +60,9 @@ export const AccordionSection: React.FC<Props> = ({
       <>
         {subCategoryName && (
           <div className={classes.subCategory}>
+            {subCategoryName === "Emails" && (
+              <EmailIcon className={classes.emailIcon} />
+            )}
             <h3>{subCategoryName}</h3>
           </div>
         )}

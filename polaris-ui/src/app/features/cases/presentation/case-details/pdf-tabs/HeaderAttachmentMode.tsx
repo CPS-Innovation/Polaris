@@ -1,5 +1,5 @@
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
-import { ReactComponent as Attachment } from "../../../../../common/presentation/svgs/attachment.svg";
+import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 import { LinkButton } from "../../../../../common/presentation/components";
 import classes from "./HeaderAttachmentMode.module.scss";
 
@@ -28,7 +28,7 @@ export const HeaderAttachmentMode: React.FC<Props> = ({
       <ul className={classes.attachmentsList}>
         {attachments.map((item) => (
           <li key={item.documentId} className={classes.tabListItem}>
-            <Attachment className={classes.attachmentIcon} />
+            <AttachmentIcon className={classes.attachmentIcon} />
             <LinkButton
               className={classes.documentBtn}
               onClick={() => {
