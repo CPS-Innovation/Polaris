@@ -60,6 +60,6 @@ jobs:
           action: "Swap Slots"
           sourceSlot: $(slotName)
           azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+          resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)
           PreserveVnet: true

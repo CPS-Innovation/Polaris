@@ -55,7 +55,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
                 deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
                 slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -100,7 +100,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
                 deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
                 slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -145,7 +145,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
                 deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
                 slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -192,7 +192,7 @@ jobs:
                 WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
                 packageForLinux: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-ui-drop
                 deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+                resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
                 slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -259,7 +259,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
                 deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+                resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
                 slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -304,7 +304,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-auth-handover-drop
                 deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+                resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
                 slotName: $(slotName)
 
             # send custom event to AppInsights
