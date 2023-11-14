@@ -23,13 +23,7 @@ describe("documentCategoryDefinitions", () => {
           headers: ["docTypeId", "category", "docTypeCategory"],
         })
       )
-      .on("data", (row) => {
-        let subCategory;
-        if (row.category === "Communications")
-          subCategory = "Communication files";
-        row.category = { category: row.category, subCategory };
-        return rows.push(row);
-      })
+      .on("data", (row) => rows.push(row))
       .on("end", () => done());
   });
 
@@ -42,7 +36,7 @@ describe("documentCategoryDefinitions", () => {
         },
       } as PresentationDocumentProperties);
 
-      expect({ docTypeId, category: categoryResult }).toEqual({
+      expect({ docTypeId, category: categoryResult.category }).toEqual({
         docTypeId,
         category,
       });
@@ -128,6 +122,7 @@ describe("documentCategoryDefinitions", () => {
 
     expect(result1.category).toBe("Unused material");
     expect(result2.category).toBe("Unused material");
+    expect(result2.subCategory).toBe(null);
   });
   it(`can resolve document with documentTypeId 1029 and with presentationTitle doesn't not contains "UM" or"Item N" where N represent digits under "Communications" category `, () => {
     const result1 = getCategory({
@@ -138,9 +133,12 @@ describe("documentCategoryDefinitions", () => {
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: " CM01 Typea 4 a",
+      fileExtension: ".hte",
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Communications");
+    expect(result1.subCategory).toBe("Communication files");
     expect(result2.category).toBe("Communications");
+    expect(result2.subCategory).toBe("Emails");
   });
 });

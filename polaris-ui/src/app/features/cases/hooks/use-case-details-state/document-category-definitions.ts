@@ -9,8 +9,8 @@ import {
 } from "./document-category-helpers";
 
 export enum CommunicationSubCategory {
-  catA = "Emails",
-  catB = "Communication files",
+  emails = "Emails",
+  communicationFiles = "Communication files",
 }
 
 const docTypeTest = (
@@ -171,7 +171,7 @@ export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
 );
 
 export const getCategory = (item: PresentationDocumentProperties) => {
-  let subCategory;
+  let subCategory = null;
   const category = documentCategoryDefinitions.find(({ testFn: test }) =>
     test(item)
   )!.category;

@@ -123,8 +123,8 @@ export const isUnusedCommunicationMaterial = (
 export const getCommunicationsSubCategory = (
   doc: PresentationDocumentProperties
 ): CommunicationSubCategory => {
-  if (doc.fileExtension === ".hte") return CommunicationSubCategory.catA;
-  return CommunicationSubCategory.catB;
+  if (doc.fileExtension === ".hte") return CommunicationSubCategory.emails;
+  return CommunicationSubCategory.communicationFiles;
 };
 
 export const getDocumentAttachments = (
