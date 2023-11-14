@@ -22,7 +22,6 @@ const docTypeTest = (
 
 const documentCategoryDefinitions: {
   category: string;
-  subCategory: string[];
   showIfEmpty: boolean;
   testFn: (caseDocument: PresentationDocumentProperties) => boolean;
   sortFn: (
@@ -33,7 +32,6 @@ const documentCategoryDefinitions: {
   // todo: when we know, write the `test` logic to identify which document goes in which section
   {
     category: "Reviews",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       // todo: PCD are artificial documents, write a unit test for this
@@ -43,7 +41,6 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Case overview",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -54,7 +51,6 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Statements",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       doc.cmsDocType.documentCategory !== "UnusedStatement" &&
@@ -64,7 +60,6 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Exhibits",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -78,14 +73,12 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Forensics",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) => docTypeTest(doc, [1027, 1048, 1049, 1203]),
     sortFn: sortDocumentsByCreatedDate,
   },
   {
     category: "Unused material",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       isUnusedCommunicationMaterial(
@@ -99,7 +92,6 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Defendant",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(doc, [1056, 1057, 1058, 225357, 225638, 225654]),
@@ -107,7 +99,6 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Court preparation",
-    subCategory: [],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -122,7 +113,6 @@ const documentCategoryDefinitions: {
   },
   {
     category: "Communications",
-    subCategory: [CommunicationSubCategory.catA, CommunicationSubCategory.catB],
     showIfEmpty: true,
     testFn: (doc) =>
       docTypeTest(
@@ -155,7 +145,6 @@ const documentCategoryDefinitions: {
   // have Uncategorised last so it can scoop up any unmatched documents
   {
     category: "Uncategorised",
-    subCategory: [],
     showIfEmpty: false,
     testFn: (doc) =>
       docTypeTest(doc, [1051, 1052, 1053, 1054]) ||

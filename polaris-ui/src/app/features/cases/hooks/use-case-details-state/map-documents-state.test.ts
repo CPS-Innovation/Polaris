@@ -9,7 +9,7 @@ describe("mapDocumentsState", () => {
       .spyOn(documentCategoryDefinitions, "getCategory")
       .mockImplementation((item: PresentationDocumentProperties) => ({
         category: "category" + item.documentId,
-        subCategory: undefined,
+        subCategory: null,
       }));
   });
 
@@ -33,14 +33,14 @@ describe("mapDocumentsState", () => {
           attachments: [],
           presentationCategory: "category0",
           presentationFileName: "foo",
-          presentationSubCategory: undefined,
+          presentationSubCategory: null,
         },
         {
           ...doc2,
           attachments: [],
           presentationCategory: "category1",
           presentationFileName: "bar",
-          presentationSubCategory: undefined,
+          presentationSubCategory: null,
         },
       ] as MappedCaseDocument[],
     };
