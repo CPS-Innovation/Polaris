@@ -18,6 +18,7 @@ using coordinator.Functions.ActivityFunctions.Case;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using coordinator.Functions.Orchestration.Functions.Document;
 using coordinator.TelemetryEvents;
+using coordinator.Validators;
 using Mapster;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -30,9 +31,9 @@ namespace coordinator.Functions.Orchestration.Functions.Case
     {
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
+        private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
         private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
-
         const string loggingName = $"{nameof(RefreshCaseOrchestrator)} - {nameof(Run)}";
 
         public static string GetKey(string caseId)
@@ -40,10 +41,15 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             return $"[{caseId}]";
         }
 
-        public RefreshCaseOrchestrator(ILogger<RefreshCaseOrchestrator> log, IConfiguration configuration, ITelemetryClient telemetryClient)
+        public RefreshCaseOrchestrator(
+            ILogger<RefreshCaseOrchestrator> log,
+            IConfiguration configuration,
+            ICmsDocumentsResponseValidator cmsDocumentsResponseValidator,
+            ITelemetryClient telemetryClient)
         {
             _log = log;
             _configuration = configuration;
+            _cmsDocumentsResponseValidator = cmsDocumentsResponseValidator;
             _telemetryClient = telemetryClient;
             _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs]));
         }
@@ -240,7 +246,10 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
             var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
-
+            if (!_cmsDocumentsResponseValidator.IsValid(documents.CmsDocuments))
+            {
+                throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.")
+            }
             return documents;
         }
     }
