@@ -5,6 +5,9 @@
   background: #f3f2f1;
   color: #505a5f;
   padding: 0.5em;
+  position: relative;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
 }
 .attachmentIcon {
   width: 1.25rem;
