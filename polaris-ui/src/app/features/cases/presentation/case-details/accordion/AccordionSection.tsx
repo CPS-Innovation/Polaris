@@ -116,9 +116,11 @@ export const AccordionSection: React.FC<Props> = ({
           </span>
         )}
         {Object.keys(subCategories).length
-          ? Object.keys(subCategories).map((subCategory) =>
-              renderAccordionDocument(subCategories[subCategory], subCategory)
-            )
+          ? Object.keys(subCategories)
+              .sort()
+              .map((subCategory) =>
+                renderAccordionDocument(subCategories[subCategory], subCategory)
+              )
           : renderAccordionDocument(docs)}
       </div>
     </div>
