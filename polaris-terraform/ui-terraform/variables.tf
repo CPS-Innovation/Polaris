@@ -92,6 +92,11 @@ variable "is_redaction_service_offline" {
   type = string
 }
 
+variable "feature_flag_hte_emails_on" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "private_beta" {
   type = object({
     sign_up_url = string
