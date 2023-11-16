@@ -102,7 +102,9 @@
 }
 .accordion .accordion-section-read-warning {
   display: block;
-  margin-top: 0.9375rem;
+  padding: 0.75rem 0 0.75rem;
+  background-color: #fff;
+  border-top: 0.0625rem solid #bfc1c3;
 }
 
 .accordion .accordionSectionOpened .icon {
@@ -151,13 +153,14 @@
 
 .accordion .accordion-document-link-button,
 .accordion .accordion-document-link-name {
-  padding: 0.625rem 0.9375rem 0.625rem 0;
+  padding: 0.25rem 0.9375rem 0.25rem 0;
   min-width: 30%;
   max-width: 80%;
   word-wrap: break-word;
   font-size: 1rem;
   text-align: left;
   font-weight: bold;
+  line-height: 1.25rem;
 }
 
 .accordion .accordion-document-date {
