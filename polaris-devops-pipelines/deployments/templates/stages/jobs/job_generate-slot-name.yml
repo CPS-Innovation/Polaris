@@ -1,0 +1,30 @@
+﻿---
+parameters:
+  - name: targetBuild
+    type: string
+  - name: jobDependsOn
+    type: object
+
+jobs:
+  - job: GenerateSlotName
+    dependsOn: ${{ parameters.jobDependsOn }}
+    steps:
+      - bash: |
+          slotNum=0
+          preppedBuildVersion=${buildVersion/-ci/''}
+          echo "PreppedBuildVersion: $preppedBuildVersion"
+          buildNum=${preppedBuildVersion:0-1}
+          oddOrEven=$(($buildNum % 2))
+          echo "BuildNum: $buildNum"
+          if [[ "$oddOrEven" -eq 0 ]]
+          then
+            slotNum=1
+          else
+            slotNum=2
+          fi
+
+          echo "##vso[task.setvariable variable=name;isOutput=true]staging$slotNum"
+          echo "Slot Num: staging$slotNum"
+        name: slot
+        env:
+          buildVersion: $(resources.pipeline.${{ parameters.targetBuild }}.runName)

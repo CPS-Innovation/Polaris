@@ -4,12 +4,12 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.71.0"
+      version = "3.80.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.38.0"
+      version = "2.45.0"
     }
   }
 
@@ -37,7 +37,7 @@ provider "azurerm" {
 }
 
 locals {
-  polaris_resource_name = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}" : var.polaris_resource_name_prefix
+  polaris_resource_name  = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}" : var.polaris_resource_name_prefix
   pipeline_resource_name = var.env != "prod" ? "${var.pipeline_resource_name_prefix}-${var.env}" : var.pipeline_resource_name_prefix
   gateway_resource_name  = var.env != "prod" ? "${var.polaris_resource_name_prefix}-${var.env}-gateway" : "${var.polaris_resource_name_prefix}-gateway"
 }

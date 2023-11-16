@@ -12,12 +12,12 @@ parameters:
     type: string
   - name: devOpsPatToken
     type: string
-  - name: dependsOn
+  - name: jobDependsOn
     type: object
 
 jobs:
   - deployment: LogResult
-    dependsOn: ${{ parameters.dependsOn }}
+    dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
