@@ -404,6 +404,13 @@ describe("case details page", () => {
       );
     });
 
+    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsNotOcrProcessed`", () => {
+      openAndRedactDocument("link-document-7");
+      cy.findByTestId("redaction-warning").contains(
+        "Awaiting OCR processing in CMS. Please try again later for redaction."
+      );
+    });
+
     it("User shouldn't be allowed to view document and there should be document view warnings, if presentationFlags read status is not 'Ok'", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();

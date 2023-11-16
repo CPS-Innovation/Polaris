@@ -178,6 +178,27 @@ const pipelinePdfResult: PipelineResults = {
         write: "OnlyAvailableInCms",
       },
     },
+    {
+      documentId: "9",
+      cmsDocumentId: "9",
+      pdfBlobName: "MG06_19june",
+      status: "Indexed",
+      cmsOriginalFileName: "MG06_19june",
+      presentationTitle: "Doc_9",
+      cmsMimeType: "application/pdf",
+      cmsFileCreatedDate: "2020-06-10",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 7,
+        documentType: "MG15",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "IsDispatched",
+      },
+    },
   ],
 };
 // this will return updated tracker data with updated polarisDocumentVersionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow

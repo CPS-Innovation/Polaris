@@ -25,6 +25,7 @@ namespace Common.Domain.Entity
             string cmsOriginalFileName,
             string presentationTitle,
             bool isOcrProcessed,
+            bool isDispatched,
             int? categoryListOrder,
             PresentationFlagsDto presentationFlags)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
@@ -36,6 +37,7 @@ namespace Common.Domain.Entity
             CmsOriginalFileName = cmsOriginalFileName;
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
+            IsDispatched = isDispatched;
             CategoryListOrder = categoryListOrder;
             Status = DocumentStatus.New;
         }
@@ -62,6 +64,9 @@ namespace Common.Domain.Entity
 
         [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
+
+        [JsonProperty("isDispatched")]
+        public bool IsDispatched { get; set; }
 
         [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }

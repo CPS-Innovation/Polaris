@@ -24,6 +24,8 @@ namespace Common.Dto.Document
 
         public bool IsOcrProcessed { get; set; }
 
+        public bool IsDispatched { get; set; }
+
         public int? CategoryListOrder { get; set; }
 
         public PresentationFlagsDto PresentationFlags { get; set; }
