@@ -42,4 +42,7 @@ public class DdeiCaseDocumentResponse
 
     [JsonProperty("categoryListOrder")]
     public int? CategoryListOrder { get; set; }
+
+    [JsonProperty("parentId")]
+    public long? ParentId { get; set; }
 }

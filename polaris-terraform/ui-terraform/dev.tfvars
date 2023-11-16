@@ -14,9 +14,6 @@ polaris_webapp_details = {
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Development"
 
-certificate_name   = "polaris-dev-notprod3536a9f3-a9a0-48b4-9b40-8c76083cad2e"
-custom_domain_name = "polaris-dev-notprod.cps.gov.uk"
-
 ui_logging = {
   gateway_scale_controller       = "AppInsights:Verbose"
   auth_handover_scale_controller = "AppInsights:Verbose"
@@ -27,7 +24,7 @@ cms_details = {
   upstream_cms_ip_corsham        = "10.2.177.14"
   upstream_cms_modern_ip_corsham = "10.2.177.55"
   // for non-prod environments, current thinking is to try to go to Corsham's IP
-  //  even if we dtect a farnborough cookie
+  //  even if we detect a farnborough cookie
   upstream_cms_ip_farnborough        = "10.2.177.14"
   upstream_cms_modern_ip_farnborough = "10.2.177.55"
   upstream_cms_domain_name           = "cin3.cps.gov.uk"
@@ -39,6 +36,8 @@ app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 
 is_redaction_service_offline = "false"
+
+feature_flag_hte_emails_on = "true"
 
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"

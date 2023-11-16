@@ -14,23 +14,25 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   public_network_access_enabled = false
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"      = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"          = "true"
-    "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
-    "WEBSITE_DNS_SERVER"                       = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.pipeline_sa_text_extractor_file_share.name
-    "SCALE_CONTROLLER_LOGGING_ENABLED"         = var.pipeline_logging.text_extractor_scale_controller
-    "AzureWebJobsStorage"                      = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "ComputerVisionClientServiceKey"           = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"           = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"             = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                  = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                    = jsondecode(file("search-index-definition.json")).name
+    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
+    "WEBSITE_CONTENTOVERVNET"                      = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
+    "WEBSITE_DNS_SERVER"                           = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_text_extractor_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.text_extractor_scale_controller
+    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "ComputerVisionClientServiceKey"               = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"               = azurerm_cognitive_account.computer_vision_service.endpoint
+    "SearchClientAuthorizationKey"                 = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                      = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                        = jsondecode(file("search-index-definition.json")).name
   }
 
   site_config {
@@ -45,6 +47,8 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
     application_stack {
       dotnet_version = "6.0"
     }
+    health_check_path                 = "/api/status"
+    health_check_eviction_time_in_min = "2"
   }
 
   identity {
@@ -63,7 +67,9 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
       app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
       app_settings["FUNCTIONS_EXTENSION_VERSION"],
       app_settings["AzureWebJobsStorage"],
-      app_settings["WEBSITE_CONTENTSHARE"]
+      app_settings["WEBSITE_CONTENTSHARE"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 }

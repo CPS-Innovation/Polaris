@@ -20,7 +20,7 @@ describe("useNavigationAlert hook", () => {
       cmsDocumentId: "1",
       cmsOriginalFileName: "MCLOVEMG3  very long .docx",
       presentationTitle: "MCLOVEMG3  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
@@ -28,9 +28,8 @@ describe("useNavigationAlert hook", () => {
       presentationFileName: "MCLOVEMG3  very long",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
-      fileExtension: ".pdf",
       attachments: [],
-      parentDocumentId: null,
+      polarisParentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -58,7 +57,7 @@ describe("useNavigationAlert hook", () => {
       cmsDocumentId: "2",
       cmsOriginalFileName: "MCLOVEMG4 very long .docx",
       presentationTitle: "MCLOVEMG4 test",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
@@ -66,9 +65,8 @@ describe("useNavigationAlert hook", () => {
       presentationFileName: "MCLOVEMG4 test",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
-      fileExtension: ".pdf",
       attachments: [],
-      parentDocumentId: null,
+      polarisParentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -82,7 +80,6 @@ describe("useNavigationAlert hook", () => {
         },
       ],
       sasUrl: undefined,
-
       url: undefined,
     },
   ];

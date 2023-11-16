@@ -14,9 +14,6 @@ polaris_webapp_details = {
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 
-certificate_name   = "polaris.cps.co.uk-polaris-cmsproxy-undefined"
-custom_domain_name = "polaris.cpsdev.co.uk"
-
 ui_logging = {
   gateway_scale_controller       = "AppInsights:None"
   auth_handover_scale_controller = "AppInsights:None"
@@ -37,6 +34,8 @@ app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 
 is_redaction_service_offline = "false"
+
+feature_flag_hte_emails_on = "false"
 
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"

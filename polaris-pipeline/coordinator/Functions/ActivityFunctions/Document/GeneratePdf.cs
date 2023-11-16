@@ -75,7 +75,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CorrelationId
                     );
 
-                string fileExtension = payload.CmsDocumentTracker.FileExtension.Replace(".", string.Empty).ToUpperInvariant();
+                string fileExtension = payload.CmsDocumentTracker.CmsOriginalFileExtension.Replace(".", string.Empty).ToUpperInvariant();
                 fileType = Enum.Parse<FileType>(fileExtension);
             }
             else if (payload.PcdRequestTracker != null)

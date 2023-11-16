@@ -26,25 +26,29 @@ namespace Common.Domain.Entity
             string presentationTitle,
             bool isOcrProcessed,
             int? categoryListOrder,
+            PolarisDocumentId polarisParentDocumentId,
+            string cmsParentDocumentId,
             PresentationFlagsDto presentationFlags)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             Path = path;
-            FileExtension = fileExtension;
+            CmsOriginalFileExtension = fileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
             CategoryListOrder = categoryListOrder;
+            PolarisParentDocumentId = polarisParentDocumentId;
+            CmsParentDocumentId = cmsParentDocumentId;
             Status = DocumentStatus.New;
         }
 
         [JsonProperty("path")]
         public string Path { get; set; }
 
-        [JsonProperty("fileExtension")]
-        public string FileExtension { get; set; }
+        [JsonProperty("cmsOriginalFileExtension")]
+        public string CmsOriginalFileExtension { get; set; }
 
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
@@ -65,5 +69,24 @@ namespace Common.Domain.Entity
 
         [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
+
+        [JsonIgnore]
+        public PolarisDocumentId PolarisParentDocumentId { get; set; }
+
+        [JsonProperty("polarisParentDocumentId")]
+        public string PolarisParentDocumentIdValue
+        {
+            get
+            {
+                return PolarisParentDocumentId?.ToString();
+            }
+            set
+            {
+                PolarisParentDocumentId = new PolarisDocumentId(value);
+            }
+        }
+
+        [JsonProperty("cmsParentDocumentId")]
+        public string CmsParentDocumentId { get; set; }
     }
 }

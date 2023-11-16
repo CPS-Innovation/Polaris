@@ -133,7 +133,7 @@ describe("documentCategoryDefinitions", () => {
     const result2 = getCategory({
       cmsDocType: { documentTypeId: 1029 },
       presentationTitle: " CM01 Typea 4 a",
-      fileExtension: ".hte",
+      cmsOriginalFileExtension: ".hte",
     } as PresentationDocumentProperties);
 
     expect(result1.category).toBe("Communications");

@@ -123,7 +123,8 @@ export const isUnusedCommunicationMaterial = (
 export const getCommunicationsSubCategory = (
   doc: PresentationDocumentProperties
 ): CommunicationSubCategory => {
-  if (doc.fileExtension === ".hte") return CommunicationSubCategory.emails;
+  if (doc.cmsOriginalFileExtension === ".hte")
+    return CommunicationSubCategory.emails;
   return CommunicationSubCategory.communicationFiles;
 };
 
@@ -131,10 +132,10 @@ export const getDocumentAttachments = (
   item: PresentationDocumentProperties,
   docs: PresentationDocumentProperties[]
 ) => {
-  if (item.fileExtension !== ".hte") return [];
+  if (item.cmsOriginalFileExtension !== ".hte") return [];
 
   const attachments = docs
-    .filter((doc) => doc.parentDocumentId === item.documentId)
+    .filter((doc) => doc.polarisParentDocumentId === item.documentId)
     .map(({ documentId, presentationTitle }) => {
       return {
         documentId: documentId,
