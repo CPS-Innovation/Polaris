@@ -96,10 +96,7 @@ namespace pdf_generator.Services.PdfService
                     // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
                     // But Aspose seems forgiving enough to convert it, so treat it as HTML
                     case FileType.HTE:
-                        if(_configuration.IsSettingEnabled(FeatureFlags.HteFeatureFlag))
-                            _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
-                        else
-                            throw new ArgumentOutOfRangeException(nameof(fileType), FileType.HTE, null);
+                        _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.MSG:
