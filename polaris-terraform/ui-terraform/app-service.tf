@@ -35,6 +35,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_PRIVATE_BETA_USER_GROUP"            = var.private_beta.user_group
     "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"           = var.private_beta.sign_up_url
     "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"       = var.is_redaction_service_offline
+    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"         = var.feature_flag_hte_emails_on
   }
 
   sticky_settings {

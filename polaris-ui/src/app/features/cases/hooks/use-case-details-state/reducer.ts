@@ -557,10 +557,6 @@ export const reducer = (
         state.searchState.submittedSearchTerm &&
         action.payload.data
       ) {
-        const knownDocumentIds = state.documentsState.data.map(
-          (item) => item.documentId
-        );
-
         const filteredSearchResults = filterApiResults(
           action.payload.data,
           state.documentsState.data

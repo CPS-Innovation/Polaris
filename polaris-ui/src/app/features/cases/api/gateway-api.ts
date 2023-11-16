@@ -6,7 +6,7 @@ import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
 import * as HEADERS from "./header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
-import { GATEWAY_BASE_URL } from "../../../config";
+import { FEATURE_FLAG_HTE_EMAILS_ON, GATEWAY_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 
 const buildHeaders = async (
@@ -158,7 +158,19 @@ export const getPipelinePdfResults = async (
   const { documents } = rawResponse;
   temporaryApiModelMapping(documents);
 
-  return rawResponse as PipelineResults;
+  // temporary hack for #24313 before feature flag comes in
+  // return rawResponse as PipelineResults;
+  var typedRawResponse = rawResponse as PipelineResults;
+
+  if (!FEATURE_FLAG_HTE_EMAILS_ON) {
+    typedRawResponse.documents = typedRawResponse.documents.filter(
+      (doc) =>
+        doc.cmsDocType.documentCategory !== "Attachment" &&
+        doc.cmsOriginalFileExtension !== ".hte"
+    );
+  }
+
+  return typedRawResponse;
 };
 export const searchCase = async (
   urn: string,
