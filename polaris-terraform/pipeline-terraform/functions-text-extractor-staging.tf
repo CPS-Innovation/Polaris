@@ -12,27 +12,27 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_text_extractor_file_share_staging1.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_text_extractor_file_share_staging1.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.text_extractor_scale_controller
-    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "ComputerVisionClientServiceKey"               = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"               = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"                 = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                      = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                        = jsondecode(file("search-index-definition.json")).name
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
   }
 
   site_config {
@@ -144,27 +144,27 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_text_extractor_file_share_staging2.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_text_extractor_file_share_staging2.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.text_extractor_scale_controller
-    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "ComputerVisionClientServiceKey"               = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"               = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"                 = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                      = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                        = jsondecode(file("search-index-definition.json")).name
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
   }
 
   site_config {
