@@ -226,7 +226,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         const int totalWaitTimeSeconds = 600;
         const int retryDelayMilliseconds = 1000;
 
-        for (var i = 0; i < (totalWaitTimeSeconds * 1000) / retryDelayMilliseconds; i++)
+        for (var i = 0; i < totalWaitTimeSeconds * 1000 / retryDelayMilliseconds; i++)
         {
             var statuses = await client.GetStatusAsync(instanceIds);
 
