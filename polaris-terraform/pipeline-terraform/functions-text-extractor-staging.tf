@@ -24,6 +24,8 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_text_extractor_file_share_staging1.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.text_extractor_scale_controller
     "AzureWebJobsStorage"                          = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "ComputerVisionClientServiceKey"               = azurerm_cognitive_account.computer_vision_service.primary_access_key
@@ -67,7 +69,9 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 }
@@ -152,6 +156,8 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
     "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_text_extractor_file_share_staging2.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.text_extractor_scale_controller
     "AzureWebJobsStorage"                          = azurerm_storage_account.sa_text_extractor.primary_connection_string
     "ComputerVisionClientServiceKey"               = azurerm_cognitive_account.computer_vision_service.primary_access_key
@@ -195,7 +201,9 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 }

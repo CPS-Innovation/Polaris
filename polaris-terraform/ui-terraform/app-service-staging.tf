@@ -22,6 +22,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "WEBSITE_CONTENTSHARE"                         = azapi_resource.polaris_sacpspolaris_ui_staging1_file_share.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "APPINSIGHTS_INSTRUMENTATIONKEY"               = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                          = module.azurerm_app_reg_as_web_polaris_staging1.client_id
     "REACT_APP_TENANT_ID"                          = data.azurerm_client_config.current.tenant_id
@@ -81,7 +82,8 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"]
     ]
   }
 }
@@ -196,6 +198,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
     "WEBSITE_CONTENTSHARE"                         = azapi_resource.polaris_sacpspolaris_ui_staging2_file_share.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "APPINSIGHTS_INSTRUMENTATIONKEY"               = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                          = module.azurerm_app_reg_as_web_polaris_staging2.client_id
     "REACT_APP_TENANT_ID"                          = data.azurerm_client_config.current.tenant_id
@@ -255,7 +258,8 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"]
     ]
   }
 }

@@ -24,6 +24,8 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
     "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.ui_logging.auth_handover_scale_controller
     "AzureWebJobsStorage"                          = azurerm_storage_account.sacpspolaris.primary_connection_string
     "DdeiBaseUrl"                                  = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
@@ -79,7 +81,9 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 

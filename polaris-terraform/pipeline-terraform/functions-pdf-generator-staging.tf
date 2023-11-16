@@ -24,6 +24,8 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_pdf_generator_file_share_staging1.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.pdf_generator_scale_controller
     "AzureWebJobsStorage"                          = azurerm_storage_account.sa_pdf_generator.primary_connection_string
     "BlobServiceUrl"                               = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
@@ -67,7 +69,9 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 }
@@ -152,6 +156,8 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging2" {
     "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_pdf_generator_file_share_staging2.name
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.pdf_generator_scale_controller
     "AzureWebJobsStorage"                          = azurerm_storage_account.sa_pdf_generator.primary_connection_string
     "BlobServiceUrl"                               = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
@@ -195,7 +201,9 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging2" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 }

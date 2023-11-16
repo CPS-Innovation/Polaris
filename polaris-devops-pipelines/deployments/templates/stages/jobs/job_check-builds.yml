@@ -81,11 +81,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -SuccessTextContent "coordinator"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
@@ -106,11 +106,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -SuccessTextContent "pdf-generator"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
@@ -131,11 +131,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -SuccessTextContent "text-extractor"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
@@ -156,11 +156,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -SuccessTextContent "polaris-auth-handover"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
@@ -181,11 +181,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI "$(uri)/api/status"
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -SuccessTextContent "polaris-gateway"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
@@ -231,11 +231,11 @@ jobs:
         inputs:
           failOnStderr: true
           targetType: 'filePath'
-          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetry.ps1
+          filePath: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-script-files/InvokeRequestWithRetryNonNumeric.ps1
           arguments: > # Use this to avoid newline characters in multi-line string
             -URI "$(uri)/polaris-ui/build-version.txt"
             -Method ${{ parameters.statusCheckMethod }}
-            -SuccessTextContent "$(resources.pipeline.${{ parameters.targetBuild }}.runName)"
+            -SuccessTextContent "ui"
             -Retries ${{ parameters.statusCheckRetries }}
             -SecondsDelay ${{ parameters.statusCheckDelaySeconds }}
             -TimeoutSec ${{ parameters.statusCheckTimeoutSeconds }}
