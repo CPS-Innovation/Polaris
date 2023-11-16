@@ -26,7 +26,7 @@ export const HeaderAttachmentMode: React.FC<Props> = ({
   const renderAttachments = () => {
     return (
       <ul className={classes.attachmentsList}>
-        {attachments.map((item) => (
+        {attachments.map((item, index) => (
           <li key={item.documentId} className={classes.tabListItem}>
             <AttachmentIcon className={classes.attachmentIcon} />
             <LinkButton
@@ -37,7 +37,9 @@ export const HeaderAttachmentMode: React.FC<Props> = ({
               }}
             >
               {item.name}
-              <span className={classes.separator}>,</span>
+              {index < attachments.length - 1 && (
+                <span className={classes.separator}>,</span>
+              )}
             </LinkButton>
           </li>
         ))}

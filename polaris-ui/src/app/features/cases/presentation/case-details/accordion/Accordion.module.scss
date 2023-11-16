@@ -115,6 +115,7 @@
   background-color: #fff;
 }
 .accordion .accordion-section-no-document {
+  border-top: 0.0625rem solid #bfc1c3;
   padding: 0.625rem 0.5rem;
 }
 .accordion .accordion-document-date-title {
@@ -196,6 +197,7 @@
   background-color: #fff;
   display: flex;
   align-items: center;
+  border-top: 0.0625rem solid #bfc1c3;
   h3 {
     margin: 0.75rem 0.5rem;
   }
