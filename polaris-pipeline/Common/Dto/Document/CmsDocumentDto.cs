@@ -28,6 +28,8 @@ namespace Common.Dto.Document
 
         public int? CategoryListOrder { get; set; }
 
+        public string ParentDocumentId { get; set; }
+
         public PresentationFlagsDto PresentationFlags { get; set; }
     }
 }

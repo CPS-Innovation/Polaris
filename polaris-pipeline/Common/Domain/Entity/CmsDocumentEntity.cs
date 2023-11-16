@@ -3,7 +3,6 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
-using Common.Dto.Tracker;
 
 namespace Common.Domain.Entity
 {
@@ -27,26 +26,29 @@ namespace Common.Domain.Entity
             bool isOcrProcessed,
             bool isDispatched,
             int? categoryListOrder,
+            PolarisDocumentId polarisParentDocumentId,
+            string cmsParentDocumentId,
             PresentationFlagsDto presentationFlags)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
             CmsDocType = cmsDocType;
             Path = path;
-            FileExtension = fileExtension;
+            CmsOriginalFileExtension = fileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
             IsDispatched = isDispatched;
             CategoryListOrder = categoryListOrder;
-            Status = DocumentStatus.New;
+            PolarisParentDocumentId = polarisParentDocumentId;
+            CmsParentDocumentId = cmsParentDocumentId;
         }
 
         [JsonProperty("path")]
         public string Path { get; set; }
 
-        [JsonProperty("fileExtension")]
-        public string FileExtension { get; set; }
+        [JsonProperty("cmsOriginalFileExtension")]
+        public string CmsOriginalFileExtension { get; set; }
 
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
@@ -70,5 +72,24 @@ namespace Common.Domain.Entity
 
         [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
+
+        [JsonIgnore]
+        public PolarisDocumentId PolarisParentDocumentId { get; set; }
+
+        [JsonProperty("polarisParentDocumentId")]
+        public string PolarisParentDocumentIdValue
+        {
+            get
+            {
+                return PolarisParentDocumentId?.ToString();
+            }
+            set
+            {
+                PolarisParentDocumentId = new PolarisDocumentId(value);
+            }
+        }
+
+        [JsonProperty("cmsParentDocumentId")]
+        public string CmsParentDocumentId { get; set; }
     }
 }

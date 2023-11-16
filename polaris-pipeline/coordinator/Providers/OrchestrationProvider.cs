@@ -48,7 +48,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         OrchestrationRuntimeStatus.Failed,
         OrchestrationRuntimeStatus.Terminated
     };
-    
+
     public OrchestrationProvider(
         ILogger<OrchestrationProvider> logger,
         IConfiguration configuration,
@@ -65,14 +65,14 @@ public class OrchestrationProvider : IOrchestrationProvider
         _telemetryClient = telemetryClient;
         _blobStorageService = blobStorageService;
     }
-    
+
     public async Task<string> FindCaseInstanceByDateAsync(DateTime createdTimeTo, Guid correlationId)
     {
         _logger.LogMethodEntry(correlationId, nameof(FindCaseInstanceByDateAsync), $"Searching durable instance records for target case to clear-down, up to '{createdTimeTo:dd-MM-yyyy}'");
 
         var caseId = string.Empty;
-        var clearDownCandidates = new[] {OrchestrationRuntimeStatus.Completed, OrchestrationRuntimeStatus.Failed};
-        
+        var clearDownCandidates = new[] { OrchestrationRuntimeStatus.Completed, OrchestrationRuntimeStatus.Failed };
+
         try
         {
             var requestUri = $"{RestApi.GetInstancesPath()}?code={_configuration[PipelineSettings.PipelineCoordinatorDurableExtensionCode]}&createdTimeTo={createdTimeTo:yyyy-MM-ddThh:mm:ss.fffZ}&showInput=false&showHistoryOutput=false&instanceIdPrefix=[";
@@ -84,14 +84,14 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             var response = await httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            
+
             var jsonString = await response.Content.ReadAsStringAsync();
             if (string.IsNullOrWhiteSpace(jsonString))
                 return caseId;
-            
-            var results =  JsonConvert.DeserializeObject<List<DurableInstanceDto>>(jsonString);
+
+            var results = JsonConvert.DeserializeObject<List<DurableInstanceDto>>(jsonString);
             var targetInstance = results.FirstOrDefault(i => i.Name == nameof(RefreshCaseOrchestrator) && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates));
-            
+
             if (targetInstance != null && !string.IsNullOrWhiteSpace(targetInstance.InstanceId))
                 caseId = targetInstance.InstanceId;
         }
@@ -99,7 +99,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         {
             if (exception.StatusCode == HttpStatusCode.NotFound)
                 return string.Empty;
-                
+
             throw;
         }
 
@@ -107,8 +107,8 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         return caseId;
     }
-    
-    public async Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId, 
+
+    public async Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
         string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req)
     {
         var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
@@ -128,7 +128,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         return orchestrationClient.CreateCheckStatusResponse(req, instanceId);
     }
 
-    public async Task<HttpResponseMessage> DeleteCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId, 
+    public async Task<HttpResponseMessage> DeleteCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
         int caseId)
     {
         var telemetryEvent = new DeletedCaseEvent(
@@ -137,7 +137,7 @@ public class OrchestrationProvider : IOrchestrationProvider
                 startTime: DateTime.UtcNow
         );
         var caseIdAsString = caseId.ToString();
-        
+
         try
         {
             if (!_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
@@ -175,7 +175,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             throw;
         }
     }
-    
+
     private static bool IsSingletonRefreshRunning(DurableOrchestrationStatus existingInstance)
     {
         // https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-singletons?tabs=csharp
@@ -189,7 +189,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         return !notRunning;
     }
-    
+
     private async Task<List<string>> TerminateOrchestrations(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> terminateConditions, Guid correlationId)
     {
         const string loggingName = $"{nameof(OrchestrationProvider)} - {nameof(TerminateOrchestrations)}";
@@ -218,15 +218,15 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         return instanceIds;
     }
-    
+
     private static async Task WaitForOrchestrationsToTerminateTask(IDurableOrchestrationClient client, IReadOnlyCollection<string> instanceIds)
     {
-        if(instanceIds == null || !instanceIds.Any()) return;
+        if (instanceIds == null || !instanceIds.Any()) return;
 
-        const int totalWaitTimeSeconds = 600;   
+        const int totalWaitTimeSeconds = 600;
         const int retryDelayMilliseconds = 1000;
 
-        for (var i = 0; i < (totalWaitTimeSeconds * 1000) / retryDelayMilliseconds; i++)
+        for (var i = 0; i < totalWaitTimeSeconds * 1000 / retryDelayMilliseconds; i++)
         {
             var statuses = await client.GetStatusAsync(instanceIds);
 
@@ -235,7 +235,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             await Task.Delay(retryDelayMilliseconds);
         }
     }
-    
+
     private async Task<bool> Purge(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> purgeConditions, Guid correlationId)
     {
         const string loggingName = $"{nameof(OrchestrationProvider)} - {nameof(Purge)}";
@@ -250,7 +250,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
                 var instancesToPurge = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToList();
 
-                if(instancesToPurge.Any())
+                if (instancesToPurge.Any())
                     await client.PurgeInstanceHistoryAsync(instancesToPurge);
             } while (purgeCondition.ContinuationToken != null);
 
@@ -280,7 +280,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         return conditions;
     }
-    
+
     private static IEnumerable<OrchestrationStatusQueryCondition> GetDurableEntityQueries(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses, string caseId)
     {
         var conditions = new List<OrchestrationStatusQueryCondition>();

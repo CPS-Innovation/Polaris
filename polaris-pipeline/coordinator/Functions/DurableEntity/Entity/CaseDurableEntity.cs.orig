@@ -214,6 +214,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 var trackerDocument
                     = new CmsDocumentEntity
                     (
+<<<<<<< HEAD
                         polarisDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
                         polarisDocumentVersionId: 1,
                         cmsDocumentId: newDocument.DocumentId,
@@ -227,9 +228,24 @@ namespace coordinator.Functions.DurableEntity.Entity
                         isOcrProcessed: newDocument.IsOcrProcessed,
                         isDispatched: newDocument.IsDispatched,
                         categoryListOrder: newDocument.CategoryListOrder,
+                        presentationFlags: newDocument.PresentationFlags
+=======
+                        new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
+                        1,
+                        newDocument.DocumentId,
+                        newDocument.VersionId,
+                        newDocument.CmsDocType,
+                        newDocument.Path,
+                        newDocument.FileExtension,
+                        newDocument.DocumentDate,
+                        newDocument.FileName,
+                        newDocument.PresentationTitle,
+                        newDocument.IsOcrProcessed,
+                        newDocument.CategoryListOrder,
                         new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
                         newDocument.ParentDocumentId,
-                        presentationFlags: newDocument.PresentationFlags
+                        newDocument.PresentationFlags
+>>>>>>> main
                     );
 
                 CmsDocuments.Add(trackerDocument);

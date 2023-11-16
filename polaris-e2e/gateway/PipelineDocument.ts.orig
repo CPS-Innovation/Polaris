@@ -20,9 +20,13 @@ export type PresentationFlags = {
     | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
-    | "IsNotOcrProcessed"
-    | "IsRedactionServiceOffline"
+<<<<<<< HEAD
 }
+=======
+    | "IsNotOcrProcessed"
+    | "IsRedactionServiceOffline";
+};
+>>>>>>> main
 
 export type PresentationDocumentProperties = {
   documentId: string
@@ -34,10 +38,16 @@ export type PresentationDocumentProperties = {
   cmsFileCreatedDate: string
   categoryListOrder: number | null
   // documents in CMS are not guaranteed to have a cmsDocType
+<<<<<<< HEAD
   cmsDocType: CmsDocType
   presentationFlags: PresentationFlags
-  polarisParentDocumentId: string
 }
+=======
+  cmsDocType: CmsDocType;
+  presentationFlags: PresentationFlags;
+  polarisParentDocumentId: string;
+};
+>>>>>>> main
 
 export type PipelineDocument = PipelineDocumentProperties &
   PresentationDocumentProperties

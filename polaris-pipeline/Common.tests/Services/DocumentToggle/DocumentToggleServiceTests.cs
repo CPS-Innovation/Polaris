@@ -83,8 +83,9 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
-                true,
                 2,
+                new PolarisDocumentId("3"),
+                "3",
                 new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.OnlyAvailableInCms;
 
@@ -110,8 +111,9 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
-                true,
                 2,
+                new PolarisDocumentId("3"),
+                "3",
                 new PresentationFlagsDto());
             document.PresentationFlags.Read = ReadFlag.Ok;
 
@@ -137,8 +139,9 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
-                true,
                 2,
+                new PolarisDocumentId("3"),
+                "3",
                 new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.OnlyAvailableInCms;
 
@@ -165,8 +168,9 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
-                true,
                 2,
+                new PolarisDocumentId("3"),
+                "3",
                 new PresentationFlagsDto());
             document.PresentationFlags.Write = WriteFlag.Ok;
 
@@ -178,66 +182,57 @@ namespace Common.tests.Services.DocumentToggle
         [Theory]
         [InlineData(
           @"",
-          ".pdf", "MG1", false, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType Read *",
-          ".pdf", "MG1", false, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"DocType Read *",
-          ".pdf", "MG1", false, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType  Read *
             DocType   Read *",
-          ".pdf", "MG1", false, ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
         [InlineData(
           @"FileType  ReadWrite *
             DocType   Read      *",
-          ".pdf", "MG1", false, ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
         [InlineData(
           @"FileType  Read      *
             DocType   ReadWrite *",
-          ".pdf", "MG1", false, ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
         [InlineData(
           @"FileType  ReadWrite *
             DocType   ReadWrite *",
-          ".pdf", "MG1", false, ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         [InlineData(
           @"FileType  ReadWrite .pdf
             DocType   ReadWrite MG1",
-          ".pdf", "MG1", false, ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
         [InlineData(
           @"FileType  ReadWrite .doc
             DocType   ReadWrite MG2",
-          ".pdf", "MG1", false, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType  ReadWrite *
             FileType  Deny      .pdf
             DocType   ReadWrite *",
-          ".pdf", "MG1", false, ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
+          ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
         [InlineData(
           @"FileType  ReadWrite *
             FileType  Read      .pdf
             DocType   ReadWrite *",
-          ".pdf", "MG1", false, ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
         [InlineData(
           @"FileType  ReadWrite *
             #FileType  Read      .pdf
             DocType   ReadWrite *",
-          ".pdf",
-          "MG1", false, ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
-        [InlineData(
-          @"FileType  ReadWrite *
-            #FileType  Read      .pdf
-            DocType   ReadWrite *",
-          ".pdf",
-          "MG1", true, ReadFlag.Ok, WriteFlag.IsDispatched)]
-        public void SetDocumentPresentationFlags_ShouldObeyTheRules(
-            string configContent,
-            string inputDocumentExtension,
-            string inputDocumentCmsType,
-            bool isDispatched,
-            ReadFlag expectedReadFlag,
-            WriteFlag expectWriteFlag)
+          ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
+        public void SetDocumentPresentationFlags_ShouldObeyTheRules(string configContent,
+                                                                       string inputDocumentExtension,
+                                                                       string inputDocumentCmsType,
+                                                                       ReadFlag expectedReadFlag,
+                                                                       WriteFlag expectWriteFlag)
         {
             // Arrange
             var documentToggleService = new DocumentToggleService(configContent);
@@ -247,9 +242,8 @@ namespace Common.tests.Services.DocumentToggle
                 FileExtension = inputDocumentExtension,
                 CmsDocType = new DocumentTypeDto
                 {
-                    DocumentTypeId = inputDocumentCmsType,
+                    DocumentTypeId = inputDocumentCmsType
                 },
-                IsDispatched = isDispatched
             };
 
             // Act

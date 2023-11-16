@@ -20,7 +20,7 @@ describe("useNavigationAlert hook", () => {
       cmsDocumentId: "1",
       cmsOriginalFileName: "MCLOVEMG3  very long .docx",
       presentationTitle: "MCLOVEMG3  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
@@ -41,6 +41,7 @@ describe("useNavigationAlert hook", () => {
       ],
       sasUrl: undefined,
       url: undefined,
+      polarisParentDocumentId: null,
     },
     {
       clientLockedState: "unlocked",
@@ -54,7 +55,7 @@ describe("useNavigationAlert hook", () => {
       cmsDocumentId: "2",
       cmsOriginalFileName: "MCLOVEMG4 very long .docx",
       presentationTitle: "MCLOVEMG4 test",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
@@ -74,8 +75,8 @@ describe("useNavigationAlert hook", () => {
         },
       ],
       sasUrl: undefined,
-
       url: undefined,
+      polarisParentDocumentId: null,
     },
   ];
 
