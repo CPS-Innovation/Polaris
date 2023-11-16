@@ -34,6 +34,9 @@ export const PRIVATE_BETA_CHECK_IGNORE_USER =
 export const IS_REDACTION_SERVICE_OFFLINE =
   process.env.REACT_APP_IS_REDACTION_SERVICE_OFFLINE;
 
+export const FEATURE_FLAG_HTE_EMAILS_ON =
+  process.env.REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON === "true";
+
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "test") {

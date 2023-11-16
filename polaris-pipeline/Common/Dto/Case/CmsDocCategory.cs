@@ -9,6 +9,7 @@ namespace Common.Dto.Case
         OtherForm,
         UsedStatement,
         UnusedStatement,
-        InboxCommunication
+        InboxCommunication,
+        Attachment
     }
 }

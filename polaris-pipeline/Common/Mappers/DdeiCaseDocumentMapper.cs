@@ -20,7 +20,8 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
             CmsDocType = new DocumentTypeDto(ddeiResponse.DocumentType, ddeiResponse.DocumentTypeId, ddeiResponse.CmsDocCategory),
             DocumentDate = ddeiResponse.DocumentDate,
             CategoryListOrder = ddeiResponse.CategoryListOrder,
-            IsOcrProcessed = ddeiResponse.IsOcrProcessed == true
+            IsOcrProcessed = ddeiResponse.IsOcrProcessed == true,
+            ParentDocumentId = ddeiResponse.ParentId.ToString()
         };
     }
 }

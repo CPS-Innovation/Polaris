@@ -3,6 +3,7 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
+using Common.Dto.Tracker;
 
 namespace Common.Domain.Entity
 {
@@ -38,8 +39,12 @@ namespace Common.Domain.Entity
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
             CategoryListOrder = categoryListOrder;
+<<<<<<< HEAD
+=======
             PolarisParentDocumentId = polarisParentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
+            Status = DocumentStatus.New;
+>>>>>>> main
         }
 
         [JsonProperty("path")]
