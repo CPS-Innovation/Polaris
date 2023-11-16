@@ -26,8 +26,8 @@
     <Folder Include="Domain\Tracker\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../coordinator/coordinator.csproj" />
-    <ProjectReference Include="../Common/Common.csproj" />
+    <ProjectReference Include="..\coordinator\coordinator.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />

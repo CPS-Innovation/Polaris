@@ -145,23 +145,6 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
         }
 
         [Fact]
-        public async Task Dummy()
-        {
-            await Task.Delay(1);
-        }
-
-        [Fact]
-        public async Task Dummy2()
-        {
-            await Task.Delay(1);
-        }
-
-        [Fact]
-        public async Task Dummy3()
-        {
-            await Task.Delay(1);
-        }
-        [Fact]
         public async Task Run_ThrowsWhenPayloadIsNull()
         {
             _mockDurableOrchestrationContext.Setup(context => context.GetInput<CaseOrchestrationPayload>())
