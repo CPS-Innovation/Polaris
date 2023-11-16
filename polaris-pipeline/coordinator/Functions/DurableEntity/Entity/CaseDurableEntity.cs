@@ -250,7 +250,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.CmsVersionId = updatedDocument.VersionId;
                 trackerDocument.CmsDocType = updatedDocument.CmsDocType;
                 trackerDocument.Path = updatedDocument.Path;
-                trackerDocument.FileExtension = updatedDocument.FileExtension;
+                trackerDocument.CmsOriginalFileExtension = updatedDocument.FileExtension;
                 trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
@@ -463,7 +463,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         public Task<DateTime> GetStartTime()
         {
-            return Task.FromResult<DateTime>(Running.GetValueOrDefault());
+            return Task.FromResult(Running.GetValueOrDefault());
         }
 
         public Task<float> GetDurationToCompleted()

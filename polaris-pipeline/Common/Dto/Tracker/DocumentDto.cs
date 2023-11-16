@@ -60,6 +60,9 @@ namespace Common.Dto.Tracker
         [JsonProperty("pdfBlobName")]
         public string PdfBlobName { get; set; }
 
+        [JsonProperty("cmsOriginalFileExtension")]
+        public string CmsOriginalFileExtension { get; set; }
+
         [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
 

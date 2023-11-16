@@ -33,7 +33,7 @@ namespace Common.Domain.Entity
         {
             CmsDocType = cmsDocType;
             Path = path;
-            FileExtension = fileExtension;
+            CmsOriginalFileExtension = fileExtension;
             CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
             PresentationTitle = presentationTitle;
@@ -47,8 +47,8 @@ namespace Common.Domain.Entity
         [JsonProperty("path")]
         public string Path { get; set; }
 
-        [JsonProperty("fileExtension")]
-        public string FileExtension { get; set; }
+        [JsonProperty("cmsOriginalFileExtension")]
+        public string CmsOriginalFileExtension { get; set; }
 
         [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
