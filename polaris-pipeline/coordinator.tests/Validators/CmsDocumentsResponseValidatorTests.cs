@@ -19,7 +19,7 @@ public class CmsDocumentsResponseValidatorTests
         };
 
         // Act
-        var result = validator.IsValid(docs);
+        var result = validator.Validate(docs);
 
         // Assert
         result.Should().BeTrue();
@@ -38,7 +38,7 @@ public class CmsDocumentsResponseValidatorTests
         };
 
         // Act
-        var result = validator.IsValid(docs);
+        var result = validator.Validate(docs);
 
         // Assert
         result.Should().BeFalse();

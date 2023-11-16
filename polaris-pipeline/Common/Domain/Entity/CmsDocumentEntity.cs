@@ -37,7 +37,6 @@ namespace Common.Domain.Entity
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
             CategoryListOrder = categoryListOrder;
-            Status = DocumentStatus.New;
         }
 
         [JsonProperty("path")]

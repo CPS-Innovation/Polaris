@@ -246,7 +246,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
             var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
-            if (!_cmsDocumentsResponseValidator.IsValid(documents.CmsDocuments))
+            if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
             {
                 throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
             }
