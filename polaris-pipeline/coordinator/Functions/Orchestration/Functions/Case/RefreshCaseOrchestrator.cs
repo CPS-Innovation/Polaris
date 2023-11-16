@@ -248,7 +248,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
             if (!_cmsDocumentsResponseValidator.IsValid(documents.CmsDocuments))
             {
-                throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.")
+                throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
             }
             return documents;
         }
