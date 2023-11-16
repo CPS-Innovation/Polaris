@@ -1,43 +1,44 @@
-import { CmsDocType } from "./CmsDocType"
+import { CmsDocType } from "./CmsDocType";
 
 export type PipelineDocumentProperties = {
-  polarisDocumentId?: string
-  documentId: string
-  pdfBlobName: string
-  isPdfAvailable?: boolean
+  polarisDocumentId?: string;
+  documentId: string;
+  pdfBlobName: string;
+  isPdfAvailable?: boolean;
   status:
     | "New"
     | "PdfUploadedToBlob"
     | "Indexed"
     | "UnableToConvertToPdf"
     | "UnexpectedFailure"
-    | "OcrAndIndexFailure"
-}
+    | "OcrAndIndexFailure";
+};
 export type PresentationFlags = {
-  read: "Ok" | "OnlyAvailableInCms"
+  read: "Ok" | "OnlyAvailableInCms";
   write:
     | "Ok"
     | "OnlyAvailableInCms"
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
     | "IsNotOcrProcessed"
-    | "IsRedactionServiceOffline"
-}
+    | "IsDispatched"
+    | "IsRedactionServiceOffline";
+};
 
 export type PresentationDocumentProperties = {
-  documentId: string
-  cmsDocumentId: string
-  cmsOriginalFileName: string
-  presentationTitle: string
-  polarisDocumentVersionId: number
-  cmsMimeType: string
-  cmsFileCreatedDate: string
-  categoryListOrder: number | null
+  documentId: string;
+  cmsDocumentId: string;
+  cmsOriginalFileName: string;
+  presentationTitle: string;
+  polarisDocumentVersionId: number;
+  cmsOriginalFileExtension: string | null;
+  cmsFileCreatedDate: string;
+  categoryListOrder: number | null;
   // documents in CMS are not guaranteed to have a cmsDocType
-  cmsDocType: CmsDocType
-  presentationFlags: PresentationFlags
-  polarisParentDocumentId: string
-}
+  cmsDocType: CmsDocType;
+  presentationFlags: PresentationFlags;
+  polarisParentDocumentId: string | null;
+};
 
 export type PipelineDocument = PipelineDocumentProperties &
-  PresentationDocumentProperties
+  PresentationDocumentProperties;

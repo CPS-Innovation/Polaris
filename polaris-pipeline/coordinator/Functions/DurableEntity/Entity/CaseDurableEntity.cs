@@ -227,8 +227,8 @@ namespace coordinator.Functions.DurableEntity.Entity
                         isOcrProcessed: newDocument.IsOcrProcessed,
                         isDispatched: newDocument.IsDispatched,
                         categoryListOrder: newDocument.CategoryListOrder,
-                        new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
-                        newDocument.ParentDocumentId,
+                        polarisParentDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
+                        cmsParentDocumentId: newDocument.ParentDocumentId,
                         presentationFlags: newDocument.PresentationFlags
                     );
 
