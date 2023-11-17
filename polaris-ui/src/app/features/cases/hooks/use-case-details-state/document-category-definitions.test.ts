@@ -141,4 +141,12 @@ describe("documentCategoryDefinitions", () => {
     expect(result2.category).toBe("Communications");
     expect(result2.subCategory).toBe("Emails");
   });
+  it("can resolve document with cmsOriginalFileExtension equal to .hte into 'Communication' category and subCategory 'Emails'", () => {
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: -1 },
+      cmsOriginalFileExtension: ".hte",
+    } as PresentationDocumentProperties);
+    expect(result1.category).toBe("Communications");
+    expect(result1.subCategory).toBe("Emails");
+  });
 });
