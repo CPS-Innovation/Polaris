@@ -28,11 +28,10 @@ using Common.ValueObjects;
 using coordinator.Functions.DurableEntity.Entity.Contract;
 using Common.Domain.Entity;
 using Common.Telemetry.Contracts;
-using coordinator.Validators;
 
-namespace coordinator.tests.Functions.Orchestration.Functions.Case
+namespace coordinator.tests.Functions
 {
-    public class RefreshCaseOrchestratorTests
+    public class CoordinatorOrchestratorTests
     {
         private readonly CaseOrchestrationPayload _payload;
         private readonly string _cmsAuthValues;
@@ -47,11 +46,10 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
 
         private readonly Mock<IDurableOrchestrationContext> _mockDurableOrchestrationContext;
         private readonly Mock<ICaseDurableEntity> _mockCaseEntity;
-        private readonly Mock<ICmsDocumentsResponseValidator> _mockCmsDocumentsResponseValidator;
         private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly RefreshCaseOrchestrator _coordinatorOrchestrator;
 
-        public RefreshCaseOrchestratorTests()
+        public CoordinatorOrchestratorTests()
         {
             var fixture = new Fixture();
             _cmsAuthValues = fixture.Create<string>();
@@ -71,15 +69,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
             _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
 
             _transactionId = $"[{_cmsCaseId}]";
-
-            // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
-            //  matches the regex attribute that decorates it.
-            fixture.Customize<CmsDocumentEntity>(c =>
-                c.With(doc => doc.CmsOriginalFileName, $"{fixture.Create<string>()}.{fixture.Create<string>().Substring(0, 3)}"));
-
-            _trackerCmsDocuments = fixture.CreateMany<CmsDocumentEntity>(11)
-                .ToList();
-
+            _trackerCmsDocuments = fixture.CreateMany<CmsDocumentEntity>(11).ToList();
             for (int i = 0; i < _trackerCmsDocuments.Count; i++)
                 _trackerCmsDocuments[i].CmsDocumentId = $"CMS-{i + 1}";
             _deltaDocuments = new CaseDeltasEntity
@@ -101,8 +91,6 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
             _mockDurableOrchestrationContext = new Mock<IDurableOrchestrationContext>();
             _mockCaseEntity = new Mock<ICaseDurableEntity>();
             _mockTelemetryClient = new Mock<ITelemetryClient>();
-            _mockCmsDocumentsResponseValidator = new Mock<ICmsDocumentsResponseValidator>();
-
             mockConfiguration
                 .Setup(config => config[ConfigKeys.CoordinatorKeys.CoordinatorOrchestratorTimeoutSecs])
                 .Returns("300");
@@ -131,17 +119,10 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<GetCaseDocumentsActivityPayload>()))
                 .ReturnsAsync(_caseDocuments);
 
-
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: evaluateDocumentsResponse.ToJson());
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
 
-            _mockCmsDocumentsResponseValidator.Setup(validator => validator.Validate(It.IsAny<CmsDocumentDto[]>())).Returns(true);
-
-            _coordinatorOrchestrator = new RefreshCaseOrchestrator(
-            mockLogger.Object,
-            mockConfiguration.Object,
-            _mockCmsDocumentsResponseValidator.Object,
-            _mockTelemetryClient.Object);
+            _coordinatorOrchestrator = new RefreshCaseOrchestrator(mockLogger.Object, mockConfiguration.Object, _mockTelemetryClient.Object);
         }
 
         [Fact]
