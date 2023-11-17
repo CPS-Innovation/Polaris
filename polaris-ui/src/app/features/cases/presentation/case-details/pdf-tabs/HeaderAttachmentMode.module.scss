@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  align-items: baseline;
   background: #f3f2f1;
   color: #505a5f;
   padding: 0.5em;
@@ -19,9 +20,13 @@
   list-style: none;
   padding-left: 1rem;
   margin: 0;
+  padding: 0;
+  > :first-child {
+    margin-left: 8.125rem;
+  }
 }
 .attachmentCountText {
-  min-width: 8rem;
+  position: absolute;
 }
 .separator {
   color: #0b0c0c;
