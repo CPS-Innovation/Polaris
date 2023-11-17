@@ -1,6 +1,5 @@
 .content {
   display: flex;
-  align-items: center;
   justify-content: flex-start;
   align-items: baseline;
   background: #f3f2f1;
@@ -18,7 +17,6 @@
   justify-content: flex-start;
   flex-wrap: wrap;
   list-style: none;
-  padding-left: 1rem;
   margin: 0;
   padding: 0;
   > :first-child {
