@@ -18,6 +18,7 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-global
+  - group: polaris-status-check-endpoints
   - group: terraform-containers
 
 stages:
