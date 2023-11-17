@@ -3,6 +3,7 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
+using Common.Dto.Tracker;
 
 namespace Common.Domain.Entity
 {
@@ -40,6 +41,7 @@ namespace Common.Domain.Entity
             CategoryListOrder = categoryListOrder;
             PolarisParentDocumentId = polarisParentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
+            Status = DocumentStatus.New;
         }
 
         [JsonProperty("path")]

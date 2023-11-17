@@ -22,17 +22,17 @@ namespace coordinator.Domain
             if (serializedTrackerCmsDocumentDto != null)
             {
                 CmsDocumentTracker = JsonSerializer.Deserialize<CmsDocumentEntity>(serializedTrackerCmsDocumentDto);
-                PolarisDocumentId = CmsDocumentTracker.PolarisDocumentId;
+                base.PolarisDocumentId = CmsDocumentTracker.PolarisDocumentId;
             }
             else if (serializedTrackerPcdRequestDto != null)
             {
                 PcdRequestTracker = JsonSerializer.Deserialize<PcdRequestEntity>(serializedTrackerPcdRequestDto);
-                PolarisDocumentId = PcdRequestTracker.PolarisDocumentId;
+                base.PolarisDocumentId = PcdRequestTracker.PolarisDocumentId;
             }
             else if (serializedTrackerDefendantAndChargesDto != null)
             {
                 DefendantAndChargesTracker = JsonSerializer.Deserialize<DefendantsAndChargesEntity>(serializedTrackerDefendantAndChargesDto);
-                PolarisDocumentId = DefendantAndChargesTracker.PolarisDocumentId;
+                base.PolarisDocumentId = DefendantAndChargesTracker.PolarisDocumentId;
             }
             CmsAuthValues = cmsAuthValues;
         }
@@ -68,7 +68,7 @@ namespace coordinator.Domain
         {
             get
             {
-                string docId;
+                string docId = default(string);
 
                 if (CmsDocumentTracker != null)
                 {

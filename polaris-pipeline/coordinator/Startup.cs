@@ -33,7 +33,6 @@ using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using coordinator.Providers;
 using Microsoft.Extensions.Azure;
-using coordinator.Validators;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -78,7 +77,6 @@ namespace coordinator
             services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
-            services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
             builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
