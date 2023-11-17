@@ -1015,7 +1015,7 @@ describe("case details page", () => {
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
       cy.findByTestId("doc-attach-btn-1").should("have.text", "MCLOVEMG3,");
-      cy.findByTestId("doc-attach-btn-2").should("have.text", "CM01,");
+      cy.findByTestId("doc-attach-btn-2").should("have.text", "CM01");
       cy.findByTestId("doc-attach-btn-1").click();
       cy.findByTestId("div-pdfviewer-1")
         .should("exist")
