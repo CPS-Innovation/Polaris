@@ -76,9 +76,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging1" {
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
-      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 }
@@ -207,9 +205,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging2" {
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
-      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 }
