@@ -24,7 +24,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris_staging1.client_id
+    "REACT_APP_CLIENT_ID"                             = ""
     "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}-staging1/user_impersonation"
@@ -52,27 +52,6 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     }
   }
 
-  auth_settings_v2 {
-    auth_enabled           = true
-    require_authentication = true
-    default_provider       = "AzureActiveDirectory"
-    unauthenticated_action = "AllowAnonymous"
-    excluded_paths         = ["/status"]
-
-    # our default_provider:
-    active_directory_v2 {
-      tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
-      #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_id                  = module.azurerm_app_reg_as_web_polaris_staging1.client_id
-    }
-
-    # use a store for tokens (az blob storage backed)
-    login {
-      token_store_enabled = true
-    }
-  }
-
   logs {
     detailed_error_messages = true
     failed_request_tracing  = true
@@ -87,71 +66,6 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
       app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"]
     ]
   }
-}
-
-module "azurerm_app_reg_as_web_polaris_staging1" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "as-web-${local.resource_name}-staging1-appreg"
-  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}-staging1"]
-  owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
-  prevent_duplicate_names = true
-  group_membership_claims = ["ApplicationGroup"]
-  optional_claims = {
-    access_token = {
-      name = "groups"
-    }
-    id_token = {
-      name = "groups"
-    }
-    saml2_token = {
-      name = "groups"
-    }
-  }
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      id   = "311a71cc-e848-46a1-bdf8-97ff7156d8e6" # read user
-      type = "Scope"
-    }]
-    },
-    {
-      resource_app_id = module.azurerm_app_reg_fa_polaris_staging1.client_id
-      resource_access = [{
-        id   = module.azurerm_app_reg_fa_polaris_staging1.oauth2_permission_scope_ids["user_impersonation"]
-        type = "Scope"
-      }]
-  }]
-  single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}-staging1.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}",
-    "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}-staging1.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
-  }
-  api = {
-    mapped_claims_enabled          = true
-    requested_access_token_version = 1
-  }
-  web = {
-    homepage_url  = "https://as-web-${local.resource_name}-staging1.azurewebsites.net"
-    redirect_uris = ["https://getpostman.com/oauth2/callback"]
-    implicit_grant = {
-      access_token_issuance_enabled = true
-      id_token_issuance_enabled     = true
-    }
-  }
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "asap_web_polaris_app_service_staging1" {
-  application_object_id = module.azurerm_app_reg_as_web_polaris_staging1.object_id
-  end_date_relative     = "17520h"
-}
-
-resource "azuread_application_pre_authorized" "fapre_polaris_web_staging1" {
-  application_object_id = module.azurerm_app_reg_fa_polaris_staging1.object_id
-  authorized_app_id     = module.azurerm_app_reg_as_web_polaris_staging1.client_id
-  permission_ids        = [module.azurerm_app_reg_fa_polaris_staging1.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on            = [module.azurerm_app_reg_fa_polaris_staging1, module.azurerm_app_reg_as_web_polaris_staging1]
 }
 
 # Create Private Endpoint
@@ -201,7 +115,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris_staging2.client_id
+    "REACT_APP_CLIENT_ID"                             = ""
     "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}-staging2/user_impersonation"
@@ -229,27 +143,6 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
     }
   }
 
-  auth_settings_v2 {
-    auth_enabled           = true
-    require_authentication = true
-    default_provider       = "AzureActiveDirectory"
-    unauthenticated_action = "AllowAnonymous"
-    excluded_paths         = ["/status"]
-
-    # our default_provider:
-    active_directory_v2 {
-      tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
-      #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_id                  = module.azurerm_app_reg_as_web_polaris_staging2.client_id
-    }
-
-    # use a store for tokens (az blob storage backed)
-    login {
-      token_store_enabled = true
-    }
-  }
-
   logs {
     detailed_error_messages = true
     failed_request_tracing  = true
@@ -264,71 +157,6 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
       app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"]
     ]
   }
-}
-
-module "azurerm_app_reg_as_web_polaris_staging2" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "as-web-${local.resource_name}-staging2-appreg"
-  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.resource_name}-staging2"]
-  owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
-  prevent_duplicate_names = true
-  group_membership_claims = ["ApplicationGroup"]
-  optional_claims = {
-    access_token = {
-      name = "groups"
-    }
-    id_token = {
-      name = "groups"
-    }
-    saml2_token = {
-      name = "groups"
-    }
-  }
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      id   = "311a71cc-e848-46a1-bdf8-97ff7156d8e6" # read user
-      type = "Scope"
-    }]
-    },
-    {
-      resource_app_id = module.azurerm_app_reg_fa_polaris_staging2.client_id
-      resource_access = [{
-        id   = module.azurerm_app_reg_fa_polaris_staging2.oauth2_permission_scope_ids["user_impersonation"]
-        type = "Scope"
-      }]
-  }]
-  single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}-staging2.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}",
-    "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}-staging2.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
-  }
-  api = {
-    mapped_claims_enabled          = true
-    requested_access_token_version = 1
-  }
-  web = {
-    homepage_url  = "https://as-web-${local.resource_name}-staging2.azurewebsites.net"
-    redirect_uris = ["https://getpostman.com/oauth2/callback"]
-    implicit_grant = {
-      access_token_issuance_enabled = true
-      id_token_issuance_enabled     = true
-    }
-  }
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "asap_web_polaris_app_service_staging2" {
-  application_object_id = module.azurerm_app_reg_as_web_polaris_staging2.object_id
-  end_date_relative     = "17520h"
-}
-
-resource "azuread_application_pre_authorized" "fapre_polaris_web_staging2" {
-  application_object_id = module.azurerm_app_reg_fa_polaris_staging2.object_id
-  authorized_app_id     = module.azurerm_app_reg_as_web_polaris_staging2.client_id
-  permission_ids        = [module.azurerm_app_reg_fa_polaris_staging2.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on            = [module.azurerm_app_reg_fa_polaris_staging2, module.azurerm_app_reg_as_web_polaris_staging2]
 }
 
 # Create Private Endpoint
