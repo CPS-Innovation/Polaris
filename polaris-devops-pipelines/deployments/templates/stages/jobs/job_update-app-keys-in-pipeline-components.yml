@@ -55,7 +55,7 @@ jobs:
                 az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --settings "PolarisPipelineTextExtractorFunctionAppKey=$text_extractor_default_code"
                 az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --settings "PolarisPipelineRedactPdfFunctionAppKey=$pdf_generator_default_code"
                 az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --settings "DdeiAccessKey=$ddei_default_code"
-              displayName: Script > Set Durable Task Extension Code for Sliding Clear-Down
+              displayName: Script > Update Keys in Pipeline Component Config
               env:
                 ARM_CLIENT_ID: ${{ parameters.armClientId }}
                 ARM_CLIENT_SECRET: ${{ parameters.armClientSecret }}
