@@ -255,27 +255,28 @@ namespace Common.tests.Services.DocumentToggle
         }
 
         [Theory]
-        [InlineData(".doc", true, WriteFlag.Ok)]
-        [InlineData(".docm", true, WriteFlag.Ok)]
-        [InlineData(".docx", true, WriteFlag.Ok)]
-        [InlineData(".pdf", true, WriteFlag.Ok)]
-        [InlineData(".bmp", true, WriteFlag.Ok)]
-        [InlineData(".gif", true, WriteFlag.Ok)]
-        [InlineData(".jpeg", true, WriteFlag.Ok)]
-        [InlineData(".jpg", true, WriteFlag.Ok)]
-        [InlineData(".png", true, WriteFlag.Ok)]
-        [InlineData(".ppt", true, WriteFlag.Ok)]
-        [InlineData(".pptx", true, WriteFlag.Ok)]
-        [InlineData(".rtf", true, WriteFlag.Ok)]
-        [InlineData(".text", true, WriteFlag.Ok)]
-        [InlineData(".tif", true, WriteFlag.Ok)]
-        [InlineData(".tiff", true, WriteFlag.Ok)]
-        [InlineData(".txt", true, WriteFlag.Ok)]
-        [InlineData(".xls", true, WriteFlag.Ok)]
-        [InlineData(".xlsx", true, WriteFlag.Ok)]
-        [InlineData(".hte", true, WriteFlag.OriginalFileTypeNotAllowed)]
-        [InlineData(".doc", false, WriteFlag.IsNotOcrProcessed)]
-        public void CurrentDocumentToggleConfigRules_WorkAsExpected(string filetype, bool isOcrProcessed, WriteFlag writeFlag)
+        [InlineData(".doc", "0", true, WriteFlag.Ok)]
+        [InlineData(".docm", "0", true, WriteFlag.Ok)]
+        [InlineData(".docx", "0", true, WriteFlag.Ok)]
+        [InlineData(".pdf", "0", true, WriteFlag.Ok)]
+        [InlineData(".bmp", "0", true, WriteFlag.Ok)]
+        [InlineData(".gif", "0", true, WriteFlag.Ok)]
+        [InlineData(".jpeg", "0", true, WriteFlag.Ok)]
+        [InlineData(".jpg", "0", true, WriteFlag.Ok)]
+        [InlineData(".png", "0", true, WriteFlag.Ok)]
+        [InlineData(".ppt", "0", true, WriteFlag.Ok)]
+        [InlineData(".pptx", "0", true, WriteFlag.Ok)]
+        [InlineData(".rtf", "0", true, WriteFlag.Ok)]
+        [InlineData(".text", "0", true, WriteFlag.Ok)]
+        [InlineData(".tif", "0", true, WriteFlag.Ok)]
+        [InlineData(".tiff", "0", true, WriteFlag.Ok)]
+        [InlineData(".txt", "0", true, WriteFlag.Ok)]
+        [InlineData(".xls", "0", true, WriteFlag.Ok)]
+        [InlineData(".xlsx", "0", true, WriteFlag.Ok)]
+        [InlineData(".hte", "0", true, WriteFlag.OriginalFileTypeNotAllowed)]
+        [InlineData(".doc", "0", false, WriteFlag.IsNotOcrProcessed)]
+        [InlineData(".doc", "-54321", true, WriteFlag.DocTypeNotAllowed)]
+        public void CurrentDocumentToggleConfigRules_WorkAsExpected(string filetype, string docTypeId, bool isOcrProcessed, WriteFlag writeFlag)
         {
             // Arrange
             var documentToggleService = new DocumentToggleService(DocumentToggleService.ReadConfig());
@@ -285,7 +286,7 @@ namespace Common.tests.Services.DocumentToggle
                 FileExtension = filetype,
                 CmsDocType = new DocumentTypeDto
                 {
-                    DocumentTypeId = "MG1"
+                    DocumentTypeId = docTypeId
                 },
                 IsOcrProcessed = isOcrProcessed
             };
