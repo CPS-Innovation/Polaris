@@ -29,7 +29,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "ClientId"                                        = module.azurerm_app_reg_fa_polaris_staging1.client_id
-    "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "ClientSecret"                                    = ""
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey"        = "" //set in deployment script
     "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
@@ -106,9 +106,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
-      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 }
@@ -222,8 +220,8 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
     "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
-    "ClientId"                                        = module.azurerm_app_reg_fa_polaris_staging1.client_id
-    "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "ClientId"                                        = module.azurerm_app_reg_fa_polaris_staging2.client_id
+    "ClientSecret"                                    = ""
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorFunctionAppKey"        = "" //set in deployment script
     "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
@@ -300,9 +298,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
-      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
-      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
 }
