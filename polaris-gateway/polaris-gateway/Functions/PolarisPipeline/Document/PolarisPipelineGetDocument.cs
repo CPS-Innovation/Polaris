@@ -56,7 +56,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                 var blobStream = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), currentCorrelationId);
 
                 return blobStream != null
-                                    ? new OkObjectResult(blobStream)
+                                    ? new FileStreamResult(blobStream)
                                     : NotFoundErrorResponse($"No document found for document id '{polarisDocumentId}'.", currentCorrelationId, loggingName);
             }
             catch (Exception exception)
