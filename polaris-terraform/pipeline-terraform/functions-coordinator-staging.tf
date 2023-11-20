@@ -93,6 +93,31 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   }
 }
 
+module "azurerm_app_reg_fa_coordinator_staging1" {
+  source                  = "./modules/terraform-azurerm-azuread-app-registration"
+  display_name            = "fa-${local.global_name}-coordinator-staging1-appreg"
+  identifier_uris         = ["api://fa-${local.global_name}-coordinator-staging1"]
+  prevent_duplicate_names = true
+
+  # use this code for adding api permissions
+  required_resource_access = [{
+    # Microsoft Graph
+    resource_app_id = "00000003-0000-0000-c000-000000000000"
+    resource_access = [{
+      # User.Read
+      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
+      type = "Scope"
+    }]
+  }]
+
+  tags = ["terraform"]
+}
+
+resource "azuread_application_password" "faap_fa_coordinator_staging1_app_service" {
+  application_object_id = module.azurerm_app_reg_fa_coordinator_staging1.object_id
+  end_date_relative     = "17520h"
+}
+
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_coordinator_staging1_pe" {
   name                = "${azurerm_linux_function_app.fa_coordinator.name}-staging1-pe"
@@ -206,6 +231,31 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
+}
+
+module "azurerm_app_reg_fa_coordinator_staging2" {
+  source                  = "./modules/terraform-azurerm-azuread-app-registration"
+  display_name            = "fa-${local.global_name}-coordinator-staging2-appreg"
+  identifier_uris         = ["api://fa-${local.global_name}-coordinator-staging2"]
+  prevent_duplicate_names = true
+
+  # use this code for adding api permissions
+  required_resource_access = [{
+    # Microsoft Graph
+    resource_app_id = "00000003-0000-0000-c000-000000000000"
+    resource_access = [{
+      # User.Read
+      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
+      type = "Scope"
+    }]
+  }]
+
+  tags = ["terraform"]
+}
+
+resource "azuread_application_password" "faap_fa_coordinator_staging2_app_service" {
+  application_object_id = module.azurerm_app_reg_fa_coordinator_staging2.object_id
+  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint
