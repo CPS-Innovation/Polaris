@@ -56,7 +56,6 @@ jobs:
                 az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-gateway --resource-group rg-polaris$ARM_SUFFIX --settings "DdeiAccessKey=$ddei_default_code"
                 az webapp config appsettings set --name polaris$ARM_SUFFIX-cmsproxy --resource-group rg-polaris$ARM_SUFFIX --settings "DDEI_ENDPOINT_FUNCTION_APP_KEY=$ddei_default_code"
                 az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-auth-handover --resource-group rg-polaris$ARM_SUFFIX --settings "DdeiAccessKey=$ddei_default_code"
-                az functionapp config appsettings list --name fa-polaris$ARM_SUFFIX-auth-handover --resource-group rg-polaris$ARM_SUFFIX
               displayName: Script > Update Keys in UI Component Config
               env:
                 ARM_CLIENT_ID: ${{ parameters.armClientId }}
