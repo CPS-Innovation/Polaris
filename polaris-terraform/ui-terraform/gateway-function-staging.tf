@@ -11,35 +11,37 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = "true"
-    "WEBSITE_CONTENTOVERVNET"                        = "1"
-    "WEBSITE_DNS_SERVER"                             = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_staging1_file_share.name
-    "WEBSITE_RUN_FROM_PACKAGE"                       = "1"
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.ui_logging.gateway_scale_controller
-    "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "TenantId"                                       = data.azurerm_client_config.current.tenant_id
-    "ClientId"                                       = module.azurerm_app_reg_fa_polaris_staging1.client_id
-    "ClientSecret"                                   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorFunctionAppKey"       = "" //set in deployment script
-    "PolarisPipelineCoordinatorDurableExtensionCode" = "" //set in deployment script
-    "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobContainerName"                              = "documents"
-    "BlobExpirySecs"                                 = 3600
-    "BlobUserDelegationKeyExpirySecs"                = 3600
-    "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
-    "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
-    "CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
-    "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                  = "" //set in deployment script
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_gateway_staging1_file_share.name
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "TenantId"                                        = data.azurerm_client_config.current.tenant_id
+    "ClientId"                                        = module.azurerm_app_reg_fa_polaris_staging1.client_id
+    "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorFunctionAppKey"        = "" //set in deployment script
+    "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobContainerName"                               = "documents"
+    "BlobExpirySecs"                                  = 3600
+    "BlobUserDelegationKeyExpirySecs"                 = 3600
+    "CallingAppValidAudience"                         = var.polaris_webapp_details.valid_audience
+    "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
+    "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                                   = "" //set in deployment script
   }
 
   site_config {
@@ -104,7 +106,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 }
@@ -201,35 +205,37 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = "true"
-    "WEBSITE_CONTENTOVERVNET"                        = "1"
-    "WEBSITE_DNS_SERVER"                             = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                           = azapi_resource.polaris_sacpspolaris_gateway_staging2_file_share.name
-    "WEBSITE_RUN_FROM_PACKAGE"                       = "1"
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.ui_logging.gateway_scale_controller
-    "AzureWebJobsStorage"                            = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "TenantId"                                       = data.azurerm_client_config.current.tenant_id
-    "ClientId"                                       = module.azurerm_app_reg_fa_polaris_staging1.client_id
-    "ClientSecret"                                   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorFunctionAppKey"       = "" //set in deployment script
-    "PolarisPipelineCoordinatorDurableExtensionCode" = "" //set in deployment script
-    "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobContainerName"                              = "documents"
-    "BlobExpirySecs"                                 = 3600
-    "BlobUserDelegationKeyExpirySecs"                = 3600
-    "CallingAppValidAudience"                        = var.polaris_webapp_details.valid_audience
-    "CallingAppValidScopes"                          = var.polaris_webapp_details.valid_scopes
-    "CallingAppValidRoles"                           = var.polaris_webapp_details.valid_roles
-    "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                  = "" //set in deployment script
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "false"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_gateway_staging2_file_share.name
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.gateway_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "TenantId"                                        = data.azurerm_client_config.current.tenant_id
+    "ClientId"                                        = module.azurerm_app_reg_fa_polaris_staging1.client_id
+    "ClientSecret"                                    = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.kvs_fa_polaris_client_secret.id})"
+    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorFunctionAppKey"        = "" //set in deployment script
+    "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobContainerName"                               = "documents"
+    "BlobExpirySecs"                                  = 3600
+    "BlobUserDelegationKeyExpirySecs"                 = 3600
+    "CallingAppValidAudience"                         = var.polaris_webapp_details.valid_audience
+    "CallingAppValidScopes"                           = var.polaris_webapp_details.valid_scopes
+    "CallingAppValidRoles"                            = var.polaris_webapp_details.valid_roles
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                                   = "" //set in deployment script
   }
 
   site_config {
@@ -294,7 +300,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 }

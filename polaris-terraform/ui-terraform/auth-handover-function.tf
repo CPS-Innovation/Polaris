@@ -12,22 +12,24 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = ""
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = ""
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.polaris_sacpspolaris_auth_handover_file_share.name
-    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.ui_logging.auth_handover_scale_controller
-    "AzureWebJobsStorage"                          = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "DdeiBaseUrl"                                  = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                = "" //set in deployment script
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = ""
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = ""
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_auth_handover_file_share.name
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.auth_handover_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                                   = "" //set in deployment script
   }
 
   sticky_settings {
@@ -79,7 +81,9 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"],
+      app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"]
     ]
   }
 

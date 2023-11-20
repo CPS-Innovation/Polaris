@@ -14,26 +14,27 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY"               = data.azurerm_application_insights.global_ai.instrumentation_key
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.polaris_sacpspolaris_ui_staging1_file_share.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"               = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_CLIENT_ID"                          = module.azurerm_app_reg_as_web_polaris_staging1.client_id
-    "REACT_APP_TENANT_ID"                          = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"                   = ""
-    "REACT_APP_GATEWAY_SCOPE"                      = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}-staging1/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"                = "/polaris?polaris-ui-url="
-    "REACT_APP_AI_KEY"                             = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_SURVEY_LINK"                        = "https://www.smartsurvey.co.uk/s/DG5B6G/"
-    "REACT_APP_PRIVATE_BETA_USER_GROUP"            = var.private_beta.user_group
-    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"           = var.private_beta.sign_up_url
-    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"       = var.is_redaction_service_offline
-    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"         = var.feature_flag_hte_emails_on
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_ui_staging1_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris_staging1.client_id
+    "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
+    "REACT_APP_GATEWAY_BASE_URL"                      = ""
+    "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}-staging1/user_impersonation"
+    "REACT_APP_REAUTH_REDIRECT_URL"                   = "/polaris?polaris-ui-url="
+    "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
+    "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
+    "REACT_APP_PRIVATE_BETA_USER_GROUP"               = var.private_beta.user_group
+    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"              = var.private_beta.sign_up_url
+    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"          = var.is_redaction_service_offline
+    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"            = var.feature_flag_hte_emails_on
   }
 
   site_config {
@@ -82,7 +83,8 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"]
     ]
   }
 }
@@ -189,26 +191,27 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
   tags                          = local.common_tags
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY"               = data.azurerm_application_insights.global_ai.instrumentation_key
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.polaris_sacpspolaris_ui_staging2_file_share.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"               = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_CLIENT_ID"                          = module.azurerm_app_reg_as_web_polaris_staging2.client_id
-    "REACT_APP_TENANT_ID"                          = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"                   = ""
-    "REACT_APP_GATEWAY_SCOPE"                      = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}-staging2/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"                = "/polaris?polaris-ui-url="
-    "REACT_APP_AI_KEY"                             = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_SURVEY_LINK"                        = "https://www.smartsurvey.co.uk/s/DG5B6G/"
-    "REACT_APP_PRIVATE_BETA_USER_GROUP"            = var.private_beta.user_group
-    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"           = var.private_beta.sign_up_url
-    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"       = var.is_redaction_service_offline
-    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"         = var.feature_flag_hte_emails_on
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_ui_staging2_file_share.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris_staging2.client_id
+    "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
+    "REACT_APP_GATEWAY_BASE_URL"                      = ""
+    "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}-staging2/user_impersonation"
+    "REACT_APP_REAUTH_REDIRECT_URL"                   = "/polaris?polaris-ui-url="
+    "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
+    "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
+    "REACT_APP_PRIVATE_BETA_USER_GROUP"               = var.private_beta.user_group
+    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"              = var.private_beta.sign_up_url
+    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"          = var.is_redaction_service_offline
+    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"            = var.feature_flag_hte_emails_on
   }
 
   site_config {
@@ -257,7 +260,8 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
+      app_settings["WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"]
     ]
   }
 }
