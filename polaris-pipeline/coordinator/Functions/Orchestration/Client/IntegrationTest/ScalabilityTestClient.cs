@@ -137,16 +137,10 @@ namespace coordinator.Functions.Orchestration.Client.Case
                     Content = new StringContent(errorMessage, Encoding.UTF8, MediaTypeNames.Application.Json)
                 };
             }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, "n/a");
-            }
         }
 
         private async Task<List<string>> TerminateOrchestrationsAndDurableEntities(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> terminateConditions, Guid correlationId)
         {
-            _logger.LogMethodFlow(correlationId, LoggingName, "Terminating Case Orchestrations, Sub Orchestrations and Durable Entities");
-
             var instanceIds = new List<string>();
             foreach (var terminateCondition in terminateConditions)
             {
@@ -164,8 +158,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
             }
 
             var success = await WaitForOrchestrationsToTerminateTask(client, instanceIds);
-
-            _logger.LogMethodFlow(correlationId, LoggingName, $"Terminating Case Orchestrations, Sub Orchestrations and Durable Entities completed");
 
             return instanceIds;
         }
@@ -190,8 +182,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
         private async Task<bool> PurgeOrchestrationsAndDurableEntities(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> purgeConditions, Guid correlationId)
         {
-            _logger.LogMethodFlow(correlationId, LoggingName, "Purging Case Orchestrations, Sub Orchestrations and Durable Entities");
-
             foreach (var purgeCondition in purgeConditions)
             {
                 do
@@ -205,7 +195,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
                 } while (purgeCondition.ContinuationToken != null);
 
             }
-            _logger.LogMethodFlow(correlationId, LoggingName, $"Purging Case Orchestrations, Sub Orchestrations and Durable Entities completed");
 
             return true;
         }

@@ -62,7 +62,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var log = context.CreateReplaySafeLogger(_log);
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieve case trackers for case {payload.CmsCaseId}");
+
             var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
@@ -76,7 +76,6 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                     startTime: await caseEntity.GetStartTime()
                 );
 
-                log.LogMethodFlow(payload.CorrelationId, loggingName, $"Run main orchestration for case {payload.CmsCaseId}");
                 var orchestratorTask = RunCaseOrchestrator(context, caseEntity, payload, telemetryEvent);
 
                 using var cts = new CancellationTokenSource();
@@ -102,27 +101,18 @@ namespace coordinator.Functions.Orchestration.Functions.Case
                 _telemetryClient.TrackEventFailure(telemetryEvent);
                 throw;
             }
-            finally
-            {
-                log.LogMethodExit(payload.CorrelationId, loggingName, string.Empty);
-            }
         }
 
         private async Task<TrackerDto> RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CaseOrchestrationPayload payload, RefreshedCaseEvent telemetryEvent)
         {
-            const string loggingName = nameof(RunCaseOrchestrator);
-
-            var log = context.CreateReplaySafeLogger(_log);
-
-            log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
-            log.LogMethodFlow(payload.CorrelationId, loggingName, $"Resetting case entity for {context.InstanceId}");
             caseEntity.Reset(context.InstanceId);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
-            var documents = await GetDocuments(context, loggingName, log, payload);
+            var documents = await GetDocuments(context, payload);
             telemetryEvent.CmsDocsCount = documents.CmsDocuments.Length;
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
 
+            var log = context.CreateReplaySafeLogger(_log);
             var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, payload, documents, log);
             telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
             telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
@@ -133,7 +123,6 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
 
-            log.LogMethodExit(payload.CorrelationId, loggingName, "Returning tracker");
             telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
             return caseEntity.Adapt<TrackerDto>();
@@ -151,8 +140,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
             var now = context.CurrentUtcDateTime;
 
             var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
-            var logMessage = deltas.GetLogMessage();
-            log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, logMessage);
+            var deltaLogMessage = deltas.GetLogMessage();
+            log.LogMethodFlow(caseDocumentPayload.CorrelationId, loggingName, deltaLogMessage);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
             var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
@@ -240,10 +229,8 @@ namespace coordinator.Functions.Orchestration.Functions.Case
         }
 
         private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
-            GetDocuments(IDurableOrchestrationContext context, string nameToLog, ILogger logger, CaseOrchestrationPayload payload)
+            GetDocuments(IDurableOrchestrationContext context, CaseOrchestrationPayload payload)
         {
-            logger.LogMethodFlow(payload.CorrelationId, nameToLog, $"Getting Documents for case {payload.CmsCaseId}");
-
             var getCaseEntitiesActivityPayload = new GetCaseDocumentsActivityPayload(payload.CmsCaseUrn, payload.CmsCaseId, payload.CmsAuthValues, payload.CorrelationId);
             var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), getCaseEntitiesActivityPayload);
             if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))

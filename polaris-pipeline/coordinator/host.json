@@ -3,11 +3,13 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Warning",
+      "default": "Information",
       "Function": "Information",
+      "coordinator.Functions.Orchestration.Functions.Case.RefreshCaseOrchestrator.User": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
+      "DurableTask.AzureStorage": "Warning",
       "DurableTask.Core": "Information",
       "Microsoft.Azure.WebJobs.Host.Scale": "None"
     },
