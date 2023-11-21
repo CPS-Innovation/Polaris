@@ -54,9 +54,9 @@ jobs:
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
-                deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                #deployToSlotOrASE: true
+                #resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+                #slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -99,9 +99,9 @@ jobs:
                 appType: functionApp
                 appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
-                deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                #deployToSlotOrASE: true
+                #resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+                #slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -144,9 +144,9 @@ jobs:
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
-                deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                #deployToSlotOrASE: true
+                #resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+                #slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -191,9 +191,9 @@ jobs:
                 appType: webAppLinux
                 WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
                 packageForLinux: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-ui-drop
-                deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                #deployToSlotOrASE: true
+                #resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+                #slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -203,26 +203,26 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish SPA - Completed"
 
             # send custom event to AppInsights
-            #- template: steps/tasks/task_send-to-app-insights.yml
-            #  parameters:
-            #    appInsightsKey: ${{ parameters.appInsightsKey }}
-            #    targetBuild: ${{ parameters.targetBuild }}
-            #    message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Started"
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Started"
 
             # Restart app service - moved away from deployment to buy some time
-            #- task: AzureAppServiceManage@0
-            #  displayName: 'Restart SPA Azure App Service'
-            #  inputs:
-            #    azureSubscription: ${{ parameters.azureSubscription }}
-            #    Action: 'Restart Azure App Service'
-            #    WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
+            - task: AzureAppServiceManage@0
+              displayName: 'Restart SPA Azure App Service'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                Action: 'Restart Azure App Service'
+                WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
 
             # send custom event to AppInsights
-            #- template: steps/tasks/task_send-to-app-insights.yml
-            #  parameters:
-            #    appInsightsKey: ${{ parameters.appInsightsKey }}
-            #    targetBuild: ${{ parameters.targetBuild }}
-            #    message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Completed"
+            - template: steps/tasks/task_send-to-app-insights.yml
+              parameters:
+                appInsightsKey: ${{ parameters.appInsightsKey }}
+                targetBuild: ${{ parameters.targetBuild }}
+                message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Completed"
 
   - deployment: DeployGateway
     dependsOn: ${{ parameters.jobDependsOn }}
@@ -258,9 +258,9 @@ jobs:
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
-                deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                #deployToSlotOrASE: true
+                #resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+                #slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -303,9 +303,9 @@ jobs:
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-auth-handover-drop
-                deployToSlotOrASE: true
-                resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                #deployToSlotOrASE: true
+                #resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+                #slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
