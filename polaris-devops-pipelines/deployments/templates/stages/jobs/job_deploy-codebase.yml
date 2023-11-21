@@ -54,9 +54,9 @@ jobs:
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
-                #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-                #slotName: $(slotName)
+                deployToSlotOrASE: true
+                resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+                slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
