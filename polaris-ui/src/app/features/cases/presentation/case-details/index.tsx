@@ -34,6 +34,7 @@ import { SURVEY_LINK } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
+import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -214,6 +215,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           }}
         />
       )}
+
+      <RedactionLogModal />
       <nav>
         <PhaseBanner
           className={classes["phaseBanner"]}

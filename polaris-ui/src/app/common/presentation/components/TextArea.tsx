@@ -13,6 +13,9 @@ type TextAreaProps = {
   };
   onChange: (value: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
-export const TextArea: React.FC<TextAreaProps> = (props) => {
-  return <GDS.Textarea {...props} />;
-};
+export const TextArea = React.forwardRef<
+  HTMLSelectElement | null,
+  TextAreaProps
+>((props, ref) => {
+  return <GDS.Textarea {...props} ref={ref} />;
+});

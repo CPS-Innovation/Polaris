@@ -1,0 +1,55 @@
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 1.875rem 0;
+  //   max-width: 25rem;
+  min-width: 80rem;
+
+  .modalContentHeading {
+    margin: 0;
+  }
+
+  .confirmationMessage {
+    margin: 0;
+    text-align: left;
+  }
+
+  .btnWrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 1.875rem;
+  }
+}
+
+.select {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 200px;
+  :global(.govuk-select) {
+    width: 100%;
+  }
+}
+.sortLabel {
+  margin-bottom: 0;
+  margin-right: 0.625rem;
+}
+.selectSection {
+  display: flex;
+  flex-direction: column;
+}
+.selectInputWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+.underRedactionForm {
+  width: 100%;
+}
+.textAreaSection {
+  margin-top: 100px;
+  width: 600px;
+}
