@@ -47,8 +47,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   }
 
   sticky_settings {
-    app_setting_names = ["PolarisPipelineCoordinatorFunctionAppKey", "PolarisPipelineCoordinatorDurableExtensionCode", 
-      "DdeiAccessKey", "ClientId", "ClientSecret"]
+    app_setting_names = ["PolarisPipelineCoordinatorFunctionAppKey", "PolarisPipelineCoordinatorDurableExtensionCode",
+    "DdeiAccessKey", "ClientId", "ClientSecret"]
   }
 
   site_config {
