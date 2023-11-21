@@ -23,7 +23,7 @@ jobs:
         TextExtractor:
           Name: "Text Extractor"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
-    displayName: Swap Pipeline Components
+    displayName: Swap
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
@@ -48,10 +48,10 @@ jobs:
         AuthHandover:
           Name: "Auth Handover"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
-  #      PolarisGateway:
-  #        Name: "Polaris Gateway"
-  #        AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
-    displayName: Swap UI Components
+        PolarisGateway:
+          Name: "Polaris Gateway"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+    displayName: Swap
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
