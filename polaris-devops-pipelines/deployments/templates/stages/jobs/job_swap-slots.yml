@@ -42,9 +42,9 @@ jobs:
       slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       matrix:
-  #      SPA:
-  #        Name: "SPA"
-  #        AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
+        SPA:
+          Name: "SPA"
+          AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
         AuthHandover:
           Name: "Auth Handover"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
