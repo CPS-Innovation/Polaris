@@ -14,9 +14,9 @@ jobs:
       slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       matrix:
-        #Coordinator:
-        #  Name: "Coordinator"
-        #  AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+        Coordinator:
+          Name: "Coordinator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
         PDFGenerator:
           Name: "PDF Generator"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
