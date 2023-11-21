@@ -59,7 +59,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging1" {
       tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_id                  = module.azurerm_app_reg_fa_polaris_auth_handover_staging1.client_id
+      client_id                  = module.azurerm_app_reg_fa_polaris_auth_handover.client_id
     }
 
     login {
@@ -79,31 +79,6 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging1" {
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-module "azurerm_app_reg_fa_polaris_auth_handover_staging1" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.resource_name}-auth-handover-staging1-appreg"
-  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.resource_name}-auth-handover-staging1"]
-  owners                  = [data.azuread_client_config.current.object_id]
-  prevent_duplicate_names = true
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_polaris_auth_handover_staging1_service" {
-  application_object_id = module.azurerm_app_reg_fa_polaris_auth_handover_staging1.object_id
-  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint
@@ -188,7 +163,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging2" {
       tenant_auth_endpoint = "https://sts.windows.net/${data.azurerm_client_config.current.tenant_id}/v2.0"
       #checkov:skip=CKV_SECRET_6:Base64 High Entropy String - Misunderstanding of setting "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      client_id                  = module.azurerm_app_reg_fa_polaris_auth_handover_staging2.client_id
+      client_id                  = module.azurerm_app_reg_fa_polaris_auth_handover.client_id
     }
 
     login {
@@ -208,31 +183,6 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging2" {
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-module "azurerm_app_reg_fa_polaris_auth_handover_staging2" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.resource_name}-auth-handover-staging2-appreg"
-  identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.resource_name}-auth-handover-staging2"]
-  owners                  = [data.azuread_client_config.current.object_id]
-  prevent_duplicate_names = true
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_polaris_auth_handover_staging2_service" {
-  application_object_id = module.azurerm_app_reg_fa_polaris_auth_handover_staging2.object_id
-  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint
