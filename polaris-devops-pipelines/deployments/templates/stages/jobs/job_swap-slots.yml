@@ -48,9 +48,9 @@ jobs:
         AuthHandover:
           Name: "Auth Handover"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
-  #      PolarisGateway:
-  #        Name: "Polaris Gateway"
-  #        AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+        PolarisGateway:
+          Name: "Polaris Gateway"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
     displayName: Swap
     steps:
       - checkout: none

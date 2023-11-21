@@ -258,9 +258,9 @@ jobs:
                 appType: functionAppLinux
                 appName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
-                #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-                #slotName: $(slotName)
+                deployToSlotOrASE: true
+                resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+                slotName: $(slotName)
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
