@@ -14,7 +14,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "false"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
@@ -144,7 +144,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "false"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
