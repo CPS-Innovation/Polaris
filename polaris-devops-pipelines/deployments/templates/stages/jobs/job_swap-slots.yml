@@ -17,9 +17,9 @@ jobs:
         #Coordinator:
         #  Name: "Coordinator"
         #  AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
-        #PDFGenerator:
-        #  Name: "PDF Generator"
-        #  AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+        PDFGenerator:
+          Name: "PDF Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
         TextExtractor:
           Name: "Text Extractor"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
