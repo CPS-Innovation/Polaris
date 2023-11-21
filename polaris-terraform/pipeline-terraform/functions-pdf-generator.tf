@@ -16,7 +16,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "false"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_CONTENTOVERVNET"                         = "1"
