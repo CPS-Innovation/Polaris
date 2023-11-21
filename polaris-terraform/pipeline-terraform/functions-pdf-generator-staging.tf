@@ -74,40 +74,6 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
   }
 }
 
-module "azurerm_app_reg_fa_pdf_generator_staging1" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-pdf-generator-staging1-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-pdf-generator-staging1"]
-  prevent_duplicate_names = true
-  #use this code for adding app_roles
-  /*app_role = [
-    {
-      allowed_member_types = ["Application"]
-      description          = "Can create PDF resources using the ${local.resource_name} PDF Generator"
-      display_name         = "Create PDF resources"
-      id                   = element(random_uuid.random_id[*].result, 2)
-      value                = "application.create"
-    }
-  ]*/
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_fa_pdf_generator_staging1_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_pdf_generator_staging1.object_id
-  end_date_relative     = "17520h"
-}
-
 # Create Private Endpoint
 resource "azurerm_private_endpoint" "pipeline_pdf_generator_staging1_pe" {
   name                = "${azurerm_windows_function_app.fa_pdf_generator.name}-staging1-pe"
@@ -202,40 +168,6 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging2" {
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-module "azurerm_app_reg_fa_pdf_generator_staging2" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-pdf-generator-staging2-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-pdf-generator-staging2"]
-  prevent_duplicate_names = true
-  #use this code for adding app_roles
-  /*app_role = [
-    {
-      allowed_member_types = ["Application"]
-      description          = "Can create PDF resources using the ${local.resource_name} PDF Generator"
-      display_name         = "Create PDF resources"
-      id                   = element(random_uuid.random_id[*].result, 2)
-      value                = "application.create"
-    }
-  ]*/
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_fa_pdf_generator_staging2_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_pdf_generator_staging2.object_id
-  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint
