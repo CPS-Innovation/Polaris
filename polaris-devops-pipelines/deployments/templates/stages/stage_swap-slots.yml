@@ -55,4 +55,4 @@ stages:
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
           jobDependsOn:
             - Swap_Pipeline_Slots
-            - Swap_UI_Slots
+            #- Swap_UI_Slots
