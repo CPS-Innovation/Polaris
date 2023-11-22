@@ -183,21 +183,6 @@ stages:
           jobDependsOn:
             - ApplyUITerraform
 
-      - template: jobs/job_update-app-keys-in-ui-components.yml
-        parameters:
-          envLabel: ${{ parameters.envLabel }}
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          targetName: "UI Terraform CI Deployment"
-          targetSuffix: ${{ parameters.targetSuffix }}
-          appInsightsKey: ${{ parameters.appInsightsKey }}
-          armClientId: ${{ parameters.armClientId }}
-          armClientSecret: ${{ parameters.armClientSecret }}
-          armTenantId: ${{ parameters.armTenantId }}
-          armSubscriptionId: ${{ parameters.armSubscriptionId }}
-          jobDependsOn:
-            - ApplyUITerraform
-
       - template: jobs/job_log-result-deployment.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
@@ -213,4 +198,3 @@ stages:
             - ApplyUITerraform
             - ApplyUIEventsTerraform
             - SetLogAnalyticsArchivalPeriods
-            - UpdateUIComponentAppKeys
