@@ -90,9 +90,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
-      app_settings["PolarisPipelineTextExtractorFunctionAppKey"],
-      app_settings["DdeiAccessKey"],
-      app_settings["PolarisPipelineRedactPdfFunctionAppKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
