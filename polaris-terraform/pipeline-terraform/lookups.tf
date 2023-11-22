@@ -133,7 +133,7 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
 data "azurerm_function_app_host_keys" "fa_pdf_generator_host_keys" {
   name                = "fa-${local.global_name}-pdf-generator"
   resource_group_name = "rg-${local.resource_name}"
-  
+
   depends_on = [azurerm_windows_function_app.fa_pdf_generator]
 }
 
