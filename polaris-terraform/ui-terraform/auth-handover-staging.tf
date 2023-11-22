@@ -28,7 +28,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging1" {
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.auth_handover_scale_controller
     "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                   = "" //set in deployment script
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
 
   site_config {
@@ -132,7 +132,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging2" {
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.auth_handover_scale_controller
     "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                   = "" //set in deployment script
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
 
   site_config {
