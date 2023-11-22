@@ -43,6 +43,17 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
             <Controller
               name="select1"
               control={control}
+              // rules={{
+              //   required: true,
+              //   validate: {
+              //     test1: (value) => {
+              //       if (value === "1") return false;
+              //     },
+              //     test2: (value) => {
+              //       if (value === "2") return false;
+              //     },
+              //   },
+              // }}
               render={({ field }) => {
                 return (
                   <Select
@@ -66,10 +77,12 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
               }}
             />
             {errors.select1?.type === "required" && (
-              <p className="errorMsg">This is a required field.</p>
+              <p className={classes.errorMsg}>This is a required field.</p>
             )}
             {errors.select1 && (
-              <p className="errorMsg">{`an error of type: ${errors.select1?.type}`}</p>
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select1?.type}`}</p>
             )}
           </section>
           <section className={classes.selectSection}>
@@ -98,11 +111,13 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
                 );
               }}
             />
-            {errors.select1?.type === "required" && (
-              <p className="errorMsg">This is a required field.</p>
+            {errors.select2?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
             )}
-            {errors.select1 && (
-              <p className="errorMsg">{`an error of type: ${errors.select1?.type}`}</p>
+            {errors.select2 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select2?.type}`}</p>
             )}
           </section>
           <section className={classes.selectSection}>
@@ -131,11 +146,13 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
                 );
               }}
             />
-            {errors.select1?.type === "required" && (
-              <p className="errorMsg">This is a required field.</p>
+            {errors.select3?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
             )}
-            {errors.select1 && (
-              <p className="errorMsg">{`an error of type: ${errors.select1?.type}`}</p>
+            {errors.select3 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select3?.type}`}</p>
             )}
           </section>
           <section className={classes.selectSection}>
@@ -164,11 +181,13 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
                 );
               }}
             />
-            {errors.select1?.type === "required" && (
-              <p className="errorMsg">This is a required field.</p>
+            {errors.select4?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
             )}
-            {errors.select1 && (
-              <p className="errorMsg">{`an error of type: ${errors.select1?.type}`}</p>
+            {errors.select4 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select4?.type}`}</p>
             )}
           </section>
           <section className={classes.selectSection}>
@@ -197,11 +216,13 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
                 );
               }}
             />
-            {errors.select1?.type === "required" && (
-              <p className="errorMsg">This is a required field.</p>
+            {errors.select5?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
             )}
-            {errors.select1 && (
-              <p className="errorMsg">{`an error of type: ${errors.select1?.type}`}</p>
+            {errors.select5 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select5?.type}`}</p>
             )}
           </section>
         </div>
@@ -221,7 +242,6 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
             // }}
             control={control}
             render={({ field }) => {
-              console.log("field>>>>>111", field);
               return (
                 <TextArea
                   {...field}
@@ -240,10 +260,12 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
             }}
           />
           {errors.textArea?.type === "required" && (
-            <p className="errorMsg">This is a required field.</p>
+            <p className={classes.errorMsg}>This is a required field.</p>
           )}
           {errors.textArea && (
-            <p className="errorMsg">{`an error of type: ${errors.textArea?.type}`}</p>
+            <p
+              className={classes.errorMsg}
+            >{`an error of type: ${errors.textArea?.type}`}</p>
           )}
         </section>
         {/* <input type="submit" /> */}

@@ -4,8 +4,11 @@
   align-items: flex-start;
   justify-content: center;
   padding: 0 1.875rem 0;
-  //   max-width: 25rem;
-  min-width: 80rem;
+  min-width: 74rem;
+
+  :global(.govuk-form-group) {
+    margin-bottom: 0;
+  }
 
   .modalContentHeading {
     margin: 0;
@@ -52,4 +55,7 @@
 .textAreaSection {
   margin-top: 100px;
   width: 600px;
+}
+.errorMsg {
+  color: red;
 }
