@@ -124,3 +124,22 @@ data "azurerm_log_analytics_workspace" "global_la" {
   name                = "la-${local.global_name}"
   resource_group_name = "rg-${local.analytics_group_name}"
 }
+
+data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
+  name                = "fa-${local.ddei_resource_name}"
+  resource_group_name = "rg-${local.ddei_resource_name}"
+}
+
+data "azurerm_function_app_host_keys" "fa_pdf_generator_host_keys" {
+  name                = "fa-${local.global_name}-pdf-generator"
+  resource_group_name = "rg-${local.resource_name}"
+
+  depends_on = [azurerm_windows_function_app.fa_pdf_generator]
+}
+
+data "azurerm_function_app_host_keys" "fa_text_extractor_host_keys" {
+  name                = "fa-${local.global_name}-text-extractor"
+  resource_group_name = "rg-${local.resource_name}"
+
+  depends_on = [azurerm_linux_function_app.fa_text_extractor]
+}
