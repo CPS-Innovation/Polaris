@@ -110,13 +110,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   }
 
   https_only = true
-
-  lifecycle {
-    ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["DDEI_ENDPOINT_FUNCTION_APP_KEY"]
-    ]
-  }
 }
 
 module "azurerm_app_reg_polaris_proxy" {

@@ -107,9 +107,6 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["FUNCTIONS_EXTENSION_VERSION"],
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["PolarisPipelineCoordinatorFunctionAppKey"],
-      app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
-      app_settings["DdeiAccessKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
