@@ -146,7 +146,6 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
-    "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
     "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
     "PolarisPipelineTextExtractorFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_text_extractor_host_keys.default_function_key
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
