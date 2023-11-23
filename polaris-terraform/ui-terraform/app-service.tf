@@ -25,6 +25,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
@@ -39,7 +40,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   }
 
   sticky_settings {
-    app_setting_names = ["APPINSIGHTS_INSTRUMENTATIONKEY", "REACT_APP_CLIENT_ID", "REACT_APP_GATEWAY_SCOPE"]
+    app_setting_names = ["REACT_APP_CLIENT_ID", "REACT_APP_GATEWAY_SCOPE"]
   }
 
   site_config {

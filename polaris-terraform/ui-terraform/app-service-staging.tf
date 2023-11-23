@@ -14,7 +14,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = ""
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -23,6 +23,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
@@ -125,7 +126,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
   tags                          = local.common_tags
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = ""
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
@@ -134,6 +135,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging2" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
