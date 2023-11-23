@@ -36,19 +36,15 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
   }
 
   site_config {
-    ftps_state                             = "FtpsOnly"
-    http2_enabled                          = true
-    runtime_scale_monitoring_enabled       = true
-    vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = var.pipeline_component_service_plans.pdf_generator_always_ready_instances
-    app_scale_limit                        = var.pipeline_component_service_plans.pdf_generator_maximum_scale_out_limit
-    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
-    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    ftps_state                       = "FtpsOnly"
+    http2_enabled                    = true
+    runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled           = true
+    elastic_instance_minimum         = 1
+    app_scale_limit                  = 1
     application_stack {
       dotnet_version = "v6.0"
     }
-    health_check_path                 = "/api/status"
-    health_check_eviction_time_in_min = "2"
   }
 
   identity {
@@ -132,19 +128,15 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging2" {
   }
 
   site_config {
-    ftps_state                             = "FtpsOnly"
-    http2_enabled                          = true
-    runtime_scale_monitoring_enabled       = true
-    vnet_route_all_enabled                 = true
-    elastic_instance_minimum               = var.pipeline_component_service_plans.pdf_generator_always_ready_instances
-    app_scale_limit                        = var.pipeline_component_service_plans.pdf_generator_maximum_scale_out_limit
-    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
-    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    ftps_state                       = "FtpsOnly"
+    http2_enabled                    = true
+    runtime_scale_monitoring_enabled = true
+    vnet_route_all_enabled           = true
+    elastic_instance_minimum         = 1
+    app_scale_limit                  = 1
     application_stack {
       dotnet_version = "v6.0"
     }
-    health_check_path                 = "/api/status"
-    health_check_eviction_time_in_min = "2"
   }
 
   identity {

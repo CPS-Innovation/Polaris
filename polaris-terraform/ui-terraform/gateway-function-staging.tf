@@ -45,11 +45,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
   }
 
   site_config {
-    always_on                              = false
-    ftps_state                             = "FtpsOnly"
-    http2_enabled                          = true
-    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
-    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    always_on     = false
+    ftps_state    = "FtpsOnly"
+    http2_enabled = true
     cors {
       allowed_origins = [
         "https://as-web-${local.resource_name}.azurewebsites.net",
@@ -59,11 +57,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
       ]
       support_credentials = true
     }
-    vnet_route_all_enabled            = true
-    runtime_scale_monitoring_enabled  = true
-    elastic_instance_minimum          = 3
-    health_check_path                 = "/api/status"
-    health_check_eviction_time_in_min = "2"
+    vnet_route_all_enabled           = true
+    runtime_scale_monitoring_enabled = true
+    elastic_instance_minimum         = 1
     application_stack {
       dotnet_version = "6.0"
     }
@@ -175,11 +171,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
   }
 
   site_config {
-    always_on                              = false
-    ftps_state                             = "FtpsOnly"
-    http2_enabled                          = true
-    application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
-    application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
+    always_on     = false
+    ftps_state    = "FtpsOnly"
+    http2_enabled = true
     cors {
       allowed_origins = [
         "https://as-web-${local.resource_name}.azurewebsites.net",
@@ -189,11 +183,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging2" {
       ]
       support_credentials = true
     }
-    vnet_route_all_enabled            = true
-    runtime_scale_monitoring_enabled  = true
-    elastic_instance_minimum          = 3
-    health_check_path                 = "/api/status"
-    health_check_eviction_time_in_min = "2"
+    vnet_route_all_enabled           = true
+    runtime_scale_monitoring_enabled = true
+    elastic_instance_minimum         = 1
     application_stack {
       dotnet_version = "6.0"
     }
