@@ -41,7 +41,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     runtime_scale_monitoring_enabled = true
     vnet_route_all_enabled           = true
     elastic_instance_minimum         = 1
-    app_scale_limit                  = 1
+    app_scale_limit                  = 3
     application_stack {
       dotnet_version = "6.0"
     }
@@ -133,7 +133,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
     runtime_scale_monitoring_enabled = true
     vnet_route_all_enabled           = true
     elastic_instance_minimum         = 1
-    app_scale_limit                  = 1
+    app_scale_limit                  = 3
     application_stack {
       dotnet_version = "6.0"
     }
