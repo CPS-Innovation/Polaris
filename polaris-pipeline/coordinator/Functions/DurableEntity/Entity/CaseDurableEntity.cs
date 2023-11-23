@@ -154,7 +154,8 @@ namespace coordinator.Functions.DurableEntity.Entity
                      (
                          cmsDocument.Status != DocumentStatus.Indexed ||
                          cmsDocument.CmsVersionId != incomingDocument.VersionId ||
-                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed
+                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
+                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId
                      )
                  )
                  select incomingDocument).ToList();
