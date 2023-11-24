@@ -27,9 +27,12 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
+    "REACT_APP_REDACTION_LOG_CLIENT_ID"               = data.azuread_application.fa_redaction_log_reporting.application_id
     "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
+    "REACT_APP_GATEWAY_BASE_URL"                      = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
+    "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_REAUTH_REDIRECT_URL"                   = "/polaris?polaris-ui-url="
     "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
