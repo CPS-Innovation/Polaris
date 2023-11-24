@@ -20,3 +20,4 @@ export { DropdownButton } from "./DropdownButton";
 export { LoaderUpdate } from "./LoaderUpdate";
 export { LinkButton } from "./LinkButton";
 export { TextArea } from "./TextArea";
+export { EditButton } from "./EditButton";

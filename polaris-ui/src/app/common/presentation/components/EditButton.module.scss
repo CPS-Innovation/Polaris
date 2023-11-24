@@ -1,0 +1,30 @@
+.editButton {
+  width: 30px;
+  height: 30px;
+  padding: 0.3125rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  svg {
+    fill: #1d70b8;
+  }
+  &:hover:not(:disabled):not(:focus) {
+    background-color: transparent;
+  }
+
+  &:focus,
+  &:hover {
+    svg {
+      fill: #000;
+    }
+  }
+}
+
+.editBtnWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+}

@@ -1,0 +1,367 @@
+import { useState } from "react";
+import {
+  Select,
+  Input,
+  TextArea,
+  Button,
+  EditButton,
+} from "../../../../../common/presentation/components";
+import { ReactComponent as EditIcon } from "../../../../../common/presentation/svgs/edit.svg";
+import { UnderRedactionContent } from "./UnderRedactionContent";
+import classes from "./RedactionLogContent.module.scss";
+import { useForm, Controller } from "react-hook-form";
+
+type RedactionLogContentProps = {
+  message?: string;
+  handleClose?: () => void;
+};
+
+const defaultValues = {
+  select1: "2",
+  select2: "1",
+  select3: "1",
+  select4: "1",
+  select5: "1",
+  textArea: "",
+};
+export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
+  message,
+  handleClose,
+}) => {
+  const {
+    handleSubmit,
+    getValues,
+    formState: { errors },
+    control,
+  } = useForm({ defaultValues });
+  const [showSelectEdits, setShowSelectEdits] = useState<string[]>([]);
+  const handleEditButtonClick = (id: string) => {
+    console.log("id>>>>", id);
+    setShowSelectEdits([...showSelectEdits, id]);
+  };
+  return (
+    <div className={classes.modalContent}>
+      <h1 className={classes.modalContentHeading}>
+        45AA209820/1 - Redaction Log
+      </h1>
+
+      <form
+        className={classes.underRedactionForm}
+        onSubmit={() => {
+          console.log("hellooo");
+        }}
+      >
+        <div className={classes.selectInputWrapper}>
+          <section className={classes.selectSection}>
+            <Controller
+              name="select1"
+              control={control}
+              // rules={{
+              //   required: true,
+              //   validate: {
+              //     test1: (value) => {
+              //       if (value === "1") return false;
+              //     },
+              //     test2: (value) => {
+              //       if (value === "2") return false;
+              //     },
+              //   },
+              // }}
+              render={({ field }) => {
+                return (
+                  <>
+                    {!showSelectEdits.includes("select1") ? (
+                      <div className={classes.editBtnWrapper}>
+                        <span>CPS Area or Central Casework Division:</span>
+                        <EditButton
+                          id="select1"
+                          callBackFn={handleEditButtonClick}
+                          value={getValues("select1")}
+                        />
+                      </div>
+                    ) : (
+                      <Select
+                        {...field}
+                        label={{
+                          htmlFor: "select-cps-area",
+                          children: "CPS Area or Central Casework Division:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-area"
+                        data-testid="select-cps-area"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={[
+                          { children: "value1", value: "1" as const },
+                          { children: "value2", value: "2" as const },
+                        ]}
+                      />
+                    )}
+                  </>
+                );
+              }}
+            />
+            {errors.select1?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
+            )}
+            {errors.select1 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select1?.type}`}</p>
+            )}
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="select2"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <>
+                    {!showSelectEdits.includes("select2") ? (
+                      <div className={classes.editBtnWrapper}>
+                        <span>CPS Business unit:</span>
+                        <EditButton
+                          id="select2"
+                          callBackFn={handleEditButtonClick}
+                          value={getValues("select2")}
+                        />
+                      </div>
+                    ) : (
+                      <Select
+                        {...field}
+                        label={{
+                          htmlFor: "select-cps-bu",
+                          children: "CPS Business unit:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-bu"
+                        data-testid="select-cps-bu"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={[
+                          { children: "value1", value: "1" as const },
+                          { children: "value2", value: "2" as const },
+                        ]}
+                      />
+                    )}
+                  </>
+                );
+              }}
+            />
+            {errors.select2?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
+            )}
+            {errors.select2 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select2?.type}`}</p>
+            )}
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="select3"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <>
+                    {!showSelectEdits.includes("select3") ? (
+                      <div className={classes.editBtnWrapper}>
+                        <span>Investigative Agency:</span>
+                        <EditButton
+                          id="select3"
+                          callBackFn={handleEditButtonClick}
+                          value={getValues("select3")}
+                        />
+                      </div>
+                    ) : (
+                      <Select
+                        {...field}
+                        label={{
+                          htmlFor: "select-cps-ia",
+                          children: "Investigative Agency:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-ia"
+                        data-testid="select-cps-ia"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={[
+                          { children: "value1", value: "1" as const },
+                          { children: "value2", value: "2" as const },
+                        ]}
+                      />
+                    )}
+                  </>
+                );
+              }}
+            />
+            {errors.select3?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
+            )}
+            {errors.select3 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select3?.type}`}</p>
+            )}
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="select4"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <>
+                    {!showSelectEdits.includes("select4") ? (
+                      <div className={classes.editBtnWrapper}>
+                        <span>Charge Status:</span>
+                        <EditButton
+                          id="select4"
+                          callBackFn={handleEditButtonClick}
+                          value={getValues("select4")}
+                        />
+                      </div>
+                    ) : (
+                      <Select
+                        {...field}
+                        label={{
+                          htmlFor: "select-cps-cs",
+                          children: "Charge Status:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-cs"
+                        data-testid="select-cps-cs"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={[
+                          { children: "value1", value: "1" as const },
+                          { children: "value2", value: "2" as const },
+                        ]}
+                      />
+                    )}
+                  </>
+                );
+              }}
+            />
+            {errors.select4?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
+            )}
+            {errors.select4 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select4?.type}`}</p>
+            )}
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="select5"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <>
+                    {!showSelectEdits.includes("select5") ? (
+                      <div className={classes.editBtnWrapper}>
+                        <span>Document Type:</span>
+                        <EditButton
+                          id="select5"
+                          callBackFn={handleEditButtonClick}
+                          value={getValues("select5")}
+                        />
+                      </div>
+                    ) : (
+                      <Select
+                        {...field}
+                        label={{
+                          htmlFor: "select-cps-dt",
+                          children: "Document Type:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-dt"
+                        data-testid="select-cps-dt"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={[
+                          { children: "value1", value: "1" as const },
+                          { children: "value2", value: "2" as const },
+                        ]}
+                      />
+                    )}
+                  </>
+                );
+              }}
+            />
+            {errors.select5?.type === "required" && (
+              <p className={classes.errorMsg}>This is a required field.</p>
+            )}
+            {errors.select5 && (
+              <p
+                className={classes.errorMsg}
+              >{`an error of type: ${errors.select5?.type}`}</p>
+            )}
+          </section>
+        </div>
+
+        <section>
+          <UnderRedactionContent documentName="ABC_MG3" />
+        </section>
+        <section className={classes.textAreaSection}>
+          <Controller
+            name="textArea"
+            // rules={{
+            //   required: true,
+            //   validate: {
+            //     test1: (value) => {
+            //       if (value.length > 2 && value.length < 4) return false;
+            //     },
+            //     test2: (value) => {
+            //       if (value.length > 3) return false;
+            //     },
+            //   },
+            // }}
+            control={control}
+            render={({ field }) => {
+              return (
+                <TextArea
+                  {...field}
+                  name="more-details"
+                  id="more-details"
+                  data-testid="report-issue-more-details"
+                  label={{
+                    children: (
+                      <span className={classes.textAreaLabel}>
+                        Supporting notes (optional)
+                      </span>
+                    ),
+                  }}
+                />
+              );
+            }}
+          />
+          {errors.textArea?.type === "required" && (
+            <p className={classes.errorMsg}>This is a required field.</p>
+          )}
+          {errors.textArea && (
+            <p
+              className={classes.errorMsg}
+            >{`an error of type: ${errors.textArea?.type}`}</p>
+          )}
+        </section>
+        {/* <input type="submit" /> */}
+        <div className={classes.btnWrapper}>
+          <Button
+            type="submit"
+            className={classes.saveBtn}
+            onClick={handleSubmit((data) => console.log(data))}
+            data-testid="btn-feedback-modal-ok"
+          >
+            Save and Close
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};

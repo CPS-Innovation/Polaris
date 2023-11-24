@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal } from "../../../../../common/presentation/components/index";
-import { UnderRedactionContent } from "./UnderRedactionContent";
+import { RedactionLogContent } from "./RedactionLogContent";
 
 type Props = {
   handleShowHideDocumentIssueModal?: (value: boolean) => void;
@@ -20,7 +20,7 @@ export const RedactionLogModal: React.FC<Props> = ({
       ariaLabel="Under redaction modal"
       ariaDescription="Contains form to be filled out and submitted for redaction log "
     >
-      <UnderRedactionContent />
+      <RedactionLogContent />
     </Modal>
   );
 };
