@@ -1,9 +1,6 @@
 .modalContent {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 0 1.875rem 0;
+  display: block;
+  padding: 0;
   min-width: 74rem;
 
   :global(.govuk-form-group) {
@@ -12,6 +9,10 @@
 
   .modalContentHeading {
     margin: 0;
+    display: block;
+    width: 100%;
+    background: #f3f2f1;
+    border-bottom: 3px dashed #b1b4b6;
   }
 
   .confirmationMessage {
@@ -24,6 +25,16 @@
     justify-content: flex-start;
     width: 100%;
     margin-top: 1.875rem;
+    padding: 0 30px;
+  }
+  .modalHeadWrapper {
+    background: #f3f2f1;
+    padding: 30px;
+    border-bottom: 1px solid #b1b4b6;
+  }
+  .modalBodyWrapper {
+    border-bottom: 3px dashed #b1b4b6;
+    padding: 0 30px;
   }
 }
 
@@ -44,16 +55,17 @@
 .selectSection {
   display: flex;
   flex-direction: column;
+  margin-right: 10px;
 }
 .selectInputWrapper {
   display: flex;
   justify-content: space-between;
+  padding-top: 25px;
 }
 .underRedactionForm {
   width: 100%;
 }
 .textAreaSection {
-  margin-top: 100px;
   width: 600px;
 }
 .errorMsg {
