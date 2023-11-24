@@ -179,6 +179,13 @@ resource "azuread_application_pre_authorized" "fapre_polaris_web" {
   depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]
 }
 
+resource "azuread_application_pre_authorized" "fapre_redaction_log_reporting" {
+  application_object_id = data.azuread_application.fa_redaction_log_reporting.object_id
+  authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
+  permission_ids        = [data.azuread_application.fa_redaction_log_reporting.oauth2_permission_scope_ids["user_impersonation"]]
+  depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]
+}
+
 resource "azuread_service_principal_delegated_permission_grant" "polaris_web_grant_access_to_msgraph" {
   service_principal_object_id          = module.azurerm_service_principal_sp_polaris_web.object_id
   resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
