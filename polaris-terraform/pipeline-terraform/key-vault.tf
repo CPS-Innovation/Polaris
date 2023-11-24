@@ -163,30 +163,6 @@ resource "azurerm_role_assignment" "kv_role_fa_text_extractor_secrets_user" {
   principal_id         = azurerm_linux_function_app.fa_text_extractor.identity[0].principal_id
 }
 
-resource "azurerm_role_assignment" "kv_role_fa_text_extractor_staging1_crypto_user" {
-  scope                = azurerm_key_vault.kv.id
-  role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_linux_function_app_slot.fa_text_extractor_staging1.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "kv_role_fa_text_extractor_staging1_secrets_user" {
-  scope                = azurerm_key_vault.kv.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_linux_function_app_slot.fa_text_extractor_staging1.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "kv_role_fa_text_extractor_staging2_crypto_user" {
-  scope                = azurerm_key_vault.kv.id
-  role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_linux_function_app_slot.fa_text_extractor_staging2.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "kv_role_fa_text_extractor_staging2_secrets_user" {
-  scope                = azurerm_key_vault.kv.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_linux_function_app_slot.fa_text_extractor_staging2.identity[0].principal_id
-}
-
 resource "azurerm_key_vault_secret" "kvs_pipeline_terraform_storage_connection_string" {
   name            = "cpsdocumentstorage-connection-string"
   value           = azurerm_storage_account.sa.primary_connection_string

@@ -39,7 +39,7 @@ stages:
           jobDependsOn:
             - LogStart
             
-      - template: jobs/job_swap-codebase-slots.yml
+      - template: jobs/job_swap-slots.yml
         parameters:
           targetSuffix: ${{ parameters.targetSuffix }}
           azureSubscription: ${{ parameters.azureSubscription }}

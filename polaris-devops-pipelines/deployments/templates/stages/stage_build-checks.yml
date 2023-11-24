@@ -51,7 +51,7 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
-      - template: jobs/job_check-statuses.yml
+      - template: jobs/job_check-builds.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
           targetSuffix: ${{ parameters.targetSuffix }}

@@ -12,39 +12,42 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = "true"
-    "WEBSITE_RUN_FROM_PACKAGE"                       = "1"
-    "WEBSITE_CONTENTOVERVNET"                        = "1"
-    "WEBSITE_DNS_SERVER"                             = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sa_coordinator.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                           = azapi_resource.pipeline_sa_pdf_generator_file_share_staging1.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.pipeline_logging.coordinator_scale_controller
-    "AzureWebJobsStorage"                            = azurerm_storage_account.sa_coordinator.primary_connection_string
-    "CoordinatorOrchestratorTimeoutSecs"             = "600"
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorDurableExtensionCode" = "" //set in deployment script
-    "PolarisPipelineTextExtractorBaseUrl"            = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
-    "PolarisPipelineTextExtractorFunctionAppKey"     = "" //set in deployment script
-    "SearchClientAuthorizationKey"                   = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                        = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                          = jsondecode(file("search-index-definition.json")).name
-    "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                       = "documents"
-    "BlobExpirySecs"                                 = 3600
-    "BlobUserDelegationKeyExpirySecs"                = 3600
-    "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                  = "" //set in deployment script
-    "PolarisPipelineRedactPdfBaseUrl"                = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"         = "" //set in deployment script
-    "OvernightClearDownEnabled"                      = var.overnight_clear_down_enabled
-    "SlidingClearDownEnabled"                        = var.sliding_clear_down_enabled
-    "SlidingClearDownInputDays"                      = var.sliding_clear_down_input_days
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_coordinator_file_share_staging1.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "CoordinatorOrchestratorTimeoutSecs"              = "600"
+    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
+    "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
+    "PolarisPipelineTextExtractorFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_text_extractor_host_keys.default_function_key
+    "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobServiceContainerName"                        = "documents"
+    "BlobExpirySecs"                                  = 3600
+    "BlobUserDelegationKeyExpirySecs"                 = 3600
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
+    "PolarisPipelineRedactPdfFunctionAppKey"          = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
+    "OvernightClearDownEnabled"                       = var.overnight_clear_down_enabled
+    "SlidingClearDownEnabled"                         = var.sliding_clear_down_enabled
+    "SlidingClearDownInputDays"                       = var.sliding_clear_down_input_days
+    "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging1"
   }
 
   site_config {
@@ -81,38 +84,10 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
-      app_settings["PolarisPipelineTextExtractorFunctionAppKey"],
-      app_settings["DdeiAccessKey"],
-      app_settings["PolarisPipelineRedactPdfFunctionAppKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-module "azurerm_app_reg_fa_coordinator_staging1" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-coordinator-staging1-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-coordinator-staging1"]
-  prevent_duplicate_names = true
-
-  # use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_fa_coordinator_staging1_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_coordinator_staging1.object_id
-  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint
@@ -149,39 +124,42 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                       = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                    = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"            = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                = "true"
-    "WEBSITE_RUN_FROM_PACKAGE"                       = "1"
-    "WEBSITE_CONTENTOVERVNET"                        = "1"
-    "WEBSITE_DNS_SERVER"                             = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                         = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"       = azurerm_storage_account.sa_coordinator.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                           = azapi_resource.pipeline_sa_pdf_generator_file_share_staging2.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"   = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"     = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"               = var.pipeline_logging.coordinator_scale_controller
-    "AzureWebJobsStorage"                            = azurerm_storage_account.sa_coordinator.primary_connection_string
-    "CoordinatorOrchestratorTimeoutSecs"             = "600"
-    "PolarisPipelineCoordinatorBaseUrl"              = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
-    "PolarisPipelineCoordinatorDurableExtensionCode" = "" //set in deployment script
-    "PolarisPipelineTextExtractorBaseUrl"            = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
-    "PolarisPipelineTextExtractorFunctionAppKey"     = "" //set in deployment script
-    "SearchClientAuthorizationKey"                   = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                        = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                          = jsondecode(file("search-index-definition.json")).name
-    "BlobServiceUrl"                                 = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                       = "documents"
-    "BlobExpirySecs"                                 = 3600
-    "BlobUserDelegationKeyExpirySecs"                = 3600
-    "DdeiBaseUrl"                                    = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DdeiAccessKey"                                  = "" //set in deployment script
-    "PolarisPipelineRedactPdfBaseUrl"                = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
-    "PolarisPipelineRedactPdfFunctionAppKey"         = "" //set in deployment script
-    "OvernightClearDownEnabled"                      = var.overnight_clear_down_enabled
-    "SlidingClearDownEnabled"                        = var.sliding_clear_down_enabled
-    "SlidingClearDownInputDays"                      = var.sliding_clear_down_input_days
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_coordinator_file_share_staging2.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.coordinator_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
+    "CoordinatorOrchestratorTimeoutSecs"              = "600"
+    "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
+    "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
+    "PolarisPipelineTextExtractorBaseUrl"             = "https://fa-${local.global_name}-text-extractor.azurewebsites.net/api/"
+    "PolarisPipelineTextExtractorFunctionAppKey"      = data.azurerm_function_app_host_keys.fa_text_extractor_host_keys.default_function_key
+    "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "BlobServiceContainerName"                        = "documents"
+    "BlobExpirySecs"                                  = 3600
+    "BlobUserDelegationKeyExpirySecs"                 = 3600
+    "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
+    "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
+    "PolarisPipelineRedactPdfFunctionAppKey"          = data.azurerm_function_app_host_keys.fa_pdf_generator_host_keys.default_function_key
+    "OvernightClearDownEnabled"                       = var.overnight_clear_down_enabled
+    "SlidingClearDownEnabled"                         = var.sliding_clear_down_enabled
+    "SlidingClearDownInputDays"                       = var.sliding_clear_down_input_days
+    "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging2"
   }
 
   site_config {
@@ -218,38 +196,10 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging2" {
       app_settings["AzureWebJobsStorage"],
       app_settings["WEBSITE_CONTENTSHARE"],
       app_settings["PolarisPipelineCoordinatorDurableExtensionCode"],
-      app_settings["PolarisPipelineTextExtractorFunctionAppKey"],
-      app_settings["DdeiAccessKey"],
-      app_settings["PolarisPipelineRedactPdfFunctionAppKey"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-module "azurerm_app_reg_fa_coordinator_staging2" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-coordinator-staging2-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-coordinator-staging2"]
-  prevent_duplicate_names = true
-
-  # use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_fa_coordinator_staging2_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_coordinator_staging2.object_id
-  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint

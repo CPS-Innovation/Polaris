@@ -12,25 +12,27 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_text_extractor_file_share_staging1.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.text_extractor_scale_controller
-    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "ComputerVisionClientServiceKey"               = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"               = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"                 = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                      = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                        = jsondecode(file("search-index-definition.json")).name
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_text_extractor_file_share_staging1.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
   }
 
   site_config {
@@ -70,40 +72,6 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-module "azurerm_app_reg_fa_text_extractor_staging1" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-text-extractor-staging1-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-text-extractor-staging1"]
-  prevent_duplicate_names = true
-  #use this code for adding app_roles
-  /*app_role = [
-    {
-      allowed_member_types = ["Application"]
-      description          = "Can parse document texts using the ${local.resource_name} Polaris Text Extractor"
-      display_name         = "Parse document texts in ${local.resource_name}"
-      id                   = element(random_uuid.random_id[*].result, 3)
-      value                = "application.extracttext"
-    }
-  ]*/
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_fa_text_extractor_staging1_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_text_extractor_staging1.object_id
-  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint
@@ -140,25 +108,27 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
   tags                          = local.common_tags
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_text_extractor_file_share_staging2.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.text_extractor_scale_controller
-    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_text_extractor.primary_connection_string
-    "ComputerVisionClientServiceKey"               = azurerm_cognitive_account.computer_vision_service.primary_access_key
-    "ComputerVisionClientServiceUrl"               = azurerm_cognitive_account.computer_vision_service.endpoint
-    "SearchClientAuthorizationKey"                 = azurerm_search_service.ss.primary_key
-    "SearchClientEndpointUrl"                      = "https://${azurerm_search_service.ss.name}.search.windows.net"
-    "SearchClientIndexName"                        = jsondecode(file("search-index-definition.json")).name
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_text_extractor_file_share_staging2.name
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
+    "ComputerVisionClientServiceKey"                  = azurerm_cognitive_account.computer_vision_service.primary_access_key
+    "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
+    "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
+    "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
+    "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
   }
 
   site_config {
@@ -198,40 +168,6 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging2" {
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
     ]
   }
-}
-
-module "azurerm_app_reg_fa_text_extractor_staging2" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-text-extractor-staging2-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-text-extractor-staging2"]
-  prevent_duplicate_names = true
-  #use this code for adding app_roles
-  /*app_role = [
-    {
-      allowed_member_types = ["Application"]
-      description          = "Can parse document texts using the ${local.resource_name} Polaris Text Extractor"
-      display_name         = "Parse document texts in ${local.resource_name}"
-      id                   = element(random_uuid.random_id[*].result, 3)
-      value                = "application.extracttext"
-    }
-  ]*/
-  #use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-resource "azuread_application_password" "faap_fa_text_extractor_staging2_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_text_extractor_staging2.object_id
-  end_date_relative     = "17520h"
 }
 
 # Create Private Endpoint
