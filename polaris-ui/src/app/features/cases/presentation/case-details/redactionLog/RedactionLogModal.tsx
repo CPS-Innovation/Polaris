@@ -9,14 +9,10 @@ type Props = {
 export const RedactionLogModal: React.FC<Props> = ({
   handleShowHideDocumentIssueModal,
 }) => {
-  const handleConfirmationModalClose = () => {
-    console.log("close");
-  };
   return (
     <Modal
       isVisible={true}
-      handleClose={handleConfirmationModalClose}
-      type="alert"
+      type="data"
       ariaLabel="Under redaction modal"
       ariaDescription="Contains form to be filled out and submitted for redaction log "
     >
