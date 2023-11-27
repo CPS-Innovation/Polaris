@@ -10,8 +10,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Moq;
-
-
+using Xunit;
 
 namespace Common.tests.Services.BlobStorageService
 {
