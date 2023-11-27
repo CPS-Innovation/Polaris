@@ -41,9 +41,9 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"            = var.feature_flag_hte_emails_on
   }
 
-  sticky_settings {
-    app_setting_names = ["REACT_APP_CLIENT_ID", "REACT_APP_GATEWAY_SCOPE"]
-  }
+  #sticky_settings {
+  #  app_setting_names = ["REACT_APP_CLIENT_ID", "REACT_APP_GATEWAY_SCOPE"]
+  #}
 
   site_config {
     ftps_state    = "FtpsOnly"

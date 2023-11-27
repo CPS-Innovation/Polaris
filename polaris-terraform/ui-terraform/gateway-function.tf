@@ -46,9 +46,9 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
   }
 
-  sticky_settings {
-    app_setting_names = ["ClientId", "ClientSecret"]
-  }
+  #sticky_settings {
+  #  app_setting_names = ["ClientId", "ClientSecret"]
+  #}
 
   site_config {
     always_on                              = false
