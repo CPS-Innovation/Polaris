@@ -30,6 +30,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
     "REACT_APP_GATEWAY_BASE_URL"                      = ""
     "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
+    "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
+    "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_REAUTH_REDIRECT_URL"                   = "/polaris?polaris-ui-url="
     "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
@@ -128,6 +130,13 @@ module "azurerm_app_reg_as_web_polaris" {
         id   = module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]
         type = "Scope"
       }]
+    },
+    {
+      resource_app_id = data.azuread_application.fa_redaction_log_reporting.application_id
+      resource_access = [{
+        id   = data.azuread_application.fa_redaction_log_reporting.oauth2_permission_scope_ids["user_impersonation"]
+        type = "Scope"
+      }]
   }]
   single_page_application = {
     redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
@@ -169,6 +178,13 @@ resource "azuread_application_pre_authorized" "fapre_polaris_web" {
   application_object_id = module.azurerm_app_reg_fa_polaris.object_id
   authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
   permission_ids        = [module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]]
+  depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]
+}
+
+resource "azuread_application_pre_authorized" "fapre_redaction_log_reporting" {
+  application_object_id = data.azuread_application.fa_redaction_log_reporting.object_id
+  authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
+  permission_ids        = [data.azuread_application.fa_redaction_log_reporting.oauth2_permission_scope_ids["user_impersonation"]]
   depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]
 }
 
