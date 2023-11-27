@@ -1,7 +1,7 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
-//the result count is set to 8 based on the maximum number of call tracker api call in a test suit, increase it when needed.
-const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(8);
+//the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
 
 export default dataSource;
 
@@ -193,7 +193,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_19june",
       presentationTitle: "Doc_9",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -206,6 +206,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "IsDispatched",
       },
+      polarisParentDocumentId: null,
     },
   ],
 };
