@@ -6,6 +6,7 @@ import {
   ScaledPosition,
   IHighlight,
 } from "../../../../../../react-pdf-highlighter";
+import { RedactionTypes } from "../../../domain/redactionLog/RedactionTypes";
 
 import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
@@ -67,6 +68,7 @@ export const PdfViewer: React.FC<Props> = ({
   handleSavedRedactions,
   focussedHighlightIndex,
 }) => {
+  console.log("redactionHighlights>>", redactionHighlights);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
@@ -90,7 +92,11 @@ export const PdfViewer: React.FC<Props> = ({
   }, [searchHighlights, focussedHighlightIndex]);
 
   const addRedaction = useCallback(
-    (position: ScaledPosition, content: { text?: string; image?: string }) => {
+    (
+      position: ScaledPosition,
+      content: { text?: string; image?: string },
+      redactionType: RedactionTypes
+    ) => {
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
         position,
@@ -98,6 +104,7 @@ export const PdfViewer: React.FC<Props> = ({
           content.text ??
           "This is an area redaction and redacted content is unavailable",
         highlightType: content.image ? "area" : "linear",
+        redactionType: redactionType,
       };
 
       handleAddRedaction(newRedaction);
@@ -177,12 +184,12 @@ export const PdfViewer: React.FC<Props> = ({
                   }
                   return (
                     <RedactButton
-                      onConfirm={() => {
+                      onConfirm={(redactionType: RedactionTypes) => {
                         trackEvent("Redact Content", {
                           documentType: contextData.documentType,
                           documentId: contextData.documentId,
                         });
-                        addRedaction(position, content);
+                        addRedaction(position, content, redactionType);
                         hideTipAndSelection();
                       }}
                     />

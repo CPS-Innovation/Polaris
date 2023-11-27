@@ -1,0 +1,17 @@
+export type RedactionTypes =
+  | "Named individual"
+  | "Title"
+  | "Occupation"
+  | "Relationship to others"
+  | "Address"
+  | "Location"
+  | "Vehicle registration"
+  | "NHS number"
+  | "Date of birth"
+  | "Bank details"
+  | "NI Number"
+  | "Phone number"
+  | "Email address"
+  | "Previous convictions"
+  | "Other"
+  | "";

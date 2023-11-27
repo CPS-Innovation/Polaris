@@ -216,7 +216,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         />
       )}
 
-      <RedactionLogModal />
+      {/* <RedactionLogModal /> */}
       <nav>
         <PhaseBanner
           className={classes["phaseBanner"]}

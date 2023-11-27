@@ -1,18 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import classes from "./RedactButton.module.scss";
+import { Select } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
-
+import { RedactionTypes } from "../../../domain/redactionLog/RedactionTypes";
 type Props = {
-  onConfirm: () => void;
+  onConfirm: (redactionType: RedactionTypes) => void;
 };
 
+const redactionTypeOptions: { children: string; value: RedactionTypes }[] = [
+  {
+    children: "-- select redaction type --",
+    value: "",
+  },
+  {
+    children: "Address",
+    value: "Address",
+  },
+  {
+    children: "Date of birth",
+    value: "Date of birth",
+  },
+  {
+    children: "Named individual",
+    value: "Named individual",
+  },
+];
+
 export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
+  const [redactionType, setRedactionType] = useState<RedactionTypes | "">("");
   useFocusTrap("#redact-modal");
   useLastFocus();
+
+  const handleClickRedact = () => {
+    onConfirm(redactionType);
+  };
   return (
     <div
       id="redact-modal"
+      className={classes.redactionModal}
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="redact-modal-label"
@@ -24,9 +50,27 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
       <span id="redact-modal-description" className={classes.modalDescription}>
         A modal with a redact button to help user to redact selected text
       </span>
+      <div className="govuk-form-group">
+        <Select
+          label={{
+            htmlFor: "select-redaction-type",
+            children: "Select Redaction Type",
+            className: classes.sortLabel,
+          }}
+          id="select-redaction-type"
+          data-testid="select-redaction-type"
+          value={redactionType}
+          items={redactionTypeOptions}
+          formGroup={{
+            className: classes.select,
+          }}
+          onChange={(ev) => setRedactionType(ev.target.value as RedactionTypes)}
+        />
+      </div>
       <button
-        className={classes.button}
-        onClick={onConfirm}
+        disabled={!redactionType}
+        className={classes.redactButton}
+        onClick={handleClickRedact}
         data-testid="btn-redact"
         id="btn-redact"
       >

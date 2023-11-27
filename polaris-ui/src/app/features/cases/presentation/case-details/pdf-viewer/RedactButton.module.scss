@@ -1,4 +1,21 @@
-.button {
+.redactionModal {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 10px;
+  z-index: 7;
+  background: #fff;
+  background-clip: padding-box;
+  border: 1px solid #e8e8e8;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+  filter: drop-shadow(0 1px 0.15rem #000);
+  & :global(.govuk-form-group) {
+    margin-bottom: 0;
+  }
+}
+
+.redactButton {
   font-family: "TransportNew", "Arial", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -6,21 +23,29 @@
   cursor: pointer;
   background-color: #00703c;
   color: white;
-  padding: 0.9375rem 1.25rem;
-  margin-bottom: -0.125rem;
-  margin-top: -0.625rem;
+  padding: 0.75rem 1.25rem;
+  height: 40px;
   border: 0;
+  border-radius: 5px;
+  margin-left: 10px;
+  &:disabled {
+    cursor: none;
+    opacity: 0.5;
+  }
 }
 
-.button:after {
+.redactionModal:after {
   content: "";
   position: absolute;
   top: 100%;
   left: calc(50% - 0.625rem);
-  background: #00703c;
-  width: 1.25rem;
-  height: 0.625rem;
+  background: #fff;
+  width: 2rem;
+  height: 1rem;
 
+  // border-left: 15px solid transparent;
+  // border-right: 15px solid transparent;
+  // border-top: 15px solid white;
   /* The points are: (left top: x y, right top: x y, center bottom: x y) */
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
