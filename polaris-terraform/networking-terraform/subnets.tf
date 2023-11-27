@@ -405,7 +405,7 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_2_subnet" {
   service_endpoints    = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.CognitiveServices"]
 
   delegation {
-    name = "Microsoft.Web/serverFarms TextExtractor Delegation"
+    name = "Microsoft.Web/serverFarms TextExtractor 2 Delegation"
 
     service_delegation {
       name    = "Microsoft.Web/serverFarms"
@@ -416,8 +416,8 @@ resource "azurerm_subnet" "sn_polaris_pipeline_textextractor_2_subnet" {
   depends_on = [azurerm_virtual_network.vnet_networking]
 }
 
-resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_textextractor_subnet_rt_association" {
+resource "azurerm_subnet_route_table_association" "sn_polaris_pipeline_textextractor_2_subnet_rt_association" {
   route_table_id = data.azurerm_route_table.env_route_table.id
-  subnet_id      = azurerm_subnet.sn_polaris_pipeline_textextractor_subnet.id
-  depends_on     = [azurerm_subnet.sn_polaris_pipeline_textextractor_subnet]
+  subnet_id      = azurerm_subnet.sn_polaris_pipeline_textextractor_2_subnet.id
+  depends_on     = [azurerm_subnet.sn_polaris_pipeline_textextractor_2_subnet]
 }
