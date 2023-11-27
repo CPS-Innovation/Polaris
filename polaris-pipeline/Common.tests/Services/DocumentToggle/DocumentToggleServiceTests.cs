@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Common.tests.Services.DocumentToggle
 {
+    // todo: this suite ripe for a refactor!
     public class DocumentToggleServiceTests
     {
         [Fact]
@@ -182,6 +183,25 @@ namespace Common.tests.Services.DocumentToggle
             var canWrite = documentToggleService.CanWriteDocument(document);
             canWrite.Should().BeTrue();
         }
+
+        [Fact]
+        public void GetDocumentPresentationFlags_ReturnsIsDispatched_IfDocumentIsDispatched()
+        {
+            // Arrange
+            var documentToggleService = new DocumentToggleService("FileType ReadWrite *\nDocType ReadWrite *");
+            var document = new CmsDocumentDto
+            {
+                CmsDocType = new DocumentTypeDto(),
+                IsDispatched = true
+            };
+
+            //Act
+            var presentationFlags = documentToggleService.GetDocumentPresentationFlags(document);
+
+            // Assert
+            presentationFlags.Write.Should().Be(WriteFlag.IsDispatched);
+        }
+
 
         [Theory]
         [InlineData(
