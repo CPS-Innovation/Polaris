@@ -21,6 +21,9 @@ resource "azurerm_cognitive_account" "computer_vision_service" {
     virtual_network_rules {
       subnet_id = data.azurerm_subnet.polaris_sa_subnet.id
     }
+    virtual_network_rules {
+      subnet_id = data.azurerm_subnet.polaris_textextractor_2_subnet.id
+    }
   }
 
   identity {
