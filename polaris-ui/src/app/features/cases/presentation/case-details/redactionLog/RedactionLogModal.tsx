@@ -4,6 +4,7 @@ import { RedactionLogContent } from "./RedactionLogContent";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 
 type Props = {
+  isSaving: boolean;
   redactionHighlights: IPdfHighlight[];
   handleShowHideDocumentIssueModal?: (value: boolean) => void;
 };
@@ -11,6 +12,7 @@ type Props = {
 export const RedactionLogModal: React.FC<Props> = ({
   handleShowHideDocumentIssueModal,
   redactionHighlights,
+  isSaving,
 }) => {
   return (
     <Modal
@@ -19,7 +21,10 @@ export const RedactionLogModal: React.FC<Props> = ({
       ariaLabel="Under redaction modal"
       ariaDescription="Contains form to be filled out and submitted for redaction log "
     >
-      <RedactionLogContent redactionHighlights={redactionHighlights} />
+      <RedactionLogContent
+        redactionHighlights={redactionHighlights}
+        isSaving={isSaving}
+      />
     </Modal>
   );
 };

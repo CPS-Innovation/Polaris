@@ -225,6 +225,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       {redactionLog.showModal && (
         <RedactionLogModal
           redactionHighlights={getActiveTabDocument()!.redactionHighlights}
+          isSaving={!!getActiveTabDocument()!.isSaving}
         />
       )}
       <nav>

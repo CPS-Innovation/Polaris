@@ -14,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 
 type RedactionLogContentProps = {
   redactionHighlights: IPdfHighlight[];
+  isSaving: boolean;
   message?: string;
   handleClose?: () => void;
 };
@@ -28,6 +29,7 @@ const defaultValues = {
 };
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   message,
+  isSaving,
   handleClose,
   redactionHighlights,
 }) => {
@@ -44,6 +46,17 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
   return (
     <div className={classes.modalContent}>
+      {isSaving && (
+        <div className={classes.savingBanner}>
+          <span>Saving redactions...</span>
+        </div>
+      )}
+
+      {!isSaving && (
+        <div className={classes.savedBanner}>
+          <span>Redactions successfully saved</span>
+        </div>
+      )}
       <div className={classes.modalHeadWrapper}>
         <h1 className={classes.modalContentHeading}>
           45AA209820/1 - Redaction Log
@@ -336,6 +349,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       </div>
       <div className={classes.btnWrapper}>
         <Button
+          disabled={isSaving}
           type="submit"
           className={classes.saveBtn}
           onClick={handleSubmit((data) => console.log(data))}
