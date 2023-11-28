@@ -24,9 +24,12 @@ describe("useNavigationAlert hook", () => {
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
+      presentationSubCategory: null,
       presentationFileName: "MCLOVEMG3  very long",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      attachments: [],
+      polarisParentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -41,7 +44,6 @@ describe("useNavigationAlert hook", () => {
       ],
       sasUrl: undefined,
       url: undefined,
-      polarisParentDocumentId: null,
     },
     {
       clientLockedState: "unlocked",
@@ -59,9 +61,12 @@ describe("useNavigationAlert hook", () => {
       mode: "read",
       pdfBlobName: undefined,
       presentationCategory: "Reviews",
+      presentationSubCategory: null,
       presentationFileName: "MCLOVEMG4 test",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
+      attachments: [],
+      polarisParentDocumentId: null,
       presentationFlags: {
         read: "Ok",
         write: "Ok",
@@ -76,7 +81,6 @@ describe("useNavigationAlert hook", () => {
       ],
       sasUrl: undefined,
       url: undefined,
-      polarisParentDocumentId: null,
     },
   ];
 
