@@ -48,6 +48,9 @@ export const initialState = {
   documentIssueModal: {
     show: false,
   },
+  redactionLog: {
+    showModal: false,
+  },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {

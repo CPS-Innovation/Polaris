@@ -41,7 +41,8 @@
 }
 .modalContentData {
   width: 85%;
-  height: 80%;
+  min-height: 50%;
+  max-height: 80%;
 }
 .modalHeader {
   margin-bottom: 1.5625rem;

@@ -291,6 +291,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "SAVING_REDACTION",
           payload: { documentId, isSaving: true },
         });
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+          payload: true,
+        });
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
         dispatch({
           type: "SAVING_REDACTION",

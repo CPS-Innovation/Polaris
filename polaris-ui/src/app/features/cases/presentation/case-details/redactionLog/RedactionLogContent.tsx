@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import {
   Select,
   Input,
@@ -12,6 +13,7 @@ import classes from "./RedactionLogContent.module.scss";
 import { useForm, Controller } from "react-hook-form";
 
 type RedactionLogContentProps = {
+  redactionHighlights: IPdfHighlight[];
   message?: string;
   handleClose?: () => void;
 };
@@ -27,6 +29,7 @@ const defaultValues = {
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   message,
   handleClose,
+  redactionHighlights,
 }) => {
   const {
     handleSubmit,
@@ -309,7 +312,10 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       </div>
       <div className={classes.modalBodyWrapper}>
         <section>
-          <UnderRedactionContent documentName="ABC_MG3" />
+          <UnderRedactionContent
+            documentName="ABC_MG3"
+            redactionHighlights={redactionHighlights}
+          />
         </section>
         <section className={classes.textAreaSection}>
           <TextArea

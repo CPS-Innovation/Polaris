@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import classes from "./UnderRedactionContent.module.scss";
-
+import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 type UnderRedactionContentProps = {
   documentName: string;
+  redactionHighlights: IPdfHighlight[];
 };
 
 const getRedactionTypeNames = (count: number, name: string) => {
@@ -14,19 +15,10 @@ const getRedactionTypeNames = (count: number, name: string) => {
 
 export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
   documentName,
+  redactionHighlights,
 }) => {
   const redactionSummary = useMemo(() => {
-    const savedRedactions = [
-      { redactionType: "Address" },
-      { redactionType: "Date of Birth" },
-      { redactionType: "Named individual" },
-      { redactionType: "Other" },
-      { redactionType: "Occupation" },
-      { redactionType: "Phone number" },
-      { redactionType: "Vehicle registration" },
-      { redactionType: "Email address" },
-    ];
-    const groupedRedactions = savedRedactions.reduce(
+    const groupedRedactions = redactionHighlights.reduce(
       (acc, { redactionType }) => {
         if (!acc[redactionType]) {
           acc[redactionType] = 1;

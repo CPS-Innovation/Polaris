@@ -142,6 +142,10 @@ export const reducer = (
         type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
         payload: boolean;
       }
+    | {
+        type: "SHOW_HIDE_REDACTION_LOG_MODAL";
+        payload: boolean;
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -806,6 +810,14 @@ export const reducer = (
         ...state,
         documentIssueModal: {
           show: action.payload,
+        },
+      };
+    }
+    case "SHOW_HIDE_REDACTION_LOG_MODAL": {
+      return {
+        ...state,
+        redactionLog: {
+          showModal: action.payload,
         },
       };
     }

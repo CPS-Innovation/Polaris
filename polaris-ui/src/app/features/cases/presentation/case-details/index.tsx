@@ -55,6 +55,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineRefreshData,
     errorModal,
     documentIssueModal,
+    redactionLog,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -139,6 +140,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     );
   };
 
+  console.log(
+    "tabsState>>>redactionHighlights",
+    getActiveTabDocument()?.redactionHighlights
+  );
+
   return (
     <>
       {errorModal.show && (
@@ -216,7 +222,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         />
       )}
 
-      {/* <RedactionLogModal /> */}
+      {redactionLog.showModal && (
+        <RedactionLogModal
+          redactionHighlights={getActiveTabDocument()!.redactionHighlights}
+        />
+      )}
       <nav>
         <PhaseBanner
           className={classes["phaseBanner"]}

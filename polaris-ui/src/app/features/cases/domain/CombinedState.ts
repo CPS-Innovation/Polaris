@@ -56,4 +56,7 @@ export type CombinedState = {
   documentIssueModal: {
     show: boolean;
   };
+  redactionLog: {
+    showModal: boolean;
+  };
 };
