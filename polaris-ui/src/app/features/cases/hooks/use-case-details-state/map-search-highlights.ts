@@ -39,7 +39,6 @@ export const mapSearchHighlights = (
           boundingRect: rect,
           rects: [rect],
         },
-        redactionType: "Address",
       });
     }
   }

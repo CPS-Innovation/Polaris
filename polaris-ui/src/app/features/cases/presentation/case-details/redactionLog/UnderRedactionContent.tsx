@@ -20,11 +20,11 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
   const redactionSummary = useMemo(() => {
     const groupedRedactions = redactionHighlights.reduce(
       (acc, { redactionType }) => {
-        if (!acc[redactionType]) {
-          acc[redactionType] = 1;
+        if (!acc[redactionType!]) {
+          acc[redactionType!] = 1;
           return acc;
         }
-        acc[redactionType] = acc[redactionType] + 1;
+        acc[redactionType!] = acc[redactionType!] + 1;
         return acc;
       },
       {} as Record<string, number>
