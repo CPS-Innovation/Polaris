@@ -184,6 +184,24 @@ namespace Common.tests.Services.DocumentToggle
             canWrite.Should().BeTrue();
         }
 
+        [Fact]
+        public void GetDocumentPresentationFlags_ReturnsIsDispatched_IfDocumentIsDispatched()
+        {
+            // Arrange	
+            var documentToggleService = new DocumentToggleService("FileType ReadWrite *\nDocType ReadWrite *");
+            var document = new CmsDocumentDto
+            {
+                CmsDocType = new DocumentTypeDto(),
+                IsDispatched = true
+            };
+
+            //Act	
+            var presentationFlags = documentToggleService.GetDocumentPresentationFlags(document);
+
+            // Assert	
+            presentationFlags.Write.Should().Be(WriteFlag.IsDispatched);
+        }
+
         [Theory]
         [InlineData(
           @"",
