@@ -3,7 +3,7 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Information",
+      "default": "Warning",
       "Function": "Information",
       "coordinator.Functions.Orchestration.Functions.Case.RefreshCaseOrchestrator.User": "Information",
       "Host.Aggregator": "Error",

@@ -276,7 +276,7 @@ namespace Common.tests.Services.DocumentToggle
         [InlineData(".hte", "0", true, WriteFlag.OriginalFileTypeNotAllowed)]
         [InlineData(".doc", "0", false, WriteFlag.IsNotOcrProcessed)]
         [InlineData(".doc", "-54321", true, WriteFlag.DocTypeNotAllowed)]
-        public void CurrentDocumentToggleConfigRules_WorkAsExpected(string filetype, string docTypeId, bool isOcrProcessed, WriteFlag writeFlag)
+        public void CurrentRulesInDocumentToggleFile_WorkAsExpected(string filetype, string docTypeId, bool isOcrProcessed, WriteFlag writeFlag)
         {
             // Arrange
             var documentToggleService = new DocumentToggleService(DocumentToggleService.ReadConfig());
