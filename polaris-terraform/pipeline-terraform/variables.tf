@@ -86,8 +86,7 @@ variable "image_conversion_redaction" {
 
 variable "search_service_config" {
   type = object({
-    replica_count                 = number
-    partition_count               = number
-    is_dynamic_throttling_enabled = bool
+    replica_count   = number
+    partition_count = number
   })
 }

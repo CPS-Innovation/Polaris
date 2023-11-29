@@ -52,9 +52,9 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
   }
 
-  #sticky_settings {
-  #  app_setting_names = ["CoordinatorTaskHub"]
-  #}
+  sticky_settings {
+    app_setting_names = ["CoordinatorTaskHub"]
+  }
 
   site_config {
     ftps_state                             = "FtpsOnly"

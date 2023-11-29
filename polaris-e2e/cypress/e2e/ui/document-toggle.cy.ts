@@ -7,7 +7,6 @@ const {
   TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME,
   TARGET_CAN_REDACT_DOCUMENT_NAME,
   TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME,
-  TARGET_DIRECTION_OUT_DOCUMENT_NAME,
 } = Cypress.env()
 
 describe("Document toggle", () => {
@@ -39,12 +38,6 @@ describe("Document toggle", () => {
     cy.findByTestId("redaction-warning")
     cy.findByTestId("tab-remove").click()
 
-    cy.findByText(TARGET_DIRECTION_OUT_DOCUMENT_NAME).click()
-    cy.selectPDFTextElement("12345")
-    cy.findByTestId("redaction-warning")
-    cy.findByTestId("tab-remove").click()
-
-    // helpful if this goes last as we don't have to tidy up the UI
     cy.findByText(TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME).click()
     cy.selectPDFTextElement("12345")
     cy.findByTestId("btn-redact").click()

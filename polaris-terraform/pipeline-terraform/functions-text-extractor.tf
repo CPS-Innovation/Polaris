@@ -7,7 +7,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   service_plan_id               = azurerm_service_plan.asp_polaris_ep_text_extractor.id
   storage_account_name          = azurerm_storage_account.sa_text_extractor.name
   storage_account_access_key    = azurerm_storage_account.sa_text_extractor.primary_access_key
-  virtual_network_subnet_id     = data.azurerm_subnet.polaris_textextractor_2_subnet.id
+  virtual_network_subnet_id     = data.azurerm_subnet.polaris_textextractor_subnet.id
   tags                          = local.common_tags
   functions_extension_version   = "~4"
   https_only                    = true

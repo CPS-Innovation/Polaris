@@ -16,8 +16,6 @@ export const RedactionWarning: React.FC<Props> = ({ documentWriteStatus }) => {
         return "Redaction is not supported for this document type.";
       case "OriginalFileTypeNotAllowed":
         return "Redaction is not supported for this file type.";
-      case "IsDispatched":
-        return "This is a dispatched document.";
       case "IsNotOcrProcessed":
         return "Awaiting OCR processing in CMS. Please try again later for redaction.";
     }

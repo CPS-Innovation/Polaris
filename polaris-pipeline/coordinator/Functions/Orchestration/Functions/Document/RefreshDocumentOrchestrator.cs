@@ -44,13 +44,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             await CallPdfGeneratorAsync(context, payload, caseEntity, log);
 
             if (payload.CmsDocumentTracker != null)
-            {
-                caseEntity.SetDocumentFlags((
-                    payload.PolarisDocumentId.ToString(),
-                    payload.CmsDocumentTracker.IsOcrProcessed,
-                    payload.CmsDocumentTracker.IsDispatched
-                ));
-            }
+                caseEntity.SetOcrProcessed((payload.PolarisDocumentId.ToString(), payload.CmsDocumentTracker.IsOcrProcessed));
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
 

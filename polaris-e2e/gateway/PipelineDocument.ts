@@ -21,7 +21,6 @@ export type PresentationFlags = {
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
     | "IsNotOcrProcessed"
-    | "IsDispatched"
     | "IsRedactionServiceOffline";
 };
 
@@ -31,13 +30,13 @@ export type PresentationDocumentProperties = {
   cmsOriginalFileName: string;
   presentationTitle: string;
   polarisDocumentVersionId: number;
-  cmsOriginalFileExtension: string | null;
+  cmsMimeType: string;
   cmsFileCreatedDate: string;
   categoryListOrder: number | null;
   // documents in CMS are not guaranteed to have a cmsDocType
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
-  polarisParentDocumentId: string | null;
+  polarisParentDocumentId: string;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

@@ -37,7 +37,6 @@ image_conversion_redaction = {
 }
 
 search_service_config = {
-  replica_count                 = 4
-  partition_count               = 3
-  is_dynamic_throttling_enabled = false
+  replica_count   = 4
+  partition_count = 3
 }

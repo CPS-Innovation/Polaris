@@ -78,11 +78,6 @@ namespace Common.Services.DocumentToggle
             else if (levelForFileType != DefinitionLevel.ReadWrite)
             {
                 write = WriteFlag.OriginalFileTypeNotAllowed;
-
-            }
-            else if (document.IsDispatched)
-            {
-                write = WriteFlag.IsDispatched;
             }
             else if (!document.IsOcrProcessed)
             {

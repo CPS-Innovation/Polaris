@@ -40,9 +40,6 @@ public class DdeiCaseDocumentResponse
     [JsonProperty("isOcrProcessed")]
     public bool? IsOcrProcessed { get; set; }
 
-    [JsonProperty("isDispatched")]
-    public bool IsDispatched { get; set; }
-
     [JsonProperty("categoryListOrder")]
     public int? CategoryListOrder { get; set; }
 

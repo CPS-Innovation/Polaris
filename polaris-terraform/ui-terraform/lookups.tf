@@ -134,7 +134,3 @@ data "azurerm_function_app_host_keys" "fa_coordinator_host_keys" {
   name                = "fa-${local.resource_name}-coordinator"
   resource_group_name = "rg-${local.pipeline_resource_name}"
 }
-
-data "azuread_application" "fa_redaction_log_reporting" {
-  display_name = "fa-${local.redaction_log_resource_name}-reporting"
-}
