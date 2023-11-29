@@ -21,6 +21,7 @@ export type PresentationFlags = {
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
     | "IsNotOcrProcessed"
+    | "IsDispatched"
     | "IsRedactionServiceOffline";
 };
 

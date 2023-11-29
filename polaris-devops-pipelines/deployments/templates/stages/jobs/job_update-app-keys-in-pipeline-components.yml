@@ -49,8 +49,6 @@ jobs:
                 az account set --subscription $ARM_SUBSCRIPTION_ID
                 durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris$ARM_SUFFIX-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
                 az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
-                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
-                az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging2" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
               displayName: Script > Update Keys in Pipeline Component Config
               env:
                 ARM_CLIENT_ID: ${{ parameters.armClientId }}
@@ -58,6 +56,22 @@ jobs:
                 ARM_TENANT_ID: ${{ parameters.armTenantId }}
                 ARM_SUBSCRIPTION_ID: ${{ parameters.armSubscriptionId }}
                 ARM_SUFFIX: ${{ parameters.targetSuffix }}
+            
+            # Set Durable Extension Code app setting, post Coordinator creation, in Coordinator app settings, including both deployment slots
+            #- bash: |
+            #    az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+            #    az account set --subscription $ARM_SUBSCRIPTION_ID
+            #    durable_code=$(az functionapp keys list --resource-group rg-polaris-pipeline$ARM_SUFFIX --name fa-polaris$ARM_SUFFIX-coordinator --query 'systemKeys.durabletask_extension' --output tsv)
+            #    az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+            #    az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging1" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+            #    az functionapp config appsettings set --name fa-polaris$ARM_SUFFIX-coordinator --resource-group rg-polaris-pipeline$ARM_SUFFIX --slot "staging2" --settings "PolarisPipelineCoordinatorDurableExtensionCode=$durable_code"
+            #  displayName: Script > Update Keys in Pipeline Component Config
+            #  env:
+            #    ARM_CLIENT_ID: ${{ parameters.armClientId }}
+            #    ARM_CLIENT_SECRET: ${{ parameters.armClientSecret }}
+            #    ARM_TENANT_ID: ${{ parameters.armTenantId }}
+            #    ARM_SUBSCRIPTION_ID: ${{ parameters.armSubscriptionId }}
+            #    ARM_SUFFIX: ${{ parameters.targetSuffix }}
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml

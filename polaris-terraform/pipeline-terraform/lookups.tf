@@ -41,6 +41,12 @@ data "azurerm_subnet" "polaris_textextractor_subnet" {
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
 
+data "azurerm_subnet" "polaris_textextractor_2_subnet" {
+  name                 = "${var.resource_name_prefix}-textextractor-subnet-2"
+  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
+  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
+}
+
 data "azurerm_subnet" "polaris_gateway_subnet" {
   name                 = "${var.polaris_resource_name_prefix}-gateway-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
