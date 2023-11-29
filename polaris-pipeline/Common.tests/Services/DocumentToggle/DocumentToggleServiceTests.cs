@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Common.tests.Services.DocumentToggle
 {
+    // todo: this suite ripe for a refactor!
     public class DocumentToggleServiceTests
     {
         [Fact]
@@ -83,6 +84,7 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
+                false,
                 2,
                 new PolarisDocumentId("3"),
                 "3",
@@ -111,6 +113,7 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
+                false,
                 2,
                 new PolarisDocumentId("3"),
                 "3",
@@ -139,6 +142,7 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
+                false,
                 2,
                 new PolarisDocumentId("3"),
                 "3",
@@ -168,6 +172,7 @@ namespace Common.tests.Services.DocumentToggle
                 "filename",
                 "title",
                 true,
+                false,
                 2,
                 new PolarisDocumentId("3"),
                 "3",
