@@ -66,6 +66,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveRedaction,
     handleRemoveAllRedactions,
     handleSavedRedactions,
+    handleOpenPdfInNewTab,
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
@@ -180,6 +181,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleOpenPdf={(params) => {
               setShowAlert(false);
               handleOpenPdf({ ...params, mode: "read" });
+              handleTabSelection(params.documentId);
             }}
           />
         </Modal>
@@ -210,6 +212,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleUpdateFilter,
             handleOpenPdf: (caseDoc) => {
               handleOpenPdf(caseDoc);
+              handleTabSelection(caseDoc.documentId);
             },
           }}
         />
@@ -257,6 +260,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <KeyDetails
                 handleOpenPdf={() => {
                   handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
+                  handleTabSelection(dacDocumentId);
                 }}
                 caseDetails={caseState.data}
                 isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
@@ -284,6 +288,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   accordionState={accordionState.data}
                   handleOpenPdf={(caseDoc) => {
                     handleOpenPdf({ ...caseDoc, mode: "read" });
+                    handleTabSelection(caseDoc.documentId);
                   }}
                 />
               )}
@@ -306,7 +311,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleRemoveRedaction={handleRemoveRedaction}
                 handleRemoveAllRedactions={handleRemoveAllRedactions}
                 handleSavedRedactions={handleSavedRedactions}
-                handleOpenPdf={handleOpenPdf}
+                handleOpenPdfInNewTab={handleOpenPdfInNewTab}
                 handleUnLockDocuments={handleUnLockDocuments}
                 handleShowHideDocumentIssueModal={
                   handleShowHideDocumentIssueModal

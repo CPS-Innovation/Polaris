@@ -18,10 +18,6 @@ type PdfTabsProps = {
     correlationId: string;
   };
   isOkToSave: boolean;
-  handleOpenPdf: (caseDocument: {
-    documentId: string;
-    mode: "read" | "search";
-  }) => void;
   handleTabSelection: (documentId: string) => void;
   handleClosePdf: (caseDocument: { documentId: string }) => void;
   handleLaunchSearchResults: () => void;
@@ -29,6 +25,7 @@ type PdfTabsProps = {
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
+  handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
   handleUnLockDocuments: CaseDetailsState["handleUnLockDocuments"];
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
 };
@@ -39,13 +36,13 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   savedDocumentDetails,
   handleTabSelection,
   isOkToSave,
-  handleOpenPdf,
   handleClosePdf,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
   handleRemoveAllRedactions,
   handleSavedRedactions,
+  handleOpenPdfInNewTab,
   handleUnLockDocuments,
   handleShowHideDocumentIssueModal,
 }) => {
@@ -65,7 +62,6 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               documentWriteStatus={item.presentationFlags.write}
               headers={headers}
               isOkToSave={isOkToSave}
-              handleOpenPdf={handleOpenPdf}
               handleLaunchSearchResults={handleLaunchSearchResults}
               handleAddRedaction={handleAddRedaction}
               handleRemoveRedaction={handleRemoveRedaction}

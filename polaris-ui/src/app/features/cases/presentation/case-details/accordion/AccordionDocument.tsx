@@ -6,8 +6,6 @@ import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
-import { ReactComponent as DateIcon } from "../../../../../common/presentation/svgs/date.svg";
-import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 
 import classes from "./Accordion.module.scss";
 
@@ -24,13 +22,6 @@ export const AccordionDocument: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = caseDocument.presentationFlags?.read === "Ok";
-  const getAttachmentText = () => {
-    if (caseDocument.attachments.length === 1) {
-      return "1 attachment";
-    }
-    return `${caseDocument.attachments.length} attachments`;
-  };
-
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>
       <div className={`${classes["accordion-document-item-wrapper"]}`}>
@@ -56,24 +47,14 @@ export const AccordionDocument: React.FC<Props> = ({
             {caseDocument.presentationFileName}
           </span>
         )}
-        <div className={`${classes["accordion-document-date"]}`}>
+        <span className={`${classes["accordion-document-date"]}`}>
           <span className={`${classes["visuallyHidden"]}`}> Date Added</span>
-          <DateIcon className={classes.dateIcon} />
           {caseDocument.cmsFileCreatedDate &&
             formatDate(
               caseDocument.cmsFileCreatedDate,
               CommonDateTimeFormats.ShortDateTextMonth
             )}
-        </div>
-
-        {!!caseDocument.attachments.length && (
-          <div className={classes.attachmentWrapper}>
-            <AttachmentIcon className={classes.attachmentIcon} />
-            <span data-testid={`attachment-text-${caseDocument.documentId}`}>
-              {getAttachmentText()}
-            </span>
-          </div>
-        )}
+        </span>
       </div>
       {!canViewDocument && (
         <span

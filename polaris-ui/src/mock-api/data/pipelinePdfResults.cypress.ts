@@ -31,7 +31,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
-      polarisParentDocumentId: "4",
+      polarisParentDocumentId: null,
     },
     {
       documentId: "2",
@@ -53,7 +53,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "DocTypeNotAllowed",
       },
-      polarisParentDocumentId: "4",
+      polarisParentDocumentId: null,
     },
     {
       documentId: "3",
@@ -84,7 +84,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June",
       presentationTitle: "Doc_4",
-      cmsOriginalFileExtension: ".hte",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-04",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -106,7 +106,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june",
       presentationTitle: "Doc_5",
-      cmsOriginalFileExtension: ".hte",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -163,6 +163,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       polarisParentDocumentId: null,
     },
+
     {
       documentId: "8",
       cmsDocumentId: "8",

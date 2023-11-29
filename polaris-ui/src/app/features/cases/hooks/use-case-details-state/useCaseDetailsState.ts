@@ -135,7 +135,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
           mode: caseDocument.mode,
         },
       });
-      handleTabSelection(caseDocument.documentId);
     },
     [dispatch]
   );

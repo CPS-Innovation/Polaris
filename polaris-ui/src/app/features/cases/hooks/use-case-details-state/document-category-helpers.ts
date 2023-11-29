@@ -1,5 +1,4 @@
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
-import { CommunicationSubCategory } from "./document-category-definitions";
 
 export const sortDocumentsByCreatedDate = (
   cmsDocuments: PresentationDocumentProperties[],
@@ -118,29 +117,4 @@ export const isUnusedCommunicationMaterial = (
   }
 
   return false;
-};
-
-export const getCommunicationsSubCategory = (
-  doc: PresentationDocumentProperties
-): CommunicationSubCategory => {
-  if (doc.cmsOriginalFileExtension === ".hte")
-    return CommunicationSubCategory.emails;
-  return CommunicationSubCategory.communicationFiles;
-};
-
-export const getDocumentAttachments = (
-  item: PresentationDocumentProperties,
-  docs: PresentationDocumentProperties[]
-) => {
-  if (item.cmsOriginalFileExtension !== ".hte") return [];
-
-  const attachments = docs
-    .filter((doc) => doc.polarisParentDocumentId === item.documentId)
-    .map(({ documentId, presentationTitle }) => {
-      return {
-        documentId: documentId,
-        name: presentationTitle,
-      };
-    });
-  return attachments;
 };

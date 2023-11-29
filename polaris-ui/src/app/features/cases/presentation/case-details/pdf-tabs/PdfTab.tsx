@@ -7,7 +7,6 @@ import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
-import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
@@ -25,10 +24,6 @@ type PdfTabProps = {
     correlationId: string;
   };
   isOkToSave: boolean;
-  handleOpenPdf: (caseDocument: {
-    documentId: string;
-    mode: "read" | "search";
-  }) => void;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -47,7 +42,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   savedDocumentDetails,
   contextData,
   isOkToSave,
-  handleOpenPdf,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -66,7 +60,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     isDeleted,
     isSaving,
     cmsDocType: { documentType },
-    attachments,
   } = caseDocumentViewModel;
 
   const searchHighlights =
@@ -128,12 +121,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           }}
         />
       )}
-      {!!attachments.length && (
-        <HeaderAttachmentMode
-          caseDocumentViewModel={caseDocumentViewModel}
-          handleOpenPdf={handleOpenPdf}
-        />
-      )}
+
       {url && !isDocumentRefreshing() ? (
         <PdfViewer
           url={url}
