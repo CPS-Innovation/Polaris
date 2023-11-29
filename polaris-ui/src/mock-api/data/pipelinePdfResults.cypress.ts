@@ -189,9 +189,9 @@ const pipelinePdfResult: PipelineResults = {
     {
       documentId: "9",
       cmsDocumentId: "9",
-      pdfBlobName: "MG06_19june",
+      pdfBlobName: "MG06_3June",
       status: "Indexed",
-      cmsOriginalFileName: "MG06_19june",
+      cmsOriginalFileName: "MG06_3June",
       presentationTitle: "Doc_9",
       cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-10",

@@ -1,4 +1,8 @@
 import { CASE_ROUTE } from "../../../src/mock-api/routes";
+import { parseISO, differenceInYears } from "date-fns";
+
+export const getAgeFromIsoDate = (isoDateString: string) =>
+  isoDateString && differenceInYears(new Date(), parseISO(isoDateString));
 
 describe("case details page", () => {
   describe("case page navigation", () => {
@@ -27,7 +31,7 @@ describe("case details page", () => {
       cy.location("search").should("eq", "?urn=12AB1111111");
     });
 
-    it("shows the unhandled error page if an unexpected error occurrs with the api", () => {
+    it("shows the unhandled error page if an unexpected error occurs with the api", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.overrideRoute(CASE_ROUTE, {
         type: "break",
@@ -57,7 +61,9 @@ describe("case details page", () => {
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
       cy.findByTestId("defendant-details").then(($details) => {
         cy.wrap($details).contains("Walsh, Steve");
-        cy.wrap($details).contains("DOB: 28 Nov 1977. Age: 45");
+        cy.wrap($details).contains(
+          `DOB: 28 Nov 1977. Age: ${getAgeFromIsoDate("1977-11-28")}`
+        );
         cy.wrap($details).contains("Youth Offender");
       });
 
