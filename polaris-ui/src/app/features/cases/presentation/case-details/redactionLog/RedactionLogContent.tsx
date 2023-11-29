@@ -11,10 +11,11 @@ import { ReactComponent as EditIcon } from "../../../../../common/presentation/s
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import classes from "./RedactionLogContent.module.scss";
 import { useForm, Controller } from "react-hook-form";
+import { SavingStatus } from "../../../domain/gateway/SavingStatus";
 
 type RedactionLogContentProps = {
   redactionHighlights: IPdfHighlight[];
-  isSaving: boolean;
+  savingStatus: SavingStatus;
   message?: string;
   handleClose?: () => void;
 };
@@ -29,7 +30,7 @@ const defaultValues = {
 };
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   message,
-  isSaving,
+  savingStatus,
   handleClose,
   redactionHighlights,
 }) => {
@@ -46,13 +47,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
   return (
     <div className={classes.modalContent}>
-      {isSaving && (
+      {savingStatus === "saving" && (
         <div className={classes.savingBanner}>
           <span>Saving redactions...</span>
         </div>
       )}
 
-      {!isSaving && (
+      {savingStatus === "saved" && (
         <div className={classes.savedBanner}>
           <span>Redactions successfully saved</span>
         </div>
@@ -349,7 +350,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       </div>
       <div className={classes.btnWrapper}>
         <Button
-          disabled={isSaving}
+          disabled={savingStatus === "saving"}
           type="submit"
           className={classes.saveBtn}
           onClick={handleSubmit((data) => console.log(data))}

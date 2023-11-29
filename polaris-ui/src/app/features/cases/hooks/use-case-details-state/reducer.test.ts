@@ -753,6 +753,8 @@ describe("useCaseDetailsState reducer", () => {
             pdfBlobName: "foo",
             redactionHighlights: [],
             url: "baz",
+            isDeleted: false,
+            savingStatus: "initial",
           },
         ],
         activeTabId: "",
@@ -807,7 +809,8 @@ describe("useCaseDetailsState reducer", () => {
             documentId: "1",
             clientLockedState: "unlocked",
             url: undefined,
-
+            isDeleted: false,
+            savingStatus: "initial",
             redactionHighlights: [],
             mode: "read",
           },
@@ -999,7 +1002,10 @@ describe("useCaseDetailsState reducer", () => {
               "Correlation-Id": "bar1",
             } as HeadersInit,
             items: [
-              { documentId: "0", mode: "read" },
+              {
+                documentId: "0",
+                mode: "read",
+              },
               {
                 documentId: "1",
                 mode: "search",
@@ -1034,8 +1040,13 @@ describe("useCaseDetailsState reducer", () => {
                     },
                   },
                 ],
+                isDeleted: false,
+                savingStatus: "initial",
               },
-              { documentId: "2", mode: "read" },
+              {
+                documentId: "2",
+                mode: "read",
+              },
             ],
           },
           pipelineState: {},
@@ -1105,6 +1116,8 @@ describe("useCaseDetailsState reducer", () => {
                 clientLockedState: "unlocked",
                 mode: "read",
                 url: undefined,
+                isDeleted: false,
+                savingStatus: "initial",
               },
               { documentId: "2", mode: "read" },
             ],
@@ -1248,6 +1261,8 @@ describe("useCaseDetailsState reducer", () => {
                 documentId: "1",
                 mode: "search",
                 searchTerm: "bar",
+                isDeleted: false,
+                savingStatus: "initial",
                 occurrencesInDocumentCount: 4,
                 pageOccurrences: [
                   {

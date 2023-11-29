@@ -64,7 +64,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     redactionHighlights,
     documentId,
     isDeleted,
-    isSaving,
+    savingStatus,
     cmsDocType: { documentType },
     attachments,
   } = caseDocumentViewModel;
@@ -146,7 +146,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           contextData={{
             documentId,
             documentType,
-            isSaving: !!isSaving,
+            savingStatus: savingStatus,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}

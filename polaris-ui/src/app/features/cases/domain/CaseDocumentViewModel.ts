@@ -1,9 +1,9 @@
 import { IPdfHighlight } from "./IPdfHighlight";
 import { MappedCaseDocument } from "./MappedCaseDocument";
-
+import { SavingStatus } from "./gateway/SavingStatus";
 export type CaseDocumentViewModel = MappedCaseDocument & {
-  isSaving?: boolean;
-  isDeleted?: boolean;
+  savingStatus: SavingStatus;
+  isDeleted: boolean;
   url: string | undefined;
   pdfBlobName: string | undefined;
   sasUrl: undefined | string;

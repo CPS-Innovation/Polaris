@@ -289,7 +289,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       try {
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, isSaving: true },
+          payload: { documentId, savingStatus: "saving" },
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
@@ -298,7 +298,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, isSaving: false },
+          payload: { documentId, savingStatus: "saved" },
         });
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
@@ -325,7 +325,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, isSaving: false },
+          payload: { documentId, savingStatus: "error" },
+        });
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+          payload: false,
         });
       }
 

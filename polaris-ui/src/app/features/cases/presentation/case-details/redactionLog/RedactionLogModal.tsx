@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Modal } from "../../../../../common/presentation/components/index";
 import { RedactionLogContent } from "./RedactionLogContent";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { SavingStatus } from "../../../domain/gateway/SavingStatus";
 
 type Props = {
-  isSaving: boolean;
+  savingStatus: SavingStatus;
   redactionHighlights: IPdfHighlight[];
   handleShowHideDocumentIssueModal?: (value: boolean) => void;
 };
@@ -12,7 +13,7 @@ type Props = {
 export const RedactionLogModal: React.FC<Props> = ({
   handleShowHideDocumentIssueModal,
   redactionHighlights,
-  isSaving,
+  savingStatus,
 }) => {
   return (
     <Modal
@@ -23,7 +24,7 @@ export const RedactionLogModal: React.FC<Props> = ({
     >
       <RedactionLogContent
         redactionHighlights={redactionHighlights}
-        isSaving={isSaving}
+        savingStatus={savingStatus}
       />
     </Modal>
   );

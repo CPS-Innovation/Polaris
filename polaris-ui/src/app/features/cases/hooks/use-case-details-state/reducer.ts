@@ -21,6 +21,7 @@ import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
 import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
+import { SavingStatus } from "../../domain/gateway/SavingStatus";
 
 export const reducer = (
   state: CombinedState,
@@ -105,7 +106,7 @@ export const reducer = (
         type: "SAVING_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
-          isSaving: boolean;
+          savingStatus: SavingStatus;
         };
       }
     | {
@@ -397,6 +398,8 @@ export const reducer = (
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
+        isDeleted: false,
+        savingStatus: "initial" as const,
       };
 
       if (mode === "read") {
@@ -711,7 +714,7 @@ export const reducer = (
       };
     }
     case "SAVING_REDACTION": {
-      const { documentId, isSaving } = action.payload;
+      const { documentId, savingStatus } = action.payload;
       return {
         ...state,
         tabsState: {
@@ -720,7 +723,7 @@ export const reducer = (
             item.documentId === documentId
               ? {
                   ...item,
-                  isSaving: isSaving,
+                  savingStatus: savingStatus,
                 }
               : item
           ),

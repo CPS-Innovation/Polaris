@@ -2,13 +2,14 @@ import { Button } from "../../../../../common/presentation/components";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { SavingStatus } from "../../../domain/gateway/SavingStatus";
 import classes from "./Footer.module.scss";
 
 type Props = {
   contextData: {
     documentType: string;
     documentId: string;
-    isSaving: boolean;
+    savingStatus: SavingStatus;
   };
   tabIndex: number;
   redactionHighlights: IPdfHighlight[];
@@ -25,7 +26,7 @@ export const Footer: React.FC<Props> = ({
   handleRemoveAllRedactions,
   handleSavedRedactions,
 }) => {
-  const { documentType, documentId, isSaving } = contextData;
+  const { documentType, documentId, savingStatus } = contextData;
   const trackEvent = useAppInsightsTrackEvent();
   const handleRemoveAllRedactionsClick = () => {
     trackEvent("Remove All Redactions", {
@@ -49,7 +50,7 @@ export const Footer: React.FC<Props> = ({
         id={`btn-link-removeAll-${tabIndex}`}
         onClick={handleRemoveAllRedactionsClick}
         dataTestId={`btn-link-removeAll-${tabIndex}`}
-        disabled={isSaving}
+        disabled={savingStatus === "saving"}
         className={classes.removeButton}
       >
         Remove all redactions
@@ -67,7 +68,7 @@ export const Footer: React.FC<Props> = ({
         className={classes.saveButton}
         onClick={handleSaveAllRedactionsClick}
         data-testid={`btn-save-redaction-${tabIndex}`}
-        disabled={!isOkToSave || isSaving}
+        disabled={!isOkToSave || savingStatus === "saving"}
       >
         Save all redactions
       </Button>

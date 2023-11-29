@@ -92,7 +92,7 @@ export const setupHandlers = ({
 
     rest.put(makeApiPath(routes.SAVE_REDACTION_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
-      // return res(ctx.status(500));
+      //return res(delay(ctx), ctx.status(500));
     }),
 
     rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
