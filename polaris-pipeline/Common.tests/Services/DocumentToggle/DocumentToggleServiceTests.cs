@@ -187,7 +187,7 @@ namespace Common.tests.Services.DocumentToggle
         [Fact]
         public void GetDocumentPresentationFlags_ReturnsIsDispatched_IfDocumentIsDispatched()
         {
-            // Arrange
+            // Arrange	
             var documentToggleService = new DocumentToggleService("FileType ReadWrite *\nDocType ReadWrite *");
             var document = new CmsDocumentDto
             {
@@ -195,13 +195,12 @@ namespace Common.tests.Services.DocumentToggle
                 IsDispatched = true
             };
 
-            //Act
+            //Act	
             var presentationFlags = documentToggleService.GetDocumentPresentationFlags(document);
 
-            // Assert
+            // Assert	
             presentationFlags.Write.Should().Be(WriteFlag.IsDispatched);
         }
-
 
         [Theory]
         [InlineData(
@@ -276,6 +275,51 @@ namespace Common.tests.Services.DocumentToggle
             // Assert
             presentationFlags.Read.Should().Be(expectedReadFlag);
             presentationFlags.Write.Should().Be(expectWriteFlag);
+        }
+
+        [Theory]
+        [InlineData(".doc", "0", true, WriteFlag.Ok)]
+        [InlineData(".docm", "0", true, WriteFlag.Ok)]
+        [InlineData(".docx", "0", true, WriteFlag.Ok)]
+        [InlineData(".pdf", "0", true, WriteFlag.Ok)]
+        [InlineData(".bmp", "0", true, WriteFlag.Ok)]
+        [InlineData(".gif", "0", true, WriteFlag.Ok)]
+        [InlineData(".jpeg", "0", true, WriteFlag.Ok)]
+        [InlineData(".jpg", "0", true, WriteFlag.Ok)]
+        [InlineData(".png", "0", true, WriteFlag.Ok)]
+        [InlineData(".ppt", "0", true, WriteFlag.Ok)]
+        [InlineData(".pptx", "0", true, WriteFlag.Ok)]
+        [InlineData(".rtf", "0", true, WriteFlag.Ok)]
+        [InlineData(".text", "0", true, WriteFlag.Ok)]
+        [InlineData(".tif", "0", true, WriteFlag.Ok)]
+        [InlineData(".tiff", "0", true, WriteFlag.Ok)]
+        [InlineData(".txt", "0", true, WriteFlag.Ok)]
+        [InlineData(".xls", "0", true, WriteFlag.Ok)]
+        [InlineData(".xlsx", "0", true, WriteFlag.Ok)]
+        [InlineData(".hte", "0", true, WriteFlag.OriginalFileTypeNotAllowed)]
+        [InlineData(".doc", "0", false, WriteFlag.IsNotOcrProcessed)]
+        [InlineData(".doc", "-54321", true, WriteFlag.DocTypeNotAllowed)]
+        public void CurrentRulesInDocumentToggleFile_WorkAsExpected(string filetype, string docTypeId, bool isOcrProcessed, WriteFlag writeFlag)
+        {
+            // Arrange
+            var documentToggleService = new DocumentToggleService(DocumentToggleService.ReadConfig());
+
+            var document = new CmsDocumentDto
+            {
+                FileExtension = filetype,
+                CmsDocType = new DocumentTypeDto
+                {
+                    DocumentTypeId = docTypeId
+                },
+                IsOcrProcessed = isOcrProcessed
+            };
+
+            // Act
+            var presentationFlags = documentToggleService.GetDocumentPresentationFlags(document);
+
+            // Assert
+            presentationFlags.Read.Should().Be(ReadFlag.Ok);
+            presentationFlags.Write.Should().Be(writeFlag);
         }
     }
 }

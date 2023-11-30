@@ -27,10 +27,10 @@ public class ResetDurableState
         _logger = logger;
         _configuration = configuration;
     }
-    
+
     [FunctionName(nameof(ResetDurableState))]
     public async Task RunAsync(
-        [TimerTrigger(TimerStartTime)] TimerInfo myTimer, 
+        [TimerTrigger(TimerStartTime)] TimerInfo myTimer,
         [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
@@ -43,10 +43,6 @@ public class ResetDurableState
                 await WaitForTerminationsToComplete();
                 await PurgeOrchestrationsAndDurableEntitiesHistory(client, correlationId);
             }
-            else
-            {
-                _logger.LogMethodFlow(correlationId, nameof(ResetDurableState), "Overnight clear down has been disabled in config.");
-            }
         }
         catch (Exception ex)
         {
@@ -56,13 +52,11 @@ public class ResetDurableState
 
     private static async Task WaitForTerminationsToComplete()
     {
-        await Task.Delay(TimeSpan.FromMinutes(MaxAzureFunctionRunTimeMinutes+1));
+        await Task.Delay(TimeSpan.FromMinutes(MaxAzureFunctionRunTimeMinutes + 1));
     }
 
     private async Task TerminateOrchestrationsAndDurableEntities(IDurableOrchestrationClient client, Guid correlationId)
     {
-        _logger.LogMethodFlow(correlationId, LoggingName, "Overnight clear-down - first, terminate running orchestrations and durable instances");
-
         var runningInstances = new HashSet<string>();
         var terminateCondition = CreateOrchestrationQuery(new[]
         {
@@ -71,7 +65,7 @@ public class ResetDurableState
             OrchestrationRuntimeStatus.Suspended,
             OrchestrationRuntimeStatus.ContinuedAsNew
         });
-        
+
         do
         {
             var statusQueryResult = await client.ListInstancesAsync(terminateCondition, CancellationToken.None);
@@ -79,18 +73,14 @@ public class ResetDurableState
 
             var instancesToTerminate = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToHashSet();
             runningInstances.UnionWith(instancesToTerminate);
-            
+
             await Task.WhenAll(instancesToTerminate.Select(async instanceId => await client.TerminateAsync(instanceId, "Forcibly terminated by overnight clear-down")));
         } while (terminateCondition.ContinuationToken != null);
-        
-        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {runningInstances.Count} active orchestrations and durable instances forcibly terminated");
     }
 
     private async Task PurgeOrchestrationsAndDurableEntitiesHistory(IDurableOrchestrationClient client,
         Guid correlationId)
     {
-        _logger.LogMethodFlow(correlationId, LoggingName, "Overnight clear-down - second, purge durable instance history");
-        
         var orchestrationInstances = new HashSet<string>();
         var purgeCondition = CreateOrchestrationQuery(new[]
         {
@@ -99,19 +89,17 @@ public class ResetDurableState
             OrchestrationRuntimeStatus.Failed,
             OrchestrationRuntimeStatus.Terminated
         });
-        
+
         do
         {
             var statusQueryResult = await client.ListInstancesAsync(purgeCondition, CancellationToken.None);
             purgeCondition.ContinuationToken = statusQueryResult.ContinuationToken;
-            
+
             var instancesToPurge = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToHashSet();
             orchestrationInstances.UnionWith(instancesToPurge);
 
             await client.PurgeInstanceHistoryAsync(instancesToPurge);
         } while (purgeCondition.ContinuationToken != null);
-            
-        _logger.LogMethodFlow(correlationId, LoggingName, $"Overnight clear-down - {orchestrationInstances.Count} orchestration and durable entity instances purged from history.");
     }
 
     private static OrchestrationStatusQueryCondition CreateOrchestrationQuery(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses)

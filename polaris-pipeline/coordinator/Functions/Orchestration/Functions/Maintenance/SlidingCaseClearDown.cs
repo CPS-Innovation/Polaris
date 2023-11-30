@@ -15,7 +15,7 @@ public class SlidingCaseClearDown
     private readonly ILogger<SlidingCaseClearDown> _logger;
     private readonly IConfiguration _configuration;
     private readonly IOrchestrationProvider _orchestrationProvider;
-    
+
     private const string LoggingName = $"{nameof(SlidingCaseClearDown)} - {nameof(RunAsync)}";
 
     public SlidingCaseClearDown(ILogger<SlidingCaseClearDown> logger, IConfiguration configuration, IOrchestrationProvider orchestrationProvider)
@@ -24,7 +24,7 @@ public class SlidingCaseClearDown
         _configuration = configuration;
         _orchestrationProvider = orchestrationProvider;
     }
-    
+
     /// <summary>
     /// Cron expression set to run every 5 minutes
     /// </summary>
@@ -49,20 +49,15 @@ public class SlidingCaseClearDown
                     await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
                 if (string.IsNullOrEmpty(targetCaseId))
                 {
-                    _logger.LogMethodFlow(correlationId, LoggingName, "No cases to clear-down");
                     return;
                 }
 
-                if (!int.TryParse(targetCaseId.Replace("[","").Replace("]",""), out var caseId))
+                if (!int.TryParse(targetCaseId.Replace("[", "").Replace("]", ""), out var caseId))
                     throw new InvalidCastException(
                         $"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
 
                 var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId);
                 deleteResponse.EnsureSuccessStatusCode();
-            }
-            else
-            {
-                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "Sliding case data clear-down has been disabled in config.");
             }
         }
         catch (Exception ex)

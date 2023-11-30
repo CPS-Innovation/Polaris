@@ -5,9 +5,11 @@
     "logLevel": {
       "default": "Warning",
       "Function": "Information",
+      "coordinator.Functions.Orchestration.Functions.Case.RefreshCaseOrchestrator": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
+      "DurableTask.AzureStorage": "Warning",
       "DurableTask.Core": "Information",
       "Microsoft.Azure.WebJobs.Host.Scale": "None"
     },
@@ -29,7 +31,6 @@
   },
   "extensions": {
     "durableTask": {
-      "hubName": "%CoordinatorTaskHub%",
       "maxConcurrentActivityFunctions": 150,
       "maxConcurrentOrchestratorFunctions": 150,
       "tracing": {

@@ -51,7 +51,6 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
-                    log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                     return new BadRequestObjectResult(correlationErrorMessage);
                 }
 
@@ -59,7 +58,6 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                 if (!Guid.TryParse(correlationId, out currentCorrelationId))
                     if (currentCorrelationId == Guid.Empty)
                     {
-                        log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
 
@@ -69,11 +67,8 @@ namespace coordinator.Functions.DurableEntity.Client.Case
                 if (!trackerState.EntityExists)
                 {
                     var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                    log.LogMethodFlow(currentCorrelationId, loggingName, baseMessage);
                     return new NotFoundObjectResult(baseMessage);
                 }
-
-                log.LogMethodEntry(currentCorrelationId, loggingName, $"Searching Case with urn {caseUrn} and caseId {caseId} for term '{searchTerm}'");
 
                 CaseDurableEntity entityState = trackerState.EntityState;
                 var documents =
