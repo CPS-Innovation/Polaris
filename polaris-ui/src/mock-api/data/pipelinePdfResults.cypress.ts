@@ -1,7 +1,7 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
-//the result count is set to 8 based on the maximum number of call tracker api call in a test suit, increase it when needed.
-const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(8);
+//the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
 
 export default dataSource;
 
@@ -182,6 +182,28 @@ const pipelinePdfResult: PipelineResults = {
       presentationFlags: {
         read: "Ok",
         write: "OnlyAvailableInCms",
+      },
+      polarisParentDocumentId: null,
+    },
+    {
+      documentId: "9",
+      cmsDocumentId: "9",
+      pdfBlobName: "MG06_3June",
+      status: "Indexed",
+      cmsOriginalFileName: "MG06_3June",
+      presentationTitle: "Doc_9",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-10",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 7,
+        documentType: "MG15",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "IsDispatched",
       },
       polarisParentDocumentId: null,
     },

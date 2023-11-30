@@ -60,14 +60,12 @@ namespace coordinator.Functions.DurableEntity.Client
                 // Note: the first implementation for the fix was to catch StorageException (which was what was in the App Insights logs).
                 //  Falling back to catch Exception as we are not sure if the StorageException is the only exception that can be thrown.
                 var errorMessage = $"No Case Entity found with id '{caseId}' with exception '{ex.GetType().Name}: {ex.Message}";
-                log.LogMethodFlow(correlationId, loggingName, errorMessage);
                 return (null, errorMessage);
             }
 
             if (!caseEntity.EntityExists)
             {
                 var errorMessage = $"No Case Entity found with id '{caseId}'";
-                log.LogMethodFlow(correlationId, loggingName, errorMessage);
                 return (null, errorMessage);
             }
 
@@ -90,7 +88,6 @@ namespace coordinator.Functions.DurableEntity.Client
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
-                log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                 response.Error = new BadRequestObjectResult(correlationErrorMessage);
                 return response;
             }
@@ -99,12 +96,9 @@ namespace coordinator.Functions.DurableEntity.Client
             if (!Guid.TryParse(correlationId, out response.CorrelationId))
                 if (response.CorrelationId == Guid.Empty)
                 {
-                    log.LogMethodFlow(Guid.Empty, loggingName, correlationErrorMessage);
                     response.Error = new BadRequestObjectResult(correlationErrorMessage);
                     return response;
                 }
-
-            log.LogMethodEntry(response.CorrelationId, loggingName, caseId);
             #endregion
 
             var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId));
@@ -112,7 +106,6 @@ namespace coordinator.Functions.DurableEntity.Client
             if (!stateResponse.EntityExists)
             {
                 var baseMessage = $"No pipeline tracker found with id '{caseId}'";
-                log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
                 response.Error = new NotFoundObjectResult(baseMessage);
                 return response;
             }
@@ -132,7 +125,6 @@ namespace coordinator.Functions.DurableEntity.Client
                     else
                     {
                         var baseMessage = $"No Document found with id '{polarisDocumentId}'";
-                        log.LogMethodFlow(response.CorrelationId, loggingName, baseMessage);
                         response.Error = new NotFoundObjectResult(baseMessage);
                         return response;
                     }

@@ -59,15 +59,15 @@ stages:
               ARM_TENANT_ID: $(innovation-prod-spn-tenant-id)
               ARM_SUBSCRIPTION_ID: $(innovation-prod-subscription-id)
                 
-  - stage: Clear_down_BlobStorage
-    displayName: Reset Document Blob Storage
-    dependsOn: Clear_down_SearchIndex
-    condition: succeeded()
-    jobs:
-      - job: Clear_down_BlobStorage
-        pool:
-          name: $(prod-build-agent)
-        steps:
+#  - stage: Clear_down_BlobStorage
+#    displayName: Reset Document Blob Storage
+#    dependsOn: Clear_down_SearchIndex
+#    condition: succeeded()
+#    jobs:
+#      - job: Clear_down_BlobStorage
+#        pool:
+#          name: $(prod-build-agent)
+#        steps:
 #          - task: AzureCLI@2
 #            displayName: Refresh Blob Storage
 #            inputs:

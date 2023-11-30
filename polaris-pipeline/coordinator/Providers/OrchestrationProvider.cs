@@ -68,8 +68,6 @@ public class OrchestrationProvider : IOrchestrationProvider
 
     public async Task<string> FindCaseInstanceByDateAsync(DateTime createdTimeTo, Guid correlationId)
     {
-        _logger.LogMethodEntry(correlationId, nameof(FindCaseInstanceByDateAsync), $"Searching durable instance records for target case to clear-down, up to '{createdTimeTo:dd-MM-yyyy}'");
-
         var caseId = string.Empty;
         var clearDownCandidates = new[] { OrchestrationRuntimeStatus.Completed, OrchestrationRuntimeStatus.Failed };
 
@@ -102,9 +100,6 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             throw;
         }
-
-        _logger.LogMethodExit(correlationId, nameof(FindCaseInstanceByDateAsync), string.Empty);
-
         return caseId;
     }
 
@@ -118,13 +113,11 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         if (isSingletonRefreshRunning)
         {
-            _logger.LogMethodFlow(correlationId, loggingName, $"{nameof(OrchestrationProvider)} Locked as already running - {nameof(RefreshCaseOrchestrator)} with instance id '{caseId}'");
             return new HttpResponseMessage(HttpStatusCode.Locked);
         }
 
         await orchestrationClient.StartNewAsync(nameof(RefreshCaseOrchestrator), instanceId, casePayload);
 
-        _logger.LogMethodFlow(correlationId, loggingName, $"{nameof(OrchestrationProvider)} Succeeded - Started {nameof(RefreshCaseOrchestrator)} with instance id '{instanceId}'");
         return orchestrationClient.CreateCheckStatusResponse(req, instanceId);
     }
 
@@ -193,7 +186,6 @@ public class OrchestrationProvider : IOrchestrationProvider
     private async Task<List<string>> TerminateOrchestrations(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> terminateConditions, Guid correlationId)
     {
         const string loggingName = $"{nameof(OrchestrationProvider)} - {nameof(TerminateOrchestrations)}";
-        _logger.LogMethodFlow(correlationId, loggingName, "Terminating Case Orchestrations and Document Sub Orchestrations");
 
         var instanceIds = new List<string>();
         foreach (var terminateCondition in terminateConditions)
@@ -214,8 +206,6 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         await WaitForOrchestrationsToTerminateTask(client, instanceIds);
 
-        _logger.LogMethodFlow(correlationId, loggingName, $"Terminating {instanceIds.Count} Case Orchestrations and Document Sub Orchestrations completed");
-
         return instanceIds;
     }
 
@@ -226,7 +216,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         const int totalWaitTimeSeconds = 600;
         const int retryDelayMilliseconds = 1000;
 
-        for (var i = 0; i < (totalWaitTimeSeconds * 1000) / retryDelayMilliseconds; i++)
+        for (var i = 0; i < totalWaitTimeSeconds * 1000 / retryDelayMilliseconds; i++)
         {
             var statuses = await client.GetStatusAsync(instanceIds);
 
@@ -238,9 +228,6 @@ public class OrchestrationProvider : IOrchestrationProvider
 
     private async Task<bool> Purge(IDurableOrchestrationClient client, List<OrchestrationStatusQueryCondition> purgeConditions, Guid correlationId)
     {
-        const string loggingName = $"{nameof(OrchestrationProvider)} - {nameof(Purge)}";
-        _logger.LogMethodFlow(correlationId, loggingName, "Purging Case Orchestrations, Sub Orchestrations and Durable Entities");
-
         foreach (var purgeCondition in purgeConditions)
         {
             do
@@ -255,8 +242,6 @@ public class OrchestrationProvider : IOrchestrationProvider
             } while (purgeCondition.ContinuationToken != null);
 
         }
-        _logger.LogMethodFlow(correlationId, loggingName, $"Purging Case Orchestrations, Sub Orchestrations and Durable Entities completed");
-
         return true;
     }
 

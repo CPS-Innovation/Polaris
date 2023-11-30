@@ -51,12 +51,6 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
-      - template: jobs/job_generate-slot-name.yml
-        parameters:
-          targetBuild: ${{ parameters.targetBuild }}
-          jobDependsOn:
-            - LogStart
-
       - template: jobs/job_check-statuses.yml
         parameters:
           targetBuild: ${{ parameters.targetBuild }}
@@ -71,7 +65,7 @@ stages:
           armTenantId: ${{ parameters.armTenantId }}
           armSubscriptionId: ${{ parameters.armSubscriptionId }}
           jobDependsOn:
-            - GenerateSlotName
+            - LogStart
 
       - template: jobs/job_log-result.yml
         parameters:

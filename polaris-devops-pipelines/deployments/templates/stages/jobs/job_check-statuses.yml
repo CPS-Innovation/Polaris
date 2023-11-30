@@ -28,10 +28,8 @@ parameters:
 jobs:
   - job: GetStatusURIs
     dependsOn: ${{ parameters.jobDependsOn }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     steps:
-      #retrieve app service status endpoints in their correct staging slots
+      #retrieve app service status endpoints
       - bash: |
           az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
           az account set --subscription $subscriptionId
@@ -50,7 +48,7 @@ jobs:
           echo "##vso[task.setvariable variable=gatewayUri;isOutput=true]$gatewayLocation"
           echo "##vso[task.setvariable variable=spaUri;isOutput=true]$spaLocation"
           echo "##vso[task.setvariable variable=proxyUri;isOutput=true]$proxyLocation"
-        displayName: Get URIs of Pipeline Components
+        displayName: Get URIs of Polaris Components
         name: uris
         env:
           clientId: ${{ parameters.armClientId }}

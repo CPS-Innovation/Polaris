@@ -3,7 +3,6 @@ using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using System.ComponentModel.DataAnnotations;
 using Common.ValueObjects;
-using Common.Dto.Tracker;
 
 namespace Common.Domain.Entity
 {
@@ -25,6 +24,7 @@ namespace Common.Domain.Entity
             string cmsOriginalFileName,
             string presentationTitle,
             bool isOcrProcessed,
+            bool isDispatched,
             int? categoryListOrder,
             PolarisDocumentId polarisParentDocumentId,
             string cmsParentDocumentId,
@@ -38,10 +38,10 @@ namespace Common.Domain.Entity
             CmsOriginalFileName = cmsOriginalFileName;
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
+            IsDispatched = isDispatched;
             CategoryListOrder = categoryListOrder;
             PolarisParentDocumentId = polarisParentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
-            Status = DocumentStatus.New;
         }
 
         [JsonProperty("path")]
@@ -66,6 +66,9 @@ namespace Common.Domain.Entity
 
         [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
+
+        [JsonProperty("isDispatched")]
+        public bool IsDispatched { get; set; }
 
         [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }

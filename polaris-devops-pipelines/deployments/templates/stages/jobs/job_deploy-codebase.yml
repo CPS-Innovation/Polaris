@@ -23,8 +23,8 @@ jobs:
     environment: ${{ parameters.envLabel }}
     workspace:
       clean: all
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    #variables:
+    #  slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -55,7 +55,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
                 #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                #resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
                 #slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -68,8 +68,8 @@ jobs:
   - deployment: DeployPdfGenerator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    #variables:
+    #  slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -100,7 +100,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
                 #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                #resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
                 #slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -113,8 +113,8 @@ jobs:
   - deployment: DeployTextGenerator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    #variables:
+    #  slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -145,7 +145,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
                 #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris-pipeline{{ parameters.targetSuffix }}"
+                #resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
                 #slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -160,8 +160,8 @@ jobs:
     environment: ${{ parameters.envLabel }}
     workspace:
       clean: all
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    #variables:
+    #  slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -192,7 +192,7 @@ jobs:
                 WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
                 packageForLinux: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-ui-drop
                 #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+                #resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
                 #slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -216,7 +216,6 @@ jobs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 Action: 'Restart Azure App Service'
                 WebAppName: "as-web-polaris${{ parameters.targetSuffix }}"
-                #slot?
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -228,8 +227,8 @@ jobs:
   - deployment: DeployGateway
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    #variables:
+    #  slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -260,7 +259,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
                 #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+                #resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
                 #slotName: $(slotName)
 
             # send custom event to AppInsights
@@ -273,8 +272,8 @@ jobs:
   - deployment: DeployAuthHandover
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
+    #variables:
+    #  slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -305,7 +304,7 @@ jobs:
                 appName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-auth-handover-drop
                 #deployToSlotOrASE: true
-                #resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
+                #resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
                 #slotName: $(slotName)
 
             # send custom event to AppInsights

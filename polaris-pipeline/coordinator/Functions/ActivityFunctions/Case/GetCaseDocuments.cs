@@ -57,7 +57,6 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 throw new ArgumentException("CorrelationId must be valid GUID");
             #endregion
 
-            _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             CmsDocumentDto[] documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
             var cmsDocuments = documents

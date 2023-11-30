@@ -85,7 +85,6 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 if (!redactionResult.Succeeded)
                 {
                     string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";
-                    log.LogMethodFlow(currentCorrelationId, loggingName, error);
                     throw new ArgumentException(error);
                 }
 
@@ -94,7 +93,6 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
                 {
-                    log.LogMethodFlow(currentCorrelationId, loggingName, $"No authentication header values specified");
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
 
