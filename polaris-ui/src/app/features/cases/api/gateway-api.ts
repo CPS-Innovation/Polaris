@@ -162,12 +162,6 @@ export const getPipelinePdfResults = async (
   // return rawResponse as PipelineResults;
   var typedRawResponse = rawResponse as PipelineResults;
 
-  typedRawResponse.documents = typedRawResponse.documents.filter(
-    (doc) =>
-      doc.cmsDocType.documentCategory !== "Attachment" &&
-      doc.cmsOriginalFileExtension !== ".hte"
-  );
-
   return typedRawResponse;
 };
 export const searchCase = async (
