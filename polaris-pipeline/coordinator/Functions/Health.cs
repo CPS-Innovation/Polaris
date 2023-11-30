@@ -51,8 +51,6 @@ public class Health
             if (string.IsNullOrWhiteSpace(cmsAuthValues))
                 throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
 
-            _log.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
-
             // Shim in the auth into any health checks needing auth
             AuthenticatedHealthCheck.SetAuthValues(cmsAuthValues, currentCorrelationId);
 
