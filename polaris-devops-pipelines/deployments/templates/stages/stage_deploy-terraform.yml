@@ -22,6 +22,10 @@ parameters:
     type: string
   - name: terraformPipelineEventsContainerName
     type: string
+  - name: terraformUIContainerName
+    type: string
+  - name: terraformUIEventsContainerName
+    type: string
   - name: terraformStateKey
     type: string
   - name: terraformStateAccessKey
@@ -38,6 +42,10 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
+  - name: logRetentionTime
+    type: string
+  - name: totalLogRetentionTime
+    type: string
 
 stages:
   - stage: Terraform_${{ parameters.targetLabel }}
@@ -52,7 +60,7 @@ stages:
           envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
           targetLabel: ${{ parameters.targetLabel }}
-          targetName: "Pipeline Terraform CI Deployment"
+          targetName: "Terraform CI Deployment"
           appInsightsKey: ${{ parameters.appInsightsKey }}
 
       - template: jobs/job_apply-terraform.yml
@@ -76,18 +84,6 @@ stages:
           terraformType: "Pipeline"
           jobDependsOn:
             - LogStart
-
-      - template: jobs/job_deploy-pipeline-components.yml
-        parameters:
-          envLabel: ${{ parameters.envLabel }}
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          targetName: "Pipeline Terraform CI Deployment"
-          targetSuffix: ${{ parameters.targetSuffix }}
-          appInsightsKey: ${{ parameters.appInsightsKey }}
-          azureSubscription: ${{ parameters.azureSubscription }}
-          jobDependsOn:
-            - ApplyPipelineTerraform
 
       - template: jobs/job_apply-terraform.yml
         parameters:
@@ -126,6 +122,67 @@ stages:
           jobDependsOn:
             - ApplyPipelineTerraform
 
+      - template: jobs/job_apply-terraform.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetTerraformArtifact: "ui-terraform-files"
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetPlanName: ${{ parameters.targetPlanName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+          terraformContainerName: ${{ parameters.terraformUIContainerName }}
+          terraformStateKey: ${{ parameters.terraformStateKey }}
+          terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          terraformType: "UI"
+          jobDependsOn:
+            - UpdatePipelineComponentAppKeys
+
+      - template: jobs/job_apply-terraform.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetTerraformArtifact: "ui-events-terraform-files"
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Events Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          targetPlanName: ${{ parameters.targetPlanName }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+          terraformContainerName: ${{ parameters.terraformUIEventsContainerName }}
+          terraformStateKey: ${{ parameters.terraformStateKey }}
+          terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          terraformType: "UIEvents"
+          jobDependsOn:
+            - ApplyUITerraform
+
+      - template: jobs/job_set-log-analytics-archival-periods.yml
+        parameters:
+          envLabel: ${{ parameters.envLabel }}
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "UI Terraform CI Deployment"
+          targetSuffix: ${{ parameters.targetSuffix }}
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          armClientId: ${{ parameters.armClientId }}
+          armClientSecret: ${{ parameters.armClientSecret }}
+          armTenantId: ${{ parameters.armTenantId }}
+          armSubscriptionId: ${{ parameters.armSubscriptionId }}
+          logRetentionTime: ${{ parameters.logRetentionTime }}
+          totalLogRetentionTime: ${{ parameters.totalLogRetentionTime }}
+          jobDependsOn:
+            - ApplyUITerraform
+
       - template: jobs/job_log-result-deployment.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
@@ -134,10 +191,10 @@ stages:
           targetName: "Pipeline Terraform CI Deployment"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
-          dependsOn:
+          jobDependsOn:
             - ApplyPipelineTerraform
             - ApplyPipelineEventsTerraform
-            - DeployCoordinator
-            - DeployPdfGenerator
-            - DeployTextGenerator
-            - UpdatePipelineAppKeys
+            - UpdatePipelineComponentAppKeys
+            - ApplyUITerraform
+            - ApplyUIEventsTerraform
+            - SetLogAnalyticsArchivalPeriods

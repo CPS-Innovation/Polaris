@@ -78,10 +78,11 @@ jobs:
                 TF_STATE_CONTAINER_NAME: ${{ parameters.terraformContainerName }}
                 TF_STATE_KEY: ${{ parameters.terraformStateKey }}
                 TF_STATE_ACCESS_KEY: ${{ parameters.terraformStateAccessKey }}
+                TF_LOG: "ERROR"
 
             # Terraform Plan
             - bash: |
-                terraform plan -input=false -out=$ARM_ENV.tfplan -var-file="$ARM_ENV.tfvars"
+                terraform plan -input=false -out="$ARM_ENV.tfplan" -var-file="$ARM_ENV.tfvars"
               displayName: Terraform > Write Plan
               workingDirectory: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}
               env:
@@ -90,10 +91,11 @@ jobs:
                 ARM_TENANT_ID: ${{ parameters.armTenantId }}
                 ARM_SUBSCRIPTION_ID: ${{ parameters.armSubscriptionId }}
                 ARM_ENV: ${{ parameters.targetPlanName }}
+                TF_LOG: "ERROR"
 
             # Terraform Apply
             - bash: |
-                terraform apply -auto-approve $ARM_ENV.tfplan
+                terraform apply -auto-approve "$ARM_ENV.tfplan"
               displayName: Terraform > Apply
               workingDirectory: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/${{ parameters.targetTerraformArtifact }}
               env:
@@ -102,6 +104,7 @@ jobs:
                 ARM_TENANT_ID: ${{ parameters.armTenantId }}
                 ARM_SUBSCRIPTION_ID: ${{ parameters.armSubscriptionId }}
                 ARM_ENV: ${{ parameters.targetPlanName }}
+                TF_LOG: "ERROR"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml

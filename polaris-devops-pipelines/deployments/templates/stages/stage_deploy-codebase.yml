@@ -20,8 +20,6 @@ parameters:
     type: string
   - name: devOpsPatToken
     type: string
-  - name: logResultDependsOn
-    type: object
 
 stages:
   - stage: Deploy_${{ parameters.targetLabel }}
@@ -38,20 +36,8 @@ stages:
           targetLabel: ${{ parameters.targetLabel }}
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
-
-      - template: jobs/job_deploy-pipeline-components.yml
-        parameters:
-          envLabel: ${{ parameters.envLabel }}
-          targetBuild: ${{ parameters.targetBuild }}
-          targetLabel: ${{ parameters.targetLabel }}
-          targetName: ${{ parameters.targetName }}
-          targetSuffix: ${{ parameters.targetSuffix }}
-          appInsightsKey: ${{ parameters.appInsightsKey }}
-          azureSubscription: ${{ parameters.azureSubscription }}
-          jobDependsOn:
-            - LogStart
-
-      - template: jobs/job_deploy-ui-components.yml
+          
+      - template: jobs/job_deploy-codebase.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
           targetBuild: ${{ parameters.targetBuild }}
@@ -71,4 +57,11 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
           devOpsPatToken: ${{ parameters.devOpsPatToken }}
-          dependsOn: ${{ parameters.logResultDependsOn }}
+          jobDependsOn:
+            - LogStart
+            - DeployCoordinator
+            - DeployPdfGenerator
+            - DeployTextGenerator
+            - DeploySpa
+            - DeployGateway
+            - DeployAuthHandover

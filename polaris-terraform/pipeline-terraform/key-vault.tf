@@ -23,7 +23,8 @@ resource "azurerm_key_vault" "kv" {
       data.azurerm_subnet.polaris_ci_subnet.id,
       data.azurerm_subnet.polaris_coordinator_subnet.id,
       data.azurerm_subnet.polaris_pdfgenerator_subnet.id,
-      data.azurerm_subnet.polaris_textextractor_subnet.id
+      data.azurerm_subnet.polaris_textextractor_subnet.id,
+      data.azurerm_subnet.polaris_textextractor_2_subnet.id
     ]
   }
 

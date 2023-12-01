@@ -16,23 +16,28 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   public_network_access_enabled = false
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
-    "WEBSITE_CONTENTOVERVNET"                  = "1"
-    "WEBSITE_DNS_SERVER"                       = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                   = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.sacpspolaris.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                     = azapi_resource.polaris_sacpspolaris_ui_file_share.name
-    "APPINSIGHTS_INSTRUMENTATIONKEY"           = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_CLIENT_ID"                      = module.azurerm_app_reg_as_web_polaris.client_id
-    "REACT_APP_TENANT_ID"                      = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_GATEWAY_BASE_URL"               = ""
-    "REACT_APP_GATEWAY_SCOPE"                  = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
-    "REACT_APP_REAUTH_REDIRECT_URL"            = "/polaris?polaris-ui-url="
-    "REACT_APP_AI_KEY"                         = data.azurerm_application_insights.global_ai.instrumentation_key
-    "REACT_APP_SURVEY_LINK"                    = "https://www.smartsurvey.co.uk/s/DG5B6G/"
-    "REACT_APP_PRIVATE_BETA_USER_GROUP"        = var.private_beta.user_group
-    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"       = var.private_beta.sign_up_url
-    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"   = var.is_redaction_service_offline
+    "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
+    "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
+    "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"            = var.feature_flag_hte_emails_on
+    "REACT_APP_GATEWAY_BASE_URL"                      = ""
+    "REACT_APP_GATEWAY_SCOPE"                         = "https://CPSGOVUK.onmicrosoft.com/${azurerm_linux_function_app.fa_polaris.name}/user_impersonation"
+    "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"          = var.is_redaction_service_offline
+    "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"              = var.private_beta.sign_up_url
+    "REACT_APP_PRIVATE_BETA_USER_GROUP"               = var.private_beta.user_group
+    "REACT_APP_REAUTH_REDIRECT_URL"                   = "/polaris?polaris-ui-url="
+    "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
+    "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
+    "REACT_APP_SURVEY_LINK"                           = "https://www.smartsurvey.co.uk/s/DG5B6G/"
+    "REACT_APP_TENANT_ID"                             = data.azurerm_client_config.current.tenant_id
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_ui_file_share.name
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
   }
 
   site_config {
@@ -116,6 +121,13 @@ module "azurerm_app_reg_as_web_polaris" {
         id   = module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]
         type = "Scope"
       }]
+    },
+    {
+      resource_app_id = data.azuread_application.fa_redaction_log_reporting.application_id
+      resource_access = [{
+        id   = data.azuread_application.fa_redaction_log_reporting.oauth2_permission_scope_ids["user_impersonation"]
+        type = "Scope"
+      }]
   }]
   single_page_application = {
     redirect_uris = var.env != "prod" ? ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
@@ -157,6 +169,13 @@ resource "azuread_application_pre_authorized" "fapre_polaris_web" {
   application_object_id = module.azurerm_app_reg_fa_polaris.object_id
   authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
   permission_ids        = [module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]]
+  depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]
+}
+
+resource "azuread_application_pre_authorized" "fapre_redaction_log_reporting" {
+  application_object_id = data.azuread_application.fa_redaction_log_reporting.object_id
+  authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
+  permission_ids        = [data.azuread_application.fa_redaction_log_reporting.oauth2_permission_scope_ids["user_impersonation"]]
   depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]
 }
 

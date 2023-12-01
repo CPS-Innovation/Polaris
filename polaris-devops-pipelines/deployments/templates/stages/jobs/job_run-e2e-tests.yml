@@ -1,0 +1,19 @@
+﻿---
+parameters:
+  - name: targetLabel
+    type: string
+  - name: buildDefinitionId
+    type: string
+  - name: devOpsPatToken
+    type: string
+
+jobs:
+  - job: RunE2ETests
+    steps:
+      - task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@4
+        displayName: 'Run the e2e tests: ${{ parameters.targetLabel }}'
+        inputs:
+          buildDefinition: ${{ parameters.buildDefinitionId }}
+          waitForQueuedBuildsToFinish: true
+          cancelBuildsIfAnyFails: true
+          password: "${{ parameters.devOpsPatToken }}"

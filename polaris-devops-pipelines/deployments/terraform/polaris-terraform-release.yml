@@ -4,8 +4,8 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: UITerraformBuild
-      source: Polaris UI Terraform - Build
+    - pipeline: PolarisTerraformBuild
+      source: Polaris Terraform - Build
       trigger:
         branches:
           include:
@@ -18,22 +18,24 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-global
-  - group: terraform-containers
   - group: polaris-status-check-endpoints
+  - group: terraform-containers
 
 stages:
-  # deploy UI terraform to DEV
-  - template: ../templates/stages/stage_deploy-ui-terraform.yml
+  # Apply terraform to DEV
+  - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
       envLabel: "Dev"
-      targetBuild: UITerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "DEV"
       targetSuffix: "-dev"
       targetPlanName: "dev"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       terraformStorageAccount: $(dev-terraform-storage-account)
+      terraformPipelineContainerName: $(pipeline-terraform-container-name)
+      terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
       terraformUIContainerName: $(ui-terraform-container-name)
       terraformUIEventsContainerName: $(ui-events-terraform-container-name)
       terraformStateKey: $(terraform-key)
@@ -46,54 +48,41 @@ stages:
       azureSubscription: $(dev-azure-subscription)
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
-
-  # check status of UI components on DEV
-  - template: ../templates/stages/stage_status-checks-ui-terraform.yml
+      
+  - template: ../templates/stages/stage_build-checks.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Terraform_DEV
-      targetBuild: UITerraformBuild
+      envLabel: "Dev"
+      targetBuild: PolarisTerraformBuild
+      targetSuffix: "-dev"
       targetLabel: "DEV"
-      targetName: "UI Terraform CI Deployment"
+      targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      authHandoverStatusUrl: $(dev-auth-handover-status-url)
-      gatewayStatusUrl: $(dev-gateway-status-url)
-      proxyStatusUrl: $(dev-proxy-status-url)
-      spaStatusUrl: $(dev-ui-status-url)
       statusCheckMethod: $(status-check-method)
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckAuthHandover
-        - CheckGateway
-        - CheckProxy
-        - CheckSPA
-
-  # run DEV e2e tests
-  - template: ../templates/stages/stage_run-e2e-tests.yml
-    parameters:
-      stageBuildAgent: $(dev-build-agent)
-      targetBuild: UITerraformBuild
-      targetLabel: "DEV"
-      buildDefinitionId: 129
-      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
-
-  # deploy UI terraform to QA
-  - template: ../templates/stages/stage_deploy-ui-terraform.yml
+      armClientId: $(innovation-development-spn-client-id)
+      armClientSecret: $(innovation-development-spn-secret)
+      armTenantId: $(innovation-development-spn-tenant-id)
+      armSubscriptionId: $(innovation-development-subscription-id)
+      
+  # Apply Terraform to QA
+  - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Check_DEV
       envLabel: "QA"
-      targetBuild: UITerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "QA"
       targetSuffix: "-qa"
       targetPlanName: "qa"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       terraformStorageAccount: $(qa-terraform-storage-account)
+      terraformPipelineContainerName: $(pipeline-terraform-container-name)
+      terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
       terraformUIContainerName: $(ui-terraform-container-name)
       terraformUIEventsContainerName: $(ui-events-terraform-container-name)
       terraformStateKey: $(terraform-key)
@@ -106,54 +95,41 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
-
-  # check status of UI components on QA
-  - template: ../templates/stages/stage_status-checks-ui-terraform.yml
+      
+  - template: ../templates/stages/stage_build-checks.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Terraform_QA
-      targetBuild: UITerraformBuild
+      envLabel: "QA"
+      targetBuild: PolarisTerraformBuild
+      targetSuffix: "-qa"
       targetLabel: "QA"
-      targetName: "UI Terraform CI Deployment"
+      targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      authHandoverStatusUrl: $(qa-auth-handover-status-url)
-      gatewayStatusUrl: $(qa-gateway-status-url)
-      proxyStatusUrl: $(qa-proxy-status-url)
-      spaStatusUrl: $(qa-ui-status-url)
       statusCheckMethod: $(status-check-method)
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckAuthHandover
-        - CheckGateway
-        - CheckProxy
-        - CheckSPA
+      armClientId: $(innovation-qa-spn-client-id)
+      armClientSecret: $(innovation-qa-spn-secret)
+      armTenantId: $(innovation-qa-spn-tenant-id)
+      armSubscriptionId: $(innovation-qa-subscription-id)
 
-  # run QA e2e tests
-  - template: ../templates/stages/stage_run-e2e-tests.yml
-    parameters:
-      stageBuildAgent: $(qa-build-agent)
-      targetBuild: UITerraformBuild
-      targetLabel: "QA"
-      buildDefinitionId: 210
-      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
-
-  # deploy UI terraform to PROD
-  - template: ../templates/stages/stage_deploy-ui-terraform.yml
+  # Apply Terraform to PROD
+  - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Check_DEV
       envLabel: "Prod"
-      targetBuild: UITerraformBuild
+      targetBuild: PolarisTerraformBuild
       targetLabel: "PROD"
       targetSuffix: ""
       targetPlanName: "prod"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       terraformStorageAccount: $(prod-terraform-storage-account)
+      terraformPipelineContainerName: $(pipeline-terraform-container-name)
+      terraformPipelineEventsContainerName: $(pipeline-events-terraform-container-name)
       terraformUIContainerName: $(ui-terraform-container-name)
       terraformUIEventsContainerName: $(ui-events-terraform-container-name)
       terraformStateKey: $(terraform-key)
@@ -166,38 +142,23 @@ stages:
       azureSubscription: $(prod-azure-subscription)
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
-
-  # check status of UI components on PROD
-  - template: ../templates/stages/stage_status-checks-ui-terraform.yml
+      
+  - template: ../templates/stages/stage_build-checks.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Terraform_PROD
-      targetBuild: UITerraformBuild
+      envLabel: "Prod"
+      targetBuild: PolarisTerraformBuild
+      targetSuffix: ""
       targetLabel: "PROD"
-      targetName: "Pipeline Terraform CI Deployment"
+      targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      authHandoverStatusUrl: $(prod-auth-handover-status-url)
-      gatewayStatusUrl: $(prod-gateway-status-url)
-      proxyStatusUrl: $(prod-proxy-status-url)
-      spaStatusUrl: $(prod-ui-status-url)
       statusCheckMethod: $(status-check-method)
       statusCheckRetries: $(status-check-retries)
       statusCheckDelaySeconds: $(status-check-delay-seconds)
       statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
-      logResultDependsOn:
-        - LogStart
-        - CheckAuthHandover
-        - CheckGateway
-        - CheckProxy
-        - CheckSPA
-
-  # run PROD e2e tests
-  - template: ../templates/stages/stage_run-e2e-tests.yml
-    parameters:
-      stageBuildAgent: $(prod-build-agent)
-      targetBuild: UITerraformBuild
-      targetLabel: "PROD"
-      buildDefinitionId: 240
-      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
+      armClientId: $(innovation-prod-spn-client-id)
+      armClientSecret: $(innovation-prod-spn-secret)
+      armTenantId: $(innovation-prod-spn-tenant-id)
+      armSubscriptionId: $(innovation-prod-subscription-id)

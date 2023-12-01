@@ -1,7 +1,7 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
-//the result count is set to 8 based on the maximum number of call tracker api call in a test suit, increase it when needed.
-const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(8);
+//the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
 
 export default dataSource;
 
@@ -18,7 +18,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MCLOVEMG3",
       presentationTitle: "MCLOVEMG3",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-01",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -31,6 +31,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: "4",
     },
     {
       documentId: "2",
@@ -39,7 +40,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "CM01",
       presentationTitle: "CM01",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -52,6 +53,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "DocTypeNotAllowed",
       },
+      polarisParentDocumentId: "4",
     },
     {
       documentId: "3",
@@ -60,7 +62,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG05MCLOVE",
       presentationTitle: "Doc_3",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -73,6 +75,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "OnlyAvailableInCms",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "4",
@@ -81,7 +84,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June",
       presentationTitle: "Doc_4",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".hte",
       cmsFileCreatedDate: "2020-06-04",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -94,6 +97,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "5",
@@ -102,7 +106,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june",
       presentationTitle: "Doc_5",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".hte",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -115,6 +119,7 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "OriginalFileTypeNotAllowed",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "6",
@@ -123,7 +128,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "UnexpectedFailure",
       cmsOriginalFileName: "Test DAC.pdf",
       presentationTitle: "Test DAC",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2023-05-11",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -134,6 +139,7 @@ const pipelinePdfResult: PipelineResults = {
       },
       isPdfAvailable: false,
       presentationFlags: { read: "Ok", write: "DocTypeNotAllowed" },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "7",
@@ -142,7 +148,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june",
       presentationTitle: "Doc_7",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -155,8 +161,8 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "IsNotOcrProcessed",
       },
+      polarisParentDocumentId: null,
     },
-
     {
       documentId: "8",
       cmsDocumentId: "8",
@@ -164,7 +170,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June",
       presentationTitle: "Doc_8",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-04",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -177,6 +183,29 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "OnlyAvailableInCms",
       },
+      polarisParentDocumentId: null,
+    },
+    {
+      documentId: "9",
+      cmsDocumentId: "9",
+      pdfBlobName: "MG06_3June",
+      status: "Indexed",
+      cmsOriginalFileName: "MG06_3June",
+      presentationTitle: "Doc_9",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-10",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 7,
+        documentType: "MG15",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "IsDispatched",
+      },
+      polarisParentDocumentId: null,
     },
   ],
 };
@@ -229,7 +258,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MCLOVEMG3  very long .docx",
       presentationTitle: "MCLOVEMG3  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -242,6 +271,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "2",
@@ -250,7 +280,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "CM01  very long .docx",
       presentationTitle: "CM01  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -263,6 +293,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "3",
@@ -271,7 +302,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG05MCLOVE very long .docx",
       presentationTitle: "MG05MCLOVE very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -284,6 +315,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "4",
@@ -292,7 +324,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       status: "OcrAndIndexFailure",
       cmsOriginalFileName: "MG06_3June  very long .docx",
       presentationTitle: "MG06_3June  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -305,6 +337,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "5",
@@ -313,7 +346,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
       status: "UnableToConvertToPdf",
       cmsOriginalFileName: "MG06_10june  very long .docx",
       presentationTitle: "MG06_10june  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -326,6 +359,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
   ],
 };
@@ -343,7 +377,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       status: "OcrAndIndexFailure",
       cmsOriginalFileName: "MCLOVEMG3  very long .docx",
       presentationTitle: "MCLOVEMG3  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -356,6 +390,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "2",
@@ -364,7 +399,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       status: "OcrAndIndexFailure",
       cmsOriginalFileName: "CM01  very long .docx",
       presentationTitle: "CM01  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -377,6 +412,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "3",
@@ -385,7 +421,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       status: "OcrAndIndexFailure",
       cmsOriginalFileName: "MG05MCLOVE very long .docx",
       presentationTitle: "MG05MCLOVE very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-02",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -398,6 +434,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "4",
@@ -406,7 +443,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       status: "OcrAndIndexFailure",
       cmsOriginalFileName: "MG06_3June  very long .docx",
       presentationTitle: "MG06_3June  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -419,6 +456,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
     {
       documentId: "5",
@@ -427,7 +465,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
       status: "UnableToConvertToPdf",
       cmsOriginalFileName: "MG06_10june  very long .docx",
       presentationTitle: "MG06_10june  very long",
-      cmsMimeType: "application/pdf",
+      cmsOriginalFileExtension: ".pdf",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -440,6 +478,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
+      polarisParentDocumentId: null,
     },
   ],
 };

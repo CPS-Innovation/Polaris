@@ -62,7 +62,13 @@ namespace coordinator.tests.Domain.Tracker
             _pcdRequests = _fixture.CreateMany<PcdRequestDto>(2).ToList();
             _defendantsAndChargesList = _fixture.Create<DefendantsAndChargesListDto>();
             _correlationId = _fixture.Create<Guid>();
+
+            // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
+            //  matches the regex attribute that decorates it.
+            _fixture.Customize<CmsDocumentEntity>(c =>
+                c.With(doc => doc.CmsOriginalFileName, $"{_fixture.Create<string>()}.{_fixture.Create<string>().Substring(0, 3)}"));
             _trackerCmsDocuments = _fixture.Create<List<CmsDocumentEntity>>();
+
             _trackerPcdRequests = _fixture.Create<List<PcdRequestEntity>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<long>();
@@ -70,10 +76,10 @@ namespace coordinator.tests.Domain.Tracker
 
             _pdfBlobName = _fixture.Create<string>();
 
-            _synchroniseDocumentsArg = new (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
-            _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState=_caseEntity };
+            _synchroniseDocumentsArg = new(_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
+            _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState = _caseEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
-            _services = new ServiceCollection();    
+            _services = new ServiceCollection();
 
             _mockDurableEntityContext = new Mock<IDurableEntityContext>();
             _mockDurableEntityClient = new Mock<IDurableEntityClient>();
@@ -82,11 +88,11 @@ namespace coordinator.tests.Domain.Tracker
             _mockDurableEntityClient
                 .Setup
                 (
-                    client => 
+                    client =>
                         client.ReadEntityStateAsync<CaseDurableEntity>
                         (
                             It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_caseId}]"),
-                            null, 
+                            null,
                             null
                         )
                 )
@@ -191,8 +197,8 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsTrueIfAllDocumentsFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf}
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(),  _fixture.Create<string>(), true, true, _fixture.Create<int?>(),_fixture.Create<PolarisDocumentId>(), _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf}
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.UnableToConvertToPdf };
@@ -206,9 +212,9 @@ namespace coordinator.tests.Domain.Tracker
         public async Task AllDocumentsFailed_ReturnsFalseIfAllDocumentsHaveNotFailed()
         {
             _caseEntity.CmsDocuments = new List<CmsDocumentEntity> {
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
-                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, _fixture.Create<int?>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.PdfUploadedToBlob},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),_fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.UnableToConvertToPdf},
+                new(_fixture.Create<PolarisDocumentId>(), _fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<long>(), _fixture.Create<DocumentTypeDto>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), true, true, _fixture.Create<int?>(), _fixture.Create<PolarisDocumentId>(),  _fixture.Create<string>(), _fixture.Create<PresentationFlagsDto>()) { Status = DocumentStatus.PdfUploadedToBlob},
             };
             _caseEntity.PcdRequests = new List<PcdRequestEntity>();
             _caseEntity.DefendantsAndCharges = new DefendantsAndChargesEntity { Status = DocumentStatus.Indexed };
@@ -263,7 +269,7 @@ namespace coordinator.tests.Domain.Tracker
                         client => client.ReadEntityStateAsync<CaseDurableEntity>
                         (
                             It.Is<EntityId>(e => e.EntityName == nameof(CaseDurableEntity).ToLower() && e.EntityKey == $"[{_caseId}]"),
-                            null, 
+                            null,
                             null
                         )
                     )

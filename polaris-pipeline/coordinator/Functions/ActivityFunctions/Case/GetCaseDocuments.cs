@@ -57,16 +57,11 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 throw new ArgumentException("CorrelationId must be valid GUID");
             #endregion
 
-            _log.LogMethodEntry(payload.CorrelationId, loggingName, payload.ToJson());
             CmsDocumentDto[] documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
-            var hteFeatureFlagEnabled = _configuration.IsSettingEnabled(FeatureFlags.HteFeatureFlag);
-
-            var cmsDocuments =
-                documents
-                    .Where(doc => !doc.FileExtension.Equals(".hte", StringComparison.OrdinalIgnoreCase) || hteFeatureFlagEnabled)
-                    .Select(doc => MapPresentationFlags(doc))
-                    .ToArray();
+            var cmsDocuments = documents
+                .Select(doc => MapPresentationFlags(doc))
+                .ToArray();
 
             var caseArgDto = new DdeiCmsCaseArgDto
             {
@@ -77,8 +72,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
             };
             var @case = await _ddeiClient.GetCase(caseArgDto);
 
-            var pcdRequests =
-                @case.PreChargeDecisionRequests
+            var pcdRequests = @case.PreChargeDecisionRequests
                        .Select(MapPresentationFlags)
                        .ToArray();
 

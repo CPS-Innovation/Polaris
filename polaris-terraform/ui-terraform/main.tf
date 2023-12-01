@@ -4,12 +4,12 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.71.0"
+      version = "3.80.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.38.0"
+      version = "2.45.0"
     }
 
     random = {
@@ -49,6 +49,7 @@ locals {
   pipeline_resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-pipeline-${var.env}" : "${var.resource_name_prefix}-pipeline"
   ddei_resource_name            = var.env != "prod" ? "${var.resource_name_prefix}-ddei-${var.env}" : "${var.resource_name_prefix}-ddei"
   app_service_certificate_store = var.env != "prod" ? "kv-polaris-cert-${var.env}" : "kv-polaris-cert"
+  redaction_log_resource_name   = var.env != "prod" ? "redaction-log-${var.env}" : "redaction-log"
 
   common_tags = {
     environment = var.environment_tag
@@ -68,7 +69,7 @@ data "azurerm_subscription" "current" {}
 data "azuread_application_published_app_ids" "well_known" {}
 
 resource "random_uuid" "random_id" {
-  count = 1
+  count = 3
 }
 
 resource "azuread_service_principal" "msgraph" {

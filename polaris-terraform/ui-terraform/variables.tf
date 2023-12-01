@@ -59,14 +59,6 @@ variable "terraform_service_principal_display_name" {
   type = string
 }
 
-variable "certificate_name" {
-  type = string
-}
-
-variable "custom_domain_name" {
-  type = string
-}
-
 variable "ui_logging" {
   type = object({
     gateway_scale_controller       = string
@@ -96,6 +88,11 @@ variable "app_service_log_total_retention" {
 }
 
 variable "is_redaction_service_offline" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
+variable "feature_flag_hte_emails_on" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }

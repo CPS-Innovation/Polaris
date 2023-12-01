@@ -158,7 +158,11 @@ export const getPipelinePdfResults = async (
   const { documents } = rawResponse;
   temporaryApiModelMapping(documents);
 
-  return rawResponse as PipelineResults;
+  // temporary hack for #24313 before feature flag comes in
+  // return rawResponse as PipelineResults;
+  var typedRawResponse = rawResponse as PipelineResults;
+
+  return typedRawResponse;
 };
 export const searchCase = async (
   urn: string,
