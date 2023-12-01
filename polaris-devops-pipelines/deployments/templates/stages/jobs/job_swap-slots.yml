@@ -10,8 +10,6 @@ parameters:
 jobs:
   - job: Swap_Pipeline_Slots
     dependsOn: ${{ parameters.jobDependsOn }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       matrix:
         Coordinator:
@@ -27,10 +25,10 @@ jobs:
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
-        displayName: Swap $(slotName) slot
+        displayName: Swap slot
         inputs:
           action: "Swap Slots"
-          sourceSlot: $(slotName)
+          sourceSlot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
           resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)
@@ -38,8 +36,6 @@ jobs:
           
   - job: Swap_UI_Slots
     dependsOn: ${{ parameters.jobDependsOn }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       matrix:
         SPA:
@@ -55,10 +51,10 @@ jobs:
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
-        displayName: Swap $(slotName) slot
+        displayName: Swap slot
         inputs:
           action: "Swap Slots"
-          sourceSlot: $(slotName)
+          sourceSlot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
           resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
           webAppName: $(AppServiceName)
