@@ -5,11 +5,9 @@ import {
   Input,
   TextArea,
   Button,
-  EditButton,
   LinkButton,
   Guidance,
 } from "../../../../../common/presentation/components";
-import { ReactComponent as EditIcon } from "../../../../../common/presentation/svgs/edit.svg";
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import classes from "./RedactionLogContent.module.scss";
 import { useForm, Controller } from "react-hook-form";
@@ -42,11 +40,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     formState: { errors },
     control,
   } = useForm({ defaultValues });
-  const [showSelectEdits, setShowSelectEdits] = useState<string[]>([]);
-  const handleEditButtonClick = (id: string) => {
-    console.log("id>>>>", id);
-    setShowSelectEdits([...showSelectEdits, id]);
-  };
 
   const redactionLogGuidanceContent = () => {
     return (
@@ -142,36 +135,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 // }}
                 render={({ field }) => {
                   return (
-                    <>
-                      {!showSelectEdits.includes("select1") ? (
-                        <div className={classes.editBtnWrapper}>
-                          <span>CPS Area or Central Casework Division:</span>
-                          <EditButton
-                            id="select1"
-                            callBackFn={handleEditButtonClick}
-                            value={getValues("select1")}
-                          />
-                        </div>
-                      ) : (
-                        <Select
-                          {...field}
-                          label={{
-                            htmlFor: "select-cps-area",
-                            children: "CPS Area or Central Casework Division:",
-                            className: classes.selectLabel,
-                          }}
-                          id="select-cps-area"
-                          data-testid="select-cps-area"
-                          formGroup={{
-                            className: classes.select,
-                          }}
-                          items={[
-                            { children: "value1", value: "1" as const },
-                            { children: "value2", value: "2" as const },
-                          ]}
-                        />
-                      )}
-                    </>
+                    <Select
+                      {...field}
+                      label={{
+                        htmlFor: "select-cps-area",
+                        children: "CPS Area or Central Casework Division:",
+                        className: classes.selectLabel,
+                      }}
+                      id="select-cps-area"
+                      data-testid="select-cps-area"
+                      formGroup={{
+                        className: classes.select,
+                      }}
+                      items={[
+                        { children: "value1", value: "1" as const },
+                        { children: "value2", value: "2" as const },
+                      ]}
+                    />
                   );
                 }}
               />
@@ -190,36 +170,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 control={control}
                 render={({ field }) => {
                   return (
-                    <>
-                      {!showSelectEdits.includes("select2") ? (
-                        <div className={classes.editBtnWrapper}>
-                          <span>CPS Business unit:</span>
-                          <EditButton
-                            id="select2"
-                            callBackFn={handleEditButtonClick}
-                            value={getValues("select2")}
-                          />
-                        </div>
-                      ) : (
-                        <Select
-                          {...field}
-                          label={{
-                            htmlFor: "select-cps-bu",
-                            children: "CPS Business unit:",
-                            className: classes.selectLabel,
-                          }}
-                          id="select-cps-bu"
-                          data-testid="select-cps-bu"
-                          formGroup={{
-                            className: classes.select,
-                          }}
-                          items={[
-                            { children: "value1", value: "1" as const },
-                            { children: "value2", value: "2" as const },
-                          ]}
-                        />
-                      )}
-                    </>
+                    <Select
+                      {...field}
+                      label={{
+                        htmlFor: "select-cps-bu",
+                        children: "CPS Business unit:",
+                        className: classes.selectLabel,
+                      }}
+                      id="select-cps-bu"
+                      data-testid="select-cps-bu"
+                      formGroup={{
+                        className: classes.select,
+                      }}
+                      items={[
+                        { children: "value1", value: "1" as const },
+                        { children: "value2", value: "2" as const },
+                      ]}
+                    />
                   );
                 }}
               />
@@ -238,36 +205,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 control={control}
                 render={({ field }) => {
                   return (
-                    <>
-                      {!showSelectEdits.includes("select3") ? (
-                        <div className={classes.editBtnWrapper}>
-                          <span>Investigative Agency:</span>
-                          <EditButton
-                            id="select3"
-                            callBackFn={handleEditButtonClick}
-                            value={getValues("select3")}
-                          />
-                        </div>
-                      ) : (
-                        <Select
-                          {...field}
-                          label={{
-                            htmlFor: "select-cps-ia",
-                            children: "Investigative Agency:",
-                            className: classes.selectLabel,
-                          }}
-                          id="select-cps-ia"
-                          data-testid="select-cps-ia"
-                          formGroup={{
-                            className: classes.select,
-                          }}
-                          items={[
-                            { children: "value1", value: "1" as const },
-                            { children: "value2", value: "2" as const },
-                          ]}
-                        />
-                      )}
-                    </>
+                    <Select
+                      {...field}
+                      label={{
+                        htmlFor: "select-cps-ia",
+                        children: "Investigative Agency:",
+                        className: classes.selectLabel,
+                      }}
+                      id="select-cps-ia"
+                      data-testid="select-cps-ia"
+                      formGroup={{
+                        className: classes.select,
+                      }}
+                      items={[
+                        { children: "value1", value: "1" as const },
+                        { children: "value2", value: "2" as const },
+                      ]}
+                    />
                   );
                 }}
               />
@@ -286,36 +240,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 control={control}
                 render={({ field }) => {
                   return (
-                    <>
-                      {!showSelectEdits.includes("select4") ? (
-                        <div className={classes.editBtnWrapper}>
-                          <span>Charge Status:</span>
-                          <EditButton
-                            id="select4"
-                            callBackFn={handleEditButtonClick}
-                            value={getValues("select4")}
-                          />
-                        </div>
-                      ) : (
-                        <Select
-                          {...field}
-                          label={{
-                            htmlFor: "select-cps-cs",
-                            children: "Charge Status:",
-                            className: classes.selectLabel,
-                          }}
-                          id="select-cps-cs"
-                          data-testid="select-cps-cs"
-                          formGroup={{
-                            className: classes.select,
-                          }}
-                          items={[
-                            { children: "value1", value: "1" as const },
-                            { children: "value2", value: "2" as const },
-                          ]}
-                        />
-                      )}
-                    </>
+                    <Select
+                      {...field}
+                      label={{
+                        htmlFor: "select-cps-cs",
+                        children: "Charge Status:",
+                        className: classes.selectLabel,
+                      }}
+                      id="select-cps-cs"
+                      data-testid="select-cps-cs"
+                      formGroup={{
+                        className: classes.select,
+                      }}
+                      items={[
+                        { children: "value1", value: "1" as const },
+                        { children: "value2", value: "2" as const },
+                      ]}
+                    />
                   );
                 }}
               />
@@ -334,36 +275,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 control={control}
                 render={({ field }) => {
                   return (
-                    <>
-                      {!showSelectEdits.includes("select5") ? (
-                        <div className={classes.editBtnWrapper}>
-                          <span>Document Type:</span>
-                          <EditButton
-                            id="select5"
-                            callBackFn={handleEditButtonClick}
-                            value={getValues("select5")}
-                          />
-                        </div>
-                      ) : (
-                        <Select
-                          {...field}
-                          label={{
-                            htmlFor: "select-cps-dt",
-                            children: "Document Type:",
-                            className: classes.selectLabel,
-                          }}
-                          id="select-cps-dt"
-                          data-testid="select-cps-dt"
-                          formGroup={{
-                            className: classes.select,
-                          }}
-                          items={[
-                            { children: "value1", value: "1" as const },
-                            { children: "value2", value: "2" as const },
-                          ]}
-                        />
-                      )}
-                    </>
+                    <Select
+                      {...field}
+                      label={{
+                        htmlFor: "select-cps-dt",
+                        children: "Document Type:",
+                        className: classes.selectLabel,
+                      }}
+                      id="select-cps-dt"
+                      data-testid="select-cps-dt"
+                      formGroup={{
+                        className: classes.select,
+                      }}
+                      items={[
+                        { children: "value1", value: "1" as const },
+                        { children: "value2", value: "2" as const },
+                      ]}
+                    />
                   );
                 }}
               />
