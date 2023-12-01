@@ -1,0 +1,79 @@
+.guidanceButtonWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.guidanceButton {
+  padding: 0.3125rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  svg {
+    fill: #1d70b8;
+  }
+  &:focus {
+    svg {
+      fill: #000;
+    }
+  }
+  &:disabled {
+    cursor: not-allowed;
+    svg {
+      fill: #b1b4b6;
+    }
+  }
+  &:hover:not(:disabled):not(:focus) {
+    svg {
+      fill: #fff;
+    }
+  }
+}
+
+.panel {
+  position: absolute;
+  top: 2.375rem;
+  right: 0;
+  width: 500px;
+  padding: 15px;
+  border-radius: 0.3125rem;
+  background: #1d70b8;
+  color: #fff;
+  z-index: 7;
+  overflow-y: auto;
+  max-height: 31.25rem;
+  filter: drop-shadow(0 1px 0.15rem #000);
+}
+
+.guidancePanelCloseBtn {
+  position: absolute;
+  background: #000;
+  padding: 10px;
+  border: 0;
+  right: 0;
+  top: 0;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  & svg {
+    scale: 1.5;
+  }
+
+  &:focus {
+    background: #ffdd00;
+    color: #000;
+    outline: none;
+  }
+}
+.helpButtonWrapper {
+  display: flex;
+  flex-direction: row;
+}
+.helpIcon {
+  width: 25px;
+  margin-right: 5px;
+}

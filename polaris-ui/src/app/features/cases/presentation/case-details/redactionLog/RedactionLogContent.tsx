@@ -6,6 +6,8 @@ import {
   TextArea,
   Button,
   EditButton,
+  LinkButton,
+  Guidance,
 } from "../../../../../common/presentation/components";
 import { ReactComponent as EditIcon } from "../../../../../common/presentation/svgs/edit.svg";
 import { UnderRedactionContent } from "./UnderRedactionContent";
@@ -45,6 +47,50 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     console.log("id>>>>", id);
     setShowSelectEdits([...showSelectEdits, id]);
   };
+
+  const redactionLogGuidanceContent = () => {
+    return (
+      <div className={classes.redactionLogGuidanceWrapper}>
+        <p className={classes.redactionLogGuidanceTitle}>
+          Redaction Log Guidance
+        </p>
+        <ul className={classes.redactionLogGuidanceList}>
+          <li>
+            This popup allows the capture of details which will be recorded into
+            the Redaction Log automatically
+          </li>
+          <li>
+            Once added, if an entry needs editing or deleting, this should be
+            done in the Redaction log
+          </li>
+          <li>
+            Contact with the Investigative Agency or the CPS is not automatic -
+            you should contact any such bodies yourself
+          </li>
+        </ul>
+      </div>
+    );
+  };
+
+  const supportingNotesGuidanceContent = () => {
+    return (
+      <div className={classes.supportingNotesGuidanceWrapper}>
+        <p className={classes.supportingNotesGuidanceTitle}>
+          Guidance on supporting notes
+        </p>
+        <ul className={classes.supportingNotesGuidanceList}>
+          <li>
+            Detail the redaction issue identified, e.g. Statement of XX
+            (Initials) DOB redacted
+          </li>
+          <li>Avoid recording full names</li>
+          <li>Do not record sensitive personal data</li>
+          <li>Supporting notes optional - 400 characters maximum</li>
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div className={classes.modalContent}>
       {savingStatus === "saving" && (
@@ -59,9 +105,18 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         </div>
       )}
       <div className={classes.modalHeadWrapper}>
-        <h1 className={classes.modalContentHeading}>
-          45AA209820/1 - Redaction Log
-        </h1>
+        <div className={classes.modalTitleWrapper}>
+          <h1 className={classes.modalContentHeading}>
+            45AA209820/1 - Redaction Log
+          </h1>
+
+          <Guidance
+            name="Redaction log Guidance"
+            className={classes.redactionLogGuidance}
+          >
+            {redactionLogGuidanceContent()}
+          </Guidance>
+        </div>
 
         <form
           className={classes.underRedactionForm}
@@ -332,6 +387,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           />
         </section>
         <section className={classes.textAreaSection}>
+          <Guidance
+            name="Guidance on supporting notes"
+            className={classes.supportingNotesGuidance}
+          >
+            {supportingNotesGuidanceContent()}
+          </Guidance>
+
           <TextArea
             value={"abc"}
             onChange={() => {}}

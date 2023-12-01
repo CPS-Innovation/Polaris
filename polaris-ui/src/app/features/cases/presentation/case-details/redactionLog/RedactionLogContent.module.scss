@@ -6,15 +6,46 @@
   :global(.govuk-form-group) {
     margin-bottom: 0;
   }
-
+  .modalTitleWrapper {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 3px dashed #b1b4b6;
+  }
   .modalContentHeading {
     margin: 0;
     display: block;
-    width: 100%;
     background: #f3f2f1;
-    border-bottom: 3px dashed #b1b4b6;
   }
-
+  .supportingNotesGuidance {
+    position: absolute;
+    right: 0;
+    top: -10px;
+  }
+  .redactionLogGuidanceTitle,
+  .supportingNotesGuidanceTitle {
+    font-weight: bold;
+    font-size: 19.2px;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .redactionLogGuidanceList {
+    margin: 0;
+    padding-left: 15px;
+    & li {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    & li:last-of-type {
+      font-weight: bold;
+      color: #fff;
+    }
+  }
+  .supportingNotesGuidanceList {
+    margin: 0;
+    padding-left: 15px;
+    & li {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
   .confirmationMessage {
     margin: 0;
     text-align: left;
@@ -67,6 +98,7 @@
 }
 .textAreaSection {
   width: 600px;
+  position: relative;
 }
 .errorMsg {
   color: red;

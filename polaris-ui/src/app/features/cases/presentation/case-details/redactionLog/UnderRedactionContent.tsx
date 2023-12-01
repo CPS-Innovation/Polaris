@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import classes from "./UnderRedactionContent.module.scss";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 type UnderRedactionContentProps = {
   documentName: string;
   redactionHighlights: IPdfHighlight[];
@@ -42,7 +43,10 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
   }, []);
   return (
     <div className={classes.underRedactionContent}>
-      <h2>{`Redaction details for:${documentName}`}</h2>
+      <div className={classes.headingWrapper}>
+        <DocIcon className={classes.docIcon} />{" "}
+        <h2>{`Redaction details for:"${documentName}"`}</h2>
+      </div>
       <ul className={classes.underRedactionContentList}>{redactionSummary}</ul>
     </div>
   );
