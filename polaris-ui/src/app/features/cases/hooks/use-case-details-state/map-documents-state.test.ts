@@ -7,9 +7,10 @@ describe("mapDocumentsState", () => {
   beforeEach(() => {
     jest
       .spyOn(documentCategoryDefinitions, "getCategory")
-      .mockImplementation(
-        (item: PresentationDocumentProperties) => "category" + item.documentId
-      );
+      .mockImplementation((item: PresentationDocumentProperties) => ({
+        category: "category" + item.documentId,
+        subCategory: null,
+      }));
   });
 
   it("can map CaseDocuments to MappedCaseDocuments", () => {
@@ -29,13 +30,17 @@ describe("mapDocumentsState", () => {
       data: [
         {
           ...doc1,
+          attachments: [],
           presentationCategory: "category0",
           presentationFileName: "foo",
+          presentationSubCategory: null,
         },
         {
           ...doc2,
+          attachments: [],
           presentationCategory: "category1",
           presentationFileName: "bar",
+          presentationSubCategory: null,
         },
       ] as MappedCaseDocument[],
     };

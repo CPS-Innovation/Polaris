@@ -35,7 +35,7 @@ app_service_log_total_retention = 2555
 
 is_redaction_service_offline = "false"
 
-feature_flag_hte_emails_on = "false"
+feature_flag_hte_emails_on = "true"
 
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"

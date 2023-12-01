@@ -1,17 +1,13 @@
-#################### Functions ####################
-
-resource "azurerm_linux_function_app" "fa_coordinator" {
-  name                          = "fa-${local.global_name}-coordinator"
-  location                      = azurerm_resource_group.rg.location
-  resource_group_name           = azurerm_resource_group.rg.name
-  service_plan_id               = azurerm_service_plan.asp_polaris_pipeline_ep_coordinator.id
+resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
+  name                          = "staging1"
+  function_app_id               = azurerm_linux_function_app.fa_coordinator.id
   storage_account_name          = azurerm_storage_account.sa_coordinator.name
   storage_account_access_key    = azurerm_storage_account.sa_coordinator.primary_access_key
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_coordinator_subnet.id
-  tags                          = local.common_tags
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
+  tags                          = local.common_tags
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
@@ -20,7 +16,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "BlobUserDelegationKeyExpirySecs"                 = 3600
     "CoordinatorOrchestratorTimeoutSecs"              = "600"
-    "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
+    "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinatorstaging1"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
@@ -41,7 +37,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
-    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_coordinator_file_share.name
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_coordinator_file_share_staging1.name
     "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
@@ -50,10 +46,6 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
-  }
-
-  sticky_settings {
-    app_setting_names = ["CoordinatorTaskHub"]
   }
 
   site_config {
@@ -89,54 +81,12 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   }
 }
 
-module "azurerm_app_reg_fa_coordinator" {
-  source                  = "./modules/terraform-azurerm-azuread-app-registration"
-  display_name            = "fa-${local.global_name}-coordinator-appreg"
-  identifier_uris         = ["api://fa-${local.global_name}-coordinator"]
-  prevent_duplicate_names = true
-
-  # use this code for adding api permissions
-  required_resource_access = [{
-    # Microsoft Graph
-    resource_app_id = "00000003-0000-0000-c000-000000000000"
-    resource_access = [{
-      # User.Read
-      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-      type = "Scope"
-    }]
-  }]
-
-  tags = ["terraform"]
-}
-
-module "azurerm_service_principal_fa_coordinator" {
-  source                       = "./modules/terraform-azurerm-azuread_service_principal"
-  application_id               = module.azurerm_app_reg_fa_coordinator.client_id
-  app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
-}
-
-resource "azuread_service_principal_password" "sp_fa_coordinator_pw" {
-  service_principal_id = module.azurerm_service_principal_fa_coordinator.object_id
-}
-
-resource "azuread_application_password" "faap_fa_coordinator_app_service" {
-  application_object_id = module.azurerm_app_reg_fa_coordinator.object_id
-  end_date_relative     = "17520h"
-}
-
-resource "azuread_service_principal_delegated_permission_grant" "polaris_coordinator_grant_access_to_msgraph" {
-  service_principal_object_id          = module.azurerm_service_principal_fa_coordinator.object_id
-  resource_service_principal_object_id = azuread_service_principal.msgraph.object_id
-  claim_values                         = ["User.Read"]
-}
-
 # Create Private Endpoint
-resource "azurerm_private_endpoint" "pipeline_coordinator_pe" {
-  name                = "${azurerm_linux_function_app.fa_coordinator.name}-pe"
+resource "azurerm_private_endpoint" "pipeline_coordinator_staging1_pe" {
+  name                = "${azurerm_linux_function_app.fa_coordinator.name}-staging1-pe"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  subnet_id           = data.azurerm_subnet.polaris_apps_subnet.id
+  subnet_id           = data.azurerm_subnet.polaris_apps2_subnet.id
   tags                = local.common_tags
 
   private_dns_zone_group {
@@ -145,33 +95,9 @@ resource "azurerm_private_endpoint" "pipeline_coordinator_pe" {
   }
 
   private_service_connection {
-    name                           = "${azurerm_linux_function_app.fa_coordinator.name}-psc"
+    name                           = "${azurerm_linux_function_app.fa_coordinator.name}-staging1-psc"
     private_connection_resource_id = azurerm_linux_function_app.fa_coordinator.id
     is_manual_connection           = false
-    subresource_names              = ["sites"]
+    subresource_names              = ["sites-staging1"]
   }
-}
-
-resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_crypto_user" {
-  scope                = data.azurerm_key_vault.terraform_key_vault.id
-  role_definition_name = "Key Vault Crypto User"
-  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-
-  depends_on = [
-    azurerm_linux_function_app.fa_coordinator,
-    azurerm_role_assignment.terraform_kv_role_terraform_sp,
-    azurerm_key_vault_access_policy.terraform_kvap_terraform_sp
-  ]
-}
-
-resource "azurerm_role_assignment" "kv_terraform_role_fa_coordinator_secrets_user" {
-  scope                = data.azurerm_key_vault.terraform_key_vault.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_linux_function_app.fa_coordinator.identity[0].principal_id
-
-  depends_on = [
-    azurerm_linux_function_app.fa_coordinator,
-    azurerm_role_assignment.terraform_kv_role_terraform_sp,
-    azurerm_key_vault_access_policy.terraform_kvap_terraform_sp
-  ]
 }
