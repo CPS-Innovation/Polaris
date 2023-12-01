@@ -672,12 +672,6 @@ resource "azapi_resource" "pipeline_sa_coordinator_file_share_staging1" {
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
 }
 
-resource "azapi_resource" "pipeline_sa_coordinator_file_share_staging2" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-coordinator-content-share-2"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_coordinator.name}/fileServices/default"
-}
-
 resource "azapi_resource" "pipeline_sa_pdf_generator_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "pipeline-pdf-generator-content-share"
@@ -690,12 +684,6 @@ resource "azapi_resource" "pipeline_sa_pdf_generator_file_share_staging1" {
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_generator.name}/fileServices/default"
 }
 
-resource "azapi_resource" "pipeline_sa_pdf_generator_file_share_staging2" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-pdf-generator-content-share-2"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_pdf_generator.name}/fileServices/default"
-}
-
 resource "azapi_resource" "pipeline_sa_text_extractor_file_share" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "pipeline-text-extractor-content-share"
@@ -705,11 +693,5 @@ resource "azapi_resource" "pipeline_sa_text_extractor_file_share" {
 resource "azapi_resource" "pipeline_sa_text_extractor_file_share_staging1" {
   type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
   name      = "pipeline-text-extractor-content-share-1"
-  parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_text_extractor.name}/fileServices/default"
-}
-
-resource "azapi_resource" "pipeline_sa_text_extractor_file_share_staging2" {
-  type      = "Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01"
-  name      = "pipeline-text-extractor-content-share-2"
   parent_id = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.sa_text_extractor.name}/fileServices/default"
 }

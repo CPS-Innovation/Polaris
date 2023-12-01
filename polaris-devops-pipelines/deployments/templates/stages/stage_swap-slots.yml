@@ -33,18 +33,12 @@ stages:
           targetName: "Swap Polaris Codebase Slots"
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
-      - template: jobs/job_generate-slot-name.yml
-        parameters:
-          targetBuild: ${{ parameters.targetBuild }}
-          jobDependsOn:
-            - LogStart
-            
       - template: jobs/job_swap-slots.yml
         parameters:
           targetSuffix: ${{ parameters.targetSuffix }}
           azureSubscription: ${{ parameters.azureSubscription }}
           jobDependsOn:
-            - GenerateSlotName
+            - LogStart
               
       - template: jobs/job_log-result.yml
         parameters:

@@ -23,8 +23,6 @@ jobs:
     environment: ${{ parameters.envLabel }}
     workspace:
       clean: all
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -56,7 +54,7 @@ jobs:
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-coordinator-drop
                 deployToSlotOrASE: true
                 resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                slotName: "staging1"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -68,8 +66,6 @@ jobs:
   - deployment: DeployPdfGenerator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -101,7 +97,7 @@ jobs:
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-pdf-generator-drop
                 deployToSlotOrASE: true
                 resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                slotName: "staging1"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -113,8 +109,6 @@ jobs:
   - deployment: DeployTextGenerator
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -146,7 +140,7 @@ jobs:
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-text-extractor-drop
                 deployToSlotOrASE: true
                 resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                slotName: "staging1"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -160,8 +154,6 @@ jobs:
     environment: ${{ parameters.envLabel }}
     workspace:
       clean: all
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -193,7 +185,7 @@ jobs:
                 packageForLinux: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-ui-drop
                 deployToSlotOrASE: true
                 resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                slotName: "staging1"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -227,8 +219,6 @@ jobs:
   - deployment: DeployGateway
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -260,7 +250,7 @@ jobs:
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-gateway-drop
                 deployToSlotOrASE: true
                 resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                slotName: "staging1"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
@@ -272,8 +262,6 @@ jobs:
   - deployment: DeployAuthHandover
     dependsOn: ${{ parameters.jobDependsOn }}
     environment: ${{ parameters.envLabel }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       runOnce:
         deploy:
@@ -305,7 +293,7 @@ jobs:
                 package: $(Pipeline.Workspace)/${{ parameters.targetBuild }}/polaris-auth-handover-drop
                 deployToSlotOrASE: true
                 resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-                slotName: $(slotName)
+                slotName: "staging1"
 
             # send custom event to AppInsights
             - template: steps/tasks/task_send-to-app-insights.yml
