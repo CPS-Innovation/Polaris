@@ -5,6 +5,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 
+namespace coordinator.Functions.Orchestration.Functions.Maintenance;
+
 // This code taken from Azure functions durable extension discussion [0]. As per comment [1]
 //  "this is very much a non-graceful purge of all orchestration data."
 //
