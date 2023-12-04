@@ -1,0 +1,7 @@
+AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where ResultCode == 423
+| extend User = tostring(Properties.User)
+| where User != "REDACTED@REDACTED.EMAIL.ADDRESS"
+| summarize Count423s = count() by bin(TimeGenerated, 1d)
+| render columnchart 

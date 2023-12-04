@@ -5,6 +5,8 @@ AppEvents
 | where Properties.correlationId !startswith "e2e"
 | project 
     TimeGenerated,
+    StartTime = todatetime(Properties.startTime),
+    EndTime = todatetime(Properties.endTime),
     IsFailure = tobool(Properties.isFailure),
     CaseId = toint(Properties.caseId),
     DocumentId = tolong(Properties.documentId),
