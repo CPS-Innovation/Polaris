@@ -1,0 +1,14 @@
+AppEvents
+| where Name == "RefreshedCase"
+| project 
+    TimeGenerated,
+    OperationId,
+    IsFailure = Properties.isFailure == true,
+    PolarisCorrelationId = tostring(Properties.correlationId),
+    CaseId = toint(Properties.caseId),
+    StartTime = todatetime(Properties.startTime),
+    EndTime = todatetime(Properties.endTime),
+    CmsDocsCount = toint(Measurements.cmsDocsCount),
+    CmsDocsProcessedCount = toint(Measurements.cmsDocsProcessedCount),
+    DurationSeconds = Measurements.durationSeconds
+

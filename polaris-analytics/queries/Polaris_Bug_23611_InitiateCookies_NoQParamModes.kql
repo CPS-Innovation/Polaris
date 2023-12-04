@@ -1,0 +1,78 @@
+let HandoversWithoutQ = Polaris_Bug_23611_InitiateCookies_All
+| where not(HasQ) 
+| where not(HasError)
+| project 
+    OperationId,
+    HandoverTimeGenerated = TimeGenerated,  
+    CmsUserId = toint(UID)
+;
+
+let UserPriorCaseVisits = HandoversWithoutQ
+| join kind=leftouter  (
+    AppRequests
+    | where AppRoleName == "fa-polaris-gateway"
+    | where Name == "Case"
+    | project 
+        UserCaseVisitTimeGenerated = TimeGenerated, 
+        CmsUserId = toint(Properties.CmsUserId)
+) on CmsUserId   
+| where UserCaseVisitTimeGenerated < HandoverTimeGenerated
+| summarize PriorCaseVisitCount = count() by OperationId
+;
+
+let UserPostCaseVisits = HandoversWithoutQ
+| join kind=leftouter  (
+    AppRequests
+    | where AppRoleName == "fa-polaris-gateway"
+    | where Name == "Case"
+    | project 
+        UserCaseVisitTimeGenerated = TimeGenerated, 
+        CmsUserId = toint(Properties.CmsUserId)
+) on CmsUserId   
+| where UserCaseVisitTimeGenerated > HandoverTimeGenerated
+| summarize PostCaseVisitCount = count() by OperationId
+;
+
+let UserNextCasesVisits = HandoversWithoutQ
+| join kind=leftouter  (
+    AppRequests
+    | where AppRoleName == "fa-polaris-gateway"
+    | where Name == "Cases"
+    | project 
+        UserCasesVisitTimeGenerated = TimeGenerated, 
+        CmsUserId = toint(Properties.CmsUserId)
+) on CmsUserId   
+| where UserCasesVisitTimeGenerated > HandoverTimeGenerated
+| summarize NextCaseSearchTimeGenerated = min(UserCasesVisitTimeGenerated) by OperationId
+;
+
+HandoversWithoutQ
+| join kind=leftouter UserPriorCaseVisits on OperationId
+| join kind=leftouter UserNextCasesVisits on OperationId
+| join kind=leftouter UserPostCaseVisits on OperationId
+| project 
+    OperationId, 
+    HandoverTimeGenerated, 
+    CmsUserId, 
+    PriorCaseVisitCount, 
+    PostCaseVisitCount,
+    TimeToUrnSearchExecuted = datetime_diff("second", NextCaseSearchTimeGenerated, HandoverTimeGenerated)
+| extend 
+    UserHadPreviouslyUsedPolaris = isnotnull(PriorCaseVisitCount),
+    UserSubsequentlyUsedPolaris = isnotnull(PostCaseVisitCount),
+    UserUsedSearchWithinTwoMinutes = coalesce(TimeToUrnSearchExecuted < 120, false)
+| extend 
+    IsExperiencedUserActivelyUsingSearch = UserHadPreviouslyUsedPolaris and UserUsedSearchWithinTwoMinutes,
+    IsExperiencedUserNotActivelyUsingSearch = UserHadPreviouslyUsedPolaris and not(UserUsedSearchWithinTwoMinutes),
+    IsNosyUserWhoStillUsedPolaris = not(UserHadPreviouslyUsedPolaris) and UserSubsequentlyUsedPolaris,
+    IsNosyUserLostForever = not(UserHadPreviouslyUsedPolaris) and not(UserSubsequentlyUsedPolaris)
+| summarize 
+    PercentExperiencedUserActivelyUsingSearch = round(100.0 * countif(IsExperiencedUserActivelyUsingSearch)/ count()),
+    PercentExperiencedUserNotActivelyUsingSearch = round(100.0 * countif(IsExperiencedUserNotActivelyUsingSearch)/ count()),
+    PercentNosyUserWhoStillUsedPolaris = round(100.0 * countif(IsNosyUserWhoStillUsedPolaris)/ count()),
+    PercentNosyUserLostForever = round(100.0 * countif(IsNosyUserLostForever)/ count())
+ by 
+    bin(HandoverTimeGenerated, 1d)
+
+
+

@@ -1,0 +1,211 @@
+// add 30 seconds wiggle room to the 10 minutes timeout in the coordinator configuration
+let CaseTimeoutSeconds = 10 * 60 + 30;
+
+let CaseTriggers = AppRequests
+    | where AppRoleName in ("fa-polaris-gateway", "fa-polaris-pipeline-gateway")
+    | where Name == "PolarisPipelineCase"
+    | where Properties.HttpMethod == "POST"
+    | where Properties.User !startswith "Automation"
+    | project 
+        TimeGenerated,
+        OperationId,
+        PolarisCorrelationId = tostring(Properties.PolarisCorrelationId),
+        Urn = tostring(extract("urns/([^/]+)", 1, Url)),
+        CaseId = toint(extract("cases/(\\d+)", 1, Url)),
+        User = tostring(Properties.User),
+        ResultCode
+;
+//AppRequests
+
+let FirstTriggers = CaseTriggers
+    | where ResultCode == 202
+    | partition hint.strategy = native by CaseId (top 1 by TimeGenerated)
+    | project 
+        FirstTriggerOperationId = OperationId,
+        FirstTriggerTimeGenerated = TimeGenerated,
+        Urn,
+        CaseId,
+        User        
+;
+//FirstTriggers
+
+let Subsequent423Triggers = CaseTriggers
+    | where ResultCode == 423
+    | partition hint.strategy = native by CaseId (top 1 by TimeGenerated)
+    | extend _TimeGenerated = TimeGenerated
+    | join kind=leftouter FirstTriggers on CaseId
+    | where _TimeGenerated > FirstTriggerTimeGenerated
+    | where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+    | where OperationId != FirstTriggerOperationId
+    | summarize 
+        Subsequent423TriggersCount = count(),
+        Subsequent423TriggersTimeGenerated = min(TimeGenerated) 
+        by CaseId
+;
+//Subsequent423Triggers
+
+let TrackerCalls = AppRequests
+    | where AppRoleName in ("fa-polaris-gateway", "fa-polaris-pipeline-gateway")
+    | where Name == "PolarisPipelineGetCaseTracker"
+    | extend CaseId = toint(extract("cases/(\\d+)", 1, Url))
+    | extend _TimeGenerated = TimeGenerated
+    | join kind=leftouter FirstTriggers on CaseId
+    | where _TimeGenerated > FirstTriggerTimeGenerated
+    | where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+    | summarize 
+        TrackerCallsMaxTime200 = maxif(TimeGenerated, ResultCode == 200), 
+        TrackerCallsCount200 = countif(ResultCode == 200),
+        TrackerCallsCount404 = countif(ResultCode == 404),
+        TrackerCallsCount500 = countif(ResultCode == 500)
+        by 
+        CaseId
+;
+//TrackerCalls
+
+let DocumentOpenCalls = AppRequests
+    | where AppRoleName in ("fa-polaris-gateway", "fa-polaris-pipeline-gateway")
+    | where Name == "PolarisPipelineGetDocument"
+    | extend CaseId = toint(extract("cases/(\\d+)", 1, Url))
+    | extend _TimeGenerated = TimeGenerated    
+    | join kind=leftouter FirstTriggers on CaseId
+    | where _TimeGenerated > FirstTriggerTimeGenerated
+    | extend MinutesLaterLastDocumentCallHappened = datetime_diff('minute', TimeGenerated, FirstTriggerTimeGenerated)
+    | summarize 
+        DocumentOpenCallsCount = count(),
+        LatestDocumentOpenCallsTimeGenerated = max(TimeGenerated),
+        LatestDocumentOpenCallsMinutesLater = max(MinutesLaterLastDocumentCallHappened)
+        by
+        CaseId        
+;
+
+let TraceStarts = AppTraces
+    | where AppRoleName in ("fa-polaris-coordinator","fa-polaris-pipeline-coordinator")
+    | where Message contains "RefreshCaseOrchestrator"
+    | where Message contains "Started"
+    | extend CaseId = toint(extract("\\[(\\d+)\\]", 1, Message))
+    | extend _TimeGenerated = TimeGenerated
+    | join kind=leftouter FirstTriggers on CaseId
+    | where _TimeGenerated >= FirstTriggerTimeGenerated
+    | where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+    | summarize 
+        TraceStartsCount = count(),
+        FirstTraceStartedTimeGenerated = min(TimeGenerated)
+        by
+        CaseId        
+;
+//TraceStarts
+
+let TraceCompleteds = AppTraces
+    | where AppRoleName in ("fa-polaris-coordinator","fa-polaris-pipeline-coordinator")
+    | where Message contains "RefreshCaseOrchestrator"
+    | where Message contains "Completed"
+    | extend CaseId = toint(extract("\\[(\\d+)\\]", 1, Message))
+    | extend _TimeGenerated = TimeGenerated
+    | join kind=leftouter FirstTriggers on CaseId
+    | where _TimeGenerated >= FirstTriggerTimeGenerated
+    | where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+    | summarize 
+        TraceCompletedsCount = count(),
+        FirstTraceCompletedTimeGenerated = min(TimeGenerated)
+        by
+        CaseId
+;
+//TraceCompleteds
+
+let TrackerStorageExceptions = AppExceptions
+    | where AppRoleName in ("fa-polaris-coordinator","fa-polaris-pipeline-coordinator")
+    | where ExceptionType == "Microsoft.WindowsAzure.Storage.StorageException"
+    | project 
+        TimeGenerated, 
+        WorkItemId = tostring(Properties.prop__WorkItemId)
+    | where 
+        WorkItemId != ""
+    | project 
+        TimeGenerated,
+        CaseId = toint(extract("\\[(\\d+)\\]", 1, WorkItemId))
+    | extend _TimeGenerated = TimeGenerated
+    | join kind=leftouter FirstTriggers on CaseId
+    | where _TimeGenerated >= FirstTriggerTimeGenerated
+    | where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+    | summarize 
+        TrackerStorageExceptionsCount = count(),
+        TrackerStorageExceptionTimeGenerated = min(TimeGenerated)
+        by 
+        CaseId
+;
+//TrackerStorageExceptions
+
+let OrchestratorExceptions = AppExceptions
+| where AppRoleName in ("fa-polaris-coordinator","fa-polaris-pipeline-coordinator")
+| where OperationName == "RefreshCaseOrchestrator"
+| extend CaseId = toint(extract("\\[(\\d+)\\]", 1, strcat(OuterMessage,InnermostMessage,Properties.FormattedMessage)))
+| summarize 
+    CaseId = max(CaseId), 
+    TimeGenerated = min(TimeGenerated),
+    ExceptionTypes = make_set_if(ExceptionType, ExceptionType != "DurableTask.Core.Exceptions.OrchestrationFailureException")
+    by OperationId 
+| extend _TimeGenerated = TimeGenerated
+| join kind=leftouter FirstTriggers on CaseId
+| where _TimeGenerated >= FirstTriggerTimeGenerated
+| where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+| summarize  
+    OrchestratorExceptionsTypes = make_set(ExceptionTypes),
+    OrchestratorExceptionsTimeGenerated = min(TimeGenerated)
+    by CaseId
+
+;
+// RefreshCaseOrchestratorExceptions
+
+let FirstMetrics = Polaris_Metrics_CaseRefresh
+    | partition hint.strategy = native by CaseId (top 1 by TimeGenerated)
+    | extend _TimeGenerated = TimeGenerated
+    | join kind=leftouter FirstTriggers on CaseId
+    | where _TimeGenerated >= FirstTriggerTimeGenerated
+    | where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+    | project-away PolarisCorrelationId, OperationId
+;
+// FirstMetrics
+
+let CaseActivities = 
+    ((Polaris_Metrics_Conversion | project CaseId, StartTime)
+    | union (Polaris_Metrics_Indexing | project CaseId, EndTime))
+| join kind=leftouter FirstTriggers on CaseId
+| where ((StartTime > FirstTriggerTimeGenerated and StartTime < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated))
+    or  (EndTime > FirstTriggerTimeGenerated and EndTime < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)))
+| summarize 
+    CaseActivitiesCount = count() 
+    by CaseId
+;
+//CaseActivities
+
+let SplitBrains = AppTraces
+| where AppRoleName in ("fa-polaris-coordinator","fa-polaris-pipeline-coordinator")
+| where Properties.EventName == "SplitBrainDetected"
+| extend CaseId = toint(extract("\\[(\\d+)\\]", 1, Message))
+| extend _TimeGenerated = TimeGenerated
+| join kind=leftouter FirstTriggers on CaseId
+| where _TimeGenerated >= FirstTriggerTimeGenerated
+| where _TimeGenerated < datetime_add("second", CaseTimeoutSeconds, FirstTriggerTimeGenerated)
+| summarize 
+    SplitBrainsCount = count() 
+    by CaseId
+;
+//SplitBrains
+
+
+FirstTriggers
+| join kind=leftouter Subsequent423Triggers     on CaseId | project-away CaseId1
+| join kind=leftouter TrackerCalls              on CaseId | project-away CaseId1
+| join kind=leftouter DocumentOpenCalls         on CaseId | project-away CaseId1
+| join kind=leftouter TraceStarts               on CaseId | project-away CaseId1
+| join kind=leftouter TraceCompleteds           on CaseId | project-away CaseId1
+| join kind=leftouter OrchestratorExceptions    on CaseId | project-away CaseId1
+| join kind=leftouter TrackerStorageExceptions  on CaseId | project-away CaseId1
+| join kind=leftouter FirstMetrics              on CaseId | project-away CaseId1
+| join kind=leftouter CaseActivities            on CaseId | project-away CaseId1
+| join kind=leftouter SplitBrains               on CaseId | project-away CaseId1
+
+
+
+
+
