@@ -22,7 +22,7 @@ import { filterApiResults } from "./filter-api-results";
 import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
 import { SavingStatus } from "../../domain/gateway/SavingStatus";
-
+import { RedactionLogData } from "../../domain/redactionLog/RedactionLogData";
 export const reducer = (
   state: CombinedState,
   action:
@@ -147,6 +147,10 @@ export const reducer = (
         type: "SHOW_HIDE_REDACTION_LOG_MODAL";
         payload: boolean;
       }
+    | {
+        type: "UPDATE_REDACTION_LOG_DATA";
+        payload: ApiResult<RedactionLogData>;
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -155,6 +159,18 @@ export const reducer = (
       }
 
       return { ...state, caseState: action.payload };
+
+    case "UPDATE_REDACTION_LOG_DATA":
+      if (action.payload.status === "failed") {
+        return state;
+      }
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          redactionLogData: action.payload,
+        },
+      };
 
     case "UPDATE_PIPELINE": {
       if (action.payload.status === "failed") {
@@ -820,6 +836,7 @@ export const reducer = (
       return {
         ...state,
         redactionLog: {
+          ...state.redactionLog,
           showModal: action.payload,
         },
       };

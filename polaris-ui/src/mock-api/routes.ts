@@ -13,3 +13,5 @@ export const DOCUMENT_CHECKIN_ROUTE =
 export const SAS_URL_ROUTE = "api/some-complicated-sas-url/:blobName";
 export const SAVE_REDACTION_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId";
+
+export const REDACTION_LOG_ROUTE = "/api/redactionlogdata";

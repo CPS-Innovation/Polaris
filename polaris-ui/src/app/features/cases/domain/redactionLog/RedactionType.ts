@@ -1,4 +1,4 @@
-export type RedactionTypes =
+export type RedactionType =
   | "Named individual"
   | "Title"
   | "Occupation"
@@ -13,5 +13,4 @@ export type RedactionTypes =
   | "Phone number"
   | "Email address"
   | "Previous convictions"
-  | "Other"
-  | "";
+  | "Other";

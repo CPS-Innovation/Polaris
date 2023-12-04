@@ -1,6 +1,10 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import { getCaseDetails, searchCase } from "../../api/gateway-api";
+import {
+  getCaseDetails,
+  searchCase,
+  getRedactionLogData,
+} from "../../api/gateway-api";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
@@ -50,10 +54,12 @@ export const initialState = {
   },
   redactionLog: {
     showModal: false,
+    redactionLogData: { status: "loading" },
   },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
+  const redactionLogData = useApi(getRedactionLogData, []);
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -68,6 +74,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     caseId,
     combinedState.pipelineRefreshData
   );
+
+  useEffect(() => {
+    if (redactionLogData.status !== "initial")
+      dispatch({
+        type: "UPDATE_REDACTION_LOG_DATA",
+        payload: redactionLogData,
+      });
+  }, [redactionLogData, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")

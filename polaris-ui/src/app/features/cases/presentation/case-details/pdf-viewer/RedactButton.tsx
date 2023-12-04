@@ -3,37 +3,38 @@ import classes from "./RedactButton.module.scss";
 import { Select } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
-import { RedactionTypes } from "../../../domain/redactionLog/RedactionTypes";
+import { RedactionType } from "../../../domain/redactionLog/RedactionType";
 type Props = {
-  onConfirm: (redactionType: RedactionTypes) => void;
+  onConfirm: (redactionType: RedactionType) => void;
 };
 
-const redactionTypeOptions: { children: string; value: RedactionTypes }[] = [
-  {
-    children: "-- select redaction type --",
-    value: "",
-  },
-  {
-    children: "Address",
-    value: "Address",
-  },
-  {
-    children: "Date of birth",
-    value: "Date of birth",
-  },
-  {
-    children: "Named individual",
-    value: "Named individual",
-  },
-];
+const redactionTypeOptions: { children: string; value: RedactionType | "" }[] =
+  [
+    {
+      children: "-- select redaction type --",
+      value: "",
+    },
+    {
+      children: "Address",
+      value: "Address",
+    },
+    {
+      children: "Date of birth",
+      value: "Date of birth",
+    },
+    {
+      children: "Named individual",
+      value: "Named individual",
+    },
+  ];
 
 export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
-  const [redactionType, setRedactionType] = useState<RedactionTypes | "">("");
+  const [redactionType, setRedactionType] = useState<RedactionType | "">("");
   useFocusTrap("#redact-modal");
   useLastFocus();
 
   const handleClickRedact = () => {
-    onConfirm(redactionType);
+    if (redactionType) onConfirm(redactionType);
   };
   return (
     <div
@@ -64,7 +65,7 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
           formGroup={{
             className: classes.select,
           }}
-          onChange={(ev) => setRedactionType(ev.target.value as RedactionTypes)}
+          onChange={(ev) => setRedactionType(ev.target.value as RedactionType)}
         />
       </div>
       <button

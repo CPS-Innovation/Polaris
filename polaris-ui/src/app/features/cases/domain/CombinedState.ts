@@ -8,6 +8,7 @@ import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
 import { FilterOption } from "./FilterOption";
+import { RedactionLogData } from "./redactionLog/RedactionLogData";
 
 export type CombinedState = {
   urn: string;
@@ -58,5 +59,6 @@ export type CombinedState = {
   };
   redactionLog: {
     showModal: boolean;
+    redactionLogData: AsyncResult<RedactionLogData>;
   };
 };

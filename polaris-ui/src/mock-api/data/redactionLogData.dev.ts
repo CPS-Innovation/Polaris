@@ -1,7 +1,13 @@
 import { AreaDivision } from "../../app/features/cases/domain/redactionLog/AreaDivision";
-import { ListItem } from "../../app/features/cases/domain/redactionLog/ListItem";
+import { RedactionLogDataSource } from "./types/RedactionLogDataSource";
+import {
+  AreasOrDivision,
+  RedactionLogDocumentTypes,
+  InvestigatingAgencies,
+  RedactionTypes,
+} from "../../app/features/cases/domain/redactionLog/RedactionLogData";
 
-const areasStub: ListItem[] = [
+const areasStub: AreasOrDivision[] = [
   {
     id: "1",
     name: AreaDivision.Wales,
@@ -415,7 +421,7 @@ const areasStub: ListItem[] = [
   },
 ];
 
-const divisionsStub: ListItem[] = [
+const divisionsStub: AreasOrDivision[] = [
   {
     id: "16",
     name: AreaDivision.SpecialCrimeAndCounterTerrorismDivision,
@@ -564,7 +570,7 @@ const divisionsStub: ListItem[] = [
   },
 ];
 
-const documentTypesStub: ListItem[] = [
+const documentTypesStub: RedactionLogDocumentTypes[] = [
   { id: "1", name: "MG 0", children: [] },
   { id: "2", name: "MG 1", children: [] },
   { id: "3", name: "MG 2", children: [] },
@@ -610,7 +616,7 @@ const documentTypesStub: ListItem[] = [
   { id: "35", name: "Other", children: [] },
 ];
 
-const investigatingAgenciesStub: ListItem[] = [
+const investigatingAgenciesStub: InvestigatingAgencies[] = [
   { id: "1", name: "DWP", children: [] },
   { id: "2", name: "NHS", children: [] },
   { id: "3", name: "Counter Fraud Authority", children: [] },
@@ -703,7 +709,7 @@ const investigatingAgenciesStub: ListItem[] = [
   { id: "78", name: "ERSOU", children: [] },
 ];
 
-export const missedRedactionsStub: ListItem[] = [
+export const missedRedactionsStub: RedactionTypes[] = [
   { id: "1", name: "Named individual", children: [] },
   { id: "2", name: "Title", children: [] },
   { id: "3", name: "Occupation", children: [] },
@@ -721,10 +727,13 @@ export const missedRedactionsStub: ListItem[] = [
   { id: "15", name: "Other", children: [] },
 ];
 
-export const redactionLogInitialData = {
+export const redactionLogData = {
   areas: areasStub,
-  division: divisionsStub,
+  divisions: divisionsStub,
   documentTypes: documentTypesStub,
   investigatingAgencies: investigatingAgenciesStub,
-  missedRedactions: missedRedactionsStub,
+  redactionTypes: missedRedactionsStub,
 };
+
+const dataSource: RedactionLogDataSource = redactionLogData;
+export default dataSource;
