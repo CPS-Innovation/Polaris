@@ -12,34 +12,101 @@ import { UnderRedactionContent } from "./UnderRedactionContent";
 import classes from "./RedactionLogContent.module.scss";
 import { useForm, Controller } from "react-hook-form";
 import { SavingStatus } from "../../../domain/gateway/SavingStatus";
+import {
+  ChargeStatus,
+  ChargeStatusLabels,
+} from "../../../domain/redactionLog/ChargeStatus";
+import { RedactionLogData } from "../../../domain/redactionLog/RedactionLogData";
 
 type RedactionLogContentProps = {
   redactionHighlights: IPdfHighlight[];
   savingStatus: SavingStatus;
+  redactionLogData: RedactionLogData;
   message?: string;
   handleClose?: () => void;
 };
 
 const defaultValues = {
-  select1: "2",
-  select2: "1",
-  select3: "1",
-  select4: "1",
-  select5: "1",
+  cpsArea: "2",
+  businessUnit: "1",
+  investigatingAgency: "",
+  chargeStatus: "1",
+  documentType: "",
   textArea: "",
 };
+
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   message,
   savingStatus,
   handleClose,
   redactionHighlights,
+  redactionLogData,
 }) => {
   const {
     handleSubmit,
     getValues,
     formState: { errors },
     control,
+    watch,
   } = useForm({ defaultValues });
+
+  const [
+    cpsArea,
+    businessUnit,
+    investigatingAgency,
+    chargeStatus,
+    documentType,
+  ] = watch([
+    "cpsArea",
+    "businessUnit",
+    "investigatingAgency",
+    "chargeStatus",
+    "documentType",
+  ]);
+
+  const getMappedSelectItems = () => {
+    const areaOrDivisions = [
+      ...redactionLogData.areas,
+      ...redactionLogData.divisions,
+    ];
+
+    const defaultOption = {
+      value: "",
+      children: "-- Please select --",
+      disabled: true,
+    };
+
+    const defaultAreaOption = {
+      value: "",
+      children: "-- Please select --",
+      disabled: true,
+      businessUnits: [],
+    };
+
+    const mappedAreaOrDivisions = areaOrDivisions.map((item) => ({
+      value: item.id,
+      children: item.name,
+      businessUnits: item.children.map((child) => ({
+        value: child.id,
+        children: child.name,
+      })),
+    }));
+    const mappedInvestigatingAgencies =
+      redactionLogData.investigatingAgencies.map((item) => ({
+        value: item.id,
+        children: item.name,
+      }));
+    const mappedDocumentTypes = redactionLogData.documentTypes.map((item) => ({
+      value: item.id,
+      children: item.name,
+    }));
+
+    return {
+      areaOrDivisions: [defaultAreaOption, ...mappedAreaOrDivisions],
+      investigatingAgencies: [defaultOption, ...mappedInvestigatingAgencies],
+      documentTypes: [defaultOption, ...mappedDocumentTypes],
+    };
+  };
 
   const redactionLogGuidanceContent = () => {
     return (
@@ -84,6 +151,19 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     );
   };
 
+  const getMappedBusinessUnits = () => {
+    const defaultOption = {
+      value: "",
+      children: "-- Please select --",
+      disabled: true,
+    };
+    const mappedBusinessUnit = getMappedSelectItems().areaOrDivisions.filter(
+      (area) => area.value === cpsArea
+    )[0].businessUnits;
+
+    return [defaultOption, ...mappedBusinessUnit];
+  };
+
   return (
     <div className={classes.modalContent}>
       {savingStatus === "saving" && (
@@ -120,7 +200,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           <div className={classes.selectInputWrapper}>
             <section className={classes.selectSection}>
               <Controller
-                name="select1"
+                name="cpsArea"
                 control={control}
                 // rules={{
                 //   required: true,
@@ -147,26 +227,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                       formGroup={{
                         className: classes.select,
                       }}
-                      items={[
-                        { children: "value1", value: "1" as const },
-                        { children: "value2", value: "2" as const },
-                      ]}
+                      items={getMappedSelectItems().areaOrDivisions}
                     />
                   );
                 }}
               />
-              {errors.select1?.type === "required" && (
+              {errors.cpsArea?.type === "required" && (
                 <p className={classes.errorMsg}>This is a required field.</p>
               )}
-              {errors.select1 && (
+              {errors.cpsArea && (
                 <p
                   className={classes.errorMsg}
-                >{`an error of type: ${errors.select1?.type}`}</p>
+                >{`an error of type: ${errors.cpsArea?.type}`}</p>
               )}
             </section>
             <section className={classes.selectSection}>
               <Controller
-                name="select2"
+                name="businessUnit"
                 control={control}
                 render={({ field }) => {
                   return (
@@ -182,26 +259,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                       formGroup={{
                         className: classes.select,
                       }}
-                      items={[
-                        { children: "value1", value: "1" as const },
-                        { children: "value2", value: "2" as const },
-                      ]}
+                      items={getMappedBusinessUnits()}
                     />
                   );
                 }}
               />
-              {errors.select2?.type === "required" && (
+              {errors.businessUnit?.type === "required" && (
                 <p className={classes.errorMsg}>This is a required field.</p>
               )}
-              {errors.select2 && (
+              {errors.businessUnit && (
                 <p
                   className={classes.errorMsg}
-                >{`an error of type: ${errors.select2?.type}`}</p>
+                >{`an error of type: ${errors.businessUnit?.type}`}</p>
               )}
             </section>
             <section className={classes.selectSection}>
               <Controller
-                name="select3"
+                name="investigatingAgency"
                 control={control}
                 render={({ field }) => {
                   return (
@@ -217,26 +291,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                       formGroup={{
                         className: classes.select,
                       }}
-                      items={[
-                        { children: "value1", value: "1" as const },
-                        { children: "value2", value: "2" as const },
-                      ]}
+                      items={getMappedSelectItems().investigatingAgencies}
                     />
                   );
                 }}
               />
-              {errors.select3?.type === "required" && (
+              {errors.investigatingAgency?.type === "required" && (
                 <p className={classes.errorMsg}>This is a required field.</p>
               )}
-              {errors.select3 && (
+              {errors.investigatingAgency && (
                 <p
                   className={classes.errorMsg}
-                >{`an error of type: ${errors.select3?.type}`}</p>
+                >{`an error of type: ${errors.investigatingAgency?.type}`}</p>
               )}
             </section>
             <section className={classes.selectSection}>
               <Controller
-                name="select4"
+                name="chargeStatus"
                 control={control}
                 render={({ field }) => {
                   return (
@@ -253,25 +324,31 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                         className: classes.select,
                       }}
                       items={[
-                        { children: "value1", value: "1" as const },
-                        { children: "value2", value: "2" as const },
+                        {
+                          children: ChargeStatusLabels[ChargeStatus.PreCharge],
+                          value: `${ChargeStatus.PreCharge}`,
+                        },
+                        {
+                          children: ChargeStatusLabels[ChargeStatus.PostCharge],
+                          value: `${ChargeStatus.PostCharge}`,
+                        },
                       ]}
                     />
                   );
                 }}
               />
-              {errors.select4?.type === "required" && (
+              {errors.chargeStatus?.type === "required" && (
                 <p className={classes.errorMsg}>This is a required field.</p>
               )}
-              {errors.select4 && (
+              {errors.chargeStatus && (
                 <p
                   className={classes.errorMsg}
-                >{`an error of type: ${errors.select4?.type}`}</p>
+                >{`an error of type: ${errors.chargeStatus?.type}`}</p>
               )}
             </section>
             <section className={classes.selectSection}>
               <Controller
-                name="select5"
+                name="documentType"
                 control={control}
                 render={({ field }) => {
                   return (
@@ -287,21 +364,18 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                       formGroup={{
                         className: classes.select,
                       }}
-                      items={[
-                        { children: "value1", value: "1" as const },
-                        { children: "value2", value: "2" as const },
-                      ]}
+                      items={getMappedSelectItems().documentTypes}
                     />
                   );
                 }}
               />
-              {errors.select5?.type === "required" && (
+              {errors.documentType?.type === "required" && (
                 <p className={classes.errorMsg}>This is a required field.</p>
               )}
-              {errors.select5 && (
+              {errors.documentType && (
                 <p
                   className={classes.errorMsg}
-                >{`an error of type: ${errors.select5?.type}`}</p>
+                >{`an error of type: ${errors.documentType?.type}`}</p>
               )}
             </section>
           </div>

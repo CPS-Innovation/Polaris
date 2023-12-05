@@ -224,12 +224,14 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         />
       )}
 
-      {redactionLog.showModal && (
-        <RedactionLogModal
-          redactionHighlights={getActiveTabDocument()!.redactionHighlights}
-          savingStatus={getActiveTabDocument()!.savingStatus}
-        />
-      )}
+      {redactionLog.showModal &&
+        redactionLog.redactionLogData.status === "succeeded" && (
+          <RedactionLogModal
+            redactionHighlights={getActiveTabDocument()!.redactionHighlights}
+            savingStatus={getActiveTabDocument()!.savingStatus}
+            redactionLogData={redactionLog.redactionLogData.data}
+          />
+        )}
       <nav>
         <PhaseBanner
           className={classes["phaseBanner"]}
