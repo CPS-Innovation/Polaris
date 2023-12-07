@@ -5,7 +5,7 @@ import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionType } from "../../../domain/redactionLog/RedactionType";
 type Props = {
-  onConfirm: (redactionType: RedactionType) => void;
+  onConfirm: (redactionType: { id: string; name: RedactionType }) => void;
 };
 
 const redactionTypeOptions: { children: string; value: RedactionType | "" }[] =
@@ -34,7 +34,7 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
   useLastFocus();
 
   const handleClickRedact = () => {
-    if (redactionType) onConfirm(redactionType);
+    if (redactionType) onConfirm({ id: "1", name: redactionType });
   };
   return (
     <div

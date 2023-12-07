@@ -2,6 +2,7 @@ import { AreaDivision } from "./AreaDivision";
 import { RedactionLogDocType } from "./RedactionLogDocType";
 import { RedactionType } from "./RedactionType";
 import { ListItem } from "./ListItem";
+import { ListItemWithoutChildren } from "./ViewModal";
 
 export interface AreasOrDivision extends ListItem {
   name: AreaDivision;
@@ -13,7 +14,11 @@ export interface RedactionLogDocumentTypes extends ListItem {
 
 export interface InvestigatingAgencies extends ListItem {}
 
-export interface RedactionTypes extends ListItem {
+export interface RedactionTypes extends ListItemWithoutChildren {
+  name: RedactionType;
+}
+
+export interface RedactionTypesData extends ListItem {
   name: RedactionType;
 }
 

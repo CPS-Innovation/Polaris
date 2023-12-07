@@ -16,14 +16,19 @@ import {
   ChargeStatus,
   ChargeStatusLabels,
 } from "../../../domain/redactionLog/ChargeStatus";
-import { RedactionLogData } from "../../../domain/redactionLog/RedactionLogData";
-
+import {
+  RedactionLogData,
+  RedactionTypes,
+} from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategory";
+import { RedactionLogRequestData } from "../../../domain/redactionLog/ViewModal";
+import { AreaDivision } from "../../../domain/redactionLog/AreaDivision";
 type RedactionLogContentProps = {
-  redactionHighlights: IPdfHighlight[];
+  redactionTypes: RedactionTypes[];
   savingStatus: SavingStatus;
   redactionLogData: RedactionLogData;
   message?: string;
-  handleClose?: () => void;
+  saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
 const defaultValues = {
@@ -35,13 +40,23 @@ const defaultValues = {
   textArea: "",
 };
 
+export type UnderRedactionFormData = {
+  cpsArea: string;
+  businessUnit: string;
+  investigatingAgency: string;
+  chargeStatus: string;
+  documentType: string;
+  notes: string;
+};
+
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   message,
   savingStatus,
-  handleClose,
-  redactionHighlights,
+  saveRedactionLog,
+  redactionTypes,
   redactionLogData,
 }) => {
+  const [savingRedactionLog, setSavingRedactionLog] = useState(false);
   const {
     handleSubmit,
     getValues,
@@ -162,6 +177,55 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     )[0].businessUnits;
 
     return [defaultOption, ...mappedBusinessUnit];
+  };
+
+  //map save data directly to viewModal so that it can be used to call the api.
+  const mapToRedactioViewModal = (
+    viewModel: UnderRedactionFormData
+  ): RedactionLogRequestData => {
+    const areaOrDivisions = [
+      ...redactionLogData.areas,
+      ...redactionLogData.divisions,
+    ];
+    const mappedArea = areaOrDivisions.find(
+      (area) => area.id === viewModel.cpsArea
+    )!;
+    const mappedBusinessUnit = mappedArea.children.find(
+      (businessUnit) => businessUnit.id === viewModel.businessUnit
+    )!;
+    const mappedInvestigatingAgency =
+      redactionLogData.investigatingAgencies.find(
+        (investigatingAgency) =>
+          investigatingAgency.id === viewModel.investigatingAgency
+      )!;
+
+    const mappedDocumentType = redactionLogData.documentTypes.find(
+      (documentType) => documentType.id === viewModel.documentType
+    )!;
+
+    const mappedData = {
+      urn: "urn",
+      unit: {
+        id: `${mappedArea?.id}-${mappedBusinessUnit?.id}`,
+        type: "Area" as const,
+        areaDivisionName: mappedArea?.name as unknown as AreaDivision,
+        name: mappedBusinessUnit?.name as unknown as AreaDivision,
+      },
+      investigatingAgency: {
+        id: mappedInvestigatingAgency?.id,
+        name: mappedInvestigatingAgency?.name,
+      },
+      documentType: {
+        id: mappedDocumentType?.id,
+        name: mappedDocumentType?.name,
+      },
+      missedRedactions: redactionTypes,
+      notes: "abc" || null,
+      returnedToInvestigativeAuthority: false,
+      chargeStatus: viewModel.chargeStatus as unknown as ChargeStatus,
+      redactionType: RedactionCategory.UnderRedacted,
+    };
+    return mappedData;
   };
 
   return (
@@ -385,7 +449,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         <section>
           <UnderRedactionContent
             documentName="ABC_MG3"
-            redactionHighlights={redactionHighlights}
+            redactionTypes={redactionTypes}
           />
         </section>
         <section className={classes.textAreaSection}>
@@ -414,10 +478,25 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       </div>
       <div className={classes.btnWrapper}>
         <Button
-          disabled={savingStatus === "saving"}
+          disabled={savingStatus === "saving" || savingRedactionLog}
           type="submit"
           className={classes.saveBtn}
-          onClick={handleSubmit((data) => console.log(data))}
+          onClick={handleSubmit((data) => {
+            console.log("data >>>", data);
+            console.log(
+              "mapToRedactioViewModal>>",
+              mapToRedactioViewModal({
+                ...data,
+                notes: "abc",
+              })
+            );
+            const redactionLogRequestData = mapToRedactioViewModal({
+              ...data,
+              notes: "abc",
+            });
+            setSavingRedactionLog(true);
+            saveRedactionLog(redactionLogRequestData);
+          })}
           data-testid="btn-feedback-modal-ok"
         >
           Save and Close

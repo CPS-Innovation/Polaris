@@ -5,6 +5,7 @@ import {
   checkoutDocument,
   getPdfSasUrl,
   saveRedactions,
+  saveRedactionLog,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
@@ -12,6 +13,8 @@ import { mapRedactionSaveRequest } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
+import { RedactionTypes } from "../../domain/redactionLog/RedactionLogData";
+import { RedactionLogRequestData } from "../../domain/redactionLog/ViewModal";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -47,6 +50,12 @@ type AsyncActions =
       type: "SAVE_REDACTIONS";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
+      };
+    }
+  | {
+      type: "SAVE_REDACTION_LOG";
+      payload: {
+        redactionLogRequestData: RedactionLogRequestData;
       };
     }
   | {
@@ -286,6 +295,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         documentId,
         redactionHighlights
       );
+      const redactionTypes = redactionHighlights.map(
+        ({ redactionType }) => redactionType!
+      );
       try {
         dispatch({
           type: "SAVING_REDACTION",
@@ -293,7 +305,10 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: true,
+          payload: {
+            show: true,
+            redactionTypes: redactionTypes,
+          },
         });
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
         dispatch({
@@ -329,7 +344,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: false,
+          payload: { show: false, redactionTypes: [] },
         });
       }
 
@@ -355,5 +370,33 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       );
 
       Promise.allSettled(requests);
+    },
+
+  SAVE_REDACTION_LOG:
+    ({ dispatch }) =>
+    async (action) => {
+      const {
+        payload: { redactionLogRequestData },
+      } = action;
+      try {
+        await saveRedactionLog(redactionLogRequestData);
+
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+          payload: { show: false, redactionTypes: [] },
+        });
+      } catch (e) {
+        dispatch({
+          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+          payload: { show: false, redactionTypes: [] },
+        });
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            title: "Something went wrong!",
+            message: "Failed to save redaction log. Please try again later.",
+          },
+        });
+      }
     },
 };

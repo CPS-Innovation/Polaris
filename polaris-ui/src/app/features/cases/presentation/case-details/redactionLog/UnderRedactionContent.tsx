@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import classes from "./UnderRedactionContent.module.scss";
-import { IPdfHighlight } from "../../../domain/IPdfHighlight";
+import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
 import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 type UnderRedactionContentProps = {
   documentName: string;
-  redactionHighlights: IPdfHighlight[];
+  redactionTypes: RedactionTypes[];
 };
 
 const getRedactionTypeNames = (count: number, name: string) => {
@@ -16,20 +16,17 @@ const getRedactionTypeNames = (count: number, name: string) => {
 
 export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
   documentName,
-  redactionHighlights,
+  redactionTypes,
 }) => {
   const redactionSummary = useMemo(() => {
-    const groupedRedactions = redactionHighlights.reduce(
-      (acc, { redactionType }) => {
-        if (!acc[redactionType!]) {
-          acc[redactionType!] = 1;
-          return acc;
-        }
-        acc[redactionType!] = acc[redactionType!] + 1;
+    const groupedRedactions = redactionTypes.reduce((acc, redactionType) => {
+      if (!acc[redactionType?.name!]) {
+        acc[redactionType?.name!] = 1;
         return acc;
-      },
-      {} as Record<string, number>
-    );
+      }
+      acc[redactionType?.name!] = acc[redactionType?.name!] + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
     const sortedArray = Object.entries(groupedRedactions).sort(function (a, b) {
       return b[1] - a[1];

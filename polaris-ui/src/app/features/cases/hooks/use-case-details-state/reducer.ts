@@ -22,7 +22,10 @@ import { filterApiResults } from "./filter-api-results";
 import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
 import { SavingStatus } from "../../domain/gateway/SavingStatus";
-import { RedactionLogData } from "../../domain/redactionLog/RedactionLogData";
+import {
+  RedactionLogData,
+  RedactionTypes,
+} from "../../domain/redactionLog/RedactionLogData";
 export const reducer = (
   state: CombinedState,
   action:
@@ -145,7 +148,10 @@ export const reducer = (
       }
     | {
         type: "SHOW_HIDE_REDACTION_LOG_MODAL";
-        payload: boolean;
+        payload: {
+          show: boolean;
+          redactionTypes: RedactionTypes[];
+        };
       }
     | {
         type: "UPDATE_REDACTION_LOG_DATA";
@@ -837,7 +843,8 @@ export const reducer = (
         ...state,
         redactionLog: {
           ...state.redactionLog,
-          showModal: action.payload,
+          showModal: action.payload.show,
+          redactionTypes: action.payload.redactionTypes,
         },
       };
     }

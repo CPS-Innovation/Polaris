@@ -13,6 +13,7 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
+import { RedactionLogRequestData } from "../../domain/redactionLog/ViewModal";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -55,6 +56,7 @@ export const initialState = {
   redactionLog: {
     showModal: false,
     redactionLogData: { status: "loading" },
+    redactionTypes: [],
   },
 } as Omit<CombinedState, "caseId" | "urn">;
 
@@ -265,6 +267,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleSavedRedactionLog = useCallback(
+    (redactionLogRequestData: RedactionLogRequestData) =>
+      dispatch({
+        type: "SAVE_REDACTION_LOG",
+        payload: { redactionLogRequestData },
+      }),
+    [dispatch]
+  );
+
   const handleOpenPdfInNewTab = useCallback(
     (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
@@ -318,5 +329,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
+    handleSavedRedactionLog,
   };
 };

@@ -4,7 +4,7 @@ import {
   AreasOrDivision,
   RedactionLogDocumentTypes,
   InvestigatingAgencies,
-  RedactionTypes,
+  RedactionTypesData,
 } from "../../app/features/cases/domain/redactionLog/RedactionLogData";
 
 const areasStub: AreasOrDivision[] = [
@@ -709,7 +709,7 @@ const investigatingAgenciesStub: InvestigatingAgencies[] = [
   { id: "78", name: "ERSOU", children: [] },
 ];
 
-export const missedRedactionsStub: RedactionTypes[] = [
+export const missedRedactionsStub: RedactionTypesData[] = [
   { id: "1", name: "Named individual", children: [] },
   { id: "2", name: "Title", children: [] },
   { id: "3", name: "Occupation", children: [] },

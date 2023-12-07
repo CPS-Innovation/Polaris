@@ -15,3 +15,5 @@ export const SAVE_REDACTION_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId";
 
 export const REDACTION_LOG_ROUTE = "/api/redactionlogdata";
+
+export const SAVE_REDACTION_LOG_ROUTE = "/api/saveredactionlog";

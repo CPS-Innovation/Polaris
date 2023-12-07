@@ -3,20 +3,26 @@ import { Modal } from "../../../../../common/presentation/components/index";
 import { RedactionLogContent } from "./RedactionLogContent";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { SavingStatus } from "../../../domain/gateway/SavingStatus";
-import { RedactionLogData } from "../../../domain/redactionLog/RedactionLogData";
+import {
+  RedactionLogData,
+  RedactionTypes,
+} from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionLogRequestData } from "../../../domain/redactionLog/ViewModal";
 
 type Props = {
   savingStatus: SavingStatus;
-  redactionHighlights: IPdfHighlight[];
+  redactionTypes: RedactionTypes[];
   redactionLogData: RedactionLogData;
   handleShowHideDocumentIssueModal?: (value: boolean) => void;
+  saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
 export const RedactionLogModal: React.FC<Props> = ({
   handleShowHideDocumentIssueModal,
-  redactionHighlights,
+  redactionTypes,
   savingStatus,
   redactionLogData,
+  saveRedactionLog,
 }) => {
   return (
     <Modal
@@ -26,9 +32,10 @@ export const RedactionLogModal: React.FC<Props> = ({
       ariaDescription="Contains form to be filled out and submitted for redaction log "
     >
       <RedactionLogContent
-        redactionHighlights={redactionHighlights}
+        redactionTypes={redactionTypes}
         savingStatus={savingStatus}
         redactionLogData={redactionLogData}
+        saveRedactionLog={saveRedactionLog}
       />
     </Modal>
   );

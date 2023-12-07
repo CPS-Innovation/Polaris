@@ -9,7 +9,7 @@ import { reauthenticationFilter } from "./reauthentication-filter";
 import { FEATURE_FLAG_HTE_EMAILS_ON, GATEWAY_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 import { RedactionLogData } from "../domain/redactionLog/RedactionLogData";
-
+import { RedactionLogRequestData } from "../domain/redactionLog/ViewModal";
 const buildHeaders = async (
   ...args: (
     | Record<string, string>
@@ -257,6 +257,21 @@ export const saveRedactions = async (
 
   if (!response.ok) {
     throw new ApiError("Save redactions failed", url, response);
+  }
+};
+
+export const saveRedactionLog = async (
+  redactionLogRequestData: RedactionLogRequestData
+) => {
+  const url = fullUrl(`/api/saveredactionlog`);
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "PUT",
+    body: JSON.stringify(redactionLogRequestData),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Save redaction log failed", url, response);
   }
 };
 

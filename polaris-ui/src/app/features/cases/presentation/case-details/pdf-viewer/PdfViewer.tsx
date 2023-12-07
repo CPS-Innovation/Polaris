@@ -96,7 +96,7 @@ export const PdfViewer: React.FC<Props> = ({
     (
       position: ScaledPosition,
       content: { text?: string; image?: string },
-      redactionType: RedactionType
+      redactionType: { id: string; name: RedactionType }
     ) => {
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
@@ -185,7 +185,10 @@ export const PdfViewer: React.FC<Props> = ({
                   }
                   return (
                     <RedactButton
-                      onConfirm={(redactionType: RedactionType) => {
+                      onConfirm={(redactionType: {
+                        id: string;
+                        name: RedactionType;
+                      }) => {
                         trackEvent("Redact Content", {
                           documentType: contextData.documentType,
                           documentId: contextData.documentId,
