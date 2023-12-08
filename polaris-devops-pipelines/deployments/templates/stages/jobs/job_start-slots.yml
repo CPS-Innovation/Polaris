@@ -2,6 +2,8 @@
 parameters:
   - name: envLabel
     type: string
+  - name: targetBuild
+    type: string
   - name: targetSuffix
     type: string
   - name: azureSubscription
