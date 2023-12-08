@@ -23,7 +23,7 @@ import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
 import { SavingStatus } from "../../../domain/gateway/SavingStatus";
-
+import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -31,6 +31,7 @@ type Props = {
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
+  redactionTypesData: RedactionTypes[];
   contextData: {
     documentType: string;
     documentId: string;
@@ -54,6 +55,7 @@ const ensureAllPdfInView = () =>
 
 export const PdfViewer: React.FC<Props> = ({
   url,
+  redactionTypesData,
   tabIndex,
   activeTabId,
   tabId,
@@ -185,6 +187,7 @@ export const PdfViewer: React.FC<Props> = ({
                   }
                   return (
                     <RedactButton
+                      redactionTypesData={redactionTypesData}
                       onConfirm={(redactionType: {
                         id: string;
                         name: RedactionType;

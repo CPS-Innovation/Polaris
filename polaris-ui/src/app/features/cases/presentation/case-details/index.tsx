@@ -316,6 +316,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
+                redactionTypesData={
+                  redactionLog.redactionLogData.status === "succeeded"
+                    ? redactionLog.redactionLogData.data.redactionTypes
+                    : []
+                }
                 isOkToSave={pipelineState.status === "complete"}
                 tabsState={tabsState}
                 savedDocumentDetails={pipelineRefreshData.savedDocumentDetails}

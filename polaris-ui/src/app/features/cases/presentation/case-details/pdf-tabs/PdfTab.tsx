@@ -9,8 +9,10 @@ import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
 import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
+import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
+  redactionTypesData: RedactionTypes[];
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
@@ -39,6 +41,7 @@ type PdfTabProps = {
 
 export const PdfTab: React.FC<PdfTabProps> = ({
   tabIndex,
+  redactionTypesData,
   activeTabId,
   tabId,
   caseDocumentViewModel,
@@ -136,6 +139,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       )}
       {url && !isDocumentRefreshing() ? (
         <PdfViewer
+          redactionTypesData={redactionTypesData}
           url={url}
           tabIndex={tabIndex}
           activeTabId={activeTabId}

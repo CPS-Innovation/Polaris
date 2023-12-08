@@ -5,39 +5,41 @@ import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionType } from "../../../domain/redactionLog/RedactionType";
 import { FEATURE_FLAG_REDACTION_LOG } from "../../../../../config";
+import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
 
 type Props = {
+  redactionTypesData: RedactionTypes[];
   onConfirm: (redactionType: { id: string; name: RedactionType }) => void;
 };
 
-const redactionTypeOptions: { children: string; value: RedactionType | "" }[] =
-  [
-    {
-      children: "-- select redaction type --",
-      value: "",
-    },
-    {
-      children: "Address",
-      value: "Address",
-    },
-    {
-      children: "Date of birth",
-      value: "Date of birth",
-    },
-    {
-      children: "Named individual",
-      value: "Named individual",
-    },
-  ];
+const getMappedRedactionTypes = (data: RedactionTypes[]) => {
+  const defaultOption = {
+    value: "",
+    children: "-- Please select --",
+    disabled: true,
+  };
+  const mappedRedactionType = data.map((item) => ({
+    value: item.id,
+    children: item.name,
+  }));
 
-export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
+  return [defaultOption, ...mappedRedactionType];
+};
+
+export const RedactButton: React.FC<Props> = ({
+  onConfirm,
+  redactionTypesData,
+}) => {
   const [redactionType, setRedactionType] = useState<RedactionType | "">("");
   useFocusTrap("#redact-modal");
   useLastFocus();
 
   const handleClickRedact = () => {
     if (FEATURE_FLAG_REDACTION_LOG) {
-      onConfirm({ id: "1", name: redactionType });
+      const selectedType = redactionTypesData.find(
+        (type) => type.id === redactionType
+      )!;
+      onConfirm({ id: selectedType.id, name: selectedType.name });
       return;
     }
     onConfirm({ id: "", name: "" });
@@ -72,7 +74,7 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
             id="select-redaction-type"
             data-testid="select-redaction-type"
             value={redactionType}
-            items={redactionTypeOptions}
+            items={getMappedRedactionTypes(redactionTypesData)}
             formGroup={{
               className: classes.select,
             }}
