@@ -34,6 +34,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"           = var.private_beta.sign_up_url
     "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"       = var.is_redaction_service_offline
     "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"         = var.feature_flag_hte_emails_on
+    "REACT_APP_FEATURE_FLAG_REDACTION_LOG"         = var.feature_flag_redaction_log
   }
 
   site_config {

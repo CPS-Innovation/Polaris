@@ -14,6 +14,7 @@ import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogRequestData } from "../../domain/redactionLog/ViewModal";
+import { FEATURE_FLAG_REDACTION_LOG } from "../../../../config";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -61,7 +62,17 @@ export const initialState = {
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
-  const redactionLogData = useApi(getRedactionLogData, []);
+  console.log(
+    "hellooo calling useCaseDetailsState...",
+    FEATURE_FLAG_REDACTION_LOG
+  );
+
+  const redactionLogData = useApi(
+    getRedactionLogData,
+    [],
+    FEATURE_FLAG_REDACTION_LOG
+  );
+
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
 

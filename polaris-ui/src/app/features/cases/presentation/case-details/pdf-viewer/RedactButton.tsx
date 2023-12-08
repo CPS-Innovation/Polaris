@@ -4,6 +4,8 @@ import { Select } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionType } from "../../../domain/redactionLog/RedactionType";
+import { FEATURE_FLAG_REDACTION_LOG } from "../../../../../config";
+
 type Props = {
   onConfirm: (redactionType: { id: string; name: RedactionType }) => void;
 };
@@ -34,12 +36,20 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
   useLastFocus();
 
   const handleClickRedact = () => {
-    if (redactionType) onConfirm({ id: "1", name: redactionType });
+    if (FEATURE_FLAG_REDACTION_LOG) {
+      onConfirm({ id: "1", name: redactionType });
+      return;
+    }
+    onConfirm({ id: "", name: "" });
   };
   return (
     <div
       id="redact-modal"
-      className={classes.redactionModal}
+      className={
+        FEATURE_FLAG_REDACTION_LOG
+          ? classes.redactionModal
+          : classes.redactBtnModal
+      }
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="redact-modal-label"
@@ -51,25 +61,29 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
       <span id="redact-modal-description" className={classes.modalDescription}>
         A modal with a redact button to help user to redact selected text
       </span>
-      <div className="govuk-form-group">
-        <Select
-          label={{
-            htmlFor: "select-redaction-type",
-            children: "Select Redaction Type",
-            className: classes.sortLabel,
-          }}
-          id="select-redaction-type"
-          data-testid="select-redaction-type"
-          value={redactionType}
-          items={redactionTypeOptions}
-          formGroup={{
-            className: classes.select,
-          }}
-          onChange={(ev) => setRedactionType(ev.target.value as RedactionType)}
-        />
-      </div>
+      {FEATURE_FLAG_REDACTION_LOG && (
+        <div className="govuk-form-group">
+          <Select
+            label={{
+              htmlFor: "select-redaction-type",
+              children: "Select Redaction Type",
+              className: classes.sortLabel,
+            }}
+            id="select-redaction-type"
+            data-testid="select-redaction-type"
+            value={redactionType}
+            items={redactionTypeOptions}
+            formGroup={{
+              className: classes.select,
+            }}
+            onChange={(ev) =>
+              setRedactionType(ev.target.value as RedactionType)
+            }
+          />
+        </div>
+      )}
       <button
-        disabled={!redactionType}
+        disabled={FEATURE_FLAG_REDACTION_LOG ? !redactionType : false}
         className={classes.redactButton}
         onClick={handleClickRedact}
         data-testid="btn-redact"

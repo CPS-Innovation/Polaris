@@ -28,6 +28,7 @@ export const useApi: UseApiParams = (del, params, makeCall = true) => {
   });
 
   useEffect(() => {
+    console.log("calling del>>", del);
     if (makeCall) {
       setResult({ status: "loading" });
 

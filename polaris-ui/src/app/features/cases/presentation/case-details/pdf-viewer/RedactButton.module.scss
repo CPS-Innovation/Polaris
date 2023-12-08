@@ -34,6 +34,23 @@
   }
 }
 
+.redactBtnModal {
+  .redactButton {
+    margin-bottom: -0.125rem;
+    margin-top: -0.625rem;
+    &:after {
+      content: "";
+      position: absolute;
+      background: #00703c;
+      left: calc(50% - 0.625rem);
+      top: 100%;
+      width: 1.25rem;
+      height: 0.625rem;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
+  }
+}
+
 .redactionModal:after {
   content: "";
   position: absolute;

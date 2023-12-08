@@ -13,4 +13,5 @@ export type RedactionType =
   | "Phone number"
   | "Email address"
   | "Previous convictions"
-  | "Other";
+  | "Other"
+  | "";
