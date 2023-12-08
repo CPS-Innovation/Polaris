@@ -21,18 +21,18 @@ jobs:
         TextExtractor:
           Name: "Text Extractor"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
-    displayName: Swap
+    displayName: Stop Staging1
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
         displayName: Stop Slot
         inputs:
-          action: "Stop Azure App Service"
-          sourceSlot: "staging1"
+          Action: "Stop Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-          webAppName: $(AppServiceName)
-          PreserveVnet: true
+          ResourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)
 
   - job: Stop_UI_Slots
     dependsOn: ${{ parameters.jobDependsOn }}
@@ -47,15 +47,15 @@ jobs:
         PolarisGateway:
           Name: "Polaris Gateway"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
-    displayName: Swap
+    displayName: Stop Staging1
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
         displayName: Stop slot
         inputs:
-          action: "Stop Azure App Service"
-          sourceSlot: "staging1"
+          Action: "Stop Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
-          webAppName: $(AppServiceName)
-          PreserveVnet: true
+          ResourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)
