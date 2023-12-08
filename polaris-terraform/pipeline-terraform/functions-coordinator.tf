@@ -25,6 +25,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HostType"                                        = "Production"
     "OvernightClearDownEnabled"                       = var.overnight_clear_down_enabled
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
@@ -53,7 +54,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   }
 
   sticky_settings {
-    app_setting_names = ["CoordinatorTaskHub"]
+    app_setting_names = ["CoordinatorTaskHub","HostType"]
   }
 
   site_config {

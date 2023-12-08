@@ -17,6 +17,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "HostType"                                        = "Production"
     "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"            = var.feature_flag_hte_emails_on
@@ -38,6 +39,10 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+  }
+  
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {
