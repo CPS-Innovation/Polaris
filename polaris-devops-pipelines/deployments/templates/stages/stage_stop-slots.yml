@@ -33,12 +33,12 @@ stages:
           targetName: "Stop Polaris Codebase Slots"
           appInsightsKey: ${{ parameters.appInsightsKey }}
 
-      - template: jobs/job_start-slots.yml
+      - template: jobs/job_stop-slots.yml
         parameters:
           targetSuffix: ${{ parameters.targetSuffix }}
           azureSubscription: ${{ parameters.azureSubscription }}
           jobDependsOn:
-            - LogStop
+            - LogStart
 
       - template: jobs/job_log-result.yml
         parameters:
