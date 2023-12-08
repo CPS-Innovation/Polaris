@@ -21,22 +21,10 @@ variables:
   - group: polaris-status-check-endpoints
 
 stages:
-  - template: ../templates/stages/stage_start-slots.yml
-    parameters:
-      stageBuildAgent: $(dev-build-agent)
-      stageDependsOn:
-      envLabel: "Dev"
-      targetSuffix: "-dev"
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "DEV"
-      azureSubscription: $(dev-azure-subscription)
-      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
-      
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
-      stageDependsOn: Start_DEV
+      stageDependsOn: 
       envLabel: "Dev"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
@@ -99,22 +87,10 @@ stages:
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_start-slots.yml
-    parameters:
-      stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
-      envLabel: "QA"
-      targetSuffix: "-qa"
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "QA"
-      azureSubscription: $(qa-azure-subscription)
-      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
-  
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Start_QA
+      stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "QA"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
@@ -177,22 +153,10 @@ stages:
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
       
-  - template: ../templates/stages/stage_start-slots.yml
-    parameters:
-      stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
-      envLabel: "Prod"
-      targetSuffix: ""
-      targetBuild: PolarisCodebaseBuild
-      targetLabel: "PROD"
-      azureSubscription: $(prod-azure-subscription)
-      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
-      devOpsPatToken: "$(devops-pat-token)"
-
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Start_PROD
+      stageDependsOn: Run_e2e_Tests_DEV
       envLabel: "Prod"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
