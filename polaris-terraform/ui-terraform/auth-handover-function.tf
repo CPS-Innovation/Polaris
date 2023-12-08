@@ -17,6 +17,7 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HostType"                                        = "Production"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.auth_handover_scale_controller
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
@@ -30,6 +31,10 @@ resource "azurerm_linux_function_app" "fa_polaris_auth_handover" {
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+  }
+
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {

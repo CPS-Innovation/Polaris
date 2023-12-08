@@ -21,6 +21,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HostType"                                        = "Staging1"
     "OvernightClearDownEnabled"                       = var.overnight_clear_down_enabled
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script

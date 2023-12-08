@@ -14,6 +14,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
+    "HostType"                                        = "Staging1"
     "REACT_APP_AI_KEY"                                = data.azurerm_application_insights.global_ai.instrumentation_key
     "REACT_APP_CLIENT_ID"                             = module.azurerm_app_reg_as_web_polaris.client_id
     "REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON"            = var.feature_flag_hte_emails_on

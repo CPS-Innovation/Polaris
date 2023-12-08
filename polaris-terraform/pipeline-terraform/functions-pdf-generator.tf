@@ -20,6 +20,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HteFeatureFlag"                                  = var.hte_feature_flag
+    "HostType"                                        = "Production"
     "ImageConversion__Resolution"                     = var.image_conversion_redaction.resolution
     "ImageConversion__QualityPercent"                 = var.image_conversion_redaction.quality_percent
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.pdf_generator_scale_controller
@@ -35,6 +36,10 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+  }
+
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {
