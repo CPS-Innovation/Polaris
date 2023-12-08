@@ -1,0 +1,77 @@
+﻿---
+parameters:
+  - name: envLabel
+    type: string
+  - name: targetSuffix
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: jobDependsOn
+    type: object
+    
+jobs:
+  - deployment: EnvironmentGate
+    dependsOn: ${{ parameters.jobDependsOn }}
+    environment: ${{ parameters.envLabel }}
+    workspace:
+      clean: all
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # download scripts artifact
+            - download: ${{ parameters.targetBuild }}
+              displayName: Download Scripts
+              artifact: 'polaris-script-files'
+              
+  - job: Start_Pipeline_Slots
+    dependsOn: ${{ parameters.jobDependsOn }}
+    strategy:
+      matrix:
+        Coordinator:
+          Name: "Coordinator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+        PDFGenerator:
+          Name: "PDF Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+        TextExtractor:
+          Name: "Text Extractor"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+    displayName: Swap
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Start Slot
+        inputs:
+          action: "Start Azure App Service"
+          sourceSlot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true
+
+  - job: Start_UI_Slots
+    dependsOn: ${{ parameters.jobDependsOn }}
+    strategy:
+      matrix:
+        SPA:
+          Name: "SPA"
+          AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
+        AuthHandover:
+          Name: "Auth Handover"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
+        PolarisGateway:
+          Name: "Polaris Gateway"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+    displayName: Swap
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Start slot
+        inputs:
+          action: "Start Azure App Service"
+          sourceSlot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          resourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+          webAppName: $(AppServiceName)
+          PreserveVnet: true

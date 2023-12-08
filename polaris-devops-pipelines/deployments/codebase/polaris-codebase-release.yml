@@ -21,10 +21,22 @@ variables:
   - group: polaris-status-check-endpoints
 
 stages:
-  - template: ../templates/stages/stage_deploy-codebase.yml
+  - template: ../templates/stages/stage_start-slots.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn:
+      envLabel: "Dev"
+      targetSuffix: "-dev"
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "DEV"
+      azureSubscription: $(dev-azure-subscription)
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+      
+  - template: ../templates/stages/stage_deploy-codebase.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      stageDependsOn: Start_DEV
       envLabel: "Dev"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "DEV"
@@ -44,11 +56,22 @@ stages:
       azureSubscription: $(dev-azure-subscription)
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      
+  - template: ../templates/stages/stage_stop-slots.yml
+    parameters:
+      stageBuildAgent: $(dev-build-agent)
+      stageDependsOn: Swap_DEV
+      targetSuffix: "-dev"
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "DEV"
+      azureSubscription: $(dev-azure-subscription)
+      appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
-      stageDependsOn: Swap_DEV
+      stageDependsOn: Stop_DEV
       envLabel: "Dev"
       targetBuild: PolarisCodebaseBuild
       targetSuffix: "-dev"
@@ -76,10 +99,22 @@ stages:
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
 
-  - template: ../templates/stages/stage_deploy-codebase.yml
+  - template: ../templates/stages/stage_start-slots.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Run_e2e_Tests_DEV
+      envLabel: "QA"
+      targetSuffix: "-qa"
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "QA"
+      azureSubscription: $(qa-azure-subscription)
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
+  
+  - template: ../templates/stages/stage_deploy-codebase.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Start_QA
       envLabel: "QA"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "QA"
@@ -99,11 +134,22 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      
+  - template: ../templates/stages/stage_stop-slots.yml
+    parameters:
+      stageBuildAgent: $(qa-build-agent)
+      stageDependsOn: Swap_QA
+      targetSuffix: "-qa"
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "QA"
+      azureSubscription: $(qa-azure-subscription)
+      appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Swap_QA
+      stageDependsOn: Stop_QA
       envLabel: "QA"
       targetBuild: PolarisCodebaseBuild
       targetSuffix: "-qa"
@@ -130,11 +176,23 @@ stages:
       buildDefinitionId: 210
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      
+  - template: ../templates/stages/stage_start-slots.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Run_e2e_Tests_DEV
+      envLabel: "Prod"
+      targetSuffix: ""
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "PROD"
+      azureSubscription: $(prod-azure-subscription)
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
 
   - template: ../templates/stages/stage_deploy-codebase.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Start_PROD
       envLabel: "Prod"
       targetBuild: PolarisCodebaseBuild
       targetLabel: "PROD"
@@ -154,11 +212,22 @@ stages:
       azureSubscription: $(prod-azure-subscription)
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
       devOpsPatToken: "$(devops-pat-token)"
+      
+  - template: ../templates/stages/stage_stop-slots.yml
+    parameters:
+      stageBuildAgent: $(prod-build-agent)
+      stageDependsOn: Swap_PROD
+      targetSuffix: ""
+      targetBuild: PolarisCodebaseBuild
+      targetLabel: "PROD"
+      azureSubscription: $(prod-azure-subscription)
+      appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      devOpsPatToken: "$(devops-pat-token)"
 
   - template: ../templates/stages/stage_status-checks.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Swap_PROD
+      stageDependsOn: Stop_PROD
       envLabel: "Prod"
       targetBuild: PolarisCodebaseBuild
       targetSuffix: ""
