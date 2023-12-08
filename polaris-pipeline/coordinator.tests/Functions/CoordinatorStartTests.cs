@@ -45,7 +45,7 @@ namespace coordinator.tests.Functions
             _correlationId = fixture.Create<Guid>();
             _instanceId = RefreshCaseOrchestrator.GetKey(_caseId);
             _httpRequestMessage = new HttpRequestMessage();
-            
+
             _httpRequestMessage.Method = HttpMethod.Post;
             _httpRequestMessage.RequestUri = new Uri("https://www.test.co.uk");
             _httpRequestHeaders = _httpRequestMessage.Headers;
@@ -58,7 +58,7 @@ namespace coordinator.tests.Functions
 
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
-            
+
             mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<string>(), It.IsAny<Guid>()))
                 .Returns(Task.CompletedTask);
 
@@ -74,7 +74,7 @@ namespace coordinator.tests.Functions
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
                     It.IsAny<Guid>(), It.IsAny<int>()))
                 .ReturnsAsync(_httpResponseMessage);
-            
+
             _coordinatorStart = new CaseClient(_mockLogger.Object,
                                                _mockOrchestrationProvider.Object);
         }
@@ -158,14 +158,6 @@ namespace coordinator.tests.Functions
                     _caseId,
                     It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum),
                     _httpRequestMessage));
-        }
-
-        [Fact]
-        public async Task Run_LogsAtLeastOnce()
-        {
-            await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
-
-            _mockLogger.Verify(x => x.IsEnabled(LogLevel.Information), Times.AtLeastOnce);
         }
 
         [Fact]

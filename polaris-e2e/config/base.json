@@ -23,6 +23,7 @@
   "TARGET_NOT_OCR_PROCESSED_DOCUMENT_NAME": "doc-toggle-not-redactable-on-ocr",
   "TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-doc-type",
   "TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-checked-out",
+  "TARGET_DIRECTION_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-direction",
   "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable",
 
   "ATTACHMENT_TARGET_URN": "45DC0702322",

@@ -1,0 +1,9 @@
+AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where ResultCode == 423
+| extend User = tostring(Properties.User)
+| where User != "REDACTED@REDACTED.EMAIL.ADDRESS"
+| extend Urn = tostring(extract("/urns/([^/]+)", 1, Url))
+| summarize TimeGenerated = min(TimeGenerated) by Urn
+| summarize CountCasesBroken = count() by bin(TimeGenerated, 1d)
+| render columnchart 

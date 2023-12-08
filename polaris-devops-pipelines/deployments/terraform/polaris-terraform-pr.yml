@@ -7,10 +7,7 @@ pr:
       - main
   paths:
     include:
-      - polaris-terraform/pipeline-terraform/*
-      - polaris-terraform/pipeline-events-terraform/*
-      - polaris-terraform/ui-terraform/*
-      - polaris-terraform/ui-events-terraform/*
+      - polaris-terraform/*
 
 variables:
   - group: kv-dev-terraform

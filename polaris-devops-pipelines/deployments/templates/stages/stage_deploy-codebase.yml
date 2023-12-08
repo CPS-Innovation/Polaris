@@ -37,12 +37,6 @@ stages:
           targetName: ${{ parameters.targetName }}
           appInsightsKey: ${{ parameters.appInsightsKey }}
           
-      - template: jobs/job_generate-slot-name.yml
-        parameters:
-          targetBuild: ${{ parameters.targetBuild }}
-          jobDependsOn:
-            - LogStart
-
       - template: jobs/job_deploy-codebase.yml
         parameters:
           envLabel: ${{ parameters.envLabel }}
@@ -53,7 +47,7 @@ stages:
           appInsightsKey: ${{ parameters.appInsightsKey }}
           azureSubscription: ${{ parameters.azureSubscription }}
           jobDependsOn:
-            - GenerateSlotName
+            - LogStart
 
       - template: jobs/job_log-result-deployment.yml
         parameters:

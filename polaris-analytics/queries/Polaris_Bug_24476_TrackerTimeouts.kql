@@ -1,0 +1,4 @@
+AppExceptions
+| where ExceptionType == "System.TimeoutException"
+| where AppRoleName in ("fa-polaris-coordinator", "fa-polaris-pipeline-coordinator")
+| summarize count() by bin(TimeGenerated, 6h)

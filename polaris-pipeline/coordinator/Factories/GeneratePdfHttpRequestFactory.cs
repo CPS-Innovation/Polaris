@@ -30,8 +30,6 @@ namespace coordinator.Factories
         public DurableHttpRequest Create(string caseUrn, long caseId, string documentCategory, string documentId, string fileName, long versionId,
             string cmsAuthValues, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(Create), $"CaseUrn:{caseUrn}, CaseId:{caseId}, DocumentId:{documentId}, VersionId:{versionId}, FileName:{fileName}");
-
             try
             {
                 var headers = new Dictionary<string, StringValues>
@@ -49,10 +47,6 @@ namespace coordinator.Factories
             catch (Exception ex)
             {
                 throw new GeneratePdfHttpRequestFactoryException(ex.Message);
-            }
-            finally
-            {
-                _logger.LogMethodExit(correlationId, nameof(Create), string.Empty);
             }
         }
     }

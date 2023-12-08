@@ -18,10 +18,17 @@ let isKnownBug = (
     let lbd = tostring(loadBalancedDestination);
 
     case(
+                csc contains "502",
+        "BadGateway - proxy cannot reach CMS",
+                op contains "Ping",
+        "Ping - Ping failure",
+    
                 om contains "System.OutOfMemoryException" and op contains "ConvertToPdf",
         "24379 - System.OutOfMemoryException in Pdf Generator",
+
                 me contains "Ddei.Mappers.CaseDetailsMapper.FindHeadlineCharge",
         "24083 - Headline charge mapping error",
+
                 op contains "RedactPdf"
         and om contains "At most 4 elements (for any collection) can be viewed in evaluation mode",
         "22794 - Aspose 4 elements",
@@ -76,7 +83,7 @@ let isKnownBug = (
             op contains "GeneratePdf"
         and me contains "ConvertToPdfAsync"
         and (et contains "HttpRequestException" or et contains "SocketException"),
-        "23502 - Convert Pdf slow",
+        "23502 - Convert Pdf 500 Errors (e.g. image export)",
 
             op contains "GeneratePdf"
         and im contains "'HTM'",
@@ -94,7 +101,7 @@ let isKnownBug = (
         and im contains "The specified blob does not exist",
         "23618 - Blob does not exist",
 
-            (csc == '' or csc == 200) and et contains "GraphQL.Client.Http.GraphQLHttpRequestException",
+            (csc == '' or csc == 200 or csc == 401) and et contains "GraphQL.Client.Http.GraphQLHttpRequestException",
         "23616 - Auth fail CmsModern post-InitiateCookies",
 
             me contains "Netherite" and om contains "Timeout",
@@ -103,6 +110,15 @@ let isKnownBug = (
             op contains "SlidingCaseClearDown" and (om contains "Timeout" or om contains "502"),
         "23755 - SlidingCaseClearDown timeouts",
 
+            op contains "GeneratePdf" and im contains "Requested value" and im contains "was not found.",
+        "24381 - Pdf Conversion on unknown file type",
+
+            op contains "ListDocuments" and om contains "Error converting value {null} to type 'System.Int32'. Path 'data.attachments",
+        "24539 - DDEI statement.witness mapping error",
+            im contains "Connection reset by peer" and op contains "GeneratePdf",
+        "24709 - Pdf generator rejects coordinator http connection",
+            et contains "Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException",
+        "24710 - AD token expiry",
     "");
 };
 

@@ -118,8 +118,8 @@ export const AccordionSection: React.FC<Props> = ({
         {Object.keys(subCategories).length
           ? Object.keys(subCategories)
               .sort()
-              .map((subCategory, index) => (
-                <div key={index}>
+              .map((subCategory) => (
+                <div key={subCategory}>
                   {renderAccordionDocument(
                     subCategories[subCategory],
                     subCategory
