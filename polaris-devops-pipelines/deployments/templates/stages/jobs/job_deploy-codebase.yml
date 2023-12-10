@@ -18,22 +18,8 @@ parameters:
     type: object
 
 jobs:
-  - deployment: Environment_Gate
-    dependsOn: ${{ parameters.jobDependsOn }}
-    environment: ${{ parameters.envLabel }}
-    workspace:
-      clean: all
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            # download scripts artifact
-            - download: ${{ parameters.targetBuild }}
-              displayName: Download Scripts
-              artifact: 'polaris-script-files'
-
   - job: Start_Pipeline_Slots
-    dependsOn: Environment_Gate
+    dependsOn: ${{ parameters.jobDependsOn }}
     strategy:
       matrix:
         Coordinator:
@@ -59,7 +45,7 @@ jobs:
           WebAppName: $(AppServiceName)
 
   - job: Start_UI_Slots
-    dependsOn: Environment_Gate
+    dependsOn: ${{ parameters.jobDependsOn }}
     strategy:
       matrix:
         SPA:
