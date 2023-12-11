@@ -4,7 +4,6 @@ import { Select } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionType } from "../../../domain/redactionLog/RedactionType";
-import { FEATURE_FLAG_REDACTION_LOG } from "../../../../../config";
 import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
 
 type Props = {
@@ -35,7 +34,7 @@ export const RedactButton: React.FC<Props> = ({
   useLastFocus();
 
   const handleClickRedact = () => {
-    if (FEATURE_FLAG_REDACTION_LOG) {
+    if (redactionTypesData.length) {
       const selectedType = redactionTypesData.find(
         (type) => type.id === redactionType
       )!;
@@ -48,7 +47,7 @@ export const RedactButton: React.FC<Props> = ({
     <div
       id="redact-modal"
       className={
-        FEATURE_FLAG_REDACTION_LOG
+        redactionTypesData.length
           ? classes.redactionModal
           : classes.redactBtnModal
       }
@@ -63,7 +62,7 @@ export const RedactButton: React.FC<Props> = ({
       <span id="redact-modal-description" className={classes.modalDescription}>
         A modal with a redact button to help user to redact selected text
       </span>
-      {FEATURE_FLAG_REDACTION_LOG && (
+      {redactionTypesData.length > 0 && (
         <div className="govuk-form-group">
           <Select
             label={{
@@ -85,7 +84,7 @@ export const RedactButton: React.FC<Props> = ({
         </div>
       )}
       <button
-        disabled={FEATURE_FLAG_REDACTION_LOG ? !redactionType : false}
+        disabled={redactionTypesData.length ? !redactionType : false}
         className={classes.redactButton}
         onClick={handleClickRedact}
         data-testid="btn-redact"

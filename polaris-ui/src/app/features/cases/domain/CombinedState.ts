@@ -7,6 +7,7 @@ import { PipelineResults } from "./gateway/PipelineResults";
 import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
+import { FeatureFlagData } from "./FeatureFlagData";
 import { FilterOption } from "./FilterOption";
 import {
   RedactionLogData,
@@ -65,4 +66,5 @@ export type CombinedState = {
     redactionLogData: AsyncResult<RedactionLogData>;
     redactionTypes: RedactionTypes[];
   };
+  featureFlags: AsyncResult<FeatureFlagData>;
 };

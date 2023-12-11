@@ -26,6 +26,8 @@ import {
   RedactionLogData,
   RedactionTypes,
 } from "../../domain/redactionLog/RedactionLogData";
+import { AsyncResult } from "../../../../common/types/AsyncResult";
+import { FeatureFlagData } from "../../domain/FeatureFlagData";
 export const reducer = (
   state: CombinedState,
   action:
@@ -156,6 +158,10 @@ export const reducer = (
     | {
         type: "UPDATE_REDACTION_LOG_DATA";
         payload: ApiResult<RedactionLogData>;
+      }
+    | {
+        type: "UPDATE_FEATURE_FLAGS_DATA";
+        payload: AsyncResult<FeatureFlagData>;
       }
 ): CombinedState => {
   switch (action.type) {
@@ -846,6 +852,13 @@ export const reducer = (
           showModal: action.payload.show,
           redactionTypes: action.payload.redactionTypes,
         },
+      };
+    }
+
+    case "UPDATE_FEATURE_FLAGS_DATA": {
+      return {
+        ...state,
+        featureFlags: action.payload,
       };
     }
 

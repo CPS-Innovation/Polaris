@@ -15,6 +15,7 @@ import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogRequestData } from "../../domain/redactionLog/ViewModal";
 import { FEATURE_FLAG_REDACTION_LOG } from "../../../../config";
+import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -59,6 +60,7 @@ export const initialState = {
     redactionLogData: { status: "loading" },
     redactionTypes: [],
   },
+  featureFlags: { status: "loading" },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
@@ -66,13 +68,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     "hellooo calling useCaseDetailsState...",
     FEATURE_FLAG_REDACTION_LOG
   );
-
-  const redactionLogData = useApi(
-    getRedactionLogData,
-    [],
-    FEATURE_FLAG_REDACTION_LOG
-  );
-
+  const featureFlagData = useUserGroupsFeatureFlag();
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -88,6 +84,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     combinedState.pipelineRefreshData
   );
 
+  const redactionLogData = useApi(
+    getRedactionLogData,
+    [],
+    combinedState.featureFlags.status === "succeeded"
+      ? combinedState.featureFlags.data.redactionLog
+      : false
+  );
+
   useEffect(() => {
     if (redactionLogData.status !== "initial")
       dispatch({
@@ -95,6 +99,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
         payload: redactionLogData,
       });
   }, [redactionLogData, dispatch]);
+
+  useEffect(() => {
+    if (combinedState.featureFlags.status === "loading")
+      dispatch({
+        type: "UPDATE_FEATURE_FLAGS_DATA",
+        payload: { status: "succeeded", data: featureFlagData },
+      });
+  }, [featureFlagData, combinedState.featureFlags.status, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")

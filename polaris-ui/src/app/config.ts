@@ -40,6 +40,9 @@ export const FEATURE_FLAG_HTE_EMAILS_ON =
 export const FEATURE_FLAG_REDACTION_LOG =
   process.env.REACT_APP_FEATURE_FLAG_REDACTION_LOG === "true";
 
+export const PRIVATE_BETA_REDACTION_LOG_FEATURE =
+  process.env.REACT_APP_PRIVATE_BETA_REDACTION_LOG_FEATURE ?? "";
+
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "test") {
