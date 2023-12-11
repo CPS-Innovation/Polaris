@@ -39,7 +39,7 @@ const defaultValues = {
   investigatingAgency: "",
   chargeStatus: `${ChargeStatus.PostCharge}`,
   documentType: "",
-  textArea: "",
+  notes: "",
 };
 
 export type UnderRedactionFormData = {
@@ -222,7 +222,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         name: mappedDocumentType?.name,
       },
       missedRedactions: redactionTypes,
-      notes: "abc" || null,
+      notes: viewModel.notes || null,
       returnedToInvestigativeAuthority: false,
       chargeStatus: viewModel.chargeStatus as unknown as ChargeStatus,
       redactionType: RedactionCategory.UnderRedacted,
@@ -256,239 +256,226 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             {redactionLogGuidanceContent()}
           </Guidance>
         </div>
-
-        <form
-          className={classes.underRedactionForm}
-          onSubmit={() => {
-            console.log("hellooo");
-          }}
-        >
-          <div className={classes.selectInputWrapper}>
-            <section className={classes.selectSection}>
-              <Controller
-                name="cpsArea"
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field }) => {
-                  return (
-                    <Select
-                      {...field}
-                      errorMessage={
-                        errors.cpsArea && {
-                          children: "Select an Area or Division",
-                        }
-                      }
-                      label={{
-                        htmlFor: "select-cps-area",
-                        children: "CPS Area or Central Casework Division:",
-                        className: classes.selectLabel,
-                      }}
-                      id="select-cps-area"
-                      data-testid="select-cps-area"
-                      formGroup={{
-                        className: classes.select,
-                      }}
-                      items={getMappedSelectItems().areaOrDivisions}
-                    />
-                  );
-                }}
-              />
-              {/* {errors.cpsArea && (
-                <p
-                  className={classes.errorMsg}
-                >{`an error of type: ${errors.cpsArea?.type}`}</p>
-              )} */}
-            </section>
-            <section className={classes.selectSection}>
-              <Controller
-                name="businessUnit"
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field }) => {
-                  return (
-                    <Select
-                      {...field}
-                      errorMessage={
-                        errors.businessUnit && {
-                          children: "Select a Business Unit",
-                        }
-                      }
-                      label={{
-                        htmlFor: "select-cps-bu",
-                        children: "CPS Business Unit:",
-                        className: classes.selectLabel,
-                      }}
-                      id="select-cps-bu"
-                      data-testid="select-cps-bu"
-                      formGroup={{
-                        className: classes.select,
-                      }}
-                      items={getMappedBusinessUnits()}
-                    />
-                  );
-                }}
-              />
-            </section>
-            <section className={classes.selectSection}>
-              <Controller
-                name="investigatingAgency"
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field }) => {
-                  return (
-                    <Select
-                      {...field}
-                      errorMessage={
-                        errors.investigatingAgency && {
-                          children: "Select an Investigative Agency",
-                        }
-                      }
-                      label={{
-                        htmlFor: "select-cps-ia",
-                        children: "Investigative Agency:",
-                        className: classes.selectLabel,
-                      }}
-                      id="select-cps-ia"
-                      data-testid="select-cps-ia"
-                      formGroup={{
-                        className: classes.select,
-                      }}
-                      items={getMappedSelectItems().investigatingAgencies}
-                    />
-                  );
-                }}
-              />
-            </section>
-            <section className={classes.selectSection}>
-              <Controller
-                name="chargeStatus"
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field }) => {
-                  return (
-                    <Select
-                      {...field}
-                      errorMessage={
-                        errors.chargeStatus && {
-                          children: "Select a Charge Status",
-                        }
-                      }
-                      label={{
-                        htmlFor: "select-cps-cs",
-                        children: "Charge Status:",
-                        className: classes.selectLabel,
-                      }}
-                      id="select-cps-cs"
-                      data-testid="select-cps-cs"
-                      formGroup={{
-                        className: classes.select,
-                      }}
-                      items={[
-                        {
-                          children: ChargeStatusLabels[ChargeStatus.PreCharge],
-                          value: `${ChargeStatus.PreCharge}`,
-                        },
-                        {
-                          children: ChargeStatusLabels[ChargeStatus.PostCharge],
-                          value: `${ChargeStatus.PostCharge}`,
-                        },
-                      ]}
-                    />
-                  );
-                }}
-              />
-            </section>
-            <section className={classes.selectSection}>
-              <Controller
-                name="documentType"
-                control={control}
-                rules={{
-                  required: true,
-                }}
-                render={({ field }) => {
-                  return (
-                    <Select
-                      {...field}
-                      errorMessage={
-                        errors.documentType && {
-                          children: "Select a Document Type",
-                        }
-                      }
-                      label={{
-                        htmlFor: "select-cps-dt",
-                        children: "Document Type:",
-                        className: classes.selectLabel,
-                      }}
-                      id="select-cps-dt"
-                      data-testid="select-cps-dt"
-                      formGroup={{
-                        className: classes.select,
-                      }}
-                      items={getMappedSelectItems().documentTypes}
-                    />
-                  );
-                }}
-              />
-            </section>
-          </div>
-        </form>
       </div>
-      <div className={classes.modalBodyWrapper}>
-        <section>
-          <UnderRedactionContent
-            documentName={documentName}
-            redactionTypes={redactionTypes}
-          />
-        </section>
-        <section className={classes.textAreaSection}>
-          <Guidance
-            name="Guidance on supporting notes"
-            className={classes.supportingNotesGuidance}
-          >
-            {supportingNotesGuidanceContent()}
-          </Guidance>
+      <form className={classes.underRedactionForm}>
+        <div className={classes.selectInputWrapper}>
+          <section className={classes.selectSection}>
+            <Controller
+              name="cpsArea"
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field }) => {
+                return (
+                  <Select
+                    {...field}
+                    errorMessage={
+                      errors.cpsArea && {
+                        children: "Select an Area or Division",
+                      }
+                    }
+                    label={{
+                      htmlFor: "select-cps-area",
+                      children: "CPS Area or Central Casework Division:",
+                      className: classes.selectLabel,
+                    }}
+                    id="select-cps-area"
+                    data-testid="select-cps-area"
+                    formGroup={{
+                      className: classes.select,
+                    }}
+                    items={getMappedSelectItems().areaOrDivisions}
+                  />
+                );
+              }}
+            />
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="businessUnit"
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field }) => {
+                return (
+                  <Select
+                    {...field}
+                    errorMessage={
+                      errors.businessUnit && {
+                        children: "Select a Business Unit",
+                      }
+                    }
+                    label={{
+                      htmlFor: "select-cps-bu",
+                      children: "CPS Business Unit:",
+                      className: classes.selectLabel,
+                    }}
+                    id="select-cps-bu"
+                    data-testid="select-cps-bu"
+                    formGroup={{
+                      className: classes.select,
+                    }}
+                    items={getMappedBusinessUnits()}
+                  />
+                );
+              }}
+            />
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="investigatingAgency"
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field }) => {
+                return (
+                  <Select
+                    {...field}
+                    errorMessage={
+                      errors.investigatingAgency && {
+                        children: "Select an Investigative Agency",
+                      }
+                    }
+                    label={{
+                      htmlFor: "select-cps-ia",
+                      children: "Investigative Agency:",
+                      className: classes.selectLabel,
+                    }}
+                    id="select-cps-ia"
+                    data-testid="select-cps-ia"
+                    formGroup={{
+                      className: classes.select,
+                    }}
+                    items={getMappedSelectItems().investigatingAgencies}
+                  />
+                );
+              }}
+            />
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="chargeStatus"
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field }) => {
+                return (
+                  <Select
+                    {...field}
+                    errorMessage={
+                      errors.chargeStatus && {
+                        children: "Select a Charge Status",
+                      }
+                    }
+                    label={{
+                      htmlFor: "select-cps-cs",
+                      children: "Charge Status:",
+                      className: classes.selectLabel,
+                    }}
+                    id="select-cps-cs"
+                    data-testid="select-cps-cs"
+                    formGroup={{
+                      className: classes.select,
+                    }}
+                    items={[
+                      {
+                        children: ChargeStatusLabels[ChargeStatus.PreCharge],
+                        value: `${ChargeStatus.PreCharge}`,
+                      },
+                      {
+                        children: ChargeStatusLabels[ChargeStatus.PostCharge],
+                        value: `${ChargeStatus.PostCharge}`,
+                      },
+                    ]}
+                  />
+                );
+              }}
+            />
+          </section>
+          <section className={classes.selectSection}>
+            <Controller
+              name="documentType"
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field }) => {
+                return (
+                  <Select
+                    {...field}
+                    errorMessage={
+                      errors.documentType && {
+                        children: "Select a Document Type",
+                      }
+                    }
+                    label={{
+                      htmlFor: "select-cps-dt",
+                      children: "Document Type:",
+                      className: classes.selectLabel,
+                    }}
+                    id="select-cps-dt"
+                    data-testid="select-cps-dt"
+                    formGroup={{
+                      className: classes.select,
+                    }}
+                    items={getMappedSelectItems().documentTypes}
+                  />
+                );
+              }}
+            />
+          </section>
+        </div>
 
-          <TextArea
-            value={"abc"}
-            onChange={() => {}}
-            name="more-details"
-            id="more-details"
-            data-testid="report-issue-more-details"
-            label={{
-              children: (
-                <span className={classes.textAreaLabel}>
-                  Supporting notes (optional)
-                </span>
-              ),
-            }}
-          />
-        </section>
-      </div>
+        <div className={classes.modalBodyWrapper}>
+          <section>
+            <UnderRedactionContent
+              documentName={documentName}
+              redactionTypes={redactionTypes}
+            />
+          </section>
+          <section className={classes.textAreaSection}>
+            <Guidance
+              name="Guidance on supporting notes"
+              className={classes.supportingNotesGuidance}
+            >
+              {supportingNotesGuidanceContent()}
+            </Guidance>
+            <Controller
+              name="notes"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <TextArea
+                    {...field}
+                    id="redaction-log-notes"
+                    data-testid="redaction-log-notes"
+                    label={{
+                      children: (
+                        <span className={classes.textAreaLabel}>
+                          Supporting notes (optional)
+                        </span>
+                      ),
+                    }}
+                  />
+                );
+              }}
+            />
+          </section>
+        </div>
+      </form>
+
       <div className={classes.btnWrapper}>
         <Button
           disabled={savingStatus === "saving" || savingRedactionLog}
           type="submit"
           className={classes.saveBtn}
           onClick={handleSubmit((data) => {
-            console.log("data >>>", data);
-            console.log(
-              "mapToRedactioViewModal>>",
-              mapToRedactioViewModal({
-                ...data,
-                notes: "abc",
-              })
-            );
             const redactionLogRequestData = mapToRedactioViewModal({
               ...data,
-              notes: "abc",
             });
             setSavingRedactionLog(true);
             saveRedactionLog(redactionLogRequestData);

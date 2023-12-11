@@ -16,7 +16,6 @@
   .modalContentHeading {
     margin: 0;
     display: block;
-    background: #f3f2f1;
     max-width: 70%;
   }
   .supportingNotesGuidance {
@@ -62,9 +61,8 @@
     padding: 0 30px;
   }
   .modalHeadWrapper {
+    padding: 30px 30px 0px 30px;
     background: #f3f2f1;
-    padding: 30px;
-    border-bottom: 1px solid #b1b4b6;
   }
   .modalBodyWrapper {
     border-bottom: 3px dashed #b1b4b6;
@@ -97,6 +95,9 @@
   justify-content: flex-start;
   padding-top: 10px;
   flex-wrap: wrap;
+  padding: 0px 30px 30px 30px;
+  background-color: #f3f2f1;
+  border-bottom: 1px solid #b1b4b6;
 }
 .underRedactionForm {
   width: 100%;
