@@ -10,15 +10,17 @@ import {
 import { RedactionLogRequestData } from "../../../domain/redactionLog/ViewModal";
 
 type Props = {
+  caseUrn: string;
+  documentName: string;
   savingStatus: SavingStatus;
   redactionTypes: RedactionTypes[];
   redactionLogData: RedactionLogData;
-  handleShowHideDocumentIssueModal?: (value: boolean) => void;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
 export const RedactionLogModal: React.FC<Props> = ({
-  handleShowHideDocumentIssueModal,
+  caseUrn,
+  documentName,
   redactionTypes,
   savingStatus,
   redactionLogData,
@@ -32,6 +34,8 @@ export const RedactionLogModal: React.FC<Props> = ({
       ariaDescription="Contains form to be filled out and submitted for redaction log "
     >
       <RedactionLogContent
+        caseUrn={caseUrn}
+        documentName={documentName}
         redactionTypes={redactionTypes}
         savingStatus={savingStatus}
         redactionLogData={redactionLogData}

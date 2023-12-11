@@ -24,6 +24,8 @@ import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategor
 import { RedactionLogRequestData } from "../../../domain/redactionLog/ViewModal";
 import { AreaDivision } from "../../../domain/redactionLog/AreaDivision";
 type RedactionLogContentProps = {
+  caseUrn: string;
+  documentName: string;
   redactionTypes: RedactionTypes[];
   savingStatus: SavingStatus;
   redactionLogData: RedactionLogData;
@@ -32,10 +34,10 @@ type RedactionLogContentProps = {
 };
 
 const defaultValues = {
-  cpsArea: "2",
-  businessUnit: "1",
+  cpsArea: "",
+  businessUnit: "",
   investigatingAgency: "",
-  chargeStatus: "1",
+  chargeStatus: `${ChargeStatus.PostCharge}`,
   documentType: "",
   textArea: "",
 };
@@ -50,7 +52,8 @@ export type UnderRedactionFormData = {
 };
 
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
-  message,
+  caseUrn,
+  documentName,
   savingStatus,
   saveRedactionLog,
   redactionTypes,
@@ -59,7 +62,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
   const {
     handleSubmit,
-    getValues,
     formState: { errors },
     control,
     watch,
@@ -204,7 +206,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     )!;
 
     const mappedData = {
-      urn: "urn",
+      urn: caseUrn,
       unit: {
         id: `${mappedArea?.id}-${mappedBusinessUnit?.id}`,
         type: "Area" as const,
@@ -266,21 +268,18 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               <Controller
                 name="cpsArea"
                 control={control}
-                // rules={{
-                //   required: true,
-                //   validate: {
-                //     test1: (value) => {
-                //       if (value === "1") return false;
-                //     },
-                //     test2: (value) => {
-                //       if (value === "2") return false;
-                //     },
-                //   },
-                // }}
+                rules={{
+                  required: true,
+                }}
                 render={({ field }) => {
                   return (
                     <Select
                       {...field}
+                      errorMessage={
+                        errors.cpsArea && {
+                          children: "Select an Area or Division",
+                        }
+                      }
                       label={{
                         htmlFor: "select-cps-area",
                         children: "CPS Area or Central Casework Division:",
@@ -296,26 +295,31 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                   );
                 }}
               />
-              {errors.cpsArea?.type === "required" && (
-                <p className={classes.errorMsg}>This is a required field.</p>
-              )}
-              {errors.cpsArea && (
+              {/* {errors.cpsArea && (
                 <p
                   className={classes.errorMsg}
                 >{`an error of type: ${errors.cpsArea?.type}`}</p>
-              )}
+              )} */}
             </section>
             <section className={classes.selectSection}>
               <Controller
                 name="businessUnit"
                 control={control}
+                rules={{
+                  required: true,
+                }}
                 render={({ field }) => {
                   return (
                     <Select
                       {...field}
+                      errorMessage={
+                        errors.businessUnit && {
+                          children: "Select a Business Unit",
+                        }
+                      }
                       label={{
                         htmlFor: "select-cps-bu",
-                        children: "CPS Business unit:",
+                        children: "CPS Business Unit:",
                         className: classes.selectLabel,
                       }}
                       id="select-cps-bu"
@@ -328,23 +332,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                   );
                 }}
               />
-              {errors.businessUnit?.type === "required" && (
-                <p className={classes.errorMsg}>This is a required field.</p>
-              )}
-              {errors.businessUnit && (
-                <p
-                  className={classes.errorMsg}
-                >{`an error of type: ${errors.businessUnit?.type}`}</p>
-              )}
             </section>
             <section className={classes.selectSection}>
               <Controller
                 name="investigatingAgency"
                 control={control}
+                rules={{
+                  required: true,
+                }}
                 render={({ field }) => {
                   return (
                     <Select
                       {...field}
+                      errorMessage={
+                        errors.investigatingAgency && {
+                          children: "Select an Investigative Agency",
+                        }
+                      }
                       label={{
                         htmlFor: "select-cps-ia",
                         children: "Investigative Agency:",
@@ -360,23 +364,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                   );
                 }}
               />
-              {errors.investigatingAgency?.type === "required" && (
-                <p className={classes.errorMsg}>This is a required field.</p>
-              )}
-              {errors.investigatingAgency && (
-                <p
-                  className={classes.errorMsg}
-                >{`an error of type: ${errors.investigatingAgency?.type}`}</p>
-              )}
             </section>
             <section className={classes.selectSection}>
               <Controller
                 name="chargeStatus"
                 control={control}
+                rules={{
+                  required: true,
+                }}
                 render={({ field }) => {
                   return (
                     <Select
                       {...field}
+                      errorMessage={
+                        errors.chargeStatus && {
+                          children: "Select a Charge Status",
+                        }
+                      }
                       label={{
                         htmlFor: "select-cps-cs",
                         children: "Charge Status:",
@@ -401,23 +405,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                   );
                 }}
               />
-              {errors.chargeStatus?.type === "required" && (
-                <p className={classes.errorMsg}>This is a required field.</p>
-              )}
-              {errors.chargeStatus && (
-                <p
-                  className={classes.errorMsg}
-                >{`an error of type: ${errors.chargeStatus?.type}`}</p>
-              )}
             </section>
             <section className={classes.selectSection}>
               <Controller
                 name="documentType"
                 control={control}
+                rules={{
+                  required: true,
+                }}
                 render={({ field }) => {
                   return (
                     <Select
                       {...field}
+                      errorMessage={
+                        errors.documentType && {
+                          children: "Select a Document Type",
+                        }
+                      }
                       label={{
                         htmlFor: "select-cps-dt",
                         children: "Document Type:",
@@ -433,14 +437,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                   );
                 }}
               />
-              {errors.documentType?.type === "required" && (
-                <p className={classes.errorMsg}>This is a required field.</p>
-              )}
-              {errors.documentType && (
-                <p
-                  className={classes.errorMsg}
-                >{`an error of type: ${errors.documentType?.type}`}</p>
-              )}
             </section>
           </div>
         </form>
@@ -448,7 +444,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       <div className={classes.modalBodyWrapper}>
         <section>
           <UnderRedactionContent
-            documentName="ABC_MG3"
+            documentName={documentName}
             redactionTypes={redactionTypes}
           />
         </section>

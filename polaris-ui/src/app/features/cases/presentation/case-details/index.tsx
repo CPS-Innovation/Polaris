@@ -138,7 +138,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const getActiveTabDocument = () => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
-    );
+    )!;
   };
 
   console.log(
@@ -228,8 +228,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       {redactionLog.showModal &&
         redactionLog.redactionLogData.status === "succeeded" && (
           <RedactionLogModal
+            caseUrn={urn}
+            documentName={getActiveTabDocument().presentationFileName}
             redactionTypes={redactionLog.redactionTypes}
-            savingStatus={getActiveTabDocument()!.savingStatus}
+            savingStatus={getActiveTabDocument().savingStatus}
             redactionLogData={redactionLog.redactionLogData.data}
             saveRedactionLog={handleSavedRedactionLog}
           />
