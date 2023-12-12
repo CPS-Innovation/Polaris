@@ -13,7 +13,7 @@ type Props = {
   caseUrn: string;
   documentName: string;
   savingStatus: SavingStatus;
-  redactionTypes: RedactionTypes[];
+  savedRedactionTypes: RedactionTypes[];
   redactionLogData: RedactionLogData;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
@@ -21,7 +21,7 @@ type Props = {
 export const RedactionLogModal: React.FC<Props> = ({
   caseUrn,
   documentName,
-  redactionTypes,
+  savedRedactionTypes,
   savingStatus,
   redactionLogData,
   saveRedactionLog,
@@ -36,7 +36,7 @@ export const RedactionLogModal: React.FC<Props> = ({
       <RedactionLogContent
         caseUrn={caseUrn}
         documentName={documentName}
-        redactionTypes={redactionTypes}
+        savedRedactionTypes={savedRedactionTypes}
         savingStatus={savingStatus}
         redactionLogData={redactionLogData}
         saveRedactionLog={saveRedactionLog}

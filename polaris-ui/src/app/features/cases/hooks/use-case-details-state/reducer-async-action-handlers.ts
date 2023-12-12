@@ -295,7 +295,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         documentId,
         redactionHighlights
       );
-      const redactionTypes = redactionHighlights.map(
+      const savedRedactionTypes = redactionHighlights.map(
         ({ redactionType }) => redactionType!
       );
       try {
@@ -307,7 +307,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
           payload: {
             show: true,
-            redactionTypes: redactionTypes,
+            savedRedactionTypes: savedRedactionTypes,
           },
         });
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
@@ -344,7 +344,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, redactionTypes: [] },
+          payload: { show: false, savedRedactionTypes: [] },
         });
       }
 
@@ -383,12 +383,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
 
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, redactionTypes: [] },
+          payload: { show: false, savedRedactionTypes: [] },
         });
       } catch (e) {
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, redactionTypes: [] },
+          payload: { show: false, savedRedactionTypes: [] },
         });
         dispatch({
           type: "SHOW_ERROR_MODAL",

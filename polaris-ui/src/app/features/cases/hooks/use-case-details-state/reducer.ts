@@ -152,7 +152,7 @@ export const reducer = (
         type: "SHOW_HIDE_REDACTION_LOG_MODAL";
         payload: {
           show: boolean;
-          redactionTypes: RedactionTypes[];
+          savedRedactionTypes: RedactionTypes[];
         };
       }
     | {
@@ -850,7 +850,7 @@ export const reducer = (
         redactionLog: {
           ...state.redactionLog,
           showModal: action.payload.show,
-          redactionTypes: action.payload.redactionTypes,
+          savedRedactionTypes: action.payload.savedRedactionTypes,
         },
       };
     }

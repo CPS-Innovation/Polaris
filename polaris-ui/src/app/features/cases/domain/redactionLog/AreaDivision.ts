@@ -22,31 +22,3 @@ export enum AreaDivision {
   TestDivision1 = "Test Division 1",
   TestDivision2 = "Test Division 2",
 }
-
-export const areaDivisionsByGroup: { [type: string]: AreaDivision } = {
-  "AZURE-WALES": AreaDivision.Wales,
-  "AZURE-EAST_MIDLANDS": AreaDivision.EastMidlands,
-  "AZURE-EAST_OF_ENGLAND": AreaDivision.EastOfEngland,
-  "AZURE-LONDON_NORTH": AreaDivision.LondonNorth,
-  "AZURE-LONDON_SOUTH": AreaDivision.LondonSouth,
-  "AZURE-MERSEY_CHESHIRE": AreaDivision.MerseryCheshire,
-  "AZURE-NORTH_EAST": AreaDivision.NorthEast,
-  "AZURE-NORTH_WEST": AreaDivision.NorthWest,
-  "AZURE-SOUTH_EAST": AreaDivision.SouthEast,
-  "AZURE-SOUTH_WEST": AreaDivision.SouthWest,
-  "AZURE-THAMES_AND_CHILTERN": AreaDivision.ThamesAndChiltern,
-  "AZURE-WESSEX": AreaDivision.Wessex,
-  "AZURE-WEST_MIDLANDS": AreaDivision.WestMidlands,
-  "AZURE-YORKSHIRE_AND_HUMBERSIDE": AreaDivision.YorkshireAndHumberside,
-  "AZURE-SPECIAL_CRIME_AND_COUNTER_TERRORISM_DIVISION":
-    AreaDivision.SpecialCrimeAndCounterTerrorismDivision,
-  "AZURE-PROCEEDS_OF_CRIME": AreaDivision.ProceedsOfCrime,
-  "AZURE-SEOCID_INTERNATIONAL_LONDON_AND_SOUTH_EAST_DIVISION":
-    AreaDivision.SEOCIDInternationalLondonAndSouthEastDivision,
-  "AZURE-SEOCID_REGIONAL_AND_WALES_DIVISION":
-    AreaDivision.SEOCIDRegionalAndWalesDivision,
-  "AZURE-TEST_AREA_1": AreaDivision.TestArea1,
-  "AZURE-TEST_AREA_2": AreaDivision.TestArea2,
-  "AZURE-TEST_DIVISION_1": AreaDivision.TestDivision1,
-  "AZURE-TEST_DIVISION_2": AreaDivision.TestDivision2,
-};

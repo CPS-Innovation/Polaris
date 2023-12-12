@@ -4,7 +4,7 @@ import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
 import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 type UnderRedactionContentProps = {
   documentName: string;
-  redactionTypes: RedactionTypes[];
+  savedRedactionTypes: RedactionTypes[];
 };
 
 const getRedactionTypeNames = (count: number, name: string) => {
@@ -16,17 +16,20 @@ const getRedactionTypeNames = (count: number, name: string) => {
 
 export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
   documentName,
-  redactionTypes,
+  savedRedactionTypes,
 }) => {
   const redactionSummary = useMemo(() => {
-    const groupedRedactions = redactionTypes.reduce((acc, redactionType) => {
-      if (!acc[redactionType?.name!]) {
-        acc[redactionType?.name!] = 1;
+    const groupedRedactions = savedRedactionTypes.reduce(
+      (acc, redactionType) => {
+        if (!acc[redactionType?.name!]) {
+          acc[redactionType?.name!] = 1;
+          return acc;
+        }
+        acc[redactionType?.name!] = acc[redactionType?.name!] + 1;
         return acc;
-      }
-      acc[redactionType?.name!] = acc[redactionType?.name!] + 1;
-      return acc;
-    }, {} as Record<string, number>);
+      },
+      {} as Record<string, number>
+    );
 
     const sortedArray = Object.entries(groupedRedactions).sort(function (a, b) {
       return b[1] - a[1];

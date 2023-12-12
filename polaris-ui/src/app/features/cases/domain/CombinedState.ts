@@ -64,7 +64,7 @@ export type CombinedState = {
   redactionLog: {
     showModal: boolean;
     redactionLogData: AsyncResult<RedactionLogData>;
-    redactionTypes: RedactionTypes[];
+    savedRedactionTypes: RedactionTypes[];
   };
   featureFlags: AsyncResult<FeatureFlagData>;
 };

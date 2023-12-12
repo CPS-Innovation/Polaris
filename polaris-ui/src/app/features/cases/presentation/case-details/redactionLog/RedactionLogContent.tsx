@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import {
   Select,
-  Input,
   TextArea,
   Button,
-  LinkButton,
   Guidance,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
@@ -26,7 +23,7 @@ import { AreaDivision } from "../../../domain/redactionLog/AreaDivision";
 type RedactionLogContentProps = {
   caseUrn: string;
   documentName: string;
-  redactionTypes: RedactionTypes[];
+  savedRedactionTypes: RedactionTypes[];
   savingStatus: SavingStatus;
   redactionLogData: RedactionLogData;
   message?: string;
@@ -56,7 +53,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   documentName,
   savingStatus,
   saveRedactionLog,
-  redactionTypes,
+  savedRedactionTypes,
   redactionLogData,
 }) => {
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
@@ -221,7 +218,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         id: mappedDocumentType?.id,
         name: mappedDocumentType?.name,
       },
-      missedRedactions: redactionTypes,
+      missedRedactions: savedRedactionTypes,
       notes: viewModel.notes || null,
       returnedToInvestigativeAuthority: false,
       chargeStatus: viewModel.chargeStatus as unknown as ChargeStatus,
@@ -257,7 +254,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           </Guidance>
         </div>
       </div>
-      <form className={classes.underRedactionForm}>
+      <form
+        className={classes.underRedactionForm}
+        onSubmit={() => {
+          console.log("hellooo");
+        }}
+      >
         <div className={classes.selectInputWrapper}>
           <section className={classes.selectSection}>
             <Controller
@@ -434,7 +436,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           <section>
             <UnderRedactionContent
               documentName={documentName}
-              redactionTypes={redactionTypes}
+              savedRedactionTypes={savedRedactionTypes}
             />
           </section>
           <section className={classes.textAreaSection}>

@@ -223,7 +223,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           <RedactionLogModal
             caseUrn={urn}
             documentName={getActiveTabDocument().presentationFileName}
-            redactionTypes={redactionLog.redactionTypes}
+            savedRedactionTypes={redactionLog.savedRedactionTypes}
             savingStatus={getActiveTabDocument().savingStatus}
             redactionLogData={redactionLog.redactionLogData.data}
             saveRedactionLog={handleSavedRedactionLog}

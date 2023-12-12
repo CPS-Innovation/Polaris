@@ -1,4 +1,3 @@
-import React from "react";
 import * as GDS from "govuk-react-jsx";
 import { LabelProps } from "./Label";
 
@@ -31,11 +30,9 @@ type InputProps = Omit<
   onChange?: (val: string) => void;
 };
 
-export const Input = React.forwardRef<HTMLInputElement | null, InputProps>(
-  ({ onChange, ...props }, ref) => {
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-      onChange && onChange(event.target.value);
+export const Input: React.FC<InputProps> = ({ onChange, ...props }) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    onChange && onChange(event.target.value);
 
-    return <GDS.Input {...props} onChange={handleChange} ref={ref}></GDS.Input>;
-  }
-);
+  return <GDS.Input {...props} onChange={handleChange}></GDS.Input>;
+};

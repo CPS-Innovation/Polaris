@@ -58,7 +58,7 @@ export const initialState = {
   redactionLog: {
     showModal: false,
     redactionLogData: { status: "loading" },
-    redactionTypes: [],
+    savedRedactionTypes: [],
   },
   featureFlags: { status: "loading" },
 } as Omit<CombinedState, "caseId" | "urn">;
