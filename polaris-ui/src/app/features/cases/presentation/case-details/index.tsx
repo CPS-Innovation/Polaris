@@ -141,13 +141,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     )!;
   };
 
-  console.log(
-    "tabsState>>>redactionHighlights",
-    getActiveTabDocument()?.redactionHighlights
-  );
-
-  console.log("RedactionLogData", redactionLog.redactionLogData);
-
   return (
     <>
       {errorModal.show && (

@@ -21,18 +21,18 @@
   .supportingNotesGuidance {
     position: absolute;
     right: 0;
-    top: -10px;
+    top: -0.625rem;
   }
   .redactionLogGuidanceTitle,
   .supportingNotesGuidanceTitle {
     font-weight: bold;
-    font-size: 19.2px;
+    font-size: 1.1875rem;
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
   }
   .redactionLogGuidanceList {
     margin: 0;
-    padding-left: 15px;
+    padding-left: 1rem;
     & li {
       color: rgba(255, 255, 255, 0.8);
     }
@@ -43,7 +43,7 @@
   }
   .supportingNotesGuidanceList {
     margin: 0;
-    padding-left: 15px;
+    padding-left: 1rem;
     & li {
       color: rgba(255, 255, 255, 0.8);
     }
@@ -58,15 +58,15 @@
     justify-content: flex-start;
     width: 100%;
     margin-top: 1.875rem;
-    padding: 0 30px;
+    padding: 0 1.875rem;
   }
   .modalHeadWrapper {
-    padding: 30px 30px 0px 30px;
+    padding: 1.875rem 1.875rem 0px 1.875rem;
     background: #f3f2f1;
   }
   .modalBodyWrapper {
-    border-bottom: 3px dashed #b1b4b6;
-    padding: 0 30px;
+    border-bottom: 0.1875rem dashed #b1b4b6;
+    padding: 0 1.875rem;
   }
 }
 
@@ -75,7 +75,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-width: 200px;
+  min-width: 12.5rem;
   :global(.govuk-select) {
     width: 100%;
   }
@@ -87,15 +87,15 @@
 .selectSection {
   display: flex;
   flex-direction: column;
-  margin-right: 15px;
-  margin-top: 20px;
+  margin-right: 1rem;
+  margin-top: 1.25rem;
 }
 .selectInputWrapper {
   display: flex;
   justify-content: flex-start;
-  padding-top: 10px;
+  padding-top: 0.625rem;
   flex-wrap: wrap;
-  padding: 0px 30px 30px 30px;
+  padding: 0px 1.875rem 1.875rem 1.875rem;
   background-color: #f3f2f1;
   border-bottom: 1px solid #b1b4b6;
 }
@@ -104,7 +104,7 @@
 }
 .textAreaSection {
   width: 100%;
-  max-width: 600px;
+  max-width: 37.5rem;
   position: relative;
 }
 .errorMsg {
@@ -120,10 +120,10 @@
   width: 100%;
   display: flex;
   align-items: center;
-  padding-left: 30px;
+  padding-left: 1.875rem;
   color: #fff;
-  font-size: 19px;
-  height: 50px;
+  font-size: 1.1875rem;
+  height: 3.125rem;
   font-weight: bold;
 }
 .savingBanner {

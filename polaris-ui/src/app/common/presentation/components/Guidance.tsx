@@ -22,7 +22,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [buttonOpen, setButtonOpen] = useState(false);
   const buttonOpenRef = useRef<boolean>(false);
-  useFocusTrap("#dropdown-panel");
+  useFocusTrap("#guidance-panel");
 
   useEffect(() => {
     buttonOpenRef.current = buttonOpen;
@@ -76,7 +76,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
         <div
           className={classes.panel}
           ref={panelRef}
-          id="dropdown-panel"
+          id="guidance-panel"
           data-testid={`${dataTestId}-panel`}
         >
           <button

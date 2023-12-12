@@ -64,10 +64,6 @@ export const initialState = {
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
-  console.log(
-    "hellooo calling useCaseDetailsState...",
-    FEATURE_FLAG_REDACTION_LOG
-  );
   const featureFlagData = useUserGroupsFeatureFlag();
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();

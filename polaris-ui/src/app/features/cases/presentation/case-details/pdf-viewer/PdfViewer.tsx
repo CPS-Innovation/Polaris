@@ -71,7 +71,6 @@ export const PdfViewer: React.FC<Props> = ({
   handleSavedRedactions,
   focussedHighlightIndex,
 }) => {
-  console.log("redactionHighlights>>", redactionHighlights);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToFnRef = useRef<(highlight: IHighlight) => void>();
   const trackEvent = useAppInsightsTrackEvent();
