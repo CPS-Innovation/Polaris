@@ -17,7 +17,6 @@ terraform_service_principal_display_name = "Azure Pipeline: Innovation-Developme
 ui_logging = {
   gateway_scale_controller       = "AppInsights:Verbose"
   auth_handover_scale_controller = "AppInsights:Verbose"
-  ui_scale_controller            = "AppInsights:Verbose"
 }
 
 cms_details = {
