@@ -32,17 +32,13 @@ public class SlidingCaseClearDown
     /// <param name="client"></param>
     /// <exception cref="InvalidCastException"></exception>
     [FunctionName(nameof(SlidingCaseClearDown))]
-    public async Task RunAsync([TimerTrigger("0 */5 * * * *"
-            /*, RunOnStartup = true*/
-            )]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
+    public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = true)]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
         try
         {
-            var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownEnabled], out var clearDownEnabled);
-            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays],
-                out var clearDownInputDays);
-            if (convSucceeded && clearDownEnabled && inputConvSucceeded)
+            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays], out var clearDownInputDays);
+            if (inputConvSucceeded)
             {
                 var clearDownPeriod = clearDownInputDays * -1;
                 var targetCaseId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
