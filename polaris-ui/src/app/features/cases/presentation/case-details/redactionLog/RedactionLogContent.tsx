@@ -64,19 +64,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     watch,
   } = useForm({ defaultValues });
 
-  const [
-    cpsArea,
-    businessUnit,
-    investigatingAgency,
-    chargeStatus,
-    documentType,
-  ] = watch([
-    "cpsArea",
-    "businessUnit",
-    "investigatingAgency",
-    "chargeStatus",
-    "documentType",
-  ]);
+  const [cpsArea] = watch(["cpsArea"]);
 
   const getMappedSelectItems = () => {
     const areaOrDivisions = [
@@ -178,28 +166,27 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     return [defaultOption, ...mappedBusinessUnit];
   };
 
-  //map save data directly to viewModal so that it can be used to call the api.
-  const mapToRedactioViewModal = (
-    viewModel: UnderRedactionFormData
+  const getRedactionLogRequestData = (
+    formData: UnderRedactionFormData
   ): RedactionLogRequestData => {
     const areaOrDivisions = [
       ...redactionLogData.areas,
       ...redactionLogData.divisions,
     ];
     const mappedArea = areaOrDivisions.find(
-      (area) => area.id === viewModel.cpsArea
+      (area) => area.id === formData.cpsArea
     )!;
     const mappedBusinessUnit = mappedArea.children.find(
-      (businessUnit) => businessUnit.id === viewModel.businessUnit
+      (businessUnit) => businessUnit.id === formData.businessUnit
     )!;
     const mappedInvestigatingAgency =
       redactionLogData.investigatingAgencies.find(
         (investigatingAgency) =>
-          investigatingAgency.id === viewModel.investigatingAgency
+          investigatingAgency.id === formData.investigatingAgency
       )!;
 
     const mappedDocumentType = redactionLogData.documentTypes.find(
-      (documentType) => documentType.id === viewModel.documentType
+      (documentType) => documentType.id === formData.documentType
     )!;
 
     const mappedData = {
@@ -219,9 +206,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         name: mappedDocumentType?.name,
       },
       missedRedactions: savedRedactionTypes,
-      notes: viewModel.notes || null,
+      notes: formData.notes || null,
       returnedToInvestigativeAuthority: false,
-      chargeStatus: viewModel.chargeStatus as unknown as ChargeStatus,
+      chargeStatus: formData.chargeStatus as unknown as ChargeStatus,
       redactionType: RedactionCategory.UnderRedacted,
     };
     return mappedData;
@@ -476,13 +463,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           type="submit"
           className={classes.saveBtn}
           onClick={handleSubmit((data) => {
-            const redactionLogRequestData = mapToRedactioViewModal({
+            const redactionLogRequestData = getRedactionLogRequestData({
               ...data,
             });
             setSavingRedactionLog(true);
             saveRedactionLog(redactionLogRequestData);
           })}
-          data-testid="btn-feedback-modal-ok"
+          data-testid="btn-save-redaction-log"
         >
           Save and Close
         </Button>
