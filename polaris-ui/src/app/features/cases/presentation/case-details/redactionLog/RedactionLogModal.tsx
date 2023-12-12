@@ -1,19 +1,17 @@
-import { useState } from "react";
 import { Modal } from "../../../../../common/presentation/components/index";
 import { RedactionLogContent } from "./RedactionLogContent";
-import { IPdfHighlight } from "../../../domain/IPdfHighlight";
-import { SavingStatus } from "../../../domain/gateway/SavingStatus";
+import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
   RedactionLogData,
-  RedactionTypes,
+  RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
-import { RedactionLogRequestData } from "../../../domain/redactionLog/ViewModal";
+import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 
 type Props = {
   caseUrn: string;
   documentName: string;
-  savingStatus: SavingStatus;
-  savedRedactionTypes: RedactionTypes[];
+  saveStatus: SaveStatus;
+  savedRedactionTypes: RedactionTypeData[];
   redactionLogData: RedactionLogData;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
@@ -22,7 +20,7 @@ export const RedactionLogModal: React.FC<Props> = ({
   caseUrn,
   documentName,
   savedRedactionTypes,
-  savingStatus,
+  saveStatus,
   redactionLogData,
   saveRedactionLog,
 }) => {
@@ -37,7 +35,7 @@ export const RedactionLogModal: React.FC<Props> = ({
         caseUrn={caseUrn}
         documentName={documentName}
         savedRedactionTypes={savedRedactionTypes}
-        savingStatus={savingStatus}
+        saveStatus={saveStatus}
         redactionLogData={redactionLogData}
         saveRedactionLog={saveRedactionLog}
       />

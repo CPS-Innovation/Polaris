@@ -11,7 +11,7 @@ import { FeatureFlagData } from "./FeatureFlagData";
 import { FilterOption } from "./FilterOption";
 import {
   RedactionLogData,
-  RedactionTypes,
+  RedactionTypeData,
 } from "./redactionLog/RedactionLogData";
 
 export type CombinedState = {
@@ -64,7 +64,7 @@ export type CombinedState = {
   redactionLog: {
     showModal: boolean;
     redactionLogData: AsyncResult<RedactionLogData>;
-    savedRedactionTypes: RedactionTypes[];
+    savedRedactionTypes: RedactionTypeData[];
   };
   featureFlags: AsyncResult<FeatureFlagData>;
 };

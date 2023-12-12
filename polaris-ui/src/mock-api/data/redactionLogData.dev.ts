@@ -1,13 +1,13 @@
 import { AreaDivision } from "../../app/features/cases/domain/redactionLog/AreaDivision";
 import { RedactionLogDataSource } from "./types/RedactionLogDataSource";
 import {
-  AreasOrDivision,
-  RedactionLogDocumentTypes,
-  InvestigatingAgencies,
-  RedactionTypesData,
+  AreasOrDivisionData,
+  RedactionLogDocumentTypeData,
+  InvestigatingAgencyData,
+  RedactionTypeDataWithChildren,
 } from "../../app/features/cases/domain/redactionLog/RedactionLogData";
 
-const areasStub: AreasOrDivision[] = [
+const areasStub: AreasOrDivisionData[] = [
   {
     id: "1",
     name: AreaDivision.Wales,
@@ -421,7 +421,7 @@ const areasStub: AreasOrDivision[] = [
   },
 ];
 
-const divisionsStub: AreasOrDivision[] = [
+const divisionsStub: AreasOrDivisionData[] = [
   {
     id: "16",
     name: AreaDivision.SpecialCrimeAndCounterTerrorismDivision,
@@ -570,7 +570,7 @@ const divisionsStub: AreasOrDivision[] = [
   },
 ];
 
-const documentTypesStub: RedactionLogDocumentTypes[] = [
+const documentTypesStub: RedactionLogDocumentTypeData[] = [
   { id: "1", name: "MG 0", children: [] },
   { id: "2", name: "MG 1", children: [] },
   { id: "3", name: "MG 2", children: [] },
@@ -616,7 +616,7 @@ const documentTypesStub: RedactionLogDocumentTypes[] = [
   { id: "35", name: "Other", children: [] },
 ];
 
-const investigatingAgenciesStub: InvestigatingAgencies[] = [
+const investigatingAgenciesStub: InvestigatingAgencyData[] = [
   { id: "1", name: "DWP", children: [] },
   { id: "2", name: "NHS", children: [] },
   { id: "3", name: "Counter Fraud Authority", children: [] },
@@ -709,7 +709,7 @@ const investigatingAgenciesStub: InvestigatingAgencies[] = [
   { id: "78", name: "ERSOU", children: [] },
 ];
 
-export const missedRedactionsStub: RedactionTypesData[] = [
+export const missedRedactionsStub: RedactionTypeDataWithChildren[] = [
   { id: "1", name: "Named individual", children: [] },
   { id: "2", name: "Title", children: [] },
   { id: "3", name: "Occupation", children: [] },

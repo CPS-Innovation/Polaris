@@ -22,8 +22,8 @@ import { useControlledRedactionFocus } from "../../../../../common/hooks/useCont
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
-import { SavingStatus } from "../../../domain/gateway/SavingStatus";
-import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
+import { SaveStatus } from "../../../domain/gateway/SaveStatus";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -31,11 +31,11 @@ type Props = {
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
-  redactionTypesData: RedactionTypes[];
+  redactionTypesData: RedactionTypeData[];
   contextData: {
     documentType: string;
     documentId: string;
-    savingStatus: SavingStatus;
+    saveStatus: SaveStatus;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -130,7 +130,7 @@ export const PdfViewer: React.FC<Props> = ({
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
-        {contextData.savingStatus === "saving" && (
+        {contextData.saveStatus === "saving" && (
           <div className={classes.spinner}>
             <Wait ariaLabel="Saving redaction, please wait" />
           </div>

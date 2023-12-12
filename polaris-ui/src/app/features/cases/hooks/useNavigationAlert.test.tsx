@@ -46,7 +46,7 @@ describe("useNavigationAlert hook", () => {
       sasUrl: undefined,
       url: undefined,
       isDeleted: false,
-      savingStatus: "initial",
+      saveStatus: "initial",
     },
     {
       clientLockedState: "unlocked",
@@ -86,7 +86,7 @@ describe("useNavigationAlert hook", () => {
       sasUrl: undefined,
       url: undefined,
       isDeleted: false,
-      savingStatus: "initial",
+      saveStatus: "initial",
     },
   ];
 

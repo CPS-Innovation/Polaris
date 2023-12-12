@@ -9,7 +9,7 @@ import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
 import { RedactionLogData } from "../domain/redactionLog/RedactionLogData";
-import { RedactionLogRequestData } from "../domain/redactionLog/ViewModal";
+import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
 const buildHeaders = async (
   ...args: (
     | Record<string, string>

@@ -1,4 +1,4 @@
-export type RedactionLogDocType =
+export type RedactionLogDocumentType =
   | "MG 0"
   | "MG 1"
   | "MG 2"

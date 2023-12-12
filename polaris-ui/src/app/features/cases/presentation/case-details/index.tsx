@@ -224,7 +224,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             caseUrn={urn}
             documentName={getActiveTabDocument().presentationFileName}
             savedRedactionTypes={redactionLog.savedRedactionTypes}
-            savingStatus={getActiveTabDocument().savingStatus}
+            saveStatus={getActiveTabDocument().saveStatus}
             redactionLogData={redactionLog.redactionLogData.data}
             saveRedactionLog={handleSavedRedactionLog}
           />

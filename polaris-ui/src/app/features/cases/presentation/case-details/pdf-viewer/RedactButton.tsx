@@ -4,14 +4,14 @@ import { Select } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionType } from "../../../domain/redactionLog/RedactionType";
-import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type Props = {
-  redactionTypesData: RedactionTypes[];
+  redactionTypesData: RedactionTypeData[];
   onConfirm: (redactionType: { id: string; name: RedactionType }) => void;
 };
 
-const getMappedRedactionTypes = (data: RedactionTypes[]) => {
+const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
   const defaultOption = {
     value: "",
     children: "-- Please select --",

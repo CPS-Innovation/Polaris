@@ -1,31 +1,33 @@
 import { AreaDivision } from "./AreaDivision";
-import { RedactionLogDocType } from "./RedactionLogDocType";
+import { RedactionLogDocumentType } from "./RedactionLogDocumentType";
 import { RedactionType } from "./RedactionType";
-import { ListItem } from "./ListItem";
-import { ListItemWithoutChildren } from "./ViewModal";
+import { InvestigatingAgency } from "./InvestigatingAgency";
+import { ListItem, ListItemWithoutChildren } from "./ListItem";
 
-export interface AreasOrDivision extends ListItem {
+export interface AreasOrDivisionData extends ListItem {
   name: AreaDivision;
 }
 
-export interface RedactionLogDocumentTypes extends ListItem {
-  name: RedactionLogDocType;
+export interface RedactionLogDocumentTypeData extends ListItem {
+  name: RedactionLogDocumentType;
 }
 
-export interface InvestigatingAgencies extends ListItem {}
+export interface InvestigatingAgencyData extends ListItem {
+  name: InvestigatingAgency;
+}
 
-export interface RedactionTypes extends ListItemWithoutChildren {
+export interface RedactionTypeDataWithChildren extends ListItem {
   name: RedactionType;
 }
 
-export interface RedactionTypesData extends ListItem {
+export interface RedactionTypeData extends ListItemWithoutChildren {
+  id: string;
   name: RedactionType;
 }
-
 export interface RedactionLogData {
-  areas: AreasOrDivision[];
-  divisions: AreasOrDivision[];
-  documentTypes: RedactionLogDocumentTypes[];
-  investigatingAgencies: InvestigatingAgencies[];
-  redactionTypes: RedactionTypes[];
+  areas: AreasOrDivisionData[];
+  divisions: AreasOrDivisionData[];
+  documentTypes: RedactionLogDocumentTypeData[];
+  investigatingAgencies: InvestigatingAgencyData[];
+  redactionTypes: RedactionTypeDataWithChildren[];
 }

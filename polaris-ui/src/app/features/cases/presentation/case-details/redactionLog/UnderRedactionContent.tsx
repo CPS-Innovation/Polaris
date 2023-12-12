@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import classes from "./UnderRedactionContent.module.scss";
-import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 type UnderRedactionContentProps = {
   documentName: string;
-  savedRedactionTypes: RedactionTypes[];
+  savedRedactionTypes: RedactionTypeData[];
 };
 
 const getRedactionTypeNames = (count: number, name: string) => {

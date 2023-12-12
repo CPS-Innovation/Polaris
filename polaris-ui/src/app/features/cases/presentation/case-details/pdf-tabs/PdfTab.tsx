@@ -9,10 +9,10 @@ import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
 import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
-import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
-  redactionTypesData: RedactionTypes[];
+  redactionTypesData: RedactionTypeData[];
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
@@ -67,7 +67,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     redactionHighlights,
     documentId,
     isDeleted,
-    savingStatus,
+    saveStatus,
     cmsDocType: { documentType },
     attachments,
   } = caseDocumentViewModel;
@@ -150,7 +150,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           contextData={{
             documentId,
             documentType,
-            savingStatus: savingStatus,
+            saveStatus: saveStatus,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}

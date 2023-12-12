@@ -21,10 +21,10 @@ import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
 import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
-import { SavingStatus } from "../../domain/gateway/SavingStatus";
+import { SaveStatus } from "../../domain/gateway/SaveStatus";
 import {
   RedactionLogData,
-  RedactionTypes,
+  RedactionTypeData,
 } from "../../domain/redactionLog/RedactionLogData";
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
@@ -111,7 +111,7 @@ export const reducer = (
         type: "SAVING_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
-          savingStatus: SavingStatus;
+          saveStatus: SaveStatus;
         };
       }
     | {
@@ -152,7 +152,7 @@ export const reducer = (
         type: "SHOW_HIDE_REDACTION_LOG_MODAL";
         payload: {
           show: boolean;
-          savedRedactionTypes: RedactionTypes[];
+          savedRedactionTypes: RedactionTypeData[];
         };
       }
     | {
@@ -427,7 +427,7 @@ export const reducer = (
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
         isDeleted: false,
-        savingStatus: "initial" as const,
+        saveStatus: "initial" as const,
       };
 
       if (mode === "read") {
@@ -742,7 +742,7 @@ export const reducer = (
       };
     }
     case "SAVING_REDACTION": {
-      const { documentId, savingStatus } = action.payload;
+      const { documentId, saveStatus } = action.payload;
       return {
         ...state,
         tabsState: {
@@ -751,7 +751,7 @@ export const reducer = (
             item.documentId === documentId
               ? {
                   ...item,
-                  savingStatus: savingStatus,
+                  saveStatus: saveStatus,
                 }
               : item
           ),

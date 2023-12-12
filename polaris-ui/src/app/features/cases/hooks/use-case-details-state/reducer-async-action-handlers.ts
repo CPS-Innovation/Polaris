@@ -13,8 +13,7 @@ import { mapRedactionSaveRequest } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
-import { RedactionTypes } from "../../domain/redactionLog/RedactionLogData";
-import { RedactionLogRequestData } from "../../domain/redactionLog/ViewModal";
+import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -301,7 +300,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       try {
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, savingStatus: "saving" },
+          payload: { documentId, saveStatus: "saving" },
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",
@@ -313,7 +312,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, savingStatus: "saved" },
+          payload: { documentId, saveStatus: "saved" },
         });
         dispatch({
           type: "REMOVE_ALL_REDACTIONS",
@@ -340,7 +339,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
         dispatch({
           type: "SAVING_REDACTION",
-          payload: { documentId, savingStatus: "error" },
+          payload: { documentId, saveStatus: "error" },
         });
         dispatch({
           type: "SHOW_HIDE_REDACTION_LOG_MODAL",

@@ -2,10 +2,10 @@ import { Tabs } from "../../../../../common/presentation/components/tabs";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfTab } from "./PdfTab";
-import { RedactionTypes } from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type PdfTabsProps = {
-  redactionTypesData: RedactionTypes[];
+  redactionTypesData: RedactionTypeData[];
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;

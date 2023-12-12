@@ -1,10 +1,8 @@
-import { ListItem } from "./ListItem";
+import { ListItemWithoutChildren } from "./ListItem";
 import { ChargeStatus } from "./ChargeStatus";
 import { RedactionCategory } from "./RedactionCategory";
-import { CreateRequest } from "./CreateRequest";
 import { AreaDivision } from "./AreaDivision";
-import { RedactionTypes } from "./RedactionLogData";
-export type ListItemWithoutChildren = Omit<ListItem, "children">;
+import { RedactionTypeData } from "./RedactionLogData";
 
 export type RedactionLogRequestData = {
   urn: string;
@@ -16,7 +14,7 @@ export type RedactionLogRequestData = {
   };
   investigatingAgency: ListItemWithoutChildren;
   documentType: ListItemWithoutChildren;
-  missedRedactions: RedactionTypes[];
+  missedRedactions: RedactionTypeData[];
   chargeStatus: ChargeStatus;
   redactionType: RedactionCategory;
   notes: string | null;

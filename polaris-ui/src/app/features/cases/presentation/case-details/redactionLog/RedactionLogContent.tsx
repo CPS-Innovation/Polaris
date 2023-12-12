@@ -8,23 +8,23 @@ import {
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import classes from "./RedactionLogContent.module.scss";
 import { useForm, Controller } from "react-hook-form";
-import { SavingStatus } from "../../../domain/gateway/SavingStatus";
+import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
   ChargeStatus,
   ChargeStatusLabels,
 } from "../../../domain/redactionLog/ChargeStatus";
 import {
   RedactionLogData,
-  RedactionTypes,
+  RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategory";
-import { RedactionLogRequestData } from "../../../domain/redactionLog/ViewModal";
+import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 import { AreaDivision } from "../../../domain/redactionLog/AreaDivision";
 type RedactionLogContentProps = {
   caseUrn: string;
   documentName: string;
-  savedRedactionTypes: RedactionTypes[];
-  savingStatus: SavingStatus;
+  savedRedactionTypes: RedactionTypeData[];
+  saveStatus: SaveStatus;
   redactionLogData: RedactionLogData;
   message?: string;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
@@ -51,7 +51,7 @@ export type UnderRedactionFormData = {
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   caseUrn,
   documentName,
-  savingStatus,
+  saveStatus,
   saveRedactionLog,
   savedRedactionTypes,
   redactionLogData,
@@ -229,13 +229,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
   return (
     <div className={classes.modalContent}>
-      {savingStatus === "saving" && (
+      {saveStatus === "saving" && (
         <div className={classes.savingBanner}>
           <span>Saving redactions...</span>
         </div>
       )}
 
-      {savingStatus === "saved" && (
+      {saveStatus === "saved" && (
         <div className={classes.savedBanner}>
           <span>Redactions successfully saved</span>
         </div>
@@ -472,7 +472,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
       <div className={classes.btnWrapper}>
         <Button
-          disabled={savingStatus === "saving" || savingRedactionLog}
+          disabled={saveStatus === "saving" || savingRedactionLog}
           type="submit"
           className={classes.saveBtn}
           onClick={handleSubmit((data) => {
