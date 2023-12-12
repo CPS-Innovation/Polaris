@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Constants;
 using Common.Logging;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace coordinator.Functions.Orchestration.Functions.Maintenance;
@@ -15,15 +13,13 @@ namespace coordinator.Functions.Orchestration.Functions.Maintenance;
 public class ResetDurableState
 {
     private readonly ILogger<ResetDurableState> _logger;
-    private readonly IConfiguration _configuration;
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
     private const int DefaultPageSize = 100;
     private const int MaxAzureFunctionRunTimeMinutes = 10;
     
-    public ResetDurableState(ILogger<ResetDurableState> logger, IConfiguration configuration)
+    public ResetDurableState(ILogger<ResetDurableState> logger)
     {
         _logger = logger;
-        _configuration = configuration;
     }
 
     [FunctionName(nameof(ResetDurableState))]
@@ -31,16 +27,15 @@ public class ResetDurableState
         [TimerTrigger("%OvernightClearDownSchedule%", RunOnStartup = true)] TimerInfo myTimer,
         [DurableClient] IDurableOrchestrationClient client)
     {
-        var correlationId = Guid.NewGuid();
         try
         {
-            await TerminateOrchestrationsAndDurableEntities(client, correlationId);
+            await TerminateOrchestrationsAndDurableEntities(client);
             await WaitForTerminationsToComplete();
-            await PurgeOrchestrationsAndDurableEntitiesHistory(client, correlationId);
+            await PurgeOrchestrationsAndDurableEntitiesHistory(client);
         }
         catch (Exception ex)
         {
-            _logger.LogMethodError(correlationId, LoggingName, ex.Message, ex);
+            _logger.LogMethodError(Guid.NewGuid(), LoggingName, ex.Message, ex);
         }
     }
 
@@ -49,9 +44,8 @@ public class ResetDurableState
         await Task.Delay(TimeSpan.FromMinutes(MaxAzureFunctionRunTimeMinutes + 1));
     }
 
-    private async Task TerminateOrchestrationsAndDurableEntities(IDurableOrchestrationClient client, Guid correlationId)
+    private static async Task TerminateOrchestrationsAndDurableEntities(IDurableOrchestrationClient client)
     {
-        var runningInstances = new HashSet<string>();
         var terminateCondition = CreateOrchestrationQuery(new[]
         {
             OrchestrationRuntimeStatus.Running,
@@ -66,16 +60,13 @@ public class ResetDurableState
             terminateCondition.ContinuationToken = statusQueryResult.ContinuationToken;
 
             var instancesToTerminate = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToHashSet();
-            runningInstances.UnionWith(instancesToTerminate);
-
+            
             await Task.WhenAll(instancesToTerminate.Select(async instanceId => await client.TerminateAsync(instanceId, "Forcibly terminated by overnight clear-down")));
         } while (terminateCondition.ContinuationToken != null);
     }
 
-    private async Task PurgeOrchestrationsAndDurableEntitiesHistory(IDurableOrchestrationClient client,
-        Guid correlationId)
+    private static async Task PurgeOrchestrationsAndDurableEntitiesHistory(IDurableOrchestrationClient client)
     {
-        var orchestrationInstances = new HashSet<string>();
         var purgeCondition = CreateOrchestrationQuery(new[]
         {
             OrchestrationRuntimeStatus.Completed,
@@ -90,7 +81,6 @@ public class ResetDurableState
             purgeCondition.ContinuationToken = statusQueryResult.ContinuationToken;
 
             var instancesToPurge = statusQueryResult.DurableOrchestrationState.Select(o => o.InstanceId).ToHashSet();
-            orchestrationInstances.UnionWith(instancesToPurge);
 
             await client.PurgeInstanceHistoryAsync(instancesToPurge);
         } while (purgeCondition.ContinuationToken != null);
