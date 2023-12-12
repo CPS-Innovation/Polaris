@@ -7,7 +7,7 @@ import {
 } from "../../config";
 
 const isAutomationTestUser = (username: string) => {
-  return (
+  return !!(
     username &&
     PRIVATE_BETA_CHECK_IGNORE_USER &&
     username.toLocaleLowerCase() ===
