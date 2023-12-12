@@ -25,12 +25,16 @@ pipeline_component_service_plans = {
   text_extractor_plan_maximum_burst      = 10
 }
 
-overnight_clear_down_enabled = false
+overnight_clear_down = {
+  disabled = true
+  schedule = "0 0 3 * * *"
+}
 
 sliding_clear_down = {
-  enabled        = false
+  disabled       = true
   look_back_days = 31
   protect_blobs  = true
+  schedule       = "0 */5 * * * *"
 }
 
 hte_feature_flag = false

@@ -19,9 +19,7 @@ public class ResetDurableState
     private const string LoggingName = $"{nameof(ResetDurableState)} - {nameof(RunAsync)}";
     private const int DefaultPageSize = 100;
     private const int MaxAzureFunctionRunTimeMinutes = 10;
-    // CRON - {second} {minute} {hour} {day} {month} {day-of-week}
-    private const string TimerStartTime = "0 0 3 * * *";
-
+    
     public ResetDurableState(ILogger<ResetDurableState> logger, IConfiguration configuration)
     {
         _logger = logger;
@@ -30,19 +28,15 @@ public class ResetDurableState
 
     [FunctionName(nameof(ResetDurableState))]
     public async Task RunAsync(
-        [TimerTrigger(TimerStartTime)] TimerInfo myTimer,
+        [TimerTrigger("%OvernightClearDownSchedule%", RunOnStartup = true)] TimerInfo myTimer,
         [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
         try
         {
-            var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.OvernightClearDownEnabled], out var clearDownEnabled);
-            if (convSucceeded && clearDownEnabled)
-            {
-                await TerminateOrchestrationsAndDurableEntities(client, correlationId);
-                await WaitForTerminationsToComplete();
-                await PurgeOrchestrationsAndDurableEntitiesHistory(client, correlationId);
-            }
+            await TerminateOrchestrationsAndDurableEntities(client, correlationId);
+            await WaitForTerminationsToComplete();
+            await PurgeOrchestrationsAndDurableEntitiesHistory(client, correlationId);
         }
         catch (Exception ex)
         {

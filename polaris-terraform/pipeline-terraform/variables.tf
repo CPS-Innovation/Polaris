@@ -61,15 +61,19 @@ variable "pipeline_logging" {
   })
 }
 
-variable "overnight_clear_down_enabled" {
-  type = bool
+variable "overnight_clear_down" {
+  type = object({
+    disabled      = bool
+    schedule      = string
+  })
 }
 
 variable "sliding_clear_down" {
   type = object({
-    enabled        = bool
+    disabled       = bool
     look_back_days = number
     protect_blobs  = bool
+    schedule       = string
   })
 }
 
