@@ -27,7 +27,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_IS_REDACTION_SERVICE_OFFLINE"          = var.is_redaction_service_offline
     "REACT_APP_PRIVATE_BETA_SIGN_UP_URL"              = var.private_beta.sign_up_url
     "REACT_APP_PRIVATE_BETA_USER_GROUP"               = var.private_beta.user_group
-    "REACT_APP_PRIVATE_BETA_REDACTION_LOG_FEATURE"    = var.private_beta.redaction_log_feature
+    "REACT_APP_PRIVATE_BETA_REDACTION_LOG_USER_GROUP" = var.private_beta.redaction_log_user_group
+    "REACT_APP_REDACTION_LOG_USER_GROUP"              = var.redaction_log_user_group
     "REACT_APP_REAUTH_REDIRECT_URL"                   = "/polaris?polaris-ui-url="
     "REACT_APP_REDACTION_LOG_BASE_URL"                = "https://fa-${local.redaction_log_resource_name}-reporting.azurewebsites.net"
     "REACT_APP_REDACTION_LOG_SCOPE"                   = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"

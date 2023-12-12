@@ -1,24 +1,46 @@
 import { msalInstance } from "./msalInstance";
 import {
-  PRIVATE_BETA_REDACTION_LOG_FEATURE,
+  PRIVATE_BETA_REDACTION_LOG_USER_GROUP,
+  REDACTION_LOG_USER_GROUP,
   FEATURE_FLAG_REDACTION_LOG,
   PRIVATE_BETA_CHECK_IGNORE_USER,
 } from "../../config";
 
-const showRedactionLogFeature = (groupClaims: string[]) => {
-  const isInRedactionLogFeature = !!groupClaims?.includes(
-    PRIVATE_BETA_REDACTION_LOG_FEATURE
+const isAutomationTestUser = (username: string) => {
+  return (
+    username &&
+    PRIVATE_BETA_CHECK_IGNORE_USER &&
+    username.toLocaleLowerCase() ===
+      PRIVATE_BETA_CHECK_IGNORE_USER.toLocaleLowerCase()
+  );
+};
+
+const showRedactionLogFeature = (groupClaims: string[], username: string) => {
+  const isInPrivateBetaGroup = !!groupClaims?.includes(
+    PRIVATE_BETA_REDACTION_LOG_USER_GROUP
   );
 
-  const canProceedOnNoFeatureGroupInConfig = !(
-    PRIVATE_BETA_REDACTION_LOG_FEATURE &&
-    PRIVATE_BETA_REDACTION_LOG_FEATURE.length
+  const isInRedactionLogGroup = !!groupClaims?.includes(
+    REDACTION_LOG_USER_GROUP
   );
 
-  const showRedactionLog =
-    (isInRedactionLogFeature && FEATURE_FLAG_REDACTION_LOG) ||
-    canProceedOnNoFeatureGroupInConfig;
-  return showRedactionLog;
+  const canProceedBasedOnADGroups =
+    isInPrivateBetaGroup && isInRedactionLogGroup && FEATURE_FLAG_REDACTION_LOG;
+
+  const canProceedOnNoFeatureGroupInConfig =
+    !(
+      PRIVATE_BETA_REDACTION_LOG_USER_GROUP &&
+      PRIVATE_BETA_REDACTION_LOG_USER_GROUP.length
+    ) && FEATURE_FLAG_REDACTION_LOG;
+
+  const canProceedOnAutomationTestRun =
+    isAutomationTestUser(username) && FEATURE_FLAG_REDACTION_LOG;
+
+  return (
+    canProceedBasedOnADGroups ||
+    canProceedOnNoFeatureGroupInConfig ||
+    canProceedOnAutomationTestRun
+  );
 };
 
 export const useUserGroupsFeatureFlag = () => {
@@ -26,14 +48,7 @@ export const useUserGroupsFeatureFlag = () => {
   const username = account?.username;
   const groupClaims = account?.idTokenClaims?.groups as string[];
 
-  const canProceedOnAutomationTestRun =
-    username &&
-    PRIVATE_BETA_CHECK_IGNORE_USER &&
-    username.toLocaleLowerCase() ===
-      PRIVATE_BETA_CHECK_IGNORE_USER.toLocaleLowerCase();
-
   return {
-    redactionLog:
-      canProceedOnAutomationTestRun || showRedactionLogFeature(groupClaims),
+    redactionLog: showRedactionLogFeature(groupClaims, username),
   };
 };
