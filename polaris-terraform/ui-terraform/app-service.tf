@@ -40,7 +40,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
   }
-  
+
   sticky_settings {
     app_setting_names = ["HostType"]
   }
