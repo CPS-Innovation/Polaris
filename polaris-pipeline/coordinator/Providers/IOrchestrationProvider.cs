@@ -14,5 +14,5 @@ public interface IOrchestrationProvider
         string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req);
 
     Task<HttpResponseMessage> DeleteCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
-        int caseId);
+        int caseId, bool checkForBlobProtection);
 }

@@ -90,7 +90,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
 
                     case "DELETE":
-                        return await _orchestrationProvider.DeleteCaseAsync(orchestrationClient, currentCorrelationId, caseIdNum);
+                        return await _orchestrationProvider.DeleteCaseAsync(orchestrationClient, currentCorrelationId, caseIdNum, false);
 
                     default:
                         throw new BadRequestException("Unexpected HTTP Verb", req.Method.Method);

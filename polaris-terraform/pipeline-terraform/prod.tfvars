@@ -27,9 +27,13 @@ pipeline_component_service_plans = {
 
 overnight_clear_down_enabled = false
 
-sliding_clear_down_enabled    = false
-sliding_clear_down_input_days = 31
-hte_feature_flag              = false
+sliding_clear_down = {
+  enabled        = false
+  look_back_days = 31
+  protect_blobs  = true
+}
+
+hte_feature_flag = false
 
 image_conversion_redaction = {
   resolution      = 150
