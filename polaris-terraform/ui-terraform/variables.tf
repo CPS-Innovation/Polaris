@@ -63,7 +63,6 @@ variable "ui_logging" {
   type = object({
     gateway_scale_controller       = string
     auth_handover_scale_controller = string
-    ui_scale_controller            = string
   })
 }
 

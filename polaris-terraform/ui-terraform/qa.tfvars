@@ -15,9 +15,8 @@ polaris_webapp_details = {
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-QA"
 
 ui_logging = {
-  gateway_scale_controller       = "AppInsights:Verbose"
-  auth_handover_scale_controller = "AppInsights:Verbose"
-  ui_scale_controller            = "AppInsights:Verbose"
+  gateway_scale_controller       = "AppInsights:None"
+  auth_handover_scale_controller = "AppInsights:None"
 }
 
 cms_details = {

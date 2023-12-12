@@ -37,8 +37,9 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
-    "SlidingClearDownEnabled"                         = var.sliding_clear_down_enabled
-    "SlidingClearDownInputDays"                       = var.sliding_clear_down_input_days
+    "SlidingClearDownEnabled"                         = var.sliding_clear_down.enabled
+    "SlidingClearDownInputDays"                       = var.sliding_clear_down.look_back_days
+    "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -54,7 +55,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   }
 
   sticky_settings {
-    app_setting_names = ["CoordinatorTaskHub","HostType"]
+    app_setting_names = ["CoordinatorTaskHub", "HostType"]
   }
 
   site_config {

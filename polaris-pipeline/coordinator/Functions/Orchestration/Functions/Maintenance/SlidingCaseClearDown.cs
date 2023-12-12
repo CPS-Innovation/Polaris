@@ -45,18 +45,15 @@ public class SlidingCaseClearDown
             if (convSucceeded && clearDownEnabled && inputConvSucceeded)
             {
                 var clearDownPeriod = clearDownInputDays * -1;
-                var targetCaseId =
-                    await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
+                var targetCaseId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
+                
                 if (string.IsNullOrEmpty(targetCaseId))
-                {
                     return;
-                }
-
+                
                 if (!int.TryParse(targetCaseId.Replace("[", "").Replace("]", ""), out var caseId))
-                    throw new InvalidCastException(
-                        $"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
+                    throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
 
-                var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId);
+                var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
                 deleteResponse.EnsureSuccessStatusCode();
             }
         }

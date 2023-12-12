@@ -65,6 +65,14 @@ variable "overnight_clear_down_enabled" {
   type = bool
 }
 
+variable "sliding_clear_down" {
+  type = object({
+    enabled        = bool
+    look_back_days = number
+    protect_blobs  = bool
+  })
+}
+
 variable "sliding_clear_down_enabled" {
   type = bool
 }
