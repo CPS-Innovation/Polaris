@@ -35,8 +35,8 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
       return b[1] - a[1];
     });
 
-    return sortedArray.map((item, index) => (
-      <li key={`${index}-${item[0]}`}>
+    return sortedArray.map((item) => (
+      <li key={`${item[0]}`}>
         <b>{`${item[1]}`}</b> - {`${getRedactionTypeNames(item[1], item[0])}`}
       </li>
     ));
