@@ -44,7 +44,10 @@ public class SlidingCaseClearDown
                 var targetCaseId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
 
                 if (string.IsNullOrEmpty(targetCaseId))
+                {
+                    _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "No candidate case found to clear-down.");
                     return;
+                }
 
                 if (!int.TryParse(targetCaseId.Replace("[", "").Replace("]", ""), out var caseId))
                     throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");

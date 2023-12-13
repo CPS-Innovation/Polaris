@@ -18,6 +18,7 @@ using Common.Constants;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain.Dto;
 using coordinator.Domain.Extensions;
+using coordinator.Functions.Orchestration.Functions.Document;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -84,7 +85,7 @@ public class OrchestrationProvider : IOrchestrationProvider
                 return caseId;
 
             var results = JsonConvert.DeserializeObject<List<DurableInstanceDto>>(jsonString);
-            var targetInstance = results.FirstOrDefault(i => i.Name == nameof(RefreshCaseOrchestrator) && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates));
+            var targetInstance = results.FirstOrDefault(i => i.Name is nameof(RefreshCaseOrchestrator) or nameof(RefreshDocumentOrchestrator) && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates));
 
             if (targetInstance != null && !string.IsNullOrWhiteSpace(targetInstance.InstanceId))
                 caseId = targetInstance.InstanceId;
