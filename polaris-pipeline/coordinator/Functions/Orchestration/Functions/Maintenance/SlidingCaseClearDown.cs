@@ -32,32 +32,27 @@ public class SlidingCaseClearDown
     /// <param name="client"></param>
     /// <exception cref="InvalidCastException"></exception>
     [FunctionName(nameof(SlidingCaseClearDown))]
-    public async Task RunAsync([TimerTrigger("0 */5 * * * *"
-            /*, RunOnStartup = true*/
-            )]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
+    public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = true)]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
         try
         {
-            var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownEnabled], out var clearDownEnabled);
-            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays],
-                out var clearDownInputDays);
-            if (convSucceeded && clearDownEnabled && inputConvSucceeded)
+            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays], out var clearDownInputDays);
+            if (inputConvSucceeded)
             {
                 var clearDownPeriod = clearDownInputDays * -1;
-                var targetCaseId =
-                    await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
+                var targetCaseId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
+
                 if (string.IsNullOrEmpty(targetCaseId))
-                {
                     return;
-                }
 
                 if (!int.TryParse(targetCaseId.Replace("[", "").Replace("]", ""), out var caseId))
-                    throw new InvalidCastException(
-                        $"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
+                    throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
 
-                var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId);
+                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {caseId}");
+                var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
                 deleteResponse.EnsureSuccessStatusCode();
+                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Clear down of case {caseId} completed");
             }
         }
         catch (Exception ex)

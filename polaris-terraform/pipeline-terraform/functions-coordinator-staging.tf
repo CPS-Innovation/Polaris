@@ -10,6 +10,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   tags                          = local.common_tags
 
   app_settings = {
+    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
     "BlobServiceContainerName"                        = "documents"
@@ -22,7 +24,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HostType"                                        = "Staging1"
-    "OvernightClearDownEnabled"                       = var.overnight_clear_down_enabled
+    "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
@@ -33,8 +35,9 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
-    "SlidingClearDownEnabled"                         = var.sliding_clear_down_enabled
-    "SlidingClearDownInputDays"                       = var.sliding_clear_down_input_days
+    "SlidingClearDownInputDays"                       = var.sliding_clear_down.look_back_days
+    "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
+    "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
