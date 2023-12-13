@@ -34,6 +34,7 @@ import { SURVEY_LINK } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
+import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -54,6 +55,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineRefreshData,
     errorModal,
     documentIssueModal,
+    redactionLog,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -66,6 +68,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveRedaction,
     handleRemoveAllRedactions,
     handleSavedRedactions,
+    handleSavedRedactionLog,
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
@@ -135,7 +138,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const getActiveTabDocument = () => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
-    );
+    )!;
   };
 
   return (
@@ -214,6 +217,18 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           }}
         />
       )}
+
+      {redactionLog.showModal &&
+        redactionLog.redactionLogData.status === "succeeded" && (
+          <RedactionLogModal
+            caseUrn={urn}
+            documentName={getActiveTabDocument().presentationFileName}
+            savedRedactionTypes={redactionLog.savedRedactionTypes}
+            saveStatus={getActiveTabDocument().saveStatus}
+            redactionLogData={redactionLog.redactionLogData.data}
+            saveRedactionLog={handleSavedRedactionLog}
+          />
+        )}
       <nav>
         <PhaseBanner
           className={classes["phaseBanner"]}
@@ -296,6 +311,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
+                redactionTypesData={
+                  redactionLog.redactionLogData.status === "succeeded"
+                    ? redactionLog.redactionLogData.data.missedRedactions
+                    : []
+                }
                 isOkToSave={pipelineState.status === "complete"}
                 tabsState={tabsState}
                 savedDocumentDetails={pipelineRefreshData.savedDocumentDetails}

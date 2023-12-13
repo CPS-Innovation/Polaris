@@ -6,7 +6,6 @@ import {
   ScaledPosition,
   IHighlight,
 } from "../../../../../../react-pdf-highlighter";
-
 import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
@@ -21,7 +20,8 @@ import { useControlledRedactionFocus } from "../../../../../common/hooks/useCont
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
 import { LoaderUpdate } from "../../../../../common/presentation/components";
-
+import { SaveStatus } from "../../../domain/gateway/SaveStatus";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 const SCROLL_TO_OFFSET = 120;
 
 type Props = {
@@ -29,10 +29,11 @@ type Props = {
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
+  redactionTypesData: RedactionTypeData[];
   contextData: {
     documentType: string;
     documentId: string;
-    isSaving: boolean;
+    saveStatus: SaveStatus;
   };
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -52,6 +53,7 @@ const ensureAllPdfInView = () =>
 
 export const PdfViewer: React.FC<Props> = ({
   url,
+  redactionTypesData,
   tabIndex,
   activeTabId,
   tabId,
@@ -90,7 +92,11 @@ export const PdfViewer: React.FC<Props> = ({
   }, [searchHighlights, focussedHighlightIndex]);
 
   const addRedaction = useCallback(
-    (position: ScaledPosition, content: { text?: string; image?: string }) => {
+    (
+      position: ScaledPosition,
+      content: { text?: string; image?: string },
+      redactionType: RedactionTypeData
+    ) => {
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
         position,
@@ -98,6 +104,7 @@ export const PdfViewer: React.FC<Props> = ({
           content.text ??
           "This is an area redaction and redacted content is unavailable",
         highlightType: content.image ? "area" : "linear",
+        redactionType: redactionType,
       };
 
       handleAddRedaction(newRedaction);
@@ -121,7 +128,7 @@ export const PdfViewer: React.FC<Props> = ({
         ref={containerRef}
         data-testid={`div-pdfviewer-${tabIndex}`}
       >
-        {contextData.isSaving && (
+        {contextData.saveStatus === "saving" && (
           <div className={classes.spinner}>
             <Wait ariaLabel="Saving redaction, please wait" />
           </div>
@@ -177,12 +184,13 @@ export const PdfViewer: React.FC<Props> = ({
                   }
                   return (
                     <RedactButton
-                      onConfirm={() => {
+                      redactionTypesData={redactionTypesData}
+                      onConfirm={(redactionType: RedactionTypeData) => {
                         trackEvent("Redact Content", {
                           documentType: contextData.documentType,
                           documentId: contextData.documentId,
                         });
-                        addRedaction(position, content);
+                        addRedaction(position, content, redactionType);
                         hideTipAndSelection();
                       }}
                     />

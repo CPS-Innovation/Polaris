@@ -8,6 +8,8 @@ import devpipelinePdfResultsDataSource from "./data/pipelinePdfResults.dev";
 import cypresspipelinePdfResultsDataSource from "./data/pipelinePdfResults.cypress";
 import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
+import redactionLogDataSource from "./data/redactionLogData.dev";
+import { RedactionLogDataSource } from "./data/types/RedactionLogDataSource";
 import { SearchDataSource } from "./data/types/SearchDataSource";
 import {
   CaseDetailsDataSource,
@@ -30,6 +32,11 @@ const searchDataSources: { [key: string]: SearchDataSource } = {
 const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
   dev: devCaseDetailsDataSource,
   cypress: cypressDetailsDataSource,
+};
+
+const redactionLogDataSources: { [key: string]: RedactionLogDataSource } = {
+  dev: redactionLogDataSource,
+  cypress: redactionLogDataSource,
 };
 
 const pipelinePdfResultsDataSources: {
@@ -92,7 +99,6 @@ export const setupHandlers = ({
 
     rest.put(makeApiPath(routes.SAVE_REDACTION_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
-      // return res(ctx.status(500));
     }),
 
     rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
@@ -144,6 +150,16 @@ export const setupHandlers = ({
           makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName!)
         )
       );
+    }),
+
+    rest.get(makeApiPath(routes.REDACTION_LOG_ROUTE), (req, res, ctx) => {
+      const results = redactionLogDataSources[sourceName];
+
+      return res(delay(ctx), ctx.json(results));
+    }),
+
+    rest.put(makeApiPath(routes.SAVE_REDACTION_LOG_ROUTE), (req, res, ctx) => {
+      return res(delay(ctx), ctx.json({}));
     }),
 
     rest.post(makeApiPath(routes.DOCUMENT_CHECKOUT_ROUTE), (req, res, ctx) => {

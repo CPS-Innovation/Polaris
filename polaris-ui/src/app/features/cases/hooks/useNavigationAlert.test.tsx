@@ -40,10 +40,13 @@ describe("useNavigationAlert hook", () => {
           type: "redaction",
           position: {} as any,
           highlightType: "area",
+          redactionType: { id: "1", name: "Address" },
         },
       ],
       sasUrl: undefined,
       url: undefined,
+      isDeleted: false,
+      saveStatus: "initial",
     },
     {
       clientLockedState: "unlocked",
@@ -77,10 +80,13 @@ describe("useNavigationAlert hook", () => {
           type: "redaction",
           position: {} as any,
           highlightType: "area",
+          redactionType: { id: "1", name: "Address" },
         },
       ],
       sasUrl: undefined,
       url: undefined,
+      isDeleted: false,
+      saveStatus: "initial",
     },
   ];
 
