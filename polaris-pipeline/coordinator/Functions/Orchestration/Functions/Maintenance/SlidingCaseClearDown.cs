@@ -42,15 +42,17 @@ public class SlidingCaseClearDown
             {
                 var clearDownPeriod = clearDownInputDays * -1;
                 var targetCaseId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
-                
+
                 if (string.IsNullOrEmpty(targetCaseId))
                     return;
-                
+
                 if (!int.TryParse(targetCaseId.Replace("[", "").Replace("]", ""), out var caseId))
                     throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
 
+                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {caseId}");
                 var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
                 deleteResponse.EnsureSuccessStatusCode();
+                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Clear down of case {caseId} completed");
             }
         }
         catch (Exception ex)

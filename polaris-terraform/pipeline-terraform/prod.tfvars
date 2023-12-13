@@ -26,12 +26,12 @@ pipeline_component_service_plans = {
 }
 
 overnight_clear_down = {
-  disabled = true
+  disabled = 1
   schedule = "0 0 3 * * *"
 }
 
 sliding_clear_down = {
-  disabled       = true
+  disabled       = 1
   look_back_days = 31
   protect_blobs  = true
   schedule       = "0 */5 * * * *"
