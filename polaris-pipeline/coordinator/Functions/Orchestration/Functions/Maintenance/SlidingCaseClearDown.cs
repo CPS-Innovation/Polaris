@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Extensions;
 using Common.Logging;
 using coordinator.Providers;
 using Microsoft.Azure.WebJobs;
@@ -41,15 +42,16 @@ public class SlidingCaseClearDown
             if (inputConvSucceeded)
             {
                 var clearDownPeriod = clearDownInputDays * -1;
-                var targetCaseId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
+                var targetInstanceId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
 
-                if (string.IsNullOrEmpty(targetCaseId))
+                if (string.IsNullOrEmpty(targetInstanceId))
                 {
                     _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "No candidate case found to clear-down.");
                     return;
                 }
 
-                if (!int.TryParse(targetCaseId.Replace("[", "").Replace("]", ""), out var caseId))
+                var targetCaseId = targetInstanceId.ExtractBookendedContent("[", "]");
+                if (!int.TryParse(targetCaseId, out var caseId))
                     throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
 
                 _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {caseId}");
