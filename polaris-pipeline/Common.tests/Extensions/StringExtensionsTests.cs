@@ -117,4 +117,28 @@ public class StringExtensionsTests
 
         result.Should().Be(expectedResult);
     }
+
+    [Theory]
+    [InlineData("[12345]", "[", "]", "12345")]
+    [InlineData("[2149310]-CMS-4267077", "[", "]", "2149310")]
+    public void ExtractBookendedContent_ReturnsExpectedStringValue(string valueIn, string from, string until,
+        string expectedContent)
+    {
+        var result = valueIn.ExtractBookendedContent(from, until);
+        result.Should().Be(expectedContent);
+    }
+
+    [Fact]
+    public void ExtractBookendedContent_ThrowsExceptionIfFirstBookendIsMissing()
+    {
+        const string testValue = "2149310-CMS-4267077";
+        Assert.Throws<ArgumentException>(() => testValue.ExtractBookendedContent("[", "]"));
+    }
+    
+    [Fact]
+    public void ExtractBookendedContent_ThrowsExceptionIfSecondBookendIsMissing()
+    {
+        const string testValue = "[2149310-CMS-4267077";
+        Assert.Throws<ArgumentException>(() => testValue.ExtractBookendedContent("[", "]"));
+    }
 }
