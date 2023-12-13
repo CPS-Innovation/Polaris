@@ -28,10 +28,8 @@ const showRedactionLogFeature = (groupClaims: string[], username: string) => {
     isInPrivateBetaGroup && isInRedactionLogGroup && FEATURE_FLAG_REDACTION_LOG;
 
   const canProceedOnNoFeatureGroupInConfig =
-    !(
-      PRIVATE_BETA_REDACTION_LOG_USER_GROUP &&
-      PRIVATE_BETA_REDACTION_LOG_USER_GROUP.length
-    ) && FEATURE_FLAG_REDACTION_LOG;
+    !PRIVATE_BETA_REDACTION_LOG_USER_GROUP?.length &&
+    FEATURE_FLAG_REDACTION_LOG;
 
   const canProceedOnAutomationTestRun =
     isAutomationTestUser(username) && FEATURE_FLAG_REDACTION_LOG;

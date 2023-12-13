@@ -14,7 +14,6 @@ import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
-import { FEATURE_FLAG_REDACTION_LOG } from "../../../../config";
 import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;

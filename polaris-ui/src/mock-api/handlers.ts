@@ -99,7 +99,6 @@ export const setupHandlers = ({
 
     rest.put(makeApiPath(routes.SAVE_REDACTION_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
-      // return res(delay(ctx), ctx.status(500));
     }),
 
     rest.get(makeApiPath(routes.TRACKER_ROUTE), (req, res, ctx) => {
@@ -161,7 +160,6 @@ export const setupHandlers = ({
 
     rest.put(makeApiPath(routes.SAVE_REDACTION_LOG_ROUTE), (req, res, ctx) => {
       return res(delay(ctx), ctx.json({}));
-      //return res(delay(ctx), ctx.status(500));
     }),
 
     rest.post(makeApiPath(routes.DOCUMENT_CHECKOUT_ROUTE), (req, res, ctx) => {

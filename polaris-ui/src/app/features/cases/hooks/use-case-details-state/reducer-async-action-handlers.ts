@@ -295,7 +295,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         redactionHighlights
       );
       const savedRedactionTypes = redactionHighlights.map(
-        ({ redactionType }) => redactionType!
+        (highlight) => highlight.redactionType!
       );
       try {
         dispatch({

@@ -3,7 +3,6 @@ export type InvestigatingAgency =
   | "NHS"
   | "Counter Fraud Authority"
   | "Department for Health and Social Care"
-  | "Department for Health and Social Care"
   | "Medicines Healthcare Regulatory Agency (MHRA)"
   | "Welsh Revenue Authority"
   | "Child Maintenance Group"
