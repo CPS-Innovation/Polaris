@@ -243,8 +243,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       </div>
       <form
         className={classes.underRedactionForm}
-        onSubmit={() => {
-          console.log("hellooo");
+        onSubmit={(event) => {
+          event.preventDefault();
         }}
       >
         <div className={classes.selectInputWrapper}>
