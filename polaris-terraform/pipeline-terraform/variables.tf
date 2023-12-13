@@ -63,14 +63,14 @@ variable "pipeline_logging" {
 
 variable "overnight_clear_down" {
   type = object({
-    disabled      = bool
+    disabled      = number
     schedule      = string
   })
 }
 
 variable "sliding_clear_down" {
   type = object({
-    disabled       = bool
+    disabled       = number
     look_back_days = number
     protect_blobs  = bool
     schedule       = string
