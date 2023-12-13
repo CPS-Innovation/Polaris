@@ -1,16 +1,10 @@
-import { AreaDivision } from "../../app/features/cases/domain/redactionLog/AreaDivision";
 import { RedactionLogDataSource } from "./types/RedactionLogDataSource";
-import {
-  AreasOrDivisionData,
-  RedactionLogDocumentTypeData,
-  InvestigatingAgencyData,
-  RedactionTypeDataWithChildren,
-} from "../../app/features/cases/domain/redactionLog/RedactionLogData";
+import { ListItem } from "../../app/features/cases/domain/redactionLog/ListItem";
 
-const areasStub: AreasOrDivisionData[] = [
+const areasStub: ListItem[] = [
   {
     id: "1",
-    name: AreaDivision.Wales,
+    name: "Cymru/Wales",
     children: [
       {
         id: "1",
@@ -36,7 +30,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "2",
-    name: AreaDivision.EastMidlands,
+    name: "East Midlands",
     children: [
       {
         id: "1",
@@ -62,7 +56,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "3",
-    name: AreaDivision.EastOfEngland,
+    name: "East of England",
     children: [
       {
         id: "1",
@@ -88,7 +82,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "4",
-    name: AreaDivision.LondonNorth,
+    name: "London North",
     children: [
       {
         id: "1",
@@ -114,7 +108,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "5",
-    name: AreaDivision.LondonSouth,
+    name: "London South",
     children: [
       {
         id: "1",
@@ -140,7 +134,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "6",
-    name: AreaDivision.MerseryCheshire,
+    name: "Mersey-Cheshire",
     children: [
       {
         id: "1",
@@ -166,7 +160,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "7",
-    name: AreaDivision.NorthEast,
+    name: "North East",
     children: [
       {
         id: "1",
@@ -192,7 +186,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "8",
-    name: AreaDivision.NorthWest,
+    name: "North West",
     children: [
       {
         id: "1",
@@ -218,7 +212,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "9",
-    name: AreaDivision.SouthEast,
+    name: "South East",
     children: [
       {
         id: "1",
@@ -244,7 +238,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "10",
-    name: AreaDivision.SouthWest,
+    name: "South West",
     children: [
       {
         id: "1",
@@ -270,7 +264,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "11",
-    name: AreaDivision.ThamesAndChiltern,
+    name: "Thames and Chiltern",
     children: [
       {
         id: "1",
@@ -296,7 +290,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "12",
-    name: AreaDivision.Wessex,
+    name: "Wessex",
     children: [
       {
         id: "1",
@@ -322,7 +316,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "13",
-    name: AreaDivision.WestMidlands,
+    name: "West Midlands",
     children: [
       {
         id: "1",
@@ -348,7 +342,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "14",
-    name: AreaDivision.YorkshireAndHumberside,
+    name: "Yorkshire and Humberside",
     children: [
       {
         id: "1",
@@ -374,7 +368,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "96",
-    name: AreaDivision.TestArea1,
+    name: "Test Area 1",
     children: [
       {
         id: "1",
@@ -400,7 +394,7 @@ const areasStub: AreasOrDivisionData[] = [
   },
   {
     id: "97",
-    name: AreaDivision.TestArea2,
+    name: "Test Area 2",
     children: [
       {
         id: "1",
@@ -421,10 +415,10 @@ const areasStub: AreasOrDivisionData[] = [
   },
 ];
 
-const divisionsStub: AreasOrDivisionData[] = [
+const divisionsStub: ListItem[] = [
   {
     id: "16",
-    name: AreaDivision.SpecialCrimeAndCounterTerrorismDivision,
+    name: "Special Crime and Counter Terrorism Division",
     children: [
       {
         id: "1",
@@ -450,7 +444,7 @@ const divisionsStub: AreasOrDivisionData[] = [
   },
   {
     id: "17",
-    name: AreaDivision.ProceedsOfCrime,
+    name: "Proceeds of Crime",
     children: [
       {
         id: "1",
@@ -471,7 +465,7 @@ const divisionsStub: AreasOrDivisionData[] = [
   },
   {
     id: "19",
-    name: AreaDivision.SEOCIDInternationalLondonAndSouthEastDivision,
+    name: "SEOCID International, London and South East Division",
     children: [
       {
         id: "1",
@@ -492,7 +486,7 @@ const divisionsStub: AreasOrDivisionData[] = [
   },
   {
     id: "20",
-    name: AreaDivision.SEOCIDRegionalAndWalesDivision,
+    name: "SEOCID Regional and Wales Division",
     children: [
       {
         id: "1",
@@ -518,7 +512,7 @@ const divisionsStub: AreasOrDivisionData[] = [
   },
   {
     id: "98",
-    name: AreaDivision.TestDivision1,
+    name: "Test Division 1",
     children: [
       {
         id: "1",
@@ -544,7 +538,7 @@ const divisionsStub: AreasOrDivisionData[] = [
   },
   {
     id: "99",
-    name: AreaDivision.TestDivision2,
+    name: "Test Division 2",
     children: [
       {
         id: "1",
@@ -570,7 +564,7 @@ const divisionsStub: AreasOrDivisionData[] = [
   },
 ];
 
-const documentTypesStub: RedactionLogDocumentTypeData[] = [
+const documentTypesStub: ListItem[] = [
   { id: "1", name: "MG 0", children: [] },
   { id: "2", name: "MG 1", children: [] },
   { id: "3", name: "MG 2", children: [] },
@@ -616,7 +610,7 @@ const documentTypesStub: RedactionLogDocumentTypeData[] = [
   { id: "35", name: "Other", children: [] },
 ];
 
-const investigatingAgenciesStub: InvestigatingAgencyData[] = [
+const investigatingAgenciesStub: ListItem[] = [
   { id: "1", name: "DWP", children: [] },
   { id: "2", name: "NHS", children: [] },
   { id: "3", name: "Counter Fraud Authority", children: [] },
@@ -709,7 +703,7 @@ const investigatingAgenciesStub: InvestigatingAgencyData[] = [
   { id: "78", name: "ERSOU", children: [] },
 ];
 
-export const missedRedactionsStub: RedactionTypeDataWithChildren[] = [
+export const missedRedactionsStub: ListItem[] = [
   { id: "1", name: "Named individual", children: [] },
   { id: "2", name: "Title", children: [] },
   { id: "3", name: "Occupation", children: [] },
@@ -732,7 +726,7 @@ export const redactionLogData = {
   divisions: divisionsStub,
   documentTypes: documentTypesStub,
   investigatingAgencies: investigatingAgenciesStub,
-  redactionTypes: missedRedactionsStub,
+  missedRedactions: missedRedactionsStub,
 };
 
 const dataSource: RedactionLogDataSource = redactionLogData;

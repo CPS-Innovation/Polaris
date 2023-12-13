@@ -313,7 +313,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabs
                 redactionTypesData={
                   redactionLog.redactionLogData.status === "succeeded"
-                    ? redactionLog.redactionLogData.data.redactionTypes
+                    ? redactionLog.redactionLogData.data.missedRedactions
                     : []
                 }
                 isOkToSave={pipelineState.status === "complete"}

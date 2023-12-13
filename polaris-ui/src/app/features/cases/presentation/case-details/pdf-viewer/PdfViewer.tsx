@@ -6,8 +6,6 @@ import {
   ScaledPosition,
   IHighlight,
 } from "../../../../../../react-pdf-highlighter";
-import { RedactionType } from "../../../domain/redactionLog/RedactionType";
-
 import classes from "./PdfViewer.module.scss";
 import { Wait } from "./Wait";
 import { RedactButton } from "./RedactButton";
@@ -97,7 +95,7 @@ export const PdfViewer: React.FC<Props> = ({
     (
       position: ScaledPosition,
       content: { text?: string; image?: string },
-      redactionType: { id: string; name: RedactionType }
+      redactionType: RedactionTypeData
     ) => {
       const newRedaction: NewPdfHighlight = {
         type: "redaction",
@@ -187,10 +185,7 @@ export const PdfViewer: React.FC<Props> = ({
                   return (
                     <RedactButton
                       redactionTypesData={redactionTypesData}
-                      onConfirm={(redactionType: {
-                        id: string;
-                        name: RedactionType;
-                      }) => {
+                      onConfirm={(redactionType: RedactionTypeData) => {
                         trackEvent("Redact Content", {
                           documentType: contextData.documentType,
                           documentId: contextData.documentId,

@@ -1,7 +1,6 @@
 import { ListItemWithoutChildren } from "./ListItem";
 import { ChargeStatus } from "./ChargeStatus";
 import { RedactionCategory } from "./RedactionCategory";
-import { AreaDivision } from "./AreaDivision";
 import { RedactionTypeData } from "./RedactionLogData";
 
 export type RedactionLogRequestData = {
@@ -9,8 +8,8 @@ export type RedactionLogRequestData = {
   unit: {
     id: string;
     type: "Area";
-    areaDivisionName: AreaDivision;
-    name: AreaDivision;
+    areaDivisionName: string;
+    name: string;
   };
   investigatingAgency: ListItemWithoutChildren;
   documentType: ListItemWithoutChildren;

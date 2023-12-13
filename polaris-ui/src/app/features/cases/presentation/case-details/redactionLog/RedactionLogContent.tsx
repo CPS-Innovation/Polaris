@@ -19,7 +19,6 @@ import {
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategory";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
-import { AreaDivision } from "../../../domain/redactionLog/AreaDivision";
 type RedactionLogContentProps = {
   caseUrn: string;
   documentName: string;
@@ -194,8 +193,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       unit: {
         id: `${mappedArea?.id}-${mappedBusinessUnit?.id}`,
         type: "Area" as const,
-        areaDivisionName: mappedArea?.name as unknown as AreaDivision,
-        name: mappedBusinessUnit?.name as unknown as AreaDivision,
+        areaDivisionName: mappedArea?.name,
+        name: mappedBusinessUnit?.name,
       },
       investigatingAgency: {
         id: mappedInvestigatingAgency?.id,

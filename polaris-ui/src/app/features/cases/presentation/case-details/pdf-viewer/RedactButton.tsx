@@ -3,12 +3,11 @@ import classes from "./RedactButton.module.scss";
 import { Select } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
-import { RedactionType } from "../../../domain/redactionLog/RedactionType";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type Props = {
   redactionTypesData: RedactionTypeData[];
-  onConfirm: (redactionType: { id: string; name: RedactionType }) => void;
+  onConfirm: (redactionType: { id: string; name: string }) => void;
 };
 
 const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
@@ -29,7 +28,7 @@ export const RedactButton: React.FC<Props> = ({
   onConfirm,
   redactionTypesData,
 }) => {
-  const [redactionType, setRedactionType] = useState<RedactionType | "">("");
+  const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
   useLastFocus();
 
@@ -77,9 +76,7 @@ export const RedactButton: React.FC<Props> = ({
             formGroup={{
               className: classes.select,
             }}
-            onChange={(ev) =>
-              setRedactionType(ev.target.value as RedactionType)
-            }
+            onChange={(ev) => setRedactionType(ev.target.value)}
           />
         </div>
       )}
