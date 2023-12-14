@@ -63,9 +63,8 @@ public class OrchestrationProvider : IOrchestrationProvider
         _blobStorageService = blobStorageService;
     }
 
-    public async Task<string> FindCaseInstanceByDateAsync(DateTime createdTimeTo, Guid correlationId)
+    public async Task<List<string>> FindCaseInstancesByDateAsync(DateTime createdTimeTo, Guid correlationId, int batchSize)
     {
-        var caseId = string.Empty;
         var clearDownCandidates = new[] { OrchestrationRuntimeStatus.Completed, OrchestrationRuntimeStatus.Failed };
 
         try
@@ -82,22 +81,22 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             var jsonString = await response.Content.ReadAsStringAsync();
             if (string.IsNullOrWhiteSpace(jsonString))
-                return caseId;
+                return new List<string>();
 
             var results = JsonConvert.DeserializeObject<List<DurableInstanceDto>>(jsonString);
-            var targetInstance = results.FirstOrDefault(i => i.Name is nameof(RefreshCaseOrchestrator) or nameof(RefreshDocumentOrchestrator) && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates));
+            var targetInstances = results.Where(i => i.Name is nameof(RefreshCaseOrchestrator) or nameof(RefreshDocumentOrchestrator) && i.RuntimeStatus.IsClearDownCandidate(clearDownCandidates)).ToList();
 
-            if (targetInstance != null && !string.IsNullOrWhiteSpace(targetInstance.InstanceId))
-                caseId = targetInstance.InstanceId;
+            return targetInstances.Count == 0
+                ? new List<string>()
+                : targetInstances.Select(i => i.CaseId).Distinct().Take(batchSize).ToList();
         }
         catch (HttpRequestException exception)
         {
             if (exception.StatusCode == HttpStatusCode.NotFound)
-                return string.Empty;
+                return new List<string>();
 
             throw;
         }
-        return caseId;
     }
 
     public async Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,

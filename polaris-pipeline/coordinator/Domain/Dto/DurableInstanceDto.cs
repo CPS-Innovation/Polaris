@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Common.Extensions;
+using Newtonsoft.Json;
 
 namespace coordinator.Domain.Dto;
 
@@ -27,4 +28,6 @@ public class DurableInstanceDto
     
     [JsonProperty("lastUpdatedTime")]
     public string LastUpdatedTime { get; set; }
+
+    public string CaseId => InstanceId.ExtractBookendedContent("[", "]");
 }
