@@ -63,7 +63,6 @@ public class SlidingCaseClearDown
                 
                 foreach (var task in await Task.WhenAll(tasks))
                 {
-                    _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {task.Item1}");
                     if (task.Item2)
                     {
                         _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Clear down of case {task.Item1} completed");
@@ -79,8 +78,8 @@ public class SlidingCaseClearDown
     
     private async Task<Tuple<int, bool>> CallDeleteCaseAsync(Guid correlationId, IDurableOrchestrationClient client, int caseId)
     {
-        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"clearing up {caseId}");
-        
+        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {caseId}");
+
         var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
         deleteResponse.EnsureSuccessStatusCode();
         
