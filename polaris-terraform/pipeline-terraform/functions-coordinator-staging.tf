@@ -38,6 +38,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "SlidingClearDownInputDays"                       = var.sliding_clear_down.look_back_days
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
     "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
+    "SlidingClearDownBatchSize"                       = var.sliding_clear_down.batch_size
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"

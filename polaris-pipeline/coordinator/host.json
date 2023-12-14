@@ -6,6 +6,7 @@
       "default": "Warning",
       "Function": "Information",
       "coordinator.Functions.Orchestration.Functions.Case.RefreshCaseOrchestrator": "Information",
+      "coordinator.Functions.Orchestration.Functions.Maintenance.SlidingCaseClearDown": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",

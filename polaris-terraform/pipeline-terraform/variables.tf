@@ -74,6 +74,7 @@ variable "sliding_clear_down" {
     look_back_days = number
     protect_blobs  = bool
     schedule       = string
+    batch_size     = number
   })
 }
 

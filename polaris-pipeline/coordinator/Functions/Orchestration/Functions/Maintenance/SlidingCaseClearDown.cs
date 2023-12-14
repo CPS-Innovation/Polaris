@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Extensions;
@@ -39,30 +40,50 @@ public class SlidingCaseClearDown
         try
         {
             var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays], out var clearDownInputDays);
-            if (inputConvSucceeded)
+            var batchConvSucceeded = int.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownBatchSize], out var clearDownBatchSize);
+            if (inputConvSucceeded && batchConvSucceeded)
             {
                 var clearDownPeriod = clearDownInputDays * -1;
-                var targetInstanceId = await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
+                var targetCases = await _orchestrationProvider.FindCaseInstancesByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId, clearDownBatchSize);
 
-                if (string.IsNullOrEmpty(targetInstanceId))
+                if (targetCases.Count == 0)
                 {
                     _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "No candidate case found to clear-down.");
                     return;
                 }
 
-                var targetCaseId = targetInstanceId.ExtractBookendedContent("[", "]");
-                if (!int.TryParse(targetCaseId, out var caseId))
-                    throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
-
-                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {caseId}");
-                var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
-                deleteResponse.EnsureSuccessStatusCode();
-                _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Clear down of case {caseId} completed");
+                var tasks = new List<Task<Tuple<int, bool>>>();
+                foreach (var targetCaseId in targetCases)
+                {
+                    if (!int.TryParse(targetCaseId, out var caseId))
+                        throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
+                    
+                    tasks.Add(CallDeleteCaseAsync(correlationId, client, caseId));
+                }
+                
+                foreach (var task in await Task.WhenAll(tasks))
+                {
+                    _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {task.Item1}");
+                    if (task.Item2)
+                    {
+                        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Clear down of case {task.Item1} completed");
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
             _logger.LogMethodError(correlationId, LoggingName, ex.Message, ex);
         }
+    }
+    
+    private async Task<Tuple<int, bool>> CallDeleteCaseAsync(Guid correlationId, IDurableOrchestrationClient client, int caseId)
+    {
+        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"clearing up {caseId}");
+        
+        var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
+        deleteResponse.EnsureSuccessStatusCode();
+        
+        return Tuple.Create(caseId, true);
     }
 }

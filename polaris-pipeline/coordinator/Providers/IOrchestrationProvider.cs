@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using coordinator.Domain;
@@ -8,7 +9,7 @@ namespace coordinator.Providers;
 
 public interface IOrchestrationProvider
 {
-    Task<string> FindCaseInstanceByDateAsync(DateTime createdTimeTo, Guid correlationId);
+    Task<List<string>> FindCaseInstancesByDateAsync(DateTime createdTimeTo, Guid correlationId, int batchSize);
     
     Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient orchestrationClient, Guid correlationId,
         string caseId, CaseOrchestrationPayload casePayload, HttpRequestMessage req);
