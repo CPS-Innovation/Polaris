@@ -31,8 +31,8 @@ overnight_clear_down = {
 }
 
 sliding_clear_down = {
-  disabled       = 1
-  look_back_days = 7
+  disabled       = 0
+  look_back_days = 5
   protect_blobs  = false
   schedule       = "0 */5 * * * *"
 }
