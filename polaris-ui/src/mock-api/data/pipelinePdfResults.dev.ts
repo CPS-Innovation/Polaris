@@ -19,7 +19,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MCLOVEMG3 very long .docx",
       presentationTitle: "UM MCLOVEMG3 very long",
       cmsOriginalFileExtension: ".pdf",
-      cmsFileCreatedDate: "2020-06-02",
+      cmsFileCreatedDate: "2022-06-02T21:22:33",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
@@ -41,7 +41,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "CM01  very long .docx",
       presentationTitle: "CM01 Item 4 very long",
       cmsOriginalFileExtension: ".pdf",
-      cmsFileCreatedDate: "2020-06-02",
+      cmsFileCreatedDate: "2020-06-02T11:45:33",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {

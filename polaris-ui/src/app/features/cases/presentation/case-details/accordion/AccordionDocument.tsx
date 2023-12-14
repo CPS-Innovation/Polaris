@@ -1,12 +1,14 @@
 import {
   CommonDateTimeFormats,
   formatDate,
+  formatTime,
 } from "../../../../../common/utils/dates";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { LinkButton } from "../../../../../common/presentation/components/LinkButton";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { ReactComponent as DateIcon } from "../../../../../common/presentation/svgs/date.svg";
+import { ReactComponent as TimeIcon } from "../../../../../common/presentation/svgs/time.svg";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 
 import classes from "./Accordion.module.scss";
@@ -30,6 +32,8 @@ export const AccordionDocument: React.FC<Props> = ({
     }
     return `${caseDocument.attachments.length} attachments`;
   };
+
+  const formattedFileCreatedTime = formatTime(caseDocument.cmsFileCreatedDate);
 
   return (
     <li className={`${classes["accordion-document-list-item"]}`}>
@@ -64,6 +68,13 @@ export const AccordionDocument: React.FC<Props> = ({
               caseDocument.cmsFileCreatedDate,
               CommonDateTimeFormats.ShortDateTextMonth
             )}
+          {formattedFileCreatedTime && (
+            <>
+              <span className={`${classes["visuallyHidden"]}`}>Time added</span>
+              <TimeIcon className={classes.timeIcon} />
+              {caseDocument.cmsFileCreatedDate && formattedFileCreatedTime}
+            </>
+          )}
         </div>
 
         {!!caseDocument.attachments.length && (
