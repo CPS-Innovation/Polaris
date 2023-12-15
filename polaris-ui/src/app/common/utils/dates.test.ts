@@ -22,6 +22,10 @@ describe("formatDate", () => {
   });
 
   it("should return the formatted time if the input is a valid ISO date string", () => {
-    expect(formatTime("2022-01-01T13:45:00")).toBe("13:45");
+    expect(formatTime("2022-01-01T13:45:00Z")).toBe("13:45");
+  });
+
+  it("should return the formatted time if the input is a valid ISO date BST string", () => {
+    expect(formatTime("2022-08-08T13:45:00Z")).toBe("14:45");
   });
 });
