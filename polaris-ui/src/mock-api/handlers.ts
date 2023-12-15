@@ -9,6 +9,7 @@ import cypresspipelinePdfResultsDataSource from "./data/pipelinePdfResults.cypre
 import devSearchCaseDataSource from "./data/searchCaseResults.dev";
 import cypressSearchCaseDataSource from "./data/searchCaseResults.cypress";
 import redactionLogDataSource from "./data/redactionLogData.dev";
+import cypressRedactionLogDataSource from "./data/redactionLogData.cypress";
 import { RedactionLogDataSource } from "./data/types/RedactionLogDataSource";
 import { SearchDataSource } from "./data/types/SearchDataSource";
 import {
@@ -36,7 +37,7 @@ const caseDetailsDataSources: { [key: string]: CaseDetailsDataSource } = {
 
 const redactionLogDataSources: { [key: string]: RedactionLogDataSource } = {
   dev: redactionLogDataSource,
-  cypress: redactionLogDataSource,
+  cypress: cypressRedactionLogDataSource,
 };
 
 const pipelinePdfResultsDataSources: {

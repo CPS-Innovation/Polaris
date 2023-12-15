@@ -5,6 +5,10 @@ import {
   FEATURE_FLAG_REDACTION_LOG,
   PRIVATE_BETA_CHECK_IGNORE_USER,
 } from "../../config";
+import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
+import { FeatureFlagQueryParams } from "../../features/cases/domain/FeatureFlagData";
+import { useUserDetails as mockUserDetails } from "../mock/useUserDetails";
+import { useUserDetails } from "../../auth";
 
 const isAutomationTestUser = (username: string) => {
   return !!(
@@ -15,7 +19,24 @@ const isAutomationTestUser = (username: string) => {
   );
 };
 
-const showRedactionLogFeature = (groupClaims: string[], username: string) => {
+const isUIIntegrationTestUser = (username: string) => {
+  return !!(
+    username &&
+    username.toLocaleLowerCase() ===
+      mockUserDetails().username.toLocaleLowerCase()
+  );
+};
+
+const showRedactionLogFeature = (
+  groupClaims: string[],
+  username: string,
+  queryParam: string
+) => {
+  const isInCypressQueryParamFeatureFlag =
+    queryParam === "true" &&
+    window.Cypress &&
+    (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
+
   const isInPrivateBetaGroup = !!groupClaims?.includes(
     PRIVATE_BETA_REDACTION_LOG_USER_GROUP
   );
@@ -37,16 +58,22 @@ const showRedactionLogFeature = (groupClaims: string[], username: string) => {
   return (
     canProceedBasedOnADGroups ||
     canProceedOnNoFeatureGroupInConfig ||
-    canProceedOnAutomationTestRun
+    canProceedOnAutomationTestRun ||
+    isInCypressQueryParamFeatureFlag
   );
 };
 
 export const useUserGroupsFeatureFlag = () => {
+  const { redactionLog } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
-  const username = account?.username;
+  const userDetails = useUserDetails();
   const groupClaims = account?.idTokenClaims?.groups as string[];
 
   return {
-    redactionLog: showRedactionLogFeature(groupClaims, username),
+    redactionLog: showRedactionLogFeature(
+      groupClaims,
+      userDetails.username,
+      redactionLog
+    ),
   };
 };
