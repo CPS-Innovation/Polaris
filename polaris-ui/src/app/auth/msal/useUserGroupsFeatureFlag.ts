@@ -7,23 +7,21 @@ import {
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import { FeatureFlagQueryParams } from "../../features/cases/domain/FeatureFlagData";
-import { useUserDetails as mockUserDetails } from "../mock/useUserDetails";
+import { useUserDetails as getMockUserDetails } from "../mock/useUserDetails";
 import { useUserDetails } from "../../auth";
 
 const isAutomationTestUser = (username: string) => {
   return !!(
     username &&
     PRIVATE_BETA_CHECK_IGNORE_USER &&
-    username.toLocaleLowerCase() ===
-      PRIVATE_BETA_CHECK_IGNORE_USER.toLocaleLowerCase()
+    username.toLowerCase() === PRIVATE_BETA_CHECK_IGNORE_USER.toLowerCase()
   );
 };
 
 const isUIIntegrationTestUser = (username: string) => {
   return !!(
     username &&
-    username.toLocaleLowerCase() ===
-      mockUserDetails().username.toLocaleLowerCase()
+    username.toLowerCase() === getMockUserDetails().username.toLowerCase()
   );
 };
 
@@ -72,7 +70,7 @@ export const useUserGroupsFeatureFlag = () => {
   return {
     redactionLog: showRedactionLogFeature(
       groupClaims,
-      userDetails.username,
+      userDetails?.username,
       redactionLog
     ),
   };
