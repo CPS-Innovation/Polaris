@@ -214,27 +214,34 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
 
   return (
-    <div className={classes.modalContent}>
+    <div
+      className={classes.modalContent}
+      data-testid="rl-under-redaction-content"
+    >
       {saveStatus === "saving" && (
-        <div className={classes.savingBanner}>
+        <div
+          className={classes.savingBanner}
+          data-testid="rl-saving-redactions"
+        >
           <span>Saving redactions...</span>
         </div>
       )}
 
       {saveStatus === "saved" && (
-        <div className={classes.savedBanner}>
+        <div className={classes.savedBanner} data-testid="rl-saved-redactions">
           <span>Redactions successfully saved</span>
         </div>
       )}
       <div className={classes.modalHeadWrapper}>
         <div className={classes.modalTitleWrapper}>
           <h1 className={classes.modalContentHeading}>
-            45AA209820/1 - Redaction Log
+            {`${caseUrn} - Redaction Log`}
           </h1>
 
           <Guidance
             name="Redaction log Guidance"
             className={classes.redactionLogGuidance}
+            dataTestId="guidance-redaction-log"
           >
             {redactionLogGuidanceContent()}
           </Guidance>
@@ -429,6 +436,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             <Guidance
               name="Guidance on supporting notes"
               className={classes.supportingNotesGuidance}
+              dataTestId="guidance-supporting-notes"
             >
               {supportingNotesGuidanceContent()}
             </Guidance>

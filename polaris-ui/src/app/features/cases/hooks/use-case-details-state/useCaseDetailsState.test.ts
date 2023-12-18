@@ -18,6 +18,11 @@ import { MemoryRouter } from "react-router-dom";
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
 }));
+
+jest.mock(".../../../../auth/msal/useUserGroupsFeatureFlag", () => ({
+  useUserGroupsFeatureFlag: () => jest.fn(),
+}));
+
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;
 
