@@ -32,6 +32,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -54,6 +55,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -76,6 +78,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -98,6 +101,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -120,6 +124,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "6",
@@ -142,6 +147,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "7",
@@ -164,6 +170,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "8",
@@ -187,6 +194,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "9",
@@ -210,6 +218,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "10",
@@ -233,6 +242,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
   ],
 };

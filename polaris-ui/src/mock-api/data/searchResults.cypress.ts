@@ -29,6 +29,7 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
   {
     id: 13401,
@@ -50,6 +51,7 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
   {
     id: 13401,
@@ -71,6 +73,7 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
 
   {
@@ -93,5 +96,6 @@ const searchResults: CaseSearchResult[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
 ];

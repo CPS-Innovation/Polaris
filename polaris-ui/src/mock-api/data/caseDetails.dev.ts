@@ -66,5 +66,6 @@ const caseDetails: CaseDetails[] = [
         charges: [],
       },
     ],
+    witnesses: [],
   },
 ];
