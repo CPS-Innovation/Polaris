@@ -35,7 +35,7 @@ sliding_clear_down = {
   look_back_days = 7
   protect_blobs  = false
   schedule       = "0 */5 * * * *"
-  batch_size     = 4
+  batch_size     = 5
 }
 
 hte_feature_flag = true
