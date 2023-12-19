@@ -9,6 +9,8 @@
 
     <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
 
+    <PackageReference Include="Aspose.PDF.Drawing" Version="23.4.0" />
+
     <PackageReference Include="Aspose.Words" Version="23.7.0" />
 
     <PackageReference Include="Azure.Search.Documents" Version="11.4.0" />
@@ -21,7 +23,7 @@
 
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
@@ -31,7 +33,6 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Aspose.Imaging" Version="22.11.0" />
     <PackageReference Include="Aspose.Diagram" Version="23.7.0" />
-    <PackageReference Include="Aspose.PDF.Drawing" Version="23.12.0" />
     <PackageReference Include="Aspose.Email" Version="23.7.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
