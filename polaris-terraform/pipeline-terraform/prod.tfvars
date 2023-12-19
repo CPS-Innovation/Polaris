@@ -31,11 +31,11 @@ overnight_clear_down = {
 }
 
 sliding_clear_down = {
-  disabled       = 1
+  disabled       = 0
   look_back_days = 31
   protect_blobs  = true
   schedule       = "0 */5 * * * *"
-  batch_size     = 4
+  batch_size     = 5
 }
 
 hte_feature_flag = false
