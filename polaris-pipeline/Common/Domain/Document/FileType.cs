@@ -23,7 +23,6 @@
         HTM,
         HTML,
         MSG,
-        CSV,
         HTE     // Custom CMS Email Type, possibly "HyperText Email"
     }
 }
