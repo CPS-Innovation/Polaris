@@ -206,3 +206,68 @@
   width: 1.25rem;
   padding-bottom: 0.25rem;
 }
+
+.witnessIndicators {
+  margin: 0.25em 0 0 0;
+  font-size: 0.875rem;
+}
+
+.witnessIndicators strong {
+  font-size: 0.775rem;
+  margin-bottom: 0.25em;
+  padding: 5px 6px 4px;
+  &.tooltip {
+    margin-right: 0.25em;
+      .tooltiptext {
+        display: none;
+      }
+      &:hover,
+      &:active,
+      &:focus {
+        .tooltiptext {
+          display: inline-block;
+          text-transform: none;
+          letter-spacing: 0;
+          visibility: visible;
+          width: 70px;
+          padding: 2px 5px;
+          top: -100%;
+          left: 50%;
+          margin-left: -40px;
+          background: rgba(0, 0, 0, 0.7);
+  
+          &:after {
+            width: 0px;
+            height: 0px;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(0, 0, 0, 0.7);
+            position: absolute;
+            left: 50%;
+            margin-left: -6px;
+            bottom: -6px;
+            content: " ";
+          }
+        }
+      }
+    }
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black !important;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  position: absolute;
+  z-index: 1;
+}

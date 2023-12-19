@@ -17,7 +17,7 @@ type Defendant = {
 
 export type Witness = {
   id: number;
-  shoulderNumber: string;
+  shoulderNumber: string | null;
   title: string;
   name: string;
   hasStatements: boolean;

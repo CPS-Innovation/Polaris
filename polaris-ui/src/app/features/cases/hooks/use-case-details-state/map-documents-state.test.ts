@@ -34,7 +34,6 @@ describe("mapDocumentsState", () => {
           presentationCategory: "category0",
           presentationFileName: "foo",
           presentationSubCategory: null,
-          witnessId: null,
           witnessIndicators: [],
         },
         {
@@ -43,13 +42,74 @@ describe("mapDocumentsState", () => {
           presentationCategory: "category1",
           presentationFileName: "bar",
           presentationSubCategory: null,
-          witnessId: null,
           witnessIndicators: [],
         },
       ] as MappedCaseDocument[],
     };
 
     const result = mapDocumentsState(input, []);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it("can map CaseDocuments to MappedCaseDocuments with witnessIndicators", () => {
+    const doc1 = {
+      documentId: "0",
+      presentationTitle: "foo",
+      witnessId: 2762766,
+    } as PresentationDocumentProperties;
+    const doc2 = {
+      documentId: "1",
+      presentationTitle: "bar",
+    } as PresentationDocumentProperties;
+
+    const input = [doc1, doc2];
+
+    const witnessesInput = [
+      {
+        id: 2762766,
+        shoulderNumber: null,
+        title: "Prof",
+        name: "John Doe",
+        hasStatements: true,
+        listOrder: 1,
+        child: false,
+        expert: false,
+        greatestNeed: false,
+        prisoner: false,
+        interpreter: false,
+        vulnerable: false,
+        police: false,
+        professional: false,
+        specialNeeds: false,
+        intimidated: false,
+        victim: true,
+      },
+    ];
+
+    const expectedResult = {
+      status: "succeeded",
+      data: [
+        {
+          ...doc1,
+          attachments: [],
+          presentationCategory: "category0",
+          presentationFileName: "foo",
+          presentationSubCategory: null,
+          witnessIndicators: ["V"],
+        },
+        {
+          ...doc2,
+          attachments: [],
+          presentationCategory: "category1",
+          presentationFileName: "bar",
+          presentationSubCategory: null,
+          witnessIndicators: [],
+        },
+      ] as MappedCaseDocument[],
+    };
+
+    const result = mapDocumentsState(input, witnessesInput);
 
     expect(result).toEqual(expectedResult);
   });

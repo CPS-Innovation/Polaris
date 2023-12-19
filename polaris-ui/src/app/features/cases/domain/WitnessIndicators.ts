@@ -1,8 +1,8 @@
 import { Witness } from "./gateway/CaseDetails";
 
-export type WitnessIndicator = keyof typeof WitnessIndicatorNames;
+export type WitnessIndicator = keyof typeof witnessIndicatorNames;
 
-export const WitnessIndicatorNames = {
+export const witnessIndicatorNames = {
   V: "Victim",
   P: "Police",
   C: "Child",
@@ -16,7 +16,7 @@ export const WitnessIndicatorNames = {
   I: "Interpreter",
 };
 
-export const WitnessIndicatorPrecedenceOrder: WitnessIndicator[] = [
+export const witnessIndicatorPrecedenceOrder: WitnessIndicator[] = [
   "V",
   "P",
   "C",

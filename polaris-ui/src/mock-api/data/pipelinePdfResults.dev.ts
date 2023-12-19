@@ -244,6 +244,29 @@ const pipelinePdfResult: PipelineResults = {
       polarisParentDocumentId: null,
       witnessId: null,
     },
+    {
+      documentId: "10",
+      cmsDocumentId: "10",
+      pdfBlobName: "MG06_10june",
+      status: "Indexed",
+      cmsOriginalFileName: "MG06_10june  very long .docx",
+      presentationTitle: "MG06_10june  very long",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-02",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 1031,
+        documentType: "Statement",
+        documentCategory: "UsedStatement",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: 2762766,
+    },
   ],
 };
 
