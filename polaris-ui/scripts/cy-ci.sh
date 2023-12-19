@@ -1,4 +1,5 @@
 DEBUG=instrument-cra CYPRESS_INSTRUMENT_PRODUCTION=true BUILD_PATH='./build-cypress' env-cmd -f .env.cypress react-scripts -r @cypress/instrument-cra build &&
+(cd ./build-cypress && rm serve.json) &&
 rimraf report-cypress &&
 cypress verify &&
 cypress info &&
