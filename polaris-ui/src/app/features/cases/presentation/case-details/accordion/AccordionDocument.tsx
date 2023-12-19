@@ -91,6 +91,7 @@ export const AccordionDocument: React.FC<Props> = ({
             .map((indicator) => (
               <strong
                 className={`govuk-tag govuk-tag--grey ${classes.tooltip}`}
+                key={indicator}
               >
                 {indicator}{" "}
                 <span className={classes.tooltiptext}>
