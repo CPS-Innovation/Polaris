@@ -53,6 +53,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-integration.tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-auth-handover.tests", "polaris-gateway\polaris-auth-handover.tests\polaris-auth-handover.tests.csproj", "{FE77B6D7-FF02-4298-A4DC-6B8E74B0237C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-test-harness-pdf-conversion", "polaris-test-harness\polaris-test-harness-pdf-conversion\polaris-test-harness-pdf-conversion.csproj", "{E93B97B1-F5D4-42D0-BC2E-B8543EDAF30D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,12 @@ Global
 		{FE77B6D7-FF02-4298-A4DC-6B8E74B0237C}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
 		{FE77B6D7-FF02-4298-A4DC-6B8E74B0237C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE77B6D7-FF02-4298-A4DC-6B8E74B0237C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E93B97B1-F5D4-42D0-BC2E-B8543EDAF30D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E93B97B1-F5D4-42D0-BC2E-B8543EDAF30D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E93B97B1-F5D4-42D0-BC2E-B8543EDAF30D}.Integration Tests|Any CPU.ActiveCfg = Debug|Any CPU
+		{E93B97B1-F5D4-42D0-BC2E-B8543EDAF30D}.Integration Tests|Any CPU.Build.0 = Debug|Any CPU
+		{E93B97B1-F5D4-42D0-BC2E-B8543EDAF30D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E93B97B1-F5D4-42D0-BC2E-B8543EDAF30D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
