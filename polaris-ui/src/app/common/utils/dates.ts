@@ -18,7 +18,8 @@ const formatToUkDateTime = (isoDateString: string) =>
   formatInTimeZone(
     parseISO(isoDateString),
     "Europe/London",
-    CommonDateTimeFormats.ShortTime
+    CommonDateTimeFormats.ShortTime,
+    { locale: enGB }
   );
 
 export const formatTime = (isoDateString: string) => {
