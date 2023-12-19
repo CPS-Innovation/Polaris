@@ -16,6 +16,7 @@ namespace Ddei.Mappers
 
             var defendants = MapDefendants(caseDetails);
             var leadDefendant = FindLeadDefendant(defendants, summary);
+            var witnesses = MapWitnesses(caseDetails);
             var headlineCharge = FindHeadlineCharge(leadDefendant);
             var isCaseCharged = FindIsCaseCharged(defendants);
             var preChargeDecisionRequests = MapPreChargeDecisionRequests(caseDetails.PreChargeDecisionRequests);
@@ -29,7 +30,8 @@ namespace Ddei.Mappers
                 LeadDefendantDetails = leadDefendant.DefendantDetails,
                 DefendantsAndCharges = defendants,
                 HeadlineCharge = headlineCharge,
-                PreChargeDecisionRequests = preChargeDecisionRequests
+                PreChargeDecisionRequests = preChargeDecisionRequests,
+                Witnesses = witnesses
             };
         }
 
@@ -74,6 +76,35 @@ namespace Ddei.Mappers
                 ExpiryDate = custodyTimeLimit.ExpiryDate,
                 ExpiryDays = custodyTimeLimit.ExpiryDays,
                 ExpiryIndicator = custodyTimeLimit.ExpiryIndicator
+            };
+        }
+
+        private IEnumerable<WitnessDto> MapWitnesses(DdeiCaseDetailsDto caseDetails)
+        {
+            return caseDetails.Witnesses.Select(witness => MapWitness(witness));
+        }
+
+        private WitnessDto MapWitness(DdeiWitnessDto witness)
+        {
+            return new WitnessDto
+            {
+                Id = witness.Id,
+                ShoulderNumber = witness.ShoulderNumber,
+                Title = witness.Title,
+                Name = witness.Name,
+                HasStatements = witness.HasStatements,
+                ListOrder = witness.ListOrder,
+                Child = witness.Child,
+                Expert = witness.Expert,
+                GreatestNeed = witness.GreatestNeed,
+                Prisoner = witness.Prisoner,
+                Interpreter = witness.Interpreter,
+                Vulnerable = witness.Vulnerable,
+                Police = witness.Police,
+                Professional = witness.Professional,
+                SpecialNeeds = witness.SpecialNeeds,
+                Intimidated = witness.Intimidated,
+                Victim = witness.Victim
             };
         }
 
