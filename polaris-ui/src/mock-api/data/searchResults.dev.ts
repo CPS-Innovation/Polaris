@@ -35,5 +35,6 @@ const searchResults: Omit<CaseSearchResult, "uniqueReferenceNumber">[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    witnesses: [],
   },
 ];
