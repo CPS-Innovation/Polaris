@@ -32,6 +32,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -54,6 +55,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "DocTypeNotAllowed",
       },
       polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -76,6 +78,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -98,6 +101,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -120,6 +124,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "OriginalFileTypeNotAllowed",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "6",
@@ -140,6 +145,7 @@ const pipelinePdfResult: PipelineResults = {
       isPdfAvailable: false,
       presentationFlags: { read: "Ok", write: "DocTypeNotAllowed" },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "7",
@@ -162,6 +168,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "IsNotOcrProcessed",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "8",
@@ -184,6 +191,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "OnlyAvailableInCms",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "9",
@@ -206,6 +214,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "IsDispatched",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
   ],
 };
@@ -272,6 +281,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -294,6 +304,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -316,6 +327,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -338,6 +350,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -360,6 +373,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
   ],
 };
@@ -391,6 +405,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -413,6 +428,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -435,6 +451,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -457,6 +474,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -479,6 +497,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
   ],
 };

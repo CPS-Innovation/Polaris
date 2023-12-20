@@ -224,7 +224,14 @@ export const reducer = (
       }
 
       if (shouldBuildDocumentsState) {
-        const documentsState = mapDocumentsState(action.payload.data.documents);
+        const witnesses =
+          state.caseState && state.caseState.status === "succeeded"
+            ? state.caseState.data.witnesses
+            : [];
+        const documentsState = mapDocumentsState(
+          action.payload.data.documents,
+          witnesses
+        );
         const accordionState = mapAccordionState(documentsState);
         nextState = {
           ...nextState,

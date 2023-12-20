@@ -47,6 +47,8 @@ describe("useNavigationAlert hook", () => {
       url: undefined,
       isDeleted: false,
       saveStatus: "initial",
+      witnessId: null,
+      witnessIndicators: [],
     },
     {
       clientLockedState: "unlocked",
@@ -87,6 +89,8 @@ describe("useNavigationAlert hook", () => {
       url: undefined,
       isDeleted: false,
       saveStatus: "initial",
+      witnessId: null,
+      witnessIndicators: [],
     },
   ];
 

@@ -28,6 +28,7 @@ namespace Common.Domain.Entity
             int? categoryListOrder,
             PolarisDocumentId polarisParentDocumentId,
             string cmsParentDocumentId,
+            int? witnessId,
             PresentationFlagsDto presentationFlags)
             : base(polarisDocumentId, polarisDocumentVersionId, cmsDocumentId, cmsVersionId, presentationFlags)
         {
@@ -42,6 +43,7 @@ namespace Common.Domain.Entity
             CategoryListOrder = categoryListOrder;
             PolarisParentDocumentId = polarisParentDocumentId;
             CmsParentDocumentId = cmsParentDocumentId;
+            WitnessId = witnessId;
         }
 
         [JsonProperty("path")]
@@ -91,5 +93,8 @@ namespace Common.Domain.Entity
 
         [JsonProperty("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }
+
+        [JsonProperty("witnessId")]
+        public int? WitnessId { get; set; }
     }
 }

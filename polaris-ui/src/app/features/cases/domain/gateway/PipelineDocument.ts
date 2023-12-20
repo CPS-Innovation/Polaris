@@ -38,6 +38,7 @@ export type PresentationDocumentProperties = {
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
   polarisParentDocumentId: string | null;
+  witnessId: number | null;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &
