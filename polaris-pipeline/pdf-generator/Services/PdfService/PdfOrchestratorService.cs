@@ -117,6 +117,8 @@ namespace pdf_generator.Services.PdfService
             {
                 inputStream?.Dispose();
 
+                //the stack trace is lost here if simply thrown but not preserved except the message - ensure the exception is logged in full here until exceptions are reworked in general
+                _logger.LogMethodError(correlationId, nameof(ReadToPdfStream), exception.Message, exception);
                 throw new PdfConversionException(documentId, exception.Message);
             }
             finally

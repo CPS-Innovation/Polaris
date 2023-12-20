@@ -26,7 +26,7 @@ namespace pdf_generator.Functions
         private readonly ILogger<ConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
-        const string loggingName = nameof(ConvertToPdf);
+        const string LoggingName = nameof(ConvertToPdf);
 
         public ConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
@@ -51,7 +51,7 @@ namespace pdf_generator.Functions
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
+                _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
 
                 request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
                 if (cmsAuthValuesValues == null)
@@ -101,27 +101,34 @@ namespace pdf_generator.Functions
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
 
-                var inputStream = await request.Content.ReadAsStreamAsync();
-                var originalBytes = inputStream.Length;
-                telemetryEvent.OriginalBytes = originalBytes;
-
-                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
-                var bytes = pdfStream.Length;
-
-                telemetryEvent.Bytes = bytes;
-                telemetryEvent.EndTime = DateTime.UtcNow;
-
-                _telemetryClient.TrackEvent(telemetryEvent);
-
-                pdfStream.Position = 0;
-                return new FileStreamResult(pdfStream, "application/pdf")
+                if (request.Content != null)
                 {
-                    FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
-                };
+                    var inputStream = await request.Content.ReadAsStreamAsync();
+                    var originalBytes = inputStream.Length;
+                    telemetryEvent.OriginalBytes = originalBytes;
+
+                    var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
+                    var bytes = pdfStream.Length;
+
+                    telemetryEvent.Bytes = bytes;
+                    telemetryEvent.EndTime = DateTime.UtcNow;
+
+                    _telemetryClient.TrackEvent(telemetryEvent);
+
+                    pdfStream.Position = 0;
+                    return new FileStreamResult(pdfStream, "application/pdf")
+                    {
+                        FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
+                    };
+                }
+                else
+                {
+                    throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
+                }
             }
             catch (Exception exception)
             {
-                _logger.LogMethodError(currentCorrelationId, loggingName, exception.Message, exception);
+                _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
                 return new ObjectResult(exception.ToString())
@@ -131,7 +138,7 @@ namespace pdf_generator.Functions
             }
             finally
             {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, nameof(ConvertToPdf));
+                _logger.LogMethodExit(currentCorrelationId, LoggingName, nameof(ConvertToPdf));
             }
         }
     }
