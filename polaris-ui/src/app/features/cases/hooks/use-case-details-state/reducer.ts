@@ -225,7 +225,7 @@ export const reducer = (
 
       if (shouldBuildDocumentsState) {
         const witnesses =
-          state.caseState.status === "succeeded"
+          state.caseState && state.caseState.status === "succeeded"
             ? state.caseState.data.witnesses
             : [];
         const documentsState = mapDocumentsState(
