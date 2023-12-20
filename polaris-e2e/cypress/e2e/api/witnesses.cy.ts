@@ -3,6 +3,11 @@ import "cypress-wait-until"
 import { PipelineResults } from "../../../gateway/PipelineResults"
 import { ApiRoutes, makeApiRoutes } from "./helpers/make-routes"
 import { WAIT_UNTIL_OPTIONS } from "../../support/options"
+import { CaseDetails } from "../../../gateway/CaseDetails"
+
+// This is an interim test to prove we are getting witness data up through the gateway so the
+//  the UI can use it. THis should be superseded by a cypress test that interacts with the
+//  the UI to prove we can see indicators for this case.
 
 const { WITNESS_TARGET_URN, WITNESS_TARGET_CASE_ID } = Cypress.env()
 
@@ -43,6 +48,20 @@ describe("A case with witnesses", () => {
               return status === "Completed"
             }),
         WAIT_UNTIL_OPTIONS
+      )
+      .api<PipelineResults>(
+        routes.GET_TRACKER(WITNESS_TARGET_URN, WITNESS_TARGET_CASE_ID)
+      )
+      .its("body")
+      .then(({ documents }) => {
+        expect(documents.some((document) => document.witnessId != null))
+      })
+      .api<CaseDetails>(
+        routes.GET_CASE(WITNESS_TARGET_URN, WITNESS_TARGET_CASE_ID)
+      )
+      .its("body")
+      .then((caseDetails) =>
+        caseDetails.witnesses.some((witness) => witness.id != null)
       )
   })
 })

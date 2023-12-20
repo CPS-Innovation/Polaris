@@ -6,6 +6,7 @@ export type CaseDetails = {
   leadDefendantDetails: DefendantDetails;
   headlineCharge: HeadlineCharge;
   defendants: Defendant[];
+  witnesses: Witness[];
 };
 
 type Defendant = {
@@ -23,6 +24,10 @@ export type DefendantDetails = {
   dob: string;
   youth: boolean;
   type: string;
+};
+
+export type Witness = {
+  id: number;
 };
 
 type HeadlineCharge = {
