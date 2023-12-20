@@ -1,13 +1,47 @@
-export type WitnessIndicator = keyof typeof WitnessIndicatorNames;
+import { Witness } from "./gateway/CaseDetails";
 
-export const WitnessIndicatorNames = {
-  G: "Full text",
-  H: "es sef  dssadasdadda",
-  I: "foo",
+export type WitnessIndicator = keyof typeof witnessIndicatorNames;
+
+export const witnessIndicatorNames = {
+  V: "Victim",
+  P: "Police",
+  C: "Child",
+  F: "Professional",
+  X: "Expert",
+  L: "Vulnerable",
+  T: "Intimidated",
+  G: "Greatest Needs",
+  S: "Special",
+  H: "Prisoner",
+  I: "Interpreter",
 };
 
-export const WitnessIndicatorPrecedenceOrder: WitnessIndicator[] = [
+export const witnessIndicatorPrecedenceOrder: WitnessIndicator[] = [
+  "V",
+  "P",
+  "C",
+  "F",
+  "X",
+  "L",
+  "T",
   "G",
-  "I",
+  "S",
   "H",
+  "I",
 ];
+
+export const witnessIndicatorLetters: Partial<
+  Record<keyof Witness, WitnessIndicator>
+> = {
+  victim: "V",
+  police: "P",
+  child: "C",
+  professional: "F",
+  expert: "X",
+  vulnerable: "L",
+  intimidated: "T",
+  greatestNeed: "G",
+  specialNeeds: "S",
+  prisoner: "H",
+  interpreter: "I",
+};

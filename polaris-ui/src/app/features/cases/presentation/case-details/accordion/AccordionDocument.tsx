@@ -12,6 +12,10 @@ import { ReactComponent as TimeIcon } from "../../../../../common/presentation/s
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 
 import classes from "./Accordion.module.scss";
+import {
+  witnessIndicatorNames,
+  witnessIndicatorPrecedenceOrder,
+} from "../../../domain/WitnessIndicators";
 
 type Props = {
   caseDocument: MappedCaseDocument;
@@ -85,6 +89,26 @@ export const AccordionDocument: React.FC<Props> = ({
             </span>
           </div>
         )}
+      </div>
+      <div className={classes.witnessIndicators}>
+        {caseDocument.witnessIndicators.length > 0 &&
+          caseDocument.witnessIndicators
+            .sort(
+              (a, b) =>
+                witnessIndicatorPrecedenceOrder.indexOf(a) -
+                witnessIndicatorPrecedenceOrder.indexOf(b)
+            )
+            .map((indicator) => (
+              <strong
+                className={`govuk-tag govuk-tag--grey ${classes.tooltip}`}
+                key={indicator}
+              >
+                {indicator}{" "}
+                <span className={classes.tooltiptext}>
+                  {witnessIndicatorNames[indicator]}
+                </span>
+              </strong>
+            ))}
       </div>
       {!canViewDocument && (
         <span

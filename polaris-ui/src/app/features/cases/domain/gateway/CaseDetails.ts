@@ -15,6 +15,26 @@ type Defendant = {
   charges: Charge[];
 };
 
+export type Witness = {
+  id: number;
+  shoulderNumber: string | null;
+  title: string;
+  name: string;
+  hasStatements: boolean;
+  listOrder: number;
+  child: boolean;
+  expert: boolean;
+  greatestNeed: boolean;
+  prisoner: boolean;
+  interpreter: boolean;
+  vulnerable: boolean;
+  police: boolean;
+  professional: boolean;
+  specialNeeds: boolean;
+  intimidated: boolean;
+  victim: boolean;
+};
+
 export type DefendantDetails = {
   id: number;
   listOrder: number;
@@ -24,10 +44,6 @@ export type DefendantDetails = {
   dob: string;
   youth: boolean;
   type: string;
-};
-
-export type Witness = {
-  id: number;
 };
 
 type HeadlineCharge = {
