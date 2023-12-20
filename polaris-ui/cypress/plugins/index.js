@@ -29,6 +29,9 @@ module.exports = (on, config) => {
   config.env.REACT_APP_GATEWAY_BASE_URL =
     process.env.REACT_APP_GATEWAY_BASE_URL;
 
+  config.env.REACT_APP_REDACTION_LOG_BASE_URL =
+    process.env.REACT_APP_REDACTION_LOG_BASE_URL;
+
   config.env.REACT_APP_MOCK_API_MAX_DELAY =
     process.env.REACT_APP_MOCK_API_MAX_DELAY;
 
