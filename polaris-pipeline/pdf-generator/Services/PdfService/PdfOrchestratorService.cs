@@ -115,6 +115,8 @@ namespace pdf_generator.Services.PdfService
             }
             catch (Exception exception)
             {
+                inputStream?.Dispose();
+
                 throw new PdfConversionException(documentId, exception.Message);
             }
             finally
