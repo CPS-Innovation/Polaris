@@ -102,6 +102,7 @@ export const AccordionDocument: React.FC<Props> = ({
               <strong
                 className={`govuk-tag govuk-tag--grey ${classes.tooltip}`}
                 key={indicator}
+                data-testid={`indicator-${caseDocument.documentId}-${indicator}`}
               >
                 {indicator}{" "}
                 <span className={classes.tooltiptext}>
