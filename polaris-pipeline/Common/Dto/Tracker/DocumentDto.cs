@@ -91,5 +91,8 @@ namespace Common.Dto.Tracker
         [JsonProperty("cmsParentDocumentId")]
         [JsonIgnore]
         public string CmsParentDocumentId { get; set; }
+
+        [JsonProperty("witnessId")]
+        public int? WitnessId { get; set; }
     }
 }

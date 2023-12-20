@@ -30,6 +30,8 @@ namespace Common.Dto.Document
 
         public string ParentDocumentId { get; set; }
 
+        public int? WitnessId { get; set; }
+
         public PresentationFlagsDto PresentationFlags { get; set; }
     }
 }
