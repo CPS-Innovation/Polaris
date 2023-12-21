@@ -8,6 +8,7 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
   https_only                    = true
   public_network_access_enabled = false
   tags                          = local.common_tags
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled

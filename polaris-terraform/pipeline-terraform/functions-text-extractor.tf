@@ -12,6 +12,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
