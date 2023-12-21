@@ -87,8 +87,18 @@
 .selectSection {
   display: flex;
   flex-direction: column;
-  margin-right: 1rem;
+  margin-right: 1.875rem;
   margin-top: 1.25rem;
+  font-size: 1rem;
+  :global(.govuk-error-message) {
+    margin-bottom: 0;
+    font-size: 1rem;
+  }
+  :global(.govuk-select),
+  :global(.govuk-label) {
+    font-size: 1rem;
+    color: #505a5f;
+  }
 }
 .selectInputWrapper {
   display: flex;
@@ -110,6 +120,11 @@
 .errorMsg {
   color: red;
 }
+.errorSummary {
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 34.375rem;
+}
 .editBtnWrapper {
   display: flex;
   flex-direction: column;
@@ -127,8 +142,40 @@
   font-weight: bold;
 }
 .savingBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
   background-color: #1d70b8;
 }
 .savedBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
   background-color: #00703c;
+  overflow: hidden;
+  animation: reduceHeight 0.5s forwards;
+  animation-delay: 3s;
+}
+.greyColor {
+  color: #505a5f;
+}
+.bannerText {
+  margin-left: 1rem;
+  margin-top: 1.875rem;
+}
+.whiteTickIcon {
+  width: 2.25rem;
+  fill: #fff;
+}
+
+@keyframes reduceHeight {
+  0% {
+    height: 4.625rem;
+  }
+  100% {
+    height: 0;
+    display: none;
+  }
 }

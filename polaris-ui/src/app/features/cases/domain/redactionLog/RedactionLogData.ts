@@ -22,7 +22,14 @@ export interface RedactionLogLookUpsData {
 }
 
 export interface RedactionLogMappingData {
-  areaMapping: { ou: string; areaId: string | null; unitId: string | null }[];
-  docTypeMapping: { cmsDocTypeId: string; docTypeId: string }[];
-  iAMapping: { ou: string; ia: string }[];
+  businessUnits: {
+    ou: string;
+    areaId: string | "null";
+    unitId: string | "null";
+  }[];
+  documentTypes: { cmdDocTypeId: string; docTypeId: string }[];
+  investigatingAgencies: {
+    ouCode: string;
+    investigatingAgencyId: string | "null";
+  }[];
 }

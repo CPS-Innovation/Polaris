@@ -4,10 +4,12 @@ import {
   TextArea,
   Button,
   Guidance,
+  ErrorSummary,
+  Spinner,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import classes from "./RedactionLogContent.module.scss";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
   ChargeStatus,
@@ -22,6 +24,7 @@ import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategor
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 import { getDefaultValuesFromMappings } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
+import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 type RedactionLogContentProps = {
   caseUrn: string;
   isCaseCharged: boolean;
@@ -63,9 +66,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       const values = getDefaultValuesFromMappings(
         redactionLogMappingsData,
         redactionLogLookUpsData.ouCodeMapping,
-        "11",
+        "Bristol CC1",
         cmsDocumentTypeId,
-        caseUrn.slice(0, 4)
+        "00AH"
       );
 
       console.log("getDefaultValuesFromMappings>>>>>", values);
@@ -245,6 +248,51 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     return mappedData;
   };
 
+  const errorSummaryProperties = (inputName: string) => {
+    switch (inputName) {
+      case "cpsArea":
+        return {
+          children: "Please enter valid CPS Area or Central Casework Division",
+          href: "#select-cps-area",
+          "data-testid": "select-cps-area-validation-urn",
+        };
+      case "businessUnit":
+        return {
+          children: "Please enter valid CPS Business Unit",
+          href: "#select-cps-bu",
+          "data-testid": "select-cps-bu-validation-urn",
+        };
+      case "investigatingAgency":
+        return {
+          children: "Please enter valid Investigative Agency",
+          href: "#select-cps-ia",
+          "data-testid": "select-cps-ia-validation-urn",
+        };
+      case "documentType":
+        return {
+          children: "Please enter valid Document Type",
+          href: "#select-cps-dt",
+          "data-testid": "select-cps-dt-validation-urn",
+        };
+      case "chargeStatus":
+        return {
+          children: "Please enter valid Charge Status",
+          href: "#select-cps-cs",
+          "data-testid": "select-cps-cs-validation-urn",
+        };
+    }
+  };
+
+  const getErrorSummaryList = (errors: FieldErrors<UnderRedactionFormData>) => {
+    const errorSummary = Object.keys(errors).map((error, index) => ({
+      reactListKey: `${index}`,
+      ...errorSummaryProperties(error)!,
+    }));
+
+    return errorSummary;
+  };
+
+  console.log("Errors>>>", errors);
   return (
     <div
       className={classes.modalContent}
@@ -255,19 +303,24 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           className={classes.savingBanner}
           data-testid="rl-saving-redactions"
         >
-          <span>Saving redactions...</span>
+          <div className={classes.spinnerWrapper}>
+            <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
+          </div>
+          <h2 className={classes.bannerText}>Saving redactions...</h2>
         </div>
       )}
 
       {saveStatus === "saved" && (
         <div className={classes.savedBanner} data-testid="rl-saved-redactions">
-          <span>Redactions successfully saved</span>
+          <WhiteTickIcon className={classes.whiteTickIcon} />
+          <h2 className={classes.bannerText}>Redactions successfully saved</h2>
         </div>
       )}
       <div className={classes.modalHeadWrapper}>
         <div className={classes.modalTitleWrapper}>
           <h1 className={classes.modalContentHeading}>
-            {`${caseUrn} - Redaction Log`}
+            {`${caseUrn}`}
+            <span className={classes.greyColor}> - Redaction Log</span>
           </h1>
 
           <Guidance
@@ -458,6 +511,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         </div>
 
         <div className={classes.modalBodyWrapper}>
+          {!!Object.keys(errors).length && (
+            <ErrorSummary
+              className={classes.errorSummary}
+              errorList={getErrorSummaryList(errors)}
+            />
+          )}
           <section>
             <UnderRedactionContent
               documentName={documentName}

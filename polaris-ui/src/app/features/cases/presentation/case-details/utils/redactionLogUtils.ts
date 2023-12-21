@@ -17,28 +17,49 @@ export const getDefaultValuesFromMappings = (
 ) => {
   console.log("urnSubString>>", urnSubString);
   console.log("docTypeId>>", docTypeId);
-  let defaultValues: MappingDefaultData = {} as MappingDefaultData;
+  let defaultValues: MappingDefaultData = {
+    cpsArea: "",
+    businessUnit: "",
+    documentType: "",
+    investigatingAgency: "",
+  };
 
-  const defaultArea = mappingData.areaMapping.find(
+  const defaultArea = mappingData.businessUnits.find(
     (area) => area.ou === owningUnit
   );
 
-  defaultValues.cpsArea = defaultArea?.areaId ?? "";
-  defaultValues.businessUnit = defaultArea?.unitId ?? "";
+  console.log("defaultArea>>>", defaultArea);
 
-  const defaultDocType = mappingData.docTypeMapping.find(
-    (docType) => docType.cmsDocTypeId === `${docTypeId}`
+  if (defaultArea && defaultArea.areaId !== "null") {
+    defaultValues.cpsArea = defaultArea.areaId;
+  }
+  if (defaultArea && defaultArea.unitId !== "null") {
+    defaultValues.cpsArea = defaultArea.unitId;
+  }
+
+  const defaultDocType = mappingData.documentTypes.find(
+    (docType) => docType.cmdDocTypeId === `${docTypeId}`
   );
 
   defaultValues.documentType = defaultDocType?.docTypeId ?? "";
 
-  const defaultIA = mappingData.iAMapping.find((ia) => ia.ou === urnSubString);
+  const defaultIA = mappingData.investigatingAgencies.find(
+    (ia) => ia.ouCode === urnSubString
+  );
   const defaultIAFromOuCodeMapping =
     ouCodeMapping.find((mapping) => mapping.ouCode === urnSubString.slice(0, 2))
       ?.investigatingAgencyCode ?? "";
 
-  defaultValues.investigatingAgency =
-    defaultIA?.ia ?? defaultIAFromOuCodeMapping;
+  console.log("defaultIA>>", defaultIA);
+  if (defaultIA && defaultIA?.investigatingAgencyId !== "null") {
+    defaultValues.investigatingAgency = defaultIA.investigatingAgencyId;
+  }
+  if (
+    defaultIA?.investigatingAgencyId === "null" &&
+    defaultIAFromOuCodeMapping
+  ) {
+    defaultValues.investigatingAgency = defaultIAFromOuCodeMapping;
+  }
 
   return defaultValues;
 };

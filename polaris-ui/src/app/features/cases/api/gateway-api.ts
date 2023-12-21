@@ -284,7 +284,7 @@ export const getRedactionLogLookUpsData = async () => {
 
 export const getRedactionLogMappingData = async () => {
   console.log("getRedactionLogMappingData00000000");
-  const url = fullUrl("/api/mappings", REDACTION_LOG_BASE_URL);
+  const url = fullUrl("/api/polarisMappings", REDACTION_LOG_BASE_URL);
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
   const response = await internalFetch(url, {
     headers,
