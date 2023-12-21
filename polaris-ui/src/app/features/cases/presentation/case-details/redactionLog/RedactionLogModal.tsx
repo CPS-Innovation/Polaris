@@ -2,7 +2,8 @@ import { Modal } from "../../../../../common/presentation/components/index";
 import { RedactionLogContent } from "./RedactionLogContent";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
-  RedactionLogData,
+  RedactionLogMappingData,
+  RedactionLogLookUpsData,
   RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
@@ -12,7 +13,8 @@ type Props = {
   documentName: string;
   saveStatus: SaveStatus;
   savedRedactionTypes: RedactionTypeData[];
-  redactionLogData: RedactionLogData;
+  redactionLogLookUpsData: RedactionLogLookUpsData;
+  redactionLogMappingsData: RedactionLogMappingData | null;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
@@ -21,7 +23,8 @@ export const RedactionLogModal: React.FC<Props> = ({
   documentName,
   savedRedactionTypes,
   saveStatus,
-  redactionLogData,
+  redactionLogLookUpsData,
+  redactionLogMappingsData,
   saveRedactionLog,
 }) => {
   return (
@@ -36,8 +39,9 @@ export const RedactionLogModal: React.FC<Props> = ({
         documentName={documentName}
         savedRedactionTypes={savedRedactionTypes}
         saveStatus={saveStatus}
-        redactionLogData={redactionLogData}
+        redactionLogLookUpsData={redactionLogLookUpsData}
         saveRedactionLog={saveRedactionLog}
+        redactionLogMappingsData={redactionLogMappingsData}
       />
     </Modal>
   );

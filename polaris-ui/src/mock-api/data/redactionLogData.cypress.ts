@@ -1047,7 +1047,7 @@ export const ouCodeMappingStub: OuCodeMapping[] = [
   },
 ];
 
-export const redactionLogData = {
+export const redactionLogLookUpsData = {
   areas: areasStub,
   divisions: divisionsStub,
   documentTypes: documentTypesStub,
@@ -1056,5 +1056,15 @@ export const redactionLogData = {
   ouCodeMapping: ouCodeMappingStub,
 };
 
-const dataSource: RedactionLogDataSource = redactionLogData;
+const redactionLogMappingData = {
+  areaMapping: [{ ou: "11", areaId: "1", unitId: "1" }],
+  docTypeMapping: [{ cmdDocTypeId: "12", docTypeId: "2" }],
+  iAMapping: [{ ou: "45", ia: "1" }],
+};
+
+const dataSource: RedactionLogDataSource = {
+  lookUpsData: redactionLogLookUpsData,
+  mappingData: redactionLogMappingData,
+};
+
 export default dataSource;

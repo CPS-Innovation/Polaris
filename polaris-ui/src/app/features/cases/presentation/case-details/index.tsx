@@ -219,14 +219,19 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       )}
 
       {redactionLog.showModal &&
-        redactionLog.redactionLogData.status === "succeeded" && (
+        redactionLog.redactionLogLookUpsData.status === "succeeded" && (
           <RedactionLogModal
             caseUrn={caseState.data.uniqueReferenceNumber}
             documentName={getActiveTabDocument().presentationFileName}
             savedRedactionTypes={redactionLog.savedRedactionTypes}
             saveStatus={getActiveTabDocument().saveStatus}
-            redactionLogData={redactionLog.redactionLogData.data}
+            redactionLogLookUpsData={redactionLog.redactionLogLookUpsData.data}
             saveRedactionLog={handleSavedRedactionLog}
+            redactionLogMappingsData={
+              redactionLog.redactionLogMappingData.status === "succeeded"
+                ? redactionLog.redactionLogMappingData.data
+                : null
+            }
           />
         )}
       <nav>
@@ -312,8 +317,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             ) : (
               <PdfTabs
                 redactionTypesData={
-                  redactionLog.redactionLogData.status === "succeeded"
-                    ? redactionLog.redactionLogData.data.missedRedactions
+                  redactionLog.redactionLogLookUpsData.status === "succeeded"
+                    ? redactionLog.redactionLogLookUpsData.data.missedRedactions
                     : []
                 }
                 isOkToSave={pipelineState.status === "complete"}

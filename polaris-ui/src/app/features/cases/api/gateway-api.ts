@@ -8,7 +8,10 @@ import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
-import { RedactionLogData } from "../domain/redactionLog/RedactionLogData";
+import {
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
+} from "../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
 const buildHeaders = async (
   ...args: (
@@ -265,21 +268,47 @@ export const saveRedactionLog = async (
   }
 };
 
-export const getRedactionLogData = async () => {
+export const getRedactionLogLookUpsData = async () => {
+  console.log("getRedactionLogLookUpsData000000000");
   const url = fullUrl("/api/lookUps", REDACTION_LOG_BASE_URL);
-
   const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
+  const response = await internalFetch(url, {
+    headers,
+  });
+  console.log("getRedactionLogLookUpsData11111111");
+  if (!response.ok) {
+    throw new ApiError("Get Redaction Log data failed", url, response);
+  }
+  return (await response.json()) as RedactionLogLookUpsData;
+};
 
+export const getRedactionLogMappingData = async () => {
+  console.log("getRedactionLogMappingData00000000");
+  const url = fullUrl("/api/mappings", REDACTION_LOG_BASE_URL);
+  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
   const response = await internalFetch(url, {
     headers,
   });
 
+  console.log("getRedactionLogMappingData111111");
   if (!response.ok) {
-    throw new ApiError("Get Redaction Log data failed", url, response);
+    throw new ApiError("Get Redaction Log mapping data failed", url, response);
   }
-
-  return (await response.json()) as RedactionLogData;
+  return (await response.json()) as RedactionLogMappingData;
 };
+
+// export const getRedactionLogData = async () => {
+//   try {
+//     const data = await Promise.all([
+//       getRedactionLogLookUpsData(),
+//       getRedactionLogMappingData(),
+//     ]);
+//     return data as unknown as RedactionLogData;
+//   } catch (e: any) {
+//     console.log("error>>", e);
+//     throw new Error(e);
+//   }
+// };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {
   return await fetch(args[0], {

@@ -12,11 +12,17 @@ export interface OuCodeMapping {
   investigatingAgencyCode: string;
   investigatingAgencyName: string;
 }
-export interface RedactionLogData {
+export interface RedactionLogLookUpsData {
   areas: ListItem[];
   divisions: ListItem[];
   documentTypes: ListItem[];
   investigatingAgencies: ListItem[];
   missedRedactions: ListItem[];
   ouCodeMapping: OuCodeMapping[];
+}
+
+export interface RedactionLogMappingData {
+  areaMapping: { ou: string; areaId: string | null; unitId: string | null }[];
+  docTypeMapping: { cmdDocTypeId: string; docTypeId: string }[];
+  iAMapping: { ou: string; ia: string }[];
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   TextArea,
@@ -14,37 +14,23 @@ import {
   ChargeStatusLabels,
 } from "../../../domain/redactionLog/ChargeStatus";
 import {
-  RedactionLogData,
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
   RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategory";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
+import { getDefaultValuesFromMappings } from "../utils/redactionLogUtils";
+import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 type RedactionLogContentProps = {
   caseUrn: string;
   documentName: string;
   savedRedactionTypes: RedactionTypeData[];
   saveStatus: SaveStatus;
-  redactionLogData: RedactionLogData;
+  redactionLogLookUpsData: RedactionLogLookUpsData;
+  redactionLogMappingsData: RedactionLogMappingData | null;
   message?: string;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
-};
-
-const defaultValues = {
-  cpsArea: "",
-  businessUnit: "",
-  investigatingAgency: "",
-  chargeStatus: `${ChargeStatus.PostCharge}`,
-  documentType: "",
-  notes: "",
-};
-
-export type UnderRedactionFormData = {
-  cpsArea: string;
-  businessUnit: string;
-  investigatingAgency: string;
-  chargeStatus: string;
-  documentType: string;
-  notes: string;
 };
 
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
@@ -53,22 +39,54 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   saveStatus,
   saveRedactionLog,
   savedRedactionTypes,
-  redactionLogData,
+  redactionLogLookUpsData,
+  redactionLogMappingsData,
 }) => {
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
+  const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
+    cpsArea: "",
+    businessUnit: "",
+    investigatingAgency: "",
+    documentType: "",
+    chargeStatus: `${ChargeStatus.PostCharge}`,
+    notes: "",
+  });
+  useEffect(() => {
+    console.log("mapping data>>>", redactionLogMappingsData);
+    if (redactionLogMappingsData) {
+      const values = getDefaultValuesFromMappings(
+        redactionLogMappingsData,
+        "11",
+        "12",
+        "45"
+      );
+
+      console.log("getDefaultValuesFromMappings>>>>>", values);
+      setDefaultValues((defaultValues: any) => ({
+        ...defaultValues,
+        ...values,
+      }));
+    }
+  }, [redactionLogMappingsData]);
+
   const {
     handleSubmit,
     formState: { errors },
     control,
     watch,
+    reset,
   } = useForm({ defaultValues });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const [cpsArea] = watch(["cpsArea"]);
 
   const getMappedSelectItems = () => {
     const areaOrDivisions = [
-      ...redactionLogData.areas,
-      ...redactionLogData.divisions,
+      ...redactionLogLookUpsData.areas,
+      ...redactionLogLookUpsData.divisions,
     ];
 
     const defaultOption = {
@@ -93,14 +111,16 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       })),
     }));
     const mappedInvestigatingAgencies =
-      redactionLogData.investigatingAgencies.map((item) => ({
+      redactionLogLookUpsData.investigatingAgencies.map((item) => ({
         value: item.id,
         children: item.name,
       }));
-    const mappedDocumentTypes = redactionLogData.documentTypes.map((item) => ({
-      value: item.id,
-      children: item.name,
-    }));
+    const mappedDocumentTypes = redactionLogLookUpsData.documentTypes.map(
+      (item) => ({
+        value: item.id,
+        children: item.name,
+      })
+    );
 
     return {
       areaOrDivisions: [defaultAreaOption, ...mappedAreaOrDivisions],
@@ -169,8 +189,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     formData: UnderRedactionFormData
   ): RedactionLogRequestData => {
     const areaOrDivisions = [
-      ...redactionLogData.areas,
-      ...redactionLogData.divisions,
+      ...redactionLogLookUpsData.areas,
+      ...redactionLogLookUpsData.divisions,
     ];
     const mappedArea = areaOrDivisions.find(
       (area) => area.id === formData.cpsArea
@@ -179,12 +199,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       (businessUnit) => businessUnit.id === formData.businessUnit
     )!;
     const mappedInvestigatingAgency =
-      redactionLogData.investigatingAgencies.find(
+      redactionLogLookUpsData.investigatingAgencies.find(
         (investigatingAgency) =>
           investigatingAgency.id === formData.investigatingAgency
       )!;
 
-    const mappedDocumentType = redactionLogData.documentTypes.find(
+    const mappedDocumentType = redactionLogLookUpsData.documentTypes.find(
       (documentType) => documentType.id === formData.documentType
     )!;
 

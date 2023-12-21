@@ -159,7 +159,15 @@ export const setupHandlers = ({
     rest.get(
       makeRedactionLogApiPath(routes.REDACTION_LOG_ROUTE),
       (req, res, ctx) => {
-        const results = redactionLogDataSources[sourceName];
+        const results = redactionLogDataSources[sourceName].lookUpsData;
+        return res(delay(ctx), ctx.json(results));
+      }
+    ),
+
+    rest.get(
+      makeRedactionLogApiPath(routes.REDACTION_LOG_MAPPING_ROUTE),
+      (req, res, ctx) => {
+        const results = redactionLogDataSources[sourceName].mappingData;
         return res(delay(ctx), ctx.json(results));
       }
     ),
