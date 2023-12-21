@@ -1058,7 +1058,7 @@ export const redactionLogLookUpsData = {
 
 const redactionLogMappingData = {
   areaMapping: [{ ou: "11", areaId: "1", unitId: "1" }],
-  docTypeMapping: [{ cmdDocTypeId: "12", docTypeId: "2" }],
+  docTypeMapping: [{ cmsDocTypeId: "12", docTypeId: "2" }],
   iAMapping: [{ ou: "45", ia: "1" }],
 };
 

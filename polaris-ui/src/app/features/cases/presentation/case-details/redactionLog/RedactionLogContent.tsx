@@ -24,7 +24,9 @@ import { getDefaultValuesFromMappings } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 type RedactionLogContentProps = {
   caseUrn: string;
+  isCaseCharged: boolean;
   documentName: string;
+  cmsDocumentTypeId: number;
   savedRedactionTypes: RedactionTypeData[];
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
@@ -35,7 +37,9 @@ type RedactionLogContentProps = {
 
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   caseUrn,
+  isCaseCharged,
   documentName,
+  cmsDocumentTypeId,
   saveStatus,
   saveRedactionLog,
   savedRedactionTypes,
@@ -48,7 +52,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     businessUnit: "",
     investigatingAgency: "",
     documentType: "",
-    chargeStatus: `${ChargeStatus.PostCharge}`,
+    chargeStatus: isCaseCharged
+      ? `${ChargeStatus.PostCharge}`
+      : `${ChargeStatus.PreCharge}`,
     notes: "",
   });
   useEffect(() => {
@@ -56,9 +62,10 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     if (redactionLogMappingsData) {
       const values = getDefaultValuesFromMappings(
         redactionLogMappingsData,
+        redactionLogLookUpsData.ouCodeMapping,
         "11",
-        "12",
-        "45"
+        cmsDocumentTypeId,
+        caseUrn.slice(0, 4)
       );
 
       console.log("getDefaultValuesFromMappings>>>>>", values);
@@ -67,7 +74,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         ...values,
       }));
     }
-  }, [redactionLogMappingsData]);
+  }, [
+    redactionLogMappingsData,
+    caseUrn,
+    cmsDocumentTypeId,
+    redactionLogLookUpsData,
+  ]);
 
   const {
     handleSubmit,

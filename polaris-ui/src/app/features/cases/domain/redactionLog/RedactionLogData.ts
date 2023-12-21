@@ -23,6 +23,6 @@ export interface RedactionLogLookUpsData {
 
 export interface RedactionLogMappingData {
   areaMapping: { ou: string; areaId: string | null; unitId: string | null }[];
-  docTypeMapping: { cmdDocTypeId: string; docTypeId: string }[];
+  docTypeMapping: { cmsDocTypeId: string; docTypeId: string }[];
   iAMapping: { ou: string; ia: string }[];
 }

@@ -222,7 +222,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
         redactionLog.redactionLogLookUpsData.status === "succeeded" && (
           <RedactionLogModal
             caseUrn={caseState.data.uniqueReferenceNumber}
+            isCaseCharged={caseState.data.isCaseCharged}
             documentName={getActiveTabDocument().presentationFileName}
+            cmsDocumentTypeId={getActiveTabDocument().cmsDocType.documentTypeId}
             savedRedactionTypes={redactionLog.savedRedactionTypes}
             saveStatus={getActiveTabDocument().saveStatus}
             redactionLogLookUpsData={redactionLog.redactionLogLookUpsData.data}
