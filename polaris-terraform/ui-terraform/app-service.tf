@@ -14,6 +14,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   https_only                    = true
   virtual_network_subnet_id     = data.azurerm_subnet.polaris_ui_subnet.id
   public_network_access_enabled = false
+  builtin_logging_enabled       = false
 
   app_settings = {
     "APPINSIGHTS_INSTRUMENTATIONKEY"                  = data.azurerm_application_insights.global_ai.instrumentation_key
