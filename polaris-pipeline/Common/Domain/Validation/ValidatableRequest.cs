@@ -10,5 +10,7 @@ namespace Common.Domain.Validation
         public bool IsValid { get; set; }
 
         public IList<ValidationFailure> Errors { get; set; }
+
+        public string RequestJson { get; set; }
     }
 }

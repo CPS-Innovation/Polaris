@@ -11,7 +11,7 @@ namespace Gateway.Common.Extensions
         public static async Task<ValidatableRequest<T>> GetJsonBody<T, TV>(this HttpRequest request)
             where TV : AbstractValidator<T>, new()
         {
-            var requestObject = await request.GetJsonBody<T>();
+            var (requestObject, requestJson) = await request.GetJsonBody<T>();
             var validator = new TV();
             var validationResult = await validator.ValidateAsync(requestObject);
 
@@ -21,21 +21,24 @@ namespace Gateway.Common.Extensions
                 {
                     Value = requestObject,
                     IsValid = false,
-                    Errors = validationResult.Errors
+                    Errors = validationResult.Errors,
+                    RequestJson = requestJson
                 };
             }
 
             return new ValidatableRequest<T>
             {
                 Value = requestObject,
-                IsValid = true
+                IsValid = true,
+                RequestJson = requestJson
             };
         }
 
-        public static async Task<T> GetJsonBody<T>(this HttpRequest request)
+        public static async Task<(T, string)> GetJsonBody<T>(this HttpRequest request)
         {
             var requestBody = await request.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(requestBody);
+            var requestObject = JsonConvert.DeserializeObject<T>(requestBody);
+            return (requestObject, requestBody);
         }
     }
 }
