@@ -15,8 +15,6 @@ export const getDefaultValuesFromMappings = (
   docTypeId: number,
   urnSubString: string
 ) => {
-  console.log("urnSubString>>", urnSubString);
-  console.log("docTypeId>>", docTypeId);
   let defaultValues: MappingDefaultData = {
     cpsArea: "",
     businessUnit: "",
@@ -46,8 +44,6 @@ export const getDefaultValuesFromMappings = (
 
   defaultValues.investigatingAgency =
     defaultIA?.investigatingAgencyId ?? defaultIAFromOuCodeMapping;
-
-  console.log("defaultValues>>", defaultValues);
 
   return defaultValues;
 };

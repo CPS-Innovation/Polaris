@@ -61,7 +61,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     notes: "",
   });
   useEffect(() => {
-    console.log("mapping data>>>", redactionLogMappingsData);
     if (redactionLogMappingsData) {
       const values = getDefaultValuesFromMappings(
         redactionLogMappingsData,
@@ -71,7 +70,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         "00AH"
       );
 
-      console.log("getDefaultValuesFromMappings>>>>>", values);
       setDefaultValues((defaultValues: any) => ({
         ...defaultValues,
         ...values,
@@ -292,7 +290,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     return errorSummary;
   };
 
-  console.log("Errors>>>", errors);
   return (
     <div
       className={classes.modalContent}
