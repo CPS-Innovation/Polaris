@@ -8,6 +8,9 @@
   :global(.govuk-form-group) {
     margin-bottom: 0;
   }
+  :global(.govuk-error-summary) {
+    margin-bottom: 0;
+  }
   .modalTitleWrapper {
     display: flex;
     justify-content: space-between;
@@ -105,7 +108,7 @@
   align-items: flex-end;
   justify-content: flex-start;
   flex-wrap: wrap;
-  padding: 0.625rem 1.875rem 1.875rem 1.875rem;
+  padding: 0 1.875rem 1.875rem 1.875rem;
   background-color: #f3f2f1;
   border-bottom: 1px solid #b1b4b6;
 }

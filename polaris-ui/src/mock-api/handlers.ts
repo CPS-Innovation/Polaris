@@ -176,6 +176,7 @@ export const setupHandlers = ({
       makeRedactionLogApiPath(routes.SAVE_REDACTION_LOG_ROUTE),
       (req, res, ctx) => {
         return res(delay(ctx), ctx.json({}));
+        // return res(ctx.status(500));
       }
     ),
 

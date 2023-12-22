@@ -543,7 +543,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                     label={{
                       children: (
                         <span className={classes.textAreaLabel}>
-                          Supporting notes (optional)
+                          Supporting notes{" "}
+                          <span className={classes.greyColor}>(optional)</span>
                         </span>
                       ),
                     }}

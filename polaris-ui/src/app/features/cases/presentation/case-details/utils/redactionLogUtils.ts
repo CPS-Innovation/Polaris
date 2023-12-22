@@ -28,17 +28,11 @@ export const getDefaultValuesFromMappings = (
     (area) => area.ou === owningUnit
   );
 
-  console.log("defaultArea>>>", defaultArea);
-
-  if (defaultArea && defaultArea.areaId !== "null") {
-    defaultValues.cpsArea = defaultArea.areaId;
-  }
-  if (defaultArea && defaultArea.unitId !== "null") {
-    defaultValues.cpsArea = defaultArea.unitId;
-  }
+  defaultValues.cpsArea = defaultArea?.areaId ?? "";
+  defaultValues.businessUnit = defaultArea?.unitId ?? "";
 
   const defaultDocType = mappingData.documentTypes.find(
-    (docType) => docType.cmdDocTypeId === `${docTypeId}`
+    (docType) => docType.cmsDocTypeId === `${docTypeId}`
   );
 
   defaultValues.documentType = defaultDocType?.docTypeId ?? "";
@@ -50,16 +44,10 @@ export const getDefaultValuesFromMappings = (
     ouCodeMapping.find((mapping) => mapping.ouCode === urnSubString.slice(0, 2))
       ?.investigatingAgencyCode ?? "";
 
-  console.log("defaultIA>>", defaultIA);
-  if (defaultIA && defaultIA?.investigatingAgencyId !== "null") {
-    defaultValues.investigatingAgency = defaultIA.investigatingAgencyId;
-  }
-  if (
-    defaultIA?.investigatingAgencyId === "null" &&
-    defaultIAFromOuCodeMapping
-  ) {
-    defaultValues.investigatingAgency = defaultIAFromOuCodeMapping;
-  }
+  defaultValues.investigatingAgency =
+    defaultIA?.investigatingAgencyId ?? defaultIAFromOuCodeMapping;
+
+  console.log("defaultValues>>", defaultValues);
 
   return defaultValues;
 };

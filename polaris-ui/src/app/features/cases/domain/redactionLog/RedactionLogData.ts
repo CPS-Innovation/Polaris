@@ -24,12 +24,12 @@ export interface RedactionLogLookUpsData {
 export interface RedactionLogMappingData {
   businessUnits: {
     ou: string;
-    areaId: string | "null";
-    unitId: string | "null";
+    areaId: string | null;
+    unitId: string | null;
   }[];
-  documentTypes: { cmdDocTypeId: string; docTypeId: string }[];
+  documentTypes: { cmsDocTypeId: string; docTypeId: string }[];
   investigatingAgencies: {
     ouCode: string;
-    investigatingAgencyId: string | "null";
+    investigatingAgencyId: string | null;
   }[];
 }
