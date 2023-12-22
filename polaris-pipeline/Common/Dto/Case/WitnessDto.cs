@@ -8,7 +8,7 @@ namespace Common.Dto.Case
         public string Title { get; set; }
         public string Name { get; set; }
         public bool HasStatements { get; set; }
-        public int ListOrder { get; set; }
+        public int? ListOrder { get; set; }
         public bool Child { get; set; }
         public bool Expert { get; set; }
         public bool GreatestNeed { get; set; }
