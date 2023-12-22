@@ -1,6 +1,7 @@
 import {
   SAVE_REDACTION_ROUTE,
   SAVE_REDACTION_LOG_ROUTE,
+  REDACTION_LOG_MAPPING_ROUTE,
 } from "../../../src/mock-api/routes";
 
 describe("Redaction Log", () => {
@@ -145,6 +146,20 @@ describe("Redaction Log", () => {
         },
         "put"
       );
+
+      cy.overrideRoute(
+        REDACTION_LOG_MAPPING_ROUTE,
+        {
+          body: {
+            businessUnits: [],
+            documentTypes: [],
+            investigatingAgencies: [],
+          },
+        },
+        "get",
+        Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
+      );
+
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -164,40 +179,54 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-log").should("not.be.disabled");
       cy.findByTestId("btn-save-redaction-log").click();
 
+      cy.get("#error-summary-title").should("exist");
+      cy.findByTestId("redaction-log-error-summary")
+        .find("li")
+        .should("have.length", 4);
+
       cy.get("#select-cps-area-error").should("exist");
       cy.get("#select-cps-area-error").should(
         "have.text",
         "Error: Select an Area or Division"
       );
+      cy.findByTestId("select-cps-area-validation-urn").should("exist");
       cy.get("#select-cps-bu-error").should("exist");
       cy.get("#select-cps-bu-error").should(
         "have.text",
         "Error: Select a Business Unit"
       );
+      cy.findByTestId("select-cps-bu-validation-urn").should("exist");
       cy.get("#select-cps-ia-error").should("exist");
       cy.get("#select-cps-ia-error").should(
         "have.text",
         "Error: Select an Investigative Agency"
       );
+      cy.findByTestId("select-cps-ia-validation-urn").should("exist");
       cy.get("#select-cps-dt-error").should("exist");
       cy.get("#select-cps-dt-error").should(
         "have.text",
         "Error: Select a Document Type"
       );
-
+      cy.findByTestId("select-cps-dt-validation-urn").should("exist");
       cy.findByTestId("select-cps-area").select("1");
       cy.get("#select-cps-area-error").should("not.exist");
+      cy.findByTestId("select-cps-area-validation-urn").should("not.exist");
       cy.findByTestId("select-cps-bu").select("1");
       cy.get("#select-cps-bu-error").should("not.exist");
+      cy.findByTestId("select-cps-bu-validation-urn").should("not.exist");
       cy.findByTestId("select-cps-ia").select("1");
       cy.get("#select-cps-ia-error").should("not.exist");
+      cy.findByTestId("select-cps-ia-validation-urn").should("not.exist");
       cy.findByTestId("select-cps-dt").select("1");
       cy.get("#select-cps-dt-error").should("not.exist");
+      cy.findByTestId("select-cps-dt-validation-urn").should("not.exist");
+
+      cy.get("#error-summary-title").should("not.exist");
 
       cy.findByTestId("btn-save-redaction-log").click();
-
       cy.findByTestId("div-modal").should("not.exist");
     });
+
     it("Should hide RedactionLog modal and should show error message if the saving of redaction is failed", () => {
       cy.overrideRoute(
         SAVE_REDACTION_ROUTE,
@@ -271,7 +300,9 @@ describe("Redaction Log", () => {
       cy.findByTestId("rl-under-redaction-content").should("not.exist");
       cy.findByTestId("div-modal")
         .should("exist")
-        .contains("Failed to save redaction log. Please try again later.");
+        .contains(
+          "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually."
+        );
     });
   });
 

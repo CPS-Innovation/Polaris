@@ -513,6 +513,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         <div className={classes.modalBodyWrapper}>
           {!!Object.keys(errors).length && (
             <ErrorSummary
+              data-testId={"redaction-log-error-summary"}
               className={classes.errorSummary}
               errorList={getErrorSummaryList(errors)}
             />
