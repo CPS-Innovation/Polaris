@@ -29,6 +29,8 @@ using Ddei.Services.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Common.Configuration;
+using Common.Telemetry.Contracts;
+using Common.Telemetry;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -78,7 +80,7 @@ namespace PolarisGateway
 
             services.AddDdeiClient(Configuration);
             services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-
+            services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(services);
         }
 

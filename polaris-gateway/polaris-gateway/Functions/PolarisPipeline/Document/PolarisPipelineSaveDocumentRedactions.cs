@@ -17,6 +17,8 @@ using Gateway.Common.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.ValueObjects;
+using Common.Telemetry.Contracts;
+using PolarisGateway.TelemetryEvents;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -25,7 +27,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
         private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
         private readonly IPipelineClient _pipelineClient;
         private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
-
+        private readonly ITelemetryClient _telemetryClient;
         const string loggingName = $"{nameof(PolarisPipelineSaveDocumentRedactions)} - {nameof(Run)}";
 
         public PolarisPipelineSaveDocumentRedactions
@@ -34,7 +36,8 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                 IPipelineClient pipelineClient,
                 ILogger<PolarisPipelineSaveDocumentRedactions> logger,
                 IAuthorizationValidator tokenValidator,
-                ITelemetryAugmentationWrapper telemetryAugmentationWrapper
+                ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
+                ITelemetryClient telemetryClient
             )
 
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
@@ -42,13 +45,14 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
             _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
             _pipelineClient = pipelineClient ?? throw new ArgumentNullException(nameof(pipelineClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _telemetryClient = telemetryClient;
         }
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             Guid currentCorrelationId = default;
-
+            var telemetryEvent = new RedactionRequestReceivedEvent(caseId, polarisDocumentId);
             try
             {
                 #region Validate-Inputs
@@ -56,14 +60,15 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
 
-                currentCorrelationId = request.CurrentCorrelationId;
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
-
-                if (string.IsNullOrWhiteSpace(caseUrn))
-                    return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                currentCorrelationId = telemetryEvent.CorrelationId = request.CurrentCorrelationId;
 
                 var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
-                if (!redactions.IsValid)
+                var isValid = redactions.IsValid;
+                telemetryEvent.RequestJson = redactions.RequestJson;
+                telemetryEvent.IsRequestJsonValid = isValid;
+                _telemetryClient.TrackEvent(telemetryEvent);
+
+                if (!isValid)
                 {
                     LogInformation("Invalid redaction request", currentCorrelationId, loggingName);
                     return redactions.ToBadRequest();
@@ -85,6 +90,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
             }
             catch (Exception exception)
             {
+                _telemetryClient.TrackEventFailure(telemetryEvent);
                 return exception switch
                 {
                     HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.SaveRedactionsAsync)}, '{exception.Message}'.", currentCorrelationId, loggingName),
