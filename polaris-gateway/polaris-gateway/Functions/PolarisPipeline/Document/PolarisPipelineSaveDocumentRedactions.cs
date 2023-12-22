@@ -7,7 +7,6 @@ using System;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Common.Configuration;
-using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Domain.Validators;
@@ -45,48 +44,53 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
             _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
             _pipelineClient = pipelineClient ?? throw new ArgumentNullException(nameof(pipelineClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _telemetryClient = telemetryClient;
+            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient)); ;
         }
 
         [FunctionName(nameof(PolarisPipelineSaveDocumentRedactions))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.Document)] HttpRequest req, string caseUrn, int caseId, string polarisDocumentId)
         {
             Guid currentCorrelationId = default;
-            var telemetryEvent = new RedactionRequestReceivedEvent(caseId, polarisDocumentId);
+            var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);
+
+            var sendTelemetryAndReturn = (IActionResult result) =>
+            {
+                _telemetryClient.TrackEvent(telemetryEvent);
+                return result;
+            };
+
             try
             {
-                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
-                if (request.InvalidResponseResult != null)
-                    return request.InvalidResponseResult;
-
+                var isRequestValid = request.InvalidResponseResult == null;
+                telemetryEvent.IsRequestValid = isRequestValid;
                 currentCorrelationId = telemetryEvent.CorrelationId = request.CurrentCorrelationId;
 
-                var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
-                var isValid = redactions.IsValid;
-                telemetryEvent.RequestJson = redactions.RequestJson;
-                telemetryEvent.IsRequestJsonValid = isValid;
-                _telemetryClient.TrackEvent(telemetryEvent);
-
-                if (!isValid)
+                if (!isRequestValid)
                 {
-                    LogInformation("Invalid redaction request", currentCorrelationId, loggingName);
-                    return redactions.ToBadRequest();
+                    return sendTelemetryAndReturn(request.InvalidResponseResult);
                 }
-                #endregion
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Saving document redactions for urn {caseUrn}, caseId {caseId}, polarisDocumentId {polarisDocumentId}");
+                var redactions = await req.GetJsonBody<DocumentRedactionSaveRequestDto, DocumentRedactionSaveRequestValidator>();
+                var isRequestJsonValid = redactions.IsValid;
+                telemetryEvent.IsRequestJsonValid = isRequestJsonValid;
+                telemetryEvent.RequestJson = redactions.RequestJson;
+
+                if (!isRequestJsonValid)
+                {
+                    return sendTelemetryAndReturn(redactions.ToBadRequest());
+                }
+
                 var polarisDocumentIdValue = new PolarisDocumentId(polarisDocumentId);
                 var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value, caseId, polarisDocumentIdValue, currentCorrelationId);
                 var redactionResult = await _pipelineClient.SaveRedactionsAsync(caseUrn, caseId, polarisDocumentIdValue, redactPdfRequest, request.CmsAuthValues, currentCorrelationId);
+                var IsSuccess = redactionResult.Succeeded;
+                telemetryEvent.IsSuccess = IsSuccess;
 
-                if (!redactionResult.Succeeded)
-                {
-                    _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}");
-                    return BadGatewayErrorResponse("Error Saving redaction details", currentCorrelationId, loggingName);
-                }
+                var result = IsSuccess ? new OkResult()
+                    : BadGatewayErrorResponse("Error Saving redaction details", currentCorrelationId, loggingName);
 
-                return new OkResult();
+                return sendTelemetryAndReturn(result);
             }
             catch (Exception exception)
             {
@@ -96,10 +100,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                     HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.SaveRedactionsAsync)}, '{exception.Message}'.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred, '{exception.Message}'.", currentCorrelationId, loggingName)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             }
         }
     }

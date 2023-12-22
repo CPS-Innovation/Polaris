@@ -4,16 +4,17 @@ using Common.Telemetry;
 
 namespace PolarisGateway.TelemetryEvents
 {
-    public class RedactionRequestReceivedEvent : BaseTelemetryEvent
+    public class RedactionRequestEvent : BaseTelemetryEvent
     {
         private const string RequestJsonLength = nameof(RequestJsonLength);
         public Guid CorrelationId;
         public long CaseId;
         public string DocumentId;
         public string RequestJson;
+        public bool IsRequestValid;
         public bool IsRequestJsonValid;
-
-        public RedactionRequestReceivedEvent(
+        public bool IsSuccess;
+        public RedactionRequestEvent(
             long caseId,
             string documentId)
         {
@@ -28,10 +29,12 @@ namespace PolarisGateway.TelemetryEvents
                 {
                     { nameof(CorrelationId), CorrelationId.ToString() },
                     { nameof(CaseId), CaseId.ToString() },
-
                     { nameof(DocumentId), DocumentId.ToString() },
-                    { nameof(RequestJson), RequestJson },
+
+                    { nameof(IsRequestValid), IsRequestValid.ToString() },
                     { nameof(IsRequestJsonValid), IsRequestJsonValid.ToString() },
+                    { nameof(IsSuccess), IsSuccess.ToString() },
+                    { nameof(RequestJson), RequestJson },
                 },
                 new Dictionary<string, double?>
                 {
