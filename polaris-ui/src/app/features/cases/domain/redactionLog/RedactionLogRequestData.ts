@@ -13,9 +13,11 @@ export type RedactionLogRequestData = {
   };
   investigatingAgency: ListItemWithoutChildren;
   documentType: ListItemWithoutChildren;
-  missedRedactions: RedactionTypeData[];
+  redactions: {
+    missedRedaction: RedactionTypeData;
+    redactionType: RedactionCategory;
+  }[];
   chargeStatus: ChargeStatus;
-  redactionType: RedactionCategory;
   notes: string | null;
   returnedToInvestigativeAuthority: boolean;
 };

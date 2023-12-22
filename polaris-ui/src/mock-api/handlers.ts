@@ -172,7 +172,7 @@ export const setupHandlers = ({
       }
     ),
 
-    rest.put(
+    rest.post(
       makeRedactionLogApiPath(routes.SAVE_REDACTION_LOG_ROUTE),
       (req, res, ctx) => {
         return res(delay(ctx), ctx.json({}));

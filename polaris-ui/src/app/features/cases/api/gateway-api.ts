@@ -256,10 +256,10 @@ export const saveRedactions = async (
 export const saveRedactionLog = async (
   redactionLogRequestData: RedactionLogRequestData
 ) => {
-  const url = fullUrl(`/api/saveredactionlog`, REDACTION_LOG_BASE_URL);
+  const url = fullUrl(`/api/redactionLogs`, REDACTION_LOG_BASE_URL);
   const response = await internalFetch(url, {
     headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-    method: "PUT",
+    method: "POST",
     body: JSON.stringify(redactionLogRequestData),
   });
 

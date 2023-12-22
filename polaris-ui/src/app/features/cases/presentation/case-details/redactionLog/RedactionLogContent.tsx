@@ -221,6 +221,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       (documentType) => documentType.id === formData.documentType
     )!;
 
+    const redactions = savedRedactionTypes.map((missedRedaction) => ({
+      missedRedaction,
+      redactionType: RedactionCategory.UnderRedacted,
+    }));
+
     const mappedData = {
       urn: caseUrn,
       unit: {
@@ -237,11 +242,10 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         id: mappedDocumentType?.id,
         name: mappedDocumentType?.name,
       },
-      missedRedactions: savedRedactionTypes,
+      redactions: redactions,
       notes: formData.notes || null,
       returnedToInvestigativeAuthority: false,
-      chargeStatus: formData.chargeStatus as unknown as ChargeStatus,
-      redactionType: RedactionCategory.UnderRedacted,
+      chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
     };
     return mappedData;
   };
