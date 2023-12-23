@@ -53,11 +53,11 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
             Guid currentCorrelationId = default;
             var telemetryEvent = new RedactionRequestEvent(caseId, polarisDocumentId);
 
-            var sendTelemetryAndReturn = (IActionResult result) =>
+            IActionResult sendTelemetryAndReturn(IActionResult result)
             {
                 _telemetryClient.TrackEvent(telemetryEvent);
                 return result;
-            };
+            }
 
             try
             {
