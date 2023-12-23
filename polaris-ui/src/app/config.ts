@@ -37,6 +37,15 @@ export const IS_REDACTION_SERVICE_OFFLINE =
 export const FEATURE_FLAG_HTE_EMAILS_ON =
   process.env.REACT_APP_FEATURE_FLAG_HTE_EMAILS_ON === "true";
 
+export const FEATURE_FLAG_REDACTION_LOG =
+  process.env.REACT_APP_FEATURE_FLAG_REDACTION_LOG === "true";
+
+export const PRIVATE_BETA_REDACTION_LOG_USER_GROUP =
+  process.env.REACT_APP_PRIVATE_BETA_REDACTION_LOG_USER_GROUP ?? "";
+
+export const REDACTION_LOG_USER_GROUP =
+  process.env.REACT_APP_REDACTION_LOG_USER_GROUP ?? "";
+
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "test") {

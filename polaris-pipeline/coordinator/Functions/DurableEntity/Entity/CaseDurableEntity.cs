@@ -230,6 +230,7 @@ namespace coordinator.Functions.DurableEntity.Entity
                         categoryListOrder: newDocument.CategoryListOrder,
                         polarisParentDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
                         cmsParentDocumentId: newDocument.ParentDocumentId,
+                        witnessId: newDocument.WitnessId,
                         presentationFlags: newDocument.PresentationFlags
                     );
 
@@ -258,6 +259,8 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
                 trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
                 trackerDocument.IsDispatched = updatedDocument.IsDispatched;
+                trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
+                trackerDocument.WitnessId = updatedDocument.WitnessId;
                 changedDocuments.Add(trackerDocument);
             }
 

@@ -8,6 +8,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
   https_only                    = true
   public_network_access_enabled = false
   tags                          = local.common_tags
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
@@ -24,6 +25,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HostType"                                        = "Staging1"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorDurableExtensionCode"  = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.durabletask_extension_key
     "PolarisPipelineCoordinatorFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.default_function_key

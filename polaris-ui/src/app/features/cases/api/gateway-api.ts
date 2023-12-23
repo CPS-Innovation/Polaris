@@ -8,7 +8,8 @@ import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
 import { GATEWAY_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
-
+import { RedactionLogData } from "../domain/redactionLog/RedactionLogData";
+import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
 const buildHeaders = async (
   ...args: (
     | Record<string, string>
@@ -249,6 +250,37 @@ export const saveRedactions = async (
   if (!response.ok) {
     throw new ApiError("Save redactions failed", url, response);
   }
+};
+
+export const saveRedactionLog = async (
+  redactionLogRequestData: RedactionLogRequestData
+) => {
+  const url = fullUrl(`/api/saveredactionlog`);
+  const response = await internalFetch(url, {
+    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    method: "PUT",
+    body: JSON.stringify(redactionLogRequestData),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Save redaction log failed", url, response);
+  }
+};
+
+export const getRedactionLogData = async () => {
+  const url = fullUrl(`/api/redactionlogdata`);
+
+  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
+
+  const response = await internalFetch(url, {
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Get Redaction Log data failed", url, response);
+  }
+
+  return (await response.json()) as RedactionLogData;
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {

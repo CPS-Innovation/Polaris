@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Constants;
+using Common.Extensions;
 using Common.Logging;
 using coordinator.Providers;
 using Microsoft.Azure.WebJobs;
@@ -32,37 +34,55 @@ public class SlidingCaseClearDown
     /// <param name="client"></param>
     /// <exception cref="InvalidCastException"></exception>
     [FunctionName(nameof(SlidingCaseClearDown))]
-    public async Task RunAsync([TimerTrigger("0 */5 * * * *"
-            /*, RunOnStartup = true*/
-            )]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
+    public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = true)]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
         try
         {
-            var convSucceeded = bool.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownEnabled], out var clearDownEnabled);
-            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays],
-                out var clearDownInputDays);
-            if (convSucceeded && clearDownEnabled && inputConvSucceeded)
+            var inputConvSucceeded = short.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownInputDays], out var clearDownInputDays);
+            var batchConvSucceeded = int.TryParse(_configuration[ConfigKeys.CoordinatorKeys.SlidingClearDownBatchSize], out var clearDownBatchSize);
+            if (inputConvSucceeded && batchConvSucceeded)
             {
                 var clearDownPeriod = clearDownInputDays * -1;
-                var targetCaseId =
-                    await _orchestrationProvider.FindCaseInstanceByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId);
-                if (string.IsNullOrEmpty(targetCaseId))
+                var targetCases = await _orchestrationProvider.FindCaseInstancesByDateAsync(DateTime.UtcNow.AddDays(clearDownPeriod), correlationId, clearDownBatchSize);
+
+                if (targetCases.Count == 0)
                 {
+                    _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), "No candidate case found to clear-down.");
                     return;
                 }
 
-                if (!int.TryParse(targetCaseId.Replace("[", "").Replace("]", ""), out var caseId))
-                    throw new InvalidCastException(
-                        $"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
-
-                var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId);
-                deleteResponse.EnsureSuccessStatusCode();
+                var tasks = new List<Task<Tuple<int, bool>>>();
+                foreach (var targetCaseId in targetCases)
+                {
+                    if (!int.TryParse(targetCaseId, out var caseId))
+                        throw new InvalidCastException($"Invalid case id. A 32-bit integer is expected. A value of {targetCaseId} was found instead");
+                    
+                    tasks.Add(CallDeleteCaseAsync(correlationId, client, caseId));
+                }
+                
+                foreach (var task in await Task.WhenAll(tasks))
+                {
+                    if (task.Item2)
+                    {
+                        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Clear down of case {task.Item1} completed");
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
             _logger.LogMethodError(correlationId, LoggingName, ex.Message, ex);
         }
+    }
+    
+    private async Task<Tuple<int, bool>> CallDeleteCaseAsync(Guid correlationId, IDurableOrchestrationClient client, int caseId)
+    {
+        _logger.LogMethodFlow(correlationId, nameof(SlidingCaseClearDown), $"Beginning clear down of case {caseId}");
+
+        var deleteResponse = await _orchestrationProvider.DeleteCaseAsync(client, correlationId, caseId, true);
+        deleteResponse.EnsureSuccessStatusCode();
+        
+        return Tuple.Create(caseId, true);
     }
 }

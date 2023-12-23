@@ -15,9 +15,8 @@ polaris_webapp_details = {
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
 
 ui_logging = {
-  gateway_scale_controller       = "AppInsights:None"
-  auth_handover_scale_controller = "AppInsights:None"
-  proxy_scale_controller         = "AppInsights:None"
+  gateway_scale_controller       = "AppInsights:Verbose"
+  auth_handover_scale_controller = "AppInsights:Verbose"
 }
 
 cms_details = {
@@ -37,7 +36,11 @@ is_redaction_service_offline = "false"
 
 feature_flag_hte_emails_on = "true"
 
+feature_flag_redaction_log = "false"
+redaction_log_user_group = ""
+
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
   user_group  = "4d88565f-227b-4043-995c-038286b79869" // the Polaris-Production Access group
+  redaction_log_user_group = ""
 }

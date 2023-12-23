@@ -11,6 +11,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
   public_network_access_enabled = false
   https_only                    = true
   tags                          = local.common_tags
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string
@@ -27,6 +28,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HostType"                                        = "Production"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorDurableExtensionCode"  = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.durabletask_extension_key
     "PolarisPipelineCoordinatorFunctionAppKey"        = data.azurerm_function_app_host_keys.fa_coordinator_host_keys.default_function_key
@@ -44,6 +46,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+  }
+
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {

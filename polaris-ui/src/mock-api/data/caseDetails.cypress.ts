@@ -48,6 +48,7 @@ const caseDetails: CaseDetails[] = [
         charges: [],
       },
     ],
+    witnesses: [],
   },
   {
     id: 13301,
@@ -125,6 +126,7 @@ const caseDetails: CaseDetails[] = [
         charges: [],
       },
     ],
+    witnesses: [],
   },
 
   {
@@ -200,6 +202,7 @@ const caseDetails: CaseDetails[] = [
         ],
       },
     ],
+    witnesses: [],
   },
 
   {
@@ -242,6 +245,7 @@ const caseDetails: CaseDetails[] = [
         charges: [],
       },
     ],
+    witnesses: [],
   },
 
   {
@@ -302,5 +306,6 @@ const caseDetails: CaseDetails[] = [
         charges: [],
       },
     ],
+    witnesses: [],
   },
 ];

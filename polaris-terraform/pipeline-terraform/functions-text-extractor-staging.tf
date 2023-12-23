@@ -8,6 +8,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
   https_only                    = true
   public_network_access_enabled = false
   tags                          = local.common_tags
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_text_extractor.primary_connection_string
@@ -15,6 +16,7 @@ resource "azurerm_linux_function_app_slot" "fa_text_extractor_staging1" {
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HostType"                                        = "Staging1"
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.text_extractor_scale_controller
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"

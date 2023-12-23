@@ -12,8 +12,11 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
+  builtin_logging_enabled       = false 
 
   app_settings = {
+    "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled
+    "AzureWebJobs.SlidingCaseClearDown.Disabled"      = var.sliding_clear_down.disabled
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_coordinator.primary_connection_string
     "BlobExpirySecs"                                  = 3600
     "BlobServiceContainerName"                        = "documents"
@@ -25,7 +28,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
-    "OvernightClearDownEnabled"                       = var.overnight_clear_down_enabled
+    "HostType"                                        = "Production"
+    "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineCoordinatorDurableExtensionCode"  = "" //set in deployment script
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_name}-pdf-generator.azurewebsites.net/api/"
@@ -36,8 +40,10 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SearchClientAuthorizationKey"                    = azurerm_search_service.ss.primary_key
     "SearchClientEndpointUrl"                         = "https://${azurerm_search_service.ss.name}.search.windows.net"
     "SearchClientIndexName"                           = jsondecode(file("search-index-definition.json")).name
-    "SlidingClearDownEnabled"                         = var.sliding_clear_down_enabled
-    "SlidingClearDownInputDays"                       = var.sliding_clear_down_input_days
+    "SlidingClearDownInputDays"                       = var.sliding_clear_down.look_back_days
+    "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
+    "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
+    "SlidingClearDownBatchSize"                       = var.sliding_clear_down.batch_size
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -53,7 +59,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   }
 
   sticky_settings {
-    app_setting_names = ["CoordinatorTaskHub"]
+    app_setting_names = ["CoordinatorTaskHub", "HostType"]
   }
 
   site_config {

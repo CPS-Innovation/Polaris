@@ -8,6 +8,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
   https_only                    = true
   public_network_access_enabled = false
   tags                          = local.common_tags
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_generator.primary_connection_string
@@ -16,6 +17,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
     "HteFeatureFlag"                                  = var.hte_feature_flag
+    "HostType"                                        = "Staging1"
     "ImageConversion__Resolution"                     = var.image_conversion_redaction.resolution
     "ImageConversion__QualityPercent"                 = var.image_conversion_redaction.quality_percent
     "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.pdf_generator_scale_controller

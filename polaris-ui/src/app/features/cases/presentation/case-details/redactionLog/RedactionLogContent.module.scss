@@ -1,0 +1,133 @@
+.modalContent {
+  display: block;
+  padding: 0;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+
+  :global(.govuk-form-group) {
+    margin-bottom: 0;
+  }
+  .modalTitleWrapper {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 3px dashed #b1b4b6;
+  }
+  .modalContentHeading {
+    margin: 0;
+    display: block;
+    max-width: 70%;
+  }
+  .supportingNotesGuidance {
+    position: absolute;
+    right: 0;
+    top: -0.625rem;
+  }
+  .redactionLogGuidanceTitle,
+  .supportingNotesGuidanceTitle {
+    font-weight: bold;
+    font-size: 1.1875rem;
+    margin-top: 0;
+    margin-bottom: 0.625rem;
+  }
+  .redactionLogGuidanceList {
+    margin: 0;
+    padding-left: 1rem;
+    & li {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    & li:last-of-type {
+      font-weight: bold;
+      color: #fff;
+    }
+  }
+  .supportingNotesGuidanceList {
+    margin: 0;
+    padding-left: 1rem;
+    & li {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+  .confirmationMessage {
+    margin: 0;
+    text-align: left;
+  }
+
+  .btnWrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 1.875rem;
+    padding: 0 1.875rem;
+  }
+  .modalHeadWrapper {
+    padding: 1.875rem 1.875rem 0px 1.875rem;
+    background: #f3f2f1;
+  }
+  .modalBodyWrapper {
+    border-bottom: 0.1875rem dashed #b1b4b6;
+    padding: 0 1.875rem;
+  }
+}
+
+.select {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 12.5rem;
+  :global(.govuk-select) {
+    width: 100%;
+  }
+}
+.sortLabel {
+  margin-bottom: 0;
+  margin-right: 0.625rem;
+}
+.selectSection {
+  display: flex;
+  flex-direction: column;
+  margin-right: 1rem;
+  margin-top: 1.25rem;
+}
+.selectInputWrapper {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  padding: 0.625rem 1.875rem 1.875rem 1.875rem;
+  background-color: #f3f2f1;
+  border-bottom: 1px solid #b1b4b6;
+}
+.underRedactionForm {
+  width: 100%;
+}
+.textAreaSection {
+  width: 100%;
+  max-width: 37.5rem;
+  position: relative;
+}
+.errorMsg {
+  color: red;
+}
+.editBtnWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.savedBanner,
+.savingBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 1.875rem;
+  color: #fff;
+  font-size: 1.1875rem;
+  height: 3.125rem;
+  font-weight: bold;
+}
+.savingBanner {
+  background-color: #1d70b8;
+}
+.savedBanner {
+  background-color: #00703c;
+}

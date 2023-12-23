@@ -48,4 +48,7 @@ public class DdeiCaseDocumentResponse
 
     [JsonProperty("parentId")]
     public long? ParentId { get; set; }
+
+    [JsonProperty("witnessId")]
+    public int? WitnessId { get; set; }
 }

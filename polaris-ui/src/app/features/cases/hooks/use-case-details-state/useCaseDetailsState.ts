@@ -1,6 +1,10 @@
 import { useCallback, useEffect } from "react";
 import { useApi } from "../../../../common/hooks/useApi";
-import { getCaseDetails, searchCase } from "../../api/gateway-api";
+import {
+  getCaseDetails,
+  searchCase,
+  getRedactionLogData,
+} from "../../api/gateway-api";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
@@ -9,6 +13,8 @@ import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { useReducerAsync } from "use-reducer-async";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
+import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
+import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -48,9 +54,16 @@ export const initialState = {
   documentIssueModal: {
     show: false,
   },
+  redactionLog: {
+    showModal: false,
+    redactionLogData: { status: "loading" },
+    savedRedactionTypes: [],
+  },
+  featureFlags: { status: "loading" },
 } as Omit<CombinedState, "caseId" | "urn">;
 
 export const useCaseDetailsState = (urn: string, caseId: number) => {
+  const featureFlagData = useUserGroupsFeatureFlag();
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -65,6 +78,30 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     caseId,
     combinedState.pipelineRefreshData
   );
+
+  const redactionLogData = useApi(
+    getRedactionLogData,
+    [],
+    combinedState.featureFlags.status === "succeeded"
+      ? combinedState.featureFlags.data.redactionLog
+      : false
+  );
+
+  useEffect(() => {
+    if (redactionLogData.status !== "initial")
+      dispatch({
+        type: "UPDATE_REDACTION_LOG_DATA",
+        payload: redactionLogData,
+      });
+  }, [redactionLogData, dispatch]);
+
+  useEffect(() => {
+    if (combinedState.featureFlags.status === "loading")
+      dispatch({
+        type: "UPDATE_FEATURE_FLAGS_DATA",
+        payload: { status: "succeeded", data: featureFlagData },
+      });
+  }, [featureFlagData, combinedState.featureFlags.status, dispatch]);
 
   useEffect(() => {
     if (caseState.status !== "initial")
@@ -248,6 +285,15 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleSavedRedactionLog = useCallback(
+    (redactionLogRequestData: RedactionLogRequestData) =>
+      dispatch({
+        type: "SAVE_REDACTION_LOG",
+        payload: { redactionLogRequestData },
+      }),
+    [dispatch]
+  );
+
   const handleOpenPdfInNewTab = useCallback(
     (documentId: CaseDocumentViewModel["documentId"]) =>
       dispatch({
@@ -301,5 +347,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
+    handleSavedRedactionLog,
   };
 };

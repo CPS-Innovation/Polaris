@@ -9,7 +9,7 @@ type Props = {
   type?: "data" | "alert";
   ariaLabel: string;
   ariaDescription: string;
-  handleClose: () => void;
+  handleClose?: () => void;
   className?: string;
 };
 
@@ -47,12 +47,18 @@ export const Modal: React.FC<Props> = ({
     return null;
   }
 
+  const handleCloseClickHandler = () => {
+    if (handleClose) {
+      handleClose();
+    }
+  };
+
   return (
     <>
       <div
         className={classes.backDrop}
         role="presentation"
-        onClick={handleClose}
+        onClick={handleCloseClickHandler}
       />
       <div
         id={"modal"}
@@ -77,18 +83,18 @@ export const Modal: React.FC<Props> = ({
           role="presentation"
           onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
             if (e.code === "Escape") {
-              handleClose();
+              handleCloseClickHandler();
             }
           }}
         >
-          {type === "data" && (
+          {type === "data" && handleClose && (
             <div className={classes.closeContainer}>
               <button
                 data-testid="btn-modal-close"
                 type="button"
                 className={classes.dataModalClose}
                 aria-label="close modal"
-                onClick={handleClose}
+                onClick={handleCloseClickHandler}
               >
                 <CloseIcon height={"2.5rem"} width={"2.5rem"} />
               </button>
@@ -99,19 +105,21 @@ export const Modal: React.FC<Props> = ({
               className={`govuk-header ${classes.modalHeader}`}
               data-module="govuk-header"
             >
-              <div
-                className={`govuk-header__container  ${classes.alertModalHeader}`}
-              >
-                <button
-                  data-testid="btn-modal-close"
-                  type="button"
-                  className={classes.alertModalClose}
-                  aria-label="close modal"
-                  onClick={handleClose}
+              {handleClose && (
+                <div
+                  className={`govuk-header__container  ${classes.alertModalHeader}`}
                 >
-                  <CloseIcon height={"1.5625rem"} width={"1.5625rem"} />
-                </button>
-              </div>
+                  <button
+                    data-testid="btn-modal-close"
+                    type="button"
+                    className={classes.alertModalClose}
+                    aria-label="close modal"
+                    onClick={handleCloseClickHandler}
+                  >
+                    <CloseIcon height={"1.5625rem"} width={"1.5625rem"} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
           <div className={classes.contentContainer}>{children}</div>

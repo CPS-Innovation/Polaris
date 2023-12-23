@@ -2,8 +2,10 @@ import { Tabs } from "../../../../../common/presentation/components/tabs";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfTab } from "./PdfTab";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type PdfTabsProps = {
+  redactionTypesData: RedactionTypeData[];
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;
@@ -34,6 +36,7 @@ type PdfTabsProps = {
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
+  redactionTypesData,
   tabsState: { items, headers, activeTabId },
   contextData,
   savedDocumentDetails,
@@ -60,6 +63,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               tabIndex={index}
+              redactionTypesData={redactionTypesData}
               caseDocumentViewModel={item}
               savedDocumentDetails={savedDocumentDetails}
               documentWriteStatus={item.presentationFlags.write}

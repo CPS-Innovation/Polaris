@@ -18,8 +18,60 @@ parameters:
     type: object
 
 jobs:
-  - deployment: DeployCoordinator
+  - job: Start_Pipeline_Slots
     dependsOn: ${{ parameters.jobDependsOn }}
+    strategy:
+      matrix:
+        Coordinator:
+          Name: "Coordinator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-coordinator"
+        PDFGenerator:
+          Name: "PDF Generator"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-pdf-generator"
+        TextExtractor:
+          Name: "Text Extractor"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
+    displayName: Start Staging1
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Start Slot
+        inputs:
+          Action: "Start Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          ResourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)
+
+  - job: Start_UI_Slots
+    dependsOn: ${{ parameters.jobDependsOn }}
+    strategy:
+      matrix:
+        SPA:
+          Name: "SPA"
+          AppServiceName: "as-web-polaris${{ parameters.targetSuffix }}"
+        AuthHandover:
+          Name: "Auth Handover"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-auth-handover"
+        PolarisGateway:
+          Name: "Polaris Gateway"
+          AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
+    displayName: Start Staging1
+    steps:
+      - checkout: none
+      - task: AzureAppServiceManage@0
+        displayName: Start slot
+        inputs:
+          Action: "Start Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
+          azureSubscription: ${{ parameters.azureSubscription }}
+          ResourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)
+
+  - deployment: DeployCoordinator
+    dependsOn: Start_Pipeline_Slots
     environment: ${{ parameters.envLabel }}
     workspace:
       clean: all
@@ -64,7 +116,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Coordinator - Completed"
 
   - deployment: DeployPdfGenerator
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: Start_Pipeline_Slots
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
@@ -107,7 +159,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Pdf Generator - Completed"
 
   - deployment: DeployTextGenerator
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: Start_Pipeline_Slots
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
@@ -150,7 +202,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Text Extractor - Completed"
                 
   - deployment: DeploySpa
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: Start_UI_Slots
     environment: ${{ parameters.envLabel }}
     workspace:
       clean: all
@@ -217,7 +269,7 @@ jobs:
             #    message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Restarting SPA - Completed"
 
   - deployment: DeployGateway
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: Start_UI_Slots
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
@@ -260,7 +312,7 @@ jobs:
                 message: "${{ parameters.targetLabel }} ${{ parameters.targetName }}: Publish Gateway - Completed"
 
   - deployment: DeployAuthHandover
-    dependsOn: ${{ parameters.jobDependsOn }}
+    dependsOn: Start_UI_Slots
     environment: ${{ parameters.envLabel }}
     strategy:
       runOnce:
