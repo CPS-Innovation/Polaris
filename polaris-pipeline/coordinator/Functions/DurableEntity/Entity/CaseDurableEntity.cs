@@ -154,7 +154,8 @@ namespace coordinator.Functions.DurableEntity.Entity
                      (
                          cmsDocument.Status != DocumentStatus.Indexed ||
                          cmsDocument.CmsVersionId != incomingDocument.VersionId ||
-                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed
+                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
+                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId
                      )
                  )
                  select incomingDocument).ToList();
@@ -214,21 +215,23 @@ namespace coordinator.Functions.DurableEntity.Entity
                 var trackerDocument
                     = new CmsDocumentEntity
                     (
-                        new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
-                        1,
-                        newDocument.DocumentId,
-                        newDocument.VersionId,
-                        newDocument.CmsDocType,
-                        newDocument.Path,
-                        newDocument.FileExtension,
-                        newDocument.DocumentDate,
-                        newDocument.FileName,
-                        newDocument.PresentationTitle,
-                        newDocument.IsOcrProcessed,
-                        newDocument.CategoryListOrder,
-                        new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
-                        newDocument.ParentDocumentId,
-                        newDocument.PresentationFlags
+                        polarisDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.DocumentId),
+                        polarisDocumentVersionId: 1,
+                        cmsDocumentId: newDocument.DocumentId,
+                        cmsVersionId: newDocument.VersionId,
+                        cmsDocType: newDocument.CmsDocType,
+                        path: newDocument.Path,
+                        fileExtension: newDocument.FileExtension,
+                        cmsFileCreatedDate: newDocument.DocumentDate,
+                        cmsOriginalFileName: newDocument.FileName,
+                        presentationTitle: newDocument.PresentationTitle,
+                        isOcrProcessed: newDocument.IsOcrProcessed,
+                        isDispatched: newDocument.IsDispatched,
+                        categoryListOrder: newDocument.CategoryListOrder,
+                        polarisParentDocumentId: new PolarisDocumentId(PolarisDocumentType.CmsDocument, newDocument.ParentDocumentId),
+                        cmsParentDocumentId: newDocument.ParentDocumentId,
+                        witnessId: newDocument.WitnessId,
+                        presentationFlags: newDocument.PresentationFlags
                     );
 
                 CmsDocuments.Add(trackerDocument);
@@ -255,6 +258,9 @@ namespace coordinator.Functions.DurableEntity.Entity
                 trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
                 trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
                 trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
+                trackerDocument.IsDispatched = updatedDocument.IsDispatched;
+                trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
+                trackerDocument.WitnessId = updatedDocument.WitnessId;
                 changedDocuments.Add(trackerDocument);
             }
 
@@ -422,12 +428,13 @@ namespace coordinator.Functions.DurableEntity.Entity
             return Task.FromResult(polarisDocumentIds);
         }
 
-        public void SetOcrProcessed((string PolarisDocumentId, bool IsOcrProcessed) args)
+        public void SetDocumentFlags((string PolarisDocumentId, bool IsOcrProcessed, bool IsDispatched) args)
         {
-            var (polarisDocumentId, isOcrProcessed) = args;
+            var (polarisDocumentId, isOcrProcessed, isDispatched) = args;
 
             var document = GetDocument(polarisDocumentId) as CmsDocumentEntity;
             document.IsOcrProcessed = isOcrProcessed;
+            document.IsDispatched = isDispatched;
         }
 
         public void SetDocumentStatus((string PolarisDocumentId, DocumentStatus Status, string PdfBlobName) args)
@@ -468,7 +475,7 @@ namespace coordinator.Functions.DurableEntity.Entity
 
         public Task<float> GetDurationToCompleted()
         {
-            return Task.FromResult<float>(Completed.GetValueOrDefault());
+            return Task.FromResult(Completed.GetValueOrDefault());
         }
 
         [FunctionName(nameof(CaseDurableEntity))]

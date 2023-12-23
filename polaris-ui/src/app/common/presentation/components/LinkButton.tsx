@@ -9,6 +9,7 @@ type LinkButtonProps = {
   disabled?: boolean;
   ariaLabel?: string;
   ariaExpanded?: boolean;
+  type?: "button" | "submit" | "reset";
   onClick: () => void;
 };
 
@@ -23,6 +24,7 @@ export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
       ariaLabel,
       ariaExpanded,
       disabled = false,
+      type,
     },
     ref
   ) => {
@@ -37,6 +39,7 @@ export const LinkButton = forwardRef<HTMLButtonElement | null, LinkButtonProps>(
         className={resolvedClassName}
         onClick={onClick}
         data-testid={dataTestId}
+        type={type}
       >
         {children}
       </button>

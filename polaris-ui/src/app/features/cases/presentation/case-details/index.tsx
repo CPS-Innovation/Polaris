@@ -34,6 +34,7 @@ import { SURVEY_LINK } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
+import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
@@ -54,6 +55,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     pipelineRefreshData,
     errorModal,
     documentIssueModal,
+    redactionLog,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -66,7 +68,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleRemoveRedaction,
     handleRemoveAllRedactions,
     handleSavedRedactions,
-    handleOpenPdfInNewTab,
+    handleSavedRedactionLog,
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
@@ -136,7 +138,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const getActiveTabDocument = () => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
-    );
+    )!;
   };
 
   return (
@@ -181,7 +183,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleOpenPdf={(params) => {
               setShowAlert(false);
               handleOpenPdf({ ...params, mode: "read" });
-              handleTabSelection(params.documentId);
             }}
           />
         </Modal>
@@ -212,11 +213,22 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             handleUpdateFilter,
             handleOpenPdf: (caseDoc) => {
               handleOpenPdf(caseDoc);
-              handleTabSelection(caseDoc.documentId);
             },
           }}
         />
       )}
+
+      {redactionLog.showModal &&
+        redactionLog.redactionLogData.status === "succeeded" && (
+          <RedactionLogModal
+            caseUrn={caseState.data.uniqueReferenceNumber}
+            documentName={getActiveTabDocument().presentationFileName}
+            savedRedactionTypes={redactionLog.savedRedactionTypes}
+            saveStatus={getActiveTabDocument().saveStatus}
+            redactionLogData={redactionLog.redactionLogData.data}
+            saveRedactionLog={handleSavedRedactionLog}
+          />
+        )}
       <nav>
         <PhaseBanner
           className={classes["phaseBanner"]}
@@ -260,7 +272,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <KeyDetails
                 handleOpenPdf={() => {
                   handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
-                  handleTabSelection(dacDocumentId);
                 }}
                 caseDetails={caseState.data}
                 isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
@@ -288,7 +299,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                   accordionState={accordionState.data}
                   handleOpenPdf={(caseDoc) => {
                     handleOpenPdf({ ...caseDoc, mode: "read" });
-                    handleTabSelection(caseDoc.documentId);
                   }}
                 />
               )}
@@ -301,6 +311,11 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               <PdfTabsEmpty pipelineState={pipelineState} />
             ) : (
               <PdfTabs
+                redactionTypesData={
+                  redactionLog.redactionLogData.status === "succeeded"
+                    ? redactionLog.redactionLogData.data.missedRedactions
+                    : []
+                }
                 isOkToSave={pipelineState.status === "complete"}
                 tabsState={tabsState}
                 savedDocumentDetails={pipelineRefreshData.savedDocumentDetails}
@@ -311,7 +326,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleRemoveRedaction={handleRemoveRedaction}
                 handleRemoveAllRedactions={handleRemoveAllRedactions}
                 handleSavedRedactions={handleSavedRedactions}
-                handleOpenPdfInNewTab={handleOpenPdfInNewTab}
+                handleOpenPdf={handleOpenPdf}
                 handleUnLockDocuments={handleUnLockDocuments}
                 handleShowHideDocumentIssueModal={
                   handleShowHideDocumentIssueModal

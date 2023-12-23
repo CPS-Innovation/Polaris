@@ -77,7 +77,7 @@ describe("Refresh", () => {
           documents.some(
             ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
           ),
-          "MG 5 is presen in PHASE_1"
+          "MG 5 is present in PHASE_1"
         ).to.be.true
         expect(
           documents.some(({ cmsDocType }) => cmsDocType.documentType === "PCD"),

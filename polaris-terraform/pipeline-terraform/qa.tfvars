@@ -25,11 +25,20 @@ pipeline_component_service_plans = {
   text_extractor_plan_maximum_burst      = 10
 }
 
-overnight_clear_down_enabled = false
+overnight_clear_down = {
+  disabled = 1
+  schedule = "0 0 3 * * *"
+}
 
-sliding_clear_down_enabled    = false
-sliding_clear_down_input_days = 31
-hte_feature_flag              = true
+sliding_clear_down = {
+  disabled       = 0
+  look_back_days = 7
+  protect_blobs  = false
+  schedule       = "0 */5 * * * *"
+  batch_size     = 5
+}
+
+hte_feature_flag = true
 
 image_conversion_redaction = {
   resolution      = 150
@@ -37,6 +46,7 @@ image_conversion_redaction = {
 }
 
 search_service_config = {
-  replica_count   = 3
-  partition_count = 1
+  replica_count                 = 3
+  partition_count               = 1
+  is_dynamic_throttling_enabled = false
 }

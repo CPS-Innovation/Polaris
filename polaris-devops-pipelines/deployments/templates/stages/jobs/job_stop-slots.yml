@@ -6,12 +6,10 @@ parameters:
     type: string
   - name: jobDependsOn
     type: object
-  
+
 jobs:
-  - job: Swap_Pipeline_Slots
+  - job: Stop_Pipeline_Slots
     dependsOn: ${{ parameters.jobDependsOn }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       matrix:
         Coordinator:
@@ -23,23 +21,21 @@ jobs:
         TextExtractor:
           Name: "Text Extractor"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-text-extractor"
-    displayName: Swap Pipeline slots
+    displayName: Stop Staging1
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
-        displayName: Swap $(slotName) slot
+        displayName: Stop Slot
         inputs:
-          action: "Swap Slots"
-          sourceSlot: $(slotName)
+          Action: "Stop Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
-          webAppName: $(AppServiceName)
-          PreserveVnet: true
-          
-  - job: Swap_UI_Slots
+          ResourceGroupName: "rg-polaris-pipeline${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)
+
+  - job: Stop_UI_Slots
     dependsOn: ${{ parameters.jobDependsOn }}
-    variables:
-      slotName: $[dependencies.GenerateSlotName.outputs['slot.name']]
     strategy:
       matrix:
         SPA:
@@ -51,15 +47,15 @@ jobs:
         PolarisGateway:
           Name: "Polaris Gateway"
           AppServiceName: "fa-polaris${{ parameters.targetSuffix }}-gateway"
-    displayName: Swap UI slots
+    displayName: Stop Staging1
     steps:
       - checkout: none
       - task: AzureAppServiceManage@0
-        displayName: Swap $(slotName) slot
+        displayName: Stop slot
         inputs:
-          action: "Swap Slots"
-          sourceSlot: $(slotName)
+          Action: "Stop Azure App Service"
+          SpecifySlotOrASE: true
+          Slot: "staging1"
           azureSubscription: ${{ parameters.azureSubscription }}
-          resourceGroupName: "rg-polaris{{ parameters.targetSuffix }}"
-          webAppName: $(AppServiceName)
-          PreserveVnet: true
+          ResourceGroupName: "rg-polaris${{ parameters.targetSuffix }}"
+          WebAppName: $(AppServiceName)

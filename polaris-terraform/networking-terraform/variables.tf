@@ -34,6 +34,9 @@ variable "polarisPipelinePdfGeneratorSubnet" {
 variable "polarisPipelineTextExtractorSubnet" {
 }
 
+variable "polarisPipelineTextExtractor2Subnet" {
+}
+
 variable "polarisGatewaySubnet" {
 }
 

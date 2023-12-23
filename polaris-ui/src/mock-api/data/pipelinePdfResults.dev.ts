@@ -19,7 +19,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "MCLOVEMG3 very long .docx",
       presentationTitle: "UM MCLOVEMG3 very long",
       cmsOriginalFileExtension: ".pdf",
-      cmsFileCreatedDate: "2020-06-02",
+      cmsFileCreatedDate: "2022-06-02T21:22:33Z",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
@@ -31,7 +31,8 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
-      polarisParentDocumentId: null,
+      polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -41,7 +42,7 @@ const pipelinePdfResult: PipelineResults = {
       cmsOriginalFileName: "CM01  very long .docx",
       presentationTitle: "CM01 Item 4 very long",
       cmsOriginalFileExtension: ".pdf",
-      cmsFileCreatedDate: "2020-06-02",
+      cmsFileCreatedDate: "2020-06-02T11:45:33Z",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
       cmsDocType: {
@@ -53,7 +54,8 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
-      polarisParentDocumentId: null,
+      polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -75,7 +77,8 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
-      polarisParentDocumentId: null,
+      polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -84,7 +87,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June  very long .docx",
       presentationTitle: "MG06_3June  very long",
-      cmsOriginalFileExtension: ".pdf",
+      cmsOriginalFileExtension: ".hte",
       cmsFileCreatedDate: "2020-06-03",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -98,6 +101,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -106,7 +110,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june  very long .docx",
       presentationTitle: "MG06_10june  very long",
-      cmsOriginalFileExtension: ".pdf",
+      cmsOriginalFileExtension: ".hte",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -120,6 +124,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "6",
@@ -141,7 +146,8 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
-      polarisParentDocumentId: null,
+      polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "7",
@@ -164,6 +170,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "8",
@@ -187,6 +194,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "9",
@@ -210,6 +218,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "10",
@@ -233,6 +242,30 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
+    },
+    {
+      documentId: "10",
+      cmsDocumentId: "10",
+      pdfBlobName: "MG06_10june",
+      status: "Indexed",
+      cmsOriginalFileName: "MG06_10june  very long .docx",
+      presentationTitle: "MG06_10june  very long",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-02",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 1031,
+        documentType: "Statement",
+        documentCategory: "UsedStatement",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "Ok",
+      },
+      polarisParentDocumentId: null,
+      witnessId: 2762766,
     },
   ],
 };

@@ -2,8 +2,10 @@ import { Tabs } from "../../../../../common/presentation/components/tabs";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfTab } from "./PdfTab";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type PdfTabsProps = {
+  redactionTypesData: RedactionTypeData[];
   tabsState: {
     items: CaseDocumentViewModel[];
     headers: HeadersInit;
@@ -18,6 +20,10 @@ type PdfTabsProps = {
     correlationId: string;
   };
   isOkToSave: boolean;
+  handleOpenPdf: (caseDocument: {
+    documentId: string;
+    mode: "read" | "search";
+  }) => void;
   handleTabSelection: (documentId: string) => void;
   handleClosePdf: (caseDocument: { documentId: string }) => void;
   handleLaunchSearchResults: () => void;
@@ -25,24 +31,24 @@ type PdfTabsProps = {
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
-  handleOpenPdfInNewTab: CaseDetailsState["handleOpenPdfInNewTab"];
   handleUnLockDocuments: CaseDetailsState["handleUnLockDocuments"];
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
+  redactionTypesData,
   tabsState: { items, headers, activeTabId },
   contextData,
   savedDocumentDetails,
   handleTabSelection,
   isOkToSave,
+  handleOpenPdf,
   handleClosePdf,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
   handleRemoveAllRedactions,
   handleSavedRedactions,
-  handleOpenPdfInNewTab,
   handleUnLockDocuments,
   handleShowHideDocumentIssueModal,
 }) => {
@@ -57,11 +63,13 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               tabIndex={index}
+              redactionTypesData={redactionTypesData}
               caseDocumentViewModel={item}
               savedDocumentDetails={savedDocumentDetails}
               documentWriteStatus={item.presentationFlags.write}
               headers={headers}
               isOkToSave={isOkToSave}
+              handleOpenPdf={handleOpenPdf}
               handleLaunchSearchResults={handleLaunchSearchResults}
               handleAddRedaction={handleAddRedaction}
               handleRemoveRedaction={handleRemoveRedaction}

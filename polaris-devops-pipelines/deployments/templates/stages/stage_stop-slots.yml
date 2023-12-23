@@ -1,0 +1,52 @@
+﻿---
+parameters:
+  - name: stageBuildAgent
+    type: string
+  - name: stageDependsOn
+    type: object
+  - name: targetSuffix
+    type: string
+  - name: targetBuild
+    type: string
+  - name: targetLabel
+    type: string
+  - name: azureSubscription
+    type: string
+  - name: appInsightsKey
+    type: string
+  - name: devOpsPatToken
+    type: string
+
+stages:
+  - stage: Stop_${{ parameters.targetLabel }}
+    displayName: Stop Slots > ${{ parameters.targetLabel }}
+    ${{ if parameters.stageDependsOn }}:
+      dependsOn: ${{ parameters.stageDependsOn }}
+    condition: succeeded()
+    pool:
+      name: ${{ parameters.stageBuildAgent }}
+    jobs:
+      - template: jobs/job_log-start.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "Stop Polaris Codebase Slots"
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+
+      - template: jobs/job_stop-slots.yml
+        parameters:
+          targetSuffix: ${{ parameters.targetSuffix }}
+          azureSubscription: ${{ parameters.azureSubscription }}
+          jobDependsOn:
+            - LogStart
+
+      - template: jobs/job_log-result.yml
+        parameters:
+          targetBuild: ${{ parameters.targetBuild }}
+          targetLabel: ${{ parameters.targetLabel }}
+          targetName: "Stop Polaris Codebase Slots"
+          appInsightsKey: ${{ parameters.appInsightsKey }}
+          devOpsPatToken: ${{ parameters.devOpsPatToken }}
+          jobDependsOn:
+            - Stop_Pipeline_Slots
+            - Stop_UI_Slots

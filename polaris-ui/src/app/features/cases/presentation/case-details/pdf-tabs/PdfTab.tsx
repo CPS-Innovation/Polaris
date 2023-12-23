@@ -7,9 +7,12 @@ import { PdfViewer } from "../pdf-viewer/PdfViewer";
 import { Wait } from "../pdf-viewer/Wait";
 import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
+import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import classes from "./PdfTab.module.scss";
 type PdfTabProps = {
+  redactionTypesData: RedactionTypeData[];
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
@@ -24,6 +27,10 @@ type PdfTabProps = {
     correlationId: string;
   };
   isOkToSave: boolean;
+  handleOpenPdf: (caseDocument: {
+    documentId: string;
+    mode: "read" | "search";
+  }) => void;
   handleLaunchSearchResults: () => void;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
@@ -34,6 +41,7 @@ type PdfTabProps = {
 
 export const PdfTab: React.FC<PdfTabProps> = ({
   tabIndex,
+  redactionTypesData,
   activeTabId,
   tabId,
   caseDocumentViewModel,
@@ -42,6 +50,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   savedDocumentDetails,
   contextData,
   isOkToSave,
+  handleOpenPdf,
   handleLaunchSearchResults,
   handleAddRedaction,
   handleRemoveRedaction,
@@ -58,8 +67,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     redactionHighlights,
     documentId,
     isDeleted,
-    isSaving,
+    saveStatus,
     cmsDocType: { documentType },
+    attachments,
   } = caseDocumentViewModel;
 
   const searchHighlights =
@@ -121,9 +131,15 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           }}
         />
       )}
-
+      {!!attachments.length && (
+        <HeaderAttachmentMode
+          caseDocumentViewModel={caseDocumentViewModel}
+          handleOpenPdf={handleOpenPdf}
+        />
+      )}
       {url && !isDocumentRefreshing() ? (
         <PdfViewer
+          redactionTypesData={redactionTypesData}
           url={url}
           tabIndex={tabIndex}
           activeTabId={activeTabId}
@@ -134,7 +150,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           contextData={{
             documentId,
             documentType,
-            isSaving: !!isSaving,
+            saveStatus: saveStatus,
           }}
           isOkToSave={isOkToSave}
           redactionHighlights={redactionHighlights}

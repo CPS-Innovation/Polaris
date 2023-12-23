@@ -55,12 +55,9 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 var document = response.CmsDocument;
                 var blobName = document.PdfBlobName;
 
-                log.LogMethodFlow(currentCorrelationId, loggingName, $"Cancel checkout document for caseId: {caseId}, polarisDocumentId: {polarisDocumentId}");
-
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
                 {
-                    log.LogMethodFlow(currentCorrelationId, loggingName, $"No authentication header values specified");
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
 

@@ -1,18 +1,55 @@
-import React from "react";
+import React, { useState } from "react";
 import classes from "./RedactButton.module.scss";
+import { Select } from "../../../../../common/presentation/components";
 import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
+import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type Props = {
-  onConfirm: () => void;
+  redactionTypesData: RedactionTypeData[];
+  onConfirm: (redactionType: { id: string; name: string }) => void;
 };
 
-export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
+const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
+  const defaultOption = {
+    value: "",
+    children: "-- Please select --",
+    disabled: true,
+  };
+  const mappedRedactionType = data.map((item) => ({
+    value: item.id,
+    children: item.name,
+  }));
+
+  return [defaultOption, ...mappedRedactionType];
+};
+
+export const RedactButton: React.FC<Props> = ({
+  onConfirm,
+  redactionTypesData,
+}) => {
+  const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
   useLastFocus();
+
+  const handleClickRedact = () => {
+    if (redactionTypesData.length) {
+      const selectedType = redactionTypesData.find(
+        (type) => type.id === redactionType
+      )!;
+      onConfirm({ id: selectedType.id, name: selectedType.name });
+      return;
+    }
+    onConfirm({ id: "", name: "" });
+  };
   return (
     <div
       id="redact-modal"
+      className={
+        redactionTypesData.length
+          ? classes.redactionModal
+          : classes.redactBtnModal
+      }
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="redact-modal-label"
@@ -24,9 +61,29 @@ export const RedactButton: React.FC<Props> = ({ onConfirm }) => {
       <span id="redact-modal-description" className={classes.modalDescription}>
         A modal with a redact button to help user to redact selected text
       </span>
+      {redactionTypesData.length > 0 && (
+        <div className="govuk-form-group">
+          <Select
+            label={{
+              htmlFor: "select-redaction-type",
+              children: "Select Redaction Type",
+              className: classes.sortLabel,
+            }}
+            id="select-redaction-type"
+            data-testid="select-redaction-type"
+            value={redactionType}
+            items={getMappedRedactionTypes(redactionTypesData)}
+            formGroup={{
+              className: classes.select,
+            }}
+            onChange={(ev) => setRedactionType(ev.target.value)}
+          />
+        </div>
+      )}
       <button
-        className={classes.button}
-        onClick={onConfirm}
+        disabled={redactionTypesData.length ? !redactionType : false}
+        className={classes.redactButton}
+        onClick={handleClickRedact}
         data-testid="btn-redact"
         id="btn-redact"
       >

@@ -61,16 +61,21 @@ variable "pipeline_logging" {
   })
 }
 
-variable "overnight_clear_down_enabled" {
-  type = bool
+variable "overnight_clear_down" {
+  type = object({
+    disabled      = number
+    schedule      = string
+  })
 }
 
-variable "sliding_clear_down_enabled" {
-  type = bool
-}
-
-variable "sliding_clear_down_input_days" {
-  type = number
+variable "sliding_clear_down" {
+  type = object({
+    disabled       = number
+    look_back_days = number
+    protect_blobs  = bool
+    schedule       = string
+    batch_size     = number
+  })
 }
 
 variable "hte_feature_flag" {
@@ -86,7 +91,8 @@ variable "image_conversion_redaction" {
 
 variable "search_service_config" {
   type = object({
-    replica_count   = number
-    partition_count = number
+    replica_count                 = number
+    partition_count               = number
+    is_dynamic_throttling_enabled = bool
   })
 }

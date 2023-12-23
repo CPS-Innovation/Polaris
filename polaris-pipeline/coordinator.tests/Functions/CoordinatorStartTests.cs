@@ -30,7 +30,6 @@ namespace coordinator.tests.Functions
         private readonly HttpResponseMessage _httpResponseMessage;
 
         private readonly Mock<IDurableOrchestrationClient> _mockDurableOrchestrationClient;
-        private readonly Mock<ILogger<CaseClient>> _mockLogger;
         private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
 
         private readonly CaseClient _coordinatorStart;
@@ -45,20 +44,20 @@ namespace coordinator.tests.Functions
             _correlationId = fixture.Create<Guid>();
             _instanceId = RefreshCaseOrchestrator.GetKey(_caseId);
             _httpRequestMessage = new HttpRequestMessage();
-            
+
             _httpRequestMessage.Method = HttpMethod.Post;
             _httpRequestMessage.RequestUri = new Uri("https://www.test.co.uk");
             _httpRequestHeaders = _httpRequestMessage.Headers;
             _httpResponseMessage = new HttpResponseMessage();
 
             _mockDurableOrchestrationClient = new Mock<IDurableOrchestrationClient>();
-            _mockLogger = new Mock<ILogger<CaseClient>>();
+            var mockLogger = new Mock<ILogger<CaseClient>>();
             var mockBlobStorageClient = new Mock<IPolarisBlobStorageService>();
             _mockOrchestrationProvider = new Mock<IOrchestrationProvider>();
 
             _httpRequestHeaders.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestHeaders.Add("cms-auth-values", cmsAuthValues);
-            
+
             mockBlobStorageClient.Setup(s => s.DeleteBlobsByCaseAsync(It.IsAny<string>(), It.IsAny<Guid>()))
                 .Returns(Task.CompletedTask);
 
@@ -72,11 +71,10 @@ namespace coordinator.tests.Functions
                     It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CaseOrchestrationPayload>(), _httpRequestMessage))
                 .ReturnsAsync(_httpResponseMessage);
             _mockOrchestrationProvider.Setup(s => s.DeleteCaseAsync(_mockDurableOrchestrationClient.Object,
-                    It.IsAny<Guid>(), It.IsAny<int>()))
+                    It.IsAny<Guid>(), It.IsAny<int>(), false))
                 .ReturnsAsync(_httpResponseMessage);
-            
-            _coordinatorStart = new CaseClient(_mockLogger.Object,
-                                               _mockOrchestrationProvider.Object);
+
+            _coordinatorStart = new CaseClient(mockLogger.Object, _mockOrchestrationProvider.Object);
         }
 
         [Fact]
@@ -158,14 +156,6 @@ namespace coordinator.tests.Functions
                     _caseId,
                     It.Is<CaseOrchestrationPayload>(p => p.CmsCaseId == _caseIdNum),
                     _httpRequestMessage));
-        }
-
-        [Fact]
-        public async Task Run_LogsAtLeastOnce()
-        {
-            await _coordinatorStart.Run(_httpRequestMessage, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object);
-
-            _mockLogger.Verify(x => x.IsEnabled(LogLevel.Information), Times.AtLeastOnce);
         }
 
         [Fact]

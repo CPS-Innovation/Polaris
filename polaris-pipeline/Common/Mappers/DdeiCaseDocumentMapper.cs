@@ -21,7 +21,9 @@ public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentRespon
             DocumentDate = ddeiResponse.DocumentDate,
             CategoryListOrder = ddeiResponse.CategoryListOrder,
             IsOcrProcessed = ddeiResponse.IsOcrProcessed == true,
-            ParentDocumentId = ddeiResponse.ParentId.ToString()
+            IsDispatched = ddeiResponse.IsDispatched,
+            ParentDocumentId = ddeiResponse.ParentId.ToString(),
+            WitnessId = ddeiResponse.WitnessId,
         };
     }
 }

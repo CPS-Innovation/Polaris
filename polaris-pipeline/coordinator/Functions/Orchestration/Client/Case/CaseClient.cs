@@ -24,7 +24,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
     {
         private readonly ILogger<CaseClient> _logger;
         private readonly IOrchestrationProvider _orchestrationProvider;
-        
+
         public CaseClient(
             ILogger<CaseClient> logger,
             IOrchestrationProvider orchestrationProvider)
@@ -47,11 +47,11 @@ namespace coordinator.Functions.Orchestration.Client.Case
         {
             Guid currentCorrelationId = default;
             const string loggingName = $"{nameof(CaseClient)} - {nameof(Run)}";
-            
+
             try
             {
                 #region Validate-Inputs
-                
+
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                     throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(req));
@@ -68,8 +68,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
                 if (string.IsNullOrWhiteSpace(cmsAuthValues))
                     throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(req));
 
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, req.RequestUri?.Query);
-
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     throw new BadRequestException("A case URN must be supplied.", caseUrn);
 
@@ -78,10 +76,10 @@ namespace coordinator.Functions.Orchestration.Client.Case
 
                 if (req.RequestUri == null)
                     throw new BadRequestException("Expected querystring value", nameof(req));
-                
+
                 var baseUrl = req.RequestUri.GetLeftPart(UriPartial.Authority);
                 var extensionCode = HttpUtility.ParseQueryString(req.RequestUri.Query).Get("code");
-                
+
                 #endregion
 
                 var casePayload = new CaseOrchestrationPayload(caseUrn, caseIdNum, baseUrl, extensionCode, cmsAuthValues, currentCorrelationId);
@@ -92,7 +90,7 @@ namespace coordinator.Functions.Orchestration.Client.Case
                         return await _orchestrationProvider.RefreshCaseAsync(orchestrationClient, currentCorrelationId, caseId, casePayload, req);
 
                     case "DELETE":
-                        return await _orchestrationProvider.DeleteCaseAsync(orchestrationClient, currentCorrelationId, caseIdNum);
+                        return await _orchestrationProvider.DeleteCaseAsync(orchestrationClient, currentCorrelationId, caseIdNum, false);
 
                     default:
                         throw new BadRequestException("Unexpected HTTP Verb", req.Method.Method);
@@ -122,10 +120,6 @@ namespace coordinator.Functions.Orchestration.Client.Case
                 {
                     Content = new StringContent(errorMessage, Encoding.UTF8, MediaTypeNames.Application.Json)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, "n/a");
             }
         }
     }

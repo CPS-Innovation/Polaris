@@ -12,27 +12,35 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
+  builtin_logging_enabled       = false
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"                     = "dotnet"
-    "FUNCTIONS_EXTENSION_VERSION"                  = "~4"
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"          = "false"
-    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"              = "true"
-    "WEBSITE_RUN_FROM_PACKAGE"                     = "1"
-    "WEBSITE_CONTENTOVERVNET"                      = "1"
-    "WEBSITE_DNS_SERVER"                           = var.dns_server
-    "WEBSITE_DNS_ALT_SERVER"                       = "168.63.129.16"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"     = azurerm_storage_account.sa_pdf_generator.primary_connection_string
-    "WEBSITE_CONTENTSHARE"                         = azapi_resource.pipeline_sa_pdf_generator_file_share.name
-    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS" = "0"
-    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"   = "0"
-    "SCALE_CONTROLLER_LOGGING_ENABLED"             = var.pipeline_logging.pdf_generator_scale_controller
-    "AzureWebJobsStorage"                          = azurerm_storage_account.sa_pdf_generator.primary_connection_string
-    "BlobServiceUrl"                               = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
-    "BlobServiceContainerName"                     = "documents"
-    "HteFeatureFlag"                               = var.hte_feature_flag
-    "ImageConversion__Resolution"                  = var.image_conversion_redaction.resolution
-    "ImageConversion__QualityPercent"              = var.image_conversion_redaction.quality_percent
+    "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_generator.primary_connection_string
+    "BlobServiceContainerName"                        = "documents"
+    "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
+    "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "HteFeatureFlag"                                  = var.hte_feature_flag
+    "HostType"                                        = "Production"
+    "ImageConversion__Resolution"                     = var.image_conversion_redaction.resolution
+    "ImageConversion__QualityPercent"                 = var.image_conversion_redaction.quality_percent
+    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.pipeline_logging.pdf_generator_scale_controller
+    "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_pdf_generator.primary_connection_string
+    "WEBSITE_CONTENTOVERVNET"                         = "1"
+    "WEBSITE_CONTENTSHARE"                            = azapi_resource.pipeline_sa_pdf_generator_file_share.name
+    "WEBSITE_DNS_ALT_SERVER"                          = "168.63.129.16"
+    "WEBSITE_DNS_SERVER"                              = var.dns_server
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE"                 = "true"
+    "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
+    "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
+    "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
+    "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+  }
+
+  sticky_settings {
+    app_setting_names = ["HostType"]
   }
 
   site_config {
@@ -63,13 +71,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
 
   lifecycle {
     ignore_changes = [
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
-      app_settings["WEBSITE_ENABLE_SYNC_UPDATE_SITE"],
-      app_settings["FUNCTIONS_EXTENSION_VERSION"],
-      app_settings["AzureWebJobsStorage"],
-      app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
-      app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"]
+      app_settings["WEBSITE_CONTENTSHARE"]
     ]
   }
 }

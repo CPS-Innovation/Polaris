@@ -18,6 +18,7 @@ variables:
   - group: kv-qa-terraform
   - group: kv-prod-terraform
   - group: polaris-global
+  - group: polaris-status-check-endpoints
   - group: terraform-containers
 
 stages:
@@ -48,23 +49,31 @@ stages:
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
       
-  # Env Check: Run e2e Tests against DEV
-  - template: ../templates/stages/stage_run-e2e-tests.yml
+  - template: ../templates/stages/stage_build-checks.yml
     parameters:
       stageBuildAgent: $(dev-build-agent)
       stageDependsOn: Terraform_DEV
+      envLabel: "Dev"
       targetBuild: PolarisTerraformBuild
+      targetSuffix: "-dev"
       targetLabel: "DEV"
-      targetName: "e2e Tests"
-      buildDefinitionId: 129
+      targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-development-app-insights-instrumentation-key)"
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
+      armClientId: $(innovation-development-spn-client-id)
+      armClientSecret: $(innovation-development-spn-secret)
+      armTenantId: $(innovation-development-spn-tenant-id)
+      armSubscriptionId: $(innovation-development-subscription-id)
       
   # Apply Terraform to QA
   - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Check_DEV
       envLabel: "QA"
       targetBuild: PolarisTerraformBuild
       targetLabel: "QA"
@@ -86,24 +95,32 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
-
-  # Env Check: Run e2e Tests Against QA
-  - template: ../templates/stages/stage_run-e2e-tests.yml
+      
+  - template: ../templates/stages/stage_build-checks.yml
     parameters:
       stageBuildAgent: $(qa-build-agent)
       stageDependsOn: Terraform_QA
+      envLabel: "QA"
       targetBuild: PolarisTerraformBuild
+      targetSuffix: "-qa"
       targetLabel: "QA"
-      targetName: "e2e Tests"
-      buildDefinitionId: 210
+      targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-qa-app-insights-instrumentation-key)"
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
+      armClientId: $(innovation-qa-spn-client-id)
+      armClientSecret: $(innovation-qa-spn-secret)
+      armTenantId: $(innovation-qa-spn-tenant-id)
+      armSubscriptionId: $(innovation-qa-subscription-id)
 
   # Apply Terraform to PROD
   - template: ../templates/stages/stage_deploy-terraform.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
-      stageDependsOn: Run_e2e_Tests_DEV
+      stageDependsOn: Check_DEV
       envLabel: "Prod"
       targetBuild: PolarisTerraformBuild
       targetLabel: "PROD"
@@ -126,14 +143,22 @@ stages:
       logRetentionTime: $(log-retention-time)
       totalLogRetentionTime: $(total-log-retention-time)
       
-  # Env Check: Run e2e Tests Against PROD  
-  - template: ../templates/stages/stage_run-e2e-tests.yml
+  - template: ../templates/stages/stage_build-checks.yml
     parameters:
       stageBuildAgent: $(prod-build-agent)
       stageDependsOn: Terraform_PROD
+      envLabel: "Prod"
       targetBuild: PolarisTerraformBuild
+      targetSuffix: ""
       targetLabel: "PROD"
-      targetName: "e2e Tests"
-      buildDefinitionId: 240
+      targetName: "Codebase CI Status Checks"
       appInsightsKey: "$(innovation-prod-app-insights-instrumentation-key)"
+      statusCheckMethod: $(status-check-method)
+      statusCheckRetries: $(status-check-retries)
+      statusCheckDelaySeconds: $(status-check-delay-seconds)
+      statusCheckTimeoutSeconds: $(status-check-timeout-seconds)
       devOpsPatToken: "$(devops-pat-token)"
+      armClientId: $(innovation-prod-spn-client-id)
+      armClientSecret: $(innovation-prod-spn-secret)
+      armTenantId: $(innovation-prod-spn-tenant-id)
+      armSubscriptionId: $(innovation-prod-subscription-id)

@@ -21,7 +21,13 @@ import { sanitizeSearchTerm } from "./sanitizeSearchTerm";
 import { filterApiResults } from "./filter-api-results";
 import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
-
+import { SaveStatus } from "../../domain/gateway/SaveStatus";
+import {
+  RedactionLogData,
+  RedactionTypeData,
+} from "../../domain/redactionLog/RedactionLogData";
+import { AsyncResult } from "../../../../common/types/AsyncResult";
+import { FeatureFlagData } from "../../domain/FeatureFlagData";
 export const reducer = (
   state: CombinedState,
   action:
@@ -105,7 +111,7 @@ export const reducer = (
         type: "SAVING_REDACTION";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
-          isSaving: boolean;
+          saveStatus: SaveStatus;
         };
       }
     | {
@@ -142,6 +148,21 @@ export const reducer = (
         type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
         payload: boolean;
       }
+    | {
+        type: "SHOW_HIDE_REDACTION_LOG_MODAL";
+        payload: {
+          show: boolean;
+          savedRedactionTypes: RedactionTypeData[];
+        };
+      }
+    | {
+        type: "UPDATE_REDACTION_LOG_DATA";
+        payload: ApiResult<RedactionLogData>;
+      }
+    | {
+        type: "UPDATE_FEATURE_FLAGS_DATA";
+        payload: AsyncResult<FeatureFlagData>;
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -150,6 +171,18 @@ export const reducer = (
       }
 
       return { ...state, caseState: action.payload };
+
+    case "UPDATE_REDACTION_LOG_DATA":
+      if (action.payload.status === "failed") {
+        return state;
+      }
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          redactionLogData: action.payload,
+        },
+      };
 
     case "UPDATE_PIPELINE": {
       if (action.payload.status === "failed") {
@@ -191,7 +224,14 @@ export const reducer = (
       }
 
       if (shouldBuildDocumentsState) {
-        const documentsState = mapDocumentsState(action.payload.data.documents);
+        const witnesses =
+          state.caseState && state.caseState.status === "succeeded"
+            ? state.caseState.data.witnesses
+            : [];
+        const documentsState = mapDocumentsState(
+          action.payload.data.documents,
+          witnesses
+        );
         const accordionState = mapAccordionState(documentsState);
         nextState = {
           ...nextState,
@@ -393,6 +433,8 @@ export const reducer = (
         url,
         pdfBlobName: blobName,
         redactionHighlights: redactionsHighlightsToRetain,
+        isDeleted: false,
+        saveStatus: "initial" as const,
       };
 
       if (mode === "read") {
@@ -707,7 +749,7 @@ export const reducer = (
       };
     }
     case "SAVING_REDACTION": {
-      const { documentId, isSaving } = action.payload;
+      const { documentId, saveStatus } = action.payload;
       return {
         ...state,
         tabsState: {
@@ -716,7 +758,7 @@ export const reducer = (
             item.documentId === documentId
               ? {
                   ...item,
-                  isSaving: isSaving,
+                  saveStatus: saveStatus,
                 }
               : item
           ),
@@ -807,6 +849,23 @@ export const reducer = (
         documentIssueModal: {
           show: action.payload,
         },
+      };
+    }
+    case "SHOW_HIDE_REDACTION_LOG_MODAL": {
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          showModal: action.payload.show,
+          savedRedactionTypes: action.payload.savedRedactionTypes,
+        },
+      };
+    }
+
+    case "UPDATE_FEATURE_FLAGS_DATA": {
+      return {
+        ...state,
+        featureFlags: action.payload,
       };
     }
 

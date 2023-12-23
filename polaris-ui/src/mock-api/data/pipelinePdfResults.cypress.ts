@@ -1,7 +1,7 @@
 import { PipelineResults } from "../../app/features/cases/domain/gateway/PipelineResults";
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
-//the result count is set to 8 based on the maximum number of call tracker api call in a test suit, increase it when needed.
-const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(8);
+//the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
 
 export default dataSource;
 
@@ -31,7 +31,8 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "Ok",
       },
-      polarisParentDocumentId: null,
+      polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -53,7 +54,8 @@ const pipelinePdfResult: PipelineResults = {
         read: "Ok",
         write: "DocTypeNotAllowed",
       },
-      polarisParentDocumentId: null,
+      polarisParentDocumentId: "4",
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -76,6 +78,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -84,7 +87,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_3June",
       presentationTitle: "Doc_4",
-      cmsOriginalFileExtension: ".pdf",
+      cmsOriginalFileExtension: ".hte",
       cmsFileCreatedDate: "2020-06-04",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -98,6 +101,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -106,7 +110,7 @@ const pipelinePdfResult: PipelineResults = {
       status: "Indexed",
       cmsOriginalFileName: "MG06_10june",
       presentationTitle: "Doc_5",
-      cmsOriginalFileExtension: ".pdf",
+      cmsOriginalFileExtension: ".hte",
       cmsFileCreatedDate: "2020-06-10",
       polarisDocumentVersionId: 1,
       categoryListOrder: null,
@@ -120,6 +124,7 @@ const pipelinePdfResult: PipelineResults = {
         write: "OriginalFileTypeNotAllowed",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "6",
@@ -140,6 +145,7 @@ const pipelinePdfResult: PipelineResults = {
       isPdfAvailable: false,
       presentationFlags: { read: "Ok", write: "DocTypeNotAllowed" },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "7",
@@ -162,8 +168,8 @@ const pipelinePdfResult: PipelineResults = {
         write: "IsNotOcrProcessed",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
-
     {
       documentId: "8",
       cmsDocumentId: "8",
@@ -185,6 +191,30 @@ const pipelinePdfResult: PipelineResults = {
         write: "OnlyAvailableInCms",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
+    },
+    {
+      documentId: "9",
+      cmsDocumentId: "9",
+      pdfBlobName: "MG06_3June",
+      status: "Indexed",
+      cmsOriginalFileName: "MG06_3June",
+      presentationTitle: "Doc_9",
+      cmsOriginalFileExtension: ".pdf",
+      cmsFileCreatedDate: "2020-06-10",
+      polarisDocumentVersionId: 1,
+      categoryListOrder: null,
+      cmsDocType: {
+        documentTypeId: 7,
+        documentType: "MG15",
+        documentCategory: "MGForm",
+      },
+      presentationFlags: {
+        read: "Ok",
+        write: "IsDispatched",
+      },
+      polarisParentDocumentId: null,
+      witnessId: null,
     },
   ],
 };
@@ -251,6 +281,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -273,6 +304,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -295,6 +327,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -317,6 +350,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -339,6 +373,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
   ],
 };
@@ -370,6 +405,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "2",
@@ -392,6 +428,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "3",
@@ -414,6 +451,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "4",
@@ -436,6 +474,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
     {
       documentId: "5",
@@ -458,6 +497,7 @@ export const allMissingDocsPipelinePdfResults: PipelineResults = {
         write: "Ok",
       },
       polarisParentDocumentId: null,
+      witnessId: null,
     },
   ],
 };

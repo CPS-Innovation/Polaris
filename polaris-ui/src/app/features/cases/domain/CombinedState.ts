@@ -7,7 +7,12 @@ import { PipelineResults } from "./gateway/PipelineResults";
 import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
+import { FeatureFlagData } from "./FeatureFlagData";
 import { FilterOption } from "./FilterOption";
+import {
+  RedactionLogData,
+  RedactionTypeData,
+} from "./redactionLog/RedactionLogData";
 
 export type CombinedState = {
   urn: string;
@@ -56,4 +61,10 @@ export type CombinedState = {
   documentIssueModal: {
     show: boolean;
   };
+  redactionLog: {
+    showModal: boolean;
+    redactionLogData: AsyncResult<RedactionLogData>;
+    savedRedactionTypes: RedactionTypeData[];
+  };
+  featureFlags: AsyncResult<FeatureFlagData>;
 };

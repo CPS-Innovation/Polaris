@@ -12,11 +12,17 @@ import { act } from "react-dom/test-utils";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
 import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { CaseDetails } from "../../domain/gateway/CaseDetails";
+import { RedactionLogData } from "../../domain/redactionLog/RedactionLogData";
 import { MemoryRouter } from "react-router-dom";
 
 jest.mock("../../../../common/hooks/useAppInsightsTracks", () => ({
   useAppInsightsTrackEvent: () => jest.fn(),
 }));
+
+jest.mock(".../../../../auth/msal/useUserGroupsFeatureFlag", () => ({
+  useUserGroupsFeatureFlag: () => jest.fn(),
+}));
+
 type ReducerParams = Parameters<typeof reducer.reducer>;
 let reducerSpy: jest.SpyInstance<ReducerParams[0]>;
 
@@ -33,6 +39,15 @@ describe("useCaseDetailsState", () => {
           )
       );
 
+    const mockGetRedactionLogData = jest
+      .spyOn(api, "getRedactionLogData")
+      .mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({} as RedactionLogData), 100)
+          )
+      );
+
     const mockSearchCase = jest
       .spyOn(api, "searchCase")
       .mockImplementation(
@@ -45,6 +60,10 @@ describe("useCaseDetailsState", () => {
     jest.spyOn(useApi, "useApi").mockImplementation((del, params) => {
       if (isSameRef(del, mockGetCaseDetails)) {
         return { status: "succeeded", data: "getCaseDetails" };
+      }
+
+      if (isSameRef(del, mockGetRedactionLogData)) {
+        return { status: "succeeded", data: "getRedactionLogData" };
       }
 
       if (isSameRef(del, mockSearchCase)) {
@@ -90,6 +109,7 @@ describe("useCaseDetailsState", () => {
         handleCloseErrorModal,
         handleUnLockDocuments,
         handleShowHideDocumentIssueModal,
+        handleSavedRedactionLog,
         ...stateProperties
       } = result.current;
 

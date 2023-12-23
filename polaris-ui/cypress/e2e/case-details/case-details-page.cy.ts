@@ -1,4 +1,8 @@
 import { CASE_ROUTE } from "../../../src/mock-api/routes";
+import { parseISO, differenceInYears } from "date-fns";
+
+export const getAgeFromIsoDate = (isoDateString: string) =>
+  isoDateString && differenceInYears(new Date(), parseISO(isoDateString));
 
 describe("case details page", () => {
   describe("case page navigation", () => {
@@ -27,7 +31,7 @@ describe("case details page", () => {
       cy.location("search").should("eq", "?urn=12AB1111111");
     });
 
-    it("shows the unhandled error page if an unexpected error occurrs with the api", () => {
+    it("shows the unhandled error page if an unexpected error occurs with the api", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.overrideRoute(CASE_ROUTE, {
         type: "break",
@@ -57,7 +61,9 @@ describe("case details page", () => {
       cy.findByTestId("txt-case-urn").contains("12AB1111111");
       cy.findByTestId("defendant-details").then(($details) => {
         cy.wrap($details).contains("Walsh, Steve");
-        cy.wrap($details).contains("DOB: 28 Nov 1977. Age: 45");
+        cy.wrap($details).contains(
+          `DOB: 28 Nov 1977. Age: ${getAgeFromIsoDate("1977-11-28")}`
+        );
         cy.wrap($details).contains("Youth Offender");
       });
 
@@ -401,6 +407,13 @@ describe("case details page", () => {
       openAndRedactDocument("link-document-7");
       cy.findByTestId("redaction-warning").contains(
         "Awaiting OCR processing in CMS. Please try again later for redaction."
+      );
+    });
+
+    it("Redaction shouldn't be allowed and User should show warning message when selecting a text,if presentationFlags write status is `IsDispatched`", () => {
+      openAndRedactDocument("link-document-9");
+      cy.findByTestId("redaction-warning").contains(
+        "This is a dispatched document."
       );
     });
 
@@ -985,6 +998,51 @@ describe("case details page", () => {
       cy.findByTestId("tabs-dropdown-panel").should("exist");
       cy.findByTestId("link-document-2").click();
       cy.findByTestId("tabs-dropdown-panel").should("not.exist");
+    });
+  });
+
+  describe("Hte emails", () => {
+    it("Should show communication sub categories", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h2").contains("Communications").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h3").contains("Communication files").should("be.visible");
+      cy.get("h3").contains("Emails").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("h3").contains("Communication files").should("not.be.visible");
+      cy.get("h3").contains("Emails").should("not.be.visible");
+    });
+    it("Should show number of attachments in the accordion, list attachment document name  in the document attachment head and clicking on it should open the corresponding documents", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h2").contains("Communications").should("be.visible");
+      cy.get("h2").contains("Communications").click();
+      cy.get("#side-panel").scrollTo("bottom");
+      cy.get("h3").contains("Communication files").should("be.visible");
+      cy.get("h3").contains("Emails").should("be.visible");
+      cy.findByTestId("attachment-text-4").should("have.text", "2 attachments");
+      cy.findByTestId("link-document-4").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.findByTestId("doc-attach-btn-1").should("have.text", "MCLOVEMG3,");
+      cy.findByTestId("doc-attach-btn-2").should("have.text", "CM01");
+      cy.findByTestId("doc-attach-btn-1").click();
+      cy.findByTestId("div-pdfviewer-1")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("tab-active").should("contain", "MCLOVEMG3");
+      cy.findByTestId("btn-tab-0").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("CASE FILE EVIDENCE and INFORMATION");
+      cy.findByTestId("doc-attach-btn-2").click();
+      cy.findByTestId("tab-active").should("contain", "CM01");
+      cy.findByTestId("div-pdfviewer-2")
+        .should("exist")
+        .contains("CASE OUTLINE");
     });
   });
 });

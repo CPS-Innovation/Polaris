@@ -12,15 +12,13 @@ namespace coordinator.Functions.Orchestration.Functions
     {
         protected async Task<ICaseDurableEntity> CreateOrGetCaseDurableEntity(IDurableOrchestrationContext context, long caseId, bool newVersion, Guid correlationId, ILogger log)
         {
-            log.LogMethodEntry(correlationId, nameof(CreateOrGetCaseDurableEntity), $"CaseId: {caseId}");
-
             var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId.ToString());
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
             var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(caseEntityId);
 
             var version = await caseEntity.GetVersion();
 
-            if(newVersion)
+            if (newVersion)
             {
                 version = version == null ? 1 : version + 1;
                 caseEntity.SetVersion(version.Value);

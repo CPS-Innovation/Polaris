@@ -53,8 +53,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
             if (payload == null)
                 throw new ArgumentException($"{nameof(payload)} cannot be null.");
 
-            _log.LogMethodEntry(payload.CorrelationId, loggingName, string.Empty);
-
             var results = _validatorWrapper.Validate(payload);
             if (results?.Any() == true)
                 throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(CaseDocumentOrchestrationPayload));
@@ -66,8 +64,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             if (payload.CmsDocumentTracker != null)
             {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Retrieving Document from DDEI for documentId: '{payload.CmsDocumentTracker.CmsDocumentId}'");
-
                 documentStream = await _ddeiClient.GetDocumentFromFileStoreAsync
                     (
                         payload.CmsDocumentTracker.Path,
@@ -80,21 +76,14 @@ namespace coordinator.Functions.ActivityFunctions.Document
             }
             else if (payload.PcdRequestTracker != null)
             {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting PCD request to HTML for documentId: '{payload.PcdRequestTracker.CmsDocumentId}'");
-
                 documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.PcdRequestTracker.PcdRequest);
                 fileType = FileType.HTML;
             }
             else if (payload.DefendantAndChargesTracker != null)
             {
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Converting Defendant and Charges to HTML for documentId: '{payload.DefendantAndChargesTracker.CmsDocumentId}'");
-
                 documentStream = await _convertPcdRequestToHtmlService.ConvertAsync(payload.DefendantAndChargesTracker.DefendantsAndCharges);
                 fileType = FileType.HTML;
             }
-
-            _log.LogMethodFlow(payload.CorrelationId, loggingName,
-                $"Converting document of type: '{fileType}'. Original file: '{payload.CmsCaseUrn}', to PDF fileName: '{payload.BlobName}'");
 
             Stream pdfStream = null;
 
@@ -109,7 +98,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
                     documentStream,
                     fileType);
 
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"Document converted to PDF successfully, beginning upload of '{payload.BlobName}'...");
                 await _blobStorageService.UploadDocumentAsync
                     (
                         pdfStream,
@@ -119,8 +107,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
                         payload.CmsVersionId.ToString(),
                         payload.CorrelationId
                     );
-
-                _log.LogMethodFlow(payload.CorrelationId, loggingName, $"'{payload.BlobName}' uploaded successfully");
             }
             finally
             {

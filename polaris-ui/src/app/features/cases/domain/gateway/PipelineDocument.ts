@@ -21,6 +21,7 @@ export type PresentationFlags = {
     | "DocTypeNotAllowed"
     | "OriginalFileTypeNotAllowed"
     | "IsNotOcrProcessed"
+    | "IsDispatched"
     | "IsRedactionServiceOffline";
 };
 
@@ -37,6 +38,7 @@ export type PresentationDocumentProperties = {
   cmsDocType: CmsDocType;
   presentationFlags: PresentationFlags;
   polarisParentDocumentId: string | null;
+  witnessId: number | null;
 };
 
 export type PipelineDocument = PipelineDocumentProperties &

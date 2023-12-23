@@ -28,7 +28,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTSHARE"                            = azapi_resource.polaris_sacpspolaris_proxy_file_share.name
-    "SCALE_CONTROLLER_LOGGING_ENABLED"                = var.ui_logging.proxy_scale_controller
     "UPSTREAM_CMS_IP_CORSHAM"                         = var.cms_details.upstream_cms_ip_corsham
     "UPSTREAM_CMS_MODERN_IP_CORSHAM"                  = var.cms_details.upstream_cms_modern_ip_corsham
     "UPSTREAM_CMS_IP_FARNBOROUGH"                     = var.cms_details.upstream_cms_ip_farnborough
@@ -41,7 +40,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "${azurerm_linux_function_app.fa_polaris_auth_handover.name}.azurewebsites.net"
     "DDEI_ENDPOINT_DOMAIN_NAME"                       = "fa-${local.ddei_resource_name}.azurewebsites.net"
-    "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = "" //set in deployment script
+    "DDEI_ENDPOINT_FUNCTION_APP_KEY"                  = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "SAS_URL_DOMAIN_NAME"                             = "${data.azurerm_storage_account.sacpspolarispipeline.name}.blob.core.windows.net"
     "DOCKER_REGISTRY_SERVER_URL"                      = "https://${data.azurerm_container_registry.polaris_container_registry.login_server}"
     "DOCKER_REGISTRY_SERVER_USERNAME"                 = data.azurerm_container_registry.polaris_container_registry.admin_username
@@ -110,13 +109,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   }
 
   https_only = true
-
-  lifecycle {
-    ignore_changes = [
-      app_settings["WEBSITE_CONTENTSHARE"],
-      app_settings["DDEI_ENDPOINT_FUNCTION_APP_KEY"]
-    ]
-  }
 }
 
 module "azurerm_app_reg_polaris_proxy" {
