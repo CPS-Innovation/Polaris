@@ -8,6 +8,7 @@ using Common.Dto.Response;
 using Common.Dto.Tracker;
 using Common.Factories.Contracts;
 using Common.Logging;
+using Common.Streaming;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
@@ -23,6 +24,7 @@ namespace Gateway.Clients.PolarisPipeline
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
+        private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
         private readonly ILogger<PipelineClient> _logger;
 
         private static readonly HttpStatusCode[] ExpectedRefreshErrorStatusCodes = { HttpStatusCode.Locked };
@@ -33,12 +35,14 @@ namespace Gateway.Clients.PolarisPipeline
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IJsonConvertWrapper jsonConvertWrapper,
+            IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory,
             ILogger<PipelineClient> logger)
         {
             _pipelineClientRequestFactory = pipelineClientRequestFactory;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _jsonConvertWrapper = jsonConvertWrapper;
+            _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory;
             _logger = logger;
         }
 
@@ -103,20 +107,18 @@ namespace Gateway.Clients.PolarisPipeline
             {
                 var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
                 response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
+                return await _httpResponseMessageStreamFactory.Create(response);
             }
             catch (HttpRequestException exception)
             {
                 if (exception.StatusCode == HttpStatusCode.NotFound)
                 {
+                    // todo: check that returning null here is good logic
                     return null;
                 }
 
                 throw;
             }
-
-            var streamContent = await response.Content.ReadAsStreamAsync();
-
-            return streamContent;
         }
 
         public async Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
@@ -182,11 +184,10 @@ namespace Gateway.Clients.PolarisPipeline
         {
             _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Cancelling Checkout of the Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");
 
-            HttpResponseMessage response;
             try
             {
                 var url = $"{RestApi.GetDocumentPath(caseUrn, caseId, polarisDocumentId)}/checkout?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
+                await SendRequestAsync(HttpMethod.Delete, url, cmsAuthValues, correlationId);
             }
             catch (HttpRequestException exception)
             {
@@ -197,8 +198,6 @@ namespace Gateway.Clients.PolarisPipeline
 
                 throw;
             }
-
-            var streamContent = await response.Content.ReadAsStreamAsync();
 
             return new OkResult();
         }
@@ -253,7 +252,7 @@ namespace Gateway.Clients.PolarisPipeline
             string httpClientName = requestUri.StartsWith("urns") ? nameof(PipelineClient) : $"Lowlevel{nameof(PipelineClient)}";
             HttpClient httpClient = _httpClientFactory.CreateClient(httpClientName);
 
-            var response = await httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (expectedResponseCodes?.Contains(response.StatusCode) != true)
                 response.EnsureSuccessStatusCode();

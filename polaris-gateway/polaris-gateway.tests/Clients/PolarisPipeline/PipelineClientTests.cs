@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Xunit;
 using Common.Dto.Tracker;
+using Common.Streaming;
 
 namespace PolarisGateway.Tests.Clients.PolarisPipeline
 {
@@ -30,11 +31,10 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         private readonly string _polarisPipelineFunctionAppKey;
         private readonly TrackerDto _tracker;
         private readonly Guid _correlationId;
-
         private readonly Mock<IPipelineClientRequestFactory> _mockRequestFactory;
         private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
         private readonly HttpClient _httpClient;
-
+        private readonly Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
         private readonly IPipelineClient _triggerCoordinatorPipelineClient;
         private readonly IPipelineClient _getTrackerPipelineClient;
 
@@ -91,8 +91,20 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
             var stringContent = _getTrackerHttpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<TrackerDto>(stringContent, It.IsAny<Guid>())).Returns(_tracker);
 
-            _triggerCoordinatorPipelineClient = new PipelineClient(_mockRequestFactory.Object, _mockHttpClientFactory.Object, mockConfiguration.Object, mockJsonConvertWrapper.Object, mockPipelineClientLogger.Object);
-            _getTrackerPipelineClient = new PipelineClient(_mockRequestFactory.Object, _mockHttpClientFactory.Object, mockConfiguration.Object, mockJsonConvertWrapper.Object, mockPipelineClientLogger.Object);
+            _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
+
+            _triggerCoordinatorPipelineClient = new PipelineClient(_mockRequestFactory.Object,
+                                                                   _mockHttpClientFactory.Object,
+                                                                   mockConfiguration.Object,
+                                                                   mockJsonConvertWrapper.Object,
+                                                                   _mockHttpResponseMessageStreamFactory.Object,
+                                                                   mockPipelineClientLogger.Object);
+            _getTrackerPipelineClient = new PipelineClient(_mockRequestFactory.Object,
+                                                           _mockHttpClientFactory.Object,
+                                                           mockConfiguration.Object,
+                                                           mockJsonConvertWrapper.Object,
+                                                           _mockHttpResponseMessageStreamFactory.Object,
+                                                           mockPipelineClientLogger.Object);
         }
 
         [Fact]
