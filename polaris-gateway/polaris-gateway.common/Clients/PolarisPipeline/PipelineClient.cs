@@ -163,8 +163,6 @@ namespace Gateway.Clients.PolarisPipeline
                 }
                 throw;
             }
-
-
         }
 
         public async Task<RedactPdfResponse> SaveRedactionsAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)

@@ -85,9 +85,11 @@ namespace Common.tests.Services.BlobStorageService
         [Fact]
         public async Task GetDocumentAsync_ReturnsTheBlobStream_WhenBlobClientIsFound()
         {
-            var blobDownloadResult = BlobsModelFactory.BlobDownloadResult(await BinaryData.FromStreamAsync(_stream));
+
             _mockBlobClient.Setup(s => s.ExistsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Response.FromValue(true, _responseMock.Object));
-            _mockBlobClient.Setup(s => s.DownloadContentAsync()).ReturnsAsync(Response.FromValue(blobDownloadResult, _responseMock.Object));
+
+            _mockBlobClient.Setup(s => s.OpenReadAsync(It.Is<long>(l => l == 0), It.IsAny<int?>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_stream);
 
             var result = await _blobStorageService.GetDocumentAsync(_blobName, _correlationId);
 

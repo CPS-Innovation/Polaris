@@ -8,6 +8,7 @@ using Common.Mappers;
 using Common.Streaming;
 using Common.Wrappers.Contracts;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
 using DdeiClient.Mappers.Contract;
 using FluentAssertions;
@@ -20,7 +21,7 @@ using Xunit;
 
 namespace Common.tests.Services.DocumentExtractionService;
 
-public class DdeiDocumentExtractionServiceTests
+public class DdeiClientTests
 {
     private readonly Fixture _fixture;
     private readonly string _caseUrn;
@@ -34,7 +35,7 @@ public class DdeiDocumentExtractionServiceTests
     private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapperMock;
     private readonly Ddei.Services.DdeiClient _documentExtractionService;
 
-    public DdeiDocumentExtractionServiceTests()
+    public DdeiClientTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
