@@ -31,6 +31,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Common.Configuration;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
+using Common.Streaming;
 
 [assembly: FunctionsStartup(typeof(PolarisGateway.Startup))]
 
@@ -48,7 +49,8 @@ namespace PolarisGateway
             var services = builder.Services;
 
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            services.AddSingleton<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddSingleton(_ =>
             {
                 // as per https://github.com/dotnet/aspnetcore/issues/43220, there is guidance to only have one instance of ConfigurationManager
