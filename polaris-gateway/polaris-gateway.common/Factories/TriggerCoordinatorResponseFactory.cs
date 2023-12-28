@@ -20,7 +20,6 @@ namespace PolarisGateway.Factories
             new TriggerCoordinatorResponse
             {
                 TrackerUrl = _trackerUrlMapper.Map(request, correlationId)
-
             };
     }
 }

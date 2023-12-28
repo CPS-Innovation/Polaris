@@ -77,9 +77,9 @@ namespace Common.Services.BlobStorageService
             if (!await blobClient.ExistsAsync())
                 return null;
 
-            // We could DownloadStreamingAsync as per https://github.com/Azure/azure-sdk-for-net/issues/22022#issuecomment-870054035
+            // We could use `DownloadStreamingAsync` as per https://github.com/Azure/azure-sdk-for-net/issues/22022#issuecomment-870054035
             //  as we are in Azure calling Azure so streaming should be no problem without having to do chunking.
-            // However https://github.com/Azure/azure-sdk-for-net/issues/38342#issue-1864138162 suggests that we should use OpenReadAsync.
+            // However https://github.com/Azure/azure-sdk-for-net/issues/38342#issue-1864138162 suggests that we could better use `OpenReadAsync`.
             return await blobClient.OpenReadAsync();
         }
 

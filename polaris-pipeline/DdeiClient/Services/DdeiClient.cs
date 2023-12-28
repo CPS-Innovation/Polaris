@@ -87,8 +87,6 @@ namespace Ddei.Services
 
         public async Task<IEnumerable<CaseDto>> ListCases(DdeiCmsUrnArgDto arg)
         {
-            // try
-            // {
             var caseIdentifiers = await ListCaseIdsAsync(arg);
 
             var calls = caseIdentifiers.Select(async caseIdentifier =>
@@ -96,11 +94,6 @@ namespace Ddei.Services
 
             var cases = await Task.WhenAll(calls);
             return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
-            // }
-            // catch (Exception exception)
-            // {
-            //     throw new CaseDataServiceException($"Exception in {nameof(ListCases)}", exception);
-            // }
         }
 
         public async Task<CaseDto> GetCase(DdeiCmsCaseArgDto arg)
@@ -118,8 +111,6 @@ namespace Ddei.Services
 
         public async Task<CmsDocumentDto[]> ListDocumentsAsync(string caseUrn, string caseId, string cmsAuthValues, Guid correlationId)
         {
-            // try
-            // {
             var caseArg = new DdeiCmsCaseArgDto
             {
                 Urn = caseUrn,
@@ -133,11 +124,6 @@ namespace Ddei.Services
             return ddeiResults
                 .Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult))
                 .ToArray();
-            // }
-            // catch (Exception exception)
-            // {
-            //     throw new CaseDataServiceException($"Exception in {nameof(ListDocumentsAsync)}", exception);
-            // }
         }
 
         public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
