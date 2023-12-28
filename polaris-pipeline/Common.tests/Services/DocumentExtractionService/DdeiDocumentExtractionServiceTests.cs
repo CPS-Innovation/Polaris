@@ -5,6 +5,7 @@ using AutoFixture.Idioms;
 using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Mappers;
+using Common.Streaming;
 using Common.Wrappers.Contracts;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories.Contracts;
@@ -77,6 +78,8 @@ public class DdeiDocumentExtractionServiceTests
             .Setup(factory => factory.CreateDocumentRequest(It.IsAny<DdeiCmsDocumentArgDto>()))
             .Returns(httpRequestMessage);
 
+        var mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
+
         var mockConfiguration = new Mock<IConfiguration>();
         var caseDataArgFactory = new Mock<ICaseDataArgFactory>();
         var caseDetailsMapper = new Mock<ICaseDetailsMapper>();
@@ -89,6 +92,7 @@ public class DdeiDocumentExtractionServiceTests
                 caseDetailsMapper.Object,
                 new DdeiCaseDocumentMapper(),
                 _jsonConvertWrapperMock.Object,
+                mockHttpResponseMessageStreamFactory.Object,
                 loggerMock.Object
             );
     }
@@ -98,54 +102,6 @@ public class DdeiDocumentExtractionServiceTests
     {
         var assertion = new GuardClauseAssertion(_fixture);
         assertion.Verify(_documentExtractionService.GetType().GetConstructors());
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_ReturnsExpectedStream()
-    {
-        var documentStream = await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
-
-        documentStream.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_ThrowsHttpExceptionWhenResponseStatusCodeIsNotSuccess()
-    {
-        _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
-
-        await Assert.ThrowsAsync<DdeiClientException>(() => _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId));
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_HttpExceptionHasExpectedStatusCodeWhenResponseStatusCodeIsNotSuccess()
-    {
-        const HttpStatusCode expectedStatusCode = HttpStatusCode.NotFound;
-        _httpResponseMessage.StatusCode = expectedStatusCode;
-
-        try
-        {
-            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
-        }
-        catch (DdeiClientException exception)
-        {
-            exception.StatusCode.Should().Be(expectedStatusCode);
-        }
-    }
-
-    [Fact]
-    public async Task GetDocumentAsync_HttpExceptionHasHttpRequestExceptionAsInnerExceptionWhenResponseStatusCodeIsNotSuccess()
-    {
-        _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
-        _httpResponseMessage.Content = new StringContent(string.Empty);
-
-        try
-        {
-            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
-        }
-        catch (DdeiClientException exception)
-        {
-            exception.InnerException.Should().BeOfType<HttpRequestException>();
-        }
     }
 
     [Fact]

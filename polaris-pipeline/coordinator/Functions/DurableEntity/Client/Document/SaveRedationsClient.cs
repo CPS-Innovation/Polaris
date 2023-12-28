@@ -60,7 +60,6 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                #region Validate-Inputs
                 var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
 
                 if (!response.Success)
@@ -79,7 +78,6 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 var validationResult = await _requestValidator.ValidateAsync(redactPdfRequest);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
-                #endregion
 
                 var redactionResult = await _redactionClient.RedactPdfAsync(redactPdfRequest, currentCorrelationId);
                 if (!redactionResult.Succeeded)
@@ -88,7 +86,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new ArgumentException(error);
                 }
 
-                var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
+                using var pdfStream = await _blobStorageService.GetDocumentAsync(redactionResult.RedactedDocumentName, currentCorrelationId);
 
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
@@ -106,6 +104,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
+
                 await _ddeiClient.UploadPdf(arg, pdfStream);
 
                 return new ObjectResult(redactionResult);

@@ -39,13 +39,11 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
 
             try
             {
-                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
 
                 currentCorrelationId = request.CurrentCorrelationId;
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (caseId <= 0)
                     return BadRequestErrorResponse("A valid caseId must be supplied, one that is greater than zero", currentCorrelationId, loggingName);
@@ -56,7 +54,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                 string searchTerm = req.Query["query"];
                 if (string.IsNullOrWhiteSpace(searchTerm))
                     return BadRequestErrorResponse("Search query term is not supplied.", currentCorrelationId, loggingName);
-                #endregion
 
                 var searchResults = await _pipelineClient.SearchCase(caseUrn, caseId, searchTerm, currentCorrelationId);
 
@@ -69,10 +66,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                     RequestFailedException => InternalServerErrorResponse(exception, "A search client index exception occurred.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             }
         }
     }

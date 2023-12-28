@@ -22,7 +22,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
         public CheckoutDocumentClient(IDdeiClient ddeiClient)
         {
-            _ddeiClient = ddeiClient;
+            _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
         }
 
         const string loggingName = $"{nameof(CheckoutDocumentClient)} - {nameof(HttpStart)}";
@@ -72,20 +72,12 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                var result = await _ddeiClient.CheckoutDocument(arg);
+                var (isOk, checkedOutUser) = await _ddeiClient.CheckoutDocument(arg);
 
-                switch (result.StatusCode)
-                {
-                    case System.Net.HttpStatusCode.OK:
-                        return new OkResult();
+                return isOk
+                    ? new OkResult()
+                    : new ConflictObjectResult(checkedOutUser);
 
-                    case System.Net.HttpStatusCode.Conflict:
-                        var lockingUser = await result.Content.ReadAsStringAsync();
-                        return new ConflictObjectResult(lockingUser);
-
-                    default:
-                        return new StatusCodeResult(500);
-                };
             }
             catch (Exception ex)
             {

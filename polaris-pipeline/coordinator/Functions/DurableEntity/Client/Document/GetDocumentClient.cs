@@ -47,10 +47,10 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 currentCorrelationId = response.CorrelationId;
 
                 var blobName = response.GetBlobName();
-                var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
+                using var blobStream = await _blobStorageService.GetDocumentAsync(blobName, currentCorrelationId);
 
                 return blobStream != null
-                    ? new OkObjectResult(blobStream)
+                    ? new FileStreamResult(blobStream, "application/pdf")
                     : null;
             }
             catch (Exception ex)

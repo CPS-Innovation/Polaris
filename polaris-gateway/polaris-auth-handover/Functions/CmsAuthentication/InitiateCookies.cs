@@ -19,6 +19,7 @@ using PolarisAuthHandover.Domain.Dto;
 using PolarisAuthHandover.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using PolarisAuthHandover.Extensions;
 
 namespace PolarisAuthHandover.Functions.CmsAuthentication
 {

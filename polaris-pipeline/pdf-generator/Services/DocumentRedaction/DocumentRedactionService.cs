@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Domain.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Logging;
@@ -23,20 +22,20 @@ namespace pdf_generator.Services.DocumentRedaction
             ILogger<DocumentRedactionService> logger)
         {
             _polarisBlobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
-            _uploadFileNameFactory = uploadFileNameFactory;
-            _redactionProvider = redactionProvider;
-            _logger = logger;
+            _uploadFileNameFactory = uploadFileNameFactory ?? throw new ArgumentNullException(nameof(uploadFileNameFactory));
+            _redactionProvider = redactionProvider ?? throw new ArgumentNullException(nameof(redactionProvider));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             try
             {
-                var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
-
-                var redactedDocumentStream = _redactionProvider.Redact(documentStream, redactPdfRequest, correlationId);
+                using var documentStream = await _polarisBlobStorageService.GetDocumentAsync(redactPdfRequest.FileName, correlationId);
+                using var redactedDocumentStream = _redactionProvider.Redact(documentStream, redactPdfRequest, correlationId);
 
                 var uploadFileName = _uploadFileNameFactory.BuildUploadFileName(redactPdfRequest.FileName);
+
                 await _polarisBlobStorageService.UploadDocumentAsync(
                     redactedDocumentStream,
                     uploadFileName,

@@ -24,7 +24,7 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
 
-            var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
+            using var documentStream = await _blobStorageService.GetDocumentAsync(payload.BlobName, payload.CorrelationId);
 
             await _textExtractorClient.ExtractTextAsync(payload.PolarisDocumentId,
                 payload.CmsCaseId,

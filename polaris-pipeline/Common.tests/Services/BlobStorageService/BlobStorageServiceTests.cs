@@ -4,6 +4,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Common.Constants;
+using Common.Services.BlobStorageService;
 using Common.Services.BlobStorageService.Contracts;
 using Common.ValueObjects;
 using FluentAssertions;
@@ -55,9 +56,10 @@ namespace Common.tests.Services.BlobStorageService
             _mockBlobContainerClient.Setup(client => client.ExistsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_mockBlobContainerExistsResponse.Object);
             _mockBlobContainerClient.Setup(client => client.GetBlobClient(_blobName)).Returns(_mockBlobClient.Object);
-            var mockLogger = new Mock<ILogger<Common.Services.BlobStorageService.PolarisBlobStorageService>>();
 
-            _blobStorageService = new Common.Services.BlobStorageService.PolarisBlobStorageService(mockBlobServiceClient.Object, blobContainerName, mockLogger.Object);
+            var mockLogger = new Mock<ILogger<PolarisBlobStorageService>>();
+
+            _blobStorageService = new PolarisBlobStorageService(mockBlobServiceClient.Object, blobContainerName, mockLogger.Object);
         }
 
         #region GetDocumentAsync

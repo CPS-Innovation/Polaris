@@ -1,9 +1,8 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Xunit;
-using Common.Extensions;
+using PolarisAuthHandover.Extensions;
 
-namespace Common.tests.Extensions;
+namespace PolarisAuthHandover.Tests.Extensions;
 
 public class HttpRequestExtensionsTests
 {

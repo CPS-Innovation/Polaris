@@ -51,16 +51,12 @@ namespace pdf_generator.Functions
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "RedactPdf - Run";
             RedactPdfResponse redactPdfResponse = null;
 
             try
             {
-                #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
-
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (request.Content == null)
                     throw new BadRequestException("Request body has no content", nameof(request));
@@ -70,7 +66,6 @@ namespace pdf_generator.Functions
                 {
                     throw new BadRequestException("Request body cannot be null.", nameof(request));
                 }
-                #endregion
 
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
                 _telemetryAugmentationWrapper.RegisterDocumentId(redactions.PolarisDocumentId.ToString());
@@ -80,7 +75,6 @@ namespace pdf_generator.Functions
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{redactions.PolarisDocumentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -91,10 +85,6 @@ namespace pdf_generator.Functions
             catch (Exception ex)
             {
                 return _exceptionHandler.HandleException(ex, currentCorrelationId, nameof(RedactPdf), _logger);
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, redactPdfResponse.ToJson());
             }
         }
     }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Configuration;
-using Common.Dto.Case;
-using Common.Logging;
 using Common.Validators.Contracts;
 using Ddei.Exceptions;
 using Ddei.Factories.Contracts;
@@ -13,7 +11,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Extensions;
+
 using Common.Telemetry.Wrappers.Contracts;
 
 namespace PolarisGateway.Functions.CaseData
@@ -43,7 +41,6 @@ namespace PolarisGateway.Functions.CaseData
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            CaseDto caseDetails = null;
 
             try
             {
@@ -54,9 +51,8 @@ namespace PolarisGateway.Functions.CaseData
                 currentCorrelationId = validationResult.CurrentCorrelationId;
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case details by Id {caseId}");
                 var caseArg = _caseDataArgFactory.CreateCaseArg(cmsAuthValues, currentCorrelationId, caseUrn, caseId);
-                caseDetails = await _ddeiClient.GetCase(caseArg);
+                var caseDetails = await _ddeiClient.GetCase(caseArg);
 
                 return caseDetails != null
                     ? new OkObjectResult(caseDetails)
@@ -70,10 +66,6 @@ namespace PolarisGateway.Functions.CaseData
                     CaseDataServiceException => CmsAuthValuesErrorResponse(exception.Message, currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, caseDetails.ToJson());
             }
         }
     }

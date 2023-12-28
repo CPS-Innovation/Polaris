@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisAuthHandover.Functions.CmsAuthentication;
 
-namespace polaris_auth_handover.Tests.Functions.CmsAuthentication;
+namespace PolarisAuthHandover.Tests.Functions.CmsAuthentication;
 
 public class InitiateCookiesTests
 {

@@ -10,7 +10,6 @@ using Common.Configuration;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using PolarisGateway.Domain.Validators;
-using PolarisGateway.Extensions;
 using Common.Mappers.Contracts;
 using Gateway.Common.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
@@ -18,6 +17,8 @@ using Common.Dto.Request;
 using Common.ValueObjects;
 using Common.Telemetry.Contracts;
 using PolarisGateway.TelemetryEvents;
+using Common.Domain.Validation;
+using System.Linq;
 
 namespace PolarisGateway.Functions.PolarisPipeline.Document
 {
@@ -78,7 +79,7 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
                 if (!isRequestJsonValid)
                 {
-                    return sendTelemetryAndReturn(redactions.ToBadRequest());
+                    return sendTelemetryAndReturn(ToBadRequest(redactions));
                 }
 
                 var polarisDocumentIdValue = new PolarisDocumentId(polarisDocumentId);
@@ -101,6 +102,15 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                     _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred, '{exception.Message}'.", currentCorrelationId, loggingName)
                 };
             }
+        }
+
+        private static BadRequestObjectResult ToBadRequest<T>(ValidatableRequest<T> request)
+        {
+            return new BadRequestObjectResult(request.Errors.Select(e => new
+            {
+                Field = e.PropertyName,
+                Error = e.ErrorMessage
+            }));
         }
     }
 }

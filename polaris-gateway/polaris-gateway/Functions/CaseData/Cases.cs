@@ -16,7 +16,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using PolarisGateway.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
 
 namespace PolarisGateway.Functions.CaseData
@@ -29,13 +28,13 @@ namespace PolarisGateway.Functions.CaseData
         const string loggingName = $"{nameof(Cases)} - {nameof(Run)}";
 
         public Cases(ILogger<Cases> logger,
-                        IDdeiClient caseDataService,
+                        IDdeiClient ddeiClient,
                         IAuthorizationValidator tokenValidator,
                         ICaseDataArgFactory caseDataArgFactory,
                         ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         : base(logger, tokenValidator, telemetryAugmentationWrapper)
         {
-            _caseDataService = caseDataService;
+            _caseDataService = ddeiClient;
             _caseDataArgFactory = caseDataArgFactory;
             _logger = logger;
         }
@@ -44,11 +43,8 @@ namespace PolarisGateway.Functions.CaseData
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
         {
             Guid currentCorrelationId = default;
-            IEnumerable<CaseDto> caseInformation = null;
-
             try
             {
-                #region Validate-Inputs
                 var validationResult = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (validationResult.InvalidResponseResult != null)
                     return validationResult.InvalidResponseResult;
@@ -56,15 +52,11 @@ namespace PolarisGateway.Functions.CaseData
                 currentCorrelationId = validationResult.CurrentCorrelationId;
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
-
                 if (string.IsNullOrEmpty(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
-                #endregion
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting case information by Urn '{caseUrn}'");
                 var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, caseUrn);
-                caseInformation = await _caseDataService.ListCases(urnArg);
+                var caseInformation = await _caseDataService.ListCases(urnArg);
 
                 if (caseInformation != null && caseInformation.Any())
                 {
@@ -81,10 +73,6 @@ namespace PolarisGateway.Functions.CaseData
                     CaseDataServiceException => CmsAuthValuesErrorResponse(exception.NestedMessage(), currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, $"An unhandled exception occurred. {exception.NestedMessage()}", currentCorrelationId, loggingName)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, caseInformation.ToJson());
             }
         }
     }

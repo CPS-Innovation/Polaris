@@ -7,9 +7,7 @@ using Microsoft.Identity.Client;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using PolarisGateway.Extensions;
 using Common.Configuration;
-using Common.Logging;
 using Common.Validators.Contracts;
 using Gateway.Clients.PolarisPipeline.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
@@ -38,26 +36,23 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
         {
             Guid currentCorrelationId = default;
-            TrackerDto tracker = null;
 
             try
             {
-                #region
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
 
                 currentCorrelationId = request.CurrentCorrelationId;
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("A case URN was expected", currentCorrelationId, loggingName);
-                #endregion
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting tracker details for caseId {caseId}");
-                tracker = await _pipelineClient.GetTrackerAsync(caseUrn, caseId, currentCorrelationId);
+                var tracker = await _pipelineClient.GetTrackerAsync(caseUrn, caseId, currentCorrelationId);
 
-                return tracker == null ? NotFoundErrorResponse($"No tracker found for case Urn '{caseUrn}', case id '{caseId}'.", currentCorrelationId, loggingName) : new OkObjectResult(tracker);
+                return tracker == null
+                    ? NotFoundErrorResponse($"No tracker found for case Urn '{caseUrn}', case id '{caseId}'.", currentCorrelationId, loggingName)
+                    : new OkObjectResult(tracker);
             }
             catch (Exception exception)
             {
@@ -67,10 +62,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                     HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GetTrackerAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, tracker.ToJson());
             }
         }
     }

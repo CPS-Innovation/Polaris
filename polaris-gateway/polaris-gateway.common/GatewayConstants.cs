@@ -1,12 +1,5 @@
 ﻿namespace PolarisGateway;
 
-public static class ConfigurationKeys
-{
-    public const string ClientId = "ClientId";
-    public const string ClientSecret = "ClientSecret";
-    public const string BlobServiceUrl = "BlobServiceUrl";
-}
-
 public static class ValidRoles
 {
     public const string UserImpersonation = "user_impersonation";

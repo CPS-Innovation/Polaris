@@ -39,19 +39,15 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
 
             try
             {
-                #region Validate-Inputs
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
                     return request.InvalidResponseResult;
 
                 currentCorrelationId = request.CurrentCorrelationId;
-                _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
-                #endregion
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Generating document SAS Url for urn {caseUrn}, caseId {caseId}, polarisDocumentId {polarisDocumentId}");
                 var sasUrl = await _pipelineClient.GenerateDocumentSasUrlAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), currentCorrelationId);
 
                 return !string.IsNullOrWhiteSpace(sasUrl)
@@ -65,10 +61,6 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                     HttpRequestException => InternalServerErrorResponse(exception, $"A pipeline client http exception occurred when calling {nameof(_pipelineClient.GenerateDocumentSasUrlAsync)}.", currentCorrelationId, loggingName),
                     _ => InternalServerErrorResponse(exception, "An unhandled exception occurred.", currentCorrelationId, loggingName)
                 };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
             }
         }
     }

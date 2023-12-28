@@ -13,6 +13,7 @@ using Common.Constants;
 using Common.Factories.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
+using Common.Streaming;
 
 namespace Common.Clients.Tests.Clients
 {
@@ -65,10 +66,13 @@ namespace Common.Clients.Tests.Clients
                 .ReturnsAsync(redactPdfResponseMessage);
             var redactPdfHttpClient = new HttpClient(mockRedactPdfMessageHandler.Object) { BaseAddress = new Uri("https://testUrl") };
 
+            var mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
+
             _redactionClient = new PdfGeneratorClient(
                 _mockRequestFactory.Object,
                 redactPdfHttpClient,
                 mockConfiguration.Object,
+                mockHttpResponseMessageStreamFactory.Object,
                 mockJsonConvertWrapper.Object);
         }
 
