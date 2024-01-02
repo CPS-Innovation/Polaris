@@ -34,6 +34,7 @@ using Common.Telemetry;
 using coordinator.Providers;
 using Microsoft.Extensions.Azure;
 using coordinator.Validators;
+using Common.Streaming;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -54,6 +55,7 @@ namespace coordinator
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
             services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
