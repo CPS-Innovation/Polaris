@@ -27,6 +27,7 @@ namespace Ddei.Mappers
                 UniqueReferenceNumber = summary.Urn,
                 IsCaseCharged = isCaseCharged,
                 NumberOfDefendants = summary.NumberOfDefendants,
+                OwningUnit = summary.OwningUnit,
                 LeadDefendantDetails = leadDefendant.DefendantDetails,
                 DefendantsAndCharges = defendants,
                 HeadlineCharge = headlineCharge,
