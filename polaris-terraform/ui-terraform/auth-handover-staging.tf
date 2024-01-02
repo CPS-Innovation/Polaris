@@ -8,6 +8,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_auth_handover_staging1" {
   https_only                    = true
   public_network_access_enabled = false
   tags                          = local.common_tags
+  builtin_logging_enabled       = false
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sacpspolaris.primary_connection_string

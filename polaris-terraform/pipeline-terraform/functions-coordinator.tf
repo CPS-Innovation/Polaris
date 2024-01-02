@@ -12,6 +12,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   functions_extension_version   = "~4"
   https_only                    = true
   public_network_access_enabled = false
+  builtin_logging_enabled       = false 
 
   app_settings = {
     "AzureWebJobs.ResetDurableState.Disabled"         = var.overnight_clear_down.disabled

@@ -25,9 +25,7 @@ namespace PolarisGateway.Tests.Factories
             _accessToken = fixture.Create<string>();
             _correlationId = fixture.Create<Guid>();
 
-            var loggerMock = new Mock<ILogger<PipelineClientRequestFactory>>();
-
-            _pipelineClientRequestFactory = new PipelineClientRequestFactory(loggerMock.Object);
+            _pipelineClientRequestFactory = new PipelineClientRequestFactory();
         }
 
         [Fact]

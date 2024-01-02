@@ -21,7 +21,7 @@ export type Witness = {
   title: string;
   name: string;
   hasStatements: boolean;
-  listOrder: number;
+  listOrder: number | null;
   child: boolean;
   expert: boolean;
   greatestNeed: boolean;
