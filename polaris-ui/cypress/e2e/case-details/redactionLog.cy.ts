@@ -269,7 +269,7 @@ describe("Redaction Log", () => {
           httpStatusCode: 500,
           timeMs: 500,
         },
-        "put",
+        "post",
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
