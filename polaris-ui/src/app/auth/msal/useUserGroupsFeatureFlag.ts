@@ -65,6 +65,8 @@ const showRedactionLogFeature = (
 
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
   const { redactionLog } = useQueryParamsState<FeatureFlagQueryParams>();
+  console.log("msalInstance>>>", msalInstance);
+  console.log("msalInstance>>>", msalInstance.getAllAccounts());
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
   const groupClaims = account?.idTokenClaims?.groups as string[];
