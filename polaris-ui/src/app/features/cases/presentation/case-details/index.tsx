@@ -223,6 +223,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
           <RedactionLogModal
             caseUrn={caseState.data.uniqueReferenceNumber}
             isCaseCharged={caseState.data.isCaseCharged}
+            owningUnit={caseState.data.owningUnit}
             documentName={getActiveTabDocument().presentationFileName}
             cmsDocumentTypeId={getActiveTabDocument().cmsDocType.documentTypeId}
             savedRedactionTypes={redactionLog.savedRedactionTypes}

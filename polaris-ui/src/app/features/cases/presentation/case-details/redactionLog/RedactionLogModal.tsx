@@ -11,6 +11,7 @@ import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionL
 type Props = {
   caseUrn: string;
   isCaseCharged: boolean;
+  owningUnit: string;
   documentName: string;
   cmsDocumentTypeId: number;
   saveStatus: SaveStatus;
@@ -23,6 +24,7 @@ type Props = {
 export const RedactionLogModal: React.FC<Props> = ({
   caseUrn,
   isCaseCharged,
+  owningUnit,
   documentName,
   cmsDocumentTypeId,
   savedRedactionTypes,
@@ -41,6 +43,7 @@ export const RedactionLogModal: React.FC<Props> = ({
       <RedactionLogContent
         caseUrn={caseUrn}
         isCaseCharged={isCaseCharged}
+        owningUnit={owningUnit}
         documentName={documentName}
         cmsDocumentTypeId={cmsDocumentTypeId}
         savedRedactionTypes={savedRedactionTypes}

@@ -28,6 +28,7 @@ import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentat
 type RedactionLogContentProps = {
   caseUrn: string;
   isCaseCharged: boolean;
+  owningUnit: string;
   documentName: string;
   cmsDocumentTypeId: number;
   savedRedactionTypes: RedactionTypeData[];
@@ -41,6 +42,7 @@ type RedactionLogContentProps = {
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   caseUrn,
   isCaseCharged,
+  owningUnit,
   documentName,
   cmsDocumentTypeId,
   saveStatus,
@@ -65,9 +67,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       const values = getDefaultValuesFromMappings(
         redactionLogMappingsData,
         redactionLogLookUpsData.ouCodeMapping,
-        "Bristol CC1",
+        owningUnit,
         cmsDocumentTypeId,
-        "00AH"
+        caseUrn
       );
 
       setDefaultValues((defaultValues: any) => ({
@@ -77,6 +79,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     }
   }, [
     redactionLogMappingsData,
+    owningUnit,
     caseUrn,
     cmsDocumentTypeId,
     redactionLogLookUpsData,

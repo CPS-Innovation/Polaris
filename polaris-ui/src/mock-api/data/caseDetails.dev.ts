@@ -12,6 +12,7 @@ const caseDetails: CaseDetails[] = [
     id: 13401,
     uniqueReferenceNumber: "",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,

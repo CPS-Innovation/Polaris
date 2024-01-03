@@ -13,7 +13,7 @@ export const getDefaultValuesFromMappings = (
   ouCodeMapping: OuCodeMapping[],
   owningUnit: string,
   docTypeId: number,
-  urnSubString: string
+  caseUrn: string
 ) => {
   let defaultValues: MappingDefaultData = {
     cpsArea: "",
@@ -36,10 +36,10 @@ export const getDefaultValuesFromMappings = (
   defaultValues.documentType = defaultDocType?.docTypeId ?? "";
 
   const defaultIA = mappingData.investigatingAgencies.find(
-    (ia) => ia.ouCode === urnSubString
+    (ia) => ia.ouCode === caseUrn.slice(0, 4)
   );
   const defaultIAFromOuCodeMapping =
-    ouCodeMapping.find((mapping) => mapping.ouCode === urnSubString.slice(0, 2))
+    ouCodeMapping.find((mapping) => mapping.ouCode === caseUrn.slice(0, 2))
       ?.investigatingAgencyCode ?? "";
 
   defaultValues.investigatingAgency =

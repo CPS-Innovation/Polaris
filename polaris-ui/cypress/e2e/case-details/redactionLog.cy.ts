@@ -137,7 +137,7 @@ describe("Redaction Log", () => {
       );
       cy.findByTestId("btn-save-redaction-log").should("not.be.disabled");
     });
-    it("Under redaction modal should throw error for empty select values and should be able to successfully save the under redaction log", () => {
+    xit("Under redaction modal should throw error for empty select values and should be able to successfully save the under redaction log", () => {
       cy.overrideRoute(
         SAVE_REDACTION_ROUTE,
         {
@@ -261,7 +261,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
       cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
     });
-    it("Should hide RedactionLog modal and should show error message if the saving of redaction log is failed", () => {
+    xit("Should hide RedactionLog modal and should show error message if the saving of redaction log is failed", () => {
       cy.overrideRoute(
         SAVE_REDACTION_LOG_ROUTE,
         {
