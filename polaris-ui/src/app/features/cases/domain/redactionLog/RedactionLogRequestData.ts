@@ -20,4 +20,11 @@ export type RedactionLogRequestData = {
   chargeStatus: ChargeStatus;
   notes: string | null;
   returnedToInvestigativeAuthority: boolean;
+  cmsValues: {
+    documentId: string;
+    originalFileName: string;
+    documentTypeId: number;
+    documentType: string;
+    fileCreatedDate: string;
+  };
 };

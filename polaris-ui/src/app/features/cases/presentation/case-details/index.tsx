@@ -226,6 +226,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             owningUnit={caseState.data.owningUnit}
             documentName={getActiveTabDocument().presentationFileName}
             cmsDocumentTypeId={getActiveTabDocument().cmsDocType.documentTypeId}
+            additionalData={{
+              originalFileName: getActiveTabDocument().cmsOriginalFileName,
+              documentId: getActiveTabDocument().cmsDocumentId,
+              documentType: getActiveTabDocument().cmsDocType.documentType,
+              fileCreatedDate: getActiveTabDocument().cmsFileCreatedDate,
+            }}
             savedRedactionTypes={redactionLog.savedRedactionTypes}
             saveStatus={getActiveTabDocument().saveStatus}
             redactionLogLookUpsData={redactionLog.redactionLogLookUpsData.data}

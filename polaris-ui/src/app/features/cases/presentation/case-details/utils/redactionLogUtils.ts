@@ -47,3 +47,15 @@ export const getDefaultValuesFromMappings = (
 
   return defaultValues;
 };
+
+export const redactString = (
+  str: string,
+  trimFrontCount: number = 1,
+  trimBackCount: number = 1
+) => {
+  let chars = str.split("");
+  for (let i = trimFrontCount; i < chars.length - trimBackCount; i++) {
+    chars[i] = "*";
+  }
+  return chars.join("");
+};

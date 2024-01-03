@@ -22,7 +22,10 @@ import {
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategory";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
-import { getDefaultValuesFromMappings } from "../utils/redactionLogUtils";
+import {
+  getDefaultValuesFromMappings,
+  redactString,
+} from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 type RedactionLogContentProps = {
@@ -31,6 +34,12 @@ type RedactionLogContentProps = {
   owningUnit: string;
   documentName: string;
   cmsDocumentTypeId: number;
+  additionalData: {
+    documentId: string;
+    documentType: string;
+    fileCreatedDate: string;
+    originalFileName: string;
+  };
   savedRedactionTypes: RedactionTypeData[];
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
@@ -45,6 +54,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   owningUnit,
   documentName,
   cmsDocumentTypeId,
+  additionalData,
   saveStatus,
   saveRedactionLog,
   savedRedactionTypes,
@@ -249,6 +259,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       notes: formData.notes || null,
       returnedToInvestigativeAuthority: false,
       chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
+      cmsValues: {
+        ...additionalData,
+        documentTypeId: cmsDocumentTypeId,
+        originalFileName: redactString(additionalData.originalFileName),
+      },
     };
     return mappedData;
   };

@@ -14,6 +14,12 @@ type Props = {
   owningUnit: string;
   documentName: string;
   cmsDocumentTypeId: number;
+  additionalData: {
+    documentId: string;
+    documentType: string;
+    fileCreatedDate: string;
+    originalFileName: string;
+  };
   saveStatus: SaveStatus;
   savedRedactionTypes: RedactionTypeData[];
   redactionLogLookUpsData: RedactionLogLookUpsData;
@@ -27,6 +33,7 @@ export const RedactionLogModal: React.FC<Props> = ({
   owningUnit,
   documentName,
   cmsDocumentTypeId,
+  additionalData,
   savedRedactionTypes,
   saveStatus,
   redactionLogLookUpsData,
@@ -46,6 +53,7 @@ export const RedactionLogModal: React.FC<Props> = ({
         owningUnit={owningUnit}
         documentName={documentName}
         cmsDocumentTypeId={cmsDocumentTypeId}
+        additionalData={additionalData}
         savedRedactionTypes={savedRedactionTypes}
         saveStatus={saveStatus}
         redactionLogLookUpsData={redactionLogLookUpsData}
