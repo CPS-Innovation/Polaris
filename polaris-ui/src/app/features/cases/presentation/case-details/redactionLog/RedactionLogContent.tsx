@@ -259,31 +259,31 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         return {
           children: "Please enter valid CPS Area or Central Casework Division",
           href: "#select-cps-area",
-          "data-testid": "select-cps-area-validation-urn",
+          "data-testid": "select-cps-area-link",
         };
       case "businessUnit":
         return {
           children: "Please enter valid CPS Business Unit",
           href: "#select-cps-bu",
-          "data-testid": "select-cps-bu-validation-urn",
+          "data-testid": "select-cps-bu-link",
         };
       case "investigatingAgency":
         return {
           children: "Please enter valid Investigative Agency",
           href: "#select-cps-ia",
-          "data-testid": "select-cps-ia-validation-urn",
+          "data-testid": "select-cps-ia-link",
         };
       case "documentType":
         return {
           children: "Please enter valid Document Type",
           href: "#select-cps-dt",
-          "data-testid": "select-cps-dt-validation-urn",
+          "data-testid": "select-cps-dt-link",
         };
       case "chargeStatus":
         return {
           children: "Please enter valid Charge Status",
           href: "#select-cps-cs",
-          "data-testid": "select-cps-cs-validation-urn",
+          "data-testid": "select-cps-cs-link",
         };
     }
   };

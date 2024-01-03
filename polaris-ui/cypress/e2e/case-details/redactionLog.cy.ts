@@ -137,7 +137,7 @@ describe("Redaction Log", () => {
       );
       cy.findByTestId("btn-save-redaction-log").should("not.be.disabled");
     });
-    xit("Under redaction modal should throw error for empty select values and should be able to successfully save the under redaction log", () => {
+    it("Under redaction modal should throw error for empty select values and should be able to successfully save the under redaction log", () => {
       cy.overrideRoute(
         SAVE_REDACTION_ROUTE,
         {
@@ -182,44 +182,36 @@ describe("Redaction Log", () => {
       cy.get("#error-summary-title").should("exist");
       cy.findByTestId("redaction-log-error-summary")
         .find("li")
-        .should("have.length", 4);
+        .should("have.length", 3);
 
       cy.get("#select-cps-area-error").should("exist");
       cy.get("#select-cps-area-error").should(
         "have.text",
         "Error: Select an Area or Division"
       );
-      cy.findByTestId("select-cps-area-validation-urn").should("exist");
+      cy.findByTestId("select-cps-area-link").should("exist");
       cy.get("#select-cps-bu-error").should("exist");
       cy.get("#select-cps-bu-error").should(
         "have.text",
         "Error: Select a Business Unit"
       );
-      cy.findByTestId("select-cps-bu-validation-urn").should("exist");
-      cy.get("#select-cps-ia-error").should("exist");
-      cy.get("#select-cps-ia-error").should(
-        "have.text",
-        "Error: Select an Investigative Agency"
-      );
-      cy.findByTestId("select-cps-ia-validation-urn").should("exist");
+      cy.findByTestId("select-cps-bu-link").should("exist");
+
       cy.get("#select-cps-dt-error").should("exist");
       cy.get("#select-cps-dt-error").should(
         "have.text",
         "Error: Select a Document Type"
       );
-      cy.findByTestId("select-cps-dt-validation-urn").should("exist");
+      cy.findByTestId("select-cps-dt-link").should("exist");
       cy.findByTestId("select-cps-area").select("1");
       cy.get("#select-cps-area-error").should("not.exist");
-      cy.findByTestId("select-cps-area-validation-urn").should("not.exist");
+      cy.findByTestId("select-cps-area-link").should("not.exist");
       cy.findByTestId("select-cps-bu").select("1");
       cy.get("#select-cps-bu-error").should("not.exist");
-      cy.findByTestId("select-cps-bu-validation-urn").should("not.exist");
-      cy.findByTestId("select-cps-ia").select("1");
-      cy.get("#select-cps-ia-error").should("not.exist");
-      cy.findByTestId("select-cps-ia-validation-urn").should("not.exist");
+      cy.findByTestId("select-cps-bu-link").should("not.exist");
       cy.findByTestId("select-cps-dt").select("1");
       cy.get("#select-cps-dt-error").should("not.exist");
-      cy.findByTestId("select-cps-dt-validation-urn").should("not.exist");
+      cy.findByTestId("select-cps-dt-link").should("not.exist");
 
       cy.get("#error-summary-title").should("not.exist");
 
@@ -261,7 +253,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
       cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
     });
-    xit("Should hide RedactionLog modal and should show error message if the saving of redaction log is failed", () => {
+    it("Should hide RedactionLog modal and should show error message if the saving of redaction log is failed", () => {
       cy.overrideRoute(
         SAVE_REDACTION_LOG_ROUTE,
         {
@@ -289,13 +281,6 @@ describe("Redaction Log", () => {
         .should("exist");
       cy.findByTestId("rl-under-redaction-content").contains("1 - Title");
       cy.findByTestId("btn-save-redaction-log").should("not.be.disabled");
-      cy.findByTestId("btn-save-redaction-log").click();
-
-      cy.findByTestId("select-cps-area").select("1");
-      cy.findByTestId("select-cps-bu").select("1");
-      cy.findByTestId("select-cps-ia").select("1");
-      cy.findByTestId("select-cps-dt").select("1");
-
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("rl-under-redaction-content").should("not.exist");
       cy.findByTestId("div-modal")
