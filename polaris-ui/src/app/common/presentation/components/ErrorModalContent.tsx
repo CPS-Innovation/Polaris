@@ -18,8 +18,8 @@ export const ErrorModalContent: React.FC<ErrorModalContentProps> = ({
     <div className={classes.errorModalContent}>
       <h1 className="govuk-heading-l">{title}</h1>
       <div className={classes.errorMessage}>
-        {messageParagraphs.map((message) => (
-          <p>{message}</p>
+        {messageParagraphs.map((message, index) => (
+          <p key={index}>{message}</p>
         ))}
       </div>
       <div className={classes.errorBtnWrapper}>
