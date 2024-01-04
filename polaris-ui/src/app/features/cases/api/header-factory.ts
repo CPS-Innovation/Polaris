@@ -1,5 +1,5 @@
 import { getAccessToken } from "../../../auth";
-import { GATEWAY_SCOPE, REACT_APP_REDACTION_LOG_SCOPE } from "../../../config";
+import { GATEWAY_SCOPE, REDACTION_LOG_SCOPE } from "../../../config";
 import { generateGuid } from "./generate-guid";
 
 const CORRELATION_ID = "Correlation-Id";
@@ -16,8 +16,6 @@ export const auth = async () => ({
 
 export const authRedactionLog = async () => ({
   Authorization: `Bearer ${
-    REACT_APP_REDACTION_LOG_SCOPE
-      ? await getAccessToken([REACT_APP_REDACTION_LOG_SCOPE])
-      : "TEST"
+    REDACTION_LOG_SCOPE ? await getAccessToken([REDACTION_LOG_SCOPE]) : "TEST"
   }`,
 });
