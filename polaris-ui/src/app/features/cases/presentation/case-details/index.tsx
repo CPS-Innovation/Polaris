@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import {
@@ -123,6 +123,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
+  const getActiveTabDocument = useMemo(() => {
+    return tabsState.items.find(
+      (item) => item.documentId === tabsState.activeTabId
+    )!;
+  }, [tabsState.activeTabId, tabsState.items]);
+
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
@@ -134,12 +140,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const dacDocumentId = getDACDocumentId(
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
-
-  const getActiveTabDocument = () => {
-    return tabsState.items.find(
-      (item) => item.documentId === tabsState.activeTabId
-    )!;
-  };
 
   return (
     <>
@@ -190,10 +190,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
       {documentIssueModal.show && (
         <ReportAnIssueModal
-          documentId={getActiveTabDocument()?.documentId!}
-          presentationTitle={getActiveTabDocument()?.presentationTitle!}
+          documentId={getActiveTabDocument?.documentId!}
+          presentationTitle={getActiveTabDocument?.presentationTitle!}
           polarisDocumentVersionId={
-            getActiveTabDocument()?.polarisDocumentVersionId!
+            getActiveTabDocument?.polarisDocumentVersionId!
           }
           correlationId={pipelineState?.correlationId}
           handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
@@ -224,16 +224,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             caseUrn={caseState.data.uniqueReferenceNumber}
             isCaseCharged={caseState.data.isCaseCharged}
             owningUnit={caseState.data.owningUnit}
-            documentName={getActiveTabDocument().presentationFileName}
-            cmsDocumentTypeId={getActiveTabDocument().cmsDocType.documentTypeId}
+            documentName={getActiveTabDocument.presentationFileName}
+            cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
             additionalData={{
-              originalFileName: getActiveTabDocument().cmsOriginalFileName,
-              documentId: getActiveTabDocument().cmsDocumentId,
-              documentType: getActiveTabDocument().cmsDocType.documentType,
-              fileCreatedDate: getActiveTabDocument().cmsFileCreatedDate,
+              originalFileName: getActiveTabDocument.cmsOriginalFileName,
+              documentId: getActiveTabDocument.cmsDocumentId,
+              documentType: getActiveTabDocument.cmsDocType.documentType,
+              fileCreatedDate: getActiveTabDocument.cmsFileCreatedDate,
             }}
             savedRedactionTypes={redactionLog.savedRedactionTypes}
-            saveStatus={getActiveTabDocument().saveStatus}
+            saveStatus={getActiveTabDocument.saveStatus}
             redactionLogLookUpsData={redactionLog.redactionLogLookUpsData.data}
             saveRedactionLog={handleSavedRedactionLog}
             redactionLogMappingsData={
