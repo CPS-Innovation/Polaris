@@ -21,3 +21,4 @@ export { LoaderUpdate } from "./LoaderUpdate";
 export { LinkButton } from "./LinkButton";
 export { TextArea } from "./TextArea";
 export { Guidance } from "./Guidance";
+export { Spinner } from "./Spinner";

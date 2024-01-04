@@ -45,7 +45,10 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
     <div className={classes.underRedactionContent}>
       <div className={classes.headingWrapper}>
         <DocIcon className={classes.docIcon} />{" "}
-        <h2>{`Redaction details for:"${documentName}"`}</h2>
+        <h2>
+          <span className={classes.greyColor}>Redaction details for:</span>
+          {`"${documentName}"`}
+        </h2>
       </div>
       <ul
         className={classes.underRedactionContentList}

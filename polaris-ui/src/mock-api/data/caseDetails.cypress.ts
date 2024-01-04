@@ -12,6 +12,7 @@ const caseDetails: CaseDetails[] = [
     id: 13401,
     uniqueReferenceNumber: "12AB1111111",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -54,6 +55,7 @@ const caseDetails: CaseDetails[] = [
     id: 13301,
     uniqueReferenceNumber: "12AB1111111",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -133,6 +135,7 @@ const caseDetails: CaseDetails[] = [
     id: 13201,
     uniqueReferenceNumber: "12AB1111111",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -209,6 +212,7 @@ const caseDetails: CaseDetails[] = [
     id: 13501,
     uniqueReferenceNumber: "12AB1111122",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,
@@ -252,6 +256,7 @@ const caseDetails: CaseDetails[] = [
     id: 13601,
     uniqueReferenceNumber: "12AB1111111",
     isCaseCharged: true,
+    owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
     leadDefendantDetails: {
       id: 901,

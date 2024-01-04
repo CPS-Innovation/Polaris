@@ -37,11 +37,11 @@
   top: 40%;
   left: 50%;
   transform: translate(-50%, -40%);
+  max-height: 90vh;
   overflow-y: auto;
 }
 .modalContentData {
   width: 90%;
-  height: 80%;
   max-width: 1300px;
 }
 .modalHeader {

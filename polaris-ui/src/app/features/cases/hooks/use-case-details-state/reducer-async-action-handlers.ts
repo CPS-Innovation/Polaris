@@ -393,7 +393,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "SHOW_ERROR_MODAL",
           payload: {
             title: "Something went wrong!",
-            message: "Failed to save redaction log. Please try again later.",
+            message:
+              "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually.<p> Don't worry the redacted document has saved into CMS successfully.",
           },
         });
       }

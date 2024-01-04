@@ -10,7 +10,8 @@ import { MappedCaseDocument } from "./MappedCaseDocument";
 import { FeatureFlagData } from "./FeatureFlagData";
 import { FilterOption } from "./FilterOption";
 import {
-  RedactionLogData,
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
   RedactionTypeData,
 } from "./redactionLog/RedactionLogData";
 
@@ -63,7 +64,8 @@ export type CombinedState = {
   };
   redactionLog: {
     showModal: boolean;
-    redactionLogData: AsyncResult<RedactionLogData>;
+    redactionLogLookUpsData: AsyncResult<RedactionLogLookUpsData>;
+    redactionLogMappingData: AsyncResult<RedactionLogMappingData>;
     savedRedactionTypes: RedactionTypeData[];
   };
   featureFlags: AsyncResult<FeatureFlagData>;

@@ -1,3 +1,9 @@
-import { RedactionLogData } from "../../../app/features/cases/domain/redactionLog/RedactionLogData";
+import {
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
+} from "../../../app/features/cases/domain/redactionLog/RedactionLogData";
 
-export type RedactionLogDataSource = RedactionLogData;
+export type RedactionLogDataSource = {
+  lookUpsData: RedactionLogLookUpsData;
+  mappingData: RedactionLogMappingData;
+};

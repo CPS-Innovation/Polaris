@@ -1,9 +1,14 @@
 export const GATEWAY_BASE_URL = process.env.REACT_APP_GATEWAY_BASE_URL!;
 export const GATEWAY_SCOPE = process.env.REACT_APP_GATEWAY_SCOPE!;
+export const REACT_APP_REDACTION_LOG_SCOPE =
+  process.env.REACT_APP_REDACTION_LOG_SCOPE!;
+
 export const CLIENT_ID = process.env.REACT_APP_CLIENT_ID!;
 export const TENANT_ID = process.env.REACT_APP_TENANT_ID!;
 export const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || "development";
 export const SURVEY_LINK = process.env.REACT_APP_SURVEY_LINK;
+export const REDACTION_LOG_BASE_URL =
+  process.env.REACT_APP_REDACTION_LOG_BASE_URL;
 
 /*
   To avoid public routing, we send out app insights traffic through on our own domain via the proxy.
