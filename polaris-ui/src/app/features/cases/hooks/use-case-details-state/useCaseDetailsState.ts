@@ -3,7 +3,8 @@ import { useApi } from "../../../../common/hooks/useApi";
 import {
   getCaseDetails,
   searchCase,
-  getRedactionLogData,
+  getRedactionLogLookUpsData,
+  getRedactionLogMappingData,
 } from "../../api/gateway-api";
 import { usePipelineApi } from "../use-pipeline-api/usePipelineApi";
 import { CombinedState } from "../../domain/CombinedState";
@@ -56,7 +57,8 @@ export const initialState = {
   },
   redactionLog: {
     showModal: false,
-    redactionLogData: { status: "loading" },
+    redactionLogLookUpsData: { status: "loading" },
+    redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
   },
   featureFlags: { status: "loading" },
@@ -79,8 +81,16 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     combinedState.pipelineRefreshData
   );
 
-  const redactionLogData = useApi(
-    getRedactionLogData,
+  const redactionLogLookUpsData = useApi(
+    getRedactionLogLookUpsData,
+    [],
+    combinedState.featureFlags.status === "succeeded"
+      ? combinedState.featureFlags.data.redactionLog
+      : false
+  );
+
+  const redactionLogMappingData = useApi(
+    getRedactionLogMappingData,
     [],
     combinedState.featureFlags.status === "succeeded"
       ? combinedState.featureFlags.data.redactionLog
@@ -88,12 +98,20 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   useEffect(() => {
-    if (redactionLogData.status !== "initial")
+    if (redactionLogLookUpsData.status !== "initial")
       dispatch({
-        type: "UPDATE_REDACTION_LOG_DATA",
-        payload: redactionLogData,
+        type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA",
+        payload: redactionLogLookUpsData,
       });
-  }, [redactionLogData, dispatch]);
+  }, [redactionLogLookUpsData, dispatch]);
+
+  useEffect(() => {
+    if (redactionLogMappingData.status !== "initial")
+      dispatch({
+        type: "UPDATE_REDACTION_LOG_MAPPING_DATA",
+        payload: redactionLogMappingData,
+      });
+  }, [redactionLogMappingData, dispatch]);
 
   useEffect(() => {
     if (combinedState.featureFlags.status === "loading")

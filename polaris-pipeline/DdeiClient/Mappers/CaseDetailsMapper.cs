@@ -27,6 +27,7 @@ namespace Ddei.Mappers
                 UniqueReferenceNumber = summary.Urn,
                 IsCaseCharged = isCaseCharged,
                 NumberOfDefendants = summary.NumberOfDefendants,
+                OwningUnit = summary.OwningUnit,
                 LeadDefendantDetails = leadDefendant.DefendantDetails,
                 DefendantsAndCharges = defendants,
                 HeadlineCharge = headlineCharge,
@@ -205,7 +206,8 @@ namespace Ddei.Mappers
                 .OrderBy(charge => charge.ListOrder)
                 .FirstOrDefault();
 
-            if (firstCharge != null)
+
+            if (firstCharge != null && firstCharge.Code != NotYetChargedCode)
             {
                 return MapHeadlineCharge(firstCharge);
             }

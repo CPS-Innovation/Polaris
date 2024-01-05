@@ -1,5 +1,5 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { BackLink } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import {
@@ -123,6 +123,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
+  const getActiveTabDocument = useMemo(() => {
+    return tabsState.items.find(
+      (item) => item.documentId === tabsState.activeTabId
+    )!;
+  }, [tabsState.activeTabId, tabsState.items]);
+
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
@@ -134,12 +140,6 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
   const dacDocumentId = getDACDocumentId(
     pipelineState?.haveData ? pipelineState.data.documents : []
   );
-
-  const getActiveTabDocument = () => {
-    return tabsState.items.find(
-      (item) => item.documentId === tabsState.activeTabId
-    )!;
-  };
 
   return (
     <>
@@ -190,10 +190,10 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
 
       {documentIssueModal.show && (
         <ReportAnIssueModal
-          documentId={getActiveTabDocument()?.documentId!}
-          presentationTitle={getActiveTabDocument()?.presentationTitle!}
+          documentId={getActiveTabDocument?.documentId!}
+          presentationTitle={getActiveTabDocument?.presentationTitle!}
           polarisDocumentVersionId={
-            getActiveTabDocument()?.polarisDocumentVersionId!
+            getActiveTabDocument?.polarisDocumentVersionId!
           }
           correlationId={pipelineState?.correlationId}
           handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
@@ -219,14 +219,28 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       )}
 
       {redactionLog.showModal &&
-        redactionLog.redactionLogData.status === "succeeded" && (
+        redactionLog.redactionLogLookUpsData.status === "succeeded" && (
           <RedactionLogModal
             caseUrn={caseState.data.uniqueReferenceNumber}
-            documentName={getActiveTabDocument().presentationFileName}
+            isCaseCharged={caseState.data.isCaseCharged}
+            owningUnit={caseState.data.owningUnit}
+            documentName={getActiveTabDocument.presentationFileName}
+            cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
+            additionalData={{
+              originalFileName: getActiveTabDocument.cmsOriginalFileName,
+              documentId: getActiveTabDocument.cmsDocumentId,
+              documentType: getActiveTabDocument.cmsDocType.documentType,
+              fileCreatedDate: getActiveTabDocument.cmsFileCreatedDate,
+            }}
             savedRedactionTypes={redactionLog.savedRedactionTypes}
-            saveStatus={getActiveTabDocument().saveStatus}
-            redactionLogData={redactionLog.redactionLogData.data}
+            saveStatus={getActiveTabDocument.saveStatus}
+            redactionLogLookUpsData={redactionLog.redactionLogLookUpsData.data}
             saveRedactionLog={handleSavedRedactionLog}
+            redactionLogMappingsData={
+              redactionLog.redactionLogMappingData.status === "succeeded"
+                ? redactionLog.redactionLogMappingData.data
+                : null
+            }
           />
         )}
       <nav>
@@ -312,8 +326,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
             ) : (
               <PdfTabs
                 redactionTypesData={
-                  redactionLog.redactionLogData.status === "succeeded"
-                    ? redactionLog.redactionLogData.data.missedRedactions
+                  redactionLog.redactionLogLookUpsData.status === "succeeded"
+                    ? redactionLog.redactionLogLookUpsData.data.missedRedactions
                     : []
                 }
                 isOkToSave={pipelineState.status === "complete"}

@@ -23,7 +23,8 @@ import { isNewTime, hasDocumentUpdated } from "../utils/refreshUtils";
 import { isDocumentsPresentStatus } from "../../domain/gateway/PipelineStatus";
 import { SaveStatus } from "../../domain/gateway/SaveStatus";
 import {
-  RedactionLogData,
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
   RedactionTypeData,
 } from "../../domain/redactionLog/RedactionLogData";
 import { AsyncResult } from "../../../../common/types/AsyncResult";
@@ -156,8 +157,12 @@ export const reducer = (
         };
       }
     | {
-        type: "UPDATE_REDACTION_LOG_DATA";
-        payload: ApiResult<RedactionLogData>;
+        type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
+        payload: ApiResult<RedactionLogLookUpsData>;
+      }
+    | {
+        type: "UPDATE_REDACTION_LOG_MAPPING_DATA";
+        payload: ApiResult<RedactionLogMappingData>;
       }
     | {
         type: "UPDATE_FEATURE_FLAGS_DATA";
@@ -172,7 +177,7 @@ export const reducer = (
 
       return { ...state, caseState: action.payload };
 
-    case "UPDATE_REDACTION_LOG_DATA":
+    case "UPDATE_REDACTION_LOG_LOOK_UPS_DATA":
       if (action.payload.status === "failed") {
         return state;
       }
@@ -180,7 +185,19 @@ export const reducer = (
         ...state,
         redactionLog: {
           ...state.redactionLog,
-          redactionLogData: action.payload,
+          redactionLogLookUpsData: action.payload,
+        },
+      };
+
+    case "UPDATE_REDACTION_LOG_MAPPING_DATA":
+      if (action.payload.status === "failed") {
+        return state;
+      }
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          redactionLogMappingData: action.payload,
         },
       };
 

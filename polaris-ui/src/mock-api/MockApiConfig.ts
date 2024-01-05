@@ -3,4 +3,5 @@ export type MockApiConfig = {
   sourceName: "cypress" | "dev";
   maxDelayMs: number;
   publicUrl: string;
+  redactionLogUrl: string;
 };

@@ -36,6 +36,7 @@ Cypress.on("test:before:run:async", async () => {
     baseUrl: Cypress.env().REACT_APP_GATEWAY_BASE_URL,
     maxDelayMs: Cypress.env().REACT_APP_MOCK_API_MAX_DELAY,
     publicUrl: "",
+    redactionLogUrl: Cypress.env().REACT_APP_REDACTION_LOG_BASE_URL,
   });
 });
 
@@ -58,7 +59,8 @@ declare global {
             }
           | { type: "delay"; timeMs: number }
           | { type?: false; body: any },
-        method?: "get" | "post" | "put"
+        method?: "get" | "post" | "put",
+        baseUrl?: string
       ): Chainable<AUTWindow>;
       trackRequestCount(
         counter: { count: number },
