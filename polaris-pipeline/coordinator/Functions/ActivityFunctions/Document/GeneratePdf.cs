@@ -56,7 +56,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
 
             var fileType = GetFileType(payload);
 
-            using var documentStream = await GetDocumentStreamAsync(payload);
+            var documentStream = await GetDocumentStreamAsync(payload);
             using var pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
                     payload.CorrelationId,
                     payload.CmsAuthValues,

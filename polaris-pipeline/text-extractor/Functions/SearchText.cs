@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,10 +29,10 @@ namespace text_extractor.Functions
             IJsonConvertWrapper jsonConvertWrapper,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
-            _searchIndexService = searchIndexService;
-            _searchFilterDocumentMapper = searchFilterDocumentMapper;
-            _jsonConvertWrapper = jsonConvertWrapper;
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
+            _searchIndexService = searchIndexService ?? throw new ArgumentNullException(nameof(searchIndexService));
+            _searchFilterDocumentMapper = searchFilterDocumentMapper ?? throw new ArgumentNullException(nameof(searchFilterDocumentMapper));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
         }
 
         [FunctionName(nameof(SearchText))]

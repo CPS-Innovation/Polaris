@@ -13,6 +13,7 @@ using Common.Services.DocumentToggle;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using System.Net;
+using Common.Streaming;
 
 namespace Ddei.Services.Extensions
 {
@@ -40,6 +41,7 @@ namespace Ddei.Services.Extensions
             services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
             services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
             services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+            services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
             services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
               DocumentToggleService.ReadConfig()
             ));

@@ -8,7 +8,6 @@ using Common.Domain.Exceptions;
 using Common.Dto.Request;
 using Common.Extensions;
 using Common.Handlers.Contracts;
-using Common.Logging;
 using Common.Mappers.Contracts;
 using Common.Services.CaseSearchService.Contracts;
 using Common.Services.OcrService;
@@ -28,7 +27,7 @@ namespace text_extractor.Functions
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IDtoHttpRequestHeadersMapper _dtoHttpRequestHeadersMapper;
-        private readonly ILogger<ExtractText> _log;
+        private readonly ILogger<ExtractText> _logger;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
@@ -41,25 +40,23 @@ namespace text_extractor.Functions
                            ITelemetryClient telemetryClient,
                            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
-            _validatorWrapper = validatorWrapper;
-            _ocrService = ocrService;
-            _searchIndexService = searchIndexService;
-            _exceptionHandler = exceptionHandler;
-            _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper;
-            _log = logger;
-            _telemetryClient = telemetryClient;
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
+            _validatorWrapper = validatorWrapper ?? throw new ArgumentNullException(nameof(validatorWrapper));
+            _ocrService = ocrService ?? throw new ArgumentNullException(nameof(ocrService));
+            _searchIndexService = searchIndexService ?? throw new ArgumentNullException(nameof(searchIndexService));
+            _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
+            _dtoHttpRequestHeadersMapper = dtoHttpRequestHeadersMapper ?? throw new ArgumentNullException(nameof(dtoHttpRequestHeadersMapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
         }
 
         [FunctionName(nameof(ExtractText))]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.Extract)] HttpRequestMessage request)
         {
             Guid currentCorrelationId = default;
-            const string loggingName = "ExtractText - Run";
             IndexedDocumentEvent telemetryEvent = default;
             try
             {
-                #region Validate-Inputs
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
                 telemetryEvent = new IndexedDocumentEvent(currentCorrelationId);
@@ -73,17 +70,16 @@ namespace text_extractor.Functions
                 var extractTextRequest = _dtoHttpRequestHeadersMapper.Map<ExtractTextRequestDto>(request.Headers);
                 var results = _validatorWrapper.Validate(extractTextRequest);
                 if (results.Any())
+                {
                     throw new BadRequestException(string.Join(Environment.NewLine, results), nameof(request));
+                }
+
                 _telemetryAugmentationWrapper.RegisterDocumentId(extractTextRequest.DocumentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(extractTextRequest.VersionId.ToString());
+
                 telemetryEvent.CaseId = extractTextRequest.CaseId;
                 telemetryEvent.DocumentId = extractTextRequest.DocumentId;
                 telemetryEvent.VersionId = extractTextRequest.VersionId;
-
-                #endregion
-
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning OCR process for blob {extractTextRequest.BlobName}");
-
                 telemetryEvent.StartTime = DateTime.UtcNow;
 
                 var inputStream = await request.Content.ReadAsStreamAsync();
@@ -92,8 +88,6 @@ namespace text_extractor.Functions
                 telemetryEvent.PageCount = ocrResults.ReadResults.Count;
                 telemetryEvent.LineCount = ocrResults.ReadResults.Sum(x => x.Lines.Count);
                 telemetryEvent.WordCount = ocrResults.ReadResults.Sum(x => x.Lines.Sum(y => y.Words.Count));
-
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"OCR processed finished for {extractTextRequest.BlobName}, beginning search index update");
 
                 await _searchIndexService.SendStoreResultsAsync
                     (
@@ -105,9 +99,8 @@ namespace text_extractor.Functions
                         extractTextRequest.BlobName,
                         currentCorrelationId
                     );
-                telemetryEvent.IndexStoredTime = DateTime.UtcNow;
 
-                _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
+                telemetryEvent.IndexStoredTime = DateTime.UtcNow;
 
                 if (await _searchIndexService.WaitForStoreResultsAsync(ocrResults, extractTextRequest.CaseId, extractTextRequest.DocumentId, extractTextRequest.VersionId, currentCorrelationId))
                 {
@@ -121,11 +114,7 @@ namespace text_extractor.Functions
             catch (Exception exception)
             {
                 _telemetryClient.TrackEventFailure(telemetryEvent);
-                return _exceptionHandler.HandleException(exception, currentCorrelationId, loggingName, _log);
-            }
-            finally
-            {
-                _log.LogMethodExit(currentCorrelationId, loggingName, string.Empty);
+                return _exceptionHandler.HandleException(exception, currentCorrelationId, nameof(ExtractText), _logger);
             }
         }
     }

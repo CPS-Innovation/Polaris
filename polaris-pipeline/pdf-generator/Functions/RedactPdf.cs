@@ -39,11 +39,11 @@ namespace pdf_generator.Functions
             IValidator<RedactPdfRequestDto> requestValidator,
             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
-            _exceptionHandler = exceptionHandler;
-            _jsonConvertWrapper = jsonConvertWrapper;
-            _documentRedactionService = documentRedactionService;
+            _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
+            _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
+            _documentRedactionService = documentRedactionService ?? throw new ArgumentNullException(nameof(documentRedactionService));
             _requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
             _logger = logger;
         }
 

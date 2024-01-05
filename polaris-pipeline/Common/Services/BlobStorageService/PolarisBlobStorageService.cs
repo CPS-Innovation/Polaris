@@ -9,7 +9,6 @@ using Azure.Storage.Blobs.Models;
 using Common.Constants;
 using Common.Domain.BlobStorage;
 using Common.Domain.Extensions;
-using Common.Logging;
 using Common.Services.BlobStorageService.Contracts;
 using Common.ValueObjects;
 using Microsoft.Extensions.Logging;
@@ -80,7 +79,9 @@ namespace Common.Services.BlobStorageService
             // We could use `DownloadStreamingAsync` as per https://github.com/Azure/azure-sdk-for-net/issues/22022#issuecomment-870054035
             //  as we are in Azure calling Azure so streaming should be no problem without having to do chunking.
             // However https://github.com/Azure/azure-sdk-for-net/issues/38342#issue-1864138162 suggests that we could better use `OpenReadAsync`.
-            return await blobClient.OpenReadAsync();
+            //  Azurite seems to have a problem with `OpenReadAsync` so we will use `DownloadStreamingAsync` for now.
+            var result = await blobClient.DownloadStreamingAsync();
+            return result.Value.Content;
         }
 
         public async Task UploadDocumentAsync(Stream stream, string blobName, string caseId, PolarisDocumentId polarisDocumentId, string versionId, Guid correlationId)

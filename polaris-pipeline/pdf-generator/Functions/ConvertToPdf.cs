@@ -9,6 +9,7 @@ using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Extensions;
 using Common.Logging;
+using Common.Streaming;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -34,10 +35,10 @@ namespace pdf_generator.Functions
              ITelemetryClient telemetryClient,
              ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
         {
-            _pdfOrchestratorService = pdfOrchestratorService;
-            _logger = logger;
-            _telemetryClient = telemetryClient;
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
+            _pdfOrchestratorService = pdfOrchestratorService ?? throw new ArgumentNullException(nameof(pdfOrchestratorService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+            _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
         }
 
         [FunctionName(nameof(ConvertToPdf))]
@@ -47,11 +48,10 @@ namespace pdf_generator.Functions
             ConvertedDocumentEvent telemetryEvent = default;
             try
             {
-                #region Validate-Inputs        
                 currentCorrelationId = request.Headers.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
+
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
-                _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
 
                 request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
                 if (cmsAuthValuesValues == null)
@@ -96,49 +96,41 @@ namespace pdf_generator.Functions
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 telemetryEvent.VersionId = versionId;
 
-                #endregion
-
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
 
-                if (request.Content != null)
-                {
-                    var inputStream = await request.Content.ReadAsStreamAsync();
-                    var originalBytes = inputStream.Length;
-                    telemetryEvent.OriginalBytes = originalBytes;
-
-                    var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
-                    var bytes = pdfStream.Length;
-
-                    telemetryEvent.Bytes = bytes;
-                    telemetryEvent.EndTime = DateTime.UtcNow;
-
-                    _telemetryClient.TrackEvent(telemetryEvent);
-
-                    pdfStream.Position = 0;
-                    return new FileStreamResult(pdfStream, "application/pdf")
-                    {
-                        FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
-                    };
-                }
-                else
+                if (request.Content == null)
                 {
                     throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
                 }
+
+                var inputStream = await request.Content
+                    .ReadAsStreamAsync()
+                    .EnsureSeekableAsync();
+
+                var originalBytes = inputStream.Length;
+                telemetryEvent.OriginalBytes = originalBytes;
+
+                var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
+                var bytes = pdfStream.Length;
+
+                telemetryEvent.Bytes = bytes;
+                telemetryEvent.EndTime = DateTime.UtcNow;
+
+                _telemetryClient.TrackEvent(telemetryEvent);
+
+                return new FileStreamResult(pdfStream, "application/pdf")
+                {
+                    FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
+                };
+
             }
             catch (Exception exception)
             {
                 _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                return new ObjectResult(exception.ToString())
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError
-                };
-            }
-            finally
-            {
-                _logger.LogMethodExit(currentCorrelationId, LoggingName, nameof(ConvertToPdf));
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
             }
         }
     }

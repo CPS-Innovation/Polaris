@@ -44,7 +44,6 @@ namespace coordinator.Functions.ActivityFunctions.Case
         {
             var payload = context.GetInput<GetCaseDocumentsActivityPayload>();
 
-            #region Validate-Inputs
             if (payload == null)
                 throw new ArgumentException("Payload cannot be null.");
             if (string.IsNullOrWhiteSpace(payload.CmsCaseUrn))
@@ -55,9 +54,8 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 throw new ArgumentException("Cms Auth Token cannot be null");
             if (payload.CorrelationId == Guid.Empty)
                 throw new ArgumentException("CorrelationId must be valid GUID");
-            #endregion
 
-            CmsDocumentDto[] documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
+            var documents = await _ddeiClient.ListDocumentsAsync(payload.CmsCaseUrn, payload.CmsCaseId.ToString(), payload.CmsAuthValues, payload.CorrelationId);
 
             var cmsDocuments = documents
                 .Select(doc => MapPresentationFlags(doc))

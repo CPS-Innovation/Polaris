@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Logging;
@@ -48,11 +47,8 @@ namespace pdf_generator.Services.PdfService
 
         public Stream ReadToPdfStream(Stream inputStream, FileType fileType, string documentId, Guid correlationId)
         {
-            _logger.LogMethodEntry(correlationId, nameof(ReadToPdfStream), documentId);
-
             try
             {
-                _logger.LogMethodFlow(correlationId, nameof(ReadToPdfStream), "Analysing file type and matching to a converter");
                 var pdfStream = new MemoryStream();
                 switch (fileType)
                 {
@@ -110,7 +106,7 @@ namespace pdf_generator.Services.PdfService
                     default:
                         throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
                 }
-
+                pdfStream.Position = 0;
                 return pdfStream;
             }
             catch (Exception exception)
@@ -120,10 +116,6 @@ namespace pdf_generator.Services.PdfService
                 //the stack trace is lost here if simply thrown but not preserved except the message - ensure the exception is logged in full here until exceptions are reworked in general
                 _logger.LogMethodError(correlationId, nameof(ReadToPdfStream), exception.Message, exception);
                 throw new PdfConversionException(documentId, exception.Message);
-            }
-            finally
-            {
-                _logger.LogMethodExit(correlationId, nameof(ReadToPdfStream), string.Empty);
             }
         }
     }
