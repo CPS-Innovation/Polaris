@@ -3,7 +3,6 @@ import { FC, useEffect, useState } from "react";
 
 import { msalInstance } from "./msalInstance";
 import { PrivateBetaAuthorizationFilter } from "./PrivateBetaAuthorizationFilter";
-import { getAccessToken } from "./getAccessToken";
 
 export const Auth: FC = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>();
@@ -23,7 +22,7 @@ export const Auth: FC = ({ children }) => {
         });
         return;
       }
-      await getAccessToken([]);
+
       setIsLoggedIn(true);
     })();
   }, []);
