@@ -38,11 +38,11 @@ is_redaction_service_offline = "false"
 
 feature_flag_hte_emails_on = "true"
 
-feature_flag_redaction_log = "false"
-redaction_log_user_group = ""
+feature_flag_redaction_log = "true"
+redaction_log_user_group = "1a9b08e8-5839-4953-a053-c1bc6dd02233" // the Polaris-Dev-VPN group
 
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
   user_group  = "1a9b08e8-5839-4953-a053-c1bc6dd02233" // the Polaris-Dev-VPN group
-  redaction_log_user_group = ""
+  redaction_log_user_group = "1a9b08e8-5839-4953-a053-c1bc6dd02233" // the Polaris-Dev-VPN group
 }

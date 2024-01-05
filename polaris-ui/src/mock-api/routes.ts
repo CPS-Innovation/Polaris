@@ -14,6 +14,7 @@ export const SAS_URL_ROUTE = "api/some-complicated-sas-url/:blobName";
 export const SAVE_REDACTION_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId";
 
-export const REDACTION_LOG_ROUTE = "/api/redactionlogdata";
+export const REDACTION_LOG_ROUTE = "/api/lookUps";
+export const REDACTION_LOG_MAPPING_ROUTE = "/api/polarisMappings";
 
-export const SAVE_REDACTION_LOG_ROUTE = "/api/saveredactionlog";
+export const SAVE_REDACTION_LOG_ROUTE = "/api/redactionLogs";

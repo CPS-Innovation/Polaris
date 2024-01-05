@@ -1,4 +1,4 @@
 export enum RedactionCategory {
-  UnderRedacted,
+  UnderRedacted = 1,
   OverRedacted,
 }

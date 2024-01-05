@@ -2,6 +2,7 @@ export type CaseDetails = {
   id: number;
   uniqueReferenceNumber: string;
   isCaseCharged: boolean;
+  owningUnit: string;
   numberOfDefendants: number;
   leadDefendantDetails: DefendantDetails;
   headlineCharge: HeadlineCharge;

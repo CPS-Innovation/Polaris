@@ -56,6 +56,7 @@ export const setupHandlers = ({
   sourceName,
   maxDelayMs,
   baseUrl,
+  redactionLogUrl,
 }: MockApiConfig) => {
   // make sure we are reading a number not string from config
   //  also msw will not accept a delay of 0, so if 0 is passed then just set to 1ms
@@ -63,6 +64,8 @@ export const setupHandlers = ({
   const callStack = { TRACKER_ROUTE: 0, INITIATE_PIPELINE_ROUTE: 0 };
 
   const makeApiPath = (path: string) => new URL(path, baseUrl).toString();
+  const makeRedactionLogApiPath = (path: string) =>
+    new URL(path, redactionLogUrl).toString();
 
   const delay = (ctx: RestContext) =>
     ctx.delay(Math.random() * sanitisedMaxDelay);
@@ -153,15 +156,28 @@ export const setupHandlers = ({
       );
     }),
 
-    rest.get(makeApiPath(routes.REDACTION_LOG_ROUTE), (req, res, ctx) => {
-      const results = redactionLogDataSources[sourceName];
+    rest.get(
+      makeRedactionLogApiPath(routes.REDACTION_LOG_ROUTE),
+      (req, res, ctx) => {
+        const results = redactionLogDataSources[sourceName].lookUpsData;
+        return res(delay(ctx), ctx.json(results));
+      }
+    ),
 
-      return res(delay(ctx), ctx.json(results));
-    }),
+    rest.get(
+      makeRedactionLogApiPath(routes.REDACTION_LOG_MAPPING_ROUTE),
+      (req, res, ctx) => {
+        const results = redactionLogDataSources[sourceName].mappingData;
+        return res(delay(ctx), ctx.json(results));
+      }
+    ),
 
-    rest.put(makeApiPath(routes.SAVE_REDACTION_LOG_ROUTE), (req, res, ctx) => {
-      return res(delay(ctx), ctx.json({}));
-    }),
+    rest.post(
+      makeRedactionLogApiPath(routes.SAVE_REDACTION_LOG_ROUTE),
+      (req, res, ctx) => {
+        return res(delay(ctx), ctx.json({}));
+      }
+    ),
 
     rest.post(makeApiPath(routes.DOCUMENT_CHECKOUT_ROUTE), (req, res, ctx) => {
       return res(ctx.json({ successful: true, documentStatus: "CheckedOut" }));
