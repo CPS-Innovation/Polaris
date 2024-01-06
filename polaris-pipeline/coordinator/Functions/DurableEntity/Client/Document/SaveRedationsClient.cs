@@ -94,7 +94,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
 
-                DdeiCmsDocumentArgDto arg = new DdeiCmsDocumentArgDto
+                var arg = new DdeiCmsDocumentArgDto
                 {
                     CmsAuthValues = cmsAuthValues,
                     CorrelationId = currentCorrelationId,

@@ -110,14 +110,6 @@ namespace Common.Services.DocumentToggle
             return ReadOnly;
         }
 
-        //private void AssertIsInitialised()
-        //{
-        //    if (_definitions == null)
-        //    {
-        //        throw new DocumentToggleException("DocumentToggleService not initialised when processing document");
-        //    }
-        //}
-
         private string[] SplitConfigLines(string content)
         {
             try

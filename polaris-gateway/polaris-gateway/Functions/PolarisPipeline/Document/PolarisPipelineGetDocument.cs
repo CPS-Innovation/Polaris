@@ -42,14 +42,17 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
             {
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
+                {
                     return request.InvalidResponseResult;
+                }
 
                 currentCorrelationId = request.CurrentCorrelationId;
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
+                {
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                }
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Getting document for urn {caseUrn}, caseId {caseId}, id {polarisDocumentId}");
                 var blobStream = await _pipelineClient.GetDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), currentCorrelationId);
 
                 return blobStream != null

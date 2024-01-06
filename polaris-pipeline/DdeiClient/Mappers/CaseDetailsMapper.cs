@@ -122,7 +122,7 @@ namespace Ddei.Mappers
         {
             return pcdRequests
                       .SelectMany(pcdRequest => pcdRequest.Suspects)
-                      // weaknes here:  because we screenscrape, we don't actually ever see a unique numerical id
+                      // weakness here:  because we screenscrape, we don't actually ever see a unique numerical id
                       //  for a suspect.  When we want to join between defendants and suspect, all we have are 
                       //  the Dob etc fields to join on, and hope for the best that they all match
                       .Where(suspect => suspect.Dob == defendant.Dob
@@ -180,7 +180,7 @@ namespace Ddei.Mappers
         {
 
             // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
-            // that we find the defendant recrod we want (e.g. if there are two John Smiths on the case?) 
+            // that we find the defendant record we want (e.g. if there are two John Smiths on the case?) 
             var foundDefendants = defendants.Where(defendant =>
                 AreStringsEqual(caseSummary.LeadDefendantFirstNames, defendant.DefendantDetails.FirstNames)
                 && AreStringsEqual(caseSummary.LeadDefendantSurname, defendant.DefendantDetails.Surname)

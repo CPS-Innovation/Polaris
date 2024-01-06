@@ -44,12 +44,16 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
             {
                 var request = await ValidateRequest(req, loggingName, ValidRoles.UserImpersonation);
                 if (request.InvalidResponseResult != null)
+                {
                     return request.InvalidResponseResult;
+                }
 
                 currentCorrelationId = request.CurrentCorrelationId;
 
                 if (string.IsNullOrWhiteSpace(caseUrn))
+                {
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                }
 
                 return await _pipelineClient.CheckoutDocumentAsync(caseUrn, caseId, new PolarisDocumentId(polarisDocumentId), request.CmsAuthValues, currentCorrelationId);
 

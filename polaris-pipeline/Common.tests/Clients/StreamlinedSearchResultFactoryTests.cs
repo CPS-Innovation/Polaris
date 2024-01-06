@@ -6,7 +6,6 @@ using Common.Mappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -23,13 +22,11 @@ public class StreamlinedSearchResultFactoryTests
 
     public StreamlinedSearchResultFactoryTests()
     {
-        var loggerMock = new Mock<ILogger<StreamlinedSearchResultFactory>>();
-
         _fixture = new Fixture();
         _correlationId = _fixture.Create<Guid>();
         _streamlinedSearchLineMapper = new Mock<IStreamlinedSearchLineMapper>();
         _streamlinedSearchWordMapper = new Mock<IStreamlinedSearchWordMapper>();
-        _streamlinedSearchResultFactory = new StreamlinedSearchResultFactory(_streamlinedSearchLineMapper.Object, _streamlinedSearchWordMapper.Object, loggerMock.Object);
+        _streamlinedSearchResultFactory = new StreamlinedSearchResultFactory(_streamlinedSearchLineMapper.Object, _streamlinedSearchWordMapper.Object);
     }
 
     [Fact]

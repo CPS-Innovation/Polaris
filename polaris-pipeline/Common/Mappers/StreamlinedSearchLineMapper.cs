@@ -7,6 +7,10 @@ namespace Common.Mappers
 {
     public class StreamlinedSearchLineMapper : IStreamlinedSearchLineMapper
     {
+        public StreamlinedSearchLineMapper()
+        {
+        }
+
         public StreamlinedSearchLine Map(SearchLine searchLine, Guid correlationId)
         {
 

@@ -23,6 +23,6 @@ namespace Common.Services.CaseSearchService.Contracts
 
         Task RemoveDocumentIndexEntriesAsync(long caseId, string documentId, long versionId, Guid correlationId);
 
-        Task RemoveResultsByBlobNameAsync(long cmsCaseId, string blobName, Guid correlationId);
+        //Task RemoveResultsByBlobNameAsync(long cmsCaseId, string blobName, Guid correlationId);
     }
 }

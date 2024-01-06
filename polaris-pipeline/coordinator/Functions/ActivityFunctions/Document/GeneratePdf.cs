@@ -24,7 +24,6 @@ namespace coordinator.Functions.ActivityFunctions.Document
         private readonly IDdeiClient _ddeiClient;
         private readonly IPolarisBlobStorageService _blobStorageService;
         private readonly ILogger<GeneratePdf> _logger;
-        private const string loggingName = nameof(GeneratePdf);
 
         public GeneratePdf(
             IConvertModelToHtmlService convertPcdRequestToHtmlService,

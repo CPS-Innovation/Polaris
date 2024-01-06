@@ -3,8 +3,6 @@ using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 using Common.Mappers;
 using Common.Mappers.Contracts;
@@ -18,13 +16,11 @@ namespace PolarisGateway.Tests.Mappers
     {
         private readonly Fixture _fixture;
         private readonly Guid _correlationId;
-        private readonly Mock<ILogger<RedactPdfRequestMapper>> _loggerMock;
 
         public RedactPdfRequestMapperTests()
         {
             _fixture = new Fixture();
             _correlationId = _fixture.Create<Guid>();
-            _loggerMock = new Mock<ILogger<RedactPdfRequestMapper>>();
         }
 
         [Fact]
@@ -35,7 +31,7 @@ namespace PolarisGateway.Tests.Mappers
             var testCaseId = _fixture.Create<int>();
             var testPolarisDocumentId = _fixture.Create<PolarisDocumentId>();
 
-            IRedactPdfRequestMapper mapper = new RedactPdfRequestMapper(_loggerMock.Object);
+            IRedactPdfRequestMapper mapper = new RedactPdfRequestMapper();
             var result = mapper.Map(testRequest, testCaseId, testPolarisDocumentId, _correlationId);
 
             using (new AssertionScope())

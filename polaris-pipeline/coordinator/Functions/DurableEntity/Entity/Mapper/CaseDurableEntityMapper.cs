@@ -7,12 +7,12 @@ namespace coordinator.Functions.DurableEntity.Entity.Mapper
     {
         public static TrackerDto MapCase(CaseDurableEntity caseEntity)
         {
-            if(caseEntity == null)
+            if (caseEntity == null)
+            {
                 caseEntity = new CaseDurableEntity { Status = CaseRefreshStatus.NotStarted };
+            }
 
-            var trackerDto = caseEntity.Adapt<TrackerDto>();
-
-            return trackerDto;
+            return caseEntity.Adapt<TrackerDto>();
         }
     }
 }

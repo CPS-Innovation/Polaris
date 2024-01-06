@@ -5,7 +5,6 @@ using Common.Logging;
 using Common.ValueObjects;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;
-using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -31,13 +30,24 @@ namespace coordinator.Functions.Orchestration.Functions.Document
         {
             var payload = context.GetInput<CaseDocumentOrchestrationPayload>();
             if (payload == null)
+            {
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
+            }
 
             var log = context.CreateReplaySafeLogger(_log);
 
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, false, payload.CorrelationId, log);
+            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, false);
 
-            await CallPdfGeneratorAsync(context, payload, caseEntity, log);
+            try
+            {
+                await context.CallActivityAsync(nameof(GeneratePdf), payload);
+            }
+            catch (Exception exception)
+            {
+                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(GeneratePdf)}: {exception.Message}", exception);
+                throw;
+            }
 
             if (payload.CmsDocumentTracker != null)
             {
@@ -50,27 +60,6 @@ namespace coordinator.Functions.Orchestration.Functions.Document
 
             caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.PdfUploadedToBlob, payload.BlobName));
 
-            await CallTextExtractorAsync(context, payload, payload.BlobName, caseEntity, log);
-
-            caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, payload.BlobName));
-        }
-
-        private async Task CallPdfGeneratorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, ICaseDurableEntity caseEntity, ILogger log)
-        {
-            try
-            {
-                await context.CallActivityAsync(nameof(GeneratePdf), payload);
-            }
-            catch (Exception exception)
-            {
-                caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.UnableToConvertToPdf, null));
-                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
-                throw;
-            }
-        }
-
-        private async Task CallTextExtractorAsync(IDurableOrchestrationContext context, CaseDocumentOrchestrationPayload payload, string blobName, ICaseDurableEntity caseEntity, ILogger log)
-        {
             try
             {
                 await context.CallActivityAsync(nameof(ExtractText), payload);
@@ -78,9 +67,11 @@ namespace coordinator.Functions.Orchestration.Functions.Document
             catch (Exception exception)
             {
                 caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.OcrAndIndexFailure, null));
-                log.LogMethodError(payload.CorrelationId, nameof(CallTextExtractorAsync), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
+                log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(ExtractText)} orchestration: {exception.Message}", exception);
                 throw;
             }
+
+            caseEntity.SetDocumentStatus((payload.PolarisDocumentId.ToString(), DocumentStatus.Indexed, payload.BlobName));
         }
     }
 }

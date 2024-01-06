@@ -62,7 +62,7 @@ namespace coordinator.Functions.Orchestration.Functions.Case
 
             var log = context.CreateReplaySafeLogger(_log);
 
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true, payload.CorrelationId, log);
+            var caseEntity = await CreateOrGetCaseDurableEntity(context, payload.CmsCaseId, true);
             caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
 
             RefreshedCaseEvent telemetryEvent = default;

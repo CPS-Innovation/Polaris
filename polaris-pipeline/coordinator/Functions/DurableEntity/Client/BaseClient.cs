@@ -84,7 +84,6 @@ namespace coordinator.Functions.DurableEntity.Client
         {
             var response = new GetTrackerDocumentResponse { Success = false };
 
-            #region Validate Inputs
             req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
             if (correlationIdValues == null)
             {
@@ -94,12 +93,13 @@ namespace coordinator.Functions.DurableEntity.Client
 
             var correlationId = correlationIdValues.FirstOrDefault();
             if (!Guid.TryParse(correlationId, out response.CorrelationId))
+            {
                 if (response.CorrelationId == Guid.Empty)
                 {
                     response.Error = new BadRequestObjectResult(correlationErrorMessage);
                     return response;
                 }
-            #endregion
+            }
 
             var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
@@ -110,7 +110,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 return response;
             }
 
-            CaseDurableEntity entityState = stateResponse.EntityState;
+            var entityState = stateResponse.EntityState;
             response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.PolarisDocumentId.Equals(polarisDocumentId));
             if (response.CmsDocument == null)
             {

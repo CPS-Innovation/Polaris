@@ -88,7 +88,8 @@ namespace PolarisGateway.Functions.PolarisPipeline.Document
                 var IsSuccess = redactionResult.Succeeded;
                 telemetryEvent.IsSuccess = IsSuccess;
 
-                var result = IsSuccess ? new OkResult()
+                var result = IsSuccess
+                    ? new OkResult()
                     : BadGatewayErrorResponse("Error Saving redaction details", currentCorrelationId, loggingName);
 
                 return sendTelemetryAndReturn(result);

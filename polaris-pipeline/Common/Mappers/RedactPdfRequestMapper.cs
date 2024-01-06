@@ -10,6 +10,10 @@ namespace Common.Mappers
 {
     public class RedactPdfRequestMapper : IRedactPdfRequestMapper
     {
+        public RedactPdfRequestMapper()
+        {
+        }
+
         public RedactPdfRequestDto Map(DocumentRedactionSaveRequestDto saveRequest, long caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
         {
             if (saveRequest == null) throw new ArgumentNullException(nameof(saveRequest));

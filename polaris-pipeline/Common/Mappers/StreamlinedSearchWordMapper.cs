@@ -9,6 +9,10 @@ namespace Common.Mappers
 {
     public class StreamlinedSearchWordMapper : IStreamlinedSearchWordMapper
     {
+        public StreamlinedSearchWordMapper()
+        {
+        }
+
         public StreamlinedWord Map(Word word, string searchTerm, Guid correlationId)
         {
             var searchTermLookup = SearchTermIncluded(word.Text, searchTerm, correlationId);

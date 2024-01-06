@@ -46,14 +46,20 @@ namespace PolarisGateway.Functions.PolarisPipeline.Case
                 currentCorrelationId = request.CurrentCorrelationId;
 
                 if (caseId <= 0)
+                {
                     return BadRequestErrorResponse("A valid caseId must be supplied, one that is greater than zero", currentCorrelationId, loggingName);
+                }
 
                 if (!req.Query.ContainsKey("query"))
+                {
                     return BadRequestErrorResponse("Search query is not supplied.", currentCorrelationId, loggingName);
+                }
 
-                string searchTerm = req.Query["query"];
+                var searchTerm = req.Query["query"];
                 if (string.IsNullOrWhiteSpace(searchTerm))
+                {
                     return BadRequestErrorResponse("Search query term is not supplied.", currentCorrelationId, loggingName);
+                }
 
                 var searchResults = await _pipelineClient.SearchCase(caseUrn, caseId, searchTerm, currentCorrelationId);
 

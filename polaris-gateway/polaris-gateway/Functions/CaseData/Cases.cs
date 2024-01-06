@@ -53,7 +53,9 @@ namespace PolarisGateway.Functions.CaseData
                 var cmsAuthValues = validationResult.CmsAuthValues;
 
                 if (string.IsNullOrEmpty(caseUrn))
+                {
                     return BadRequestErrorResponse("Urn is not supplied.", currentCorrelationId, loggingName);
+                }
 
                 var urnArg = _caseDataArgFactory.CreateUrnArg(cmsAuthValues, currentCorrelationId, caseUrn);
                 var caseInformation = await _caseDataService.ListCases(urnArg);

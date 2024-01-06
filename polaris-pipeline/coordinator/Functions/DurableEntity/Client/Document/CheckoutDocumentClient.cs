@@ -40,13 +40,11 @@ namespace coordinator.Functions.DurableEntity.Client.Document
 
             try
             {
-                #region Validate-Inputs
                 var cmsAuthValues = req.Headers.GetValues(HttpHeaderKeys.CmsAuthValues).FirstOrDefault();
                 if (string.IsNullOrEmpty(cmsAuthValues))
                 {
                     throw new ArgumentException(HttpHeaderKeys.CmsAuthValues);
                 }
-                #endregion
 
                 var response = await GetTrackerDocument(req, client, loggingName, caseId, new PolarisDocumentId(polarisDocumentId), log);
 
@@ -62,7 +60,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                 currentCorrelationId = response.CorrelationId;
                 var document = response.CmsDocument;
 
-                DdeiCmsDocumentArgDto arg = new DdeiCmsDocumentArgDto
+                var arg = new DdeiCmsDocumentArgDto
                 {
                     CmsAuthValues = cmsAuthValues,
                     CorrelationId = currentCorrelationId,

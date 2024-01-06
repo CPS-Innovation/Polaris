@@ -5,7 +5,6 @@ using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,7 +104,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
         var existingInstance = await orchestrationClient.GetStatusAsync(instanceId);
         var isSingletonRefreshRunning = IsSingletonRefreshRunning(existingInstance);
-        
+
         if (isSingletonRefreshRunning)
         {
             return new HttpResponseMessage(HttpStatusCode.Locked);
@@ -168,6 +167,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
         catch (Exception)
         {
+            // todo: log exception
             _telemetryClient.TrackEventFailure(telemetryEvent);
             throw;
         }

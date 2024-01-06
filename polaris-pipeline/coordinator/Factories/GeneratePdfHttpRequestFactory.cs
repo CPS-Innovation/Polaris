@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Common.Constants;
 using Common.Dto.Request;
-using Common.Logging;
 using Common.Wrappers.Contracts;
 using coordinator.Domain.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;

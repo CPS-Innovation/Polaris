@@ -48,7 +48,9 @@ namespace text_extractor.Functions
             var content = await request.Content.ReadAsStringAsync();
             var searchDto = _jsonConvertWrapper.DeserializeObject<SearchRequestDto>(content);
 
-            var searchFilterDocuments = searchDto.Documents.Select(_searchFilterDocumentMapper.MapToSearchFilterDocument).ToList();
+            var searchFilterDocuments = searchDto.Documents
+                .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
+                .ToList();
 
             var searchResults = await _searchIndexService.QueryAsync(
                 searchDto.CaseId,

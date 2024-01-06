@@ -33,7 +33,6 @@ namespace Common.Validators
 
         public async Task<ValidateTokenResult> ValidateTokenAsync(StringValues token, Guid correlationId, string requiredScopes = null, string requiredRoles = null)
         {
-            _log.LogMethodEntry(correlationId, nameof(ValidateTokenAsync), string.Empty);
             if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
             try
             {
@@ -93,18 +92,12 @@ namespace Common.Validators
 
                 };
             }
-            finally
-            {
-                _log.LogMethodExit(correlationId, nameof(ValidateTokenAsync), string.Empty);
-            }
         }
 
         private bool IsValid(ClaimsPrincipal claimsPrincipal, Guid correlationId, string scopes = null, string roles = null)
         {
-            _log.LogMethodEntry(correlationId, nameof(IsValid), string.Empty);
             if (claimsPrincipal == null)
             {
-                _log.LogMethodFlow(correlationId, nameof(IsValid), "Claims Principal not found - returning 'false' indicating an authorization failure");
                 return false;
             }
 
@@ -113,7 +106,6 @@ namespace Common.Validators
 
             if (!requiredScopes.Any() && !requiredRoles.Any())
             {
-                _log.LogMethodFlow(correlationId, nameof(IsValid), "No required scopes or roles found - allowing access - returning");
                 return true;
             }
 
@@ -125,7 +117,6 @@ namespace Common.Validators
             var tokenScopes = scopeClaim.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).ToList();
             var hasAccessToScopes = !requiredScopes.Any() || requiredScopes.All(x => tokenScopes.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase)));
 
-            _log.LogMethodExit(correlationId, nameof(IsValid), $"Outcome role and scope checks - hasAccessToRoles: {hasAccessToRoles}, hasAccessToScopes: {hasAccessToScopes}");
             return hasAccessToRoles && hasAccessToScopes;
         }
 

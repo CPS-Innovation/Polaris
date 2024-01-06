@@ -27,7 +27,6 @@ namespace pdf_generator.Functions
         private readonly ILogger<ConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
-        const string LoggingName = nameof(ConvertToPdf);
 
         public ConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
@@ -106,6 +105,7 @@ namespace pdf_generator.Functions
 
                 var inputStream = await request.Content
                     .ReadAsStreamAsync()
+                    // Aspose demands a seekable stream, and as we want to record the size of the stream, we need to ensure it is seekable also.
                     .EnsureSeekableAsync();
 
                 var originalBytes = inputStream.Length;
@@ -127,7 +127,7 @@ namespace pdf_generator.Functions
             }
             catch (Exception exception)
             {
-                _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
+                _logger.LogMethodError(currentCorrelationId, nameof(ConvertToPdf), exception.Message, exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
                 return new StatusCodeResult((int)HttpStatusCode.InternalServerError);

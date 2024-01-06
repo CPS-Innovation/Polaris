@@ -6,7 +6,6 @@ using Xunit;
 using Microsoft.Extensions.Configuration;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Microsoft.Extensions.Logging;
 
 namespace Common.Tests.Factories;
 
@@ -27,12 +26,11 @@ public class BlobSasBuilderFactoryTests
         _blobExpirySecs = fixture.Create<int>();
         _correlationId = fixture.Create<Guid>();
         var configuration = new Mock<IConfiguration>();
-        var loggerMock = new Mock<ILogger<BlobSasBuilderFactory>>();
 
         configuration.Setup(x => x[ConfigKeys.SharedKeys.BlobServiceContainerName]).Returns(_blobContainerName);
         configuration.Setup(x => x[ConfigKeys.SharedKeys.BlobExpirySecs]).Returns(_blobExpirySecs.ToString());
 
-        _blobSasBuilderFactory = new BlobSasBuilderFactory(configuration.Object, loggerMock.Object);
+        _blobSasBuilderFactory = new BlobSasBuilderFactory(configuration.Object);
     }
 
     [Fact]

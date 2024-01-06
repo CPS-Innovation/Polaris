@@ -40,7 +40,6 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 
             try
             {
-                #region Validate-Inputs
                 req.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdValues);
                 if (correlationIdValues == null)
                 {
@@ -49,11 +48,12 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
 
                 var correlationId = correlationIdValues.FirstOrDefault();
                 if (!Guid.TryParse(correlationId, out currentCorrelationId))
+                {
                     if (currentCorrelationId == Guid.Empty)
                     {
                         return new BadRequestObjectResult(correlationErrorMessage);
                     }
-                #endregion
+                }
 
                 var (caseEntity, errorMessage) = await GetCaseTrackerForEntity(client, caseId, currentCorrelationId, loggingName, log);
 

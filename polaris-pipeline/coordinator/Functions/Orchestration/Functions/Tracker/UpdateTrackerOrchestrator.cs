@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Common.Dto.Tracker;
 using Common.Logging;
 using coordinator.Domain;
-using coordinator.Functions.DurableEntity.Entity;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -31,10 +30,12 @@ namespace coordinator.Functions.Orchestration.Functions.Tracker
 
             var payload = context.GetInput<UpdateCaseDurableEntityPayload>();
             if (payload == null)
+            {
                 throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
+            }
 
             var currentCaseId = payload.CaseOrchestrationPayload.CmsCaseId;
-            var caseEntity = await CreateOrGetCaseDurableEntity(context, currentCaseId, false, payload.CaseOrchestrationPayload.CorrelationId, log);
+            var caseEntity = await CreateOrGetCaseDurableEntity(context, currentCaseId, false);
 
             try
             {
