@@ -28,6 +28,7 @@ import {
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 type RedactionLogContentProps = {
   caseUrn: string;
   isCaseCharged: boolean;
@@ -61,6 +62,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   redactionLogLookUpsData,
   redactionLogMappingsData,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
   const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
     cpsArea: "",
@@ -310,6 +312,26 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     }));
 
     return errorSummary;
+  };
+
+  const handleAppInsightReporting = (
+    newValues: UnderRedactionFormData,
+    defaultValues: UnderRedactionFormData
+  ) => {
+    const { notes, ...defaultValuesWithoutNotes } = defaultValues;
+    const { notes: newNotes, ...newValuesWithoutNotes } = newValues;
+    const hasDefaultValueChange =
+      JSON.stringify(defaultValuesWithoutNotes) ===
+      JSON.stringify(newValuesWithoutNotes);
+    if (!hasDefaultValueChange) {
+      trackEvent("Failed Default Mapping Redaction Log", {
+        oldValues: defaultValuesWithoutNotes,
+        newValues: newValuesWithoutNotes,
+      });
+    }
+    trackEvent("Save Redaction Log", {
+      values: newValues,
+    });
   };
 
   return (
@@ -587,6 +609,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             });
             setSavingRedactionLog(true);
             saveRedactionLog(redactionLogRequestData);
+            handleAppInsightReporting(data, defaultValues);
           })}
           data-testid="btn-save-redaction-log"
         >
