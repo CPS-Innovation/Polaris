@@ -10,6 +10,11 @@ namespace Common.Dto.Case
         [JsonProperty("date")]
         public string Date { get; set; }
 
+        [JsonProperty("toDate")]
+        public string ToDate { get; set; }
+        [JsonProperty("fromDate")]
+        public string FromDate { get; set; }
+
         [JsonProperty("nextHearingDate")]
         public string NextHearingDate { get; set; }
     }
