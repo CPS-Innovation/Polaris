@@ -4,11 +4,17 @@ import { LinkButton } from "../components/LinkButton";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import classes from "./DropdownButton.module.scss";
 export type DropdownButtonProps = {
-  dropDownItems: { id: string; label: string; ariaLabel: string }[];
+  dropDownItems: {
+    id: string;
+    label: string;
+    ariaLabel: string;
+    disabled: boolean;
+  }[];
   callBackFn: (id: string) => void;
   currentSelectionId?: string;
   ariaLabel?: string;
   dataTestId?: string;
+  disabled?: boolean;
 };
 
 export const DropdownButton: React.FC<DropdownButtonProps> = ({
@@ -17,6 +23,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   currentSelectionId,
   dataTestId = "dropdown-btn",
   ariaLabel = "dropdown",
+  disabled = false,
 }) => {
   const dropDownBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +73,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
         ariaLabel={ariaLabel}
         ariaExpanded={buttonOpen}
         className={`${classes.dropDownButton} ${buttonOpen && classes.upArrow}`}
-        disabled={dropDownItems.length < 2}
+        disabled={disabled}
         onClick={() => {
           setButtonOpen((buttonOpen) => !buttonOpen);
         }}
@@ -86,7 +93,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
               <li key={item.id} className={classes.tabListItem}>
                 <LinkButton
                   ariaLabel={item.ariaLabel}
-                  disabled={item.id === currentSelectionId}
+                  disabled={item.disabled}
                   onClick={() => {
                     handleBtnClick(item.id);
                   }}

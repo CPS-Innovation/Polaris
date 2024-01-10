@@ -338,6 +338,18 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleShowHideRedactionLogModal = useCallback(
+    (value: boolean) =>
+      dispatch({
+        type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+        payload: {
+          show: value,
+          savedRedactionTypes: [],
+        },
+      }),
+    [dispatch]
+  );
+
   const handleUnLockDocuments = useCallback(
     (documentIds: CaseDocumentViewModel["documentId"][]) =>
       dispatch({
@@ -365,6 +377,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
+    handleShowHideRedactionLogModal,
     handleSavedRedactionLog,
   };
 };

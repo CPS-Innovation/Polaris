@@ -72,6 +72,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
+    handleShowHideRedactionLogModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -344,6 +345,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleUnLockDocuments={handleUnLockDocuments}
                 handleShowHideDocumentIssueModal={
                   handleShowHideDocumentIssueModal
+                }
+                handleShowHideRedactionLogModal={
+                  handleShowHideRedactionLogModal
                 }
                 contextData={{
                   correlationId: pipelineState?.correlationId,

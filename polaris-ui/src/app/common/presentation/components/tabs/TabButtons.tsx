@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import classes from "./Tabs.module.scss";
 import { ReactComponent as CloseIcon } from "../../svgs/closeIconBold.svg";
 import { ReactComponent as DownArrow } from "../../svgs/down.svg";
@@ -65,6 +65,14 @@ const TabButtons: React.FC<TabButtonProps> = ({
     const nextTabId = items[nextTabIndex].id;
     handleTabSelection(nextTabId);
   };
+
+  const tabDropdownItems = useMemo(() => {
+    return items.map((item) => ({
+      ...item,
+      disabled: item.id === items[activeTabIndex].id,
+    }));
+  }, [items, activeTabIndex]);
+
   if (!items.length) {
     return null;
   }
@@ -163,10 +171,11 @@ const TabButtons: React.FC<TabButtonProps> = ({
       <div className={classes.tabsDropDownWrapper}>
         <DropdownButton
           currentSelectionId={items[activeTabIndex].id}
-          dropDownItems={items}
+          dropDownItems={tabDropdownItems}
           callBackFn={handleTabSelection}
           ariaLabel="tabs dropdown"
           dataTestId="tabs-dropdown"
+          disabled={items.length < 2}
         />
       </div>
     </div>
