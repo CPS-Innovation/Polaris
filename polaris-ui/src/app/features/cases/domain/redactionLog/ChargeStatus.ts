@@ -1,5 +1,5 @@
 export enum ChargeStatus {
-  PreCharge,
+  PreCharge = 1,
   PostCharge,
 }
 export const ChargeStatusLabels = {

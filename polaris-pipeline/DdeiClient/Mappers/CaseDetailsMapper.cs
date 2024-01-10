@@ -27,6 +27,7 @@ namespace Ddei.Mappers
                 UniqueReferenceNumber = summary.Urn,
                 IsCaseCharged = isCaseCharged,
                 NumberOfDefendants = summary.NumberOfDefendants,
+                OwningUnit = summary.OwningUnit,
                 LeadDefendantDetails = leadDefendant.DefendantDetails,
                 DefendantsAndCharges = defendants,
                 HeadlineCharge = headlineCharge,
@@ -153,7 +154,9 @@ namespace Ddei.Mappers
             return new ProposedChargeDto
             {
                 Charge = proposedCharge.Charge,
-                Date = proposedCharge.Date
+                Date = proposedCharge.Date,
+                EarlyDate = proposedCharge.EarlyDate,
+                LateDate = proposedCharge.LateDate
             };
         }
 
@@ -172,7 +175,9 @@ namespace Ddei.Mappers
             return new HeadlineChargeDto
             {
                 Charge = proposedCharge.Charge,
-                Date = proposedCharge.Date
+                Date = proposedCharge.Date,
+                EarlyDate = proposedCharge.EarlyDate,
+                LateDate = proposedCharge.LateDate
             };
         }
         private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, DdeiCaseSummaryDto caseSummary)
@@ -205,7 +210,8 @@ namespace Ddei.Mappers
                 .OrderBy(charge => charge.ListOrder)
                 .FirstOrDefault();
 
-            if (firstCharge != null)
+
+            if (firstCharge != null && firstCharge.Code != NotYetChargedCode)
             {
                 return MapHeadlineCharge(firstCharge);
             }
@@ -285,6 +291,8 @@ namespace Ddei.Mappers
             {
                 Charge = ddeiPcdProposedChargeDto.Charge,
                 Date = ddeiPcdProposedChargeDto.Date,
+                EarlyDate = ddeiPcdProposedChargeDto.EarlyDate,
+                LateDate = ddeiPcdProposedChargeDto.LateDate,
                 Location = ddeiPcdProposedChargeDto.Location,
                 Category = ddeiPcdProposedChargeDto.Category
             };

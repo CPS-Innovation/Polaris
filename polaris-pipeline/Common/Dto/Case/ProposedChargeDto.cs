@@ -4,5 +4,7 @@ namespace Common.Dto.Case
     {
         public string Charge { get; set; }
         public string Date { get; set; }
+        public string EarlyDate { get; set; }
+        public string LateDate { get; set; }
     }
 }

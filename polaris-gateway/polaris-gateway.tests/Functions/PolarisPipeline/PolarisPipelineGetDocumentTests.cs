@@ -115,15 +115,15 @@ namespace PolarisGateway.Tests.Functions.PolarisPipeline
         {
             var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value);
 
-            response.Should().BeOfType<OkObjectResult>();
+            response.Should().BeOfType<FileStreamResult>();
         }
 
         [Fact]
         public async Task Run_ReturnsBlobStream()
         {
-            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as OkObjectResult;
+            var response = await _polarisPipelineGetPdf.Run(CreateHttpRequest(), _caseUrn, _caseId, _polarisDocumentId.Value) as FileStreamResult;
 
-            response?.Value.Should().Be(_blobStream);
+            response.FileStream.Should().BeSameAs(_blobStream);
         }
 
         [Fact]

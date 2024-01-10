@@ -1,74 +1,120 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   TextArea,
   Button,
   Guidance,
+  ErrorSummary,
+  Spinner,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import classes from "./RedactionLogContent.module.scss";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
   ChargeStatus,
   ChargeStatusLabels,
 } from "../../../domain/redactionLog/ChargeStatus";
 import {
-  RedactionLogData,
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
   RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategory";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
+import {
+  getDefaultValuesFromMappings,
+  redactString,
+} from "../utils/redactionLogUtils";
+import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
+import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 type RedactionLogContentProps = {
   caseUrn: string;
+  isCaseCharged: boolean;
+  owningUnit: string;
   documentName: string;
+  cmsDocumentTypeId: number;
+  additionalData: {
+    documentId: string;
+    documentType: string;
+    fileCreatedDate: string;
+    originalFileName: string;
+  };
   savedRedactionTypes: RedactionTypeData[];
   saveStatus: SaveStatus;
-  redactionLogData: RedactionLogData;
+  redactionLogLookUpsData: RedactionLogLookUpsData;
+  redactionLogMappingsData: RedactionLogMappingData | null;
   message?: string;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
-const defaultValues = {
-  cpsArea: "",
-  businessUnit: "",
-  investigatingAgency: "",
-  chargeStatus: `${ChargeStatus.PostCharge}`,
-  documentType: "",
-  notes: "",
-};
-
-export type UnderRedactionFormData = {
-  cpsArea: string;
-  businessUnit: string;
-  investigatingAgency: string;
-  chargeStatus: string;
-  documentType: string;
-  notes: string;
-};
-
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   caseUrn,
+  isCaseCharged,
+  owningUnit,
   documentName,
+  cmsDocumentTypeId,
+  additionalData,
   saveStatus,
   saveRedactionLog,
   savedRedactionTypes,
-  redactionLogData,
+  redactionLogLookUpsData,
+  redactionLogMappingsData,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
+  const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
+    cpsArea: "",
+    businessUnit: "",
+    investigatingAgency: "",
+    documentType: "",
+    chargeStatus: isCaseCharged
+      ? `${ChargeStatus.PostCharge}`
+      : `${ChargeStatus.PreCharge}`,
+    notes: "",
+  });
+  useEffect(() => {
+    if (redactionLogMappingsData) {
+      const values = getDefaultValuesFromMappings(
+        redactionLogMappingsData,
+        redactionLogLookUpsData.ouCodeMapping,
+        owningUnit,
+        cmsDocumentTypeId,
+        caseUrn
+      );
+
+      setDefaultValues((defaultValues: any) => ({
+        ...defaultValues,
+        ...values,
+      }));
+    }
+  }, [
+    redactionLogMappingsData,
+    owningUnit,
+    caseUrn,
+    cmsDocumentTypeId,
+    redactionLogLookUpsData,
+  ]);
+
   const {
     handleSubmit,
     formState: { errors },
     control,
     watch,
+    reset,
   } = useForm({ defaultValues });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const [cpsArea] = watch(["cpsArea"]);
 
   const getMappedSelectItems = () => {
     const areaOrDivisions = [
-      ...redactionLogData.areas,
-      ...redactionLogData.divisions,
+      ...redactionLogLookUpsData.areas,
+      ...redactionLogLookUpsData.divisions,
     ];
 
     const defaultOption = {
@@ -93,14 +139,16 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       })),
     }));
     const mappedInvestigatingAgencies =
-      redactionLogData.investigatingAgencies.map((item) => ({
+      redactionLogLookUpsData.investigatingAgencies.map((item) => ({
         value: item.id,
         children: item.name,
       }));
-    const mappedDocumentTypes = redactionLogData.documentTypes.map((item) => ({
-      value: item.id,
-      children: item.name,
-    }));
+    const mappedDocumentTypes = redactionLogLookUpsData.documentTypes.map(
+      (item) => ({
+        value: item.id,
+        children: item.name,
+      })
+    );
 
     return {
       areaOrDivisions: [defaultAreaOption, ...mappedAreaOrDivisions],
@@ -169,8 +217,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     formData: UnderRedactionFormData
   ): RedactionLogRequestData => {
     const areaOrDivisions = [
-      ...redactionLogData.areas,
-      ...redactionLogData.divisions,
+      ...redactionLogLookUpsData.areas,
+      ...redactionLogLookUpsData.divisions,
     ];
     const mappedArea = areaOrDivisions.find(
       (area) => area.id === formData.cpsArea
@@ -179,14 +227,19 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       (businessUnit) => businessUnit.id === formData.businessUnit
     )!;
     const mappedInvestigatingAgency =
-      redactionLogData.investigatingAgencies.find(
+      redactionLogLookUpsData.investigatingAgencies.find(
         (investigatingAgency) =>
           investigatingAgency.id === formData.investigatingAgency
       )!;
 
-    const mappedDocumentType = redactionLogData.documentTypes.find(
+    const mappedDocumentType = redactionLogLookUpsData.documentTypes.find(
       (documentType) => documentType.id === formData.documentType
     )!;
+
+    const redactions = savedRedactionTypes.map((missedRedaction) => ({
+      missedRedaction,
+      redactionType: RedactionCategory.UnderRedacted,
+    }));
 
     const mappedData = {
       urn: caseUrn,
@@ -204,13 +257,81 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         id: mappedDocumentType?.id,
         name: mappedDocumentType?.name,
       },
-      missedRedactions: savedRedactionTypes,
+      redactions: redactions,
       notes: formData.notes || null,
       returnedToInvestigativeAuthority: false,
-      chargeStatus: formData.chargeStatus as unknown as ChargeStatus,
-      redactionType: RedactionCategory.UnderRedacted,
+      chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
+      cmsValues: {
+        ...additionalData,
+        documentTypeId: cmsDocumentTypeId,
+        originalFileName: redactString(additionalData.originalFileName),
+      },
     };
     return mappedData;
+  };
+
+  const errorSummaryProperties = (inputName: string) => {
+    switch (inputName) {
+      case "cpsArea":
+        return {
+          children: "Please enter valid CPS Area or Central Casework Division",
+          href: "#select-cps-area",
+          "data-testid": "select-cps-area-link",
+        };
+      case "businessUnit":
+        return {
+          children: "Please enter valid CPS Business Unit",
+          href: "#select-cps-bu",
+          "data-testid": "select-cps-bu-link",
+        };
+      case "investigatingAgency":
+        return {
+          children: "Please enter valid Investigative Agency",
+          href: "#select-cps-ia",
+          "data-testid": "select-cps-ia-link",
+        };
+      case "documentType":
+        return {
+          children: "Please enter valid Document Type",
+          href: "#select-cps-dt",
+          "data-testid": "select-cps-dt-link",
+        };
+      case "chargeStatus":
+        return {
+          children: "Please enter valid Charge Status",
+          href: "#select-cps-cs",
+          "data-testid": "select-cps-cs-link",
+        };
+    }
+  };
+
+  const getErrorSummaryList = (errors: FieldErrors<UnderRedactionFormData>) => {
+    const errorSummary = Object.keys(errors).map((error, index) => ({
+      reactListKey: `${index}`,
+      ...errorSummaryProperties(error)!,
+    }));
+
+    return errorSummary;
+  };
+
+  const handleAppInsightReporting = (
+    newValues: UnderRedactionFormData,
+    defaultValues: UnderRedactionFormData
+  ) => {
+    const { notes, ...defaultValuesWithoutNotes } = defaultValues;
+    const { notes: newNotes, ...newValuesWithoutNotes } = newValues;
+    const hasDefaultValueChange =
+      JSON.stringify(defaultValuesWithoutNotes) ===
+      JSON.stringify(newValuesWithoutNotes);
+    if (!hasDefaultValueChange) {
+      trackEvent("Failed Default Mapping Redaction Log", {
+        oldValues: defaultValuesWithoutNotes,
+        newValues: newValuesWithoutNotes,
+      });
+    }
+    trackEvent("Save Redaction Log", {
+      values: newValues,
+    });
   };
 
   return (
@@ -223,19 +344,24 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           className={classes.savingBanner}
           data-testid="rl-saving-redactions"
         >
-          <span>Saving redactions...</span>
+          <div className={classes.spinnerWrapper}>
+            <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
+          </div>
+          <h2 className={classes.bannerText}>Saving redactions...</h2>
         </div>
       )}
 
       {saveStatus === "saved" && (
         <div className={classes.savedBanner} data-testid="rl-saved-redactions">
-          <span>Redactions successfully saved</span>
+          <WhiteTickIcon className={classes.whiteTickIcon} />
+          <h2 className={classes.bannerText}>Redactions successfully saved</h2>
         </div>
       )}
       <div className={classes.modalHeadWrapper}>
         <div className={classes.modalTitleWrapper}>
           <h1 className={classes.modalContentHeading}>
-            {`${caseUrn} - Redaction Log`}
+            {`${caseUrn}`}
+            <span className={classes.greyColor}> - Redaction Log</span>
           </h1>
 
           <Guidance
@@ -426,6 +552,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         </div>
 
         <div className={classes.modalBodyWrapper}>
+          {!!Object.keys(errors).length && (
+            <ErrorSummary
+              data-testid={"redaction-log-error-summary"}
+              className={classes.errorSummary}
+              errorList={getErrorSummaryList(errors)}
+            />
+          )}
           <section>
             <UnderRedactionContent
               documentName={documentName}
@@ -452,7 +585,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                     label={{
                       children: (
                         <span className={classes.textAreaLabel}>
-                          Supporting notes (optional)
+                          Supporting notes{" "}
+                          <span className={classes.greyColor}>(optional)</span>
                         </span>
                       ),
                     }}
@@ -475,6 +609,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             });
             setSavingRedactionLog(true);
             saveRedactionLog(redactionLogRequestData);
+            handleAppInsightReporting(data, defaultValues);
           })}
           data-testid="btn-save-redaction-log"
         >

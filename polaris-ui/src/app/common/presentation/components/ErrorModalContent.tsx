@@ -11,10 +11,17 @@ export const ErrorModalContent: React.FC<ErrorModalContentProps> = ({
   message,
   handleClose,
 }) => {
+  const messageParagraphs = message
+    .split("<p>")
+    .map((item) => item.replace("</p>", ""));
   return (
     <div className={classes.errorModalContent}>
       <h1 className="govuk-heading-l">{title}</h1>
-      <p className={classes.errorMessage}>{message}</p>
+      <div className={classes.errorMessage}>
+        {messageParagraphs.map((message, index) => (
+          <p key={index}>{message}</p>
+        ))}
+      </div>
       <div className={classes.errorBtnWrapper}>
         <Button
           className={classes.errorOkBtn}

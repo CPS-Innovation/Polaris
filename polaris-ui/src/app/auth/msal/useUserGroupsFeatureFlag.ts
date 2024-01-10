@@ -1,12 +1,14 @@
 import { msalInstance } from "./msalInstance";
 import {
   PRIVATE_BETA_REDACTION_LOG_USER_GROUP,
-  REDACTION_LOG_USER_GROUP,
   FEATURE_FLAG_REDACTION_LOG,
   PRIVATE_BETA_CHECK_IGNORE_USER,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
-import { FeatureFlagQueryParams } from "../../features/cases/domain/FeatureFlagData";
+import {
+  FeatureFlagQueryParams,
+  FeatureFlagData,
+} from "../../features/cases/domain/FeatureFlagData";
 import { useUserDetails as getMockUserDetails } from "../mock/useUserDetails";
 import { useUserDetails } from "../../auth";
 
@@ -30,38 +32,23 @@ const showRedactionLogFeature = (
   username: string,
   queryParam: string
 ) => {
+  if (!FEATURE_FLAG_REDACTION_LOG) {
+    return false;
+  }
+
   const isInCypressQueryParamFeatureFlag =
     queryParam === "true" &&
-    window.Cypress &&
+    !!window.Cypress &&
     (isAutomationTestUser(username) || isUIIntegrationTestUser(username));
 
   const isInPrivateBetaGroup = !!groupClaims?.includes(
     PRIVATE_BETA_REDACTION_LOG_USER_GROUP
   );
 
-  const isInRedactionLogGroup = !!groupClaims?.includes(
-    REDACTION_LOG_USER_GROUP
-  );
-
-  const canProceedBasedOnADGroups =
-    isInPrivateBetaGroup && isInRedactionLogGroup && FEATURE_FLAG_REDACTION_LOG;
-
-  const canProceedOnNoFeatureGroupInConfig =
-    !PRIVATE_BETA_REDACTION_LOG_USER_GROUP?.length &&
-    FEATURE_FLAG_REDACTION_LOG;
-
-  const canProceedOnAutomationTestRun =
-    isAutomationTestUser(username) && FEATURE_FLAG_REDACTION_LOG;
-
-  return (
-    canProceedBasedOnADGroups ||
-    canProceedOnNoFeatureGroupInConfig ||
-    canProceedOnAutomationTestRun ||
-    isInCypressQueryParamFeatureFlag
-  );
+  return isInPrivateBetaGroup || isInCypressQueryParamFeatureFlag;
 };
 
-export const useUserGroupsFeatureFlag = () => {
+export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
   const { redactionLog } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();

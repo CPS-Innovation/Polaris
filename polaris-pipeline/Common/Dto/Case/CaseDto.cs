@@ -18,6 +18,9 @@ namespace Common.Dto.Case
         [JsonProperty("numberOfDefendants")]
         public int NumberOfDefendants { get; set; }
 
+        [JsonProperty("owningUnit")]
+        public string OwningUnit { get; set; }
+
         [JsonProperty("leadDefendantDetails")]
         public DefendantDetailsDto LeadDefendantDetails { get; set; }
 

@@ -2,26 +2,42 @@ import { Modal } from "../../../../../common/presentation/components/index";
 import { RedactionLogContent } from "./RedactionLogContent";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
-  RedactionLogData,
+  RedactionLogMappingData,
+  RedactionLogLookUpsData,
   RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 
 type Props = {
   caseUrn: string;
+  isCaseCharged: boolean;
+  owningUnit: string;
   documentName: string;
+  cmsDocumentTypeId: number;
+  additionalData: {
+    documentId: string;
+    documentType: string;
+    fileCreatedDate: string;
+    originalFileName: string;
+  };
   saveStatus: SaveStatus;
   savedRedactionTypes: RedactionTypeData[];
-  redactionLogData: RedactionLogData;
+  redactionLogLookUpsData: RedactionLogLookUpsData;
+  redactionLogMappingsData: RedactionLogMappingData | null;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
 export const RedactionLogModal: React.FC<Props> = ({
   caseUrn,
+  isCaseCharged,
+  owningUnit,
   documentName,
+  cmsDocumentTypeId,
+  additionalData,
   savedRedactionTypes,
   saveStatus,
-  redactionLogData,
+  redactionLogLookUpsData,
+  redactionLogMappingsData,
   saveRedactionLog,
 }) => {
   return (
@@ -33,11 +49,16 @@ export const RedactionLogModal: React.FC<Props> = ({
     >
       <RedactionLogContent
         caseUrn={caseUrn}
+        isCaseCharged={isCaseCharged}
+        owningUnit={owningUnit}
         documentName={documentName}
+        cmsDocumentTypeId={cmsDocumentTypeId}
+        additionalData={additionalData}
         savedRedactionTypes={savedRedactionTypes}
         saveStatus={saveStatus}
-        redactionLogData={redactionLogData}
+        redactionLogLookUpsData={redactionLogLookUpsData}
         saveRedactionLog={saveRedactionLog}
+        redactionLogMappingsData={redactionLogMappingsData}
       />
     </Modal>
   );

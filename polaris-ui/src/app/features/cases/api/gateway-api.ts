@@ -6,9 +6,12 @@ import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
 import * as HEADERS from "./header-factory";
 import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { reauthenticationFilter } from "./reauthentication-filter";
-import { GATEWAY_BASE_URL } from "../../../config";
+import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
-import { RedactionLogData } from "../domain/redactionLog/RedactionLogData";
+import {
+  RedactionLogLookUpsData,
+  RedactionLogMappingData,
+} from "../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
 const buildHeaders = async (
   ...args: (
@@ -26,10 +29,8 @@ const buildHeaders = async (
   return headers;
 };
 
-const fullUrl = (path: string) => {
-  const origin = GATEWAY_BASE_URL?.startsWith("http")
-    ? GATEWAY_BASE_URL
-    : window.location.origin;
+const fullUrl = (path: string, baseUrl: string = GATEWAY_BASE_URL) => {
+  const origin = baseUrl?.startsWith("http") ? baseUrl : window.location.origin;
   return new URL(path, origin).toString();
 };
 
@@ -255,10 +256,13 @@ export const saveRedactions = async (
 export const saveRedactionLog = async (
   redactionLogRequestData: RedactionLogRequestData
 ) => {
-  const url = fullUrl(`/api/saveredactionlog`);
+  const url = fullUrl(`/api/redactionLogs`, REDACTION_LOG_BASE_URL);
   const response = await internalFetch(url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-    method: "PUT",
+    headers: await buildHeaders(
+      HEADERS.correlationId,
+      HEADERS.authRedactionLog
+    ),
+    method: "POST",
     body: JSON.stringify(redactionLogRequestData),
   });
 
@@ -267,20 +271,35 @@ export const saveRedactionLog = async (
   }
 };
 
-export const getRedactionLogData = async () => {
-  const url = fullUrl(`/api/redactionlogdata`);
+export const getRedactionLogLookUpsData = async () => {
+  const url = fullUrl("/api/lookUps", REDACTION_LOG_BASE_URL);
+  const headers = await buildHeaders(
+    HEADERS.correlationId,
+    HEADERS.authRedactionLog
+  );
+  const response = await internalFetch(url, {
+    headers,
+  });
+  if (!response.ok) {
+    throw new ApiError("Get Redaction Log data failed", url, response);
+  }
+  return (await response.json()) as RedactionLogLookUpsData;
+};
 
-  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
-
+export const getRedactionLogMappingData = async () => {
+  const url = fullUrl("/api/polarisMappings", REDACTION_LOG_BASE_URL);
+  const headers = await buildHeaders(
+    HEADERS.correlationId,
+    HEADERS.authRedactionLog
+  );
   const response = await internalFetch(url, {
     headers,
   });
 
   if (!response.ok) {
-    throw new ApiError("Get Redaction Log data failed", url, response);
+    throw new ApiError("Get Redaction Log mapping data failed", url, response);
   }
-
-  return (await response.json()) as RedactionLogData;
+  return (await response.json()) as RedactionLogMappingData;
 };
 
 const internalFetch = async (...args: Parameters<typeof fetch>) => {
