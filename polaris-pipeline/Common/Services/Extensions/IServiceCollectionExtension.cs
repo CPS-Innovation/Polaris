@@ -29,7 +29,7 @@ namespace Common.Services.Extensions
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
                 var blobServiceUrl = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl);
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl))
+                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceUrl)
                     .WithCredential(new DefaultAzureCredential());
             });
 
