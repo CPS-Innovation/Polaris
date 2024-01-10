@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
-using Common.Dto.Request;
-using Common.Wrappers;
+using polaris_common.Dto.Request;
+using polaris_common.Wrappers;
 using FluentAssertions;
 using Xunit;
 

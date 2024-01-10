@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Common.Dto.Request;
+using polaris_common.Dto.Request;
 
 namespace pdf_generator.Services.DocumentRedaction
 {

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Common.Telemetry;
+using polaris_common.Telemetry;
 
 namespace pdf_generator.TelemetryEvents
 {

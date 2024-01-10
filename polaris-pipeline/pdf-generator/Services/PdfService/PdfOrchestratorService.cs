@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using Common.Constants;
-using Common.Domain.Document;
-using Common.Domain.Exceptions;
-using Common.Logging;
+using polaris_common.Constants;
+using polaris_common.Domain.Document;
+using polaris_common.Domain.Exceptions;
+using polaris_common.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 

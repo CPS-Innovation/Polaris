@@ -1,7 +1,7 @@
-﻿using Common.Domain.Document;
-using Common.Domain.Exceptions;
+﻿using polaris_common.Domain.Document;
+using polaris_common.Domain.Exceptions;
 using FluentAssertions;
-using Common.Domain.Extensions;
+using polaris_common.Domain.Extensions;
 using Xunit;
 
 namespace pdf_generator.tests

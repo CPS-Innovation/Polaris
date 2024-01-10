@@ -1,30 +1,29 @@
-﻿using Azure.Search.Documents;
-using Common.Factories;
-using Common.Factories.Contracts;
-using Common.Mappers;
-using Common.Mappers.Contracts;
-using Common.Services.SasGeneratorService;
-using Common.Services.CaseSearchService;
-using Common.Wrappers;
-using Common.Wrappers.Contracts;
+﻿using Azure.Identity;
+using Azure.Search.Documents;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Common.Services.CaseSearchService.Contracts;
-using Microsoft.Extensions.Azure;
-using Common.Configuration;
-using Common.Constants;
-using System;
-using Azure.Identity;
-using Azure.Storage.Blobs;
-using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Logging;
-using Common.Services.BlobStorageService;
+using polaris_common.Configuration;
+using polaris_common.Factories;
+using polaris_common.Factories.Contracts;
+using polaris_common.Mappers;
+using polaris_common.Mappers.Contracts;
+using polaris_common.Services.SasGeneratorService;
+using polaris_common.Services.CaseSearchService;
+using polaris_common.Wrappers;
+using polaris_common.Wrappers.Contracts;
+using polaris_common.Services.CaseSearchService.Contracts;
+using polaris_common.Constants;
+using polaris_common.Services.BlobStorageService.Contracts;
+using polaris_common.Services.BlobStorageService;
 
-namespace Common.Services.Extensions
+namespace polaris_common.Services.Extensions
 {
-    public static class IServiceCollectionExtension
+    public static class ServiceCollectionExtension
     {
-        public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfigurationRoot configuration)
+        public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAzureClients(azureClientFactoryBuilder =>
             {

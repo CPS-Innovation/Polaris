@@ -1,6 +1,6 @@
 ﻿using System;
 using Aspose.Pdf.Facades;
-using Common.Dto.Request.Redaction;
+using polaris_common.Dto.Request.Redaction;
 
 namespace pdf_generator.Services.DocumentRedaction.Aspose
 {

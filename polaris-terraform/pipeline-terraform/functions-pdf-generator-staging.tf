@@ -32,6 +32,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
@@ -45,10 +46,11 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {
-      dotnet_version = "v6.0"
+      dotnet_version = "v8.0"
     }
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
+    use_32_bit_worker_process         = false
   }
 
   identity {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Domain.Extensions;
-using Common.Dto.Request;
-using Common.Dto.Response;
-using Common.Logging;
-using Common.Services.BlobStorageService.Contracts;
+using polaris_common.Domain.Extensions;
+using polaris_common.Dto.Request;
+using polaris_common.Dto.Response;
+using polaris_common.Logging;
+using polaris_common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace pdf_generator.Services.DocumentRedaction

@@ -3,10 +3,10 @@ using Xunit;
 using FluentValidation.TestHelper;
 using AutoFixture;
 using FluentAssertions.Execution;
-using Common.Domain.Validators;
-using Common.Dto.Request;
-using Common.Dto.Request.Redaction;
-using Common.ValueObjects;
+using polaris_common.Domain.Validators;
+using polaris_common.Dto.Request;
+using polaris_common.Dto.Request.Redaction;
+using polaris_common.ValueObjects;
 
 namespace pdf_generator.tests.Validators
 {

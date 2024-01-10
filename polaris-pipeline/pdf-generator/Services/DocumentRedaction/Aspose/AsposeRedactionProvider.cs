@@ -2,8 +2,8 @@
 using System.IO;
 using Aspose.Pdf;
 using Aspose.Pdf.Facades;
-using Common.Dto.Request;
-using Common.Telemetry.Contracts;
+using polaris_common.Dto.Request;
+using polaris_common.Telemetry.Contracts;
 using pdf_generator.TelemetryEvents;
 using Aspose.Pdf.Text;
 using System.Linq;

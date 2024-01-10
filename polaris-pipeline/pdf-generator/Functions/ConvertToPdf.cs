@@ -1,22 +1,27 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Common.Configuration;
-using Common.Constants;
-using Common.Domain.Document;
-using Common.Domain.Exceptions;
-using Common.Extensions;
-using Common.Logging;
-using Common.Telemetry.Contracts;
-using Common.Telemetry.Wrappers.Contracts;
+//using polaris_common.Domain.Document;
+//using polaris_common.Domain.Exceptions;
+//using polaris_common.Logging;
+//using polaris_common.Telemetry.Contracts;
+//using polaris_common.Telemetry.Wrappers.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.AspNetCore.Http;
+using pdf_generator.Domain.Configuration;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
+using polaris_common.Constants;
+using polaris_common.Domain.Document;
+using polaris_common.Domain.Exceptions;
+using polaris_common.Extensions;
+using polaris_common.Logging;
+using polaris_common.Telemetry.Contracts;
+using polaris_common.Telemetry.Wrappers.Contracts;
 
 namespace pdf_generator.Functions
 {
@@ -26,7 +31,7 @@ namespace pdf_generator.Functions
         private readonly ILogger<ConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
-        const string LoggingName = nameof(ConvertToPdf);
+        private const string LoggingName = nameof(ConvertToPdf);
 
         public ConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
@@ -40,28 +45,29 @@ namespace pdf_generator.Functions
             _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
-        [FunctionName(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequestMessage request)
+        [Function(nameof(ConvertToPdf))]
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request)
         {
             Guid currentCorrelationId = default;
             ConvertedDocumentEvent telemetryEvent = default;
             try
             {
-                #region Validate-Inputs        
-                currentCorrelationId = request.Headers.GetCorrelationId();
+                #region Validate-Inputs
+                
+                currentCorrelationId = request.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
                 _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
 
-                request.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
-                if (cmsAuthValuesValues == null)
+                var cmsAuthValuesReceived = request.Headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
+                if (!cmsAuthValuesReceived)
                     throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
                 var cmsAuthValues = cmsAuthValuesValues.First();
                 if (string.IsNullOrWhiteSpace(cmsAuthValues))
                     throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
 
-                request.Headers.TryGetValues(HttpHeaderKeys.Filetype, out var filetypes);
-                if (filetypes == null)
+                var fileTypeReceived = request.Headers.TryGetValue(HttpHeaderKeys.Filetype, out var filetypes);
+                if (!fileTypeReceived)
                     throw new BadRequestException("Missing Filetype Value", nameof(request));
                 var filetypeValue = filetypes.First();
                 if (string.IsNullOrEmpty(filetypeValue))
@@ -70,16 +76,16 @@ namespace pdf_generator.Functions
                     throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
                 telemetryEvent.FileType = filetype.ToString();
 
-                request.Headers.TryGetValues(HttpHeaderKeys.CaseId, out var caseIds);
-                if (caseIds == null)
+                var caseIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.CaseId, out var caseIds);
+                if (!caseIdReceived)
                     throw new BadRequestException("Missing CaseIds", nameof(request));
                 var caseId = caseIds.First();
                 if (string.IsNullOrEmpty(caseId))
                     throw new BadRequestException("Invalid CaseId", caseId);
                 telemetryEvent.CaseId = caseId;
 
-                request.Headers.TryGetValues(HttpHeaderKeys.DocumentId, out var documentIds);
-                if (documentIds == null)
+                var documentIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.DocumentId, out var documentIds);
+                if (!documentIdReceived)
                     throw new BadRequestException("Missing DocumentIds", nameof(request));
                 var documentId = documentIds.First();
                 if (string.IsNullOrEmpty(documentId))
@@ -87,8 +93,8 @@ namespace pdf_generator.Functions
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 telemetryEvent.DocumentId = documentId;
 
-                request.Headers.TryGetValues(HttpHeaderKeys.VersionId, out var versionIds);
-                if (versionIds == null)
+                var versionIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.VersionId, out var versionIds);
+                if (!versionIdReceived)
                     throw new BadRequestException("Missing VersionIds", nameof(request));
                 var versionId = versionIds.First();
                 if (string.IsNullOrEmpty(versionId))
@@ -101,13 +107,15 @@ namespace pdf_generator.Functions
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
 
-                if (request.Content != null)
+                request.EnableBuffering();
+                if (request.ContentLength != null && request.Body.CanSeek)
                 {
-                    var inputStream = await request.Content.ReadAsStreamAsync();
-                    var originalBytes = inputStream.Length;
-                    telemetryEvent.OriginalBytes = originalBytes;
+                    var originalBytes = request.ContentLength;
+                    telemetryEvent.OriginalBytes = originalBytes.Value;
 
-                    var pdfStream = _pdfOrchestratorService.ReadToPdfStream(inputStream, filetype, documentId, currentCorrelationId);
+                    request.Body.Seek(0, SeekOrigin.Begin);
+                    
+                    var pdfStream = _pdfOrchestratorService.ReadToPdfStream(request.Body, filetype, documentId, currentCorrelationId);
                     var bytes = pdfStream.Length;
 
                     telemetryEvent.Bytes = bytes;

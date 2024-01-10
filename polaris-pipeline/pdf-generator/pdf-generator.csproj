@@ -1,41 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <RootNamespace>pdf_generator</RootNamespace>
-    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+      <TargetFramework>net8.0</TargetFramework>
+      <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+      <RootNamespace>pdf_generator</RootNamespace>
+      <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+      <OutputType>Exe</OutputType>
+      <ImplicitUsings>enabled</ImplicitUsings>
+	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	  <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>
-
-    <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
-
-    <PackageReference Include="Aspose.PDF.Drawing" Version="23.4.0" />
-
-    <PackageReference Include="Aspose.Words" Version="23.7.0" />
-
-    <PackageReference Include="Azure.Search.Documents" Version="11.4.0" />
-
-    <PackageReference Include="FluentValidation" Version="11.6.0" />
-
+    <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
+    <PackageReference Include="Aspose.PDF.Drawing" Version="23.12.0" />
+    <PackageReference Include="Aspose.Words" Version="24.1.0" />
+    <PackageReference Include="Azure.Core" Version="1.36.0" />
+    <PackageReference Include="Azure.Search.Documents" Version="11.5.1" />
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.1" />
-
-    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
-
+    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
-
-    <PackageReference Include="Aspose.Cells" Version="23.7.0" />
-    <PackageReference Include="Aspose.Slides.NET" Version="23.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-    <PackageReference Include="Aspose.Imaging" Version="22.11.0" />
-    <PackageReference Include="Aspose.Diagram" Version="23.7.0" />
-    <PackageReference Include="Aspose.Email" Version="23.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+    <PackageReference Include="Aspose.Cells" Version="23.12.0" />
+    <PackageReference Include="Aspose.Slides.NET" Version="23.12.0" />
+    <PackageReference Include="Aspose.Imaging" Version="23.12.0" />
+    <PackageReference Include="Aspose.Diagram" Version="23.12.0" />
+    <PackageReference Include="Aspose.Email" Version="23.12.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.4" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.20.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.1.1" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Domain\Requests\" />
@@ -67,17 +69,21 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-  </ItemGroup>
   <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
     <ItemGroup>
       <NativeAssetToCopy Include="$(PublishDir)bin\runtimes\win-x86\native\libSkiaSharp.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(PublishDir)bin" />
     <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
-
   </Target>
+  <ItemGroup>
+    <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Domain\Constants\" />
+    <Folder Include="Domain\Telemetry\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\polaris-common\polaris-common\polaris-common.csproj" />
+  </ItemGroup>
 </Project>

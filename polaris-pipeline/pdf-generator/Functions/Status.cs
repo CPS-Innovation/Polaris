@@ -1,17 +1,24 @@
 ﻿using System.Reflection;
-using Common.Configuration;
-using Common.Extensions;
+using polaris_common.Configuration;
+using polaris_common.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
 
 namespace pdf_generator.Functions
 {
-    public static class Status
+    public class Status
     {
-        [FunctionName("Status")]
-        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Status)] HttpRequest req)
+        private readonly ILogger _logger;
+
+        public Status(ILogger<Status> logger)
+        {
+            _logger = logger;
+        }
+
+        [Function("Status")]
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Status)] HttpRequest req)
         {
             return Assembly.GetExecutingAssembly().CurrentStatus();
         }

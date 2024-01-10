@@ -1,7 +1,7 @@
 ﻿using System;
 using Aspose.Pdf.Facades;
-using Common.Dto.Request.Redaction;
-using Common.Logging;
+using polaris_common.Dto.Request.Redaction;
+using polaris_common.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace pdf_generator.Services.DocumentRedaction.Aspose

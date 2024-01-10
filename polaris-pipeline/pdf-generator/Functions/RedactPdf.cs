@@ -1,24 +1,25 @@
 using System;
-using System.Net;
+using System.IO;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
-using Common.Configuration;
-using Common.Domain.Exceptions;
-using Common.Domain.Extensions;
-using Common.Extensions;
-using Common.Dto.Request;
-using Common.Dto.Response;
-using Common.Handlers.Contracts;
-using Common.Logging;
-using Common.Telemetry.Wrappers.Contracts;
-using Common.Wrappers.Contracts;
+using polaris_common.Configuration;
+using polaris_common.Domain.Exceptions;
+using polaris_common.Domain.Extensions;
+using polaris_common.Extensions;
+using polaris_common.Dto.Request;
+using polaris_common.Dto.Response;
+using polaris_common.Handlers.Contracts;
+using polaris_common.Logging;
+using polaris_common.Telemetry.Wrappers.Contracts;
+using polaris_common.Wrappers.Contracts;
 using FluentValidation;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Services.DocumentRedaction;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace pdf_generator.Functions
 {
@@ -47,8 +48,8 @@ namespace pdf_generator.Functions
             _logger = logger;
         }
 
-        [FunctionName(nameof(RedactPdf))]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequestMessage request)
+        [Function(nameof(RedactPdf))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequest request)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "RedactPdf - Run";
@@ -57,19 +58,29 @@ namespace pdf_generator.Functions
             try
             {
                 #region Validate-Inputs
-                currentCorrelationId = request.Headers.GetCorrelationId();
+                
+                currentCorrelationId = request.GetCorrelationId();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
+                
+                request.EnableBuffering();
 
-                if (request.Content == null)
+                if (request.ContentLength == null || !request.Body.CanSeek)
                     throw new BadRequestException("Request body has no content", nameof(request));
 
-                var content = await request.Content.ReadAsStringAsync();
+                request.Body.Seek(0, SeekOrigin.Begin);
+                string content;
+                using (var stream = new StreamReader(request.Body))
+                {
+                    content = await stream.ReadToEndAsync();
+                }
+
                 if (string.IsNullOrWhiteSpace(content))
                 {
-                    throw new BadRequestException("Request body cannot be null.", nameof(request));
+                    throw new BadRequestException("Request body cannot be null or an empty JSON message", nameof(request));
                 }
+                
                 #endregion
 
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
@@ -82,11 +93,10 @@ namespace pdf_generator.Functions
 
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{redactions.PolarisDocumentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
-                return new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfResponse), Encoding.UTF8,
-                        MediaTypeNames.Application.Json)
-                };
+
+                return new OkObjectResult(new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfResponse),
+                    Encoding.UTF8,
+                    MediaTypeNames.Application.Json));
             }
             catch (Exception ex)
             {
@@ -94,7 +104,8 @@ namespace pdf_generator.Functions
             }
             finally
             {
-                _logger.LogMethodExit(currentCorrelationId, loggingName, redactPdfResponse.ToJson());
+                _logger.LogMethodExit(currentCorrelationId, loggingName,
+                    redactPdfResponse != null ? redactPdfResponse.ToJson() : string.Empty);
             }
         }
     }

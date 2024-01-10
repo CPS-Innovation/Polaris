@@ -13,6 +13,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
   https_only                    = true
   public_network_access_enabled = false
   builtin_logging_enabled       = false
+  
 
   app_settings = {
     "AzureWebJobsStorage"                             = azurerm_storage_account.sa_pdf_generator.primary_connection_string
@@ -36,6 +37,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
+    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
@@ -53,10 +55,11 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {
-      dotnet_version = "v6.0"
+      dotnet_version = "v8.0"
     }
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
+    use_32_bit_worker_process         = false
   }
 
   identity {

@@ -3,10 +3,10 @@ using System.Net;
 using System.Net.Http;
 using AutoFixture;
 using Azure;
-using Common.Domain.Exceptions;
-using Common.Exceptions;
-using Common.Handlers;
-using Common.Handlers.Contracts;
+using polaris_common.Domain.Exceptions;
+using polaris_common.Exceptions;
+using polaris_common.Handlers;
+using polaris_common.Handlers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -37,7 +37,7 @@ namespace pdf_generator.tests.Handlers
         {
             var httpResponseMessage = _exceptionHandler.HandleException(new UnauthorizedException("Test unauthorized exception"), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.Unauthorized);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace pdf_generator.tests.Handlers
         {
             var httpResponseMessage = _exceptionHandler.HandleException(new BadRequestException("Test bad request exception", "id"), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace pdf_generator.tests.Handlers
         {
             var httpResponseMessage = _exceptionHandler.HandleException(new UnsupportedFileTypeException("Test file type"), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
 
         [Fact]
@@ -62,17 +62,17 @@ namespace pdf_generator.tests.Handlers
             var httpResponseMessage = _exceptionHandler.HandleException(
                 new DdeiClientException(HttpStatusCode.BadRequest, new HttpRequestException()), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
         }
 
         [Fact]
         public void HandleException_ReturnsExpectedStatusCodeWhenHttpExceptionOccurs()
         {
-            var expectedStatusCode = HttpStatusCode.ExpectationFailed;
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.ExpectationFailed;
             var httpResponseMessage = _exceptionHandler.HandleException(
                 new DdeiClientException(expectedStatusCode, new HttpRequestException()), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(expectedStatusCode);
+            httpResponseMessage.StatusCode.Should().Be((int)expectedStatusCode);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace pdf_generator.tests.Handlers
             var httpResponseMessage = _exceptionHandler.HandleException(
                 new RequestFailedException((int)HttpStatusCode.BadRequest, "Test request failed exception"), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
         }
 
         [Fact]
@@ -90,17 +90,17 @@ namespace pdf_generator.tests.Handlers
             var httpResponseMessage = _exceptionHandler.HandleException(
                 new RequestFailedException((int)HttpStatusCode.NotFound, "Test request failed exception"), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
         }
 
         [Fact]
         public void HandleException_ReturnsExpectedStatusCodeWhenRequestFailedExceptionOccurs()
         {
-            var expectedStatusCode = HttpStatusCode.ExpectationFailed;
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.ExpectationFailed;
             var httpResponseMessage = _exceptionHandler.HandleException(
                 new RequestFailedException((int)expectedStatusCode, "Test request failed exception"), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(expectedStatusCode);
+            httpResponseMessage.StatusCode.Should().Be((int)expectedStatusCode);
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace pdf_generator.tests.Handlers
         {
             var httpResponseMessage = _exceptionHandler.HandleException(new PdfConversionException("Test id", "Test message"), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.NotImplemented);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.NotImplemented);
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace pdf_generator.tests.Handlers
         {
             var httpResponseMessage = _exceptionHandler.HandleException(new ApplicationException(), _correlationId, _source, _loggerMock.Object);
 
-            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            httpResponseMessage.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
         }
     }
 }

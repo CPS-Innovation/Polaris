@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Dto.Request;
-using Common.Dto.Response;
+using polaris_common.Dto.Request;
+using polaris_common.Dto.Response;
 
 namespace pdf_generator.Services.DocumentRedaction
 {
