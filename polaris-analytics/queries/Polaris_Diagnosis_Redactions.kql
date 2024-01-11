@@ -1,0 +1,113 @@
+let Requests = AppRequests
+| where AppRoleName startswith "fa-polaris-gateway"
+| where Name == "PolarisPipelineSaveDocumentRedactions"
+| project 
+    TimeGenerated,
+    OperationId,
+    PolarisCorrelationId = tostring(Properties.PolarisCorrelationId),
+    ResultCode,
+    DurationMs,
+    User = tostring(Properties.User),
+    CmsUserId = toint(Properties.CmsUserId),
+    Urn = extract("/urns/([^/]+)", 1, Url),
+    CaseId = toint(extract("/cases/([^/]+)", 1, Url)),
+    DocumentId = toint(extract("/documents/CMS-(.*)", 1, Url))
+| where PolarisCorrelationId !startswith "e2e"
+;
+//Requests
+ 
+let RedactionEvents =  Polaris_Metrics_Redaction
+//| project PolarisCorrelationId, IsFailure 
+;
+//RedactionEvents
+
+
+
+let CmsProxyLogs = Polaris_ProxyCmsLogs
+| summarize 
+    CountOkCmsCalls = countif(StatusCode < 300), 
+    CountFailedCmsCalls = countif(StatusCode >=300),
+    CountCmsCalls = count()
+by PolarisCorrelationId
+;
+//CmsProxyLogs
+
+let DdeiExceptions = AppExceptions
+| where AppRoleName startswith "fa-polaris-ddei"
+| project PolarisCorrelationId = tostring(Properties.prop__CorrelationId),
+          IsCmsModernAuthFail = OuterMessage contains "User session not found",
+          IsRequestTooLarge = InnermostMessage contains "413 Request Entity Too Large",
+          IsGatewayTimeout = OuterMessage contains "GatewayTimeout"
+;
+//DdeiExceptions
+
+let DdeiRequests = AppRequests
+| where AppRoleName startswith  "fa-polaris-ddei"
+| summarize WorstDdeiResultCode = max(ResultCode) by PolarisCorrelationId = tostring(Properties.PolarisCorrelationId)
+;
+// DdeiRequests
+
+let PdfRequests = AppRequests
+| where AppRoleName startswith  "fa-polaris-pdf-generator"
+| project 
+    PolarisCorrelationId = tostring(Properties.PolarisCorrelationId), 
+    PdfResultCode = ResultCode,
+    DurationMsPdf =  DurationMs
+;
+
+let PolarisCorrelationIdExceptions = AppExceptions
+| extend PolarisCorrelationId = tostring(Properties.prop__CorrelationId)
+| where PolarisCorrelationId != ""
+;
+
+let PolarisCorrelationIdExceptionSummary = PolarisCorrelationIdExceptions
+| summarize 
+    PolarisCorrelationIdExceptionCount = count(), 
+    OuterMessages = make_set(OuterMessage), 
+    InnermostMessage = make_set(InnermostMessage)
+by PolarisCorrelationId
+;
+
+Requests
+| where ResultCode != "200"
+
+| join kind=leftouter RedactionEvents on PolarisCorrelationId
+| extend HasEvent = PolarisCorrelationId1 != "" | project-away PolarisCorrelationId1
+
+| join kind=leftouter CmsProxyLogs on PolarisCorrelationId | project-away PolarisCorrelationId1
+
+| join kind=leftouter DdeiRequests on PolarisCorrelationId
+| extend HasDdeiRequest = PolarisCorrelationId1 != "" | project-away PolarisCorrelationId1 
+
+| join kind=leftouter DdeiExceptions on PolarisCorrelationId 
+| extend HasDdeiException = PolarisCorrelationId1 != "" | project-away PolarisCorrelationId1
+
+| join kind=leftouter PdfRequests on PolarisCorrelationId 
+| extend HasPdfRequests = PolarisCorrelationId1 != "" | project-away PolarisCorrelationId1
+
+| join kind=leftouter PolarisCorrelationIdExceptionSummary on PolarisCorrelationId | project-away PolarisCorrelationId1
+
+| extend FailureType = case(
+    OperationId in ("a592eb82cec6440eb6d3bdd55d28fc7c", "9b302fc785c14b32a9364e468c426f0e"), "500_WontFix_IsolatedIncident_1",
+    OperationId in ("8f3fea34fcdb4566bfd70932c51de30e", "782b174a6cf449188177e2d018a28736", "99a59917688147cba86581ea7219906f", "f88e11a328a545e6a631c96c83e9af31"), "500_WontFix_IsolatedIncident_2",
+    OperationId in ("8c928a2c40c94505b899caf11ec6a6ec", "ab9caf67dcc949b89c03ac692c14f627", "19369560ea784c5da7441dd189187090", "b24f0b91239a4c7aa9fdd76d8b3e82a6"), "500_WontFix_IsolatedIncident_3",
+    OperationId in ("591bcdc883964f46907cfe03c659b742", "b8fd3b653cd44eada951b2f01622177b", "6964eb059a3144549d3872ba0fc23d36", "907cdba409cd4308b4f568bfdc77e1b7", "2c0378cad3b8476daed14fc07ce5a24c", "75d09024ac2c49729a4a88d89ebbb121", "d2393ba5c7934ae19a2d5a873ad42112"),"500_WontFix_IsolatedIncident_4",
+    OperationId in ("4b31e3cf0f6b4cba98e9461e3fa62c82"), "500_WontFix_IsolatedIncident_5",
+    ResultCode == 400, "400",     
+    ResultCode == 500 and OuterMessages contains "Permissions check failed (invalid Perms value)", "500_Pdf_PermissionsCheck",
+    ResultCode == 500 and OuterMessages contains "Image loading failed.", "500_Pdf_ImageLoadingFailed",
+    //ResultCode == 500 and CountCmsCalls > 10,               "500_CmsFailedExcessiveCalls",
+    ResultCode == 500 and IsCmsModernAuthFail,              "500_CmsModernAuthFail",
+    ResultCode == 500 and IsGatewayTimeout,                 "500_WontFix_ModernTimeout",    
+    ResultCode == 500 and IsRequestTooLarge,                "500_WontFix_RequestTooLarge_Fixed_Already",
+    ResultCode == 500 and InnermostMessage contains "uwmaMaterial.asmx" and InnermostMessage contains "BadRequest", "500_502BadRequestFromSOAP",
+    ResultCode == 500 and WorstDdeiResultCode == 502 and InnermostMessage == "",       "500_WontFix_DdeiThrows502_OfUnknownCause_Historical",
+    ResultCode == 500 and CountFailedCmsCalls > 0,          "500_WontFix_CmsFailedNoException_Historical",
+    ResultCode == 500 and DurationMsPdf > 100 * 1000,       "500_Pdf_Timeout",
+    ResultCode == 500 and coalesce(CountCmsCalls, 0) == 0,  "500_WontFix_NoCmsCall_Historical",
+    ResultCode == 500 and CountCmsCalls >= 6,               "500_WontFix_NormalCmsCallPattern_General_Handling",
+    ResultCode != 200, "Other_Fail", "") 
+| project-away IsRequestTooLarge
+| where FailureType !contains "WontFix"
+
+

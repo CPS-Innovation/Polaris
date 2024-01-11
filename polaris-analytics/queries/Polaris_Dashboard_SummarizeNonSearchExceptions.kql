@@ -1,0 +1,6 @@
+Polaris_Exceptions_List
+| where IsKnownBug !startswith "23495"
+| where EarliestExceptionTimeGenerated > now() - tsRange
+| extend IsKnownBug = coalesce(IsKnownBug, "Unknown")
+| summarize count() by IsKnownBug, bin(EarliestExceptionTimeGenerated, ts)
+| render columnchart 
