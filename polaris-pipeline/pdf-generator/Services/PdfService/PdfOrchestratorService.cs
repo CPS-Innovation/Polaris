@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Common.Constants;
 using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Logging;
@@ -19,6 +18,7 @@ namespace pdf_generator.Services.PdfService
         private readonly IPdfService _htmlPdfService;
         private readonly IPdfService _emailPdfService;
         private readonly IPdfService _pdfRendererService;
+        private readonly IPdfService _xpsPdfRendererService;
         private readonly ILogger<PdfOrchestratorService> _logger;
         private readonly IConfiguration _configuration;
 
@@ -31,6 +31,7 @@ namespace pdf_generator.Services.PdfService
             IPdfService htmlPdfService,
             IPdfService emailPdfService,
             IPdfService pdfRendererService,
+            IPdfService xpsPdfRendererService,
             ILogger<PdfOrchestratorService> logger,
             IConfiguration configuration)
         {
@@ -42,6 +43,7 @@ namespace pdf_generator.Services.PdfService
             _htmlPdfService = htmlPdfService;
             _emailPdfService = emailPdfService;
             _pdfRendererService = pdfRendererService;
+            _xpsPdfRendererService = xpsPdfRendererService;
             _logger = logger;
             _configuration = configuration;
         }
@@ -59,13 +61,19 @@ namespace pdf_generator.Services.PdfService
                     case FileType.DOC:
                     case FileType.DOCX:
                     case FileType.DOCM:
+                    case FileType.DOT:
+                    case FileType.DOTM:
+                    case FileType.DOTX:
                     case FileType.RTF:
                     case FileType.TXT:
                         _wordsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
 
+                    case FileType.CSV:
                     case FileType.XLS:
                     case FileType.XLSX:
+                    case FileType.XLSM:
+                    case FileType.XLT:
                         _cellsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
 
@@ -75,6 +83,7 @@ namespace pdf_generator.Services.PdfService
                         break;
 
                     case FileType.BMP:
+                    case FileType.EMZ:
                     case FileType.GIF:
                     case FileType.JPG:
                     case FileType.JPEG:
@@ -99,12 +108,17 @@ namespace pdf_generator.Services.PdfService
                         _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
 
+                    case FileType.EML:
                     case FileType.MSG:
                         _emailPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.PDF:
                         _pdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        break;
+
+                    case FileType.XPS:
+                        _xpsPdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
                         break;
 
                     default:

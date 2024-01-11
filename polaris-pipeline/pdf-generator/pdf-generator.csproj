@@ -78,6 +78,5 @@
     </ItemGroup>
     <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(PublishDir)bin" />
     <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
-
   </Target>
 </Project>
