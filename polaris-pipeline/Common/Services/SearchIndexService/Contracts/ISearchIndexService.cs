@@ -13,7 +13,7 @@ namespace Common.Services.CaseSearchService.Contracts
 
         Task<bool> WaitForStoreResultsAsync(AnalyzeResults analyzeResults, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId);
 
-        Task<bool> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId);
+        Task<CaseEmptyResult> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId);
 
         Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm, Guid correlationId);
 

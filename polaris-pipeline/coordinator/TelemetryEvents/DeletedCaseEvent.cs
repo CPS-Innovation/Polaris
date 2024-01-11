@@ -23,6 +23,8 @@ namespace coordinator.TelemetryEvents
         public DateTime GotTerminateInstancesTime;
         public DateTime TerminatedInstancesTime;
         public DateTime EndTime;
+        public bool DidIndexEmpty;
+        public List<long> RemainingIndexRecordCounts;
         public int TerminatedInstancesCount;
 
         public DeletedCaseEvent(
@@ -45,6 +47,8 @@ namespace coordinator.TelemetryEvents
                     { nameof(CaseId), CaseId.ToString() },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
+                    { nameof(DidIndexEmpty), DidIndexEmpty.ToString() },
+                    { nameof(RemainingIndexRecordCounts), string.Join(",", RemainingIndexRecordCounts) },
                 },
                 new Dictionary<string, double?>
                 {

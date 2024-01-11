@@ -159,7 +159,7 @@ namespace Common.Services.CaseSearchService
             return false;
         }
 
-        public async Task<bool> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId)
+        public async Task<CaseEmptyResult> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Wait for Search Indexation, CaseId={cmsCaseId}");
 
@@ -171,16 +171,22 @@ namespace Common.Services.CaseSearchService
             };
 
             var baseDelayMs = 250;
+            var remainingIndexRecordCounts = new List<long>();
 
             foreach (var timeoutBase in Fibonacci(10))
             {
                 var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
                 var receivedLinesCount = searchResults.Value.TotalCount;
+                remainingIndexRecordCounts.Add(receivedLinesCount ?? -1);
 
                 if (receivedLinesCount == 0)
                 {
                     _logger.LogMethodExit(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Consistent Search Index, CaseId={cmsCaseId}");
-                    return true;
+                    return new CaseEmptyResult
+                    {
+                        IsSuccess = true,
+                        RemainingIndexRecordCounts = remainingIndexRecordCounts
+                    };
                 }
 
                 var timeout = baseDelayMs * timeoutBase;
@@ -192,7 +198,11 @@ namespace Common.Services.CaseSearchService
 
             _logger.LogMethodExit(correlationId, nameof(WaitForCaseEmptyResultsAsync), $"Inconsistent Search Index, CaseId={cmsCaseId}");
 
-            return false;
+            return new CaseEmptyResult
+            {
+                IsSuccess = false,
+                RemainingIndexRecordCounts = remainingIndexRecordCounts
+            };
         }
 
         private IEnumerable<int> Fibonacci(int n)
