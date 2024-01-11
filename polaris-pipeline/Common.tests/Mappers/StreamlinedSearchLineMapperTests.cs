@@ -13,7 +13,6 @@ namespace Common.Tests.Mappers;
 public class StreamlinedSearchLineMapperTests
 {
     private readonly Fixture _fixture;
-    private readonly Guid _correlationId;
 
     public StreamlinedSearchLineMapperTests()
     {
