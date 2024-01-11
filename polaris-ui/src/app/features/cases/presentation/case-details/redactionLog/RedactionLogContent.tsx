@@ -49,6 +49,8 @@ type RedactionLogContentProps = {
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
+const NOTES_MAX_CHARACTERS = 400;
+
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   caseUrn,
   isCaseCharged,
@@ -194,7 +196,10 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           </li>
           <li>Avoid recording full names</li>
           <li>Do not record sensitive personal data</li>
-          <li>Supporting notes optional - 400 characters maximum</li>
+          <li>
+            {`Supporting notes optional - ${NOTES_MAX_CHARACTERS} characters
+            maximum`}
+          </li>
         </ul>
       </div>
     );
@@ -580,6 +585,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 return (
                   <TextArea
                     {...field}
+                    hint={{
+                      children: `You can enter up to ${
+                        NOTES_MAX_CHARACTERS - field.value.length
+                      } characters`,
+                    }}
+                    maxLength={`${NOTES_MAX_CHARACTERS}`}
                     id="redaction-log-notes"
                     data-testid="redaction-log-notes"
                     label={{

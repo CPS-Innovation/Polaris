@@ -11,6 +11,7 @@ type TextAreaProps = {
   hint?: {
     children: React.ReactNode;
   };
+  maxLength?: string;
   onChange: (value: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
 export const TextArea = React.forwardRef<
