@@ -52,7 +52,7 @@ namespace coordinator.TelemetryEvents
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
                     { nameof(DidIndexSettle), DidIndexSettle.ToString() },
-                    { nameof(WaitRecordCounts), string.Join(",", WaitRecordCounts?? Enumerable.Empty<long>()) },
+                    { nameof(WaitRecordCounts), string.Join(",", WaitRecordCounts ?? Enumerable.Empty<long>()) },
                 },
                 new Dictionary<string, double?>
                 {

@@ -115,7 +115,7 @@ namespace text_extractor.Functions
                                                                                 ocrResults.ReadResults.Sum(r => r.Lines.Count));
                 telemetryEvent.DidIndexSettle = result.IsSuccess;
                 telemetryEvent.WaitRecordCounts = result.RecordCounts;
-
+                telemetryEvent.IndexSettleTargetCount = result.TargetCount;
                 if (result.IsSuccess)
                 {
                     telemetryEvent.EndTime = DateTime.UtcNow;

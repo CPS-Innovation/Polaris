@@ -22,6 +22,7 @@ namespace text_extractor.TelemetryEvents
         public int PageCount { get; set; }
         public int LineCount { get; set; }
         public int WordCount { get; set; }
+        public long IndexSettleTargetCount { get; set; }
         public bool DidIndexSettle { get; set; }
         public List<long> WaitRecordCounts;
 
@@ -50,6 +51,7 @@ namespace text_extractor.TelemetryEvents
                     { nameof(PageCount), PageCount },
                     { nameof(LineCount), LineCount },
                     { nameof(WordCount), WordCount },
+                    { nameof(IndexSettleTargetCount), IndexSettleTargetCount},
                     { nameof(ocrDurationSeconds), GetDurationSeconds(StartTime, OcrCompletedTime) },
                     { nameof(indexDurationSeconds), GetDurationSeconds(OcrCompletedTime, IndexStoredTime) },
                     { nameof(indexSettledDurationSeconds), GetDurationSeconds(IndexStoredTime, EndTime) }
