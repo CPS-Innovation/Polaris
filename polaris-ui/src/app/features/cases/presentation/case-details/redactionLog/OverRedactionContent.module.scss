@@ -1,0 +1,10 @@
+.redactionTypes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  :global(.govuk-checkboxes__item) {
+    padding-right: 2.5%;
+    width: 18%;
+  }
+}

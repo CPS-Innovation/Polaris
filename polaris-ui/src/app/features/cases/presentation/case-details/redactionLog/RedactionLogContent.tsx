@@ -8,6 +8,7 @@ import {
   Spinner,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
+import { OverRedactionContent } from "./OverRedactionContent";
 import classes from "./RedactionLogContent.module.scss";
 import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
@@ -29,6 +30,7 @@ import {
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 type RedactionLogContentProps = {
   caseUrn: string;
   isCaseCharged: boolean;
@@ -559,10 +561,25 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               errorList={getErrorSummaryList(errors)}
             />
           )}
+
           <section>
-            <UnderRedactionContent
+            <div className={classes.headingWrapper}>
+              <DocIcon className={classes.docIcon} />{" "}
+              <h2>
+                <span className={classes.greyColor}>
+                  Redaction details for:
+                </span>
+                {`"${documentName}"`}
+              </h2>
+            </div>
+
+            {/* <UnderRedactionContent
               documentName={documentName}
               savedRedactionTypes={savedRedactionTypes}
+            /> */}
+
+            <OverRedactionContent
+              redactionTypes={redactionLogLookUpsData.missedRedactions}
             />
           </section>
           <section className={classes.textAreaSection}>

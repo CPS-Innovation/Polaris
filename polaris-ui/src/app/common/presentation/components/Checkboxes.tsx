@@ -15,10 +15,7 @@ export type CheckboxesProps = Omit<
       HTMLSpanElement
     >;
   };
-  fieldSet?: React.DetailedHTMLProps<
-    React.HtmlHTMLAttributes<HTMLFieldSetElement>,
-    HTMLFieldSetElement
-  >;
+  fieldset?: { legend: { children: string } };
   formGroup?: { className: string };
   hint?: string;
   idPrefix?: string;

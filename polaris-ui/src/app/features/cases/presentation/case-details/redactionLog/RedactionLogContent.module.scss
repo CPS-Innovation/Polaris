@@ -172,6 +172,16 @@
   width: 2.25rem;
   fill: #fff;
 }
+.docIcon {
+  position: relative;
+  width: 20px;
+  margin-right: 10px;
+  top: 2px;
+}
+.headingWrapper {
+  display: flex;
+  align-items: baseline;
+}
 
 @keyframes reduceHeight {
   0% {
