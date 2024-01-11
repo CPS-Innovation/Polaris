@@ -14,13 +14,10 @@ public class StreamlinedSearchLineMapperTests
 {
     private readonly Fixture _fixture;
     private readonly Guid _correlationId;
-    private readonly Mock<ILogger<StreamlinedSearchLineMapper>> _loggerMock;
 
     public StreamlinedSearchLineMapperTests()
     {
         _fixture = new Fixture();
-        _correlationId = _fixture.Create<Guid>();
-        _loggerMock = new Mock<ILogger<StreamlinedSearchLineMapper>>();
     }
 
     [Fact]
@@ -28,8 +25,8 @@ public class StreamlinedSearchLineMapperTests
     {
         var searchLine = _fixture.Create<SearchLine>();
 
-        IStreamlinedSearchLineMapper mapper = new StreamlinedSearchLineMapper(_loggerMock.Object);
-        var streamlinedVersion = mapper.Map(searchLine, _correlationId);
+        IStreamlinedSearchLineMapper mapper = new StreamlinedSearchLineMapper();
+        var streamlinedVersion = mapper.Map(searchLine);
 
         using (new AssertionScope())
         {

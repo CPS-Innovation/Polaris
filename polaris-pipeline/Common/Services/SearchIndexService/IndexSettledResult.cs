@@ -2,10 +2,10 @@ using System.Collections.Generic;
 
 namespace Common.Services.CaseSearchService
 {
-    public class CaseEmptyResult
+    public class IndexSettledResult
     {
-        public List<long> RemainingIndexRecordCounts { get; set; }
-
+        public long TargetCount { get; set; }
+        public List<long> RecordCounts { get; set; }
         public bool IsSuccess { get; set; }
     }
 }

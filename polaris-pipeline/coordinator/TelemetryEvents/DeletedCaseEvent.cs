@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common.Telemetry;
 
 namespace coordinator.TelemetryEvents
@@ -23,8 +24,11 @@ namespace coordinator.TelemetryEvents
         public DateTime GotTerminateInstancesTime;
         public DateTime TerminatedInstancesTime;
         public DateTime EndTime;
-        public bool DidIndexEmpty;
-        public List<long> RemainingIndexRecordCounts;
+        public long AttemptedRemovedDocumentCount;
+        public long SuccessfulRemovedDocumentCount;
+        public long FailedRemovedDocumentCount;
+        public bool DidIndexSettle;
+        public List<long> WaitRecordCounts;
         public int TerminatedInstancesCount;
 
         public DeletedCaseEvent(
@@ -47,8 +51,8 @@ namespace coordinator.TelemetryEvents
                     { nameof(CaseId), CaseId.ToString() },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
-                    { nameof(DidIndexEmpty), DidIndexEmpty.ToString() },
-                    { nameof(RemainingIndexRecordCounts), string.Join(",", RemainingIndexRecordCounts) },
+                    { nameof(DidIndexSettle), DidIndexSettle.ToString() },
+                    { nameof(WaitRecordCounts), string.Join(",", WaitRecordCounts?? Enumerable.Empty<long>()) },
                 },
                 new Dictionary<string, double?>
                 {
@@ -59,6 +63,9 @@ namespace coordinator.TelemetryEvents
                     { GetInstancesToTerminateDurationSeconds, GetDurationSeconds(BlobsDeletedTime, GotTerminateInstancesTime) },
                     { TerminateInstancesDurationSeconds, GetDurationSeconds(GotTerminateInstancesTime, TerminatedInstancesTime) },
                     { PurgedInstancesDurationSeconds, GetDurationSeconds(TerminatedInstancesTime, EndTime) },
+                    { nameof(AttemptedRemovedDocumentCount), AttemptedRemovedDocumentCount },
+                    { nameof(SuccessfulRemovedDocumentCount), SuccessfulRemovedDocumentCount },
+                    { nameof(FailedRemovedDocumentCount), FailedRemovedDocumentCount },
                     { nameof(TerminatedInstancesCount), TerminatedInstancesCount },
                 }
             );
