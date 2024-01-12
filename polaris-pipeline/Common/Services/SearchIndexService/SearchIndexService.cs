@@ -18,7 +18,7 @@ namespace Common.Services.CaseSearchService
     public class SearchIndexService : ISearchIndexService
     {
         private const int IndexSettleUnitDelayMs = 200;
-        private const int IndexSettleRetryAttemptCount = 10;
+        private const int IndexSettleRetryAttemptCount = 11;
         private readonly SearchClient _azureSearchClient;
         private readonly ISearchLineFactory _searchLineFactory;
         private readonly ISearchIndexingBufferedSenderFactory _searchIndexingBufferedSenderFactory;
