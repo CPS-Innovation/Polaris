@@ -25,8 +25,9 @@ export type CheckboxesProps = Omit<
       HTMLInputElement
     >,
     "onChange" | "onBlur"
-  > &
-    { className?: string }[];
+  > & { className?: string } & {
+      conditional?: { children: React.ReactNode[] };
+    }[];
 
   name: string;
   onChange?: (ev: React.ChangeEvent<HTMLInputElement>) => void;

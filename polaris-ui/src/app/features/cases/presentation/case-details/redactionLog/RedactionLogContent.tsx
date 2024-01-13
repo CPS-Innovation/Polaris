@@ -81,7 +81,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       const values = getDefaultValuesFromMappings(
         redactionLogMappingsData,
         redactionLogLookUpsData.ouCodeMapping,
-        owningUnit,
+        "owningUnit",
         cmsDocumentTypeId,
         caseUrn
       );
@@ -102,9 +102,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   const {
     handleSubmit,
     formState: { errors },
+    register,
     control,
     watch,
     reset,
+    setValue,
+    getValues,
   } = useForm({ defaultValues });
 
   useEffect(() => {
@@ -378,7 +381,22 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       <form
         className={classes.underRedactionForm}
         onSubmit={(event) => {
-          event.preventDefault();
+          console.log("button click is triggered1111....");
+          handleSubmit(
+            (data) => {
+              console.log("button click is triggered00000....", data);
+              const redactionLogRequestData = getRedactionLogRequestData({
+                ...data,
+              });
+              setSavingRedactionLog(true);
+              saveRedactionLog(redactionLogRequestData);
+              handleAppInsightReporting(data, defaultValues);
+            },
+            (errors) => {
+              console.log("errrorsss>>>>", errors);
+            }
+          )(event);
+          // event.preventDefault();
         }}
       >
         <div className={classes.selectInputWrapper}>
@@ -527,6 +545,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 required: true,
               }}
               render={({ field }) => {
+                console.log("filed1>>>", field);
                 return (
                   <Select
                     {...field}
@@ -580,6 +599,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
             <OverRedactionContent
               redactionTypes={redactionLogLookUpsData.missedRedactions}
+              register={register}
+              setValue={setValue}
+              getValues={getValues}
+              errors={errors}
+              watch={watch}
             />
           </section>
           <section className={classes.textAreaSection}>
@@ -613,26 +637,18 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             />
           </section>
         </div>
-      </form>
 
-      <div className={classes.btnWrapper}>
-        <Button
-          disabled={saveStatus === "saving" || savingRedactionLog}
-          type="submit"
-          className={classes.saveBtn}
-          onClick={handleSubmit((data) => {
-            const redactionLogRequestData = getRedactionLogRequestData({
-              ...data,
-            });
-            setSavingRedactionLog(true);
-            saveRedactionLog(redactionLogRequestData);
-            handleAppInsightReporting(data, defaultValues);
-          })}
-          data-testid="btn-save-redaction-log"
-        >
-          Save and Close
-        </Button>
-      </div>
+        <div className={classes.btnWrapper}>
+          <Button
+            disabled={saveStatus === "saving" || savingRedactionLog}
+            type="submit"
+            className={classes.saveBtn}
+            data-testid="btn-save-redaction-log"
+          >
+            Save and Close
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };
