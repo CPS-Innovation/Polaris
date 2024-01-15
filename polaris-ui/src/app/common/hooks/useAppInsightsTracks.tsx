@@ -27,7 +27,9 @@ type AppInsightsTrackEventNames =
   | "Report Document Issue"
   | "Uncategorised Document"
   | "Categorised Documents Count"
-  | "Open Documents Count";
+  | "Open Documents Count"
+  | "Failed Default Mapping Redaction Log"
+  | "Save Redaction Log";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -79,6 +81,10 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Categorised Documents Count":
     "Action auto-triggered. Action not initiated by a user. Log the document count by category after loading the Case Details screen.",
   "Open Documents Count": "Number of documents opened at a time",
+  "Failed Default Mapping Redaction Log":
+    "Reporting if default mapping failed to find correct default value for at least one of the fields",
+  "Save Redaction Log":
+    "User has clicked save and close button in the redaction log",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

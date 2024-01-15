@@ -3,6 +3,7 @@ using System.IO;
 using Aspose.Cells;
 using Aspose.Diagram;
 using Aspose.Email;
+using Aspose.Pdf;
 using Aspose.Slides;
 using Aspose.Words;
 using Microsoft.Extensions.Logging;
@@ -28,12 +29,12 @@ namespace pdf_generator.Factories
 			var result = new Workbook(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateWorkbook), string.Empty);
 			return result;
-        }
+		}
 
 		public Diagram CreateDiagram(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateDiagram), string.Empty);
-			
+
 			var result = new Diagram(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateDiagram), string.Empty);
 			return result;
@@ -42,17 +43,17 @@ namespace pdf_generator.Factories
 		public MailMessage CreateMailMessage(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateMailMessage), string.Empty);
-			
+
 			var result = MailMessage.Load(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateMailMessage), string.Empty);
 			return result;
 		}
 
-		public Document CreateMhtmlDocument(Stream inputStream, Guid correlationId)
+		public Aspose.Words.Document CreateMhtmlDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateMhtmlDocument), string.Empty);
-			
-			var result = new Document(inputStream, new Aspose.Words.Loading.LoadOptions { LoadFormat = LoadFormat.Mhtml });
+
+			var result = new Aspose.Words.Document(inputStream, new Aspose.Words.Loading.LoadOptions { LoadFormat = LoadFormat.Mhtml });
 			_logger.LogMethodExit(correlationId, nameof(CreateMhtmlDocument), string.Empty);
 			return result;
 		}
@@ -84,7 +85,7 @@ namespace pdf_generator.Factories
 		public Aspose.Imaging.Image CreateImage(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateImage), string.Empty);
-			
+
 			var result = Aspose.Imaging.Image.Load(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateImage), string.Empty);
 			return result;
@@ -93,26 +94,35 @@ namespace pdf_generator.Factories
 		public Presentation CreatePresentation(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreatePresentation), string.Empty);
-			
+
 			var result = new Presentation(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreatePresentation), string.Empty);
 			return result;
 		}
 
-		public Document CreateWordsDocument(Stream inputStream, Guid correlationId)
+		public Aspose.Words.Document CreateWordsDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateWordsDocument), string.Empty);
-			
-			var result = new Document(inputStream);
+
+			var result = new Aspose.Words.Document(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateWordsDocument), string.Empty);
 			return result;
 		}
-		
+
 		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
 
 			var result = new Aspose.Pdf.Document(inputStream);
+			_logger.LogMethodExit(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
+			return result;
+		}
+
+		public Aspose.Pdf.Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId)
+		{
+			_logger.LogMethodEntry(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
+
+			var result = new Aspose.Pdf.Document(inputStream, new XpsLoadOptions());
 			_logger.LogMethodExit(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
 			return result;
 		}

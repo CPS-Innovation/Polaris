@@ -1,0 +1,10 @@
+
+let TotalCount = toscalar(Polaris_Metrics_CaseAges | summarize count());
+
+Polaris_Metrics_CaseAges
+| summarize Count = count() by DaysUsed
+| order by DaysUsed asc
+| serialize Cumuluative = row_cumsum(Count)
+| extend CumuluativePercentage = 100.0 * Cumuluative/ TotalCount
+| project DaysUsed, CumuluativePercentage
+| render columnchart 

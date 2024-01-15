@@ -102,7 +102,13 @@
                 </tr>
                 <tr>
                     <td>Date</td>
-                    <td>@Model.Suspects[i].ProposedCharges[c].Date</td>
+                    <td>
+                      @Model.Suspects[i].ProposedCharges[c].EarlyDate
+                      @if (Model.Suspects[i].ProposedCharges[c].LateDate != null)
+                      {
+                        <span> - @Model.Suspects[i].ProposedCharges[c].LateDate</span>
+                      }
+                    </td>
                 </tr>
             </table>
         }

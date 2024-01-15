@@ -23,6 +23,7 @@ using Common.Telemetry.Contracts;
 using System.IO;
 using Common.Mappers.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
+using Common.Services.CaseSearchService;
 
 namespace text_extractor.tests.Functions
 {
@@ -78,8 +79,11 @@ namespace text_extractor.tests.Functions
             _mockLogger = new Mock<ILogger<ExtractText>>();
 
             _mockSearchIndexService
-                .Setup(service => service.WaitForStoreResultsAsync(It.IsAny<AnalyzeResults>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
-                .Returns(Task.FromResult(true));
+                .Setup(service => service.WaitForStoreResultsAsync(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), _mockAnalyzeResults.ReadResults.Count))
+                .ReturnsAsync(new IndexSettledResult
+                {
+                    IsSuccess = true
+                });
 
             var mockDtoHttpRequestHeadersMapper = new Mock<IDtoHttpRequestHeadersMapper>();
 

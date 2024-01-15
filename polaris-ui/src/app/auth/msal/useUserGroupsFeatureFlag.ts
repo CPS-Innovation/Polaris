@@ -1,7 +1,6 @@
 import { msalInstance } from "./msalInstance";
 import {
   PRIVATE_BETA_REDACTION_LOG_USER_GROUP,
-  REDACTION_LOG_USER_GROUP,
   FEATURE_FLAG_REDACTION_LOG,
   PRIVATE_BETA_CHECK_IGNORE_USER,
 } from "../../config";
@@ -46,21 +45,7 @@ const showRedactionLogFeature = (
     PRIVATE_BETA_REDACTION_LOG_USER_GROUP
   );
 
-  const isInRedactionLogGroup = !!groupClaims?.includes(
-    REDACTION_LOG_USER_GROUP
-  );
-
-  const canProceedBasedOnADGroups =
-    isInPrivateBetaGroup && isInRedactionLogGroup;
-
-  const canProceedOnNoFeatureGroupInConfig =
-    !PRIVATE_BETA_REDACTION_LOG_USER_GROUP?.length;
-
-  return (
-    canProceedBasedOnADGroups ||
-    canProceedOnNoFeatureGroupInConfig ||
-    isInCypressQueryParamFeatureFlag
-  );
+  return isInPrivateBetaGroup || isInCypressQueryParamFeatureFlag;
 };
 
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {

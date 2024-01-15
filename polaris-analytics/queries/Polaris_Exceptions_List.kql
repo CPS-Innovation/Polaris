@@ -119,6 +119,8 @@ let isKnownBug = (
         "24709 - Pdf generator rejects coordinator http connection",
             et contains "Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException",
         "24710 - AD token expiry",
+            op contains "PolarisPipelineSaveDocumentRedactions",
+        "24767 - Save Redactions(unclassified elsewhere)",
     "");
 };
 

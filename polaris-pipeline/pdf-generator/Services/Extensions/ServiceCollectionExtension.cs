@@ -25,6 +25,7 @@ namespace pdf_generator.Services.Extensions
             services.AddSingleton<IPdfService, HtmlPdfService>();
             services.AddSingleton<IPdfService, EmailPdfService>();
             services.AddSingleton<IPdfService, PdfRendererService>();
+            services.AddSingleton<IPdfService, XpsPdfRendererService>();
             services.AddSingleton<IPdfOrchestratorService, PdfOrchestratorService>(provider =>
             {
                 var pdfServices = provider.GetServices<IPdfService>();
@@ -37,10 +38,11 @@ namespace pdf_generator.Services.Extensions
                 var htmlPdfService = servicesList.First(s => s.GetType() == typeof(HtmlPdfService));
                 var emailPdfService = servicesList.First(s => s.GetType() == typeof(EmailPdfService));
                 var pdfRendererService = servicesList.First(s => s.GetType() == typeof(PdfRendererService));
+                var xpsPdfRendererService = servicesList.First(s => s.GetType() == typeof(XpsPdfRendererService));
                 var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
 
                 return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
-                    diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, loggingService, configuration);
+                    diagramPdfService, htmlPdfService, emailPdfService, pdfRendererService, xpsPdfRendererService, loggingService, configuration);
             });
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();

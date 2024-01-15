@@ -28,6 +28,7 @@ import {
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 type RedactionLogContentProps = {
   caseUrn: string;
   isCaseCharged: boolean;
@@ -48,6 +49,8 @@ type RedactionLogContentProps = {
   saveRedactionLog: (data: RedactionLogRequestData) => void;
 };
 
+const NOTES_MAX_CHARACTERS = 400;
+
 export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   caseUrn,
   isCaseCharged,
@@ -61,6 +64,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   redactionLogLookUpsData,
   redactionLogMappingsData,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
   const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
     cpsArea: "",
@@ -192,7 +196,10 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           </li>
           <li>Avoid recording full names</li>
           <li>Do not record sensitive personal data</li>
-          <li>Supporting notes optional - 400 characters maximum</li>
+          <li>
+            {`Supporting notes optional - ${NOTES_MAX_CHARACTERS} characters
+            maximum`}
+          </li>
         </ul>
       </div>
     );
@@ -310,6 +317,26 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     }));
 
     return errorSummary;
+  };
+
+  const handleAppInsightReporting = (
+    newValues: UnderRedactionFormData,
+    defaultValues: UnderRedactionFormData
+  ) => {
+    const { notes, ...defaultValuesWithoutNotes } = defaultValues;
+    const { notes: newNotes, ...newValuesWithoutNotes } = newValues;
+    const hasDefaultValueChange =
+      JSON.stringify(defaultValuesWithoutNotes) ===
+      JSON.stringify(newValuesWithoutNotes);
+    if (!hasDefaultValueChange) {
+      trackEvent("Failed Default Mapping Redaction Log", {
+        oldValues: defaultValuesWithoutNotes,
+        newValues: newValuesWithoutNotes,
+      });
+    }
+    trackEvent("Save Redaction Log", {
+      values: newValues,
+    });
   };
 
   return (
@@ -558,6 +585,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 return (
                   <TextArea
                     {...field}
+                    hint={{
+                      children: `You can enter up to ${
+                        NOTES_MAX_CHARACTERS - field.value.length
+                      } characters`,
+                    }}
+                    maxLength={`${NOTES_MAX_CHARACTERS}`}
                     id="redaction-log-notes"
                     data-testid="redaction-log-notes"
                     label={{
@@ -587,6 +620,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             });
             setSavingRedactionLog(true);
             saveRedactionLog(redactionLogRequestData);
+            handleAppInsightReporting(data, defaultValues);
           })}
           data-testid="btn-save-redaction-log"
         >
