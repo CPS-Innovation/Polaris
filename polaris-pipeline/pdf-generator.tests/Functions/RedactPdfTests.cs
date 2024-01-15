@@ -21,8 +21,8 @@ using Microsoft.Extensions.Logging;
 using Common.Wrappers.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
+using Common.Handlers.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
-using polaris_common.Handlers.Contracts;
 
 namespace pdf_generator.tests.Functions
 {
@@ -80,7 +80,7 @@ namespace pdf_generator.tests.Functions
         {
             var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
-                .Setup(handler => handler.HandleException(It.IsAny<NullReferenceException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+                .Setup(handler => handler.HandleExceptionNew(It.IsAny<NullReferenceException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
             
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RedactPdfRequestDto>(It.IsAny<string>())).Returns(new RedactPdfRequestDto());
@@ -97,7 +97,7 @@ namespace pdf_generator.tests.Functions
         {
             var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
-                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+                .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
             
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, null);
@@ -112,7 +112,7 @@ namespace pdf_generator.tests.Functions
         {
             var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
-                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+                .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
             
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.Empty);
@@ -130,7 +130,7 @@ namespace pdf_generator.tests.Functions
             var testFailures = _fixture.CreateMany<ValidationFailure>(2);
 
             _mockExceptionHandler
-                .Setup(handler => handler.HandleException(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+                .Setup(handler => handler.HandleExceptionNew(It.IsAny<BadRequestException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
             _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestDto>(),
                     It.IsAny<CancellationToken>()))
@@ -153,7 +153,7 @@ namespace pdf_generator.tests.Functions
                 .Setup(wrapper => wrapper.SerializeObject(It.IsAny<RedactPdfResponse>()))
                 .Throws(exception);
             _mockExceptionHandler
-                .Setup(handler => handler.HandleException(exception, It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
+                .Setup(handler => handler.HandleExceptionNew(exception, It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
 
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.NewGuid());

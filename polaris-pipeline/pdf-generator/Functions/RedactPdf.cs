@@ -9,6 +9,8 @@ using Common.Domain.Exceptions;
 using Common.Domain.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Response;
+using Common.Extensions;
+using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
@@ -18,8 +20,6 @@ using pdf_generator.Services.DocumentRedaction;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using polaris_common.Extensions;
-using polaris_common.Handlers.Contracts;
 
 namespace pdf_generator.Functions
 {
@@ -59,7 +59,7 @@ namespace pdf_generator.Functions
             {
                 #region Validate-Inputs
                 
-                currentCorrelationId = request.GetCorrelationId();
+                currentCorrelationId = request.Headers.GetCorrelation();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
@@ -100,7 +100,7 @@ namespace pdf_generator.Functions
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleException(ex, currentCorrelationId, nameof(RedactPdf), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RedactPdf), _logger);
             }
             finally
             {

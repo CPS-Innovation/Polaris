@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using Common.Configuration;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +8,11 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
-using Common.Constants;
-using Common.Domain.Document;
 using Common.Domain.Exceptions;
+using Common.Extensions;
 using Common.Logging;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
-using polaris_common.Extensions;
 
 namespace pdf_generator.Functions
 {
@@ -48,51 +45,22 @@ namespace pdf_generator.Functions
             {
                 #region Validate-Inputs
                 
-                currentCorrelationId = request.GetCorrelationId();
+                currentCorrelationId = request.Headers.GetCorrelation();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
                 _logger.LogMethodEntry(currentCorrelationId, LoggingName, string.Empty);
 
-                var cmsAuthValuesReceived = request.Headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
-                if (!cmsAuthValuesReceived)
-                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
-                var cmsAuthValues = cmsAuthValuesValues.FirstOrDefault();
-                if (string.IsNullOrWhiteSpace(cmsAuthValues))
-                    throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
+                request.Headers.CheckForCmsAuthValues();
 
-                var fileTypeReceived = request.Headers.TryGetValue(HttpHeaderKeys.Filetype, out var filetypes);
-                if (!fileTypeReceived)
-                    throw new BadRequestException("Missing Filetype Value", nameof(request));
-                var filetypeValue = filetypes.FirstOrDefault();
-                if (string.IsNullOrEmpty(filetypeValue))
-                    throw new BadRequestException("Null Filetype Value", filetypeValue);
-                if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
-                    throw new BadRequestException("Invalid Filetype Enum Value", filetypeValue);
-                telemetryEvent.FileType = filetype.ToString();
+                var fileType = request.Headers.GetFileType();
+                telemetryEvent.FileType = fileType.ToString();
+                telemetryEvent.CaseId = request.Headers.GetCaseId();
 
-                var caseIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.CaseId, out var caseIds);
-                if (!caseIdReceived)
-                    throw new BadRequestException("Missing CaseIds", nameof(request));
-                var caseId = caseIds.FirstOrDefault();
-                if (string.IsNullOrEmpty(caseId))
-                    throw new BadRequestException("Invalid CaseId", caseId);
-                telemetryEvent.CaseId = caseId;
-
-                var documentIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.DocumentId, out var documentIds);
-                if (!documentIdReceived)
-                    throw new BadRequestException("Missing DocumentIds", nameof(request));
-                var documentId = documentIds.FirstOrDefault();
-                if (string.IsNullOrEmpty(documentId))
-                    throw new BadRequestException("Invalid DocumentId", documentId);
+                var documentId = request.Headers.GetDocumentId();
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 telemetryEvent.DocumentId = documentId;
 
-                var versionIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.VersionId, out var versionIds);
-                if (!versionIdReceived)
-                    throw new BadRequestException("Missing VersionIds", nameof(request));
-                var versionId = versionIds.FirstOrDefault();
-                if (string.IsNullOrEmpty(versionId))
-                    throw new BadRequestException("Invalid VersionId", versionId);
+                var versionId = request.Headers.GetVersionId();
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 telemetryEvent.VersionId = versionId;
 
@@ -109,7 +77,7 @@ namespace pdf_generator.Functions
 
                     request.Body.Seek(0, SeekOrigin.Begin);
                     
-                    var pdfStream = _pdfOrchestratorService.ReadToPdfStream(request.Body, filetype, documentId, currentCorrelationId);
+                    var pdfStream = _pdfOrchestratorService.ReadToPdfStream(request.Body, fileType, documentId, currentCorrelationId);
                     var bytes = pdfStream.Length;
 
                     telemetryEvent.Bytes = bytes;
