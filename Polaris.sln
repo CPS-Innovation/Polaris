@@ -58,8 +58,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "polaris-common", "polaris-c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-common", "polaris-common\polaris-common\polaris-common.csproj", "{177F228F-9B2C-428A-BD03-68721A81EAB6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-generator.test-harness", "polaris-pipeline\pdf-generator.test-harness\pdf-generator.test-harness.csproj", "{C6161CF7-8A04-4EC9-908D-1F4CF78AF00F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

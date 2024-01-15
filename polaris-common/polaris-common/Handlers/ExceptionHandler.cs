@@ -59,7 +59,6 @@ namespace polaris_common.Handlers
                 
                 default:
                     statusCode = HttpStatusCode.InternalServerError;
-                    baseErrorMessage = exception.Message;
                     break;
             }
 
