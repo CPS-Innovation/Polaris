@@ -29,8 +29,19 @@ namespace Common.Services.Extensions
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
                 var blobServiceUrl = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl);
-                azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl))
-                    .WithCredential(new DefaultAzureCredential());
+                var credentials = new DefaultAzureCredential();
+                if (blobServiceUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                {
+                    // our config has a url
+                    azureClientFactoryBuilder.AddBlobServiceClient(new Uri(blobServiceUrl)).WithCredential(credentials);
+                }
+                else
+                {
+                    // our config is either a connection string "DefaultEndpointsProtocol=..." or, more probably,
+                    //  UseDevelopmentStorage=true
+                    azureClientFactoryBuilder.AddBlobServiceClient(blobServiceUrl).WithCredential(credentials);
+                }
+
             });
 
             services.AddTransient((Func<IServiceProvider, IPolarisBlobStorageService>)(serviceProvider =>
