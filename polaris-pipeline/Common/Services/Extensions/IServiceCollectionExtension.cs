@@ -22,7 +22,7 @@ using Common.Services.BlobStorageService;
 
 namespace Common.Services.Extensions
 {
-    public static class ServiceCollectionExtension
+    public static class IServiceCollectionExtension
     {
         public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfiguration configuration)
         {
