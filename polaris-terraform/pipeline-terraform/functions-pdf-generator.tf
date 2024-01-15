@@ -59,7 +59,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     }
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
-    use_32_bit_worker_process         = false
+    use_32_bit_worker         = false
   }
 
   identity {
