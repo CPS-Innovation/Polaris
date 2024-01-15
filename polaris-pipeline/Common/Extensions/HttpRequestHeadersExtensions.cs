@@ -31,7 +31,7 @@ namespace Common.Extensions
             if (!headers.TryGetValue(HttpHeaderKeys.CorrelationId, out var value))
                 throw new BadRequestException("Invalid correlationId. A valid GUID is required.", nameof(headers));
             
-            if (!Guid.TryParse(value.First(), out var correlationId))
+            if (!Guid.TryParse(value[0], out var correlationId))
                 throw new BadRequestException("Invalid correlationId. A valid GUID is required.", value);
 
             return correlationId;
@@ -45,7 +45,7 @@ namespace Common.Extensions
             if (!headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var value))
                 throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(headers));
 
-            if (string.IsNullOrWhiteSpace(value.First()))
+            if (string.IsNullOrWhiteSpace(value[0]))
                 throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", value);
         }
 
@@ -57,10 +57,7 @@ namespace Common.Extensions
             if (!headers.TryGetValue(HttpHeaderKeys.Filetype, out var value))
                 throw new BadRequestException("Missing Filetype Value", nameof(headers));
             
-            if (!Guid.TryParse(value.First(), out var correlationId))
-                throw new BadRequestException("Invalid correlationId. A valid GUID is required.", value);
-            
-            var filetypeValue = value.First();
+            var filetypeValue = value[0];
             if (string.IsNullOrEmpty(filetypeValue))
                 throw new BadRequestException("Null Filetype Value", filetypeValue);
             if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
@@ -77,7 +74,7 @@ namespace Common.Extensions
             if (!headers.TryGetValue(HttpHeaderKeys.CaseId, out var value))
                 throw new BadRequestException("Missing CaseIds", nameof(headers));
             
-            var caseId = value.First();
+            var caseId = value[0];
             if (string.IsNullOrEmpty(caseId))
                 throw new BadRequestException("Invalid CaseId", caseId);
 
@@ -92,7 +89,7 @@ namespace Common.Extensions
             if (!headers.TryGetValue(HttpHeaderKeys.DocumentId, out var value))
                 throw new BadRequestException("Missing DocumentIds", nameof(headers));
 
-            var documentId = value.First();
+            var documentId = value[0];
             if (string.IsNullOrEmpty(documentId))
                 throw new BadRequestException("Invalid DocumentId", documentId);
 
@@ -107,7 +104,7 @@ namespace Common.Extensions
             if (!headers.TryGetValue(HttpHeaderKeys.VersionId, out var value))
                 throw new BadRequestException("Missing VersionIds", nameof(headers));
 
-            var versionId = value.First();
+            var versionId = value[0];
             if (string.IsNullOrEmpty(versionId))
                 throw new BadRequestException("Invalid VersionId", versionId);
 

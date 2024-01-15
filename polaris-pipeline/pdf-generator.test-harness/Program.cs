@@ -20,7 +20,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
 builder.Configuration.AddJsonFile("local.settings.json", optional: false, reloadOnChange: true);
 
-builder.Services.AddLogging(logging => logging.AddConsole());
+//builder.Services.AddLogging(logging => logging.AddConsole());
 builder.Services.AddSingleton<AppInsights.TelemetryClient>();
 builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
