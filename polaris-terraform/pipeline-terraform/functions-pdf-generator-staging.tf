@@ -50,7 +50,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     }
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
-    use_32_bit_worker         = false
+    use_32_bit_worker                 = false
   }
 
   identity {
