@@ -75,6 +75,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       ? `${ChargeStatus.PostCharge}`
       : `${ChargeStatus.PreCharge}`,
     notes: "",
+    returnToIA: "true",
   });
   useEffect(() => {
     if (redactionLogMappingsData) {
@@ -219,8 +220,45 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     return [defaultOption, ...mappedBusinessUnit];
   };
 
-  const getRedactionLogRequestData = (
+  const getUnderOrOverRedactionTypesRequestData = (
     formData: UnderRedactionFormData
+  ) => {
+    type redactionCat = "underRedaction" | "overRedaction";
+    const categories: redactionCat[] = ["underRedaction", "overRedaction"];
+
+    const getFormDataValue = (key: keyof UnderRedactionFormData) => {
+      return formData[key];
+    };
+
+    const redactions = categories.reduce((arr, category) => {
+      if (formData[category]) {
+        const redactionTypes = Object.keys(formData)
+          .filter((key) => key.includes(`${category}-type-`))
+          .reduce((arr, key) => {
+            const value = getFormDataValue(key as keyof UnderRedactionFormData);
+            if (value) {
+              arr.push(value);
+            }
+            return arr;
+          }, [] as string[]);
+
+        arr.push({
+          missedRedaction: redactionTypes,
+          redactionType:
+            category === "underRedaction"
+              ? RedactionCategory.UnderRedacted
+              : RedactionCategory.OverRedacted,
+        });
+      }
+      return arr;
+    }, [] as any[]);
+
+    return redactions;
+  };
+
+  const getRedactionLogRequestData = (
+    formData: UnderRedactionFormData,
+    type: "overunder" | "under"
   ): RedactionLogRequestData => {
     const areaOrDivisions = [
       ...redactionLogLookUpsData.areas,
@@ -242,10 +280,15 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       (documentType) => documentType.id === formData.documentType
     )!;
 
-    const redactions = savedRedactionTypes.map((missedRedaction) => ({
-      missedRedaction,
-      redactionType: RedactionCategory.UnderRedacted,
-    }));
+    let redactions: any[] = [];
+    if (type === "under") {
+      redactions = savedRedactionTypes.map((missedRedaction) => ({
+        missedRedaction,
+        redactionType: RedactionCategory.UnderRedacted,
+      }));
+    } else if (type === "overunder") {
+      redactions = getUnderOrOverRedactionTypesRequestData(formData);
+    }
 
     const mappedData = {
       urn: caseUrn,
@@ -265,7 +308,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       },
       redactions: redactions,
       notes: formData.notes || null,
-      returnedToInvestigativeAuthority: false,
+      returnedToInvestigativeAuthority:
+        type === "under" ? false : formData.returnToIA === "true",
       chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
       cmsValues: {
         ...additionalData,
@@ -273,6 +317,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         originalFileName: redactString(additionalData.originalFileName),
       },
     };
+
+    console.log("mappedData>>>>", mappedData);
     return mappedData;
   };
 
@@ -436,9 +482,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         onSubmit={(event) => {
           handleSubmit(
             (data) => {
-              const redactionLogRequestData = getRedactionLogRequestData({
-                ...data,
-              });
+              console.log("data>>>>", data);
+              const redactionLogRequestData = getRedactionLogRequestData(
+                {
+                  ...data,
+                },
+                "overunder"
+              );
               setSavingRedactionLog(true);
               saveRedactionLog(redactionLogRequestData);
               handleAppInsightReporting(data, defaultValues);

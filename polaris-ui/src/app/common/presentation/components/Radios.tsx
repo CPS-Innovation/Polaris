@@ -1,6 +1,6 @@
 import * as GDS from "govuk-react-jsx";
 
-type RadiosProps = {
+export type RadiosProps = {
   value: string | undefined;
   name: string;
   items: {
@@ -8,7 +8,7 @@ type RadiosProps = {
     value: string | undefined;
     children: React.ReactNode;
   }[];
-  onChange: (value: string | undefined) => void;
+  onChange?: (value: string | undefined) => void;
 };
 
 export const Radios: React.FC<RadiosProps> = ({
@@ -21,8 +21,11 @@ export const Radios: React.FC<RadiosProps> = ({
     reactListKey: item.reactListKey || item.value,
   }));
 
-  const onChange: React.ChangeEventHandler<HTMLInputElement> = (event) =>
-    propOnChange(event.target.value);
+  const onChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    if (propOnChange) {
+      propOnChange(event.target.value);
+    }
+  };
 
   return (
     <GDS.Radios

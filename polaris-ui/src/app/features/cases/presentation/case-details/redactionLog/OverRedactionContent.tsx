@@ -1,14 +1,10 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import classes from "./OverRedactionContent.module.scss";
-// import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
-import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 import {
   Checkboxes,
   CheckboxesProps,
 } from "../../../../../common/presentation/components/Checkboxes";
-import { Select } from "../../../../../common/presentation/components";
-import { useForm, Controller, FieldErrors } from "react-hook-form";
-import { RedactionCategory } from "../../../domain/redactionLog/RedactionCategory";
+import { Radios } from "../../../../../common/presentation/components/Radios";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 
 type OverRedactionContentProps = {
@@ -62,15 +58,6 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
     );
   };
 
-  const returnToIACheckboxItem = [
-    {
-      checked: false,
-      children: "Return to Investigative Agency",
-      id: "1",
-      value: "1",
-    } as CheckboxesProps["items"],
-  ];
-
   const findRedactionTypesError = (
     category: "underRedaction" | "overRedaction"
   ) => {
@@ -122,31 +109,42 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
       }),
       conditional: {
         children: [
-          // <Checkboxes
-          //   data-testid="checkboxes-under-return-to-IA"
-          //   name="Return to Investigative Agency"
-          //   items={returnToIACheckboxItem}
-          //   className="govuk-checkboxes--large"
-          //   // onChange={handleUnderOverSelection}
-          // />,
-          <Checkboxes
-            errorMessage={
-              errorState.overRedaction
-                ? {
-                    children: "Select an over-redaction type",
-                  }
-                : undefined
-            }
-            fieldset={{
-              legend: {
-                children: "Types of redactions",
-              },
-            }}
-            data-testid="checkboxes-over-redaction-types"
-            name="redaction types"
-            items={redactionTypeCheckboxItems("overRedaction")}
-            className={`govuk-checkboxes--small ${classes.redactionTypes} `}
-          />,
+          <div>
+            <Radios
+              value={getValues(`returnToIA`)}
+              name="return to investigative agency"
+              items={[
+                {
+                  ...register(`returnToIA`),
+                  children: "Returned to Investigative Agency for correction",
+                  value: "true",
+                },
+                {
+                  ...register(`returnToIA`),
+                  children: "Returned to CPS colleague for correction",
+                  value: "false",
+                },
+              ]}
+            />
+            <Checkboxes
+              errorMessage={
+                errorState.overRedaction
+                  ? {
+                      children: "Select an over-redaction type",
+                    }
+                  : undefined
+              }
+              fieldset={{
+                legend: {
+                  children: "Types of redactions",
+                },
+              }}
+              data-testid="checkboxes-over-redaction-types"
+              name="redaction types"
+              items={redactionTypeCheckboxItems("overRedaction")}
+              className={`govuk-checkboxes--small ${classes.redactionTypes} `}
+            />
+          </div>,
         ],
       },
     } as unknown as CheckboxesProps["items"],
