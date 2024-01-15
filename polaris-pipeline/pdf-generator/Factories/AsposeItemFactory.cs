@@ -5,7 +5,6 @@ using Aspose.Diagram;
 using Aspose.Email;
 using Aspose.Pdf;
 using Aspose.Slides;
-using Aspose.Words;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories.Contracts;
 using Common.Logging;
@@ -58,7 +57,7 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Aspose.Pdf.Document CreateHtmlDocument(Stream inputStream, Guid correlationId)
+		public Document CreateHtmlDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateHtmlDocument), string.Empty);
 
@@ -73,10 +72,10 @@ namespace pdf_generator.Factories
                 {
                     IsLandscape = false
                 },
-                PageLayoutOption = Aspose.Pdf.HtmlPageLayoutOption.None
+                PageLayoutOption = HtmlPageLayoutOption.None
             };
 
-            var document = new Aspose.Pdf.Document(inputStream, options);
+            var document = new Document(inputStream, options);
 
 			_logger.LogMethodExit(correlationId, nameof(CreateHtmlDocument), string.Empty);
 			return document;
@@ -109,7 +108,7 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId)
+		public Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
 
@@ -118,7 +117,7 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Aspose.Pdf.Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId)
+		public Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
 
