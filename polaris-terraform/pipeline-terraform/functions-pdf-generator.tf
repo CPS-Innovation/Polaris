@@ -55,7 +55,7 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     application_insights_connection_string = data.azurerm_application_insights.global_ai.connection_string
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     application_stack {
-      dotnet_version = "v8.0"
+      dotnet_version = "v6.0"
     }
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"

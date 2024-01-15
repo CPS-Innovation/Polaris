@@ -56,14 +56,14 @@ namespace pdf_generator.Functions
                 var cmsAuthValuesReceived = request.Headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesValues);
                 if (!cmsAuthValuesReceived)
                     throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
-                var cmsAuthValues = cmsAuthValuesValues.First();
+                var cmsAuthValues = cmsAuthValuesValues.FirstOrDefault();
                 if (string.IsNullOrWhiteSpace(cmsAuthValues))
                     throw new BadRequestException("Invalid Cms Auth token. A valid Cms Auth token must be received for this request.", nameof(request));
 
                 var fileTypeReceived = request.Headers.TryGetValue(HttpHeaderKeys.Filetype, out var filetypes);
                 if (!fileTypeReceived)
                     throw new BadRequestException("Missing Filetype Value", nameof(request));
-                var filetypeValue = filetypes.First();
+                var filetypeValue = filetypes.FirstOrDefault();
                 if (string.IsNullOrEmpty(filetypeValue))
                     throw new BadRequestException("Null Filetype Value", filetypeValue);
                 if (!Enum.TryParse(filetypeValue, true, out FileType filetype))
@@ -73,7 +73,7 @@ namespace pdf_generator.Functions
                 var caseIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.CaseId, out var caseIds);
                 if (!caseIdReceived)
                     throw new BadRequestException("Missing CaseIds", nameof(request));
-                var caseId = caseIds.First();
+                var caseId = caseIds.FirstOrDefault();
                 if (string.IsNullOrEmpty(caseId))
                     throw new BadRequestException("Invalid CaseId", caseId);
                 telemetryEvent.CaseId = caseId;
@@ -81,7 +81,7 @@ namespace pdf_generator.Functions
                 var documentIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.DocumentId, out var documentIds);
                 if (!documentIdReceived)
                     throw new BadRequestException("Missing DocumentIds", nameof(request));
-                var documentId = documentIds.First();
+                var documentId = documentIds.FirstOrDefault();
                 if (string.IsNullOrEmpty(documentId))
                     throw new BadRequestException("Invalid DocumentId", documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
@@ -90,7 +90,7 @@ namespace pdf_generator.Functions
                 var versionIdReceived = request.Headers.TryGetValue(HttpHeaderKeys.VersionId, out var versionIds);
                 if (!versionIdReceived)
                     throw new BadRequestException("Missing VersionIds", nameof(request));
-                var versionId = versionIds.First();
+                var versionId = versionIds.FirstOrDefault();
                 if (string.IsNullOrEmpty(versionId))
                     throw new BadRequestException("Invalid VersionId", versionId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);

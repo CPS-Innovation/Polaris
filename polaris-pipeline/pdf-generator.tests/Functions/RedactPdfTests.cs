@@ -78,7 +78,7 @@ namespace pdf_generator.tests.Functions
         [Fact]
         public async Task Run_ReturnsBadRequestWhenContentIsInvalid()
         {
-            var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.InternalServerError };
+            var errorHttpResponseMessage = new ObjectResult("Error") { StatusCode = (int)HttpStatusCode.BadRequest };
             _mockExceptionHandler
                 .Setup(handler => handler.HandleException(It.IsAny<NullReferenceException>(), It.IsAny<Guid>(), It.IsAny<string>(), _loggerMock.Object))
                 .Returns(errorHttpResponseMessage);
