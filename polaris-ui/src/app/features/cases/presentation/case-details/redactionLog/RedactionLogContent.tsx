@@ -108,6 +108,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     reset,
     setValue,
     getValues,
+    trigger,
   } = useForm({ defaultValues });
 
   useEffect(() => {
@@ -275,6 +276,23 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     return mappedData;
   };
 
+  const handleUnderOrOverRedactionTypeError = (name: string) => {
+    if (name.includes("underRedaction-type-")) {
+      return {
+        children: "Select an under-redaction type",
+        href: "#checkbox-underRedaction-type-1",
+        "data-testid": "checkbox-cps-urt-link",
+      };
+    }
+    if (name.includes("overRedaction-type-")) {
+      return {
+        children: "Select an over-redaction type",
+        href: "#checkbox-overRedaction-type-1",
+        "data-testid": "checkbox-cps-ort-link",
+      };
+    }
+  };
+
   const errorSummaryProperties = (inputName: string) => {
     switch (inputName) {
       case "cpsArea":
@@ -307,11 +325,46 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           href: "#select-cps-cs",
           "data-testid": "select-cps-cs-link",
         };
+
+      case "overRedaction":
+      case "underRedaction":
+        return {
+          children: "Select a type of redaction",
+          href: "#checkbox-under-redaction",
+          "data-testid": "checkbox-cps-cur-link",
+        };
+
+      default:
+        return handleUnderOrOverRedactionTypeError(inputName);
     }
   };
 
   const getErrorSummaryList = (errors: FieldErrors<UnderRedactionFormData>) => {
-    const errorSummary = Object.keys(errors).map((error, index) => ({
+    let filteredErrorKeys: string[] = Object.keys(errors);
+    if (
+      filteredErrorKeys.some((key) => key === "underRedaction") &&
+      filteredErrorKeys.some((key) => key === "overRedaction")
+    ) {
+      filteredErrorKeys = filteredErrorKeys.filter(
+        (key) => key !== "underRedaction" && key !== "overRedaction"
+      );
+      filteredErrorKeys = [...filteredErrorKeys, "underRedaction"];
+    }
+    if (filteredErrorKeys.some((key) => key.includes("underRedaction-type-"))) {
+      filteredErrorKeys = filteredErrorKeys.filter(
+        (key) => !key.includes("underRedaction-type-")
+      );
+      filteredErrorKeys = [...filteredErrorKeys, "underRedaction-type-1"];
+    }
+
+    if (filteredErrorKeys.some((key) => key.includes("overRedaction-type-"))) {
+      filteredErrorKeys = filteredErrorKeys.filter(
+        (key) => !key.includes("overRedaction-type-")
+      );
+      filteredErrorKeys = [...filteredErrorKeys, "overRedaction-type-1"];
+    }
+
+    const errorSummary = filteredErrorKeys.map((error, index) => ({
       reactListKey: `${index}`,
       ...errorSummaryProperties(error)!,
     }));
@@ -381,10 +434,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       <form
         className={classes.underRedactionForm}
         onSubmit={(event) => {
-          console.log("button click is triggered1111....");
           handleSubmit(
             (data) => {
-              console.log("button click is triggered00000....", data);
               const redactionLogRequestData = getRedactionLogRequestData({
                 ...data,
               });
@@ -545,7 +596,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 required: true,
               }}
               render={({ field }) => {
-                console.log("filed1>>>", field);
                 return (
                   <Select
                     {...field}
@@ -604,6 +654,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               getValues={getValues}
               errors={errors}
               watch={watch}
+              trigger={trigger}
             />
           </section>
           <section className={classes.textAreaSection}>

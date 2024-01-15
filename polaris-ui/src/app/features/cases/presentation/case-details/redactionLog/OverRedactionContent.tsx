@@ -20,6 +20,7 @@ type OverRedactionContentProps = {
   getValues: any;
   errors: any;
   watch: any;
+  trigger: any;
 };
 
 export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
@@ -30,6 +31,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
   getValues,
   errors,
   watch,
+  trigger,
 }) => {
   type ErrorState = {
     category: boolean;
@@ -51,7 +53,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
         ({
           checked: getValues(`${category}-type-${type.id}`),
           children: type.name,
-          id: type.id,
+          id: `checkbox-${category}-type-${type.id}`,
           value: type.id,
           ...register(`${category}-type-${type.id}`, {
             validate: () => errorState[category] !== true,
@@ -72,7 +74,6 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
   const findRedactionTypesError = (
     category: "underRedaction" | "overRedaction"
   ) => {
-    console.log(" getValues() >>>", getValues());
     if (getValues(category)) {
       return !Object.keys(getValues()).some(
         (key) => key.includes(`${category}-type-`) && getValues(key)
@@ -85,7 +86,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
     {
       checked: getValues(`underRedaction`),
       children: "Under Redaction",
-      id: "under-redaction",
+      id: "checkbox-under-redaction",
       ...register(`underRedaction`, {
         validate: () => errorState.category !== true,
       }),
@@ -115,7 +116,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
     {
       checked: getValues(`overRedaction`),
       children: "Over Redaction",
-      id: "over-redaction",
+      id: "checkbox-over-redaction",
       ...register(`overRedaction`, {
         validate: () => errorState.category !== true,
       }),
@@ -162,14 +163,11 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
           underRedaction: findRedactionTypesError("underRedaction"),
           overRedaction: findRedactionTypesError("overRedaction"),
         }));
+        trigger();
       }
     );
     return () => subscription.unsubscribe();
   }, [watch]);
-
-  useEffect(() => {
-    console.log("errorState>>>", errorState);
-  });
 
   return (
     <div className={classes.underRedactionContent}>
