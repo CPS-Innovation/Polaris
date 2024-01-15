@@ -37,7 +37,6 @@ resource "azurerm_windows_function_app" "fa_pdf_generator" {
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_RUN_FROM_PACKAGE"                        = "1"
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/api/status"
-    "WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED"          = "1"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
   }
 
