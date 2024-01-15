@@ -38,6 +38,9 @@
       "tracing": {
         "traceInputsAndOutputs": false,
         "traceReplayEvents": false
+      },
+      "storageProvider": {
+        "connectionStringName": "DurableConnection"
       }
     }
   }

@@ -2,12 +2,12 @@
 using System.Net.Mime;
 using System.Text;
 using Azure;
+using Common.Domain.Exceptions;
+using Common.Exceptions;
+using Common.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using polaris_common.Domain.Exceptions;
-using polaris_common.Exceptions;
 using polaris_common.Handlers.Contracts;
-using polaris_common.Logging;
 
 namespace polaris_common.Handlers
 {

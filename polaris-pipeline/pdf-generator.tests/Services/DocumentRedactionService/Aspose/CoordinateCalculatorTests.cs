@@ -3,7 +3,7 @@ using System.IO;
 using Aspose.Cells;
 using Aspose.Pdf.Facades;
 using AutoFixture;
-using polaris_common.Dto.Request.Redaction;
+using Common.Dto.Request.Redaction;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;

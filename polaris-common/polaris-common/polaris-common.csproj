@@ -34,12 +34,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="document-toggle.config" />
-    <EmbeddedResource Include="Health\HealthCheck.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
-    <EmbeddedResource Include="Services\RenderHtmlService\PcdRequest.cshtml" />
+    <Folder Include="Exceptions\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\polaris-pipeline\Common\Common.csproj" />
   </ItemGroup>
 
 </Project>

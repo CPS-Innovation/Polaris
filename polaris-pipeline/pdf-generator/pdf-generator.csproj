@@ -80,10 +80,10 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Domain\Constants\" />
     <Folder Include="Domain\Telemetry\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\polaris-common\polaris-common\polaris-common.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 </Project>

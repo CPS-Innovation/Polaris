@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using polaris_common.Configuration;
+using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

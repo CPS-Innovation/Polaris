@@ -4,22 +4,22 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
-using polaris_common.Configuration;
-using polaris_common.Domain.Exceptions;
-using polaris_common.Domain.Extensions;
-using polaris_common.Extensions;
-using polaris_common.Dto.Request;
-using polaris_common.Dto.Response;
-using polaris_common.Handlers.Contracts;
-using polaris_common.Logging;
-using polaris_common.Telemetry.Wrappers.Contracts;
-using polaris_common.Wrappers.Contracts;
+using Common.Configuration;
+using Common.Domain.Exceptions;
+using Common.Domain.Extensions;
+using Common.Dto.Request;
+using Common.Dto.Response;
+using Common.Logging;
+using Common.Telemetry.Wrappers.Contracts;
+using Common.Wrappers.Contracts;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Services.DocumentRedaction;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using polaris_common.Extensions;
+using polaris_common.Handlers.Contracts;
 
 namespace pdf_generator.Functions
 {

@@ -1,15 +1,15 @@
 using System.IO;
 using System.Linq;
-using polaris_common.Domain.Validators;
-using polaris_common.Dto.Request;
+using Common.Domain.Validators;
+using Common.Dto.Request;
 using polaris_common.Handlers;
 using polaris_common.Handlers.Contracts;
-using polaris_common.Services.DocumentEvaluation;
-using polaris_common.Services.DocumentEvaluation.Contracts;
-using polaris_common.Services.Extensions;
-using polaris_common.Telemetry;
-using polaris_common.Telemetry.Contracts;
-using polaris_common.Telemetry.Wrappers;
+using Common.Services.DocumentEvaluation;
+using Common.Services.DocumentEvaluation.Contracts;
+using Common.Services.Extensions;
+using Common.Telemetry;
+using Common.Telemetry.Contracts;
+using Common.Telemetry.Wrappers;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pdf_generator;
 using pdf_generator.Services.Extensions;
-using polaris_common.Telemetry.Wrappers.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

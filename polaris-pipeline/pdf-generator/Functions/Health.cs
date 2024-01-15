@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using polaris_common.Constants;
-using polaris_common.Domain.Exceptions;
+using Common.Constants;
+using Common.Domain.Exceptions;
 using System;
 using Microsoft.Extensions.Logging;
-using polaris_common.Logging;
-using polaris_common.Health;
-using polaris_common.Configuration;
+using Common.Logging;
+using Common.Health;
+using Common.Configuration;
 using Microsoft.Azure.Functions.Worker;
 
 public class Health

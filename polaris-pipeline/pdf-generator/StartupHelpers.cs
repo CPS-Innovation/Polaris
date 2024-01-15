@@ -1,5 +1,5 @@
 ﻿using System;
-using polaris_common.Health;
+using Common.Health;
 using Microsoft.Extensions.DependencyInjection;
 using pdf_generator.Domain.Exceptions;
 

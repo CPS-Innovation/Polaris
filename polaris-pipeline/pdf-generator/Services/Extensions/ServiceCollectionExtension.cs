@@ -1,5 +1,5 @@
-﻿using polaris_common.Wrappers;
-using polaris_common.Wrappers.Contracts;
+﻿using Common.Wrappers;
+using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

@@ -3,13 +3,13 @@ using System.Net;
 using System.Net.Http;
 using AutoFixture;
 using Azure;
-using polaris_common.Domain.Exceptions;
-using polaris_common.Exceptions;
-using polaris_common.Handlers;
+using Common.Domain.Exceptions;
+using Common.Exceptions;
 using polaris_common.Handlers.Contracts;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using polaris_common.Handlers;
 using Xunit;
 
 namespace pdf_generator.tests.Handlers

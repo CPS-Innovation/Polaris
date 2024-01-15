@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using polaris_common.Domain.Document;
+using Common.Domain.Document;
 
 namespace pdf_generator.Services.PdfService
 {

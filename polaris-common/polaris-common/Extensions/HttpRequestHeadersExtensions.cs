@@ -1,6 +1,6 @@
+using Common.Constants;
+using Common.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
-using polaris_common.Constants;
-using polaris_common.Domain.Exceptions;
 
 namespace polaris_common.Extensions
 {

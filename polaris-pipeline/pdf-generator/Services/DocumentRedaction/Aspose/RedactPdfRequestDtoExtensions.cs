@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using polaris_common.Dto.Request;
+using Common.Dto.Request;
 
 namespace pdf_generator.Services.DocumentRedaction.Aspose
 {

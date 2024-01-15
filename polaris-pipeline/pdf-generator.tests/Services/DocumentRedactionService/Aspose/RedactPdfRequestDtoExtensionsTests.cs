@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using polaris_common.Dto.Request;
-using polaris_common.Dto.Request.Redaction;
+using Common.Dto.Request;
+using Common.Dto.Request.Redaction;
 using pdf_generator.Services.DocumentRedaction.Aspose;
 using Xunit;
 

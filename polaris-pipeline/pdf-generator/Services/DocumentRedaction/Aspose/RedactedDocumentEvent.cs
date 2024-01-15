@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using polaris_common.Telemetry;
+using Common.Telemetry;
 using pdf_generator.Services.DocumentRedaction.Aspose;
 
 namespace pdf_generator.TelemetryEvents

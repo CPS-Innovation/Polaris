@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using AutoFixture;
-using polaris_common.Constants;
-using polaris_common.Domain.Document;
-using polaris_common.Domain.Exceptions;
+using Common.Constants;
+using Common.Domain.Document;
+using Common.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;

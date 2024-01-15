@@ -2,26 +2,20 @@
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
-//using polaris_common.Domain.Document;
-//using polaris_common.Domain.Exceptions;
-//using polaris_common.Logging;
-//using polaris_common.Telemetry.Contracts;
-//using polaris_common.Telemetry.Wrappers.Contracts;
+using Common.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
-using pdf_generator.Domain.Configuration;
 using pdf_generator.Services.PdfService;
 using pdf_generator.TelemetryEvents;
-using polaris_common.Constants;
-using polaris_common.Domain.Document;
-using polaris_common.Domain.Exceptions;
+using Common.Constants;
+using Common.Domain.Document;
+using Common.Domain.Exceptions;
+using Common.Logging;
+using Common.Telemetry.Contracts;
+using Common.Telemetry.Wrappers.Contracts;
 using polaris_common.Extensions;
-using polaris_common.Logging;
-using polaris_common.Telemetry.Contracts;
-using polaris_common.Telemetry.Wrappers.Contracts;
 
 namespace pdf_generator.Functions
 {

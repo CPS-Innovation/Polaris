@@ -3,7 +3,7 @@ using Moq;
 using pdf_generator.Functions;
 using System.Net;
 using System.Threading.Tasks;
-using polaris_common.Domain.Exceptions;
+using Common.Domain.Exceptions;
 using FluentAssertions;
 using Newtonsoft.Json;
 using pdf_generator.Services.DocumentRedaction;
@@ -12,17 +12,17 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
-using polaris_common.Domain.Extensions;
+using Common.Domain.Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using polaris_common.Wrappers.Contracts;
-using polaris_common.Dto.Request;
-using polaris_common.Dto.Response;
+using Common.Wrappers.Contracts;
+using Common.Dto.Request;
+using Common.Dto.Response;
+using Common.Telemetry.Wrappers.Contracts;
 using polaris_common.Handlers.Contracts;
-using polaris_common.Telemetry.Wrappers.Contracts;
 
 namespace pdf_generator.tests.Functions
 {

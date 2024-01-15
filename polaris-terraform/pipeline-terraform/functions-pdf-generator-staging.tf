@@ -15,7 +15,7 @@ resource "azurerm_windows_function_app_slot" "fa_pdf_generator_staging1" {
     "BlobServiceContainerName"                        = "documents"
     "BlobServiceUrl"                                  = "https://sacps${var.env != "prod" ? var.env : ""}polarispipeline.blob.core.windows.net/"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HteFeatureFlag"                                  = var.hte_feature_flag
     "HostType"                                        = "Staging1"
     "ImageConversion__Resolution"                     = var.image_conversion_redaction.resolution
