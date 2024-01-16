@@ -14,6 +14,7 @@ type Props = {
   owningUnit: string;
   documentName: string;
   cmsDocumentTypeId: number;
+  redactionLogType: "under" | "over";
   additionalData: {
     documentId: string;
     documentType: string;
@@ -33,6 +34,7 @@ export const RedactionLogModal: React.FC<Props> = ({
   owningUnit,
   documentName,
   cmsDocumentTypeId,
+  redactionLogType,
   additionalData,
   savedRedactionTypes,
   saveStatus,
@@ -48,6 +50,7 @@ export const RedactionLogModal: React.FC<Props> = ({
       ariaDescription="Contains form to be filled out and submitted for redaction log "
     >
       <RedactionLogContent
+        redactionLogType={redactionLogType}
         caseUrn={caseUrn}
         isCaseCharged={isCaseCharged}
         owningUnit={owningUnit}

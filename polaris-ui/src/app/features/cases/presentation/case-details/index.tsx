@@ -72,7 +72,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
-    handleShowHideRedactionLogModal,
+    handleShowRedactionLogModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -222,6 +222,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       {redactionLog.showModal &&
         redactionLog.redactionLogLookUpsData.status === "succeeded" && (
           <RedactionLogModal
+            redactionLogType={redactionLog.type}
             caseUrn={caseState.data.uniqueReferenceNumber}
             isCaseCharged={caseState.data.isCaseCharged}
             owningUnit={caseState.data.owningUnit}
@@ -346,9 +347,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleShowHideDocumentIssueModal={
                   handleShowHideDocumentIssueModal
                 }
-                handleShowHideRedactionLogModal={
-                  handleShowHideRedactionLogModal
-                }
+                handleShowRedactionLogModal={handleShowRedactionLogModal}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}

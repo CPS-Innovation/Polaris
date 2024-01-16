@@ -57,6 +57,7 @@ export const initialState = {
   },
   redactionLog: {
     showModal: false,
+    type: "under",
     redactionLogLookUpsData: { status: "loading" },
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
@@ -338,12 +339,12 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleShowHideRedactionLogModal = useCallback(
-    (value: boolean) =>
+  const handleShowRedactionLogModal = useCallback(
+    (type: "over" | "under") =>
       dispatch({
-        type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+        type: "SHOW_REDACTION_LOG_MODAL",
         payload: {
-          show: value,
+          type: type,
           savedRedactionTypes: [],
         },
       }),
@@ -377,7 +378,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
-    handleShowHideRedactionLogModal,
+    handleShowRedactionLogModal,
     handleSavedRedactionLog,
   };
 };

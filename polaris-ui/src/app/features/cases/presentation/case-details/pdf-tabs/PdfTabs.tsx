@@ -33,7 +33,7 @@ type PdfTabsProps = {
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleUnLockDocuments: CaseDetailsState["handleUnLockDocuments"];
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
-  handleShowHideRedactionLogModal: CaseDetailsState["handleShowHideRedactionLogModal"];
+  handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -52,7 +52,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleSavedRedactions,
   handleUnLockDocuments,
   handleShowHideDocumentIssueModal,
-  handleShowHideRedactionLogModal,
+  handleShowRedactionLogModal,
 }) => {
   return (
     <Tabs
@@ -80,7 +80,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleShowHideDocumentIssueModal={
                 handleShowHideDocumentIssueModal
               }
-              handleShowHideRedactionLogModal={handleShowHideRedactionLogModal}
+              handleShowRedactionLogModal={handleShowRedactionLogModal}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}

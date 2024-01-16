@@ -43,6 +43,7 @@ type RedactionLogContentProps = {
     fileCreatedDate: string;
     originalFileName: string;
   };
+  redactionLogType: "under" | "over";
   savedRedactionTypes: RedactionTypeData[];
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
@@ -59,6 +60,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   cmsDocumentTypeId,
   additionalData,
   saveStatus,
+  redactionLogType,
   saveRedactionLog,
   savedRedactionTypes,
   redactionLogLookUpsData,
@@ -82,7 +84,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       const values = getDefaultValuesFromMappings(
         redactionLogMappingsData,
         redactionLogLookUpsData.ouCodeMapping,
-        "owningUnit",
+        owningUnit,
         cmsDocumentTypeId,
         caseUrn
       );
@@ -500,6 +502,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         onSubmit={(event) => {
           handleSubmit(
             (data) => {
+              event.preventDefault();
               console.log("data>>>>", data);
               const redactionLogRequestData = getRedactionLogRequestData(
                 {
@@ -710,21 +713,25 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               </h2>
             </div>
 
-            {/* <UnderRedactionContent
-              documentName={documentName}
-              savedRedactionTypes={savedRedactionTypes}
-            /> */}
+            {redactionLogType === "under" && (
+              <UnderRedactionContent
+                documentName={documentName}
+                savedRedactionTypes={savedRedactionTypes}
+              />
+            )}
 
-            <OverRedactionContent
-              redactionTypes={redactionLogLookUpsData.missedRedactions}
-              register={register}
-              setValue={setValue}
-              getValues={getValues}
-              errors={errors}
-              watch={watch}
-              trigger={trigger}
-              isSubmitted={isSubmitted}
-            />
+            {redactionLogType === "over" && (
+              <OverRedactionContent
+                redactionTypes={redactionLogLookUpsData.missedRedactions}
+                register={register}
+                setValue={setValue}
+                getValues={getValues}
+                errors={errors}
+                watch={watch}
+                trigger={trigger}
+                isSubmitted={isSubmitted}
+              />
+            )}
           </section>
           <section className={classes.textAreaSection}>
             <Guidance

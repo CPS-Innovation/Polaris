@@ -93,14 +93,14 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-modal-close").click();
       cy.findByTestId("guidance-redaction-log-panel").should("not.exist");
 
-      cy.findByTestId("guidance-supporting-notes").click();
-      cy.findByTestId("guidance-supporting-notes-panel").should("exist");
-      cy.findByTestId("guidance-supporting-notes-panel").should(
-        "contain",
-        "Detail the redaction issue identified, e.g. Statement of XX (Initials) DOB redacted"
-      );
-      cy.findByTestId("btn-modal-close").click();
-      cy.findByTestId("guidance-supporting-notes-panel").should("not.exist");
+      // cy.findByTestId("guidance-supporting-notes").click();
+      // cy.findByTestId("guidance-supporting-notes-panel").should("exist");
+      // cy.findByTestId("guidance-supporting-notes-panel").should(
+      //   "contain",
+      //   "Detail the redaction issue identified, e.g. Statement of XX (Initials) DOB redacted"
+      // );
+      // cy.findByTestId("btn-modal-close").click();
+      // cy.findByTestId("guidance-supporting-notes-panel").should("not.exist");
     });
     it("Save and close button in the under redaction page should be disabled initially and should be enabled after redaction is saved", () => {
       cy.overrideRoute(

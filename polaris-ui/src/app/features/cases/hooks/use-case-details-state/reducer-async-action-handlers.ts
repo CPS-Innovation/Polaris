@@ -303,9 +303,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: { documentId, saveStatus: "saving" },
         });
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
+          type: "SHOW_REDACTION_LOG_MODAL",
           payload: {
-            show: true,
+            type: "under",
             savedRedactionTypes: savedRedactionTypes,
           },
         });
@@ -342,8 +342,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           payload: { documentId, saveStatus: "error" },
         });
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, savedRedactionTypes: [] },
+          type: "HIDE_REDACTION_LOG_MODAL",
         });
       }
 
@@ -381,13 +380,11 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         await saveRedactionLog(redactionLogRequestData);
 
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, savedRedactionTypes: [] },
+          type: "HIDE_REDACTION_LOG_MODAL",
         });
       } catch (e) {
         dispatch({
-          type: "SHOW_HIDE_REDACTION_LOG_MODAL",
-          payload: { show: false, savedRedactionTypes: [] },
+          type: "HIDE_REDACTION_LOG_MODAL",
         });
         dispatch({
           type: "SHOW_ERROR_MODAL",

@@ -150,11 +150,14 @@ export const reducer = (
         payload: boolean;
       }
     | {
-        type: "SHOW_HIDE_REDACTION_LOG_MODAL";
+        type: "SHOW_REDACTION_LOG_MODAL";
         payload: {
-          show: boolean;
+          type: "over" | "under";
           savedRedactionTypes: RedactionTypeData[];
         };
+      }
+    | {
+        type: "HIDE_REDACTION_LOG_MODAL";
       }
     | {
         type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
@@ -868,13 +871,24 @@ export const reducer = (
         },
       };
     }
-    case "SHOW_HIDE_REDACTION_LOG_MODAL": {
+    case "SHOW_REDACTION_LOG_MODAL": {
       return {
         ...state,
         redactionLog: {
           ...state.redactionLog,
-          showModal: action.payload.show,
+          showModal: true,
+          type: action.payload.type,
           savedRedactionTypes: action.payload.savedRedactionTypes,
+        },
+      };
+    }
+    case "HIDE_REDACTION_LOG_MODAL": {
+      return {
+        ...state,
+        redactionLog: {
+          ...state.redactionLog,
+          showModal: false,
+          savedRedactionTypes: [],
         },
       };
     }

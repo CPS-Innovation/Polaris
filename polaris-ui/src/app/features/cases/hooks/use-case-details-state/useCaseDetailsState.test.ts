@@ -124,7 +124,7 @@ describe("useCaseDetailsState", () => {
         handleCloseErrorModal,
         handleUnLockDocuments,
         handleShowHideDocumentIssueModal,
-        handleShowHideRedactionLogModal,
+        handleShowRedactionLogModal,
         handleSavedRedactionLog,
         ...stateProperties
       } = result.current;

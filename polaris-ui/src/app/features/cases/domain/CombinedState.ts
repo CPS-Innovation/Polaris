@@ -64,6 +64,7 @@ export type CombinedState = {
   };
   redactionLog: {
     showModal: boolean;
+    type: "over" | "under";
     redactionLogLookUpsData: AsyncResult<RedactionLogLookUpsData>;
     redactionLogMappingData: AsyncResult<RedactionLogMappingData>;
     savedRedactionTypes: RedactionTypeData[];

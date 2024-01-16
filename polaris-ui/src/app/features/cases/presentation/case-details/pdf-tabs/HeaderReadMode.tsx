@@ -9,7 +9,7 @@ import classes from "./HeaderReadMode.module.scss";
 type Props = {
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
-  handleShowHideRedactionLogModal: CaseDetailsState["handleShowHideRedactionLogModal"];
+  handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   contextData: {
     documentId: string;
     tabIndex: number;
@@ -19,7 +19,7 @@ type Props = {
 export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { sasUrl },
   handleShowHideDocumentIssueModal,
-  handleShowHideRedactionLogModal,
+  handleShowRedactionLogModal,
   contextData,
 }) => {
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
@@ -33,7 +33,7 @@ export const HeaderReadMode: React.FC<Props> = ({
     console.log("document action>>", id);
     switch (id) {
       case "1":
-        handleShowHideRedactionLogModal(true);
+        handleShowRedactionLogModal("over");
         break;
       case "2":
         handleShowHideDocumentIssueModal(true);
