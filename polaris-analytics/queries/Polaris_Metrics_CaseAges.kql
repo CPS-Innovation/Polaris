@@ -1,0 +1,15 @@
+AppRequests
+| where TimeGenerated > datetime(2023-04-01)
+| where AppRoleName startswith "fa-polaris-gateway"
+| where OperationName == "PolarisPipelineGetDocument"
+| where Properties.PolarisCorrelationId !startswith "e2e"
+| where Properties.User != "REDACTED@REDACTED.EMAIL.ADDRESS"
+| extend Day = startofday(TimeGenerated)
+| extend Urn = extract("/urns/([^/]+)", 1, Url)
+| summarize 
+    EarliestTime = min(Day), 
+    LatestTime = max(Day),
+    DaysUsed = count_distinct(Day)
+    by Urn
+| extend SpanUsedDays = datetime_diff('day', LatestTime, EarliestTime)
+| extend LastTouchedDaysAgo = datetime_diff('day', now(), LatestTime)

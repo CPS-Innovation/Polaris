@@ -12,7 +12,7 @@ AppEvents
     DocumentId = tolong(Properties.documentId),
     PolarisCorrelationId = tostring(Properties.correlationId),
     InflationFactor = 1 * Measurements.bytes / Measurements.originalBytes,
-    DurationSeconds = round(todecimal(Measurements.durationSeconds), 3),
+    DurationSeconds = round(toreal(Measurements.durationSeconds), 3),
     OriginalMegabytes = round(Measurements.originalBytes / (1000.0 * 1000.0),3),
     Megabytes = round(Measurements.bytes / (1000.0 * 1000.0),2),
     FileType = tostring(Properties.fileType),

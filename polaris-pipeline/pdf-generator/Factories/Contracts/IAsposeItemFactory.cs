@@ -27,6 +27,8 @@ namespace pdf_generator.Factories.Contracts
 		public Document CreateWordsDocument(Stream inputStream, Guid correlationId);
 
 		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId);
+
+		public Aspose.Pdf.Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId);
 	}
 }
 
