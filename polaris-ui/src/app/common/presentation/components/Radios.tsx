@@ -27,12 +27,5 @@ export const Radios: React.FC<RadiosProps> = ({
     }
   };
 
-  return (
-    <GDS.Radios
-      items={processedItems}
-      onChange={onChange}
-      {...props}
-      className="govuk-radios--small"
-    />
-  );
+  return <GDS.Radios items={processedItems} onChange={onChange} {...props} />;
 };

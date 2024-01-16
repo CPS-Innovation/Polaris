@@ -73,6 +73,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
+    handleHideRedactionLogModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -243,6 +244,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 ? redactionLog.redactionLogMappingData.data
                 : null
             }
+            handleHideRedactionLogModal={handleHideRedactionLogModal}
           />
         )}
       <nav>

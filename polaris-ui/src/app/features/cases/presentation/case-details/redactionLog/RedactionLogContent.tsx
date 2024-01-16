@@ -482,7 +482,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         </div>
       )}
       <div className={classes.modalHeadWrapper}>
-        <div className={classes.modalTitleWrapper}>
+        <div
+          className={`${classes.modalTitleWrapper} ${
+            redactionLogType === "over" ? classes.modalTitleWrapperTypeOver : ""
+          }`}
+        >
           <h1 className={classes.modalContentHeading}>
             {`${caseUrn}`}
             <span className={classes.greyColor}> - Redaction Log</span>

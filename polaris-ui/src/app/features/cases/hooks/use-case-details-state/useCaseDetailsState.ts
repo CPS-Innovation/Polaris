@@ -351,6 +351,14 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
+  const handleHideRedactionLogModal = useCallback(
+    () =>
+      dispatch({
+        type: "HIDE_REDACTION_LOG_MODAL",
+      }),
+    [dispatch]
+  );
+
   const handleUnLockDocuments = useCallback(
     (documentIds: CaseDocumentViewModel["documentId"][]) =>
       dispatch({
@@ -379,6 +387,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
+    handleHideRedactionLogModal,
     handleSavedRedactionLog,
   };
 };

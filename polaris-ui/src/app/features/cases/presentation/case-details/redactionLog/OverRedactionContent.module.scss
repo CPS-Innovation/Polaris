@@ -8,3 +8,8 @@
     width: 18%;
   }
 }
+.overRedactionContent {
+  :global(.govuk-radios) {
+    margin-bottom: 1.5rem;
+  }
+}

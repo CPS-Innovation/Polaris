@@ -62,7 +62,9 @@
   & svg {
     scale: 1.5;
   }
-
+  &:hover {
+    background: #00703c;
+  }
   &:focus {
     background: #ffdd00;
     color: #000;

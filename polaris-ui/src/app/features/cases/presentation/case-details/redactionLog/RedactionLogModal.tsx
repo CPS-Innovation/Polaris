@@ -26,6 +26,7 @@ type Props = {
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
+  handleHideRedactionLogModal: () => void;
 };
 
 export const RedactionLogModal: React.FC<Props> = ({
@@ -41,10 +42,14 @@ export const RedactionLogModal: React.FC<Props> = ({
   redactionLogLookUpsData,
   redactionLogMappingsData,
   saveRedactionLog,
+  handleHideRedactionLogModal,
 }) => {
   return (
     <Modal
       isVisible={true}
+      handleClose={
+        redactionLogType === "over" ? handleHideRedactionLogModal : undefined
+      }
       type="data"
       ariaLabel="Under redaction modal"
       ariaDescription="Contains form to be filled out and submitted for redaction log "

@@ -76,6 +76,9 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
     {
       checked: getValues(`underRedaction`),
       children: "Under Redaction",
+      hint: {
+        children: "Returned to Investigative Agency for correction",
+      },
       id: "checkbox-under-redaction",
       ...register(`underRedaction`, {
         validate: () => errorState.category !== true,
@@ -173,29 +176,27 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
   }, [watch, isSubmitted, getValues, trigger, findRedactionTypesError]);
 
   return (
-    <div className={classes.underRedactionContent}>
-      <div className={classes.selectInputWrapper}>
-        <section className={classes.underRedactionSection}>
-          <Checkboxes
-            errorMessage={
-              isSubmitted && errorState.category
-                ? {
-                    children: "Select a redaction type",
-                  }
-                : undefined
-            }
-            fieldset={{
-              legend: {
-                children: "Confirm the redaction type",
-              },
-            }}
-            data-testid="checkboxes-under-over"
-            name="redactionCategory"
-            items={redactionCategoryCheckboxItem}
-            className="govuk-checkboxes--large"
-          />
-        </section>
-      </div>
+    <div className={classes.overRedactionContent}>
+      <section>
+        <Checkboxes
+          errorMessage={
+            isSubmitted && errorState.category
+              ? {
+                  children: "Select a redaction type",
+                }
+              : undefined
+          }
+          fieldset={{
+            legend: {
+              children: "Confirm the redaction type",
+            },
+          }}
+          data-testid="checkboxes-under-over"
+          name="redactionCategory"
+          items={redactionCategoryCheckboxItem}
+          className="govuk-checkboxes--large"
+        />
+      </section>
     </div>
   );
 };
