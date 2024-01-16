@@ -72,7 +72,7 @@
   </ItemGroup>
   <Target Name="CopyRequiredNativeAssets" AfterTargets="_FunctionsPostPublish">
     <ItemGroup>
-      <NativeAssetToCopy Include="$(PublishDir)bin\runtimes\win-x86\native\libSkiaSharp.dll" />
+      <NativeAssetToCopy Include="$(PublishDir)libSkiaSharp.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(PublishDir)bin" />
     <Copy SourceFiles="Aspose.Total.NET.lic" DestinationFolder="$(PublishDir)bin" />
