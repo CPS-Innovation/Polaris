@@ -17,8 +17,6 @@ namespace Common.Services.CaseSearchService
 {
     public class SearchIndexService : ISearchIndexService
     {
-        private const int IndexSettleUnitDelayMs = 200;
-        private const int IndexSettleRetryAttemptCount = 11;
         private readonly SearchClient _azureSearchClient;
         private readonly ISearchLineFactory _searchLineFactory;
         private readonly ISearchIndexingBufferedSenderFactory _searchIndexingBufferedSenderFactory;
@@ -39,11 +37,11 @@ namespace Common.Services.CaseSearchService
             _logger = logger;
         }
 
-        public async Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath, Guid correlationId)
+        public async Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobPath)
         {
-            var blobName = Path.GetFileName(blobPath);
-            var lines = new List<SearchLine>();
+            string blobName = Path.GetFileName(blobPath);
 
+            var lines = new List<SearchLine>();
             foreach (var readResult in analyzeResults.ReadResults)
             {
                 var searchLines = readResult.Lines.Select
@@ -63,66 +61,131 @@ namespace Common.Services.CaseSearchService
                 lines.AddRange(searchLines);
             }
 
-            if (lines.Count == 0)
+            if (lines.Count > 0)
             {
-                return;
-            }
+                await using var indexer = _searchIndexingBufferedSenderFactory.Create(_azureSearchClient);
 
-            await using var indexer = _searchIndexingBufferedSenderFactory.Create(_azureSearchClient);
+                var indexTaskCompletionSource = new TaskCompletionSource<bool>();
+                HashSet<int?> statuses = new HashSet<int?>();
 
-            var indexTaskCompletionSource = new TaskCompletionSource<bool>();
-            var statuses = new HashSet<int?>();
-
-            var failureCount = 0;
-            indexer.ActionFailed += error =>
-            {
-                if (error.Exception is RequestFailedException)
+                var failureCount = 0;
+                indexer.ActionFailed += error =>
                 {
-                    var status = ((RequestFailedException)error.Exception)?.Status;
-                    if (status != null)
-                        statuses.Add(status);
-                }
+                    if (error.Exception is RequestFailedException)
+                    {
+                        var status = ((RequestFailedException)error.Exception)?.Status;
+                        if (status != null)
+                            statuses.Add(status);
+                    }
 
-                failureCount++;
-                if (!indexTaskCompletionSource.Task.IsCompleted)
+                    failureCount++;
+                    if (!indexTaskCompletionSource.Task.IsCompleted)
+                    {
+                        indexTaskCompletionSource.SetResult(false);
+                    }
+
+                    return Task.CompletedTask;
+                };
+
+                var successCount = 0;
+                indexer.ActionCompleted += _ =>
                 {
-                    indexTaskCompletionSource.SetResult(false);
-                }
+                    successCount++;
+                    if (successCount == lines.Count)
+                    {
+                        indexTaskCompletionSource.SetResult(true);
+                    }
 
-                return Task.CompletedTask;
-            };
+                    return Task.CompletedTask;
+                };
 
-            var successCount = 0;
-            indexer.ActionCompleted += _ =>
-            {
-                successCount++;
-                if (successCount == lines.Count)
+                await indexer.UploadDocumentsAsync(lines);
+                await indexer.FlushAsync();
+
+                if (!await indexTaskCompletionSource.Task)
                 {
-                    indexTaskCompletionSource.SetResult(true);
+                    throw new RequestFailedException($"At least one indexing action failed. Status(es) = {string.Join(", ", statuses)}");
                 }
-
-                return Task.CompletedTask;
-            };
-
-            await indexer.UploadDocumentsAsync(lines);
-            await indexer.FlushAsync();
-
-            if (!await indexTaskCompletionSource.Task)
-            {
-                throw new RequestFailedException($"At least one indexing action failed. Status(es) = {string.Join(", ", statuses)}");
             }
         }
 
         public async Task<IndexSettledResult> WaitForStoreResultsAsync(long cmsCaseId, string cmsDocumentId, long versionId, long targetCount)
         {
-            var filter = $"caseId eq {cmsCaseId} and documentId eq '{cmsDocumentId}' and versionId eq {versionId}";
-            return await WaitForIndexCountResultsAsync(filter, targetCount);
+            var options = new SearchOptions
+            {
+                Filter = $"caseId eq {cmsCaseId} and documentId eq '{cmsDocumentId}' and versionId eq {versionId}",
+                Size = 0,
+                IncludeTotalCount = true,
+            };
+
+            var baseDelayMs = 250;
+            var recordCounts = new List<long>();
+            foreach (var timeoutBase in Fibonacci(10))
+            {
+                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
+                var receivedLinesCount = searchResults.Value.TotalCount;
+                recordCounts.Add(receivedLinesCount ?? -1);
+
+                if (receivedLinesCount == targetCount)
+                {
+                    return new IndexSettledResult
+                    {
+                        TargetCount = targetCount,
+                        RecordCounts = recordCounts,
+                        IsSuccess = true
+                    };
+                }
+
+                var timeout = baseDelayMs * timeoutBase;
+
+                await Task.Delay(timeout);
+            }
+
+            return new IndexSettledResult
+            {
+                TargetCount = targetCount,
+                RecordCounts = recordCounts,
+                IsSuccess = false
+            };
         }
 
         public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId)
         {
-            var filter = $"caseId eq {cmsCaseId}";
-            return await WaitForIndexCountResultsAsync(filter, 0);
+            var options = new SearchOptions
+            {
+                Filter = $"caseId eq {cmsCaseId}",
+                Size = 0,
+                IncludeTotalCount = true,
+            };
+
+            var baseDelayMs = 250;
+            var recordCounts = new List<long>();
+            foreach (var timeoutBase in Fibonacci(10))
+            {
+                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
+                var receivedLinesCount = searchResults.Value.TotalCount;
+
+                if (receivedLinesCount == 0)
+                {
+                    return new IndexSettledResult
+                    {
+                        TargetCount = 0,
+                        RecordCounts = recordCounts,
+                        IsSuccess = true
+                    };
+                }
+
+                var timeout = baseDelayMs * timeoutBase;
+
+                await Task.Delay(timeout);
+            }
+
+            return new IndexSettledResult
+            {
+                TargetCount = 0,
+                RecordCounts = recordCounts,
+                IsSuccess = false
+            }; ;
         }
 
         public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm)
@@ -148,11 +211,9 @@ namespace Common.Services.CaseSearchService
         {
             var streamlinedResults = new List<StreamlinedSearchLine>();
             if (searchResults.Count == 0)
-            {
                 return streamlinedResults;
-            }
 
-            var searchResultsValues
+            IEnumerable<StreamlinedSearchLine> searchResultsValues
                 = searchResults.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm));
 
             streamlinedResults.AddRange(searchResultsValues);
@@ -163,17 +224,22 @@ namespace Common.Services.CaseSearchService
         public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId)
         {
             if (caseId == 0)
-            {
                 throw new ArgumentException("Invalid caseId", nameof(caseId));
-            }
 
-            var searchOptions = new SearchOptions { Filter = $"caseId eq {caseId}" };
+            string filter = $"caseId eq {caseId}";
+
+            var searchOptions = new SearchOptions { Filter = filter };
 
             var results = await _azureSearchClient.SearchAsync<SearchLine>("*", searchOptions);
             var searchLines = new List<SearchLine>();
             await foreach (var searchResult in results.Value.GetResultsAsync())
             {
                 searchLines.Add(searchResult.Document);
+            }
+
+            if (searchLines.Count == 0)
+            {
+                return IndexDocumentsDeletedResult.Empty();
             }
 
             await using var indexer = _searchIndexingBufferedSenderFactory.Create(_azureSearchClient);
@@ -219,39 +285,16 @@ namespace Common.Services.CaseSearchService
             };
         }
 
-        private async Task<IndexSettledResult> WaitForIndexCountResultsAsync(string filter, long targetCount)
+        private IEnumerable<int> Fibonacci(int n)
         {
-            var options = new SearchOptions
+            int prev = 0, current = 1;
+            for (int i = 0; i < n; i++)
             {
-                Filter = filter,
-                Size = 0,
-                IncludeTotalCount = true,
-            };
-
-            var baseDelayMs = IndexSettleUnitDelayMs;
-            var recordCounts = new List<long>();
-
-            foreach (var timeoutBase in Fibonacci(IndexSettleRetryAttemptCount))
-            {
-                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
-                var receivedLinesCount = searchResults.Value.TotalCount;
-                recordCounts.Add(receivedLinesCount ?? -1);
-
-                if (receivedLinesCount == targetCount)
-                {
-                    break;
-                }
-
-                var timeout = baseDelayMs * timeoutBase;
-                await Task.Delay(timeout);
+                yield return current;
+                int temp = prev;
+                prev = current;
+                current = temp + current;
             }
-
-            return new IndexSettledResult
-            {
-                TargetCount = targetCount,
-                IsSuccess = recordCounts.Any() && recordCounts.Last() == targetCount,
-                RecordCounts = recordCounts
-            };
         }
 
         private string GetCaseDocumentsSearchQuery(long caseId, List<SearchFilterDocument> documents)
@@ -269,18 +312,6 @@ namespace Common.Services.CaseSearchService
                 stringBuilder.Append(")");
             }
             return stringBuilder.ToString();
-        }
-
-        private IEnumerable<int> Fibonacci(int n)
-        {
-            int prev = 0, current = 1;
-            for (int i = 0; i < n; i++)
-            {
-                yield return current;
-                int temp = prev;
-                prev = current;
-                current = temp + current;
-            }
         }
     }
 }

@@ -102,8 +102,7 @@ namespace text_extractor.Functions
                         extractTextRequest.CaseId,
                         extractTextRequest.DocumentId,
                         extractTextRequest.VersionId,
-                        extractTextRequest.BlobName,
-                        currentCorrelationId
+                        extractTextRequest.BlobName
                     );
                 telemetryEvent.IndexStoredTime = DateTime.UtcNow;
 

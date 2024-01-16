@@ -84,8 +84,7 @@ namespace Common.Health
                     default(long),
                     nameof(SearchIndexServiceHealthCheck),
                     default(long),
-                    nameof(SearchIndexServiceHealthCheck),
-                    default(Guid)
+                    nameof(SearchIndexServiceHealthCheck)
                 );
 
                 return HealthCheckResult.Healthy(string.Empty);
