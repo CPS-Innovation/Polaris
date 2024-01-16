@@ -102,7 +102,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
   const {
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitted },
     register,
     control,
     watch,
@@ -164,6 +164,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     };
   };
 
+  console.log("isSubmitted>>>>>", isSubmitted);
+
   const redactionLogGuidanceContent = () => {
     return (
       <div className={classes.redactionLogGuidanceWrapper}>
@@ -223,35 +225,50 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   const getUnderOrOverRedactionTypesRequestData = (
     formData: UnderRedactionFormData
   ) => {
-    type redactionCat = "underRedaction" | "overRedaction";
-    const categories: redactionCat[] = ["underRedaction", "overRedaction"];
+    let redactions: {
+      missedRedaction: RedactionTypeData;
+      redactionType: RedactionCategory;
+    }[] = [];
 
     const getFormDataValue = (key: keyof UnderRedactionFormData) => {
       return formData[key];
     };
 
-    const redactions = categories.reduce((arr, category) => {
-      if (formData[category]) {
-        const redactionTypes = Object.keys(formData)
-          .filter((key) => key.includes(`${category}-type-`))
-          .reduce((arr, key) => {
-            const value = getFormDataValue(key as keyof UnderRedactionFormData);
-            if (value) {
-              arr.push(value);
-            }
-            return arr;
-          }, [] as string[]);
-
-        arr.push({
-          missedRedaction: redactionTypes,
-          redactionType:
-            category === "underRedaction"
-              ? RedactionCategory.UnderRedacted
-              : RedactionCategory.OverRedacted,
-        });
+    const getDocType = (id: string) => {
+      const docType = redactionLogLookUpsData.documentTypes.find(
+        (type) => type.id === id
+      );
+      if (docType) {
+        return { id: docType.id, name: docType.name };
       }
-      return arr;
-    }, [] as any[]);
+    };
+
+    const getRedactions = (category: string) => {
+      const redactionTypes = Object.keys(formData)
+        .filter((key) => key.includes(`${category}-type-`))
+        .reduce((arr, key) => {
+          const value = getFormDataValue(key as keyof UnderRedactionFormData);
+          if (value) {
+            arr.push({
+              missedRedaction: getDocType(value)!,
+              redactionType:
+                category === "underRedaction"
+                  ? RedactionCategory.UnderRedacted
+                  : RedactionCategory.OverRedacted,
+            });
+          }
+          return arr;
+        }, [] as { missedRedaction: RedactionTypeData; redactionType: RedactionCategory }[]);
+      return redactionTypes;
+    };
+
+    if (formData["underRedaction"]) {
+      redactions = [...redactions, ...getRedactions("underRedaction")];
+    }
+
+    if (formData["overRedaction"]) {
+      redactions = [...redactions, ...getRedactions("overRedaction")];
+    }
 
     return redactions;
   };
@@ -386,6 +403,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
 
   const getErrorSummaryList = (errors: FieldErrors<UnderRedactionFormData>) => {
+    console.log("errors>>>", errors);
     let filteredErrorKeys: string[] = Object.keys(errors);
     if (
       filteredErrorKeys.some((key) => key === "underRedaction") &&
@@ -705,6 +723,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               errors={errors}
               watch={watch}
               trigger={trigger}
+              isSubmitted={isSubmitted}
             />
           </section>
           <section className={classes.textAreaSection}>

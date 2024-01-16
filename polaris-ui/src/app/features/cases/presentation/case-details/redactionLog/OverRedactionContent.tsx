@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import classes from "./OverRedactionContent.module.scss";
 import {
   Checkboxes,
@@ -17,6 +17,7 @@ type OverRedactionContentProps = {
   errors: any;
   watch: any;
   trigger: any;
+  isSubmitted: boolean;
 };
 
 export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
@@ -28,6 +29,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
   errors,
   watch,
   trigger,
+  isSubmitted,
 }) => {
   type ErrorState = {
     category: boolean;
@@ -58,16 +60,17 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
     );
   };
 
-  const findRedactionTypesError = (
-    category: "underRedaction" | "overRedaction"
-  ) => {
-    if (getValues(category)) {
-      return !Object.keys(getValues()).some(
-        (key) => key.includes(`${category}-type-`) && getValues(key)
-      );
-    }
-    return false;
-  };
+  const findRedactionTypesError = useCallback(
+    (category: "underRedaction" | "overRedaction") => {
+      if (getValues(category)) {
+        return !Object.keys(getValues()).some(
+          (key) => key.includes(`${category}-type-`) && getValues(key)
+        );
+      }
+      return false;
+    },
+    [getValues]
+  );
 
   const redactionCategoryCheckboxItem = [
     {
@@ -81,7 +84,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
         children: [
           <Checkboxes
             errorMessage={
-              errorState.underRedaction
+              isSubmitted && errorState.underRedaction
                 ? {
                     children: "Select an under-redaction type",
                   }
@@ -128,7 +131,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
             />
             <Checkboxes
               errorMessage={
-                errorState.overRedaction
+                isSubmitted && errorState.overRedaction
                   ? {
                       children: "Select an over-redaction type",
                     }
@@ -161,11 +164,13 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
           underRedaction: findRedactionTypesError("underRedaction"),
           overRedaction: findRedactionTypesError("overRedaction"),
         }));
-        trigger();
+        if (isSubmitted) {
+          trigger();
+        }
       }
     );
     return () => subscription.unsubscribe();
-  }, [watch]);
+  }, [watch, isSubmitted, getValues, trigger, findRedactionTypesError]);
 
   return (
     <div className={classes.underRedactionContent}>
@@ -173,7 +178,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
         <section className={classes.underRedactionSection}>
           <Checkboxes
             errorMessage={
-              errorState.category
+              isSubmitted && errorState.category
                 ? {
                     children: "Select a redaction type",
                   }
