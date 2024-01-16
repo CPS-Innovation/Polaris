@@ -28,6 +28,10 @@ steps:
       ARM_RESOURCE_GROUP: ${{ parameters.resourceGroup }}
       ARM_STORAGE_ACCOUNT: ${{ parameters.storageAccount }}
       ARM_LOCATION: "uksouth"
+      
+  - script: |
+      packer plugins install github.com/hashicorp/azure
+      displayName: 'Install Packer and azuure-arm plugin'
 
   - task: PackerBuild@1
     displayName: Build Image with Packer

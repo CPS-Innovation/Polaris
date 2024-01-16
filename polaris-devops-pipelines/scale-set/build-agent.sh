@@ -26,6 +26,9 @@ sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
 echo '==== dotnet 7 ===='
 sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
 
+echo '==== dotnet 8 ===='
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-8.0
+
 echo '==== PowerShell ===='
 sudo snap install powershell --classic
 
