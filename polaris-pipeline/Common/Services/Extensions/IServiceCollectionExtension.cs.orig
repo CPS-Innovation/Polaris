@@ -29,6 +29,10 @@ namespace Common.Services.Extensions
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
                 var blobServiceUrl = configuration.GetValueFromConfig(ConfigKeys.SharedKeys.BlobServiceUrl);
+<<<<<<< HEAD
+                azureClientFactoryBuilder.AddBlobServiceClient(blobServiceUrl)
+                    .WithCredential(new DefaultAzureCredential());
+=======
                 var credentials = new DefaultAzureCredential();
                 if (blobServiceUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
@@ -42,6 +46,7 @@ namespace Common.Services.Extensions
                     azureClientFactoryBuilder.AddBlobServiceClient(blobServiceUrl).WithCredential(credentials);
                 }
 
+>>>>>>> main
             });
 
             services.AddTransient((Func<IServiceProvider, IPolarisBlobStorageService>)(serviceProvider =>

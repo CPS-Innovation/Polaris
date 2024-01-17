@@ -11,18 +11,15 @@ namespace Common.Services.CaseSearchService.Contracts
     {
         Task SendStoreResultsAsync(AnalyzeResults analyzeResults, PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId);
 
-        Task<bool> WaitForStoreResultsAsync(AnalyzeResults analyzeResults, long cmsCaseId, string cmsDocumentId, long versionId, Guid correlationId);
+        Task<IndexSettledResult> WaitForStoreResultsAsync(long cmsCaseId, string cmsDocumentId, long versionId, long targetCount);
 
-        Task<bool> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId);
+        Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId);
 
-        Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm, Guid correlationId);
+        Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm);
 
-        IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm, Guid correlationId);
+        IList<StreamlinedSearchLine> BuildStreamlinedResults(IList<SearchLine> searchResults, string searchTerm);
 
-        Task RemoveCaseIndexEntriesAsync(long caseId, Guid correlationId);
+        Task<IndexDocumentsDeletedResult> RemoveCaseIndexEntriesAsync(long caseId);
 
-        Task RemoveDocumentIndexEntriesAsync(long caseId, string documentId, long versionId, Guid correlationId);
-
-        Task RemoveResultsByBlobNameAsync(long cmsCaseId, string blobName, Guid correlationId);
     }
 }

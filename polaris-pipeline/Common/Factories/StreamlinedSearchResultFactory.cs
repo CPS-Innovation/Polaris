@@ -1,9 +1,6 @@
-﻿using System;
-using Common.Domain.SearchIndex;
+﻿using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
-using Common.Logging;
 using Common.Mappers.Contracts;
-using Microsoft.Extensions.Logging;
 
 namespace Common.Factories
 {
@@ -11,25 +8,21 @@ namespace Common.Factories
     {
         private readonly IStreamlinedSearchLineMapper _streamlinedSearchLineMapper;
         private readonly IStreamlinedSearchWordMapper _streamlinedSearchWordMapper;
-        private readonly ILogger<StreamlinedSearchResultFactory> _logger;
 
-        public StreamlinedSearchResultFactory(IStreamlinedSearchLineMapper streamlinedSearchLineMapper, IStreamlinedSearchWordMapper streamlinedSearchWordMapper, ILogger<StreamlinedSearchResultFactory> logger)
+        public StreamlinedSearchResultFactory(IStreamlinedSearchLineMapper streamlinedSearchLineMapper, IStreamlinedSearchWordMapper streamlinedSearchWordMapper)
         {
             _streamlinedSearchLineMapper = streamlinedSearchLineMapper;
             _streamlinedSearchWordMapper = streamlinedSearchWordMapper;
-            _logger = logger;
-        } 
+        }
 
-        public StreamlinedSearchLine Create(SearchLine searchLine, string searchTerm, Guid correlationId)
+        public StreamlinedSearchLine Create(SearchLine searchLine, string searchTerm)
         {
-            _logger.LogMethodEntry(correlationId, nameof(Create), string.Empty);
-            var streamlinedSearchLine = _streamlinedSearchLineMapper.Map(searchLine, correlationId);
+            var streamlinedSearchLine = _streamlinedSearchLineMapper.Map(searchLine);
             foreach (var word in searchLine.Words)
             {
-                streamlinedSearchLine.Words.Add(_streamlinedSearchWordMapper.Map(word, searchTerm, correlationId));
+                streamlinedSearchLine.Words.Add(_streamlinedSearchWordMapper.Map(word, searchTerm));
             }
 
-            _logger.LogMethodExit(correlationId, nameof(Create), string.Empty);
             return streamlinedSearchLine;
         }
     }
