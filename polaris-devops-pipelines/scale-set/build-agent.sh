@@ -16,10 +16,6 @@ sudo apt-get remove 'aspnetcore*'
 sudo rm /etc/apt/sources.list.d/microsoft-prod.list
 sudo apt-get update
 
-echo '==== dotnet 3.1 ===='
-# dotnet 3.1 is used by azure devops itself
-sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-3.1
-
 echo '==== dotnet 6 ===='
 sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
 
