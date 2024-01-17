@@ -16,21 +16,15 @@ sudo apt-get remove 'aspnetcore*'
 sudo rm /etc/apt/sources.list.d/microsoft-prod.list
 sudo apt-get update
 
-echo '==== install .NET SDK versions ===='
-#.NET 8 not available via standard 22.04 feeds
-sudo apt-get install -y gpg
-wget -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o microsoft.asc.gpg
-sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
-wget https://packages.microsoft.com/config/ubuntu/22.04/prod.list
-sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
-sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
-sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
-sudo apt-get update -yq
-echo "==== Install .NET 6.0 SDK ===="
-sudo apt-get install -y dotnet-sdk-6.0
-sudo apt-get update -yq
-echo "==== Install .NET 8.0 SDK ===="
-sudo apt-get install -y dotnet-sdk-8.0
+echo '==== dotnet 3.1 ===='
+# dotnet 3.1 is used by azure devops itself
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-3.1
+
+echo '==== dotnet 6 ===='
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
+
+echo '==== dotnet 7 ===='
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
 
 echo '==== PowerShell ===='
 sudo snap install powershell --classic
