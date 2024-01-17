@@ -1,0 +1,15 @@
+let ExceptionCounts = Polaris_Exceptions_List
+| summarize 
+    CountExceptions = count() 
+by TimeGenerated = bin(EarliestExceptionTimeGenerated, ts)
+;
+
+let DocumentProcessedCounts = Polaris_Metrics_Conversion
+| summarize 
+    CountDocuments = count() 
+by TimeGenerated = bin(TimeGenerated, ts)
+;
+
+DocumentProcessedCounts
+| join kind=leftouter  ExceptionCounts on TimeGenerated
+| project TimeGenerated, ExceptionPerDocumentRate =  1.0 * CountExceptions/CountDocuments

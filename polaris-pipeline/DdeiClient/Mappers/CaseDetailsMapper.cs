@@ -154,7 +154,8 @@ namespace Ddei.Mappers
             return new ProposedChargeDto
             {
                 Charge = proposedCharge.Charge,
-                Date = proposedCharge.Date
+                EarlyDate = proposedCharge.EarlyDate,
+                LateDate = proposedCharge.LateDate
             };
         }
 
@@ -173,7 +174,8 @@ namespace Ddei.Mappers
             return new HeadlineChargeDto
             {
                 Charge = proposedCharge.Charge,
-                Date = proposedCharge.Date
+                EarlyDate = proposedCharge.EarlyDate,
+                LateDate = proposedCharge.LateDate
             };
         }
         private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, DdeiCaseSummaryDto caseSummary)
@@ -286,7 +288,8 @@ namespace Ddei.Mappers
             return new PcdProposedChargeDto
             {
                 Charge = ddeiPcdProposedChargeDto.Charge,
-                Date = ddeiPcdProposedChargeDto.Date,
+                EarlyDate = ddeiPcdProposedChargeDto.EarlyDate,
+                LateDate = ddeiPcdProposedChargeDto.LateDate,
                 Location = ddeiPcdProposedChargeDto.Location,
                 Category = ddeiPcdProposedChargeDto.Category
             };

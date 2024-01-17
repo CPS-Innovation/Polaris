@@ -5,7 +5,6 @@ using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
 using coordinator.TelemetryEvents;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,7 +104,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
         var existingInstance = await orchestrationClient.GetStatusAsync(instanceId);
         var isSingletonRefreshRunning = IsSingletonRefreshRunning(existingInstance);
-        
+
         if (isSingletonRefreshRunning)
         {
             return new HttpResponseMessage(HttpStatusCode.Locked);
@@ -130,10 +129,15 @@ public class OrchestrationProvider : IOrchestrationProvider
         {
             if (!_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
             {
-                await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
+                var deleteResult = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);
                 telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
+                telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
+                telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
+                telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
 
-                await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId, correlationId);
+                var waitResult = await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId);
+                telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
+                telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
                 telemetryEvent.IndexSettledTime = DateTime.UtcNow;
             }
 

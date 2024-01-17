@@ -1,0 +1,14 @@
+AppEvents
+| where AppRoleName startswith "fa-polaris-gateway"
+| where Name == "RedactionRequest"
+| project 
+    TimeGenerated, 
+    CaseId = toint(Properties.caseId),
+    PolarisCorrelationId = tostring(Properties.correlationId),
+    DocumentId = tostring(Properties.documentId),
+    IsRequestValid = tobool(Properties.isRequestValid),
+    IsRequestJsonValid = tobool(Properties.isRequestJsonValid),
+    IsSuccess = tobool(Properties.isSuccess),
+    JsonLength = toint(Measurements.requestJsonLength),
+    Json = tostring(Properties.requestJson)
+| where PolarisCorrelationId !startswith "e2e"

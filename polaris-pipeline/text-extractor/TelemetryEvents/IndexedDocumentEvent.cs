@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common.Telemetry;
 
 namespace text_extractor.TelemetryEvents
@@ -21,6 +22,9 @@ namespace text_extractor.TelemetryEvents
         public int PageCount { get; set; }
         public int LineCount { get; set; }
         public int WordCount { get; set; }
+        public long IndexSettleTargetCount { get; set; }
+        public bool DidIndexSettle { get; set; }
+        public List<long> WaitRecordCounts;
 
         public IndexedDocumentEvent(Guid correlationId)
         {
@@ -38,6 +42,8 @@ namespace text_extractor.TelemetryEvents
                     { nameof(VersionId), VersionId.ToString() },
                     { nameof(StartTime), StartTime.ToString("o") },
                     { nameof(EndTime), EndTime.ToString("o") },
+                    { nameof(DidIndexSettle), DidIndexSettle.ToString() },
+                    { nameof(WaitRecordCounts), string.Join(",", WaitRecordCounts ?? Enumerable.Empty<long>()) },
                 },
                 new Dictionary<string, double?>
                 {
@@ -45,6 +51,7 @@ namespace text_extractor.TelemetryEvents
                     { nameof(PageCount), PageCount },
                     { nameof(LineCount), LineCount },
                     { nameof(WordCount), WordCount },
+                    { nameof(IndexSettleTargetCount), IndexSettleTargetCount},
                     { nameof(ocrDurationSeconds), GetDurationSeconds(StartTime, OcrCompletedTime) },
                     { nameof(indexDurationSeconds), GetDurationSeconds(OcrCompletedTime, IndexStoredTime) },
                     { nameof(indexSettledDurationSeconds), GetDurationSeconds(IndexStoredTime, EndTime) }
