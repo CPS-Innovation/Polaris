@@ -26,9 +26,6 @@ sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
 echo '==== dotnet 7 ===='
 sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
 
-echo '==== dotnet 8 ===='
-sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-8.0
-
 echo '==== PowerShell ===='
 sudo snap install powershell --classic
 
@@ -125,3 +122,17 @@ sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/chrome-keyring.g
 sudo apt-get update -yq
 sudo apt-get install -y google-chrome-stable
 sudo apt-get clean
+
+#.NET 8 not available via standard 22.04 feeds
+echo "==== Install .NET 8 SDK ===="
+# Get Ubuntu version
+declare repo_version=$(if command -v lsb_release &> /dev/null; then lsb_release -r -s; else grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"'; fi)
+# Download Microsoft signing key and repository
+wget https://packages.microsoft.com/config/ubuntu/$repo_version/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+# Install Microsoft signing key and repository
+sudo dpkg -i packages-microsoft-prod.deb
+# Clean up
+rm packages-microsoft-prod.deb
+# Update packages
+sudo apt-get update -yq
+sudo apt-get install -y dotnet-sdk-8.0
