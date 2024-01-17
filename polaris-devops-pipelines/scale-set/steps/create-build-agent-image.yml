@@ -33,7 +33,7 @@ steps:
     displayName: 'Install Packer'
     
   - bash: |
-      packer init -upgrade
+      packer init -upgrade "packer-config.hcl"
       
   - task: PackerBuild@1
     displayName: Build Image with Packer
