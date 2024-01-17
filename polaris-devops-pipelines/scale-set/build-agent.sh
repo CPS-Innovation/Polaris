@@ -4,13 +4,14 @@ DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 echo '==== Update package sources ===='
 sudo apt-get update
 
-echo '==== Add Microsoft scripted install resource ===='
-wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-sudo chmod +x ./dotnet-install.sh
-echo '==== Install dotnet 6 sdk ===='
-sudo ./dotnet-install.sh --channel 6.0
-echo '==== Install dotnet 8 sdk ===='
-sudo ./dotnet-install.sh --channel 8.0
+echo '==== dotnet 6 ===='
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
+
+echo '==== dotnet 7 ===='
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
+
+echo '==== dotnet 8 ===='
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-8.0
 
 echo '==== PowerShell ===='
 sudo snap install powershell --classic

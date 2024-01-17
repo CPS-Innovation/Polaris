@@ -50,7 +50,7 @@ stages:
               resourceGroup: $(innovation-development-build-agent-resource-group)
               storageAccount: $(innovation-development-build-agent-storage-account)
               versionSha: $(versionSha)
-              baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
+              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
 
   #- stage: image_builder_qa
