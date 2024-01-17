@@ -22,7 +22,6 @@ variables:
   - name: "prodSubscriptionName"
     value: "Innovation-Production: All-Information Management"
 
-
 stages:
   - stage: create_version
     displayName: Determine version number
