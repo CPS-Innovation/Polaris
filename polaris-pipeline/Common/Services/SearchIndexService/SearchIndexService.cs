@@ -176,6 +176,11 @@ namespace Common.Services.CaseSearchService
                 searchLines.Add(searchResult.Document);
             }
 
+            if (searchLines.Count == 0)
+            {
+                return IndexDocumentsDeletedResult.Empty();
+            }
+
             await using var indexer = _searchIndexingBufferedSenderFactory.Create(_azureSearchClient);
             var indexTaskCompletionSource = new TaskCompletionSource<bool>();
 
