@@ -125,14 +125,12 @@ sudo apt-get clean
 
 #.NET 8 not available via standard 22.04 feeds
 echo "==== Install .NET 8 SDK ===="
-# Get Ubuntu version
-declare repo_version=$(if command -v lsb_release &> /dev/null; then lsb_release -r -s; else grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"'; fi)
-# Download Microsoft signing key and repository
-wget https://packages.microsoft.com/config/ubuntu/$repo_version/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-# Install Microsoft signing key and repository
-sudo dpkg -i packages-microsoft-prod.deb
-# Clean up
-rm packages-microsoft-prod.deb
-# Update packages
+sudo apt-get install -y gpg
+wget -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o microsoft.asc.gpg
+sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
+wget https://packages.microsoft.com/config/ubuntu/22.04/prod.list
+sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
+sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
 sudo apt-get update -yq
 sudo apt-get install -y dotnet-sdk-8.0
