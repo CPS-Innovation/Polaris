@@ -10,14 +10,18 @@ sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 sudo apt-get update
 
-echo '==== Install dotnet 6 sdk and runtimes ===='
+echo '==== Install dotnet 6 sdk ===='
 sudo apt-get install -y dotnet-sdk-6.0
+echo '==== Install dotnet 6 runtime ===='
 sudo apt-get install -y dotnet-runtime-6.0
+echo '==== Install dotnet 6 aspnetcore runtime ===='
 sudo apt-get install -y aspnetcore-runtime-6.0
 
-echo '==== Install dotnet 8 sdk and runtimes ===='
+echo '==== Install dotnet 8 sdk ===='
 sudo apt-get install -y dotnet-sdk-8.0
+echo '==== Install dotnet 8 runtime ===='
 sudo apt-get install -y dotnet-runtime-8.0
+echo '==== Install dotnet 8 aspnetcore runtime ===='
 sudo apt-get install -y aspnetcore-runtime-8.0
 
 echo '==== PowerShell ===='
