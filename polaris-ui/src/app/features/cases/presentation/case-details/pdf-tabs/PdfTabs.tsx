@@ -20,6 +20,7 @@ type PdfTabsProps = {
     correlationId: string;
   };
   isOkToSave: boolean;
+  showOverRedactionLog: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
@@ -41,6 +42,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   tabsState: { items, headers, activeTabId },
   contextData,
   savedDocumentDetails,
+  showOverRedactionLog,
   handleTabSelection,
   isOkToSave,
   handleOpenPdf,
@@ -65,6 +67,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               tabIndex={index}
+              showOverRedactionLog={showOverRedactionLog}
               redactionTypesData={redactionTypesData}
               caseDocumentViewModel={item}
               savedDocumentDetails={savedDocumentDetails}

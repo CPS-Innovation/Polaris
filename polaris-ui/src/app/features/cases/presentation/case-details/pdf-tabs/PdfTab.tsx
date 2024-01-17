@@ -16,6 +16,7 @@ type PdfTabProps = {
   tabIndex: number;
   activeTabId: string | undefined;
   tabId: string;
+  showOverRedactionLog: boolean;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
   documentWriteStatus: PresentationFlags["write"];
@@ -45,6 +46,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   redactionTypesData,
   activeTabId,
   tabId,
+  showOverRedactionLog,
   caseDocumentViewModel,
   headers,
   documentWriteStatus,
@@ -125,6 +127,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         />
       ) : (
         <HeaderReadMode
+          showOverRedactionLog={showOverRedactionLog}
           caseDocumentViewModel={caseDocumentViewModel}
           handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
           handleShowRedactionLogModal={handleShowRedactionLogModal}

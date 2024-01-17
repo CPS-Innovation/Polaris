@@ -101,6 +101,11 @@ variable "feature_flag_redaction_log" {
   type = string
 }
 
+variable "feature_flag_redaction_log_over" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "redaction_log_user_group" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string

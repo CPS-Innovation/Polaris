@@ -30,7 +30,10 @@ import {
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { SURVEY_LINK } from "../../../../config";
+import {
+  SURVEY_LINK,
+  FEATURE_FLAG_REDACTION_LOG_OVER,
+} from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
@@ -56,6 +59,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     errorModal,
     documentIssueModal,
     redactionLog,
+    featureFlags,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -353,6 +357,12 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}
+                showOverRedactionLog={
+                  featureFlags.status === "succeeded"
+                    ? featureFlags.data.redactionLog &&
+                      FEATURE_FLAG_REDACTION_LOG_OVER
+                    : false
+                }
               />
             )}
           </div>
