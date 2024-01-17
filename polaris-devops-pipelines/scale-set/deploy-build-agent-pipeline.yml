@@ -53,49 +53,49 @@ stages:
               baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
               additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
 
-  #- stage: image_builder_qa
-  #  displayName: QA - Build Custom VM Image
-  #  dependsOn: create_version
-  #  variables:
-  #    versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-  #  jobs:
-  #    - job: build
-  #      displayName: QA - Build Image
-  #      steps:
-  #        - template: steps/create-build-agent-image.yml
-  #          parameters:
-  #            clientId: $(innovation-qa-spn-client-id)
-  #            clientSecret: $(innovation-qa-spn-secret)
-  #            tenantId: $(innovation-qa-spn-tenant-id)
-  #            subscriptionId: $(innovation-qa-subscription-id)
-  #            subscriptionName: $(qaSubscriptionName)
-  #            resourceGroup: $(innovation-qa-build-agent-resource-group)
-  #            storageAccount: $(innovation-qa-build-agent-storage-account)
-  #            versionSha: $(versionSha)
-  #            baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
-  #            additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
+  - stage: image_builder_qa
+    displayName: QA - Build Custom VM Image
+    dependsOn: create_version
+    variables:
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+    jobs:
+      - job: build
+        displayName: QA - Build Image
+        steps:
+          - template: steps/create-build-agent-image.yml
+            parameters:
+              clientId: $(innovation-qa-spn-client-id)
+              clientSecret: $(innovation-qa-spn-secret)
+              tenantId: $(innovation-qa-spn-tenant-id)
+              subscriptionId: $(innovation-qa-subscription-id)
+              subscriptionName: $(qaSubscriptionName)
+              resourceGroup: $(innovation-qa-build-agent-resource-group)
+              storageAccount: $(innovation-qa-build-agent-storage-account)
+              versionSha: $(versionSha)
+              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+              additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
 
-  #- stage: image_builder_prod
-  #  displayName: PROD - Build Custom VM Image
-  #  dependsOn: create_version
-  #  variables:
-  #    versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-  #  jobs:
-  #    - job: build
-  #      displayName: PROD - Build Image
-  #      steps:
-  #        - template: steps/create-build-agent-image.yml
-  #          parameters:
-  #            clientId: $(innovation-prod-spn-client-id)
-  #            clientSecret: $(innovation-prod-spn-secret)
-  #            tenantId: $(innovation-prod-spn-tenant-id)
-  #            subscriptionId: $(innovation-prod-subscription-id)
-  #            subscriptionName: $(prodSubscriptionName)
-  #            resourceGroup: $(innovation-prod-build-agent-resource-group)
-  #            storageAccount: $(innovation-prod-build-agent-storage-account)
-  #            versionSha: $(versionSha)
-  #            baseImage: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
-  #            additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
+  - stage: image_builder_prod
+    displayName: PROD - Build Custom VM Image
+    dependsOn: create_version
+    variables:
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+    jobs:
+      - job: build
+        displayName: PROD - Build Image
+        steps:
+          - template: steps/create-build-agent-image.yml
+            parameters:
+              clientId: $(innovation-prod-spn-client-id)
+              clientSecret: $(innovation-prod-spn-secret)
+              tenantId: $(innovation-prod-spn-tenant-id)
+              subscriptionId: $(innovation-prod-subscription-id)
+              subscriptionName: $(prodSubscriptionName)
+              resourceGroup: $(innovation-prod-build-agent-resource-group)
+              storageAccount: $(innovation-prod-build-agent-storage-account)
+              versionSha: $(versionSha)
+              baseImage: "Canonical:0001-com-ubuntu-server-mantic:23_10:linux"
+              additionalBuilderParams: '{"vm_size":"Standard_D2_v3"}'
 
   - stage: update_scale_set_dev
     displayName: Update All DEV Resources
@@ -118,44 +118,44 @@ stages:
               agentPoolName: $(innovation-development-agent-pool-name)
               versionSha: $(versionSha)
 
-  #- stage: update_scale_set_qa
-  #  displayName: Update All QA Resources
-  #  dependsOn:
-  #    - create_version
-  #    - image_builder_qa
-  #  variables:
-  #    versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-  #  jobs:
-  #    - job: update
-  #      displayName: Update Resources
-  #      steps:
-  #        - template: steps/update-image-version.yml
-  #          parameters:
-  #            clientId: $(innovation-qa-spn-client-id)
-  #            clientSecret: $(innovation-qa-spn-secret)
-  #            tenantId: $(innovation-qa-spn-tenant-id)
-  #            subscriptionId: $(innovation-qa-subscription-id)
-  #            resourceGroup: $(innovation-qa-build-agent-resource-group)
-  #            agentPoolName: $(innovation-qa-agent-pool-name)
-  #            versionSha: $(versionSha)
+  - stage: update_scale_set_qa
+    displayName: Update All QA Resources
+    dependsOn:
+      - create_version
+      - image_builder_qa
+    variables:
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+    jobs:
+      - job: update
+        displayName: Update Resources
+        steps:
+          - template: steps/update-image-version.yml
+            parameters:
+              clientId: $(innovation-qa-spn-client-id)
+              clientSecret: $(innovation-qa-spn-secret)
+              tenantId: $(innovation-qa-spn-tenant-id)
+              subscriptionId: $(innovation-qa-subscription-id)
+              resourceGroup: $(innovation-qa-build-agent-resource-group)
+              agentPoolName: $(innovation-qa-agent-pool-name)
+              versionSha: $(versionSha)
 
-  #- stage: update_scale_set_prod
-  #  displayName: Update All PROD Resources
-  #  dependsOn:
-  #    - create_version
-  #    - image_builder_prod
-  #  variables:
-  #    versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-  #  jobs:
-  #    - job: update
-  #      displayName: Update Resources
-  #      steps:
-  #        - template: steps/update-image-version.yml
-  #          parameters:
-  #            clientId: $(innovation-prod-spn-client-id)
-  #            clientSecret: $(innovation-prod-spn-secret)
-  #            tenantId: $(innovation-prod-spn-tenant-id)
-  #            subscriptionId: $(innovation-prod-subscription-id)
-  #            resourceGroup: $(innovation-prod-build-agent-resource-group)
-  #            agentPoolName: $(innovation-prod-agent-pool-name)
-  #            versionSha: $(versionSha)
+  - stage: update_scale_set_prod
+    displayName: Update All PROD Resources
+    dependsOn:
+      - create_version
+      - image_builder_prod
+    variables:
+      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+    jobs:
+      - job: update
+        displayName: Update Resources
+        steps:
+          - template: steps/update-image-version.yml
+            parameters:
+              clientId: $(innovation-prod-spn-client-id)
+              clientSecret: $(innovation-prod-spn-secret)
+              tenantId: $(innovation-prod-spn-tenant-id)
+              subscriptionId: $(innovation-prod-subscription-id)
+              resourceGroup: $(innovation-prod-build-agent-resource-group)
+              agentPoolName: $(innovation-prod-agent-pool-name)
+              versionSha: $(versionSha)
