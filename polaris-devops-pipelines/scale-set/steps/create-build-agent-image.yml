@@ -29,6 +29,12 @@ steps:
       ARM_STORAGE_ACCOUNT: ${{ parameters.storageAccount }}
       ARM_LOCATION: "uksouth"
       
+  - task: riezebosch.Packer.PackerTool.PackerTool@0
+    displayName: 'Install Packer'
+    
+  - bash: |
+      packer init
+      
   - task: PackerBuild@1
     displayName: Build Image with Packer
     inputs:
@@ -45,7 +51,6 @@ steps:
       deployScriptPath: "build-agent.sh"
       additionalBuilderParameters: ${{ parameters.additionalBuilderParams }}
       skipTempFileCleanupDuringVMDeprovision: false
-      packerVersion: "1.9.0"
 
   - bash: |
       az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
