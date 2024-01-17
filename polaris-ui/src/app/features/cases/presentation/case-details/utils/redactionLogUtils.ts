@@ -59,3 +59,25 @@ export const redactString = (
   }
   return chars.join("");
 };
+
+export const getPresentationRedactionTypeNames = (
+  count: number,
+  name: string
+) => {
+  if (count <= 1) {
+    return name;
+  }
+  switch (name) {
+    case "Relationship to others":
+    case "Bank details":
+    case "Previous convictions":
+      return name;
+    case "Address":
+    case "Email address":
+      return `${name}es`;
+    case "Date of birth":
+      return "Dates of birth";
+    default:
+      return `${name}s`;
+  }
+};
