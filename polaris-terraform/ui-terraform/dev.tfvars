@@ -43,6 +43,6 @@ redaction_log_user_group = ""
 
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
-  user_group  = "1a9b08e8-5839-4953-a053-c1bc6dd02233" // the Polaris-Dev-VPN group
+  user_group  = ""
   redaction_log_user_group = "8fc75d71-3479-4a77-b33b-41fd26ec4960" 
 }
