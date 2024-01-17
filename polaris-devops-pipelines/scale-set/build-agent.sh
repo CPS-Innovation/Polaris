@@ -4,25 +4,13 @@ DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 echo '==== Update package sources ===='
 sudo apt-get update
 
-echo '==== Add Microsoft Package Repo ===='
-wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-rm packages-microsoft-prod.deb
-sudo apt-get update
-
+echo '==== Add Microsoft scripted install resource ===='
+wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+sudo chmod +x ./dotnet-install.sh
 echo '==== Install dotnet 6 sdk ===='
-sudo apt-get install -y dotnet-sdk-6.0
-echo '==== Install dotnet 6 runtime ===='
-sudo apt-get install -y dotnet-runtime-6.0
-echo '==== Install dotnet 6 aspnetcore runtime ===='
-sudo apt-get install -y aspnetcore-runtime-6.0
-
+sudo ./dotnet-install.sh --channel 6.0
 echo '==== Install dotnet 8 sdk ===='
-sudo apt-get install -y dotnet-sdk-8.0
-echo '==== Install dotnet 8 runtime ===='
-sudo apt-get install -y dotnet-runtime-8.0
-echo '==== Install dotnet 8 aspnetcore runtime ===='
-sudo apt-get install -y aspnetcore-runtime-8.0
+sudo ./dotnet-install.sh --channel 8.0
 
 echo '==== PowerShell ===='
 sudo snap install powershell --classic
