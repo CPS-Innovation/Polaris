@@ -64,11 +64,13 @@ export const getPresentationRedactionTypeNames = (
   count: number,
   name: string
 ) => {
-  if (count <= 1) {
+  if (count < 2) {
+    if (name === "Previous convictions") {
+      return "Previous conviction";
+    }
     return name;
   }
   switch (name) {
-    case "Relationship to others":
     case "Bank details":
     case "Previous convictions":
       return name;
@@ -77,6 +79,8 @@ export const getPresentationRedactionTypeNames = (
       return `${name}es`;
     case "Date of birth":
       return "Dates of birth";
+    case "Relationship to others":
+      return "Relationships to others";
     default:
       return `${name}s`;
   }

@@ -38,6 +38,12 @@ describe("redactionLogUtils", () => {
       ];
 
       redactionTypes.forEach((type) => {
+        if (type === "Previous convictions") {
+          expect(getPresentationRedactionTypeNames(1, type)).toEqual(
+            "Previous conviction"
+          );
+          return;
+        }
         expect(getPresentationRedactionTypeNames(1, type)).toEqual(type);
       });
     });
@@ -65,7 +71,7 @@ describe("redactionLogUtils", () => {
         "Named individuals",
         "Titles",
         "Occupations",
-        "Relationship to others",
+        "Relationships to others",
         "Addresses",
         "Locations",
         "Vehicle registrations",
