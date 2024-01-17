@@ -3,16 +3,15 @@ using System.Net;
 using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 
 namespace pdf_generator.Functions;
 
-public static class GetHostName
+public class GetHostName
 {
-    [FunctionName("GetHostName")]
-    public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.GetHostName)] HttpRequest req)
+    [Function("GetHostName")]
+    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.GetHostName)] HttpRequest req)
     {
-        return new JsonResult(Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME")) {StatusCode = (int) HttpStatusCode.OK};
+        return new JsonResult(Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME")) { StatusCode = (int)HttpStatusCode.OK };
     }
 }
