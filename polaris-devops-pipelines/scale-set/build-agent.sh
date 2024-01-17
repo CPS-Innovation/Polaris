@@ -18,7 +18,6 @@ sudo apt-get update
 
 echo '==== install .NET SDK versions ===='
 #.NET 8 not available via standard 22.04 feeds
-echo "==== Install .NET 8 SDK ===="
 sudo apt-get install -y gpg
 wget -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o microsoft.asc.gpg
 sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
@@ -27,10 +26,10 @@ sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
 sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
 sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
 sudo apt-get update -yq
-sudo apt-get install -y dotnet-sdk-3.1
-sudo apt-get update -yq
+echo "==== Install .NET 6.0 SDK ===="
 sudo apt-get install -y dotnet-sdk-6.0
 sudo apt-get update -yq
+echo "==== Install .NET 8.0 SDK ===="
 sudo apt-get install -y dotnet-sdk-8.0
 
 echo '==== PowerShell ===='
