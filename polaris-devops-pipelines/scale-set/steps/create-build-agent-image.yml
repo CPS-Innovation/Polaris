@@ -33,7 +33,7 @@ steps:
     displayName: 'Install Packer'
     
   - bash: |
-      packer init -upgrade "packer-config.hcl"
+      packer init -upgrade "packer-config.pkr.hcl"
     workingDirectory: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scale-set/"
       
   - task: PackerBuild@1
