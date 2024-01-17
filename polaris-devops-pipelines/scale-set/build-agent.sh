@@ -1,20 +1,14 @@
-﻿echo '==== Update from package sources ===='
-sudo apt-get upgrade -y
+﻿echo '==== Install dependencies ===='
+DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
-echo '==== Install dependencies ===='
-DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt -y install tzdata
-
-echo '==== Cleaning up inherited package sources first ===='
-sudo apt-get remove 'dotnet*'
-sudo apt-get remove 'aspnetcore*'
-sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+echo '==== Update package sources ===='
 sudo apt-get update
 
 echo '==== Add Microsoft Package Repo ===='
 wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
-sudo apt update
+sudo apt-get update
 
 echo '==== Install dotnet 6 ===='
 sudo apt-get install -y dotnet-sdk-6.0
