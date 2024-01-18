@@ -22,7 +22,7 @@ const redactionTypeLabels = [
   "Other",
 ];
 
-describe.only("Redaction Log", () => {
+describe("Redaction Log", () => {
   describe("Feature Flag On Under Redaction", () => {
     it("Should show the redaction types select input along with the redaction button and show under redaction modal on clicking save redaction with correct redaction type summary in descending order of redaction types count", () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
@@ -177,6 +177,32 @@ describe.only("Redaction Log", () => {
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
 
+      const expectedPayload = {
+        urn: "99ZZ9999999",
+        unit: {
+          id: "1-1",
+          type: "Area",
+          areaDivisionName: "Cymru/Wales222",
+          name: "Magistrates Court",
+        },
+        investigatingAgency: { id: "43", name: "Greater Manchester Police" },
+        documentType: { id: "1", name: "MG 0" },
+        redactions: [],
+        notes: null,
+        returnedToInvestigativeAuthority: true,
+        chargeStatus: 2,
+        cmsValues: {
+          originalFileName: "M*******3",
+          documentId: "1",
+          documentType: "MG11",
+          fileCreatedDate: "2020-06-01",
+          documentTypeId: 1,
+        },
+      };
+
+      const saveRequestObject = { body: "" };
+      cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
+
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -231,9 +257,14 @@ describe.only("Redaction Log", () => {
       cy.findByTestId("select-cps-dt-link").should("not.exist");
 
       cy.get("#error-summary-title").should("not.exist");
-
       cy.findByTestId("btn-save-redaction-log").click();
-      cy.findByTestId("div-modal").should("not.exist");
+
+      //assertion on the redaction log save request
+      cy.window().then(() => {
+        expect(saveRequestObject.body).to.deep.equal(
+          JSON.stringify(expectedPayload)
+        );
+      });
     });
 
     it("Should hide RedactionLog modal and should show error message if the saving of redaction is failed", () => {
