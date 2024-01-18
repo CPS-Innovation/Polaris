@@ -100,7 +100,7 @@ namespace Common.Handlers
         private static ObjectResult ErrorResponseNew(string baseErrorMessage, Exception exception, HttpStatusCode httpStatusCode)
         {
             var errorMessage = $"{baseErrorMessage}. Base exception message: {exception.GetBaseException().Message}";
-            return new ObjectResult(new StringContent(errorMessage, Encoding.UTF8, MediaTypeNames.Application.Json))
+            return new ObjectResult(errorMessage)
             {
                 StatusCode = (int)httpStatusCode
             };
