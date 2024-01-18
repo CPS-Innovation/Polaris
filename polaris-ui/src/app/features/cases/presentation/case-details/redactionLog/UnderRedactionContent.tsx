@@ -1,17 +1,11 @@
 import { useMemo } from "react";
 import classes from "./UnderRedactionContent.module.scss";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
-
+import { getPresentationRedactionTypeNames } from "../utils/redactionLogUtils";
+import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 type UnderRedactionContentProps = {
   documentName: string;
   savedRedactionTypes: RedactionTypeData[];
-};
-
-const getRedactionTypeNames = (count: number, name: string) => {
-  if (count <= 1) {
-    return name;
-  }
-  return `${name}s`;
 };
 
 export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
@@ -37,7 +31,8 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
 
     return sortedArray.map((item) => (
       <li key={`${item[0]}`}>
-        <b>{`${item[1]}`}</b> - {`${getRedactionTypeNames(item[1], item[0])}`}
+        <b>{`${item[1]}`}</b> -{" "}
+        {`${getPresentationRedactionTypeNames(item[1], item[0])}`}
       </li>
     ));
   }, []);
