@@ -1,15 +1,18 @@
-﻿using Common.Domain.Document;
+﻿using Common.Constants;
+using Common.Domain.Document;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
+using Common.Factories;
+using Common.Factories.Contracts;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using pdf_generator.Services.DocumentRedaction;
 using pdf_generator.Services.Extensions;
 using pdf_generator.Services.PdfService;
+using pdf_generator.test_harness;
 using AppInsights = Microsoft.ApplicationInsights;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -26,6 +29,13 @@ builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
 
 builder.Services.AddPdfGenerator(builder.Configuration);
 builder.Services.AddRedactionServices(builder.Configuration);
+builder.Services.AddHttpClient(
+  "testClient",
+  client =>
+  {
+    client.BaseAddress = new Uri("http://localhost:7073/api/");
+  });
+builder.Services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
 using var host = builder.Build();
 
 var mode = args[0];
@@ -34,11 +44,14 @@ Enum.TryParse(mode, out Mode modeEnum);
 using var serviceScope = host.Services.CreateScope();
 switch (modeEnum)
 {
-  case Mode.RedactPdf:
+  case Mode.LibraryCallRedactPdf:
     RedactPdfFile(serviceScope.ServiceProvider);
     break;
-  case Mode.ConvertToPdf:
+  case Mode.LibraryCallConvertToPdf:
     ConvertFileToPdf(serviceScope.ServiceProvider);
+    break;
+  case Mode.FunctionCallConvertToPdf:
+    await ConvertFileToPdfUsingFunctionCall(serviceScope.ServiceProvider);
     break;
   default:
     throw new Exception("Unknown mode");
@@ -148,7 +161,7 @@ static void RedactPdfFile(IServiceProvider serviceProvider)
 static void ConvertFileToPdf(IServiceProvider serviceProvider)
 {
   var orchestratorService = serviceProvider.GetRequiredService<IPdfOrchestratorService>();
-
+  
   Console.WriteLine("Enter the input file path:");
   string? filePath = Console.ReadLine();
   Console.WriteLine("Enter the output file path:");
@@ -170,13 +183,74 @@ static void ConvertFileToPdf(IServiceProvider serviceProvider)
 
       // Write the PDF stream to the file system
       byte[] pdfBytes;
-      using (MemoryStream ms = new MemoryStream())
+      using (var ms = new MemoryStream())
       {
         pdfStream.CopyTo(ms);
         pdfBytes = ms.ToArray();
       }
 
       File.WriteAllBytes(outputFilePath, pdfBytes);
+
+      Console.WriteLine("PDF conversion successful.");
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine($"PDF conversion failed: {e.Message}");
+    }
+  }
+  else
+  {
+    throw new Exception("File does not exist, check path");
+  }
+}
+
+static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
+{
+  var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IPipelineClientRequestFactory>();
+  var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+  
+  Console.WriteLine("Enter the input file path:");
+  var filePath = Console.ReadLine();
+  Console.WriteLine("Enter the output file path:");
+  var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
+
+  if (File.Exists(filePath))
+  {
+    try
+    {
+      await using var fileStream = File.OpenRead(filePath);
+
+      Guid currentCorrelationId = default;
+      var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
+
+      var fileType = Enum.Parse<FileType>(extension);
+      
+      var request = pipelineClientRequestFactory.Create(HttpMethod.Post, $"test-convert-to-pdf", currentCorrelationId);
+      request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
+
+      using (var requestContent = new StreamContent(fileStream))
+      {
+        request.Content = requestContent;
+
+        using var client = httpClientFactory.CreateClient("testClient");
+        using var pdfStream = new MemoryStream();
+        using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+        {
+          response.EnsureSuccessStatusCode();
+          await response.Content.CopyToAsync(pdfStream);
+          pdfStream.Seek(0, SeekOrigin.Begin);
+        }
+        
+        // Write the PDF stream to the file system
+        byte[] pdfBytes;
+        using (var ms = new MemoryStream())
+        {
+          pdfStream.CopyTo(ms);
+          pdfBytes = ms.ToArray();
+        }
+
+        File.WriteAllBytes(outputFilePath, pdfBytes);
+      }
 
       Console.WriteLine("PDF conversion successful.");
     }

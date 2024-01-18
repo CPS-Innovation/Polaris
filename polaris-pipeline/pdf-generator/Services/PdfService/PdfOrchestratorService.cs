@@ -55,6 +55,9 @@ namespace pdf_generator.Services.PdfService
             try
             {
                 _logger.LogMethodFlow(correlationId, nameof(ReadToPdfStream), "Analysing file type and matching to a converter");
+                var serviceInputStream = new MemoryStream();
+                inputStream.CopyTo(serviceInputStream);
+                serviceInputStream.Seek(0, SeekOrigin.Begin);
                 var pdfStream = new MemoryStream();
                 switch (fileType)
                 {
@@ -66,7 +69,7 @@ namespace pdf_generator.Services.PdfService
                     case FileType.DOTX:
                     case FileType.RTF:
                     case FileType.TXT:
-                        _wordsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _wordsPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.CSV:
@@ -74,12 +77,12 @@ namespace pdf_generator.Services.PdfService
                     case FileType.XLSX:
                     case FileType.XLSM:
                     case FileType.XLT:
-                        _cellsPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _cellsPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.PPT:
                     case FileType.PPTX:
-                        _slidesPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _slidesPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.BMP:
@@ -90,35 +93,35 @@ namespace pdf_generator.Services.PdfService
                     case FileType.TIF:
                     case FileType.TIFF:
                     case FileType.PNG:
-                        _imagingPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _imagingPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.VSD:
-                        _diagramPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _diagramPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.HTML:
                     case FileType.HTM:
-                        _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _htmlPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
                     // But Aspose seems forgiving enough to convert it, so treat it as HTML
                     case FileType.HTE:
-                        _htmlPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _htmlPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.EML:
                     case FileType.MSG:
-                        _emailPdfService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _emailPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.PDF:
-                        _pdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _pdfRendererService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     case FileType.XPS:
-                        _xpsPdfRendererService.ReadToPdfStream(inputStream, pdfStream, correlationId);
+                        _xpsPdfRendererService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     default:
