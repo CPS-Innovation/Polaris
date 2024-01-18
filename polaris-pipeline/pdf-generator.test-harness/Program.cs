@@ -51,7 +51,7 @@ switch (modeEnum)
     ConvertFileToPdf(serviceScope.ServiceProvider);
     break;
   case Mode.FunctionCallConvertToPdf:
-    await ConvertFileToPdfUsingFunctionCall(serviceScope.ServiceProvider);
+    //await ConvertFileToPdfUsingFunctionCall(serviceScope.ServiceProvider);
     break;
   default:
     throw new Exception("Unknown mode");
@@ -204,7 +204,7 @@ static void ConvertFileToPdf(IServiceProvider serviceProvider)
   }
 }
 
-static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
+/*static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
 {
   var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IPipelineClientRequestFactory>();
   var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
@@ -263,4 +263,4 @@ static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProv
   {
     throw new Exception("File does not exist, check path");
   }
-}
+}*/

@@ -185,11 +185,10 @@ namespace pdf_generator.tests.Functions
             var result = response as OkObjectResult;
             result.Should().NotBeNull();
 
-            result?.Value?.Should().BeOfType<StringContent>();
-            var message = result?.Value as StringContent;
-            var messageContent = await message?.ReadAsStringAsync()!;
+            result?.Value?.Should().BeOfType<string>();
+            var message = result?.Value as string;
 
-            messageContent.Should().Be(_serializedRedactPdfResponse);
+            message.Should().Be(_serializedRedactPdfResponse);
         }
         
         private static Mock<HttpRequest> CreateMockRequest(object body, Guid? correlationId)
