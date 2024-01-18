@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using pdf_generator;
 using pdf_generator.Services.Extensions;
 using Common.Telemetry.Wrappers.Contracts;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -41,6 +42,12 @@ var host = new HostBuilder()
         {
             o.EnableUserCodeException = true;
         });
+        
+        // bugfix: override .net core limitation of disallowing Synchronous IO for this function only
+        services.Configure<KestrelServerOptions>(options =>  
+        {  
+            options.AllowSynchronousIO = true;  
+        }); 
 
         services.AddSingleton(context.Configuration);
         services.AddPdfGenerator(context.Configuration);
