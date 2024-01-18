@@ -68,13 +68,6 @@ namespace pdf_generator.Functions
 
                 #endregion
                 
-                // bugfix: override .net core limitation of disallowing Synchronous IO for this function only
-                var syncIoFeature = executionContext.Features.Get<IHttpBodyControlFeature>();
-                if (syncIoFeature != null)
-                {
-                    syncIoFeature.AllowSynchronousIO = true;
-                }
-
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
 
