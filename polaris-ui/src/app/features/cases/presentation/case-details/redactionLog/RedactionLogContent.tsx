@@ -241,8 +241,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       return formData[key];
     };
 
-    const getDocType = (id: string) => {
-      const docType = redactionLogLookUpsData.documentTypes.find(
+    const getMissedRedactionType = (id: string) => {
+      const docType = redactionLogLookUpsData.missedRedactions.find(
         (type) => type.id === id
       );
       if (docType) {
@@ -257,7 +257,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           const value = getFormDataValue(key as keyof UnderRedactionFormData);
           if (value) {
             arr.push({
-              missedRedaction: getDocType(value)!,
+              missedRedaction: getMissedRedactionType(value)!,
               redactionType:
                 category === "underRedaction"
                   ? RedactionCategory.UnderRedacted
