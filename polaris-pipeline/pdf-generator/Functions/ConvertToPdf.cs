@@ -13,6 +13,7 @@ using Common.Extensions;
 using Common.Logging;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace pdf_generator.Functions
 {
@@ -37,7 +38,8 @@ namespace pdf_generator.Functions
         }
 
         [Function(nameof(ConvertToPdf))]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request, 
+            FunctionContext executionContext)
         {
             Guid currentCorrelationId = default;
             ConvertedDocumentEvent telemetryEvent = default;
@@ -65,6 +67,13 @@ namespace pdf_generator.Functions
                 telemetryEvent.VersionId = versionId;
 
                 #endregion
+                
+                // bugfix: override .net core limitation of disallowing Synchronous IO for this function only
+                var syncIoFeature = executionContext.Features.Get<IHttpBodyControlFeature>();
+                if (syncIoFeature != null)
+                {
+                    syncIoFeature.AllowSynchronousIO = true;
+                }
 
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
