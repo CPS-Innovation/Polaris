@@ -4,8 +4,26 @@ import {
   REDACTION_LOG_MAPPING_ROUTE,
 } from "../../../src/mock-api/routes";
 
-describe("Redaction Log", () => {
-  describe("Feature Flag On", () => {
+const redactionTypeLabels = [
+  "Named individual",
+  "Title",
+  "Occupation",
+  "Relationship to others",
+  "Address",
+  "Location",
+  "Vehicle registration",
+  "NHS number",
+  "Date of birth",
+  "Bank details",
+  "NI Number",
+  "Phone number",
+  "Email address",
+  "Previous convictions",
+  "Other",
+];
+
+describe.only("Redaction Log", () => {
+  describe("Feature Flag On Under Redaction", () => {
     it("Should show the redaction types select input along with the redaction button and show under redaction modal on clicking save redaction with correct redaction type summary in descending order of redaction types count", () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -51,13 +69,12 @@ describe("Redaction Log", () => {
 
       cy.findByTestId("btn-save-redaction-0").click();
       cy.findByTestId("div-modal").should("have.length", 1);
-      cy.findByTestId("rl-under-redaction-content").should("have.length", 1);
 
       cy.get("h1").contains("99ZZ9999999 - Redaction Log").should("exist");
       cy.get("h2")
         .contains('Redaction details for:"MCLOVEMG3"')
         .should("exist");
-
+      cy.findByTestId("rl-under-redaction-content").should("have.length", 1);
       cy.findByTestId("redaction-summary")
         .get("li:nth-child(1)")
         .should("contain", "3 - Occupations");
@@ -93,14 +110,14 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-modal-close").click();
       cy.findByTestId("guidance-redaction-log-panel").should("not.exist");
 
-      // cy.findByTestId("guidance-supporting-notes").click();
-      // cy.findByTestId("guidance-supporting-notes-panel").should("exist");
-      // cy.findByTestId("guidance-supporting-notes-panel").should(
-      //   "contain",
-      //   "Detail the redaction issue identified, e.g. Statement of XX (Initials) DOB redacted"
-      // );
-      // cy.findByTestId("btn-modal-close").click();
-      // cy.findByTestId("guidance-supporting-notes-panel").should("not.exist");
+      cy.findByTestId("guidance-supporting-notes").click();
+      cy.findByTestId("guidance-supporting-notes-panel").should("exist");
+      cy.findByTestId("guidance-supporting-notes-panel").should(
+        "contain",
+        "Detail the redaction issue identified, e.g. Statement of XX (Initials) DOB redacted"
+      );
+      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("guidance-supporting-notes-panel").should("not.exist");
     });
     it("Save and close button in the under redaction page should be disabled initially and should be enabled after redaction is saved", () => {
       cy.overrideRoute(
@@ -291,6 +308,264 @@ describe("Redaction Log", () => {
     });
   });
 
+  describe("Feature Flag On over Redaction", () => {
+    it(`should be a able to open and close the Over Redaction Modal`, () => {
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findByTestId("document-actions-dropdown").click();
+      cy.findByTestId("document-actions-dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+
+      cy.findByTestId("div-modal").should("have.length", 1);
+      cy.findByTestId("div-modal")
+        .find("h1")
+        .contains("99ZZ9999999 - Redaction Log")
+        .should("exist");
+      cy.findByTestId("div-modal")
+        .find("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+      cy.findByTestId("over-redaction-content").should("exist");
+      cy.findByTestId("btn-modal-close").click();
+      cy.findByTestId("div-modal").should("have.length", 0);
+    });
+    it("should show the over redaction contents correctly", () => {
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findByTestId("document-actions-dropdown").click();
+      cy.findByTestId("document-actions-dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+      cy.findByTestId("div-modal")
+        .find("h1")
+        .contains("99ZZ9999999 - Redaction Log")
+        .should("exist");
+      cy.findByTestId("div-modal")
+        .find("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+      cy.findByTestId("over-redaction-content").should("exist");
+      cy.findByTestId("checkboxes-under-over").should("exist");
+
+      //check under redaction check contents
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Under Redaction")`)
+        .should("exist");
+
+      cy.get("div#checkbox-under-redaction-item-hint").should(
+        "contain.text",
+        "Returned to Investigative Agency for correction"
+      );
+      cy.findByTestId("checkboxes-under-redaction-types").as("underTypes");
+      cy.get("legend:visible")
+        .contains("Types of redactions")
+        .should("have.length", 0);
+      redactionTypeLabels.forEach((value) => {
+        cy.get(`@underTypes`)
+          .find(`label:contains(${value})`)
+          .should("not.be.visible");
+      });
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Under Redaction")`)
+        .click();
+      cy.get("legend:visible")
+        .contains("Types of redactions")
+        .should("have.length", 1);
+      redactionTypeLabels.forEach((value) => {
+        cy.get(`@underTypes`)
+          .find(`label:contains(${value})`)
+          .should("be.visible");
+      });
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Under Redaction")`)
+        .click();
+      cy.get("legend:visible")
+        .contains("Types of redactions")
+        .should("have.length", 0);
+
+      //check over redaction check contents
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Over Redaction")`)
+        .should("exist");
+
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Returned to CPS colleague for correction")`)
+        .should("not.be.visible");
+
+      cy.findByTestId("checkboxes-under-over")
+        .find(
+          `label:contains("Returned to Investigative Agency for correction")`
+        )
+        .should("not.be.visible");
+
+      cy.findByTestId("checkboxes-over-redaction-types").as("overTypes");
+
+      redactionTypeLabels.forEach((value) => {
+        cy.get(`@overTypes`)
+          .find(`label:contains(${value})`)
+          .should("not.be.visible");
+      });
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Over Redaction")`)
+        .click();
+
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Returned to CPS colleague for correction")`)
+        .should("be.visible");
+      cy.findByTestId("checkboxes-under-over")
+        .find(
+          `label:contains("Returned to Investigative Agency for correction")`
+        )
+        .should("be.visible");
+      redactionTypeLabels.forEach((value) => {
+        cy.get(`@overTypes`)
+          .find(`label:contains(${value})`)
+          .should("be.visible");
+      });
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Over Redaction")`)
+        .click();
+      cy.get("legend:visible")
+        .contains("Types of redactions")
+        .should("have.length", 0);
+
+      //check when both are open
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Under Redaction")`)
+        .click();
+
+      cy.findByTestId("checkboxes-under-over")
+        .find(`label:contains("Over Redaction")`)
+        .click();
+
+      cy.get("legend:visible").should("have.length", 3);
+    });
+    it("Over redaction modal should throw error for empty select values and checkboxes values and should be able to successfully save the over/under redaction log", () => {
+      cy.overrideRoute(
+        REDACTION_LOG_MAPPING_ROUTE,
+        {
+          body: {
+            businessUnits: [],
+            documentTypes: [],
+            investigatingAgencies: [],
+          },
+        },
+        "get",
+        Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
+      );
+
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("document-actions-dropdown").click();
+      cy.findByTestId("document-actions-dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+      cy.findByTestId("btn-save-redaction-log").click();
+
+      cy.get("#error-summary-title").should("exist");
+      cy.findByTestId("redaction-log-error-summary")
+        .find("li")
+        .should("have.length", 4);
+
+      //select inputs error check
+      cy.get("#select-cps-area-error").should("exist");
+      cy.get("#select-cps-area-error").should(
+        "have.text",
+        "Error: Select an Area or Division"
+      );
+      cy.findByTestId("select-cps-area-link").should("exist");
+      cy.get("#select-cps-bu-error").should("exist");
+      cy.get("#select-cps-bu-error").should(
+        "have.text",
+        "Error: Select a Business Unit"
+      );
+      cy.findByTestId("select-cps-bu-link").should("exist");
+      cy.get("#select-cps-dt-error").should("exist");
+      cy.get("#select-cps-dt-error").should(
+        "have.text",
+        "Error: Select a Document Type"
+      );
+      cy.findByTestId("select-cps-dt-link").should("exist");
+      cy.findByTestId("select-cps-area").select("1");
+      cy.get("#select-cps-area-error").should("not.exist");
+      cy.findByTestId("select-cps-area-link").should("not.exist");
+      cy.findByTestId("select-cps-bu").select("1");
+      cy.get("#select-cps-bu-error").should("not.exist");
+      cy.findByTestId("select-cps-bu-link").should("not.exist");
+      cy.findByTestId("select-cps-dt").select("1");
+      cy.get("#select-cps-dt-error").should("not.exist");
+      cy.findByTestId("select-cps-dt-link").should("not.exist");
+
+      //under redaction checkboxes error check
+      cy.findByTestId("checkbox-cps-rt-link").should("exist");
+      cy.get("#redaction-category-error").should(
+        "have.text",
+        "Error: Select a redaction type"
+      );
+      cy.get(`#checkbox-under-redaction`).click();
+      cy.findByTestId("checkbox-cps-rt-link").should("not.exist");
+      cy.get("#redaction-category-error").should("not.exist");
+      cy.findByTestId("checkbox-cps-urt-link").should("exist");
+      cy.get("#under-redaction-types-error").should(
+        "have.text",
+        "Error: Select an under-redaction type"
+      );
+      cy.get(`#checkbox-underRedaction-type-1`).click();
+      cy.findByTestId("checkbox-cps-urt-link").should("not.exist");
+      cy.get("#under-redaction-types-error").should("not.exist");
+
+      cy.get(`#checkbox-under-redaction`).click();
+
+      cy.findByTestId("checkbox-cps-rt-link").should("exist");
+      cy.get("#redaction-category-error").should(
+        "have.text",
+        "Error: Select a redaction type"
+      );
+
+      //over redaction checkboxes error check
+      cy.get(`#checkbox-over-redaction`).click();
+      cy.get("#redaction-category-error").should("not.exist");
+      cy.findByTestId("checkbox-cps-ort-link").should("exist");
+      cy.get("#over-redaction-types-error").should(
+        "have.text",
+        "Error: Select an over-redaction type"
+      );
+      cy.get(`#checkbox-overRedaction-type-1`).click();
+      cy.findByTestId("checkbox-cps-ort-link").should("not.exist");
+      cy.get("#over-redaction-types-error").should("not.exist");
+      cy.get("#error-summary-title").should("not.exist");
+
+      cy.get(`#checkbox-under-redaction`).click();
+      cy.findByTestId("checkbox-cps-urt-link").should("not.exist");
+      cy.get("#under-redaction-types-error").should("not.exist");
+
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("div-modal").should("not.exist");
+    });
+  });
+
   describe("Feature Flag Off", () => {
     it("Should not show the redaction types select input along with the redaction button ", () => {
       cy.visit("/case-details/12AB1111111/13401?");
@@ -302,6 +577,20 @@ describe("Redaction Log", () => {
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.findByTestId("select-redaction-type").should("have.length", 0);
+    });
+
+    it(`Should not show the "Log an Under/Over redaction" item in action dropdown menu`, () => {
+      cy.visit("/case-details/12AB1111111/13401?");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+
+      cy.findByTestId("document-actions-dropdown").click();
+      cy.findByTestId("document-actions-dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .should("not.exist");
     });
   });
 });

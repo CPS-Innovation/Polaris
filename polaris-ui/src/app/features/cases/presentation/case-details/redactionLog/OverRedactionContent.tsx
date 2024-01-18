@@ -99,7 +99,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
               },
             }}
             data-testid="checkboxes-under-redaction-types"
-            name="redaction types"
+            name="under-redaction-types"
             items={redactionTypeCheckboxItems("underRedaction")}
             className={`govuk-checkboxes--small ${classes.redactionTypes} `}
           />,
@@ -118,7 +118,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
           <div>
             <Radios
               value={getValues(`returnToIA`)}
-              name="return to investigative agency"
+              name="radio-return-to-investigative-agency"
               items={[
                 {
                   ...register(`returnToIA`),
@@ -146,7 +146,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
                 },
               }}
               data-testid="checkboxes-over-redaction-types"
-              name="redaction types"
+              name="over-redaction-types"
               items={redactionTypeCheckboxItems("overRedaction")}
               className={`govuk-checkboxes--small ${classes.redactionTypes} `}
             />
@@ -176,7 +176,10 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
   }, [watch, isSubmitted, getValues, trigger, findRedactionTypesError]);
 
   return (
-    <div className={classes.overRedactionContent}>
+    <div
+      className={classes.overRedactionContent}
+      data-testid="over-redaction-content"
+    >
       <section>
         <Checkboxes
           errorMessage={
@@ -192,7 +195,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
             },
           }}
           data-testid="checkboxes-under-over"
-          name="redactionCategory"
+          name="redaction-category"
           items={redactionCategoryCheckboxItem}
           className="govuk-checkboxes--large"
         />

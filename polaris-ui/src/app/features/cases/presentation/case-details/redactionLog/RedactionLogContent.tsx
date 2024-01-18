@@ -401,7 +401,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         return {
           children: "Select a type of redaction",
           href: "#checkbox-under-redaction",
-          "data-testid": "checkbox-cps-cur-link",
+          "data-testid": "checkbox-cps-rt-link",
         };
 
       default:
