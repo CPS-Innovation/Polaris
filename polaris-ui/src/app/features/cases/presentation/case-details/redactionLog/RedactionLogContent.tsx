@@ -309,6 +309,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       redactions = savedRedactionTypes.map((missedRedaction) => ({
         missedRedaction,
         redactionType: RedactionCategory.UnderRedacted,
+        returnedToInvestigativeAuthority: false,
       }));
     } else if (type === "overunder") {
       redactions = getUnderOrOverRedactionTypesRequestData(formData);
@@ -332,8 +333,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       },
       redactions: redactions,
       notes: formData.notes || null,
-      returnedToInvestigativeAuthority:
-        type === "under" ? false : formData.returnToIA === "true",
+      // returnedToInvestigativeAuthority:
+      //   type === "under" ? false : formData.returnToIA === "true",
       chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
       cmsValues: {
         ...additionalData,

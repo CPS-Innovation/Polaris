@@ -29,6 +29,8 @@ cms_details = {
   upstream_cms_services_domain_name  = "cms-services.cps.gov.uk"
 }
 
+wm_task_list_host_name = "https://cps.outsystemsenterprise.com"
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 

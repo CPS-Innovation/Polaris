@@ -1,5 +1,8 @@
+namespace pdf_generator.test_harness;
+
 public enum Mode
 {
-    RedactPdf,
-    ConvertToPdf,
+    LibraryCallRedactPdf,
+    LibraryCallConvertToPdf,
+    FunctionCallConvertToPdf
 }
