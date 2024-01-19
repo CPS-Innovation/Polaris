@@ -6,7 +6,7 @@ variables:
   - group: polaris-global
     
 pool:
-  vmImage: ubuntu-latest
+  name: $(dev-build-agent)
 
 stages:
   - stage: Call_Child_Pipeline
