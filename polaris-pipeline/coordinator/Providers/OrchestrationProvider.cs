@@ -127,19 +127,18 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         try
         {
-            if (!_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
-            {
-                var deleteResult = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);
-                telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
-                telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
-                telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
-                telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
 
-                var waitResult = await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId);
-                telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
-                telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
-                telemetryEvent.IndexSettledTime = DateTime.UtcNow;
-            }
+            var deleteResult = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);
+            telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
+            telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
+            telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
+            telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
+
+            var waitResult = await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId);
+            telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
+            telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
+            telemetryEvent.IndexSettledTime = DateTime.UtcNow;
+
 
             if (checkForBlobProtection)
             {
