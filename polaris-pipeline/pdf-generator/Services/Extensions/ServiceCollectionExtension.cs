@@ -13,9 +13,9 @@ using System.Linq;
 
 namespace pdf_generator.Services.Extensions
 {
-    public static class IServiceCollectionExtension
+    public static class ServiceCollectionExtension
     {
-        public static void AddPdfGenerator(this IServiceCollection services, IConfigurationRoot configuration)
+        public static void AddPdfGenerator(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IPdfService, WordsPdfService>();
             services.AddSingleton<IPdfService, CellsPdfService>();
@@ -48,7 +48,7 @@ namespace pdf_generator.Services.Extensions
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();
         }
 
-        public static void AddRedactionServices(this IServiceCollection services, IConfigurationRoot configuration)
+        public static void AddRedactionServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
             services.AddSingleton<IDocumentRedactionService, DocumentRedactionService>();

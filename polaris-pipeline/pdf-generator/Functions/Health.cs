@@ -2,8 +2,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Common.Constants;
 using Common.Domain.Exceptions;
@@ -12,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Common.Logging;
 using Common.Health;
 using Common.Configuration;
+using Microsoft.Azure.Functions.Worker;
 
 public class Health
 {
@@ -25,7 +24,7 @@ public class Health
         _log = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    [FunctionName(nameof(Health))]
+    [Function(nameof(Health))]
     public async Task<IActionResult> Healthcheck(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.Health)]
         HttpRequest request)

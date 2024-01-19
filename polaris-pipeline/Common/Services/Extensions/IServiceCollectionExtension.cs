@@ -24,7 +24,7 @@ namespace Common.Services.Extensions
 {
     public static class IServiceCollectionExtension
     {
-        public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfigurationRoot configuration)
+        public static void AddBlobStorageWithDefaultAzureCredential(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAzureClients(azureClientFactoryBuilder =>
             {
