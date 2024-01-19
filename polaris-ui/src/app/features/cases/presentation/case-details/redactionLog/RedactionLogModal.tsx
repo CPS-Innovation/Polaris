@@ -7,6 +7,8 @@ import {
   RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { useCallback } from "react";
 
 type Props = {
   caseUrn: string;
@@ -44,12 +46,17 @@ export const RedactionLogModal: React.FC<Props> = ({
   saveRedactionLog,
   handleHideRedactionLogModal,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
+
+  const handleCloseModal = useCallback(() => {
+    trackEvent("Close Under Over Redaction Log");
+    handleHideRedactionLogModal();
+  }, [trackEvent, handleHideRedactionLogModal]);
+
   return (
     <Modal
       isVisible={true}
-      handleClose={
-        redactionLogType === "over" ? handleHideRedactionLogModal : undefined
-      }
+      handleClose={redactionLogType === "over" ? handleCloseModal : undefined}
       type="data"
       ariaLabel="Under redaction modal"
       ariaDescription="Contains form to be filled out and submitted for redaction log "

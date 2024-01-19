@@ -285,8 +285,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
 
   const getRedactionLogRequestData = (
-    formData: UnderRedactionFormData,
-    type: "overunder" | "under"
+    formData: UnderRedactionFormData
   ): RedactionLogRequestData => {
     const areaOrDivisions = [
       ...redactionLogLookUpsData.areas,
@@ -309,13 +308,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     )!;
 
     let redactions: any[] = [];
-    if (type === "under") {
+    if (redactionLogType === "under") {
       redactions = savedRedactionTypes.map((missedRedaction) => ({
         missedRedaction,
         redactionType: RedactionCategory.UnderRedacted,
         returnedToInvestigativeAuthority: false,
       }));
-    } else if (type === "overunder") {
+    } else if (redactionLogType === "over") {
       redactions = getUnderOrOverRedactionTypesRequestData(formData);
     }
 
@@ -448,7 +447,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
   const handleAppInsightReporting = (
     newValues: UnderRedactionFormData,
-    defaultValues: UnderRedactionFormData
+    defaultValues: UnderRedactionFormData,
+    redactionLogRequestData: RedactionLogRequestData
   ) => {
     const { notes, ...defaultValuesWithoutNotes } = defaultValues;
     const { notes: newNotes, ...newValuesWithoutNotes } = newValues;
@@ -461,9 +461,17 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         newValues: newValuesWithoutNotes,
       });
     }
-    trackEvent("Save Redaction Log", {
-      values: newValues,
-    });
+    if (redactionLogType === "under") {
+      trackEvent("Save Redaction Log", {
+        values: redactionLogRequestData,
+      });
+    }
+
+    if (redactionLogType === "over") {
+      trackEvent("Save Redaction Log Under Over", {
+        values: redactionLogRequestData,
+      });
+    }
   };
 
   return (
@@ -516,15 +524,14 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             (data) => {
               event.preventDefault();
               console.log("data>>>>", data);
-              const redactionLogRequestData = getRedactionLogRequestData(
-                {
-                  ...data,
-                },
-                "overunder"
-              );
+              const redactionLogRequestData = getRedactionLogRequestData(data);
               setSavingRedactionLog(true);
               saveRedactionLog(redactionLogRequestData);
-              handleAppInsightReporting(data, defaultValues);
+              handleAppInsightReporting(
+                data,
+                defaultValues,
+                redactionLogRequestData
+              );
             },
             (errors) => {
               console.log("errrorsss>>>>", errors);

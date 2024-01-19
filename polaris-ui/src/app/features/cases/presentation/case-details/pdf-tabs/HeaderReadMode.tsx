@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
 import { DropdownButton } from "../../../../../common/presentation/components";
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
@@ -24,18 +25,14 @@ export const HeaderReadMode: React.FC<Props> = ({
   handleShowRedactionLogModal,
   contextData,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
-  useEffect(() => {
-    if (sasUrl) {
-      window.open(sasUrl, "_blank")?.focus();
-    }
-  }, [sasUrl]);
 
   const handleDocumentAction = (id: string) => {
-    console.log("document action>>", id);
     switch (id) {
       case "1":
         handleShowRedactionLogModal("over");
+        trackEvent("Open Under Over Redaction Log", { documentId: id });
         break;
       case "2":
         handleShowHideDocumentIssueModal(true);
