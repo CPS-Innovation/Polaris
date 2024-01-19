@@ -1,30 +1,17 @@
-﻿echo '==== Add Microsoft package source ===='
-wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i ./packages-microsoft-prod.deb
-rm ./packages-microsoft-prod.deb
+﻿echo '==== Install dependencies ===='
+DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+
+echo '==== Update package sources ===='
 sudo apt-get update
-
-echo '==== Update from package sources ===='
-sudo apt-get upgrade -y
-
-echo '==== Install dependencies ===='
-DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt -y install tzdata
-
-echo '==== Cleaning up inherited package sources first ===='
-sudo apt-get remove 'dotnet*'
-sudo apt-get remove 'aspnetcore*'
-sudo rm /etc/apt/sources.list.d/microsoft-prod.list
-sudo apt-get update
-
-echo '==== dotnet 3.1 ===='
-# dotnet 3.1 is used by azure devops itself
-sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-3.1
 
 echo '==== dotnet 6 ===='
 sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
 
 echo '==== dotnet 7 ===='
 sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
+
+echo '==== dotnet 8 ===='
+sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-8.0
 
 echo '==== PowerShell ===='
 sudo snap install powershell --classic

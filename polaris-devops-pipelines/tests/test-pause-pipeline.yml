@@ -1,0 +1,17 @@
+---
+trigger: none
+pr: none
+
+variables:
+  - group: polaris-global
+    
+pool:
+  name: $(dev-build-agent)
+
+stages:
+  - stage: Call_Child_Pipeline
+    jobs:
+      - job:
+        steps:
+          - powershell: 'Start-Sleep -Seconds 120'
+            displayName: 'Initiate Pause'

@@ -5,27 +5,30 @@ using Aspose.Diagram;
 using Aspose.Email;
 using Aspose.Pdf;
 using Aspose.Slides;
-using Aspose.Words;
 using Common.Logging;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories.Contracts;
-using LoadFormat = Aspose.Words.LoadFormat;
+using Document = Aspose.Words.Document;
+using HtmlLoadOptions = Aspose.Pdf.HtmlLoadOptions;
+using Image = Aspose.Imaging.Image;
+using WordLoadFormat = Aspose.Words.LoadFormat;
+using WordLoadOptions = Aspose.Words.Loading.LoadOptions;
 
 namespace pdf_generator.Factories
 {
-	public class AsposeItemFactory : IAsposeItemFactory
-	{
-		private readonly ILogger<AsposeItemFactory> _logger;
+    public class AsposeItemFactory : IAsposeItemFactory
+    {
+	    private readonly ILogger<AsposeItemFactory> _logger;
 
-		public AsposeItemFactory(ILogger<AsposeItemFactory> logger)
-		{
-			_logger = logger;
-		}
-
-		public Workbook CreateWorkbook(Stream inputStream, Guid correlationId)
-		{
-			_logger.LogMethodEntry(correlationId, nameof(CreateWorkbook), string.Empty);
-
+	    public AsposeItemFactory(ILogger<AsposeItemFactory> logger)
+	    {
+		    _logger = logger;
+	    }
+	    
+        public Workbook CreateWorkbook(Stream inputStream, Guid correlationId)
+        {
+	        _logger.LogMethodEntry(correlationId, nameof(CreateWorkbook), string.Empty);
+	        
 			var result = new Workbook(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateWorkbook), string.Empty);
 			return result;
@@ -49,11 +52,11 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Aspose.Words.Document CreateMhtmlDocument(Stream inputStream, Guid correlationId)
+		public Document CreateMhtmlDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateMhtmlDocument), string.Empty);
 
-			var result = new Aspose.Words.Document(inputStream, new Aspose.Words.Loading.LoadOptions { LoadFormat = LoadFormat.Mhtml });
+			var result = new Document(inputStream, new WordLoadOptions { LoadFormat = WordLoadFormat.Mhtml });
 			_logger.LogMethodExit(correlationId, nameof(CreateMhtmlDocument), string.Empty);
 			return result;
 		}
@@ -62,26 +65,31 @@ namespace pdf_generator.Factories
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateHtmlDocument), string.Empty);
 
-			// TODO - https://dev.azure.com/CPSDTS/Information%20Management/_workitems/edit/21851
+            // TODO - https://dev.azure.com/CPSDTS/Information%20Management/_workitems/edit/21851
 			// Aspose is splitting the HTML into sections with whitespace between them. 
 			// Only a single PDF page is rendered with these gaps present
 			// Looks like the definition of a "page" is not quite right, likely configured here
-			var options = new Aspose.Pdf.HtmlLoadOptions();
-			options.IsRenderToSinglePage = false;
-			options.PageInfo.IsLandscape = false;
-			options.PageLayoutOption = Aspose.Pdf.HtmlPageLayoutOption.None;
+            var options = new HtmlLoadOptions
+            {
+                IsRenderToSinglePage = false,
+                PageInfo =
+                {
+                    IsLandscape = false
+                },
+                PageLayoutOption = HtmlPageLayoutOption.None
+            };
 
-			var document = new Aspose.Pdf.Document(inputStream, options);
+            var document = new Aspose.Pdf.Document(inputStream, options);
 
 			_logger.LogMethodExit(correlationId, nameof(CreateHtmlDocument), string.Empty);
 			return document;
 		}
 
-		public Aspose.Imaging.Image CreateImage(Stream inputStream, Guid correlationId)
+		public Image CreateImage(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateImage), string.Empty);
 
-			var result = Aspose.Imaging.Image.Load(inputStream);
+			var result = Image.Load(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateImage), string.Empty);
 			return result;
 		}
@@ -95,11 +103,11 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Aspose.Words.Document CreateWordsDocument(Stream inputStream, Guid correlationId)
+		public Document CreateWordsDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateWordsDocument), string.Empty);
 
-			var result = new Aspose.Words.Document(inputStream);
+			var result = new Document(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateWordsDocument), string.Empty);
 			return result;
 		}

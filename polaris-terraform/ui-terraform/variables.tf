@@ -78,6 +78,10 @@ variable "cms_details" {
   })
 }
 
+variable "wm_task_list_host_name" {
+  type = string
+}
+
 variable "app_service_log_retention" {
   type = number
 }
