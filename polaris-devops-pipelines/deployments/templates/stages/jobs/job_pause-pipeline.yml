@@ -6,7 +6,7 @@ parameters:
 jobs:
   - job: Pause_Pipeline
     dependsOn: ${{ parameters.jobDependsOn }}
-    displayName: Pause Pipeline to Allow for Slot Prep
+    displayName: Pause for 2 mins
     steps:
       # introduce a pause to allow background slot tasks to complete before initiating a swap-slot request
       - powershell: 'Start-Sleep -Seconds 120'
