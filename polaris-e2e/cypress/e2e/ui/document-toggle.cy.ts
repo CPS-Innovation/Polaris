@@ -10,7 +10,7 @@ const {
   TARGET_DIRECTION_OUT_DOCUMENT_NAME,
 } = Cypress.env()
 
-describe("Document toggle", () => {
+describe("Document toggle", { tags: '@ci' }, () => {
   it("can only redact documents that are allowed", () => {
     cy.on("uncaught:exception", () => false)
 

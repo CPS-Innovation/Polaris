@@ -17,6 +17,7 @@ export default defineConfig({
       }
       require("cypress-timestamps/plugin")(on)
       require("cypress-terminal-report/src/installLogsPrinter")(on)
+      require("@cypress/grep/src/plugin")(config);
 
       on("task", {
         storeTokenResponseInNode: (tokenResponse: any) => {
@@ -61,5 +62,8 @@ export default defineConfig({
     defaultCommandTimeout: 60000,
     trashAssetsBeforeRuns: false,
     experimentalModifyObstructiveThirdPartyCode: true,
+    env: {
+      grepOmitFiltered: true,
+    }
   },
 })

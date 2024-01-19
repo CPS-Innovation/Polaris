@@ -1,7 +1,7 @@
 const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, TARGET_NUMBERS_DOC_NAME } =
   Cypress.env()
 
-describe("Refresh via guid-controlled ", () => {
+describe("Refresh via guid-controlled ", { tags: '@ci' }, () => {
   it("can update a document", () => {
     cy.fullLogin()
 

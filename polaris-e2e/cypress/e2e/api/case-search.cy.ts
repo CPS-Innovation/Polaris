@@ -8,7 +8,7 @@ const { TARGET_URN, TARGET_CASE_ID } = Cypress.env()
 
 let routes: ApiRoutes
 
-describe("Case search and details", () => {
+describe("Case search and details", { tags: '@ci' }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)

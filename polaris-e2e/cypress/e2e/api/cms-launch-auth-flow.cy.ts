@@ -17,7 +17,7 @@ const EXPECTED_CASE_PAGE_URL_ROUTE = `/polaris-ui/case-details/${TARGET_URN}/${T
 const EXPECTED_HOME_PAGE_URL_ROUTE = "/polaris-ui/";
 const EXPECTED_COOKIE_NAME = "Cms-Auth-Values";
 
-describe("CMS launch auth flow", () => {
+describe("CMS launch auth flow", { tags: '@ci' }, () => {
   it("can open Polaris UI from the CMS button when no q param is passed", () => {
     cy.getCmsCookieString()
       .then((cookies) => {
