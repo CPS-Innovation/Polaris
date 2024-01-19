@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Moq;
 using pdf_generator.Factories.Contracts;
 using pdf_generator.Services.PdfService;

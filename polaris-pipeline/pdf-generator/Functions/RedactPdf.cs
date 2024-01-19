@@ -94,9 +94,7 @@ namespace pdf_generator.Functions
                 _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{redactions.PolarisDocumentId}'");
                 redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
 
-                return new OkObjectResult(new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfResponse),
-                    Encoding.UTF8,
-                    MediaTypeNames.Application.Json));
+                return new OkObjectResult(_jsonConvertWrapper.SerializeObject(redactPdfResponse));
             }
             catch (Exception ex)
             {

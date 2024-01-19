@@ -68,7 +68,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.DOC, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.DOCX, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.DOCM, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.RTF, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.TXT, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.XLS, _documentId, _correlationId);
 
-            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.XLSX, _documentId, _correlationId);
 
-            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PPT, _documentId, _correlationId);
 
-            _mockSlidesPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockSlidesPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PPTX, _documentId, _correlationId);
 
-            _mockSlidesPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockSlidesPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.BMP, _documentId, _correlationId);
 
-            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.GIF, _documentId, _correlationId);
 
-            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.JPG, _documentId, _correlationId);
 
-            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -164,7 +164,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.JPEG, _documentId, _correlationId);
 
-            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -172,7 +172,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.TIF, _documentId, _correlationId);
 
-            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -180,7 +180,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.TIFF, _documentId, _correlationId);
 
-            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PNG, _documentId, _correlationId);
 
-            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockImagingPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -196,7 +196,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.VSD, _documentId, _correlationId);
 
-            _mockDiagramPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockDiagramPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTML, _documentId, _correlationId);
 
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTM, _documentId, _correlationId);
 
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -220,7 +220,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.MSG, _documentId, _correlationId);
 
-            _mockEmailPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockEmailPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -228,7 +228,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.PDF, _documentId, _correlationId);
 
-            _mockPdfRendererService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockPdfRendererService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -238,7 +238,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTE, _documentId, _correlationId);
 
             // Assert
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -246,7 +246,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.DOT, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -254,7 +254,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.DOTM, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -262,7 +262,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.DOTX, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -270,7 +270,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.XLSM, _documentId, _correlationId);
 
-            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -278,7 +278,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.XLT, _documentId, _correlationId);
 
-            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockCellsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -287,7 +287,7 @@ namespace pdf_generator.tests.Services.PdfService
             _mockEmailPdfService.Setup(service => service.ReadToPdfStream(_inputStream, It.IsAny<MemoryStream>(), It.IsAny<Guid>()))
                 .Throws(new Exception());
 
-            Assert.Throws<PdfConversionException>(() => _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.MSG, _documentId, _correlationId));
+            Assert.Throws<PdfConversionException>(() => _pdfOrchestratorService.ReadToPdfStream(It.IsAny<MemoryStream>(), FileType.MSG, _documentId, _correlationId));
         }
     }
 }

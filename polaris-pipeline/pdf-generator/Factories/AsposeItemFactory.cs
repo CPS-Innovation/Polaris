@@ -5,10 +5,14 @@ using Aspose.Diagram;
 using Aspose.Email;
 using Aspose.Pdf;
 using Aspose.Slides;
+using Common.Logging;
 using Microsoft.Extensions.Logging;
 using pdf_generator.Factories.Contracts;
-using Common.Logging;
-using LoadFormat = Aspose.Words.LoadFormat;
+using Document = Aspose.Words.Document;
+using HtmlLoadOptions = Aspose.Pdf.HtmlLoadOptions;
+using Image = Aspose.Imaging.Image;
+using WordLoadFormat = Aspose.Words.LoadFormat;
+using WordLoadOptions = Aspose.Words.Loading.LoadOptions;
 
 namespace pdf_generator.Factories
 {
@@ -48,16 +52,16 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Aspose.Words.Document CreateMhtmlDocument(Stream inputStream, Guid correlationId)
+		public Document CreateMhtmlDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateMhtmlDocument), string.Empty);
 
-			var result = new Aspose.Words.Document(inputStream, new Aspose.Words.Loading.LoadOptions { LoadFormat = LoadFormat.Mhtml });
+			var result = new Document(inputStream, new WordLoadOptions { LoadFormat = WordLoadFormat.Mhtml });
 			_logger.LogMethodExit(correlationId, nameof(CreateMhtmlDocument), string.Empty);
 			return result;
 		}
 
-		public Document CreateHtmlDocument(Stream inputStream, Guid correlationId)
+		public Aspose.Pdf.Document CreateHtmlDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateHtmlDocument), string.Empty);
 
@@ -65,7 +69,7 @@ namespace pdf_generator.Factories
 			// Aspose is splitting the HTML into sections with whitespace between them. 
 			// Only a single PDF page is rendered with these gaps present
 			// Looks like the definition of a "page" is not quite right, likely configured here
-            var options = new Aspose.Pdf.HtmlLoadOptions
+            var options = new HtmlLoadOptions
             {
                 IsRenderToSinglePage = false,
                 PageInfo =
@@ -75,17 +79,17 @@ namespace pdf_generator.Factories
                 PageLayoutOption = HtmlPageLayoutOption.None
             };
 
-            var document = new Document(inputStream, options);
+            var document = new Aspose.Pdf.Document(inputStream, options);
 
 			_logger.LogMethodExit(correlationId, nameof(CreateHtmlDocument), string.Empty);
 			return document;
 		}
 
-		public Aspose.Imaging.Image CreateImage(Stream inputStream, Guid correlationId)
+		public Image CreateImage(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateImage), string.Empty);
 
-			var result = Aspose.Imaging.Image.Load(inputStream);
+			var result = Image.Load(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateImage), string.Empty);
 			return result;
 		}
@@ -99,16 +103,16 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Aspose.Words.Document CreateWordsDocument(Stream inputStream, Guid correlationId)
+		public Document CreateWordsDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateWordsDocument), string.Empty);
 
-			var result = new Aspose.Words.Document(inputStream);
+			var result = new Document(inputStream);
 			_logger.LogMethodExit(correlationId, nameof(CreateWordsDocument), string.Empty);
 			return result;
 		}
 
-		public Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId)
+		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
 
@@ -117,7 +121,7 @@ namespace pdf_generator.Factories
 			return result;
 		}
 
-		public Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId)
+		public Aspose.Pdf.Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId)
 		{
 			_logger.LogMethodEntry(correlationId, nameof(CreateRenderedPdfDocument), string.Empty);
 
