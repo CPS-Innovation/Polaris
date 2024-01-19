@@ -244,6 +244,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     const redactions = savedRedactionTypes.map((missedRedaction) => ({
       missedRedaction,
       redactionType: RedactionCategory.UnderRedacted,
+      returnedToInvestigativeAuthority: false,
     }));
 
     const mappedData = {
@@ -264,7 +265,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       },
       redactions: redactions,
       notes: formData.notes || null,
-      returnedToInvestigativeAuthority: false,
       chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
       cmsValues: {
         ...additionalData,
