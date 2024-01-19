@@ -19,6 +19,7 @@ namespace Common.Services.CaseSearchService
     {
         private const int IndexSettleUnitDelayMs = 200;
         private const int IndexSettleRetryAttemptCount = 11;
+        private const long MaximumIndexRetrievalSize = 20000;
         private readonly SearchClient _azureSearchClient;
         private readonly ISearchLineFactory _searchLineFactory;
         private readonly ISearchIndexingBufferedSenderFactory _searchIndexingBufferedSenderFactory;
@@ -167,7 +168,48 @@ namespace Common.Services.CaseSearchService
                 throw new ArgumentException("Invalid caseId", nameof(caseId));
             }
 
-            var searchOptions = new SearchOptions { Filter = $"caseId eq {caseId}" };
+            var indexCountSearchOptions = new SearchOptions
+            {
+                Filter = $"caseId eq {caseId}",
+                IncludeTotalCount = true,
+                Size = 0
+            };
+
+            var countResult = await _azureSearchClient.SearchAsync<SearchLine>("*", indexCountSearchOptions);
+            var indexTotal = countResult.Value.TotalCount;
+
+            if (indexTotal == 0)
+            {
+                return IndexDocumentsDeletedResult.Empty();
+            }
+            else if (indexTotal > 100000) // 100000 is the maximum number of indexes that can be taken in one go.
+            {
+                var result = new IndexDocumentsDeletedResult();
+                long indexesToProcess = indexTotal.Value;
+                long indexesProcessed = 0;
+
+                while (indexesProcessed < indexTotal)
+                {
+                    var indexSize = indexesToProcess > MaximumIndexRetrievalSize ? MaximumIndexRetrievalSize : indexesToProcess;
+                    var deletionResult = await DeleteDocumentIndexes(caseId, indexSize);
+
+                    result.DocumentCount = indexTotal.Value;
+                    result.SuccessCount += deletionResult.SuccessCount;
+                    result.FailureCount += deletionResult.FailureCount;
+
+                    indexesToProcess -= indexSize;
+                    indexesProcessed += indexSize;
+                }
+
+                return result;
+            }
+            else
+                return await DeleteDocumentIndexes(caseId, indexTotal.Value);
+        }
+
+        private async Task<IndexDocumentsDeletedResult> DeleteDocumentIndexes(long caseId, long indexCount)
+        {
+            var searchOptions = new SearchOptions { Filter = $"caseId eq {caseId}", Size = (int)indexCount };
 
             var results = await _azureSearchClient.SearchAsync<SearchLine>("*", searchOptions);
             var searchLines = new List<SearchLine>();
