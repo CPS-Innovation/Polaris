@@ -3,6 +3,12 @@ import {
   SAVE_REDACTION_LOG_ROUTE,
   REDACTION_LOG_MAPPING_ROUTE,
 } from "../../../src/mock-api/routes";
+import {
+  expectedUnderRedactionType1Payload,
+  expectedUnderRedactionType2Payload,
+  expectedOverRedactionLogPayload,
+  expectedOverUnderRedactionLogPayload,
+} from "../../fixtures/redactionLogSaveRequests";
 
 const redactionTypeLabels = [
   "Named individual",
@@ -46,19 +52,19 @@ describe("Redaction Log", () => {
       cy.selectPDFTextElement("Suspect 1");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
-      cy.findByTestId("select-redaction-type").select("3");
+      cy.findByTestId("select-redaction-type").select("5");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("MCLOVE");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
-      cy.findByTestId("select-redaction-type").select("3");
+      cy.findByTestId("select-redaction-type").select("5");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("EOIN");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
-      cy.findByTestId("select-redaction-type").select("3");
+      cy.findByTestId("select-redaction-type").select("5");
       cy.findByTestId("btn-redact").click();
 
       cy.selectPDFTextElement("Male");
@@ -77,7 +83,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("rl-under-redaction-content").should("have.length", 1);
       cy.findByTestId("redaction-summary")
         .get("li:nth-child(1)")
-        .should("contain", "3 - Occupations");
+        .should("contain", "3 - Addresses");
       cy.findByTestId("redaction-summary")
         .get("li:nth-child(2)")
         .should("contain", "2 - Titles");
@@ -177,32 +183,6 @@ describe("Redaction Log", () => {
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
 
-      const expectedPayload = {
-        urn: "99ZZ9999999",
-        unit: {
-          id: "1-1",
-          type: "Area",
-          areaDivisionName: "Cymru/Wales222",
-          name: "Magistrates Court",
-        },
-        investigatingAgency: { id: "43", name: "Greater Manchester Police" },
-        documentType: { id: "1", name: "MG 0" },
-        redactions: [],
-        notes: null,
-        returnedToInvestigativeAuthority: true,
-        chargeStatus: 2,
-        cmsValues: {
-          originalFileName: "M*******3",
-          documentId: "1",
-          documentType: "MG11",
-          fileCreatedDate: "2020-06-01",
-          documentTypeId: 1,
-        },
-      };
-
-      const saveRequestObject = { body: "" };
-      cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
-
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -258,15 +238,7 @@ describe("Redaction Log", () => {
 
       cy.get("#error-summary-title").should("not.exist");
       cy.findByTestId("btn-save-redaction-log").click();
-
-      //assertion on the redaction log save request
-      cy.window().then(() => {
-        expect(saveRequestObject.body).to.deep.equal(
-          JSON.stringify(expectedPayload)
-        );
-      });
     });
-
     it("Should hide RedactionLog modal and should show error message if the saving of redaction is failed", () => {
       cy.overrideRoute(
         SAVE_REDACTION_ROUTE,
@@ -336,6 +308,44 @@ describe("Redaction Log", () => {
         .contains(
           "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually."
         );
+    });
+
+    it("Should verify the save redaction log request data for under-redaction", () => {
+      const saveRequestObject = { body: "" };
+      cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("select-redaction-type").select("4");
+      cy.findByTestId("btn-redact").click();
+      cy.selectPDFTextElement("Not disclosable");
+      cy.findByTestId("select-redaction-type").select("4");
+      cy.findByTestId("btn-redact").click();
+
+      cy.findByTestId("btn-save-redaction-0").click();
+      cy.findByTestId("div-modal").should("be.visible");
+      cy.findByTestId("div-modal").should("have.length", 1);
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+      cy.findByTestId("redaction-summary")
+        .get("li:nth-child(1)")
+        .should("contain", "2 - Relationships to others");
+
+      cy.findByTestId("redaction-log-notes").type("hello notes");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("div-modal").should("not.exist");
+
+      //assertion on the redaction log save request
+      cy.window().then(() => {
+        expect(saveRequestObject.body).to.deep.equal(
+          JSON.stringify(expectedUnderRedactionType1Payload)
+        );
+      });
     });
   });
 
@@ -496,7 +506,6 @@ describe("Redaction Log", () => {
         "get",
         Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
       );
-
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -583,7 +592,7 @@ describe("Redaction Log", () => {
         "have.text",
         "Error: Select an over-redaction type"
       );
-      cy.get(`#checkbox-overRedaction-type-1`).click();
+      cy.get(`#checkbox-overRedaction-type-4`).click();
       cy.findByTestId("checkbox-cps-ort-link").should("not.exist");
       cy.get("#over-redaction-types-error").should("not.exist");
       cy.get("#error-summary-title").should("not.exist");
@@ -592,8 +601,121 @@ describe("Redaction Log", () => {
       cy.findByTestId("checkbox-cps-urt-link").should("not.exist");
       cy.get("#under-redaction-types-error").should("not.exist");
 
+      cy.findByTestId("redaction-log-notes").type("test notes");
+
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
+    });
+    it("Should verify the save redaction log request data for under-redaction", () => {
+      const saveRequestObject = { body: "" };
+      cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
+
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("document-actions-dropdown").click();
+      cy.findByTestId("document-actions-dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+
+      cy.get(`#checkbox-under-redaction`).click();
+      cy.get(`#checkbox-underRedaction-type-1`).click();
+      cy.get(`#checkbox-underRedaction-type-5`).click();
+      cy.findByTestId("redaction-log-notes").type("hello");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("div-modal").should("not.exist");
+
+      //assertion on the redaction log save request
+      cy.window().then(() => {
+        expect(saveRequestObject.body).to.deep.equal(
+          JSON.stringify(expectedUnderRedactionType2Payload)
+        );
+      });
+    });
+
+    it("Should verify the save redaction log request data for over-redaction", () => {
+      const saveRequestObject = { body: "" };
+      cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
+
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("document-actions-dropdown").click();
+      cy.findByTestId("document-actions-dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+
+      cy.get(`#checkbox-over-redaction`).click();
+      cy.get(`#checkbox-overRedaction-type-2`).click();
+      cy.get(`#checkbox-overRedaction-type-6`).click();
+      cy.findByTestId("redaction-log-notes").type("hello notes");
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("div-modal").should("not.exist");
+
+      //assertion on the redaction log save request
+      cy.window().then(() => {
+        expect(saveRequestObject.body).to.deep.equal(
+          JSON.stringify(expectedOverRedactionLogPayload)
+        );
+      });
+    });
+
+    it("Should verify the save redaction log request data for both under and over-redaction", () => {
+      const saveRequestObject = { body: "" };
+      cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
+
+      cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("document-actions-dropdown").click();
+      cy.findByTestId("document-actions-dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("div-modal").should("have.length", 1);
+
+      cy.get("h2")
+        .contains('Redaction details for:"MCLOVEMG3"')
+        .should("exist");
+
+      cy.get(`#checkbox-under-redaction`).click();
+      cy.get(`#checkbox-underRedaction-type-6`).click();
+      cy.get(`#checkbox-underRedaction-type-8`).click();
+
+      cy.get(`#checkbox-over-redaction`).click();
+      cy.get(`#radio-return-to-investigative-agency-2`).click();
+      cy.get(`#checkbox-overRedaction-type-3`).click();
+      cy.get(`#checkbox-overRedaction-type-7`).click();
+      cy.findByTestId("btn-save-redaction-log").click();
+      cy.findByTestId("div-modal").should("not.exist");
+
+      //assertion on the redaction log save request
+      cy.window().then(() => {
+        expect(saveRequestObject.body).to.deep.equal(
+          JSON.stringify(expectedOverUnderRedactionLogPayload)
+        );
+      });
     });
   });
 
