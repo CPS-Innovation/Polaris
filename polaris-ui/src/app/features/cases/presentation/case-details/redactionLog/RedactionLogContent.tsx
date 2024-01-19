@@ -262,10 +262,14 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                 category === "underRedaction"
                   ? RedactionCategory.UnderRedacted
                   : RedactionCategory.OverRedacted,
+              returnedToInvestigativeAuthority:
+                category === "underRedaction"
+                  ? true
+                  : formData.returnToIA === "true",
             });
           }
           return arr;
-        }, [] as { missedRedaction: RedactionTypeData; redactionType: RedactionCategory }[]);
+        }, [] as { missedRedaction: RedactionTypeData; redactionType: RedactionCategory; returnedToInvestigativeAuthority: boolean }[]);
       return redactionTypes;
     };
 
@@ -333,8 +337,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       },
       redactions: redactions,
       notes: formData.notes || null,
-      // returnedToInvestigativeAuthority:
-      //   type === "under" ? false : formData.returnToIA === "true",
       chargeStatus: parseInt(formData.chargeStatus) as ChargeStatus,
       cmsValues: {
         ...additionalData,
