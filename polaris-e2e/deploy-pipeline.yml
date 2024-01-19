@@ -66,7 +66,7 @@ steps:
     condition: succeeded()
     inputs:
       workingDirectory: "polaris-e2e"
-      script: "npm run cy:ci --env grepTags=@ci"
+      script: "npm run cy:ci"
     displayName: "cypress run tests"
 
   - task: PublishBuildArtifacts@1
