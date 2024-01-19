@@ -18,7 +18,7 @@ using TextExtractor.TestHarness.Services;
 
 namespace TextExtractor.TestHarness
 {
-    internal class Program
+    internal static class Program
     {
         static async Task Main(string[] args)
         {

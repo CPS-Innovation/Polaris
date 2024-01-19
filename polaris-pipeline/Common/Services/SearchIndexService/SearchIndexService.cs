@@ -176,7 +176,7 @@ namespace Common.Services.CaseSearchService
             };
 
             var countResult = await _azureSearchClient.SearchAsync<SearchLine>("*", indexCountSearchOptions);
-            var indexTotal = countResult.Value.TotalCount;
+            var indexTotal = countResult.Value.TotalCount.Value;
 
             if (indexTotal == 0)
             {
@@ -185,26 +185,27 @@ namespace Common.Services.CaseSearchService
             else if (indexTotal > 100000) // 100000 is the maximum number of indexes that can be taken in one go.
             {
                 var result = new IndexDocumentsDeletedResult();
-                long indexesToProcess = indexTotal.Value;
-                long indexesProcessed = 0;
+                long indexesToProcess = indexTotal;
 
-                while (indexesProcessed < indexTotal)
+                while (indexesToProcess > 0)
                 {
-                    var indexSize = indexesToProcess > MaximumIndexRetrievalSize ? MaximumIndexRetrievalSize : indexesToProcess;
+                    var indexSize = indexesToProcess;
+
+                    if (indexSize > MaximumIndexRetrievalSize) indexSize = MaximumIndexRetrievalSize;
+
                     var deletionResult = await DeleteDocumentIndexes(caseId, indexSize);
 
-                    result.DocumentCount = indexTotal.Value;
+                    result.DocumentCount = indexTotal;
                     result.SuccessCount += deletionResult.SuccessCount;
                     result.FailureCount += deletionResult.FailureCount;
 
                     indexesToProcess -= indexSize;
-                    indexesProcessed += indexSize;
                 }
 
                 return result;
             }
             else
-                return await DeleteDocumentIndexes(caseId, indexTotal.Value);
+                return await DeleteDocumentIndexes(caseId, indexTotal);
         }
 
         private async Task<IndexDocumentsDeletedResult> DeleteDocumentIndexes(long caseId, long indexCount)
