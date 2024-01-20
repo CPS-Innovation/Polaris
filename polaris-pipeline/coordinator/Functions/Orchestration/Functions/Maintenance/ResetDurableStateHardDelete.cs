@@ -7,6 +7,9 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 
 namespace coordinator.Functions.Orchestration.Functions.Maintenance;
 
+// See https://github.com/CPS-Innovation/Polaris/blob/d770812285c46b214d9f65fad45204e149113a88/polaris-pipeline/coordinator/Functions/Orchestration/Functions/Maintenance/ResetDurableState.cs#L13
+//  for the original implementation of an overnight clear down based on time range
+
 // This code taken from Azure functions durable extension discussion [0]. As per comment [1]
 //  "this is very much a non-graceful purge of all orchestration data."
 //
