@@ -68,8 +68,13 @@ public class OrchestrationProvider : IOrchestrationProvider
             _queryConditionFactory.Create(createdTimeTo, batchSize)
         );
 
+        static int getCaseIdFromInstanceId(string instanceId) => int.Parse(
+            Regex.Match(instanceId, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1))
+            .Value
+        );
+
         return instanceIds
-            .Select(i => int.Parse(Regex.Match(i, @"\d+").Value))
+            .Select(getCaseIdFromInstanceId)
             .ToList();
     }
 
