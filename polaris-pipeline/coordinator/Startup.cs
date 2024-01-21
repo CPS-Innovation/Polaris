@@ -53,6 +53,7 @@ namespace coordinator
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 

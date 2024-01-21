@@ -2,34 +2,34 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-	  <RootNamespace>coordinator</RootNamespace>
-	  <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+    <RootNamespace>coordinator</RootNamespace>
+    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
   </PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<WarningLevel>4</WarningLevel>
-		<DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
-	</PropertyGroup>	
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.18.0" />
     <PackageReference Include="Azure.Search.Documents" Version="11.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
     <PackageReference Include="Azure.Storage.Files.Shares" Version="12.1.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.11.1" />
-	<PackageReference Include="Mapster" Version="7.3.0" />
-	<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
-	<PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-	<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.10.0" />
+    <PackageReference Include="Mapster" Version="7.3.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
+    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.10.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.12" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
-	<PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.32.1" />
-	<PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
-	<PackageReference Include="Azure.Identity" Version="1.10.4" />
-	<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
-	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	<PackageReference Include="System.Drawing.Common" Version="4.7.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.32.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

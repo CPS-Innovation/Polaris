@@ -55,7 +55,7 @@ namespace coordinator.Functions.DurableEntity.Client.Tracker
                     }
                 #endregion
 
-                var (caseEntity, errorMessage) = await GetCaseTrackerForEntity(client, caseId, currentCorrelationId, loggingName, log);
+                var (caseEntity, errorMessage) = await GetCaseTrackerForEntity(client, caseId);
 
                 if (errorMessage != null)
                 {
