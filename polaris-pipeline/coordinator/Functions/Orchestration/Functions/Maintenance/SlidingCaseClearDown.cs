@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Common.Constants;
-using Common.Extensions;
 using Common.Logging;
 using coordinator.Providers;
 using Microsoft.Azure.WebJobs;
@@ -27,7 +24,7 @@ public class SlidingCaseClearDown
     }
 
     [FunctionName(nameof(SlidingCaseClearDown))]
-    public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%")][DurableClient] IDurableOrchestrationClient client)
+    public async Task RunAsync([TimerTrigger("%SlidingClearDownSchedule%")] TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient client)
     {
         var correlationId = Guid.NewGuid();
         try
@@ -41,10 +38,10 @@ public class SlidingCaseClearDown
             foreach (var caseId in caseIds)
             {
                 await _orchestrationProvider.DeleteCaseAsync(client,
-                                                             correlationId,
-                                                             caseId,
-                                                             checkForBlobProtection: true,
-                                                             waitForIndexToSettle: false);
+                 correlationId,
+                 caseId,
+                 checkForBlobProtection: true,
+                 waitForIndexToSettle: false);
             }
         }
         catch (Exception ex)

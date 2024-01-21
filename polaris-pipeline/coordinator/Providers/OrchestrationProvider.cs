@@ -16,6 +16,7 @@ using Common.Constants;
 using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
+using System.Text.RegularExpressions;
 
 namespace coordinator.Providers;
 
@@ -41,6 +42,11 @@ public class OrchestrationProvider : IOrchestrationProvider
         OrchestrationRuntimeStatus.Terminated
     };
 
+    private static readonly OrchestrationRuntimeStatus[] _entityStatuses = {
+        // entities are eternally running orchestrations
+        OrchestrationRuntimeStatus.Running,
+    };
+
     public OrchestrationProvider(
             IConfiguration configuration,
             ISearchIndexService searchIndexService,
@@ -58,11 +64,13 @@ public class OrchestrationProvider : IOrchestrationProvider
 
     public async Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient orchestrationClient, DateTime createdTimeTo, int batchSize)
     {
-        var instanceIds = await GetInstanceIds(orchestrationClient,
+        var instanceIds = await GetInstanceIdsAsync(orchestrationClient,
             _queryConditionFactory.Create(createdTimeTo, batchSize)
         );
 
-        return instanceIds.Select(i => int.Parse(i)).ToList();
+        return instanceIds
+            .Select(i => int.Parse(Regex.Match(i, @"\d+").Value))
+            .ToList();
     }
 
     public async Task<HttpResponseMessage> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
@@ -71,7 +79,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         var instanceId = RefreshCaseOrchestrator.GetKey(caseId);
         var existingInstance = await client.GetStatusAsync(instanceId);
 
-        if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+        if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
         {
             return new HttpResponseMessage(HttpStatusCode.Locked);
         }
@@ -107,6 +115,7 @@ public class OrchestrationProvider : IOrchestrationProvider
                 telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
                 telemetryEvent.IndexSettledTime = DateTime.UtcNow;
             }
+            telemetryEvent.DidWaitForIndexToSettle = waitForIndexToSettle;
 
             var shouldClearBlobs = !checkForBlobProtection
                 || !_configuration.IsSettingEnabled(ConfigKeys.CoordinatorKeys.SlidingClearDownProtectBlobs);
@@ -115,31 +124,35 @@ public class OrchestrationProvider : IOrchestrationProvider
                 await _blobStorageService.DeleteBlobsByCaseAsync(caseId.ToString());
                 telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
             }
+            telemetryEvent.DidClearBlobs = shouldClearBlobs;
 
-            var terminateInstanceIds = await GetInstanceIds(client,
+            var terminateInstanceIds = await GetInstanceIdsAsync(client,
                 _queryConditionFactory.Create(_inProgressStatuses, RefreshCaseOrchestrator.GetKey(caseId.ToString()))
              );
+            telemetryEvent.TerminatedInstancesCount = terminateInstanceIds.Count;
             telemetryEvent.GotTerminateInstancesTime = DateTime.UtcNow;
 
             await Task.WhenAll(
                 terminateInstanceIds.Select(instanceId => client.TerminateAsync(instanceId, "Forcibly terminated DELETE"))
             );
-            telemetryEvent.TerminatedInstancesCount = terminateInstanceIds.Count;
             telemetryEvent.TerminatedInstancesTime = DateTime.UtcNow;
 
-            var didTerminate = await WaitForOrchestrationsToTerminateTask(client, terminateInstanceIds);
-            // todo: terminated settled time
-            // did settle
+            var didComplete = await WaitForOrchestrationsToCompleteAsync(client, terminateInstanceIds);
+            telemetryEvent.DidOrchestrationsTerminate = didComplete;
+            telemetryEvent.TerminatedInstancesSettledTime = DateTime.UtcNow;
 
-            var orchestratorPurgeInstanceIds = await GetInstanceIds(client,
+            var orchestratorPurgeInstanceIds = await GetInstanceIdsAsync(client,
                  _queryConditionFactory.Create(_completedStatuses, RefreshCaseOrchestrator.GetKey(caseId.ToString()))
             );
-            var entityPurgeInstanceIds = await GetInstanceIds(client,
-                 _queryConditionFactory.Create(_completedStatuses, CaseDurableEntity.GetInstanceId(caseId.ToString()))
+            var entityPurgeInstanceIds = await GetInstanceIdsAsync(client,
+                 _queryConditionFactory.Create(_entityStatuses, CaseDurableEntity.GetInstanceId(caseId.ToString()))
             );
-            // todo: got purge time and counts
-            var result = await client.PurgeInstanceHistoryAsync(Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds));
-            // todo: purged time
+            telemetryEvent.GotPurgeInstancesTime = DateTime.UtcNow;
+            var instancesToPurge = Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds);
+            telemetryEvent.PurgeInstancesCount = instancesToPurge.Count();
+
+            var result = await client.PurgeInstanceHistoryAsync(instancesToPurge);
+            telemetryEvent.PurgedInstancesCount = result.InstancesDeleted;
 
             telemetryEvent.EndTime = DateTime.UtcNow;
             _telemetryClient.TrackEvent(telemetryEvent);
@@ -151,7 +164,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
     }
 
-    private static async Task<List<string>> GetInstanceIds(IDurableOrchestrationClient client, OrchestrationStatusQueryCondition condition)
+    private static async Task<List<string>> GetInstanceIdsAsync(IDurableOrchestrationClient client, OrchestrationStatusQueryCondition condition)
     {
         var instanceIds = new List<string>();
         do
@@ -169,7 +182,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         return instanceIds;
     }
 
-    private static async Task<bool> WaitForOrchestrationsToTerminateTask(IDurableOrchestrationClient client, IReadOnlyCollection<string> instanceIds)
+    private static async Task<bool> WaitForOrchestrationsToCompleteAsync(IDurableOrchestrationClient client, IReadOnlyCollection<string> instanceIds)
     {
         int remainingRetryAttempts = 10;
         const int retryDelayMilliseconds = 1000;
