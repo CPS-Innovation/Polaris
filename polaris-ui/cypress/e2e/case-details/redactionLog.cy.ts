@@ -358,8 +358,8 @@ describe("Redaction Log", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
-      cy.findByTestId("document-actions-dropdown").click();
-      cy.findByTestId("document-actions-dropdown-panel")
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
         .contains("Log an Under/Over redaction")
         .click();
 
@@ -384,8 +384,8 @@ describe("Redaction Log", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
-      cy.findByTestId("document-actions-dropdown").click();
-      cy.findByTestId("document-actions-dropdown-panel")
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
         .contains("Log an Under/Over redaction")
         .click();
       cy.findByTestId("div-modal").should("have.length", 1);
@@ -513,8 +513,8 @@ describe("Redaction Log", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("document-actions-dropdown").click();
-      cy.findByTestId("document-actions-dropdown-panel")
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
         .contains("Log an Under/Over redaction")
         .click();
       cy.findByTestId("div-modal").should("have.length", 1);
@@ -617,8 +617,8 @@ describe("Redaction Log", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("document-actions-dropdown").click();
-      cy.findByTestId("document-actions-dropdown-panel")
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
         .contains("Log an Under/Over redaction")
         .click();
       cy.findByTestId("div-modal").should("have.length", 1);
@@ -653,8 +653,8 @@ describe("Redaction Log", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("document-actions-dropdown").click();
-      cy.findByTestId("document-actions-dropdown-panel")
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
         .contains("Log an Under/Over redaction")
         .click();
       cy.findByTestId("div-modal").should("have.length", 1);
@@ -689,8 +689,8 @@ describe("Redaction Log", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-      cy.findByTestId("document-actions-dropdown").click();
-      cy.findByTestId("document-actions-dropdown-panel")
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
         .contains("Log an Under/Over redaction")
         .click();
       cy.findByTestId("div-modal").should("have.length", 1);
@@ -740,8 +740,8 @@ describe("Redaction Log", () => {
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
-      cy.findByTestId("document-actions-dropdown").click();
-      cy.findByTestId("document-actions-dropdown-panel")
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
         .contains("Log an Under/Over redaction")
         .should("not.exist");
     });

@@ -70,7 +70,7 @@ export const HeaderReadMode: React.FC<Props> = ({
         dropDownItems={dropDownItems}
         callBackFn={handleDocumentAction}
         ariaLabel="document actions dropdown"
-        dataTestId="document-actions-dropdown"
+        dataTestId={`document-actions-dropdown-${contextData.tabIndex}`}
       />
     </div>
   );

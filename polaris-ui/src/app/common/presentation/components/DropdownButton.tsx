@@ -68,6 +68,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   return (
     <div className={classes.dropDownButtonWrapper}>
       <LinkButton
+        id={dataTestId}
         dataTestId={dataTestId}
         ref={dropDownBtnRef}
         ariaLabel={ariaLabel}
@@ -86,7 +87,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
           className={classes.panel}
           ref={panelRef}
           id="dropdown-panel"
-          data-testid={`${dataTestId}-panel`}
+          data-testid={`dropdown-panel`}
         >
           <ul className={classes.tabList}>
             {dropDownItems.map((item) => (
