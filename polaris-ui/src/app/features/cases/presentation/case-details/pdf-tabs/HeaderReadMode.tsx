@@ -80,6 +80,7 @@ export const HeaderReadMode: React.FC<Props> = ({
         callBackFn={handleDocumentAction}
         ariaLabel="document actions dropdown"
         dataTestId={`document-actions-dropdown-${contextData.tabIndex}`}
+        showLastItemSeparator={true}
       />
     </div>
   );

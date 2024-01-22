@@ -17,6 +17,7 @@ export type DropdownButtonProps = {
   ariaLabel?: string;
   dataTestId?: string;
   disabled?: boolean;
+  showLastItemSeparator?: boolean;
 };
 
 export const DropdownButton: React.FC<DropdownButtonProps> = ({
@@ -26,6 +27,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   dataTestId = "dropdown-btn",
   ariaLabel = "dropdown",
   disabled = false,
+  showLastItemSeparator = false,
 }) => {
   const dropDownBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -94,7 +96,13 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
           id="dropdown-panel"
           data-testid={`dropdown-panel`}
         >
-          <ul className={classes.tabList}>
+          <ul
+            className={
+              showLastItemSeparator
+                ? `${classes.tabList} ${classes.tabListWithSeparator}`
+                : `${classes.tabList}`
+            }
+          >
             {dropDownItems.map((item) => (
               <li key={item.id} className={classes.tabListItem}>
                 <LinkButton
