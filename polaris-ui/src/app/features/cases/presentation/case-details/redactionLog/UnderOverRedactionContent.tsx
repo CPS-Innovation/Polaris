@@ -38,7 +38,6 @@ export const UnderOverRedactionContent: React.FC<
       checked: getValues(`${category}-type-${type.id}`),
       children: type.name,
       id: `checkbox-${category}-type-${type.id}`,
-      conditional: { children: [] },
       value: type.id,
       ...register(`${category}-type-${type.id}`, {
         validate: () => errorState[category] !== true,

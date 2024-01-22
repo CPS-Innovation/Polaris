@@ -258,7 +258,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       const redactionTypes = Object.keys(formData)
         .filter((key) => key.includes(`${category}-type-`))
         .reduce((arr, key) => {
-          const value = getFormDataValue(key as keyof UnderRedactionFormData);
+          const value = getFormDataValue(key);
           if (value) {
             arr.push({
               missedRedaction: getMissedRedactionType(value)!,
@@ -540,10 +540,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               );
             },
             (errors) => {
-              console.log("errrorsss>>>>", errors);
+              console.log("error", errors);
             }
           )(event);
-          // event.preventDefault();
         }}
       >
         <div className={classes.selectInputWrapper}>
