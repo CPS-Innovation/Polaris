@@ -16,11 +16,6 @@
   "REFRESH_TARGET_CASE_ID": "2146928",
   "TARGET_NUMBERS_DOC_NAME": "e2e-numbers",
   "TARGET_PEOPLE_DOC_NAME": "e2e-people",
-  "TARGET_NOT_OCR_PROCESSED_DOCUMENT_NAME": "doc-toggle-not-redactable-on-ocr",
-  "TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-doc-type",
-  "TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-checked-out",
-  "TARGET_DIRECTION_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-direction",
-  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable",
 
   "ATTACHMENT_TARGET_URN": "45DC0702322",
   "ATTACHMENT_CASE_ID": "2147377",
@@ -45,5 +40,13 @@
   "HAPPY_PATH_CASE_ID": "2144174",
   "HAPPY_PATH_TARGET_DEFENDANT_NAME": "DOE, Jane",
   "HAPPY_PATH_TARGET_DOCUMENT_NAME": "Ex DG2 BWV M Holden-Oates 11/02/2020",
-  "HAPPY_PATH_TARGET_SEARCH_TEXT": "Multi"
+  "HAPPY_PATH_TARGET_SEARCH_TEXT": "Multi",
+
+  "DOC_TOGGLE_TARGET_URN": "46CJ0001121",
+  "DOC_TOGGLE_TARGET_CASE_ID": "2144112",
+  "TARGET_NOT_OCR_PROCESSED_DOCUMENT_NAME": "doc-toggle-not-redactable-on-ocr",
+  "TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME": "doc-toggle-not-redactable-on-doc-type",
+  "TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-checked-out",
+  "TARGET_DIRECTION_OUT_DOCUMENT_NAME": "doc-toggle-not-redactable-on-direction",
+  "TARGET_CAN_REDACT_DOCUMENT_NAME": "doc-toggle-redactable"
 }

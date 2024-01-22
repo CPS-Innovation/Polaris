@@ -1,14 +1,14 @@
 /// <reference types="cypress" />
 
 const {
-  REFRESH_TARGET_URN,
-  REFRESH_TARGET_CASE_ID,
+  DOC_TOGGLE_TARGET_URN,
+  DOC_TOGGLE_TARGET_CASE_ID,
   TARGET_NOT_OCR_PROCESSED_DOCUMENT_NAME,
   TARGET_NOT_CORRECT_DOC_TYPE_DOCUMENT_NAME,
   TARGET_CAN_REDACT_DOCUMENT_NAME,
   TARGET_ALREADY_CHECKED_OUT_DOCUMENT_NAME,
   TARGET_DIRECTION_OUT_DOCUMENT_NAME,
-} = Cypress.env()
+} = Cypress.env();
 
 describe("Document toggle", { tags: '@ci' }, () => {
   it("can only redact documents that are allowed", () => {
@@ -16,11 +16,11 @@ describe("Document toggle", { tags: '@ci' }, () => {
 
     cy.fullLogin()
 
-    cy.clearCaseTracker(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID)
+    cy.clearCaseTracker(DOC_TOGGLE_TARGET_URN, DOC_TOGGLE_TARGET_CASE_ID);
     cy.visit("/polaris-ui")
     cy.setPolarisInstrumentationGuid("PHASE_1")
-    cy.findByTestId("input-search-urn").type(`${REFRESH_TARGET_URN}{enter}`)
-    cy.findByTestId(`link-${REFRESH_TARGET_URN}`).click()
+    cy.findByTestId("input-search-urn").type(`${DOC_TOGGLE_TARGET_URN}{enter}`);
+    cy.findByTestId(`link-${DOC_TOGGLE_TARGET_URN}`).click();
     // open case details page
     cy.findByTestId("btn-accordion-open-close-all").click()
 
