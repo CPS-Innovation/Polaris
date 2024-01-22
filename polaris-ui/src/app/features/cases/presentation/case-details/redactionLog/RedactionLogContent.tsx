@@ -808,7 +808,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             <LinkButton
               className={classes.cancelBtn}
               onClick={handleCloseRedactionLog}
-              data-testid="btn-redaction-log-cancel"
+              dataTestId="btn-redaction-log-cancel"
             >
               Cancel
             </LinkButton>

@@ -349,8 +349,8 @@ describe("Redaction Log", () => {
     });
   });
 
-  describe("Feature Flag On over Redaction", () => {
-    it(`should be a able to open and close the Over Redaction Modal`, () => {
+  describe("Feature Flag On Under Over Redaction", () => {
+    it(`should be a able to open and close the Under Over Redaction Modal`, () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -375,8 +375,15 @@ describe("Redaction Log", () => {
       cy.findByTestId("under-over-redaction-content").should("exist");
       cy.findByTestId("btn-modal-close").click();
       cy.findByTestId("div-modal").should("have.length", 0);
+
+      cy.findByTestId("document-actions-dropdown-0").click();
+      cy.findByTestId("dropdown-panel")
+        .contains("Log an Under/Over redaction")
+        .click();
+      cy.findByTestId("btn-redaction-log-cancel").click();
+      cy.findByTestId("div-modal").should("have.length", 0);
     });
-    it("should show the over redaction contents correctly", () => {
+    it("should show the Under Over redaction contents correctly", () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -493,7 +500,7 @@ describe("Redaction Log", () => {
 
       cy.get("legend:visible").should("have.length", 3);
     });
-    it("Over redaction modal should throw error for empty select values and checkboxes values and should be able to successfully save the over/under redaction log", () => {
+    it("Under Over redaction modal should throw error for empty select values and checkboxes values and should be able to successfully save the over/under redaction log", () => {
       cy.overrideRoute(
         REDACTION_LOG_MAPPING_ROUTE,
         {
@@ -641,7 +648,6 @@ describe("Redaction Log", () => {
         );
       });
     });
-
     it("Should verify the save redaction log request data for over-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
@@ -677,7 +683,6 @@ describe("Redaction Log", () => {
         );
       });
     });
-
     it("Should verify the save redaction log request data for both under and over-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
