@@ -67,13 +67,6 @@ namespace coordinator
                 client.BaseAddress = new Uri(Configuration.GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            var pipelineCoordinatorBaseUrl = Configuration.GetValueFromConfig(PipelineSettings.PipelineCoordinatorBaseUrl);
-            var orchestrationLowLevelApiBaseUrl = pipelineCoordinatorBaseUrl.Replace("/api", string.Empty);
-            builder.Services.AddHttpClient($"Low-level{nameof(OrchestrationProvider)}", client =>
-            {
-                client.BaseAddress = new Uri(orchestrationLowLevelApiBaseUrl);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
 
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
             services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();

@@ -59,21 +59,21 @@ switch (modeEnum)
 
 static void SetAsposeLicence()
 {
-    try
-    {
-        const string licenceFileName = "Aspose.Total.NET.lic";
-        new Aspose.Cells.License().SetLicense(licenceFileName);
-        new Aspose.Diagram.License().SetLicense(licenceFileName);
-        new Aspose.Email.License().SetLicense(licenceFileName);
-        new Aspose.Imaging.License().SetLicense(licenceFileName);
-        new Aspose.Pdf.License().SetLicense(licenceFileName);
-        new Aspose.Slides.License().SetLicense(licenceFileName);
-        new Aspose.Words.License().SetLicense(licenceFileName);
-    }
-    catch (Exception exception)
-    {
-        throw new Exception(exception.Message);
-    }
+  try
+  {
+    const string licenceFileName = "Aspose.Total.NET.lic";
+    new Aspose.Cells.License().SetLicense(licenceFileName);
+    new Aspose.Diagram.License().SetLicense(licenceFileName);
+    new Aspose.Email.License().SetLicense(licenceFileName);
+    new Aspose.Imaging.License().SetLicense(licenceFileName);
+    new Aspose.Pdf.License().SetLicense(licenceFileName);
+    new Aspose.Slides.License().SetLicense(licenceFileName);
+    new Aspose.Words.License().SetLicense(licenceFileName);
+  }
+  catch (Exception exception)
+  {
+    throw new Exception(exception.Message);
+  }
 }
 
 static void RedactPdfFile(IServiceProvider serviceProvider)
@@ -161,7 +161,7 @@ static void RedactPdfFile(IServiceProvider serviceProvider)
 static void ConvertFileToPdf(IServiceProvider serviceProvider)
 {
   var orchestratorService = serviceProvider.GetRequiredService<IPdfOrchestratorService>();
-  
+
   Console.WriteLine("Enter the input file path:");
   string? filePath = Console.ReadLine();
   Console.WriteLine("Enter the output file path:");
@@ -203,64 +203,3 @@ static void ConvertFileToPdf(IServiceProvider serviceProvider)
     throw new Exception("File does not exist, check path");
   }
 }
-
-/*static async Task ConvertFileToPdfUsingFunctionCall(IServiceProvider serviceProvider)
-{
-  var pipelineClientRequestFactory = serviceProvider.GetRequiredService<IPipelineClientRequestFactory>();
-  var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
-  
-  Console.WriteLine("Enter the input file path:");
-  var filePath = Console.ReadLine();
-  Console.WriteLine("Enter the output file path:");
-  var outputFilePath = Console.ReadLine() ?? throw new Exception("Output file path is required");
-
-  if (File.Exists(filePath))
-  {
-    try
-    {
-      await using var fileStream = File.OpenRead(filePath);
-
-      Guid currentCorrelationId = default;
-      var extension = Path.GetExtension(filePath).Replace(".", string.Empty).ToUpperInvariant();
-
-      var fileType = Enum.Parse<FileType>(extension);
-      
-      var request = pipelineClientRequestFactory.Create(HttpMethod.Post, $"test-convert-to-pdf", currentCorrelationId);
-      request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
-
-      using (var requestContent = new StreamContent(fileStream))
-      {
-        request.Content = requestContent;
-
-        using var client = httpClientFactory.CreateClient("testClient");
-        using var pdfStream = new MemoryStream();
-        using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
-        {
-          response.EnsureSuccessStatusCode();
-          await response.Content.CopyToAsync(pdfStream);
-          pdfStream.Seek(0, SeekOrigin.Begin);
-        }
-        
-        // Write the PDF stream to the file system
-        byte[] pdfBytes;
-        using (var ms = new MemoryStream())
-        {
-          pdfStream.CopyTo(ms);
-          pdfBytes = ms.ToArray();
-        }
-
-        File.WriteAllBytes(outputFilePath, pdfBytes);
-      }
-
-      Console.WriteLine("PDF conversion successful.");
-    }
-    catch (Exception e)
-    {
-      Console.WriteLine($"PDF conversion failed: {e.Message}");
-    }
-  }
-  else
-  {
-    throw new Exception("File does not exist, check path");
-  }
-}*/
