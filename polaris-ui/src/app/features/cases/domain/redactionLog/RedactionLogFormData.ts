@@ -8,4 +8,4 @@ export type UnderRedactionFormData = {
   returnToIA?: string;
   underRedaction?: string;
   overRedaction?: string;
-};
+} & Record<string, string>;

@@ -14,6 +14,7 @@ import { reducer } from "./reducer";
 import * as HEADERS from "../../api/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -305,7 +306,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         dispatch({
           type: "SHOW_REDACTION_LOG_MODAL",
           payload: {
-            type: "under",
+            type: RedactionLogTypes.UNDER,
             savedRedactionTypes: savedRedactionTypes,
           },
         });

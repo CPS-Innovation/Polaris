@@ -10,7 +10,6 @@ import {
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import { OverRedactionContent } from "./OverRedactionContent";
-import classes from "./RedactionLogContent.module.scss";
 import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
@@ -29,9 +28,12 @@ import {
   redactString,
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
+import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
+import classes from "./RedactionLogContent.module.scss";
+
 type RedactionLogContentProps = {
   caseUrn: string;
   isCaseCharged: boolean;
@@ -44,7 +46,7 @@ type RedactionLogContentProps = {
     fileCreatedDate: string;
     originalFileName: string;
   };
-  redactionLogType: "under" | "over";
+  redactionLogType: RedactionLogTypes;
   savedRedactionTypes: RedactionTypeData[];
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
@@ -114,7 +116,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     control,
     watch,
     reset,
-    setValue,
     getValues,
     trigger,
   } = useForm({ defaultValues });
@@ -311,13 +312,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     )!;
 
     let redactions: any[] = [];
-    if (redactionLogType === "under") {
+    if (redactionLogType === RedactionLogTypes.UNDER) {
       redactions = savedRedactionTypes.map((missedRedaction) => ({
         missedRedaction,
         redactionType: RedactionCategory.UnderRedacted,
         returnedToInvestigativeAuthority: false,
       }));
-    } else if (redactionLogType === "over") {
+    } else if (redactionLogType === RedactionLogTypes.UNDER_OVER) {
       redactions = getUnderOrOverRedactionTypesRequestData(formData);
     }
 
@@ -464,13 +465,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         newValues: newValuesWithoutNotes,
       });
     }
-    if (redactionLogType === "under") {
+    if (redactionLogType === RedactionLogTypes.UNDER) {
       trackEvent("Save Redaction Log", {
         values: redactionLogRequestData,
       });
     }
 
-    if (redactionLogType === "over") {
+    if (redactionLogType === RedactionLogTypes.UNDER_OVER) {
       trackEvent("Save Redaction Log Under Over", {
         values: redactionLogRequestData,
       });
@@ -503,7 +504,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       <div className={classes.modalHeadWrapper}>
         <div
           className={`${classes.modalTitleWrapper} ${
-            redactionLogType === "over" ? classes.modalTitleWrapperTypeOver : ""
+            redactionLogType === RedactionLogTypes.UNDER_OVER
+              ? classes.modalTitleWrapperTypeOver
+              : ""
           }`}
         >
           <h1 className={classes.modalContentHeading}>
@@ -735,20 +738,18 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               </h2>
             </div>
 
-            {redactionLogType === "under" && (
+            {redactionLogType === RedactionLogTypes.UNDER && (
               <UnderRedactionContent
                 documentName={documentName}
                 savedRedactionTypes={savedRedactionTypes}
               />
             )}
 
-            {redactionLogType === "over" && (
+            {redactionLogType === RedactionLogTypes.UNDER_OVER && (
               <OverRedactionContent
                 redactionTypes={redactionLogLookUpsData.missedRedactions}
                 register={register}
-                setValue={setValue}
                 getValues={getValues}
-                errors={errors}
                 watch={watch}
                 trigger={trigger}
                 isSubmitted={isSubmitted}

@@ -29,6 +29,8 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
+
 export const reducer = (
   state: CombinedState,
   action:
@@ -152,7 +154,7 @@ export const reducer = (
     | {
         type: "SHOW_REDACTION_LOG_MODAL";
         payload: {
-          type: "over" | "under";
+          type: RedactionLogTypes;
           savedRedactionTypes: RedactionTypeData[];
         };
       }

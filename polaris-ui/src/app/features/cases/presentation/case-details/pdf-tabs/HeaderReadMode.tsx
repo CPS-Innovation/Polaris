@@ -5,6 +5,7 @@ import { REPORT_ISSUE } from "../../../../../config";
 import { DropdownButton } from "../../../../../common/presentation/components";
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
@@ -31,7 +32,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   const handleDocumentAction = (id: string) => {
     switch (id) {
       case "1":
-        handleShowRedactionLogModal("over");
+        handleShowRedactionLogModal(RedactionLogTypes.UNDER_OVER);
         trackEvent("Open Under Over Redaction Log", { documentId: id });
         break;
       case "2":

@@ -16,6 +16,7 @@ import { reducerAsyncActionHandlers } from "./reducer-async-action-handlers";
 import { useAppInsightsTrackEvent } from "../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
+import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -57,7 +58,7 @@ export const initialState = {
   },
   redactionLog: {
     showModal: false,
-    type: "under",
+    type: RedactionLogTypes.UNDER,
     redactionLogLookUpsData: { status: "loading" },
     redactionLogMappingData: { status: "loading" },
     savedRedactionTypes: [],
@@ -340,7 +341,7 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
   );
 
   const handleShowRedactionLogModal = useCallback(
-    (type: "over" | "under") =>
+    (type: RedactionLogTypes) =>
       dispatch({
         type: "SHOW_REDACTION_LOG_MODAL",
         payload: {

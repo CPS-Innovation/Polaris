@@ -1,20 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
-import classes from "./OverRedactionContent.module.scss";
-import {
-  Checkboxes,
-  CheckboxesProps,
-} from "../../../../../common/presentation/components/Checkboxes";
+import { Checkboxes } from "../../../../../common/presentation/components/Checkboxes";
 import { Radios } from "../../../../../common/presentation/components/Radios";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
+import { UseFormRegister } from "react-hook-form";
+import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
+import classes from "./OverRedactionContent.module.scss";
 
 type OverRedactionContentProps = {
   redactionTypes: RedactionTypeData[];
-  savedRedactionTypes?: RedactionTypeData[];
   showErrors?: boolean;
-  register: any;
-  setValue: any;
+  register: UseFormRegister<UnderRedactionFormData>;
   getValues: any;
-  errors: any;
   watch: any;
   trigger: any;
   isSubmitted: boolean;
@@ -22,11 +18,8 @@ type OverRedactionContentProps = {
 
 export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
   redactionTypes,
-  savedRedactionTypes,
   register,
-  setValue,
   getValues,
-  errors,
   watch,
   trigger,
   isSubmitted,
@@ -46,18 +39,16 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
   const redactionTypeCheckboxItems = (
     category: "underRedaction" | "overRedaction"
   ) => {
-    return redactionTypes.map(
-      (type) =>
-        ({
-          checked: getValues(`${category}-type-${type.id}`),
-          children: type.name,
-          id: `checkbox-${category}-type-${type.id}`,
-          value: type.id,
-          ...register(`${category}-type-${type.id}`, {
-            validate: () => errorState[category] !== true,
-          }),
-        } as CheckboxesProps["items"])
-    );
+    return redactionTypes.map((type) => ({
+      checked: getValues(`${category}-type-${type.id}`),
+      children: type.name,
+      id: `checkbox-${category}-type-${type.id}`,
+      conditional: { children: [] },
+      value: type.id,
+      ...register(`${category}-type-${type.id}`, {
+        validate: () => errorState[category] !== true,
+      }),
+    }));
   };
 
   const findRedactionTypesError = useCallback(
@@ -105,7 +96,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
           />,
         ],
       },
-    } as unknown as CheckboxesProps["items"],
+    },
     {
       checked: getValues(`overRedaction`),
       children: "Over Redaction",
@@ -153,7 +144,7 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
           </div>,
         ],
       },
-    } as unknown as CheckboxesProps["items"],
+    },
   ];
 
   useEffect(() => {

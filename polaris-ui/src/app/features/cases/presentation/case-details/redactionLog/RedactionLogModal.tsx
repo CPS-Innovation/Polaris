@@ -6,6 +6,7 @@ import {
   RedactionLogLookUpsData,
   RedactionTypeData,
 } from "../../../domain/redactionLog/RedactionLogData";
+import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
 import { RedactionLogRequestData } from "../../../domain/redactionLog/RedactionLogRequestData";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { useCallback } from "react";
@@ -16,7 +17,7 @@ type Props = {
   owningUnit: string;
   documentName: string;
   cmsDocumentTypeId: number;
-  redactionLogType: "under" | "over";
+  redactionLogType: RedactionLogTypes;
   additionalData: {
     documentId: string;
     documentType: string;
@@ -56,7 +57,11 @@ export const RedactionLogModal: React.FC<Props> = ({
   return (
     <Modal
       isVisible={true}
-      handleClose={redactionLogType === "over" ? handleCloseModal : undefined}
+      handleClose={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? handleCloseModal
+          : undefined
+      }
       type="data"
       ariaLabel="Under redaction modal"
       ariaDescription="Contains form to be filled out and submitted for redaction log "
@@ -75,7 +80,9 @@ export const RedactionLogModal: React.FC<Props> = ({
         saveRedactionLog={saveRedactionLog}
         redactionLogMappingsData={redactionLogMappingsData}
         handleCloseRedactionLog={
-          redactionLogType === "over" ? handleCloseModal : undefined
+          redactionLogType === RedactionLogTypes.UNDER_OVER
+            ? handleCloseModal
+            : undefined
         }
       />
     </Modal>
