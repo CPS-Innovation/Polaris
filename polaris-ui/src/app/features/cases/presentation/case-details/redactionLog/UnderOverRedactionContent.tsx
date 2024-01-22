@@ -4,9 +4,9 @@ import { Radios } from "../../../../../common/presentation/components/Radios";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UseFormRegister } from "react-hook-form";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
-import classes from "./OverRedactionContent.module.scss";
+import classes from "./UnderOverRedactionContent.module.scss";
 
-type OverRedactionContentProps = {
+type UnderOverRedactionContentProps = {
   redactionTypes: RedactionTypeData[];
   showErrors?: boolean;
   register: UseFormRegister<UnderRedactionFormData>;
@@ -16,14 +16,9 @@ type OverRedactionContentProps = {
   isSubmitted: boolean;
 };
 
-export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
-  redactionTypes,
-  register,
-  getValues,
-  watch,
-  trigger,
-  isSubmitted,
-}) => {
+export const UnderOverRedactionContent: React.FC<
+  UnderOverRedactionContentProps
+> = ({ redactionTypes, register, getValues, watch, trigger, isSubmitted }) => {
   type ErrorState = {
     category: boolean;
     underRedaction: boolean;
@@ -168,8 +163,8 @@ export const OverRedactionContent: React.FC<OverRedactionContentProps> = ({
 
   return (
     <div
-      className={classes.overRedactionContent}
-      data-testid="over-redaction-content"
+      className={classes.underOverRedactionContent}
+      data-testid="under-over-redaction-content"
     >
       <section>
         <Checkboxes

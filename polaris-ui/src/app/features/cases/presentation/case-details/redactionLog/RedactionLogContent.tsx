@@ -9,7 +9,7 @@ import {
   LinkButton,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
-import { OverRedactionContent } from "./OverRedactionContent";
+import { UnderOverRedactionContent } from "./UnderOverRedactionContent";
 import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
@@ -746,7 +746,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             )}
 
             {redactionLogType === RedactionLogTypes.UNDER_OVER && (
-              <OverRedactionContent
+              <UnderOverRedactionContent
                 redactionTypes={redactionLogLookUpsData.missedRedactions}
                 register={register}
                 getValues={getValues}

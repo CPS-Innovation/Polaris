@@ -372,7 +372,7 @@ describe("Redaction Log", () => {
         .find("h2")
         .contains('Redaction details for:"MCLOVEMG3"')
         .should("exist");
-      cy.findByTestId("over-redaction-content").should("exist");
+      cy.findByTestId("under-over-redaction-content").should("exist");
       cy.findByTestId("btn-modal-close").click();
       cy.findByTestId("div-modal").should("have.length", 0);
     });
@@ -397,7 +397,7 @@ describe("Redaction Log", () => {
         .find("h2")
         .contains('Redaction details for:"MCLOVEMG3"')
         .should("exist");
-      cy.findByTestId("over-redaction-content").should("exist");
+      cy.findByTestId("under-over-redaction-content").should("exist");
       cy.findByTestId("checkboxes-under-over").should("exist");
 
       //check under redaction check contents
