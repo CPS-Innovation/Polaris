@@ -3,14 +3,16 @@ import { ReactComponent as DownArrow } from "../svgs/down.svg";
 import { LinkButton } from "../components/LinkButton";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import classes from "./DropdownButton.module.scss";
+
+export type DropdownButtonItem = {
+  id: string;
+  label: string;
+  ariaLabel: string;
+  disabled: boolean;
+};
 export type DropdownButtonProps = {
   name?: string;
-  dropDownItems: {
-    id: string;
-    label: string;
-    ariaLabel: string;
-    disabled: boolean;
-  }[];
+  dropDownItems: DropdownButtonItem[];
   callBackFn: (id: string) => void;
   ariaLabel?: string;
   dataTestId?: string;

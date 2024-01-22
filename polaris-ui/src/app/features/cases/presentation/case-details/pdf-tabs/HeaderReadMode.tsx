@@ -2,7 +2,10 @@ import { useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { REPORT_ISSUE } from "../../../../../config";
-import { DropdownButton } from "../../../../../common/presentation/components";
+import {
+  DropdownButton,
+  DropdownButtonItem,
+} from "../../../../../common/presentation/components/DropdownButton";
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
@@ -42,14 +45,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   };
 
   const dropDownItems = useMemo(() => {
-    let items = [
-      {
-        id: "2",
-        label: disableReportBtn ? "Issue reported" : "Report an issue",
-        ariaLabel: "report an issue",
-        disabled: disableReportBtn,
-      },
-    ];
+    let items: DropdownButtonItem[] = [];
     if (showOverRedactionLog) {
       items = [
         {
@@ -61,6 +57,18 @@ export const HeaderReadMode: React.FC<Props> = ({
         ...items,
       ];
     }
+    if (REPORT_ISSUE) {
+      items = [
+        ...items,
+        {
+          id: "2",
+          label: disableReportBtn ? "Issue reported" : "Report an issue",
+          ariaLabel: "report an issue",
+          disabled: disableReportBtn,
+        },
+      ];
+    }
+
     return items;
   }, [showOverRedactionLog, disableReportBtn]);
 

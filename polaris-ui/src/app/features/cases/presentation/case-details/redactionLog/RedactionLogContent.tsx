@@ -172,8 +172,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     };
   };
 
-  console.log("isSubmitted>>>>>", isSubmitted);
-
   const redactionLogGuidanceContent = () => {
     return (
       <div className={classes.redactionLogGuidanceWrapper}>
@@ -348,7 +346,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       },
     };
 
-    console.log("mappedData>>>>", mappedData);
     return mappedData;
   };
 
@@ -416,7 +413,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
 
   const getErrorSummaryList = (errors: FieldErrors<UnderRedactionFormData>) => {
-    console.log("errors>>>", errors);
     let filteredErrorKeys: string[] = Object.keys(errors);
     if (
       filteredErrorKeys.some((key) => key === "underRedaction") &&
@@ -529,7 +525,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           handleSubmit(
             (data) => {
               event.preventDefault();
-              console.log("data>>>>", data);
               const redactionLogRequestData = getRedactionLogRequestData(data);
               setSavingRedactionLog(true);
               saveRedactionLog(redactionLogRequestData);
