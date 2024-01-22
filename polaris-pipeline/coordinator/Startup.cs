@@ -53,6 +53,7 @@ namespace coordinator
             services.AddSingleton<IConvertModelToHtmlService, ConvertModelToHtmlService>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddTransient<IQueryConditionFactory, QueryConditionFactory>();
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddBlobStorageWithDefaultAzureCredential(Configuration);
 
@@ -123,14 +124,12 @@ namespace coordinator
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client")
                 .AddCheck<PolarisBlobStorageServiceHealthCheck>("PolarisBlobStorageService");
 
-            if (!configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
-                healthChecks
-                    .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
-                    .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction });
+            healthChecks
+                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction });
 
-            if (!configuration.IsConfigSettingEnabled(FeatureFlags.DisableConvertToPdfFeatureFlag))
-                healthChecks
-                    .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction });
+            healthChecks
+                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction });
         }
     }
 }
