@@ -71,6 +71,7 @@ export const UnderOverRedactionContent: React.FC<
       conditional: {
         children: [
           <Checkboxes
+            key={"under-redaction-types"}
             errorMessage={
               isSubmitted && errorState.underRedaction
                 ? {
@@ -100,42 +101,42 @@ export const UnderOverRedactionContent: React.FC<
       }),
       conditional: {
         children: [
-          <div>
-            <Radios
-              value={getValues(`returnToIA`)}
-              name="radio-return-to-investigative-agency"
-              items={[
-                {
-                  ...register(`returnToIA`),
-                  children: "Returned to Investigative Agency for correction",
-                  value: "true",
-                },
-                {
-                  ...register(`returnToIA`),
-                  children: "Returned to CPS colleague for correction",
-                  value: "false",
-                },
-              ]}
-            />
-            <Checkboxes
-              errorMessage={
-                isSubmitted && errorState.overRedaction
-                  ? {
-                      children: "Select an over-redaction type",
-                    }
-                  : undefined
-              }
-              fieldset={{
-                legend: {
-                  children: "Types of redactions",
-                },
-              }}
-              data-testid="checkboxes-over-redaction-types"
-              name="over-redaction-types"
-              items={redactionTypeCheckboxItems("overRedaction")}
-              className={`govuk-checkboxes--small ${classes.redactionTypes} `}
-            />
-          </div>,
+          <Radios
+            key={"return-to-ia"}
+            value={getValues(`returnToIA`)}
+            name="radio-return-to-investigative-agency"
+            items={[
+              {
+                ...register(`returnToIA`),
+                children: "Returned to Investigative Agency for correction",
+                value: "true",
+              },
+              {
+                ...register(`returnToIA`),
+                children: "Returned to CPS colleague for correction",
+                value: "false",
+              },
+            ]}
+          />,
+          <Checkboxes
+            key={"over-redaction-types"}
+            errorMessage={
+              isSubmitted && errorState.overRedaction
+                ? {
+                    children: "Select an over-redaction type",
+                  }
+                : undefined
+            }
+            fieldset={{
+              legend: {
+                children: "Types of redactions",
+              },
+            }}
+            data-testid="checkboxes-over-redaction-types"
+            name="over-redaction-types"
+            items={redactionTypeCheckboxItems("overRedaction")}
+            className={`govuk-checkboxes--small ${classes.redactionTypes} `}
+          />,
         ],
       },
     },
