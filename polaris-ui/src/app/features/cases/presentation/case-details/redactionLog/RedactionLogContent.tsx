@@ -6,6 +6,7 @@ import {
   Guidance,
   ErrorSummary,
   Spinner,
+  LinkButton,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
 import { OverRedactionContent } from "./OverRedactionContent";
@@ -48,8 +49,9 @@ type RedactionLogContentProps = {
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
-  message?: string;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
+  message?: string;
+  handleCloseRedactionLog?: () => void;
 };
 
 const NOTES_MAX_CHARACTERS = 400;
@@ -67,6 +69,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   savedRedactionTypes,
   redactionLogLookUpsData,
   redactionLogMappingsData,
+  handleCloseRedactionLog,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
@@ -799,6 +802,16 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           >
             Save and Close
           </Button>
+
+          {handleCloseRedactionLog && (
+            <LinkButton
+              className={classes.cancelBtn}
+              onClick={handleCloseRedactionLog}
+              data-testid="btn-redaction-log-cancel"
+            >
+              Cancel
+            </LinkButton>
+          )}
         </div>
       </form>
     </div>

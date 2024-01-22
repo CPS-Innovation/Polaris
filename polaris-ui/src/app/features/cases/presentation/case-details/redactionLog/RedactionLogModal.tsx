@@ -74,6 +74,9 @@ export const RedactionLogModal: React.FC<Props> = ({
         redactionLogLookUpsData={redactionLogLookUpsData}
         saveRedactionLog={saveRedactionLog}
         redactionLogMappingsData={redactionLogMappingsData}
+        handleCloseRedactionLog={
+          redactionLogType === "over" ? handleCloseModal : undefined
+        }
       />
     </Modal>
   );

@@ -66,7 +66,7 @@ export const HeaderReadMode: React.FC<Props> = ({
   return (
     <div className={classes.content}>
       <DropdownButton
-        currentSelectionId={dropDownItems[0].id}
+        name="Document actions"
         dropDownItems={dropDownItems}
         callBackFn={handleDocumentAction}
         ariaLabel="document actions dropdown"

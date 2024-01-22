@@ -62,9 +62,14 @@
   .btnWrapper {
     display: flex;
     justify-content: flex-start;
+    align-items: baseline;
     width: 100%;
     margin-top: 1.875rem;
     padding: 0 1.875rem;
+  }
+  .cancelBtn {
+    margin-left: 1rem;
+    padding: 0.625rem;
   }
   .modalHeadWrapper {
     padding: 1.875rem 1.875rem 0px 1.875rem;

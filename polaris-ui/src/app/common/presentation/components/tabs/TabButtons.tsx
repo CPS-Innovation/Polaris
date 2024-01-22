@@ -170,7 +170,6 @@ const TabButtons: React.FC<TabButtonProps> = ({
       </ul>
       <div className={classes.tabsDropDownWrapper}>
         <DropdownButton
-          currentSelectionId={items[activeTabIndex].id}
           dropDownItems={tabDropdownItems}
           callBackFn={handleTabSelection}
           ariaLabel="tabs dropdown"

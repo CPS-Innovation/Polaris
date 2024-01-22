@@ -4,6 +4,7 @@ import { LinkButton } from "../components/LinkButton";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import classes from "./DropdownButton.module.scss";
 export type DropdownButtonProps = {
+  name?: string;
   dropDownItems: {
     id: string;
     label: string;
@@ -11,7 +12,6 @@ export type DropdownButtonProps = {
     disabled: boolean;
   }[];
   callBackFn: (id: string) => void;
-  currentSelectionId?: string;
   ariaLabel?: string;
   dataTestId?: string;
   disabled?: boolean;
@@ -20,7 +20,7 @@ export type DropdownButtonProps = {
 export const DropdownButton: React.FC<DropdownButtonProps> = ({
   dropDownItems,
   callBackFn,
-  currentSelectionId,
+  name,
   dataTestId = "dropdown-btn",
   ariaLabel = "dropdown",
   disabled = false,
@@ -73,12 +73,15 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
         ref={dropDownBtnRef}
         ariaLabel={ariaLabel}
         ariaExpanded={buttonOpen}
-        className={`${classes.dropDownButton} ${buttonOpen && classes.upArrow}`}
+        className={`${classes.dropDownButton} ${
+          buttonOpen && classes.upArrow
+        } ${name && classes.btnWithText}`}
         disabled={disabled}
         onClick={() => {
           setButtonOpen((buttonOpen) => !buttonOpen);
         }}
       >
+        {name && <span className={classes.dropdownBtnName}>{name}</span>}
         <DownArrow />
       </LinkButton>
 
