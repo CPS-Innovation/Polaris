@@ -18,6 +18,5 @@
 #   do.
 rm -rf build
 PUBLIC_URL=/polaris-ui BUILD_PATH=build/polaris-ui react-scripts build
-cp -r build/polaris-ui/static/js build/polaris-ui/static/js-pre-substitution
 mv build/polaris-ui/index.html build/index.html
 mv build/polaris-ui/run-substitution.sh build/run-substitution.sh
