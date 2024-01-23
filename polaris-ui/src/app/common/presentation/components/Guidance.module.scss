@@ -25,8 +25,11 @@
     }
   }
   &:hover:not(:disabled):not(:focus) {
+    color: #003078;
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+    background: transparent;
     svg {
-      fill: #fff;
+      fill: #003078;
     }
   }
 }
