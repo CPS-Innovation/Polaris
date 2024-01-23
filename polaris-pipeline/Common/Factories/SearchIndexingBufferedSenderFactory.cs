@@ -4,15 +4,15 @@ using Common.Factories.Contracts;
 
 namespace Common.Factories;
 
-public class SearchIndexingBufferedSenderFactory: ISearchIndexingBufferedSenderFactory
+public class SearchIndexingBufferedSenderFactory : ISearchIndexingBufferedSenderFactory
 {
-	public SearchIndexingBufferedSender<SearchLine> Create(SearchClient searchClient)
-    {
-		return new SearchIndexingBufferedSender<SearchLine>(searchClient,
-			new SearchIndexingBufferedSenderOptions<SearchLine>
+	public SearchIndexingBufferedSender<ISearchable> Create(SearchClient searchClient)
+	{
+		return new SearchIndexingBufferedSender<ISearchable>(searchClient,
+			new SearchIndexingBufferedSenderOptions<ISearchable>
 			{
 				KeyFieldAccessor = searchLine => searchLine.Id
-			}); 
+			});
 	}
 }
 
