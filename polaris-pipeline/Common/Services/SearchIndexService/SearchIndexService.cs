@@ -173,7 +173,8 @@ namespace Common.Services.CaseSearchService
             {
                 Filter = $"caseId eq {caseId}",
                 IncludeTotalCount = true,
-                Size = 0
+                Size = 0,
+                Select = { "id" }
             };
 
             var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
@@ -283,6 +284,7 @@ namespace Common.Services.CaseSearchService
                 Filter = filter,
                 Size = 0,
                 IncludeTotalCount = true,
+                Select = { "id" }
             };
 
             var baseDelayMs = IndexSettleUnitDelayMs;
