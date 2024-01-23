@@ -42,7 +42,11 @@ namespace TextExtractor.TestHarness
             if (operationOption != OperationOption.DeleteOnly)
             {
                 Console.WriteLine();
-                Console.WriteLine("File size to extract? [S]mall/[M]edium/[L]arge");
+                Console.WriteLine("File size to extract?");
+                Console.WriteLine("[S]mall: 100 lines");
+                Console.WriteLine("[M]edium: 10,000 lines");
+                Console.WriteLine("[L]arge: > 100,000 lines");
+
 
                 string fileInput = Console.ReadLine();
 

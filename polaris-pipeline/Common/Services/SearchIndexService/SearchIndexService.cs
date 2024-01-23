@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
 using Common.Services.CaseSearchService.Contracts;
@@ -135,7 +136,7 @@ namespace Common.Services.CaseSearchService
             };
 
             // => e.g. search=caseId eq 2146928 and ((documentId eq '8660287' and versionId eq 7921776) or (documentId eq '8660286' and versionId eq 7921777) or (documentId eq '8660260' and versionId eq 7921740) or (documentId eq '8660255' and versionId eq 7921733) or (documentId eq '8660254' and versionId eq 7921732) or (documentId eq '8660253' and versionId eq 7921731) or (documentId eq '8660252' and versionId eq 7921730) or (documentId eq 'PCD-131307' and versionId eq 1) or (documentId eq 'DAC' and versionId eq 1))
-            var searchResults = await _azureSearchClient.SearchAsync<SearchLine>(searchTerm, searchOptions);
+            var searchResults = await GetSearchResults<SearchLine>(searchOptions, searchTerm);
             var searchLines = new List<SearchLine>();
             await foreach (var searchResult in searchResults.Value.GetResultsAsync())
             {
@@ -175,14 +176,14 @@ namespace Common.Services.CaseSearchService
                 Size = 0
             };
 
-            var countResult = await _azureSearchClient.SearchAsync<SearchLine>("*", indexCountSearchOptions);
+            var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
             var indexTotal = countResult.Value.TotalCount.Value;
 
             if (indexTotal == 0)
             {
                 return IndexDocumentsDeletedResult.Empty();
             }
-            else if (indexTotal > 100000) // 100000 is the maximum number of indexes that can be taken in one go.
+            else
             {
                 var result = new IndexDocumentsDeletedResult();
                 long indexesToProcess = indexTotal;
@@ -204,16 +205,24 @@ namespace Common.Services.CaseSearchService
 
                 return result;
             }
-            else
-                return await DeleteDocumentIndexes(caseId, indexTotal);
+        }
+
+        private async Task<Response<SearchResults<ISearchable>>> GetSearchResults<ISearchable>(SearchOptions searchOptions, string searchTerm = "*")
+        {
+            return await _azureSearchClient.SearchAsync<ISearchable>(searchTerm, searchOptions);
         }
 
         private async Task<IndexDocumentsDeletedResult> DeleteDocumentIndexes(long caseId, long indexCount)
         {
-            var searchOptions = new SearchOptions { Filter = $"caseId eq {caseId}", Size = (int)indexCount };
+            var searchOptions = new SearchOptions
+            {
+                Filter = $"caseId eq {caseId}",
+                Size = (int)indexCount,
+                Select = { "id" }
+            };
 
-            var results = await _azureSearchClient.SearchAsync<SearchLine>("*", searchOptions);
-            var searchLines = new List<SearchLine>();
+            var results = await GetSearchResults<SearchLineId>(searchOptions);
+            var searchLines = new List<SearchLineId>();
             await foreach (var searchResult in results.Value.GetResultsAsync())
             {
                 searchLines.Add(searchResult.Document);
@@ -281,7 +290,7 @@ namespace Common.Services.CaseSearchService
 
             foreach (var timeoutBase in Fibonacci(IndexSettleRetryAttemptCount))
             {
-                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
+                var searchResults = await GetSearchResults<SearchLineId>(options);
                 var receivedLinesCount = searchResults.Value.TotalCount;
                 recordCounts.Add(receivedLinesCount ?? -1);
 

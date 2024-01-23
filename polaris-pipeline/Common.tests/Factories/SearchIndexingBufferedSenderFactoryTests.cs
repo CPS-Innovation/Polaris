@@ -11,14 +11,14 @@ namespace Common.tests.Factories
 	{
 		[Fact]
 		public void Create_ReturnsSearchIndexBufferedSender()
-        {
+		{
 			var searchClient = new Mock<SearchClient>();
 			var factory = new SearchIndexingBufferedSenderFactory();
 
 			var sender = factory.Create(searchClient.Object);
 
-			sender.Should().BeOfType<SearchIndexingBufferedSender<SearchLine>>();
-        }
+			sender.Should().BeOfType<SearchIndexingBufferedSender<ISearchable>>();
+		}
 	}
 }
 
