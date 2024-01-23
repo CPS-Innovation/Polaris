@@ -17,6 +17,11 @@ public class PdfRendererService : IPdfService
     public void ReadToPdfStream(Stream inputStream, Stream pdfStream, Guid correlationId)
     {
         var doc = _asposeItemFactory.CreateRenderedPdfDocument(inputStream, correlationId);
+        if (doc.IsEncrypted)
+        {
+            // todo: throw a specific exception type
+            throw new Exception("Pdf is encrypted.");
+        }
         doc.Save(pdfStream, SaveFormat.Pdf);
         pdfStream.Seek(0, SeekOrigin.Begin);
     }
