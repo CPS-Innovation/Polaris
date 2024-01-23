@@ -65,7 +65,8 @@ public class OrchestrationProvider : IOrchestrationProvider
     public async Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient orchestrationClient, DateTime createdTimeTo, int batchSize)
     {
         var instanceIds = await GetInstanceIdsAsync(orchestrationClient,
-            _queryConditionFactory.Create(createdTimeTo, batchSize)
+            _queryConditionFactory.Create(createdTimeTo, batchSize),
+            followContinuation: false
         );
 
         static int getCaseIdFromInstanceId(string instanceId) => int.Parse(
@@ -169,7 +170,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
     }
 
-    private static async Task<List<string>> GetInstanceIdsAsync(IDurableOrchestrationClient client, OrchestrationStatusQueryCondition condition)
+    private static async Task<List<string>> GetInstanceIdsAsync(IDurableOrchestrationClient client, OrchestrationStatusQueryCondition condition, bool followContinuation = true)
     {
         var instanceIds = new List<string>();
         do
@@ -182,7 +183,7 @@ public class OrchestrationProvider : IOrchestrationProvider
                 .Select(o => o.InstanceId)
             );
         }
-        while (condition.ContinuationToken != null);
+        while (followContinuation && condition.ContinuationToken != null);
 
         return instanceIds;
     }
