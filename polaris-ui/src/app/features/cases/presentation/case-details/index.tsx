@@ -32,7 +32,7 @@ import {
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   SURVEY_LINK,
-  FEATURE_FLAG_REDACTION_LOG_OVER,
+  FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
@@ -360,7 +360,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 showOverRedactionLog={
                   featureFlags.status === "succeeded"
                     ? featureFlags.data.redactionLog &&
-                      FEATURE_FLAG_REDACTION_LOG_OVER
+                      FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
                     : false
                 }
               />

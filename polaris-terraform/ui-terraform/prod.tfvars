@@ -39,7 +39,7 @@ is_redaction_service_offline = "false"
 feature_flag_hte_emails_on = "true"
 
 feature_flag_redaction_log = "true"
-feature_flag_redaction_log_over = "false"
+feature_flag_redaction_log_under_over = "false"
 redaction_log_user_group = ""
 
 private_beta = {

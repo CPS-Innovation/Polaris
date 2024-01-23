@@ -105,7 +105,7 @@ variable "feature_flag_redaction_log" {
   type = string
 }
 
-variable "feature_flag_redaction_log_over" {
+variable "feature_flag_redaction_log_under_over" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
