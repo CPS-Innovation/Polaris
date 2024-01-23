@@ -5,7 +5,7 @@ namespace Common.Factories.Contracts
 {
 	public interface ISearchIndexingBufferedSenderFactory
 	{
-		SearchIndexingBufferedSender<SearchLine> Create(SearchClient searchClient);
+		SearchIndexingBufferedSender<ISearchable> Create(SearchClient searchClient);
 	}
 }
 
