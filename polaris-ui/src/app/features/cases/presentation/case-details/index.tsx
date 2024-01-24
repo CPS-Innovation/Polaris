@@ -330,7 +330,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               </div>
             </div>
           )}
-          {tabsState.items.length && (
+          {!!tabsState.items.length && (
             <div className={classes.resizeBtnWrapper}>
               <Tooltip
                 text={showFullScreen ? "Hide full screen" : "Show full screen"}

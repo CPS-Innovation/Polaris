@@ -87,6 +87,7 @@
   pointer-events: none;
 }
 .resizeBtnWrapper {
+  display: inline-block;
   position: sticky;
   top: 50%;
   z-index: 4;
