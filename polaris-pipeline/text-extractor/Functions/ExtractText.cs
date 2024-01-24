@@ -19,6 +19,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using text_extractor.TelemetryEvents;
+
 namespace text_extractor.Functions
 {
     public class ExtractText

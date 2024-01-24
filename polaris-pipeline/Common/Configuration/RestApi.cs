@@ -33,6 +33,7 @@ namespace Common.Configuration
         public const string ConvertToPdf = "convert-to-pdf";
         public const string RedactPdf = "redact-pdf";
         public const string RemoveCaseIndexes = "remove-case-indexes";
+        public const string WaitForCaseEmptyResults = "wait-for-case-empty-results";
 
 #if SCALABILITY_TEST
         public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";

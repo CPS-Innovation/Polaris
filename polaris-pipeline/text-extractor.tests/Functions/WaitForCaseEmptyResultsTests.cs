@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -19,22 +20,22 @@ using Xunit;
 
 namespace text_extractor.tests.Functions
 {
-    public class RemoveCaseIndexesTests
+    public class WaitForCaseEmptyResultsTests
     {
         private readonly Fixture _fixture;
         private readonly string _serializedExtractTextRequest;
         private readonly HttpRequestMessage _httpRequestMessage;
-        private readonly RemoveCaseIndexesRequestDto _removeCaseIndexesRequest;
+        private readonly WaitForCaseEmptyResultsRequestDto _waitForCaseEmptyResultsRequestDto;
         private HttpResponseMessage _errorHttpResponseMessage;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
-        private readonly Mock<ILogger<RemoveCaseIndexes>> _mockLogger;
+        private readonly Mock<ILogger<WaitForCaseEmptyResults>> _mockLogger;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
-        private readonly RemoveCaseIndexes _removeCaseIndexes;
+        private readonly WaitForCaseEmptyResults _waitForCaseEmptyResults;
 
-        public RemoveCaseIndexesTests()
+        public WaitForCaseEmptyResultsTests()
         {
             _fixture = new Fixture();
             _serializedExtractTextRequest = _fixture.Create<string>();
@@ -42,70 +43,70 @@ namespace text_extractor.tests.Functions
             {
                 Content = new StringContent(_serializedExtractTextRequest)
             };
-            _removeCaseIndexesRequest = _fixture.Create<RemoveCaseIndexesRequestDto>();
+            _waitForCaseEmptyResultsRequestDto = _fixture.Create<WaitForCaseEmptyResultsRequestDto>();
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
-            _mockLogger = new Mock<ILogger<RemoveCaseIndexes>>();
+            _mockLogger = new Mock<ILogger<WaitForCaseEmptyResults>>();
 
             _mockSearchIndexService
-                .Setup(service => service.RemoveCaseIndexEntriesAsync(It.IsAny<long>()))
-                .ReturnsAsync(new IndexDocumentsDeletedResult
+                .Setup(service => service.WaitForCaseEmptyResultsAsync(It.IsAny<long>()))
+                .ReturnsAsync(new IndexSettledResult
                 {
-                    DocumentCount = 1,
-                    SuccessCount = 1,
-                    FailureCount = 0
+                    TargetCount = 1,
+                    RecordCounts = new List<long> { 1 },
+                    IsSuccess = true
                 });
 
-            _removeCaseIndexes = new RemoveCaseIndexes(
+            _waitForCaseEmptyResults = new WaitForCaseEmptyResults(
                                 _mockLogger.Object,
                                 _mockSearchIndexService.Object,
+                                _mockJsonConvertWrapper.Object,
                                 _mockTelemetryAugmentationWrapper.Object,
-                                _mockExceptionHandler.Object,
-                                _mockJsonConvertWrapper.Object);
+                                _mockExceptionHandler.Object);
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(null, null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new WaitForCaseEmptyResults(null, null, null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, null, null, null, null));
-        }
-
-        [Fact]
-        public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
-        {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, null, null, null));
-        }
-
-        [Fact]
-        public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
-        {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, _mockTelemetryAugmentationWrapper.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new WaitForCaseEmptyResults(_mockLogger.Object, null, null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndJsonConvertWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, _mockTelemetryAugmentationWrapper.Object, _mockExceptionHandler.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new WaitForCaseEmptyResults(_mockLogger.Object, _mockSearchIndexService.Object, null, null, null));
+        }
+
+        [Fact]
+        public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => new WaitForCaseEmptyResults(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, null, null));
+        }
+
+        [Fact]
+        public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => new WaitForCaseEmptyResults(_mockLogger.Object, _mockSearchIndexService.Object, _mockJsonConvertWrapper.Object, _mockTelemetryAugmentationWrapper.Object, null));
         }
 
         [Fact]
         public async Task Run_ReturnsExceptionWhenCorrelationIdIsMissing()
         {
             _errorHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<RemoveCaseIndexes>>()))
+            _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<WaitForCaseEmptyResults>>()))
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -118,7 +119,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -131,7 +132,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -141,12 +142,12 @@ namespace text_extractor.tests.Functions
         {
             _httpRequestMessage.Headers.Add("Correlation-Id", _correlationId.ToString());
             _httpRequestMessage.Content = new StringContent("", Encoding.UTF8, "application/json");
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<RemoveCaseIndexesRequestDto>(It.IsAny<string>()))
-                .Returns(new RemoveCaseIndexesRequestDto());
-            _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<IndexDocumentsDeletedResult>()))
+            _mockJsonConvertWrapper.Setup(wrapper => wrapper.DeserializeObject<WaitForCaseEmptyResultsRequestDto>(It.IsAny<string>()))
+                .Returns(new WaitForCaseEmptyResultsRequestDto());
+            _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<IndexSettledResult>()))
                 .Returns(string.Empty);
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -159,7 +160,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _waitForCaseEmptyResults.Run(_httpRequestMessage);
 
             response.Should().Be(_errorHttpResponseMessage);
         }

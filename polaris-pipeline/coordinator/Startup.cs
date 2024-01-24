@@ -32,7 +32,6 @@ using Common.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using coordinator.Providers;
-using Microsoft.Extensions.Azure;
 using coordinator.Validators;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -77,7 +76,6 @@ namespace coordinator
 
             services.RegisterMapsterConfiguration();
             services.AddBlobSasGenerator();
-            services.AddSearchClient(Configuration);
             services.AddDdeiClient(Configuration);
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
