@@ -110,10 +110,15 @@ namespace text_extractor.Functions
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
-                var result = await _searchIndexService.WaitForStoreResultsAsync(extractTextRequest.CaseId,
-                                                                                extractTextRequest.DocumentId,
-                                                                                extractTextRequest.VersionId,
-                                                                                ocrResults.ReadResults.Sum(r => r.Lines.Count));
+                var result = await Task.Run(async () =>
+                                    {
+                                        await Task.Delay(2000);
+                                        return await _searchIndexService.WaitForStoreResultsAsync(extractTextRequest.CaseId,
+                                                                                    extractTextRequest.DocumentId,
+                                                                                    extractTextRequest.VersionId,
+                                                                                    ocrResults.ReadResults.Sum(r => r.Lines.Count));
+                                    });
+
                 telemetryEvent.DidIndexSettle = result.IsSuccess;
                 telemetryEvent.WaitRecordCounts = result.RecordCounts;
                 telemetryEvent.IndexSettleTargetCount = result.TargetCount;
