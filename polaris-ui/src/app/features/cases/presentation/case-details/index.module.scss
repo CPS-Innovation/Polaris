@@ -86,3 +86,38 @@
   position: absolute;
   pointer-events: none;
 }
+.resizeBtnWrapper {
+  position: sticky;
+  top: 50%;
+  z-index: 4;
+}
+.resizeBtn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #1d70b8;
+  border: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  svg {
+    transform: rotate(90deg);
+    fill: #fff;
+    scale: 0.75;
+  }
+  &:focus {
+    color: #0b0c0c;
+    background-color: #ffdd00;
+    box-shadow: 0 0 2px #0b0c0c;
+    outline: 0.1875rem solid transparent;
+    svg {
+      fill: #000;
+    }
+  }
+}
+
+.showFullScreen {
+  svg {
+    transform: rotate(-90deg);
+  }
+}

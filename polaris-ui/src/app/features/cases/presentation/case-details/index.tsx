@@ -1,6 +1,6 @@
 import { useParams, useHistory } from "react-router-dom";
-import { useEffect, useMemo } from "react";
-import { BackLink } from "../../../../common/presentation/components";
+import { useEffect, useMemo, useState } from "react";
+import { BackLink, Tooltip } from "../../../../common/presentation/components";
 import { PageContentWrapper } from "../../../../common/presentation/components";
 import {
   WaitPage,
@@ -38,11 +38,13 @@ import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentA
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
+import { ReactComponent as DownArrow } from "../../../../common/presentation/svgs/down.svg";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {};
 
 export const Page: React.FC<Props> = ({ backLinkProps }) => {
+  const [showFullScreen, setShowFullScreen] = useState(false);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
@@ -276,58 +278,82 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       </nav>
       <PageContentWrapper>
         <div className={`govuk-grid-row ${classes.mainContent}`}>
-          <div
-            role="region"
-            aria-labelledby="side-panel-region-label"
-            id="side-panel"
-            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-            tabIndex={0}
-            className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
-          >
-            <span
-              id="side-panel-region-label"
-              className={classes.sidePanelLabel}
+          {!showFullScreen && (
+            <div
+              role="region"
+              aria-labelledby="side-panel-region-label"
+              id="side-panel"
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+              tabIndex={0}
+              className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.contentArea}`}
             >
-              Case navigation panel
-            </span>
-            <div>
-              <KeyDetails
-                handleOpenPdf={() => {
-                  handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
-                }}
-                caseDetails={caseState.data}
-                isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
-                dacDocumentId={dacDocumentId}
-              />
-
-              {!isMultipleDefendantsOrCharges && (
-                <Charges caseDetails={caseState.data} />
-              )}
-
-              <SearchBox
-                id="case-details-search"
-                data-testid="search-case"
-                labelText="Search"
-                value={searchTerm}
-                handleChange={handleSearchTermChange}
-                handleSubmit={handleLaunchSearchResults}
-                trackEventKey="Search Case Documents From Case Details"
-              />
-
-              {accordionState.status === "loading" ? (
-                <AccordionWait />
-              ) : (
-                <Accordion
-                  accordionState={accordionState.data}
-                  handleOpenPdf={(caseDoc) => {
-                    handleOpenPdf({ ...caseDoc, mode: "read" });
+              <span
+                id="side-panel-region-label"
+                className={classes.sidePanelLabel}
+              >
+                Case navigation panel
+              </span>
+              <div>
+                <KeyDetails
+                  handleOpenPdf={() => {
+                    handleOpenPdf({ documentId: dacDocumentId, mode: "read" });
                   }}
+                  caseDetails={caseState.data}
+                  isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
+                  dacDocumentId={dacDocumentId}
                 />
-              )}
+
+                {!isMultipleDefendantsOrCharges && (
+                  <Charges caseDetails={caseState.data} />
+                )}
+
+                <SearchBox
+                  id="case-details-search"
+                  data-testid="search-case"
+                  labelText="Search"
+                  value={searchTerm}
+                  handleChange={handleSearchTermChange}
+                  handleSubmit={handleLaunchSearchResults}
+                  trackEventKey="Search Case Documents From Case Details"
+                />
+
+                {accordionState.status === "loading" ? (
+                  <AccordionWait />
+                ) : (
+                  <Accordion
+                    accordionState={accordionState.data}
+                    handleOpenPdf={(caseDoc) => {
+                      handleOpenPdf({ ...caseDoc, mode: "read" });
+                    }}
+                  />
+                )}
+              </div>
             </div>
-          </div>
+          )}
+          {tabsState.items.length && (
+            <div className={classes.resizeBtnWrapper}>
+              <Tooltip
+                text={showFullScreen ? "Hide full screen" : "Show full screen"}
+              >
+                <button
+                  className={`${classes.resizeBtn} ${
+                    showFullScreen && classes.showFullScreen
+                  }`}
+                  onClick={() => {
+                    setShowFullScreen((previousState) => !previousState);
+                  }}
+                >
+                  <DownArrow />
+                </button>
+              </Tooltip>
+            </div>
+          )}
           <div
-            className={`govuk-grid-column-three-quarters ${classes.rightColumn}`}
+            className={`${classes.rightColumn} ${
+              showFullScreen
+                ? "govuk-grid-column-full"
+                : "govuk-grid-column-three-quarters"
+            }`}
           >
             {!tabsState.items.length ? (
               <PdfTabsEmpty pipelineState={pipelineState} />
