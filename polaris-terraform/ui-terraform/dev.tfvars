@@ -44,6 +44,8 @@ feature_flag_redaction_log = "true"
 feature_flag_redaction_log_under_over = "true"
 redaction_log_user_group = ""
 
+feature_flag_full_screen = "true"
+
 private_beta = {
   sign_up_url = "https://forms.office.com/e/Af374akw0Q"
   user_group  = ""

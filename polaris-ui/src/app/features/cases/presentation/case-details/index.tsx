@@ -33,6 +33,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   SURVEY_LINK,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
+  FEATURE_FLAG_FULL_SCREEN,
 } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
@@ -330,7 +331,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
               </div>
             </div>
           )}
-          {!!tabsState.items.length && (
+          {!!tabsState.items.length && FEATURE_FLAG_FULL_SCREEN && (
             <div className={classes.resizeBtnWrapper}>
               <Tooltip
                 text={showFullScreen ? "Hide full screen" : "Show full screen"}
