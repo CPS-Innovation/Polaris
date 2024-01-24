@@ -67,4 +67,5 @@ export default defineConfig({
       grepFilterSpecs: true
     },
   },
+  videoCompression: false
 });
