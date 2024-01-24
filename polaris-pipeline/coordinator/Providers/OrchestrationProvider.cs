@@ -17,6 +17,7 @@ using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
+using Common.Clients.Contracts;
 
 namespace coordinator.Providers;
 
@@ -27,6 +28,7 @@ public class OrchestrationProvider : IOrchestrationProvider
     private readonly ITelemetryClient _telemetryClient;
     private readonly IPolarisBlobStorageService _blobStorageService;
     private readonly IQueryConditionFactory _queryConditionFactory;
+    private readonly ITextExtractorClient _textExtractorClient;
 
     private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = {
         OrchestrationRuntimeStatus.Running,
@@ -52,7 +54,8 @@ public class OrchestrationProvider : IOrchestrationProvider
             ISearchIndexService searchIndexService,
             ITelemetryClient telemetryClient,
             IPolarisBlobStorageService blobStorageService,
-            IQueryConditionFactory queryConditionFactory
+            IQueryConditionFactory queryConditionFactory,
+            ITextExtractorClient textExtractorClient
     )
     {
         _configuration = configuration;
@@ -60,6 +63,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         _telemetryClient = telemetryClient;
         _blobStorageService = blobStorageService;
         _queryConditionFactory = queryConditionFactory;
+        _textExtractorClient = textExtractorClient;
     }
 
     public async Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient orchestrationClient, DateTime createdTimeTo, int batchSize)
@@ -107,7 +111,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         try
         {
-            var deleteResult = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId);
+            var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseId, correlationId);
             telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
             telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
             telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
