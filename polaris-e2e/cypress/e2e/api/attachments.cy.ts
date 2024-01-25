@@ -12,7 +12,7 @@ const {
 
 let routes: ApiRoutes
 
-describe("Attachments", () => {
+describe("Attachments", { tags: '@ci' }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)

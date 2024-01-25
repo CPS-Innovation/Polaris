@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 using Common.Domain.SearchIndex;
 using Common.Factories.Contracts;
 using Common.Services.CaseSearchService.Contracts;
@@ -19,6 +20,7 @@ namespace Common.Services.CaseSearchService
     {
         private const int IndexSettleUnitDelayMs = 200;
         private const int IndexSettleRetryAttemptCount = 11;
+        private const long MaximumIndexRetrievalSize = 20000;
         private readonly SearchClient _azureSearchClient;
         private readonly ISearchLineFactory _searchLineFactory;
         private readonly ISearchIndexingBufferedSenderFactory _searchIndexingBufferedSenderFactory;
@@ -116,13 +118,13 @@ namespace Common.Services.CaseSearchService
         public async Task<IndexSettledResult> WaitForStoreResultsAsync(long cmsCaseId, string cmsDocumentId, long versionId, long targetCount)
         {
             var filter = $"caseId eq {cmsCaseId} and documentId eq '{cmsDocumentId}' and versionId eq {versionId}";
-            return await WaitForIndexCountResultsAsync(filter, targetCount);
+            return await WaitForIndexCountResultsAsync(filter, targetCount, cmsCaseId);
         }
 
         public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId)
         {
             var filter = $"caseId eq {cmsCaseId}";
-            return await WaitForIndexCountResultsAsync(filter, 0);
+            return await WaitForIndexCountResultsAsync(filter, 0, cmsCaseId);
         }
 
         public async Task<IList<StreamlinedSearchLine>> QueryAsync(long caseId, List<SearchFilterDocument> documents, string searchTerm)
@@ -130,11 +132,12 @@ namespace Common.Services.CaseSearchService
             var filter = GetCaseDocumentsSearchQuery(caseId, documents);
             var searchOptions = new SearchOptions
             {
-                Filter = filter
+                Filter = filter,
+                SessionId = caseId.ToString()
             };
 
             // => e.g. search=caseId eq 2146928 and ((documentId eq '8660287' and versionId eq 7921776) or (documentId eq '8660286' and versionId eq 7921777) or (documentId eq '8660260' and versionId eq 7921740) or (documentId eq '8660255' and versionId eq 7921733) or (documentId eq '8660254' and versionId eq 7921732) or (documentId eq '8660253' and versionId eq 7921731) or (documentId eq '8660252' and versionId eq 7921730) or (documentId eq 'PCD-131307' and versionId eq 1) or (documentId eq 'DAC' and versionId eq 1))
-            var searchResults = await _azureSearchClient.SearchAsync<SearchLine>(searchTerm, searchOptions);
+            var searchResults = await GetSearchResults<SearchLine>(searchOptions, searchTerm);
             var searchLines = new List<SearchLine>();
             await foreach (var searchResult in searchResults.Value.GetResultsAsync())
             {
@@ -167,10 +170,63 @@ namespace Common.Services.CaseSearchService
                 throw new ArgumentException("Invalid caseId", nameof(caseId));
             }
 
-            var searchOptions = new SearchOptions { Filter = $"caseId eq {caseId}" };
+            var indexCountSearchOptions = new SearchOptions
+            {
+                Filter = $"caseId eq {caseId}",
+                IncludeTotalCount = true,
+                Size = 0,
+                Select = { "id" },
+                SessionId = caseId.ToString()
+            };
 
-            var results = await _azureSearchClient.SearchAsync<SearchLine>("*", searchOptions);
-            var searchLines = new List<SearchLine>();
+            var countResult = await GetSearchResults<SearchLineId>(indexCountSearchOptions);
+            var indexTotal = countResult.Value.TotalCount.Value;
+
+            if (indexTotal == 0)
+            {
+                return IndexDocumentsDeletedResult.Empty();
+            }
+            else
+            {
+                var result = new IndexDocumentsDeletedResult();
+                long indexesToProcess = indexTotal;
+
+                while (indexesToProcess > 0)
+                {
+                    var indexSize = indexesToProcess;
+
+                    if (indexSize > MaximumIndexRetrievalSize) indexSize = MaximumIndexRetrievalSize;
+
+                    var deletionResult = await DeleteDocumentIndexes(caseId, indexSize);
+
+                    result.DocumentCount = indexTotal;
+                    result.SuccessCount += deletionResult.SuccessCount;
+                    result.FailureCount += deletionResult.FailureCount;
+
+                    indexesToProcess -= indexSize;
+                }
+
+                return result;
+            }
+        }
+
+        private async Task<Response<SearchResults<ISearchable>>> GetSearchResults<ISearchable>(SearchOptions searchOptions, string searchTerm = "*")
+        {
+            return await _azureSearchClient.SearchAsync<ISearchable>(searchTerm, searchOptions);
+        }
+
+        private async Task<IndexDocumentsDeletedResult> DeleteDocumentIndexes(long caseId, long indexCount)
+        {
+            var searchOptions = new SearchOptions
+            {
+                Filter = $"caseId eq {caseId}",
+                Size = (int)indexCount,
+                Select = { "id" },
+                SessionId = caseId.ToString()
+            };
+
+            var results = await GetSearchResults<SearchLineId>(searchOptions);
+            var searchLines = new List<SearchLineId>();
             await foreach (var searchResult in results.Value.GetResultsAsync())
             {
                 searchLines.Add(searchResult.Document);
@@ -224,13 +280,15 @@ namespace Common.Services.CaseSearchService
             };
         }
 
-        private async Task<IndexSettledResult> WaitForIndexCountResultsAsync(string filter, long targetCount)
+        private async Task<IndexSettledResult> WaitForIndexCountResultsAsync(string filter, long targetCount, long caseId)
         {
             var options = new SearchOptions
             {
                 Filter = filter,
                 Size = 0,
                 IncludeTotalCount = true,
+                Select = { "id" },
+                SessionId = caseId.ToString()
             };
 
             var baseDelayMs = IndexSettleUnitDelayMs;
@@ -238,7 +296,7 @@ namespace Common.Services.CaseSearchService
 
             foreach (var timeoutBase in Fibonacci(IndexSettleRetryAttemptCount))
             {
-                var searchResults = await _azureSearchClient.SearchAsync<SearchLine>("*", options);
+                var searchResults = await GetSearchResults<SearchLineId>(options);
                 var receivedLinesCount = searchResults.Value.TotalCount;
                 recordCounts.Add(receivedLinesCount ?? -1);
 

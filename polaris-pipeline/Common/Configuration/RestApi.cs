@@ -32,6 +32,7 @@ namespace Common.Configuration
         public const string Extract = "extract";
         public const string ConvertToPdf = "convert-to-pdf";
         public const string RedactPdf = "redact-pdf";
+        public const string RemoveCaseIndexes = "remove-case-indexes";
 
 #if SCALABILITY_TEST
         public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";
@@ -85,7 +86,7 @@ namespace Common.Configuration
             var url = $"runtime/webhooks/durabletask/entities/{durableEntityType}/{instanceId}";
             return url;
         }
-        
+
         public static string GetInstancesPath()
         {
             return "runtime/webhooks/durabletask/instances";

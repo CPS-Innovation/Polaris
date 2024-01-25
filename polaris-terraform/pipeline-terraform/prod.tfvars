@@ -32,10 +32,10 @@ overnight_clear_down = {
 
 sliding_clear_down = {
   disabled       = 0
-  look_back_days = 31
+  look_back_days = 7
   protect_blobs  = true
-  schedule       = "0 */5 * * * *"
-  batch_size     = 5
+  schedule       = "0 */1 3-7 * * *"
+  batch_size     = 3
 }
 
 hte_feature_flag = false
@@ -46,7 +46,7 @@ image_conversion_redaction = {
 }
 
 search_service_config = {
-  replica_count                 = 4
-  partition_count               = 6
+  replica_count                 = 3
+  partition_count               = 3
   is_dynamic_throttling_enabled = false
 }

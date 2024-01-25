@@ -65,16 +65,9 @@ namespace PolarisGateway
             services.AddTransient<ITrackerUrlMapper, TrackerUrlMapper>();
             services.AddTransient<IPipelineClient, PipelineClient>();
 
-            var pipelineCoordinatorBaseUrl = GetValueFromConfig(Configuration, PipelineSettings.PipelineCoordinatorBaseUrl);
-            var pipelineCoordinatorLowlevelBaseUrl = pipelineCoordinatorBaseUrl.Replace("/api", string.Empty);
-            services.AddHttpClient(nameof(PipelineClient), client =>
+            services.AddHttpClient<IPipelineClient, PipelineClient>(client =>
             {
-                client.BaseAddress = new Uri(pipelineCoordinatorBaseUrl);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            });
-            services.AddHttpClient($"Lowlevel{nameof(PipelineClient)}", client =>
-            {
-                client.BaseAddress = new Uri(pipelineCoordinatorLowlevelBaseUrl);
+                client.BaseAddress = new Uri(GetValueFromConfig(Configuration, PipelineSettings.PipelineCoordinatorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
 

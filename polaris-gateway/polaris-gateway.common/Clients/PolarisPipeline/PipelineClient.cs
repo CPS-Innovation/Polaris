@@ -21,7 +21,7 @@ namespace Gateway.Clients.PolarisPipeline
     public class PipelineClient : IPipelineClient
     {
         private readonly IPipelineClientRequestFactory _pipelineClientRequestFactory;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IHttpResponseMessageStreamFactory _httpResponseMessageStreamFactory;
@@ -32,14 +32,14 @@ namespace Gateway.Clients.PolarisPipeline
 
         public PipelineClient(
             IPipelineClientRequestFactory pipelineClientRequestFactory,
-            IHttpClientFactory httpClientFactory,
+            HttpClient httpClient,
             IConfiguration configuration,
             IJsonConvertWrapper jsonConvertWrapper,
             IHttpResponseMessageStreamFactory httpResponseMessageStreamFactory,
             ILogger<PipelineClient> logger)
         {
             _pipelineClientRequestFactory = pipelineClientRequestFactory;
-            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClient;
             _configuration = configuration;
             _jsonConvertWrapper = jsonConvertWrapper;
             _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory;
@@ -249,10 +249,7 @@ namespace Gateway.Clients.PolarisPipeline
             var request = _pipelineClientRequestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues);
             request.Content = content;
 
-            string httpClientName = requestUri.StartsWith("urns") ? nameof(PipelineClient) : $"Lowlevel{nameof(PipelineClient)}";
-            HttpClient httpClient = _httpClientFactory.CreateClient(httpClientName);
-
-            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (expectedResponseCodes?.Contains(response.StatusCode) != true)
                 response.EnsureSuccessStatusCode();

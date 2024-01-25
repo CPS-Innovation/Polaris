@@ -11,6 +11,7 @@ using coordinator.Functions.DurableEntity.Entity;
 using Common.ValueObjects;
 using Common.Domain.Entity;
 using Microsoft.WindowsAzure.Storage;
+using coordinator.Functions.Orchestration.Functions.Case;
 
 namespace coordinator.Functions.DurableEntity.Client
 {
@@ -36,13 +37,10 @@ namespace coordinator.Functions.DurableEntity.Client
         protected async Task<(CaseDurableEntity CaseEntity, string errorMessage)> GetCaseTrackerForEntity
             (
                 IDurableEntityClient client,
-                string caseId,
-                Guid correlationId,
-                string loggingName,
-                ILogger log
+                string caseId
             )
         {
-            var caseEntityKey = CaseDurableEntity.GetOrchestrationKey(caseId);
+            var caseEntityKey = RefreshCaseOrchestrator.GetKey(caseId);
             var caseEntityId = new EntityId(nameof(CaseDurableEntity), caseEntityKey);
 
             EntityStateResponse<CaseDurableEntity> caseEntity = default;
@@ -101,7 +99,7 @@ namespace coordinator.Functions.DurableEntity.Client
                 }
             #endregion
 
-            var entityId = new EntityId(nameof(CaseDurableEntity), CaseDurableEntity.GetOrchestrationKey(caseId));
+            var entityId = new EntityId(nameof(CaseDurableEntity), RefreshCaseOrchestrator.GetKey(caseId));
             var stateResponse = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
             if (!stateResponse.EntityExists)
             {

@@ -32,7 +32,6 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
         private readonly TrackerDto _tracker;
         private readonly Guid _correlationId;
         private readonly Mock<IPipelineClientRequestFactory> _mockRequestFactory;
-        private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
         private readonly HttpClient _httpClient;
         private readonly Mock<IHttpResponseMessageStreamFactory> _mockHttpResponseMessageStreamFactory;
         private readonly IPipelineClient _triggerCoordinatorPipelineClient;
@@ -64,8 +63,7 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
               .ReturnsAsync(response);
 
             _httpClient = new HttpClient(httpMessageHandlerMock.Object) { BaseAddress = new Uri("http://base.url/") };
-            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
+
 
             var mockTrackerHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockTrackerHttpMessageHandler.Protected()
@@ -94,13 +92,13 @@ namespace PolarisGateway.Tests.Clients.PolarisPipeline
             _mockHttpResponseMessageStreamFactory = new Mock<IHttpResponseMessageStreamFactory>();
 
             _triggerCoordinatorPipelineClient = new PipelineClient(_mockRequestFactory.Object,
-                                                                   _mockHttpClientFactory.Object,
+                                                                   _httpClient,
                                                                    mockConfiguration.Object,
                                                                    mockJsonConvertWrapper.Object,
                                                                    _mockHttpResponseMessageStreamFactory.Object,
                                                                    mockPipelineClientLogger.Object);
             _getTrackerPipelineClient = new PipelineClient(_mockRequestFactory.Object,
-                                                           _mockHttpClientFactory.Object,
+                                                           _httpClient,
                                                            mockConfiguration.Object,
                                                            mockJsonConvertWrapper.Object,
                                                            _mockHttpResponseMessageStreamFactory.Object,

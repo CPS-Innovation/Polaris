@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Domain.Extensions;
 using Common.Dto.Tracker;
 using Common.Logging;
 using Common.ValueObjects;
@@ -10,7 +9,6 @@ using coordinator.Functions.DurableEntity.Entity.Contract;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Microsoft.Rest;
 
 namespace coordinator.Functions.Orchestration.Functions.Document
 {

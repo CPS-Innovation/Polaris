@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 using Common.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.SearchIndex;
+using Common.Dto.Request;
+using Common.Dto.Tracker;
 using Common.Factories.Contracts;
+using Common.Services.CaseSearchService;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
@@ -47,14 +50,6 @@ namespace Common.Clients
             Guid correlationId,
             Stream documentStream)
         {
-            // For integration testing allow disabling of text extraction
-            if (_configuration.IsConfigSettingEnabled(FeatureFlags.DisableTextExtractorFeatureFlag))
-            {
-                // Use average time seen in production for text extraction to simulate time typically taken
-                Thread.Sleep(8000);
-                return;
-            }
-
             var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Extract}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
             request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());
@@ -86,6 +81,20 @@ namespace Common.Clients
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
                 return _jsonConvertWrapper.DeserializeObject<IList<StreamlinedSearchLine>>(content);
+            }
+        }
+
+        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(long cmsCaseId, Guid correlationId)
+        {
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.RemoveCaseIndexes}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var content = new RemoveCaseIndexesRequestDto { CaseId = cmsCaseId };
+            request.Content = new StringContent(_jsonConvertWrapper.SerializeObject(content), Encoding.UTF8, "application/json");
+
+            using (var response = await _httpClient.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadAsStringAsync();
+                return _jsonConvertWrapper.DeserializeObject<IndexDocumentsDeletedResult>(result);
             }
         }
     }

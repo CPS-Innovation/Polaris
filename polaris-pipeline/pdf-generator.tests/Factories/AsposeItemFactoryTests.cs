@@ -3,8 +3,6 @@ using System.IO;
 using System.Text;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
 using pdf_generator.Factories;
 using pdf_generator.Factories.Contracts;
 using Xunit;
@@ -20,9 +18,7 @@ namespace pdf_generator.tests.Factories
         {
             var fixture = new Fixture();
             _correlationId = fixture.Create<Guid>();
-
-            var loggerMock = new Mock<ILogger<AsposeItemFactory>>();
-            _asposeItemFactory = new AsposeItemFactory(loggerMock.Object);
+            _asposeItemFactory = new AsposeItemFactory();
         }
 
         [Fact]
