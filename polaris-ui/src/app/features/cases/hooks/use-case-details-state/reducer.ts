@@ -33,134 +33,134 @@ export const reducer = (
   state: CombinedState,
   action:
     | {
-      type: "UPDATE_CASE_DETAILS";
-      payload: ApiResult<CaseDetails>;
-    }
+        type: "UPDATE_CASE_DETAILS";
+        payload: ApiResult<CaseDetails>;
+      }
     | {
-      type: "UPDATE_PIPELINE";
-      payload: AsyncPipelineResult<PipelineResults>;
-    }
+        type: "UPDATE_PIPELINE";
+        payload: AsyncPipelineResult<PipelineResults>;
+      }
     | {
-      type: "UPDATE_REFRESH_PIPELINE";
-      payload: {
-        startRefresh: boolean;
-        savedDocumentDetails?: {
-          documentId: string;
-          polarisDocumentVersionId: number;
+        type: "UPDATE_REFRESH_PIPELINE";
+        payload: {
+          startRefresh: boolean;
+          savedDocumentDetails?: {
+            documentId: string;
+            polarisDocumentVersionId: number;
+          };
         };
-      };
-    }
+      }
     | {
-      type: "OPEN_PDF";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
-        mode: CaseDocumentViewModel["mode"];
-        headers: HeadersInit;
-      };
-    }
+        type: "OPEN_PDF";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          mode: CaseDocumentViewModel["mode"];
+          headers: HeadersInit;
+        };
+      }
     | {
-      type: "CLOSE_PDF";
-      payload: { pdfId: string };
-    }
+        type: "CLOSE_PDF";
+        payload: { pdfId: string };
+      }
     | {
-      type: "SET_ACTIVE_TAB";
-      payload: {
-        pdfId: string;
-      };
-    }
+        type: "SET_ACTIVE_TAB";
+        payload: {
+          pdfId: string;
+        };
+      }
     | {
-      type: "UPDATE_SEARCH_TERM";
-      payload: { searchTerm: string };
-    }
+        type: "UPDATE_SEARCH_TERM";
+        payload: { searchTerm: string };
+      }
     | {
-      type: "LAUNCH_SEARCH_RESULTS";
-    }
+        type: "LAUNCH_SEARCH_RESULTS";
+      }
     | {
-      type: "UPDATE_SEARCH_RESULTS";
-      payload: ApiResult<undefined | ApiTextSearchResult[]>;
-    }
+        type: "UPDATE_SEARCH_RESULTS";
+        payload: ApiResult<undefined | ApiTextSearchResult[]>;
+      }
     | {
-      type: "CLOSE_SEARCH_RESULTS";
-    }
+        type: "CLOSE_SEARCH_RESULTS";
+      }
     | {
-      type: "CHANGE_RESULTS_ORDER";
-      payload: CombinedState["searchState"]["resultsOrder"];
-    }
+        type: "CHANGE_RESULTS_ORDER";
+        payload: CombinedState["searchState"]["resultsOrder"];
+      }
     | {
-      type: "UPDATE_FILTER";
-      payload: {
-        filter: keyof CombinedState["searchState"]["filterOptions"];
-        id: string;
-        isSelected: boolean;
-      };
-    }
+        type: "UPDATE_FILTER";
+        payload: {
+          filter: keyof CombinedState["searchState"]["filterOptions"];
+          id: string;
+          isSelected: boolean;
+        };
+      }
     | {
-      type: "ADD_REDACTION";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
-        redaction: NewPdfHighlight;
-      };
-    }
+        type: "ADD_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          redaction: NewPdfHighlight;
+        };
+      }
     | {
-      type: "SAVING_REDACTION";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
-        saveStatus: SaveStatus;
-      };
-    }
+        type: "SAVING_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          saveStatus: SaveStatus;
+        };
+      }
     | {
-      type: "REMOVE_REDACTION";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
-        redactionId: string;
-      };
-    }
+        type: "REMOVE_REDACTION";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          redactionId: string;
+        };
+      }
     | {
-      type: "REMOVE_ALL_REDACTIONS";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
-      };
-    }
+        type: "REMOVE_ALL_REDACTIONS";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+        };
+      }
     | {
-      type: "UPDATE_DOCUMENT_LOCK_STATE";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
-        lockedState: CaseDocumentViewModel["clientLockedState"];
-      };
-    }
+        type: "UPDATE_DOCUMENT_LOCK_STATE";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          lockedState: CaseDocumentViewModel["clientLockedState"];
+        };
+      }
     | {
-      type: "SHOW_ERROR_MODAL";
-      payload: {
-        message: string;
-        title: string;
-      };
-    }
+        type: "SHOW_ERROR_MODAL";
+        payload: {
+          message: string;
+          title: string;
+        };
+      }
     | {
-      type: "HIDE_ERROR_MODAL";
-    }
+        type: "HIDE_ERROR_MODAL";
+      }
     | {
-      type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
-      payload: boolean;
-    }
+        type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
+        payload: boolean;
+      }
     | {
-      type: "SHOW_HIDE_REDACTION_LOG_MODAL";
-      payload: {
-        show: boolean;
-        savedRedactionTypes: RedactionTypeData[];
-      };
-    }
+        type: "SHOW_HIDE_REDACTION_LOG_MODAL";
+        payload: {
+          show: boolean;
+          savedRedactionTypes: RedactionTypeData[];
+        };
+      }
     | {
-      type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
-      payload: ApiResult<RedactionLogLookUpsData>;
-    }
+        type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
+        payload: ApiResult<RedactionLogLookUpsData>;
+      }
     | {
-      type: "UPDATE_REDACTION_LOG_MAPPING_DATA";
-      payload: ApiResult<RedactionLogMappingData>;
-    }
+        type: "UPDATE_REDACTION_LOG_MAPPING_DATA";
+        payload: ApiResult<RedactionLogMappingData>;
+      }
     | {
-      type: "UPDATE_FEATURE_FLAGS_DATA";
-      payload: AsyncResult<FeatureFlagData>;
-    }
+        type: "UPDATE_FEATURE_FLAGS_DATA";
+        payload: AsyncResult<FeatureFlagData>;
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -406,8 +406,8 @@ export const reducer = (
 
       const pipelineDocument = state.pipelineState.haveData
         ? state.pipelineState.data.documents.find(
-          (item) => item.documentId === documentId
-        )
+            (item) => item.documentId === documentId
+          )
         : undefined;
 
       const blobName = pipelineDocument?.pdfBlobName;
@@ -448,39 +448,39 @@ export const reducer = (
 
         const pageOccurrences = foundDocumentSearchResult
           ? foundDocumentSearchResult.occurrences.reduce(
-            (
-              acc,
-              { pageIndex, pageHeight, pageWidth, occurrencesInLine }
-            ) => {
-              let foundPage = acc.find(
-                (item) => item.pageIndex === pageIndex
-              );
+              (
+                acc,
+                { pageIndex, pageHeight, pageWidth, occurrencesInLine }
+              ) => {
+                let foundPage = acc.find(
+                  (item) => item.pageIndex === pageIndex
+                );
 
-              if (!foundPage) {
-                foundPage = {
-                  pageIndex,
-                  pageHeight,
-                  pageWidth,
-                  boundingBoxes: [],
-                };
-                acc.push(foundPage);
-              }
+                if (!foundPage) {
+                  foundPage = {
+                    pageIndex,
+                    pageHeight,
+                    pageWidth,
+                    boundingBoxes: [],
+                  };
+                  acc.push(foundPage);
+                }
 
-              foundPage.boundingBoxes = [
-                ...foundPage.boundingBoxes,
-                ...occurrencesInLine,
-              ];
+                foundPage.boundingBoxes = [
+                  ...foundPage.boundingBoxes,
+                  ...occurrencesInLine,
+                ];
 
-              return acc;
-            },
-            [] as {
-              pageIndex: number;
-              pageHeight: number;
-              pageWidth: number;
-              boundingBoxes: number[][];
-            }[]
-          )
-          : /* istanbul ignore next */[];
+                return acc;
+              },
+              [] as {
+                pageIndex: number;
+                pageHeight: number;
+                pageWidth: number;
+                boundingBoxes: number[][];
+              }[]
+            )
+          : /* istanbul ignore next */ [];
 
         const unsortedSearchHighlights = mapSearchHighlights(pageOccurrences);
 
@@ -501,14 +501,14 @@ export const reducer = (
       const nextItemsArray =
         alreadyOpenedTabIndex === -1
           ? // this is the first time we are opening this tab
-          [...state.tabsState.items, item]
+            [...state.tabsState.items, item]
           : // this is a subsequent time, and the tab is now different (maybe going from
-          //  read to search mode or maybe a different search term)
-          state.tabsState.items.map((existingItem, index) =>
-            index === alreadyOpenedTabIndex
-              ? { ...existingItem, ...item }
-              : existingItem
-          );
+            //  read to search mode or maybe a different search term)
+            state.tabsState.items.map((existingItem, index) =>
+              index === alreadyOpenedTabIndex
+                ? { ...existingItem, ...item }
+                : existingItem
+            );
 
       return {
         ...coreNewState,
@@ -642,15 +642,15 @@ export const reducer = (
           results:
             state.searchState.results.status === "loading"
               ? // if loading, then there are no stable results to search,
-              //  also required for type checking :)
-              state.searchState.results
+                //  also required for type checking :)
+                state.searchState.results
               : {
-                ...state.searchState.results,
-                data: sortMappedTextSearchResult(
-                  state.searchState.results.data,
-                  action.payload
-                ),
-              },
+                  ...state.searchState.results,
+                  data: sortMappedTextSearchResult(
+                    state.searchState.results.data,
+                    action.payload
+                  ),
+                },
         },
       };
 
@@ -729,16 +729,16 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                ...item,
-                redactionHighlights: [
-                  ...item.redactionHighlights,
-                  {
-                    ...redaction,
-                    id: String(+new Date()),
-                    redactionAddedOrder: item.redactionHighlights.length,
-                  },
-                ],
-              }
+                  ...item,
+                  redactionHighlights: [
+                    ...item.redactionHighlights,
+                    {
+                      ...redaction,
+                      id: String(+new Date()),
+                      redactionAddedOrder: item.redactionHighlights.length,
+                    },
+                  ],
+                }
               : item
           ),
         },
@@ -753,9 +753,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                ...item,
-                saveStatus: saveStatus,
-              }
+                  ...item,
+                  saveStatus: saveStatus,
+                }
               : item
           ),
         },
@@ -771,11 +771,11 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                ...item,
-                redactionHighlights: item.redactionHighlights.filter(
-                  (redaction) => redaction.id !== redactionId
-                ),
-              }
+                  ...item,
+                  redactionHighlights: item.redactionHighlights.filter(
+                    (redaction) => redaction.id !== redactionId
+                  ),
+                }
               : item
           ),
         },
@@ -792,9 +792,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                ...item,
-                redactionHighlights: [],
-              }
+                  ...item,
+                  redactionHighlights: [],
+                }
               : item
           ),
         },
@@ -810,9 +810,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                ...item,
-                clientLockedState: lockedState,
-              }
+                  ...item,
+                  clientLockedState: lockedState,
+                }
               : item
           ),
         },
