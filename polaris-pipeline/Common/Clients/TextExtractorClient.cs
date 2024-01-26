@@ -9,7 +9,6 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request;
-using Common.Dto.Tracker;
 using Common.Factories.Contracts;
 using Common.Services.CaseSearchService;
 using Common.ValueObjects;
@@ -95,6 +94,20 @@ namespace Common.Clients
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync();
                 return _jsonConvertWrapper.DeserializeObject<IndexDocumentsDeletedResult>(result);
+            }
+        }
+
+        public async Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId)
+        {
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.WaitForCaseEmptyResults}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var content = new WaitForCaseEmptyResultsRequestDto { CaseId = cmsCaseId };
+            request.Content = new StringContent(_jsonConvertWrapper.SerializeObject(content), Encoding.UTF8, "application/json");
+
+            using (var response = await _httpClient.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadAsStringAsync();
+                return _jsonConvertWrapper.DeserializeObject<IndexSettledResult>(result);
             }
         }
     }

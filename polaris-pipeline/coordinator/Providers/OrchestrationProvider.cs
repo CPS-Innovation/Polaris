@@ -1,5 +1,4 @@
-﻿using Common.Services.CaseSearchService.Contracts;
-using Common.Telemetry.Contracts;
+﻿using Common.Telemetry.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.DurableEntity.Entity;
 using coordinator.Functions.Orchestration.Functions.Case;
@@ -24,7 +23,6 @@ namespace coordinator.Providers;
 public class OrchestrationProvider : IOrchestrationProvider
 {
     private readonly IConfiguration _configuration;
-    private readonly ISearchIndexService _searchIndexService;
     private readonly ITelemetryClient _telemetryClient;
     private readonly IPolarisBlobStorageService _blobStorageService;
     private readonly IQueryConditionFactory _queryConditionFactory;
@@ -51,7 +49,6 @@ public class OrchestrationProvider : IOrchestrationProvider
 
     public OrchestrationProvider(
             IConfiguration configuration,
-            ISearchIndexService searchIndexService,
             ITelemetryClient telemetryClient,
             IPolarisBlobStorageService blobStorageService,
             IQueryConditionFactory queryConditionFactory,
@@ -59,7 +56,6 @@ public class OrchestrationProvider : IOrchestrationProvider
     )
     {
         _configuration = configuration;
-        _searchIndexService = searchIndexService;
         _telemetryClient = telemetryClient;
         _blobStorageService = blobStorageService;
         _queryConditionFactory = queryConditionFactory;
@@ -120,7 +116,7 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             if (waitForIndexToSettle)
             {
-                var waitResult = await _searchIndexService.WaitForCaseEmptyResultsAsync(caseId);
+                var waitResult = await _textExtractorClient.WaitForCaseEmptyResultsAsync(caseId, correlationId);
                 telemetryEvent.DidIndexSettle = waitResult.IsSuccess;
                 telemetryEvent.WaitRecordCounts = waitResult.RecordCounts;
                 telemetryEvent.IndexSettledTime = DateTime.UtcNow;
