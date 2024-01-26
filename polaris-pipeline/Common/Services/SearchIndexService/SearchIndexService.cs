@@ -8,6 +8,7 @@ using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Common.Domain.SearchIndex;
+using Common.Extensions;
 using Common.Factories.Contracts;
 using Common.Services.CaseSearchService.Contracts;
 using Common.ValueObjects;
@@ -300,7 +301,7 @@ namespace Common.Services.CaseSearchService
                 var receivedLinesCount = searchResults.Value.TotalCount;
                 recordCounts.Add(receivedLinesCount ?? -1);
 
-                if (receivedLinesCount == targetCount)
+                if (receivedLinesCount == targetCount || receivedLinesCount > targetCount && recordCounts.ValuesAreEqual(maxCount: 5))
                 {
                     break;
                 }
