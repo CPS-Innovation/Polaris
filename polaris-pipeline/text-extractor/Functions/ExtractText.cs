@@ -11,7 +11,6 @@ using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Mappers.Contracts;
 using Common.Services.CaseSearchService.Contracts;
-using Common.Services.OcrService;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
@@ -19,6 +18,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using text_extractor.TelemetryEvents;
+using text_extractor.Services.OcrService;
+
 namespace text_extractor.Functions
 {
     public class ExtractText

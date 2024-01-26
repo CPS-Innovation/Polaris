@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace Common.Services.OcrService
+namespace text_extractor.Services.OcrService
 {
     public interface IOcrService
     {
