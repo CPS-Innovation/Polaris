@@ -5,7 +5,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Common.Domain.Exceptions;
-using Common.Factories.Contracts;
+using text_extractor.Factories.Contracts;
 using System.IO;
 
 namespace text_extractor.Services.OcrService

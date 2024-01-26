@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Common.Factories.Contracts;
+using text_extractor.Factories.Contracts;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 
-namespace Common.Health
+namespace text_extractor.Health
 {
     public class AzureComputerVisionClientHealthCheck : IHealthCheck
     {
