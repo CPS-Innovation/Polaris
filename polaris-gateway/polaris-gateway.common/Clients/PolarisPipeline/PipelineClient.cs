@@ -121,31 +121,6 @@ namespace Gateway.Clients.PolarisPipeline
             }
         }
 
-        public async Task<string> GenerateDocumentSasUrlAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, Guid correlationId)
-        {
-            _logger.LogMethodEntry(correlationId, nameof(GetTrackerAsync), $"Generating PDF SAS Url for Polaris Document Id {polarisDocumentId}, urn {caseUrn} and caseId {caseId}");
-
-            HttpResponseMessage response;
-            try
-            {
-                var url = $"{RestApi.GetDocumentSasPath(caseUrn, caseId, polarisDocumentId)}?code={_configuration[PipelineSettings.PipelineCoordinatorFunctionAppKey]}";
-                response = await SendRequestAsync(HttpMethod.Get, url, null, correlationId);
-            }
-            catch (HttpRequestException exception)
-            {
-                if (exception.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-
-                throw;
-            }
-
-            var sasUrl = await response.Content.ReadAsStringAsync();
-
-            return sasUrl;
-        }
-
         public async Task<IActionResult> CheckoutDocumentAsync(string caseUrn, int caseId, PolarisDocumentId polarisDocumentId, string cmsAuthValues, Guid correlationId)
         {
             _logger.LogMethodEntry(correlationId, nameof(CheckoutDocumentAsync), $"Checking out the Polaris Document, with Id {polarisDocumentId} for urn {caseUrn} and caseId {caseId}");

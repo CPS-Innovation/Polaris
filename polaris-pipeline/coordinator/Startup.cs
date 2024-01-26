@@ -76,7 +76,6 @@ namespace coordinator
             builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
-            services.AddBlobSasGenerator();
             services.AddSearchClient(Configuration);
             services.AddDdeiClient(Configuration);
 
