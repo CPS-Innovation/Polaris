@@ -118,7 +118,7 @@
     "outputDirectory": "report"
   },
   "devDependencies": {
-    "@types/react-helmet": "^6.1.8",
+    "@types/react-helmet": "^6.1.11",
     "@types/sinon": "^10.0.13",
     "cypress-axe": "^1.5.0",
     "jest-fetch-mock": "^3.0.3",
