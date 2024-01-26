@@ -129,7 +129,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     if (errorSummaryRef.current) {
       (errorSummaryRef?.current as HTMLButtonElement).focus();
     }
-  });
+  }, [isSubmitted]);
 
   const [cpsArea] = watch(["cpsArea"]);
 
@@ -542,6 +542,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               );
             },
             (errors) => {
+              if (errorSummaryRef.current) {
+                (errorSummaryRef?.current as HTMLButtonElement).focus();
+              }
               console.log("error", errors);
             }
           )(event);
