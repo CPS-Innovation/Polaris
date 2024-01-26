@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Select,
   TextArea,
@@ -73,6 +73,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   redactionLogMappingsData,
   handleCloseRedactionLog,
 }) => {
+  const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
   const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
@@ -118,11 +119,17 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     reset,
     getValues,
     trigger,
-  } = useForm({ defaultValues });
+  } = useForm({ defaultValues, shouldFocusError: false });
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (errorSummaryRef.current) {
+      (errorSummaryRef?.current as HTMLButtonElement).focus();
+    }
+  });
 
   const [cpsArea] = watch(["cpsArea"]);
 
@@ -353,14 +360,14 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     if (name.includes("underRedaction-type-")) {
       return {
         children: "Select an under-redaction type",
-        href: "#checkbox-underRedaction-type-1",
+        href: "#checkboxes-under-redaction-types",
         "data-testid": "checkbox-cps-urt-link",
       };
     }
     if (name.includes("overRedaction-type-")) {
       return {
         children: "Select an over-redaction type",
-        href: "#checkbox-overRedaction-type-1",
+        href: "#checkboxes-over-redaction-types",
         "data-testid": "checkbox-cps-ort-link",
       };
     }
@@ -403,7 +410,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       case "underRedaction":
         return {
           children: "Select a type of redaction",
-          href: "#checkbox-under-redaction",
+          href: "#checkboxes-under-over",
           "data-testid": "checkbox-cps-rt-link",
         };
 
@@ -714,11 +721,17 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
         <div className={classes.modalBodyWrapper}>
           {!!Object.keys(errors).length && (
-            <ErrorSummary
-              data-testid={"redaction-log-error-summary"}
-              className={classes.errorSummary}
-              errorList={getErrorSummaryList(errors)}
-            />
+            <div
+              ref={errorSummaryRef}
+              tabIndex={-1}
+              className={classes.errorSummaryWrapper}
+            >
+              <ErrorSummary
+                data-testid={"redaction-log-error-summary"}
+                className={classes.errorSummary}
+                errorList={getErrorSummaryList(errors)}
+              />
+            </div>
           )}
 
           <section>

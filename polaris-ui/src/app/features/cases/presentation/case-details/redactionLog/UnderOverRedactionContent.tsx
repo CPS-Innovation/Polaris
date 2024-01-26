@@ -84,6 +84,7 @@ export const UnderOverRedactionContent: React.FC<
                 children: "Types of redactions",
               },
             }}
+            id="checkboxes-under-redaction-types"
             data-testid="checkboxes-under-redaction-types"
             name="under-redaction-types"
             items={redactionTypeCheckboxItems("underRedaction")}
@@ -132,6 +133,7 @@ export const UnderOverRedactionContent: React.FC<
                 children: "Types of redactions",
               },
             }}
+            id="checkboxes-over-redaction-types"
             data-testid="checkboxes-over-redaction-types"
             name="over-redaction-types"
             items={redactionTypeCheckboxItems("overRedaction")}
@@ -180,6 +182,7 @@ export const UnderOverRedactionContent: React.FC<
               children: "Confirm the redaction type",
             },
           }}
+          id="checkboxes-under-over"
           data-testid="checkboxes-under-over"
           name="redaction-category"
           items={redactionCategoryCheckboxItem}
