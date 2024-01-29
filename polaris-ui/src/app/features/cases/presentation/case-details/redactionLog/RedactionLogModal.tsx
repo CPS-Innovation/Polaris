@@ -64,7 +64,11 @@ export const RedactionLogModal: React.FC<Props> = ({
       }
       type="data"
       ariaLabel="Under redaction modal"
-      ariaDescription="Contains form to be filled out and submitted for redaction log "
+      ariaDescription={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? `Fill and submit under/over redaction log form for the document ${documentName}`
+          : `Fill and submit under redaction log form for the document ${documentName}`
+      }
     >
       <RedactionLogContent
         redactionLogType={redactionLogType}

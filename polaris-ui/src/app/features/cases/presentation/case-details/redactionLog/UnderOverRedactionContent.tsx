@@ -57,7 +57,7 @@ export const UnderOverRedactionContent: React.FC<
             errorMessage={
               errorState.underRedaction
                 ? {
-                    children: "Select an under-redaction type",
+                    children: "Select an under redaction type",
                   }
                 : undefined
             }
@@ -107,7 +107,7 @@ export const UnderOverRedactionContent: React.FC<
             errorMessage={
               errorState.overRedaction
                 ? {
-                    children: "Select an over-redaction type",
+                    children: "Select an over redaction type",
                   }
                 : undefined
             }

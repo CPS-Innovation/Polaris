@@ -429,7 +429,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       case "overRedaction":
       case "underRedaction":
         return {
-          children: "Select a type of redaction",
+          children: "Select a redaction type",
           href: "#checkboxes-under-over",
           "data-testid": "checkbox-cps-rt-link",
         };
