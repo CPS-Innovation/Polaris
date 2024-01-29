@@ -238,7 +238,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTE, _documentId, _correlationId);
 
             // Assert
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
