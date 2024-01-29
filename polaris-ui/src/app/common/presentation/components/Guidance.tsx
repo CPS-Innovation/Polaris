@@ -18,7 +18,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
   children,
   dataTestId = "guidance-btn",
   ariaLabel = "redaction log guidance",
-  ariaDescription = "guidance about redaction log popup",
+  ariaDescription = "guidance about redaction log modal form",
 }) => {
   const guidanceBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -33,46 +33,27 @@ export const Guidance: React.FC<GuidanceProps> = ({
   const handleOutsideClick = useCallback((event: MouseEvent) => {
     if (panelRef.current && event.target && buttonOpenRef.current) {
       if (!panelRef.current?.contains(event.target as Node)) {
-        setButtonOpen(false);
         event.stopPropagation();
+        setButtonOpen(false);
         guidanceBtnRef.current?.focus();
       }
     }
   }, []);
 
-  const keyDownHandler = useCallback((event: KeyboardEvent) => {
-    if (event.code === "Escape" && buttonOpenRef.current) {
-      setButtonOpen(false);
-      guidanceBtnRef.current?.focus();
-    }
-  }, []);
 
   useEffect(() => {
-    window.addEventListener("keydown", keyDownHandler);
     document.addEventListener("click", handleOutsideClick);
     return () => {
-      window.removeEventListener("keydown", keyDownHandler);
       document.removeEventListener("click", handleOutsideClick);
     };
   }, []);
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-label"
-      aria-describedby="modal-description"
+    
       className={`${classes.guidanceButtonWrapper} ${className}`}
     >
-      <span id="guidance-modal-label" className={classes.modalLabel}>
-        {ariaLabel}
-      </span>
-      <span
-        id="guidance-modal-description"
-        className={classes.modalDescription}
-      >
-        {ariaDescription}
-      </span>
+ 
       <div className={classes.helpButtonWrapper}>
         <LinkButton
           type="button"
@@ -95,15 +76,29 @@ export const Guidance: React.FC<GuidanceProps> = ({
           className={classes.panel}
           ref={panelRef}
           id="guidance-panel"
+
           data-testid={`${dataTestId}-panel`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="guidance-modal-label"
+          aria-describedby="guidance-modal-description"
         >
+               <span id="guidance-modal-label" className={classes.modalLabel}>
+        {ariaLabel}
+      </span>
+      <span
+        id="guidance-modal-description"
+        className={classes.modalDescription}
+      >
+        {ariaDescription}
+      </span>
           <button
             data-testid="btn-modal-close"
             type="button"
             className={classes.guidancePanelCloseBtn}
-            aria-label="close modal"
+            aria-label="close guidance"
             onClick={() => {
-              setButtonOpen((buttonOpen) => !buttonOpen);
+              setButtonOpen(false);
               guidanceBtnRef.current?.focus();
             }}
           >
