@@ -204,7 +204,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTML, _documentId, _correlationId);
 
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTM, _documentId, _correlationId);
 
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -232,10 +232,30 @@ namespace pdf_generator.tests.Services.PdfService
         }
 
         [Fact]
-        public void ReadToPdfStream_CallsPdfRendererServiceWhenFileTypeIsHte()
+        public void ReadToPdfStream_CallsWordsServiceWhenFileTypeIsHte()
         {
             // Act
             _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.HTE, _documentId, _correlationId);
+
+            // Assert
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);
+        }
+        
+        [Fact]
+        public void ReadToPdfStream_CallsWordsServiceWhenFileTypeIsMht()
+        {
+            // Act
+            _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.MHT, _documentId, _correlationId);
+
+            // Assert
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);
+        }
+        
+        [Fact]
+        public void ReadToPdfStream_CallsWordsServiceWhenFileTypeIsMhtml()
+        {
+            // Act
+            _pdfOrchestratorService.ReadToPdfStream(_inputStream, FileType.MHTML, _documentId, _correlationId);
 
             // Assert
             _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<MemoryStream>(), It.IsAny<Guid>()), Times.Once);

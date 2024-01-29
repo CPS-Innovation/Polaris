@@ -102,7 +102,9 @@ namespace pdf_generator.Services.PdfService
 
                     case FileType.HTML:
                     case FileType.HTM:
-                        _htmlPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
+                    case FileType.MHT:
+                    case FileType.MHTML:
+                        _wordsPdfService.ReadToPdfStream(serviceInputStream, pdfStream, correlationId);
                         break;
 
                     // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)

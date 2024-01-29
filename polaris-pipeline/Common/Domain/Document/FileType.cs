@@ -32,6 +32,8 @@
         DOTX,
         EMZ,
         EML,
-        XLT
+        XLT,
+        MHT,
+        MHTML
     }
 }
