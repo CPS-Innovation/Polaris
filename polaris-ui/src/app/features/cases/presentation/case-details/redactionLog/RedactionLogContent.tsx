@@ -541,6 +541,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             name="Redaction log Guidance"
             className={classes.redactionLogGuidance}
             dataTestId="guidance-redaction-log"
+            ariaLabel="Redaction log guidance"
+            ariaDescription="Guidance about redaction log modal form"
           >
             {redactionLogGuidanceContent()}
           </Guidance>
@@ -797,6 +799,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             <Guidance
               name="Guidance on supporting notes"
               className={classes.supportingNotesGuidance}
+              ariaLabel="Guidance on supporting notes"
+              ariaDescription="Guidance on adding optional supporting notes for redaction log"
               dataTestId="guidance-supporting-notes"
             >
               {supportingNotesGuidanceContent()}

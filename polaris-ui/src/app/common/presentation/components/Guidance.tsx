@@ -7,9 +7,9 @@ import classes from "./Guidance.module.scss";
 export type GuidanceProps = {
   name: string;
   className?: string;
-  ariaLabel?: string;
   dataTestId?: string;
-  ariaDescription?: string;
+  ariaLabel: string;
+  ariaDescription: string;
 };
 
 export const Guidance: React.FC<GuidanceProps> = ({
@@ -17,8 +17,8 @@ export const Guidance: React.FC<GuidanceProps> = ({
   className,
   children,
   dataTestId = "guidance-btn",
-  ariaLabel = "redaction log guidance",
-  ariaDescription = "guidance about redaction log modal form",
+  ariaLabel,
+  ariaDescription,
 }) => {
   const guidanceBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -40,7 +40,6 @@ export const Guidance: React.FC<GuidanceProps> = ({
     }
   }, []);
 
-
   useEffect(() => {
     document.addEventListener("click", handleOutsideClick);
     return () => {
@@ -49,11 +48,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
   }, []);
 
   return (
-    <div
-    
-      className={`${classes.guidanceButtonWrapper} ${className}`}
-    >
- 
+    <div className={`${classes.guidanceButtonWrapper} ${className}`}>
       <div className={classes.helpButtonWrapper}>
         <LinkButton
           type="button"
@@ -76,22 +71,21 @@ export const Guidance: React.FC<GuidanceProps> = ({
           className={classes.panel}
           ref={panelRef}
           id="guidance-panel"
-
           data-testid={`${dataTestId}-panel`}
           role="dialog"
           aria-modal="true"
           aria-labelledby="guidance-modal-label"
           aria-describedby="guidance-modal-description"
         >
-               <span id="guidance-modal-label" className={classes.modalLabel}>
-        {ariaLabel}
-      </span>
-      <span
-        id="guidance-modal-description"
-        className={classes.modalDescription}
-      >
-        {ariaDescription}
-      </span>
+          <span id="guidance-modal-label" className={classes.modalLabel}>
+            {ariaLabel}
+          </span>
+          <span
+            id="guidance-modal-description"
+            className={classes.modalDescription}
+          >
+            {ariaDescription}
+          </span>
           <button
             data-testid="btn-modal-close"
             type="button"
