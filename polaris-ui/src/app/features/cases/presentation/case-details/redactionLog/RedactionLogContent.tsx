@@ -380,14 +380,14 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     if (name.includes("underRedaction-type-")) {
       return {
         children: "Select an under-redaction type",
-        href: "#checkboxes-under-redaction-types",
+        href: "#checkbox-underRedaction-type-1",
         "data-testid": "checkbox-cps-urt-link",
       };
     }
     if (name.includes("overRedaction-type-")) {
       return {
         children: "Select an over-redaction type",
-        href: "#checkboxes-over-redaction-types",
+        href: "#checkbox-overRedaction-type-1",
         "data-testid": "checkbox-cps-ort-link",
       };
     }
@@ -430,7 +430,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       case "underRedaction":
         return {
           children: "Select a redaction type",
-          href: "#checkboxes-under-over",
+          href: "#checkbox-under-redaction",
           "data-testid": "checkbox-cps-rt-link",
         };
 

@@ -66,7 +66,6 @@ export const UnderOverRedactionContent: React.FC<
                 children: "Types of redactions",
               },
             }}
-            tabIndex={-1}
             id="checkboxes-under-redaction-types"
             data-testid="checkboxes-under-redaction-types"
             name="under-redaction-types"
@@ -116,7 +115,6 @@ export const UnderOverRedactionContent: React.FC<
                 children: "Types of redactions",
               },
             }}
-            tabIndex={-1}
             id="checkboxes-over-redaction-types"
             data-testid="checkboxes-over-redaction-types"
             name="over-redaction-types"
@@ -154,7 +152,6 @@ export const UnderOverRedactionContent: React.FC<
               children: "Confirm the redaction type",
             },
           }}
-          tabIndex={-1}
           id="checkboxes-under-over"
           data-testid="checkboxes-under-over"
           name="redaction-category"
