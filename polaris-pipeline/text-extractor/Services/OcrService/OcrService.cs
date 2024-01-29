@@ -5,11 +5,10 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Common.Domain.Exceptions;
-using Common.Factories.Contracts;
-using Common.Services.SasGeneratorService;
+using text_extractor.Factories.Contracts;
 using System.IO;
 
-namespace Common.Services.OcrService
+namespace text_extractor.Services.OcrService
 {
     public class OcrService : IOcrService
     {
@@ -18,7 +17,7 @@ namespace Common.Services.OcrService
         private readonly ILogger<OcrService> _log;
 
         public OcrService(IComputerVisionClientFactory computerVisionClientFactory,
-            ISasGeneratorService sasGeneratorService, ILogger<OcrService> log)
+            ILogger<OcrService> log)
         {
             _computerVisionClient = computerVisionClientFactory.Create();
             _log = log;

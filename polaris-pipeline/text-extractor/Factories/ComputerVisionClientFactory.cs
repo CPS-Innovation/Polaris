@@ -1,9 +1,9 @@
 ﻿using Common.Constants;
-using Common.Factories.Contracts;
+using text_extractor.Factories.Contracts;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Extensions.Configuration;
 
-namespace Common.Factories
+namespace text_extractor.Factories
 {
     public class ComputerVisionClientFactory : IComputerVisionClientFactory
 	{

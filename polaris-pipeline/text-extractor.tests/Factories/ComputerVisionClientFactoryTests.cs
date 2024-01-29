@@ -1,14 +1,14 @@
 ﻿using AutoFixture;
 using Common.Constants;
-using Common.Factories;
-using Common.Factories.Contracts;
+using text_extractor.Factories;
+using text_extractor.Factories.Contracts;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
-namespace Common.Tests.Factories;
+namespace text_extractor.tests.Factories;
 
 public class ComputerVisionClientFactoryTests
 {

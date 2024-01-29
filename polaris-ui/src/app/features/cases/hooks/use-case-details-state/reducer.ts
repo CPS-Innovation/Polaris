@@ -51,13 +51,6 @@ export const reducer = (
         };
       }
     | {
-        type: "OPEN_PDF_IN_NEW_TAB";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          sasUrl: string;
-        };
-      }
-    | {
         type: "OPEN_PDF";
         payload: {
           documentId: CaseDocumentViewModel["documentId"];
@@ -355,20 +348,6 @@ export const reducer = (
           ...state.pipelineRefreshData,
           startRefresh: action.payload.startRefresh,
           savedDocumentDetails: newSavedDocumentDetails,
-        },
-      };
-    }
-    case "OPEN_PDF_IN_NEW_TAB": {
-      const { documentId, sasUrl } = action.payload;
-      return {
-        ...state,
-        tabsState: {
-          ...state.tabsState,
-          items: [
-            ...state.tabsState.items.map((item) =>
-              item.documentId === documentId ? { ...item, sasUrl } : item
-            ),
-          ],
         },
       };
     }

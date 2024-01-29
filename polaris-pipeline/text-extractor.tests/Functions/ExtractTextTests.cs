@@ -14,7 +14,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Functions;
-using Common.Services.OcrService;
+using text_extractor.Services.OcrService;
 using Xunit;
 using Common.Wrappers.Contracts;
 using Common.Dto.Request;

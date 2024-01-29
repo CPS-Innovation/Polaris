@@ -626,31 +626,6 @@ describe("useCaseDetailsState reducer", () => {
     });
   });
 
-  describe("OPEN_PDF_IN_NEW_TAB", () => {
-    it("can set the sasUrl of the expected document", () => {
-      const nextState = reducer(
-        {
-          tabsState: {
-            items: [{ documentId: "1" }, { documentId: "bar" }],
-          },
-        } as CombinedState,
-        {
-          type: "OPEN_PDF_IN_NEW_TAB",
-          payload: {
-            documentId: "1",
-            sasUrl: "baz",
-          },
-        }
-      );
-
-      expect(nextState).toEqual({
-        tabsState: {
-          items: [{ documentId: "1", sasUrl: "baz" }, { documentId: "bar" }],
-        },
-      });
-    });
-  });
-
   describe("OPEN_PDF", () => {
     it("can try to open a tab when the documents are unknown", () => {
       const nextState = reducer(

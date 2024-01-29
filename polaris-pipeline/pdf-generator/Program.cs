@@ -4,8 +4,6 @@ using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Handlers;
 using Common.Handlers.Contracts;
-using Common.Services.DocumentEvaluation;
-using Common.Services.DocumentEvaluation.Contracts;
 using Common.Services.Extensions;
 using Common.Telemetry;
 using Common.Telemetry.Contracts;
@@ -42,19 +40,18 @@ var host = new HostBuilder()
         {
             o.EnableUserCodeException = true;
         });
-        
+
         // bugfix: override .net core limitation of disallowing Synchronous IO for this function only
-        services.Configure<KestrelServerOptions>(options =>  
-        {  
-            options.AllowSynchronousIO = true;  
-        }); 
+        services.Configure<KestrelServerOptions>(options =>
+        {
+            options.AllowSynchronousIO = true;
+        });
 
         services.AddSingleton(context.Configuration);
         services.AddPdfGenerator(context.Configuration);
         services.AddRedactionServices(context.Configuration);
 
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
-        services.AddTransient<IDocumentEvaluationService, DocumentEvaluationService>();
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();

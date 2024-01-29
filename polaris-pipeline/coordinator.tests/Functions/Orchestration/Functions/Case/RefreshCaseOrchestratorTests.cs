@@ -94,7 +94,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 UpdatedDefendantsAndCharges = fixture.Create<DefendantsAndChargesEntity>(),
                 IsDeletedDefendantsAndCharges = false
             };
-            var evaluateDocumentsResponse = fixture.CreateMany<EvaluateDocumentResponse>().ToList();
+            var redactPdfResponse = fixture.CreateMany<RedactPdfResponse>().ToList();
 
             var mockConfiguration = new Mock<IConfiguration>();
             var mockLogger = new Mock<ILogger<RefreshCaseOrchestrator>>();
@@ -132,7 +132,7 @@ namespace coordinator.tests.Functions.Orchestration.Functions.Case
                 .ReturnsAsync(_caseDocuments);
 
 
-            var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: evaluateDocumentsResponse.ToJson());
+            var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: redactPdfResponse.ToJson());
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
 
             _mockCmsDocumentsResponseValidator.Setup(validator => validator.Validate(It.IsAny<CmsDocumentDto[]>())).Returns(true);

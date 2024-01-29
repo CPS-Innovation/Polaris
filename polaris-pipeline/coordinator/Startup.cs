@@ -75,7 +75,6 @@ namespace coordinator
             builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
-            services.AddBlobSasGenerator();
             services.AddDdeiClient(Configuration);
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();

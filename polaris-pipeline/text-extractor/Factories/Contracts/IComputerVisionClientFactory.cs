@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 
-namespace Common.Factories.Contracts
+namespace text_extractor.Factories.Contracts
 {
     public interface IComputerVisionClientFactory
     {

@@ -140,22 +140,6 @@ export const setupHandlers = ({
       return res(delay(ctx), ctx.body(_base64ToArrayBuffer(fileBase64)));
     }),
 
-    rest.get(makeApiPath(routes.GET_SAS_URL_ROUTE), (req, res, ctx) => {
-      const { documentId } = req.params;
-
-      const blobName = pipelinePdfResultsDataSources[
-        sourceName
-      ]()[0].documents.find(
-        (document) => document.documentId === documentId
-      )?.pdfBlobName;
-
-      return res(
-        ctx.text(
-          makeApiPath(routes.SAS_URL_ROUTE).replace(":blobName", blobName!)
-        )
-      );
-    }),
-
     rest.get(
       makeRedactionLogApiPath(routes.REDACTION_LOG_ROUTE),
       (req, res, ctx) => {

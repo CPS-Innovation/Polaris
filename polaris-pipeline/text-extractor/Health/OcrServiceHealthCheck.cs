@@ -3,10 +3,10 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Services.OcrService;
+using text_extractor.Services.OcrService;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Common.Health
+namespace text_extractor.Health
 {
     public class OcrServiceHealthCheck : IHealthCheck
     {

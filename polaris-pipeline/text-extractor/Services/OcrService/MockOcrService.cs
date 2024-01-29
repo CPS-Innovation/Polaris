@@ -10,7 +10,7 @@ using Common.Domain.Exceptions;
 using Common.Constants;
 using System.IO;
 
-namespace Common.Services.OcrService
+namespace text_extractor.Services.OcrService
 {
     public class MockOcrService : IOcrService
     {

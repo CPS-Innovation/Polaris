@@ -4,7 +4,6 @@ import * as HEADERS from "./header-factory";
 import {
   searchUrn,
   getCaseDetails,
-  getPdfSasUrl,
   initiatePipeline,
   getPipelinePdfResults,
   searchCase,
@@ -135,34 +134,6 @@ describe("gateway-apis", () => {
         await getCaseDetails("abc", 122);
       }).rejects.toThrow(
         "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/122: Get Case Details failed; status - OK (500)"
-      );
-    });
-  });
-
-  describe("getPdfSasUrl", () => {
-    beforeEach(() => {
-      fetchMock.resetMocks();
-    });
-
-    it("getPdfSasUrl should call fetch and should not call reauthentication", async () => {
-      fetchMock.mockResponseOnce("mocked response");
-      const response = await getPdfSasUrl("abc", 123, "ABC");
-      expect(reauthenticationFilter).toHaveBeenCalledTimes(0);
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://gateway-url/api/urns/abc/cases/123/documents/ABC/sas-url",
-        expect.anything()
-      );
-      expect(response).toEqual("mocked response");
-    });
-
-    it("getPdfSasUrl should throw error if for any other failed response status ", async () => {
-      fetchMock.mockResponseOnce("Internal Server Error", { status: 500 });
-
-      expect(async () => {
-        await getPdfSasUrl("abc", 123, "ABC");
-      }).rejects.toThrow(
-        "An error ocurred contacting the server at https://gateway-url/api/urns/abc/cases/123/documents/ABC/sas-url: Get Pdf SasUrl failed; status - Internal Server Error (500)"
       );
     });
   });
