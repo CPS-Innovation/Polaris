@@ -1,5 +1,5 @@
 using System;
-namespace Common.Services.DocumentToggle.Exceptions
+namespace coordinator.Domain.Exceptions
 {
     public class DocumentToggleException : Exception
     {

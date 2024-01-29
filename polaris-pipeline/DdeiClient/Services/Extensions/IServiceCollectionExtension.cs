@@ -9,7 +9,6 @@ using DdeiClient.Services.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
-using Common.Services.DocumentToggle;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using System.Net;
@@ -39,11 +38,6 @@ namespace Ddei.Services.Extensions
             services.AddTransient<IDdeiClientRequestFactory, DdeiClientRequestFactory>();
             services.AddTransient<ICaseDocumentMapper<DdeiCaseDocumentResponse>, DdeiCaseDocumentMapper>();
             services.AddTransient<ICaseDetailsMapper, CaseDetailsMapper>();
-            services.AddTransient<IDocumentToggleService, DocumentToggleService>();
-            services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
-              DocumentToggleService.ReadConfig()
-            ));
-
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
