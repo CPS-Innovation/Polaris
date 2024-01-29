@@ -22,6 +22,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
 }) => {
   const guidanceBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const guidanceCloseBtnRef = useRef<HTMLButtonElement | null>(null);
   const [buttonOpen, setButtonOpen] = useState(false);
   const buttonOpenRef = useRef<boolean>(false);
   useFocusTrap("#guidance-panel");
@@ -46,6 +47,14 @@ export const Guidance: React.FC<GuidanceProps> = ({
       document.removeEventListener("click", handleOutsideClick);
     };
   }, []);
+
+  useEffect(() => {
+    console.log("hii 00000");
+    if (buttonOpen && guidanceCloseBtnRef?.current) {
+      console.log("hii 1111");
+      guidanceCloseBtnRef?.current.focus();
+    }
+  }, [buttonOpen]);
 
   return (
     <div className={`${classes.guidanceButtonWrapper} ${className}`}>
@@ -89,6 +98,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
           <button
             data-testid="btn-modal-close"
             type="button"
+            ref={guidanceCloseBtnRef}
             className={classes.guidancePanelCloseBtn}
             aria-label="close guidance"
             onClick={() => {
