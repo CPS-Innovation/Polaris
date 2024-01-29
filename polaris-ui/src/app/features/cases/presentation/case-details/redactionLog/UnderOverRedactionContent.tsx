@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Checkboxes } from "../../../../../common/presentation/components/Checkboxes";
 import { Radios } from "../../../../../common/presentation/components/Radios";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
@@ -6,31 +6,25 @@ import { UseFormRegister } from "react-hook-form";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
 import classes from "./UnderOverRedactionContent.module.scss";
 
+export type ErrorState = {
+  category: boolean;
+  underRedaction: boolean;
+  overRedaction: boolean;
+};
+
 type UnderOverRedactionContentProps = {
   redactionTypes: RedactionTypeData[];
   showErrors?: boolean;
   register: UseFormRegister<UnderRedactionFormData>;
   getValues: any;
   watch: any;
-  trigger: any;
-  isSubmitted: boolean;
+  errorState: ErrorState;
 };
 
 export const UnderOverRedactionContent: React.FC<
   UnderOverRedactionContentProps
-> = ({ redactionTypes, register, getValues, watch, trigger, isSubmitted }) => {
-  type ErrorState = {
-    category: boolean;
-    underRedaction: boolean;
-    overRedaction: boolean;
-  };
-
-  const [errorState, setErrorState] = useState<ErrorState>({
-    category: false,
-    underRedaction: false,
-    overRedaction: false,
-  });
-
+> = ({ redactionTypes, register, getValues, watch, errorState }) => {
+  const [toggleReDraw, setToggleReDraw] = useState(false);
   const redactionTypeCheckboxItems = (
     category: "underRedaction" | "overRedaction"
   ) => {
@@ -44,18 +38,6 @@ export const UnderOverRedactionContent: React.FC<
       }),
     }));
   };
-
-  const findRedactionTypesError = useCallback(
-    (category: "underRedaction" | "overRedaction") => {
-      if (getValues(category)) {
-        return !Object.keys(getValues()).some(
-          (key) => key.includes(`${category}-type-`) && getValues(key)
-        );
-      }
-      return false;
-    },
-    [getValues]
-  );
 
   const redactionCategoryCheckboxItem = [
     {
@@ -73,7 +55,7 @@ export const UnderOverRedactionContent: React.FC<
           <Checkboxes
             key={"under-redaction-types"}
             errorMessage={
-              isSubmitted && errorState.underRedaction
+              errorState.underRedaction
                 ? {
                     children: "Select an under-redaction type",
                   }
@@ -84,6 +66,7 @@ export const UnderOverRedactionContent: React.FC<
                 children: "Types of redactions",
               },
             }}
+            tabIndex={-1}
             id="checkboxes-under-redaction-types"
             data-testid="checkboxes-under-redaction-types"
             name="under-redaction-types"
@@ -122,7 +105,7 @@ export const UnderOverRedactionContent: React.FC<
           <Checkboxes
             key={"over-redaction-types"}
             errorMessage={
-              isSubmitted && errorState.overRedaction
+              errorState.overRedaction
                 ? {
                     children: "Select an over-redaction type",
                   }
@@ -133,6 +116,7 @@ export const UnderOverRedactionContent: React.FC<
                 children: "Types of redactions",
               },
             }}
+            tabIndex={-1}
             id="checkboxes-over-redaction-types"
             data-testid="checkboxes-over-redaction-types"
             name="over-redaction-types"
@@ -145,23 +129,11 @@ export const UnderOverRedactionContent: React.FC<
   ];
 
   useEffect(() => {
-    const subscription = watch(
-      (value: any, { name, type }: { name: any; type: any }) => {
-        setErrorState((state) => ({
-          ...state,
-          category: !(
-            getValues("underRedaction") || getValues("overRedaction")
-          ),
-          underRedaction: findRedactionTypesError("underRedaction"),
-          overRedaction: findRedactionTypesError("overRedaction"),
-        }));
-        if (isSubmitted) {
-          trigger();
-        }
-      }
-    );
+    const subscription = watch(() => {
+      setToggleReDraw((state) => !state);
+    });
     return () => subscription.unsubscribe();
-  }, [watch, isSubmitted, getValues, trigger, findRedactionTypesError]);
+  }, [watch]);
 
   return (
     <div
@@ -171,7 +143,7 @@ export const UnderOverRedactionContent: React.FC<
       <section>
         <Checkboxes
           errorMessage={
-            isSubmitted && errorState.category
+            errorState.category
               ? {
                   children: "Select a redaction type",
                 }
@@ -182,11 +154,12 @@ export const UnderOverRedactionContent: React.FC<
               children: "Confirm the redaction type",
             },
           }}
+          tabIndex={-1}
           id="checkboxes-under-over"
           data-testid="checkboxes-under-over"
           name="redaction-category"
           items={redactionCategoryCheckboxItem}
-          className="govuk-checkboxes--large"
+          className={`govuk-checkboxes--large ${classes.underOverCheckBoxes}`}
         />
       </section>
     </div>

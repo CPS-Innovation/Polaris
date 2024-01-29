@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Select,
   TextArea,
@@ -9,7 +9,10 @@ import {
   LinkButton,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
-import { UnderOverRedactionContent } from "./UnderOverRedactionContent";
+import {
+  UnderOverRedactionContent,
+  ErrorState,
+} from "./UnderOverRedactionContent";
 import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
@@ -76,6 +79,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
+  const [errorState, setErrorState] = useState<ErrorState>({
+    category: false,
+    underRedaction: false,
+    overRedaction: false,
+  });
   const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
     cpsArea: "",
     businessUnit: "",
@@ -178,6 +186,18 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       documentTypes: [defaultOption, ...mappedDocumentTypes],
     };
   };
+
+  const findRedactionTypesError = useCallback(
+    (category: "underRedaction" | "overRedaction") => {
+      if (getValues(category)) {
+        return !Object.keys(getValues()).some(
+          (key) => key.includes(`${category}-type-`) && getValues(key)
+        );
+      }
+      return false;
+    },
+    [getValues]
+  );
 
   const redactionLogGuidanceContent = () => {
     return (
@@ -529,6 +549,14 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       <form
         className={classes.underRedactionForm}
         onSubmit={(event) => {
+          setErrorState((state) => ({
+            ...state,
+            category: !(
+              getValues("underRedaction") || getValues("overRedaction")
+            ),
+            underRedaction: findRedactionTypesError("underRedaction"),
+            overRedaction: findRedactionTypesError("overRedaction"),
+          }));
           handleSubmit(
             (data) => {
               event.preventDefault();
@@ -757,12 +785,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
             {redactionLogType === RedactionLogTypes.UNDER_OVER && (
               <UnderOverRedactionContent
+                errorState={errorState}
                 redactionTypes={redactionLogLookUpsData.missedRedactions}
                 register={register}
                 getValues={getValues}
                 watch={watch}
-                trigger={trigger}
-                isSubmitted={isSubmitted}
               />
             )}
           </section>
