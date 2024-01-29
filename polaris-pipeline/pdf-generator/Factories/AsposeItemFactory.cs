@@ -16,21 +16,15 @@ namespace pdf_generator.Factories
 {
 	public class AsposeItemFactory : IAsposeItemFactory
 	{
-		public AsposeItemFactory()
-		{
-		}
+		public Workbook CreateWorkbook(Stream inputStream, Guid correlationId) => new(inputStream);
 
-		public Workbook CreateWorkbook(Stream inputStream, Guid correlationId) =>
-			new Workbook(inputStream);
-
-		public Diagram CreateDiagram(Stream inputStream, Guid correlationId) =>
-			new Diagram(inputStream);
+		public Diagram CreateDiagram(Stream inputStream, Guid correlationId) => new(inputStream);
 
 		public MailMessage CreateMailMessage(Stream inputStream, Guid correlationId) =>
 			MailMessage.Load(inputStream);
 
 		public Document CreateMhtmlDocument(Stream inputStream, Guid correlationId) =>
-			new Document(inputStream, new WordLoadOptions { LoadFormat = WordLoadFormat.Mhtml });
+			new(inputStream, new WordLoadOptions {LoadFormat = WordLoadFormat.Mhtml});
 
 		public Aspose.Pdf.Document CreateHtmlDocument(Stream inputStream, Guid correlationId)
 		{
@@ -45,7 +39,8 @@ namespace pdf_generator.Factories
 				{
 					IsLandscape = false
 				},
-				PageLayoutOption = HtmlPageLayoutOption.None
+				PageLayoutOption = HtmlPageLayoutOption.None,
+				IsEmbedFonts = false
 			};
 
 			return new Aspose.Pdf.Document(inputStream, options);
@@ -54,16 +49,16 @@ namespace pdf_generator.Factories
 		public Image CreateImage(Stream inputStream, Guid correlationId) =>
 			Image.Load(inputStream);
 
-		public Presentation CreatePresentation(Stream inputStream, Guid correlationId) =>
-			new Presentation(inputStream);
+		public Presentation CreatePresentation(Stream inputStream, Guid correlationId) => new(inputStream);
 
-		public Document CreateWordsDocument(Stream inputStream, Guid correlationId) =>
-			new Document(inputStream);
+		public Document CreateWordsDocument(Stream inputStream, Guid correlationId) => new(inputStream);
 
-		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId) =>
-			new Aspose.Pdf.Document(inputStream);
+		public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId)
+		{
+			return new Aspose.Pdf.Document(inputStream);
+		}
 
 		public Aspose.Pdf.Document CreateRenderedXpsPdfDocument(Stream inputStream, Guid correlationId) =>
-			new Aspose.Pdf.Document(inputStream, new XpsLoadOptions());
+			new(inputStream, new XpsLoadOptions());
 	}
 }
