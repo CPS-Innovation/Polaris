@@ -9,6 +9,7 @@ export type GuidanceProps = {
   className?: string;
   ariaLabel?: string;
   dataTestId?: string;
+  ariaDescription?: string;
 };
 
 export const Guidance: React.FC<GuidanceProps> = ({
@@ -16,7 +17,8 @@ export const Guidance: React.FC<GuidanceProps> = ({
   className,
   children,
   dataTestId = "guidance-btn",
-  ariaLabel = "guidance",
+  ariaLabel = "redaction log guidance",
+  ariaDescription = "guidance about redaction log popup",
 }) => {
   const guidanceBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -55,7 +57,22 @@ export const Guidance: React.FC<GuidanceProps> = ({
   }, []);
 
   return (
-    <div className={`${classes.guidanceButtonWrapper} ${className}`}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-label"
+      aria-describedby="modal-description"
+      className={`${classes.guidanceButtonWrapper} ${className}`}
+    >
+      <span id="guidance-modal-label" className={classes.modalLabel}>
+        {ariaLabel}
+      </span>
+      <span
+        id="guidance-modal-description"
+        className={classes.modalDescription}
+      >
+        {ariaDescription}
+      </span>
       <div className={classes.helpButtonWrapper}>
         <LinkButton
           type="button"
