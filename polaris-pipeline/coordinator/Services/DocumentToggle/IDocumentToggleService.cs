@@ -4,7 +4,7 @@ using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 
-namespace Common.Services.DocumentToggle
+namespace coordinator.Services.DocumentToggle
 {
     public interface IDocumentToggleService
     {

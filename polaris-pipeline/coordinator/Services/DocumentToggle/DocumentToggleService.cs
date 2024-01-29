@@ -5,18 +5,18 @@ using System;
 using System.Reflection;
 using System.Text;
 using Common.Dto.FeatureFlags;
-using Common.Services.DocumentToggle.Domain;
-using Common.Services.DocumentToggle.Exceptions;
+using coordinator.Domain.DocumentToggle;
+using coordinator.Domain.Exceptions;
 using Common.Dto.Document;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Case;
 using Common.Domain.Entity;
 
-namespace Common.Services.DocumentToggle
+namespace coordinator.Services.DocumentToggle
 {
     public class DocumentToggleService : IDocumentToggleService
     {
-        private const string ConfigResourceName = "Common.document-toggle.config";
+        private const string ConfigResourceName = "coordinator.document-toggle.config";
 
         private static readonly PresentationFlagsDto ReadOnly = new PresentationFlagsDto
         {
@@ -147,7 +147,7 @@ namespace Common.Services.DocumentToggle
                 {
                     currentLine = lines[lineIndex]
                                     .Trim();
-                    if (currentLine.StartsWith(Domain.Constants.Comment))
+                    if (currentLine.StartsWith(Constants.Comment))
                     {
                         continue;
                     }
@@ -190,7 +190,7 @@ namespace Common.Services.DocumentToggle
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.FileType
                         && (
-                          def.Identifier == Domain.Constants.Wildcard ||
+                          def.Identifier == Constants.Wildcard ||
                             def.Identifier.Equals(document.FileExtension, StringComparison.InvariantCultureIgnoreCase)));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;
@@ -201,7 +201,7 @@ namespace Common.Services.DocumentToggle
             var winningConfigLine = _definitions
                       .LastOrDefault(def => def.Type == DefinitionType.DocType
                         && (
-                          def.Identifier == Domain.Constants.Wildcard ||
+                          def.Identifier == Constants.Wildcard ||
                             def.Identifier.Equals(document.CmsDocType.DocumentTypeId, StringComparison.InvariantCultureIgnoreCase)));
 
             return winningConfigLine?.Level ?? DefinitionLevel.Deny;

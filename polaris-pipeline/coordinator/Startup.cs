@@ -33,6 +33,7 @@ using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using coordinator.Providers;
 using coordinator.Validators;
+using coordinator.Services.DocumentToggle;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -76,6 +77,10 @@ namespace coordinator
 
             services.RegisterMapsterConfiguration();
             services.AddDdeiClient(Configuration);
+            services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+            services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder, Configuration);

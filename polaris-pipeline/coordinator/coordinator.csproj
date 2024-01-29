@@ -36,6 +36,13 @@
     <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <!-- 
+      Include document-toggle.config as well as embeddeding (see below) 
+      because the tests are interested in it 
+    -->
+    <None Update="document-toggle.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -43,5 +50,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="document-toggle.config" />
   </ItemGroup>
 </Project>
