@@ -14,7 +14,7 @@ using Common.Domain.Document;
 using Common.Domain.Exceptions;
 using Common.Dto.Tracker;
 using Common.Services.BlobStorageService.Contracts;
-using Common.Services.RenderHtmlService.Contract;
+using coordinator.Services.RenderHtmlService.Contract;
 using Common.Wrappers.Contracts;
 using coordinator.Domain;
 using coordinator.Functions.ActivityFunctions.Document;

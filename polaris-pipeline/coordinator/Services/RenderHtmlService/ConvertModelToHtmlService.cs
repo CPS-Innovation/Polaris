@@ -1,11 +1,11 @@
-﻿using Common.Services.RenderHtmlService.Contract;
+﻿using coordinator.Services.RenderHtmlService.Contract;
 using RazorLight;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RenderPcd
+namespace coordinator.Services.RenderHtmlService
 {
     public class ConvertModelToHtmlService : IConvertModelToHtmlService
     {
@@ -22,7 +22,7 @@ namespace RenderPcd
         public async Task<Stream> ConvertAsync<T>(T data)
         {
             var name = $"{typeof(T).Name}".Replace("Dto", string.Empty);
-            var resourceName = $"Common.Services.RenderHtmlService.{name}.cshtml";
+            var resourceName = $"coordinator.Services.RenderHtmlService.{name}.cshtml";
             var assembly = Assembly.GetExecutingAssembly();
 
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
