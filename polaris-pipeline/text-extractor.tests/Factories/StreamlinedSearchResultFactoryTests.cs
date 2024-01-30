@@ -1,16 +1,18 @@
 ﻿using AutoFixture;
 using Common.Domain.SearchIndex;
-using Common.Factories;
-using Common.Factories.Contracts;
-using Common.Mappers.Contracts;
+using text_extractor.Factories;
+using text_extractor.Factories.Contracts;
+using text_extractor.Mappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using System.Linq;
+using System;
 
-namespace Common.Tests.Clients;
+namespace text_extractor.tests.Factories;
 
 public class StreamlinedSearchResultFactoryTests
 {

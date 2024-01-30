@@ -1,7 +1,7 @@
 ﻿using Common.Domain.SearchIndex;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace Common.Mappers.Contracts
+namespace text_extractor.Mappers.Contracts
 {
     public interface IStreamlinedSearchWordMapper
     {

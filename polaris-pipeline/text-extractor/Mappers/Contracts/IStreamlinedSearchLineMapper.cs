@@ -1,6 +1,6 @@
 ﻿using Common.Domain.SearchIndex;
 
-namespace Common.Mappers.Contracts
+namespace text_extractor.Mappers.Contracts
 {
     public interface IStreamlinedSearchLineMapper
     {

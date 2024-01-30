@@ -1,14 +1,14 @@
 ﻿using AutoFixture;
 using Common.Domain.SearchIndex;
-using Common.Mappers;
-using Common.Mappers.Contracts;
+using text_extractor.Mappers;
+using text_extractor.Mappers.Contracts;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace Common.Tests.Mappers;
+namespace text_extractor.Tests.Mappers;
 
 public class StreamlinedSearchLineMapperTests
 {

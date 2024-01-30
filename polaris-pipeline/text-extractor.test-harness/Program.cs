@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http.Headers;
+using Azure.Search.Documents;
 using System.Threading.Tasks;
 using Common.Clients;
 using Common.Clients.Contracts;
@@ -7,7 +8,12 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Factories;
 using Common.Factories.Contracts;
-using Common.Services.CaseSearchService;
+using text_extractor.Services.CaseSearchService;
+using text_extractor.Factories.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Factories;
+using text_extractor.Mappers;
+using text_extractor.Mappers.Contracts;
 using Common.Services.Extensions;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
@@ -107,9 +113,25 @@ namespace TextExtractor.TestHarness
                 client.BaseAddress = new Uri(configuration.GetSection("Values").GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             });
-            services.AddSearchClient(configuration);
+            AddSearchClient(services, configuration);
 
             return services.BuildServiceProvider();
         }
+        private static void AddSearchClient(IServiceCollection services, IConfigurationRoot configuration)
+        {
+            services.AddOptions<SearchClientOptions>().Configure<IConfiguration>((settings, _) =>
+            {
+                configuration.GetSection("searchClient").Bind(settings);
+            });
+
+            services.AddTransient<ISearchIndexService, SearchIndexService>();
+            services.AddTransient<IAzureSearchClientFactory, AzureSearchClientFactory>();
+            services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
+            services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
+            services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
+            services.AddTransient<ISearchLineFactory, SearchLineFactory>();
+            services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
+        }
+
     }
 }

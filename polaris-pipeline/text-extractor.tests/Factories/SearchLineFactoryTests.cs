@@ -1,47 +1,48 @@
 using System.Text;
+using System;
 using AutoFixture;
-using Common.Factories;
-using Common.Factories.Contracts;
+using text_extractor.Factories;
+using text_extractor.Factories.Contracts;
 using Common.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Xunit;
 
-namespace Common.tests.Factories
+namespace text_extractor.tests.Factories
 {
 	public class SearchLineFactoryTests
 	{
 		private readonly PolarisDocumentId _polarisDocumentId;
-        private readonly long _caseId;
+		private readonly long _caseId;
 		private readonly string _documentId;
 		private readonly long _versionId;
 		private readonly string _blobName;
 		private readonly ReadResult _readResult;
 		private readonly Line _line;
 		private readonly int _index;
-        private readonly double _pageHeight;
-        private readonly double _pageWidth;
+		private readonly double _pageHeight;
+		private readonly double _pageWidth;
 
 		private readonly ISearchLineFactory _searchLineFactory;
 
 		public SearchLineFactoryTests()
-        {
-            var fixture = new Fixture();
-            _polarisDocumentId = fixture.Create<PolarisDocumentId>();
-            _caseId = fixture.Create<int>();
+		{
+			var fixture = new Fixture();
+			_polarisDocumentId = fixture.Create<PolarisDocumentId>();
+			_caseId = fixture.Create<int>();
 			_documentId = fixture.Create<string>();
 			_versionId = fixture.Create<long>();
 			_blobName = fixture.Create<string>();
 			fixture.Create<string>();
-            _pageHeight = fixture.Create<double>();
+			_pageHeight = fixture.Create<double>();
 			_pageWidth = fixture.Create<double>();
 			_readResult = new ReadResult
 			{
 				Page = fixture.Create<int>(),
 				Width = _pageWidth,
 				Height = _pageHeight
-            };
+			};
 			_line = fixture.Create<Line>();
 			_index = fixture.Create<int>();
 
@@ -51,16 +52,16 @@ namespace Common.tests.Factories
 		[Fact]
 		public void Create_ReturnsExpectedId()
 		{
-            var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
 
-            // SearchLineFactory => {cmsCaseId}-{polarisDocumentId}-{readResult.Page}-{index}
-            var id = $"{_caseId}:{_polarisDocumentId}:{_readResult.Page}:{_index}";
+			// SearchLineFactory => {cmsCaseId}-{polarisDocumentId}-{readResult.Page}-{index}
+			var id = $"{_caseId}:{_polarisDocumentId}:{_readResult.Page}:{_index}";
 			var bytes = Encoding.UTF8.GetBytes(id);
 			var base64Id = Convert.ToBase64String(bytes);
 
 			factory.Id.Should().Be(base64Id);
 		}
-		
+
 		[Fact]
 		public void Create_ReturnsExpectedBlobName()
 		{
@@ -68,7 +69,7 @@ namespace Common.tests.Factories
 
 			factory.FileName.Should().Be(_blobName);
 		}
-		
+
 		[Fact]
 		public void Create_ReturnsExpectedPageIndex()
 		{
@@ -125,16 +126,16 @@ namespace Common.tests.Factories
 			factory.Words.Should().BeEquivalentTo(_line.Words);
 		}
 
-        [Fact]
-        public void Create_ReturnsExpectedHeightAndWidth()
-        {
-            var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
+		[Fact]
+		public void Create_ReturnsExpectedHeightAndWidth()
+		{
+			var factory = _searchLineFactory.Create(_caseId, _documentId, _polarisDocumentId, _versionId, _blobName, _readResult, _line, _index);
 
-            using (new AssertionScope())
-            {
-                factory.PageHeight.Should().Be(_pageHeight);
-                factory.PageWidth.Should().Be(_pageWidth);
-            }
+			using (new AssertionScope())
+			{
+				factory.PageHeight.Should().Be(_pageHeight);
+				factory.PageWidth.Should().Be(_pageWidth);
+			}
 		}
 	}
 }

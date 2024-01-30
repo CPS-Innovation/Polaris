@@ -122,10 +122,6 @@ namespace coordinator
                 .AddCheck<PolarisBlobStorageServiceHealthCheck>("PolarisBlobStorageService");
 
             healthChecks
-                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
-                .AddTypeActivatedCheck<AzureFunctionHealthCheck>("Text Extractor Function", args: new object[] { textExtractorFunction });
-
-            healthChecks
                 .AddTypeActivatedCheck<AzureFunctionHealthCheck>("PDF Generator Function", args: new object[] { pdfGeneratorFunction });
         }
     }

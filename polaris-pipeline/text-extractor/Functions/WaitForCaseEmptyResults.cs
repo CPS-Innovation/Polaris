@@ -8,7 +8,7 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Handlers.Contracts;
 using Common.Logging;
-using Common.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;

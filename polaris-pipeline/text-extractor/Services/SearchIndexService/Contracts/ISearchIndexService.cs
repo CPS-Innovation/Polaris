@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Domain.SearchIndex;
 using Common.ValueObjects;
+using Common.Dto.Response;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace Common.Services.CaseSearchService.Contracts
+namespace text_extractor.Services.CaseSearchService.Contracts
 {
     public interface ISearchIndexService
     {

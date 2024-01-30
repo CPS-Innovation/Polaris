@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Common.Domain.SearchIndex;
-using Common.Services.CaseSearchService;
+using Common.Dto.Response;
 using Common.ValueObjects;
 
 namespace Common.Clients.Contracts

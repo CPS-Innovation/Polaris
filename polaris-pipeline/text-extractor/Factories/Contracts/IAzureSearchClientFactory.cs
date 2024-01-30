@@ -1,6 +1,6 @@
 using Azure.Search.Documents;
 
-namespace Common.Factories.Contracts;
+namespace text_extractor.Factories.Contracts;
 
 public interface IAzureSearchClientFactory
 {

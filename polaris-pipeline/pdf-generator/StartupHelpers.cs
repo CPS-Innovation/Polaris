@@ -15,7 +15,6 @@ namespace pdf_generator
         internal static void BuildHealthChecks(IServiceCollection services)
         {
             services.AddHealthChecks()
-                .AddCheck<AzureSearchClientHealthCheck>("Azure Search Client")
                 .AddCheck<AzureBlobServiceClientHealthCheck>("Azure Blob Service Client");
         }
 

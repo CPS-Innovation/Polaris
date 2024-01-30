@@ -9,13 +9,15 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Common.Domain.SearchIndex;
 using Common.Extensions;
+using Common.Dto.Response;
 using Common.Factories.Contracts;
-using Common.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Factories.Contracts;
 using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Services.CaseSearchService
+namespace text_extractor.Services.CaseSearchService
 {
     public class SearchIndexService : ISearchIndexService
     {

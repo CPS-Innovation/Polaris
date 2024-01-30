@@ -1,6 +1,6 @@
 ﻿using Common.Domain.SearchIndex;
 
-namespace Common.Factories.Contracts
+namespace text_extractor.Factories.Contracts
 {
     public interface IStreamlinedSearchResultFactory
     {
