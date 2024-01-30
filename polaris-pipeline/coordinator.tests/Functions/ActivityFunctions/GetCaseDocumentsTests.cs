@@ -11,7 +11,7 @@ using coordinator.Functions.ActivityFunctions.Case;
 using Common.Dto.Document;
 using Common.Dto.FeatureFlags;
 using DdeiClient.Services.Contracts;
-using Common.Services.DocumentToggle;
+using coordinator.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args;
 using Common.Dto.Case;
 using Microsoft.Extensions.Configuration;

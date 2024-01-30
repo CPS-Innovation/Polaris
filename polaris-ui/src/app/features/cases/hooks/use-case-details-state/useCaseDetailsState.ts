@@ -314,15 +314,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
     [dispatch]
   );
 
-  const handleOpenPdfInNewTab = useCallback(
-    (documentId: CaseDocumentViewModel["documentId"]) =>
-      dispatch({
-        type: "REQUEST_OPEN_PDF_IN_NEW_TAB",
-        payload: { documentId },
-      }),
-    [dispatch]
-  );
-
   const handleCloseErrorModal = useCallback(
     () =>
       dispatch({
@@ -371,7 +362,6 @@ export const useCaseDetailsState = (urn: string, caseId: number) => {
 
   return {
     ...combinedState,
-    handleOpenPdfInNewTab,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,

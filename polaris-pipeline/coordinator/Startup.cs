@@ -26,14 +26,14 @@ using Ddei.Services.Extensions;
 using Common.Handlers.Contracts;
 using Common.Handlers;
 using coordinator.Domain;
-using RenderPcd;
+using coordinator.Services.RenderHtmlService;
 using coordinator.Domain.Mapper;
-using Common.Services.RenderHtmlService.Contract;
+using coordinator.Services.RenderHtmlService.Contract;
 using Common.Telemetry.Contracts;
 using Common.Telemetry;
 using coordinator.Providers;
-using Microsoft.Extensions.Azure;
 using coordinator.Validators;
+using coordinator.Services.DocumentToggle;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace coordinator
@@ -76,9 +76,11 @@ namespace coordinator
             builder.Services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
 
             services.RegisterMapsterConfiguration();
-            services.AddBlobSasGenerator();
-            services.AddSearchClient(Configuration);
             services.AddDdeiClient(Configuration);
+            services.AddTransient<IDocumentToggleService, DocumentToggleService>();
+            services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
+              DocumentToggleService.ReadConfig()
+            ));
 
             services.AddSingleton<ITelemetryClient, TelemetryClient>();
             BuildHealthChecks(builder, Configuration);

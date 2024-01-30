@@ -78,7 +78,6 @@ class MouseSelection extends Component<Props, State> {
       return;
     }
 
-
     // Note: a CPS customisation here.  By caching containerBoundingRect the library
     //  makes the assumption that the pdf viewing control is always rooted at the same spot
     //  in the window.  In our use case, the page can scroll up and down and hence move
@@ -89,7 +88,7 @@ class MouseSelection extends Component<Props, State> {
 
     const containerCoords = (pageX: number, pageY: number) => {
       //if (!containerBoundingRect) {
-        const containerBoundingRect = container.getBoundingClientRect();
+      const containerBoundingRect = container.getBoundingClientRect();
       //}
 
       return {
@@ -98,7 +97,7 @@ class MouseSelection extends Component<Props, State> {
           pageY -
           containerBoundingRect.top +
           container.scrollTop -
-          window.scrollY
+          window.scrollY,
       };
     };
 
@@ -116,6 +115,14 @@ class MouseSelection extends Component<Props, State> {
     });
 
     container.addEventListener("mousedown", (event: MouseEvent) => {
+      //do not reset if the user is clicking on the redaction modal
+      if (
+        asElement(event.target).id !== "btn-redact" &&
+        asElement(event.target).closest(".PdfHighlighter__tip-container")
+      ) {
+        return;
+      }
+
       if (!shouldStart(event)) {
         this.reset();
         return;

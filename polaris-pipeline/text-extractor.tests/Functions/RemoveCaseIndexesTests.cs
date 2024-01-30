@@ -86,7 +86,7 @@ namespace text_extractor.tests.Functions
         }
 
         [Fact]
-        public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerrIsNull()
+        public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
             Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, _mockTelemetryAugmentationWrapper.Object, null, null));
         }

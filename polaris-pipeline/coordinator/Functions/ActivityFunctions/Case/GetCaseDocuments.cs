@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Constants;
-using Common.Domain.Extensions;
 using Common.Dto.Case;
 using Common.Dto.Case.PreCharge;
 using Common.Dto.Document;
 using Common.Logging;
-using Common.Services.DocumentToggle;
+using coordinator.Services.DocumentToggle;
 using coordinator.Domain;
 using Ddei.Domain.CaseData.Args;
 using DdeiClient.Services.Contracts;

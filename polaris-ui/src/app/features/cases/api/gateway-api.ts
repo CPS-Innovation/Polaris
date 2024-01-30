@@ -92,25 +92,6 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   return (await response.json()) as CaseDetails;
 };
 
-export const getPdfSasUrl = async (
-  urn: string,
-  caseId: number,
-  documentId: string
-) => {
-  const url = fullUrl(
-    `api/urns/${urn}/cases/${caseId}/documents/${documentId}/sas-url`
-  );
-  const response = await internalFetch(url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Get Pdf SasUrl failed", url, response);
-  }
-
-  return await response.text();
-};
-
 export const initiatePipeline = async (
   urn: string,
   caseId: number,

@@ -3,7 +3,6 @@ import { AsyncActionHandlers } from "use-reducer-async";
 import {
   cancelCheckoutDocument,
   checkoutDocument,
-  getPdfSasUrl,
   saveRedactions,
   saveRedactionLog,
 } from "../../api/gateway-api";
@@ -66,12 +65,6 @@ type AsyncActions =
       };
     }
   | {
-      type: "REQUEST_OPEN_PDF_IN_NEW_TAB";
-      payload: {
-        documentId: CaseDocumentViewModel["documentId"];
-      };
-    }
-  | {
       type: "UNLOCK_DOCUMENTS";
       payload: {
         documentIds: CaseDocumentViewModel["documentId"][];
@@ -83,22 +76,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
   Reducer<State, Action>,
   AsyncActions
 > = {
-  REQUEST_OPEN_PDF_IN_NEW_TAB:
-    ({ dispatch, getState }) =>
-    async (action) => {
-      const {
-        payload: { documentId },
-      } = action;
-
-      const { urn, caseId } = getState();
-
-      const sasUrl = await getPdfSasUrl(urn, caseId, documentId);
-
-      dispatch({
-        type: "OPEN_PDF_IN_NEW_TAB",
-        payload: { documentId, sasUrl },
-      });
-    },
   REQUEST_OPEN_PDF:
     ({ dispatch }) =>
     async (action) => {
