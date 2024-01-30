@@ -14,6 +14,7 @@ import {
   RedactionLogMappingData,
   RedactionTypeData,
 } from "./redactionLog/RedactionLogData";
+import { RedactionLogTypes } from "../domain/redactionLog/RedactionLogTypes";
 
 export type CombinedState = {
   urn: string;
@@ -64,6 +65,7 @@ export type CombinedState = {
   };
   redactionLog: {
     showModal: boolean;
+    type: RedactionLogTypes;
     redactionLogLookUpsData: AsyncResult<RedactionLogLookUpsData>;
     redactionLogMappingData: AsyncResult<RedactionLogMappingData>;
     savedRedactionTypes: RedactionTypeData[];

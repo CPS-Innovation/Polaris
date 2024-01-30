@@ -20,6 +20,7 @@ type PdfTabsProps = {
     correlationId: string;
   };
   isOkToSave: boolean;
+  showOverRedactionLog: boolean;
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
@@ -33,6 +34,7 @@ type PdfTabsProps = {
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
   handleUnLockDocuments: CaseDetailsState["handleUnLockDocuments"];
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
+  handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -40,6 +42,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   tabsState: { items, headers, activeTabId },
   contextData,
   savedDocumentDetails,
+  showOverRedactionLog,
   handleTabSelection,
   isOkToSave,
   handleOpenPdf,
@@ -51,6 +54,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleSavedRedactions,
   handleUnLockDocuments,
   handleShowHideDocumentIssueModal,
+  handleShowRedactionLogModal,
 }) => {
   return (
     <Tabs
@@ -63,6 +67,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           children: (
             <PdfTab
               tabIndex={index}
+              showOverRedactionLog={showOverRedactionLog}
               redactionTypesData={redactionTypesData}
               caseDocumentViewModel={item}
               savedDocumentDetails={savedDocumentDetails}
@@ -78,6 +83,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleShowHideDocumentIssueModal={
                 handleShowHideDocumentIssueModal
               }
+              handleShowRedactionLogModal={handleShowRedactionLogModal}
               contextData={contextData}
               activeTabId={activeTabId}
               tabId={item.documentId}

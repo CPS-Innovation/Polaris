@@ -30,7 +30,10 @@ import {
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { SURVEY_LINK } from "../../../../config";
+import {
+  SURVEY_LINK,
+  FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
+} from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
@@ -56,6 +59,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     errorModal,
     documentIssueModal,
     redactionLog,
+    featureFlags,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -72,6 +76,8 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleCloseErrorModal,
     handleUnLockDocuments,
     handleShowHideDocumentIssueModal,
+    handleShowRedactionLogModal,
+    handleHideRedactionLogModal,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -221,6 +227,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
       {redactionLog.showModal &&
         redactionLog.redactionLogLookUpsData.status === "succeeded" && (
           <RedactionLogModal
+            redactionLogType={redactionLog.type}
             caseUrn={caseState.data.uniqueReferenceNumber}
             isCaseCharged={caseState.data.isCaseCharged}
             owningUnit={caseState.data.owningUnit}
@@ -241,6 +248,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 ? redactionLog.redactionLogMappingData.data
                 : null
             }
+            handleHideRedactionLogModal={handleHideRedactionLogModal}
           />
         )}
       <nav>
@@ -345,9 +353,16 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 handleShowHideDocumentIssueModal={
                   handleShowHideDocumentIssueModal
                 }
+                handleShowRedactionLogModal={handleShowRedactionLogModal}
                 contextData={{
                   correlationId: pipelineState?.correlationId,
                 }}
+                showOverRedactionLog={
+                  featureFlags.status === "succeeded"
+                    ? featureFlags.data.redactionLog &&
+                      FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
+                    : false
+                }
               />
             )}
           </div>

@@ -42,7 +42,7 @@ export const useControlledRedactionFocus = (
   const getEntryElement = useCallback(() => {
     const pdfHighlighters = document.querySelectorAll(".govuk-tabs__panel");
     const reportIssueBtn = pdfHighlighters[tabIndex].querySelector(
-      `#btn-report-issue-${tabIndex}`
+      `#document-actions-dropdown-${tabIndex}`
     );
     const openPdfBtn = pdfHighlighters[tabIndex].querySelector("#btn-open-pdf");
     const tabPanel = pdfHighlighters[tabIndex];
