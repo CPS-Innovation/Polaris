@@ -388,23 +388,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     return mappedData;
   };
 
-  const handleUnderOrOverRedactionTypeError = (name: string) => {
-    if (name.includes("underRedaction-type-")) {
-      return {
-        children: "Select an under-redaction type",
-        href: "#checkbox-underRedaction-type-1",
-        "data-testid": "checkbox-cps-urt-link",
-      };
-    }
-    if (name.includes("overRedaction-type-")) {
-      return {
-        children: "Select an over-redaction type",
-        href: "#checkbox-overRedaction-type-1",
-        "data-testid": "checkbox-cps-ort-link",
-      };
-    }
-  };
-
   const errorSummaryProperties = (inputName: string) => {
     switch (inputName) {
       case "cpsArea":
