@@ -39,14 +39,14 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose.RedactionImplementatio
 
         public void FinaliseAnnotations(ref Document document)
         {
-            foreach (var page in document.Pages)
+            for (var pageNumber = 1; pageNumber <= document.Pages.Count; pageNumber++)
             {
+                var page = document.Pages[pageNumber];
                 if (!page.Annotations.Any(annotation => annotation.AnnotationType == AnnotationType.Square))
                 {
                     continue;
                 }
 
-                var pageNumber = page.Number;
                 var pageToSwapOutRect = page.Rect.ToRect();
                 var pageHeight = page.PageInfo.Height;
                 var pageWidth = page.PageInfo.Width;
