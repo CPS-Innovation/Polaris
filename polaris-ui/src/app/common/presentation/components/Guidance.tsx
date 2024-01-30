@@ -7,8 +7,9 @@ import classes from "./Guidance.module.scss";
 export type GuidanceProps = {
   name: string;
   className?: string;
-  ariaLabel?: string;
   dataTestId?: string;
+  ariaLabel: string;
+  ariaDescription: string;
 };
 
 export const Guidance: React.FC<GuidanceProps> = ({
@@ -16,10 +17,12 @@ export const Guidance: React.FC<GuidanceProps> = ({
   className,
   children,
   dataTestId = "guidance-btn",
-  ariaLabel = "guidance",
+  ariaLabel,
+  ariaDescription,
 }) => {
   const guidanceBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const guidanceCloseBtnRef = useRef<HTMLButtonElement | null>(null);
   const [buttonOpen, setButtonOpen] = useState(false);
   const buttonOpenRef = useRef<boolean>(false);
   useFocusTrap("#guidance-panel");
@@ -31,28 +34,27 @@ export const Guidance: React.FC<GuidanceProps> = ({
   const handleOutsideClick = useCallback((event: MouseEvent) => {
     if (panelRef.current && event.target && buttonOpenRef.current) {
       if (!panelRef.current?.contains(event.target as Node)) {
-        setButtonOpen(false);
         event.stopPropagation();
+        setButtonOpen(false);
         guidanceBtnRef.current?.focus();
       }
     }
   }, []);
 
-  const keyDownHandler = useCallback((event: KeyboardEvent) => {
-    if (event.code === "Escape" && buttonOpenRef.current) {
-      setButtonOpen(false);
-      guidanceBtnRef.current?.focus();
-    }
-  }, []);
-
   useEffect(() => {
-    window.addEventListener("keydown", keyDownHandler);
     document.addEventListener("click", handleOutsideClick);
     return () => {
-      window.removeEventListener("keydown", keyDownHandler);
       document.removeEventListener("click", handleOutsideClick);
     };
   }, []);
+
+  useEffect(() => {
+    console.log("hii 00000");
+    if (buttonOpen && guidanceCloseBtnRef?.current) {
+      console.log("hii 1111");
+      guidanceCloseBtnRef?.current.focus();
+    }
+  }, [buttonOpen]);
 
   return (
     <div className={`${classes.guidanceButtonWrapper} ${className}`}>
@@ -79,14 +81,28 @@ export const Guidance: React.FC<GuidanceProps> = ({
           ref={panelRef}
           id="guidance-panel"
           data-testid={`${dataTestId}-panel`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="guidance-modal-label"
+          aria-describedby="guidance-modal-description"
         >
+          <span id="guidance-modal-label" className={classes.modalLabel}>
+            {ariaLabel}
+          </span>
+          <span
+            id="guidance-modal-description"
+            className={classes.modalDescription}
+          >
+            {ariaDescription}
+          </span>
           <button
             data-testid="btn-modal-close"
             type="button"
+            ref={guidanceCloseBtnRef}
             className={classes.guidancePanelCloseBtn}
-            aria-label="close modal"
+            aria-label="close guidance"
             onClick={() => {
-              setButtonOpen((buttonOpen) => !buttonOpen);
+              setButtonOpen(false);
               guidanceBtnRef.current?.focus();
             }}
           >

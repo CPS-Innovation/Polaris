@@ -249,6 +249,9 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                 : null
             }
             handleHideRedactionLogModal={handleHideRedactionLogModal}
+            defaultLastFocus={
+              document.querySelector("#active-tab-panel") as HTMLElement
+            }
           />
         )}
       <nav>

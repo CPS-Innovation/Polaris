@@ -28,6 +28,7 @@ type Props = {
   savedRedactionTypes: RedactionTypeData[];
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
+  defaultLastFocus: HTMLElement;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
   handleHideRedactionLogModal: () => void;
 };
@@ -44,6 +45,7 @@ export const RedactionLogModal: React.FC<Props> = ({
   saveStatus,
   redactionLogLookUpsData,
   redactionLogMappingsData,
+  defaultLastFocus,
   saveRedactionLog,
   handleHideRedactionLogModal,
 }) => {
@@ -63,8 +65,17 @@ export const RedactionLogModal: React.FC<Props> = ({
           : undefined
       }
       type="data"
-      ariaLabel="Under redaction modal"
-      ariaDescription="Contains form to be filled out and submitted for redaction log "
+      ariaLabel={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? "Redaction log modal"
+          : "Under Redaction log modal"
+      }
+      ariaDescription={
+        redactionLogType === RedactionLogTypes.UNDER_OVER
+          ? `Fill and submit under or over redaction log form for the document ${documentName}`
+          : `Fill and submit under redaction log form for the document ${documentName}`
+      }
+      defaultLastFocus={defaultLastFocus}
     >
       <RedactionLogContent
         redactionLogType={redactionLogType}

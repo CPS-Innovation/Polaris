@@ -82,3 +82,9 @@
   width: 1.5625rem;
   margin-right: 0.3125rem;
 }
+.modalLabel,
+.modalDescription {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}

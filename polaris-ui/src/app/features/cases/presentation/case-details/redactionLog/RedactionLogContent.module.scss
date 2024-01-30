@@ -146,7 +146,6 @@
   color: red;
 }
 .errorSummary {
-  margin-top: 1.5rem;
   width: 100%;
   max-width: 34.375rem;
 }
@@ -212,5 +211,13 @@
   100% {
     height: 0;
     display: none;
+  }
+}
+
+.errorSummaryWrapper {
+  display: inline-flex;
+  margin-top: 1.5rem;
+  &:focus {
+    outline: 0.2rem solid #ffdd00;
   }
 }
