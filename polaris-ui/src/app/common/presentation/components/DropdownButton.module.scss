@@ -39,7 +39,8 @@
   position: absolute;
   top: 2.375rem;
   right: 0;
-  border-radius: 0.3125rem;
+  border-bottom-left-radius: 0.3125rem;
+  border-bottom-right-radius: 0.3125rem;
   background: #fff;
   z-index: 7;
   overflow-y: auto;
@@ -55,12 +56,50 @@
   justify-content: flex-end;
   list-style: none;
   margin: 0;
+  padding: 0;
+  width: 15.625rem;
+}
+
+.tabListWithSeparator {
+  & li:last-child {
+    border-top: 1px solid #b1b4b6;
+  }
 }
 
 .tabListItem {
-  padding: 0.3125rem 0;
+  width: 100%;
+  & button {
+    margin: 0;
+    text-align: right;
+    font-size: 1rem;
+    padding: 0.75rem;
+    width: 100%;
+    color: #000;
+  }
+  & :hover:not(:disabled):not(:focus) {
+    color: #000;
+    background: #ddd;
+  }
   & button:disabled {
     cursor: not-allowed;
     color: #b1b4b6;
+  }
+}
+
+.dropdownBtnName {
+  padding-right: 0.625rem;
+  font-size: 1rem;
+}
+
+.btnWithText {
+  display: flex;
+  font-weight: bold;
+  background: #185c97;
+  border-radius: 0.3125rem;
+  padding: 0.625rem;
+  color: #fff;
+  svg {
+    fill: #fff;
+    scale: 0.75;
   }
 }

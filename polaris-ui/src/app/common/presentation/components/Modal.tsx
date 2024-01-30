@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useLastFocus } from "../../hooks/useLastFocus";
-import { ReactComponent as CloseIcon } from "../../presentation/svgs/closeIcon.svg";
+import { ReactComponent as CloseIcon } from "../../presentation/svgs/closeIconBold.svg";
 import classes from "./Modal.module.scss";
 
 type Props = {

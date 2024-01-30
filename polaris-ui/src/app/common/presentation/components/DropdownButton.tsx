@@ -3,20 +3,31 @@ import { ReactComponent as DownArrow } from "../svgs/down.svg";
 import { LinkButton } from "../components/LinkButton";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import classes from "./DropdownButton.module.scss";
+
+export type DropdownButtonItem = {
+  id: string;
+  label: string;
+  ariaLabel: string;
+  disabled: boolean;
+};
 export type DropdownButtonProps = {
-  dropDownItems: { id: string; label: string; ariaLabel: string }[];
+  name?: string;
+  dropDownItems: DropdownButtonItem[];
   callBackFn: (id: string) => void;
-  currentSelectionId?: string;
   ariaLabel?: string;
   dataTestId?: string;
+  disabled?: boolean;
+  showLastItemSeparator?: boolean;
 };
 
 export const DropdownButton: React.FC<DropdownButtonProps> = ({
   dropDownItems,
   callBackFn,
-  currentSelectionId,
+  name,
   dataTestId = "dropdown-btn",
   ariaLabel = "dropdown",
+  disabled = false,
+  showLastItemSeparator = false,
 }) => {
   const dropDownBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -61,16 +72,20 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
   return (
     <div className={classes.dropDownButtonWrapper}>
       <LinkButton
+        id={dataTestId}
         dataTestId={dataTestId}
         ref={dropDownBtnRef}
         ariaLabel={ariaLabel}
         ariaExpanded={buttonOpen}
-        className={`${classes.dropDownButton} ${buttonOpen && classes.upArrow}`}
-        disabled={dropDownItems.length < 2}
+        className={`${classes.dropDownButton} ${
+          buttonOpen && classes.upArrow
+        } ${name && classes.btnWithText}`}
+        disabled={disabled}
         onClick={() => {
           setButtonOpen((buttonOpen) => !buttonOpen);
         }}
       >
+        {name && <span className={classes.dropdownBtnName}>{name}</span>}
         <DownArrow />
       </LinkButton>
 
@@ -79,14 +94,20 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
           className={classes.panel}
           ref={panelRef}
           id="dropdown-panel"
-          data-testid={`${dataTestId}-panel`}
+          data-testid={`dropdown-panel`}
         >
-          <ul className={classes.tabList}>
+          <ul
+            className={
+              showLastItemSeparator
+                ? `${classes.tabList} ${classes.tabListWithSeparator}`
+                : `${classes.tabList}`
+            }
+          >
             {dropDownItems.map((item) => (
               <li key={item.id} className={classes.tabListItem}>
                 <LinkButton
                   ariaLabel={item.ariaLabel}
-                  disabled={item.id === currentSelectionId}
+                  disabled={item.disabled}
                   onClick={() => {
                     handleBtnClick(item.id);
                   }}

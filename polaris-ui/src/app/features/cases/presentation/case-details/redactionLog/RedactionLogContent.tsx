@@ -6,9 +6,10 @@ import {
   Guidance,
   ErrorSummary,
   Spinner,
+  LinkButton,
 } from "../../../../../common/presentation/components";
 import { UnderRedactionContent } from "./UnderRedactionContent";
-import classes from "./RedactionLogContent.module.scss";
+import { UnderOverRedactionContent } from "./UnderOverRedactionContent";
 import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { SaveStatus } from "../../../domain/gateway/SaveStatus";
 import {
@@ -27,8 +28,12 @@ import {
   redactString,
 } from "../utils/redactionLogUtils";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
+import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
+import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
+import classes from "./RedactionLogContent.module.scss";
+
 type RedactionLogContentProps = {
   caseUrn: string;
   isCaseCharged: boolean;
@@ -41,12 +46,14 @@ type RedactionLogContentProps = {
     fileCreatedDate: string;
     originalFileName: string;
   };
+  redactionLogType: RedactionLogTypes;
   savedRedactionTypes: RedactionTypeData[];
   saveStatus: SaveStatus;
   redactionLogLookUpsData: RedactionLogLookUpsData;
   redactionLogMappingsData: RedactionLogMappingData | null;
-  message?: string;
   saveRedactionLog: (data: RedactionLogRequestData) => void;
+  message?: string;
+  handleCloseRedactionLog?: () => void;
 };
 
 const NOTES_MAX_CHARACTERS = 400;
@@ -59,10 +66,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   cmsDocumentTypeId,
   additionalData,
   saveStatus,
+  redactionLogType,
   saveRedactionLog,
   savedRedactionTypes,
   redactionLogLookUpsData,
   redactionLogMappingsData,
+  handleCloseRedactionLog,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
@@ -75,6 +84,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       ? `${ChargeStatus.PostCharge}`
       : `${ChargeStatus.PreCharge}`,
     notes: "",
+    returnToIA: "true",
   });
   useEffect(() => {
     if (redactionLogMappingsData) {
@@ -101,10 +111,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
   const {
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitted },
+    register,
     control,
     watch,
     reset,
+    getValues,
+    trigger,
   } = useForm({ defaultValues });
 
   useEffect(() => {
@@ -218,6 +231,61 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     return [defaultOption, ...mappedBusinessUnit];
   };
 
+  const getUnderOrOverRedactionTypesRequestData = (
+    formData: UnderRedactionFormData
+  ) => {
+    let redactions: {
+      missedRedaction: RedactionTypeData;
+      redactionType: RedactionCategory;
+    }[] = [];
+
+    const getFormDataValue = (key: keyof UnderRedactionFormData) => {
+      return formData[key];
+    };
+
+    const getMissedRedactionType = (id: string) => {
+      const docType = redactionLogLookUpsData.missedRedactions.find(
+        (type) => type.id === id
+      );
+      if (docType) {
+        return { id: docType.id, name: docType.name };
+      }
+    };
+
+    const getRedactions = (category: string) => {
+      const redactionTypes = Object.keys(formData)
+        .filter((key) => key.includes(`${category}-type-`))
+        .reduce((arr, key) => {
+          const value = getFormDataValue(key);
+          if (value) {
+            arr.push({
+              missedRedaction: getMissedRedactionType(value)!,
+              redactionType:
+                category === "underRedaction"
+                  ? RedactionCategory.UnderRedacted
+                  : RedactionCategory.OverRedacted,
+              returnedToInvestigativeAuthority:
+                category === "underRedaction"
+                  ? true
+                  : formData.returnToIA === "true",
+            });
+          }
+          return arr;
+        }, [] as { missedRedaction: RedactionTypeData; redactionType: RedactionCategory; returnedToInvestigativeAuthority: boolean }[]);
+      return redactionTypes;
+    };
+
+    if (formData["underRedaction"]) {
+      redactions = [...redactions, ...getRedactions("underRedaction")];
+    }
+
+    if (formData["overRedaction"]) {
+      redactions = [...redactions, ...getRedactions("overRedaction")];
+    }
+
+    return redactions;
+  };
+
   const getRedactionLogRequestData = (
     formData: UnderRedactionFormData
   ): RedactionLogRequestData => {
@@ -241,11 +309,16 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       (documentType) => documentType.id === formData.documentType
     )!;
 
-    const redactions = savedRedactionTypes.map((missedRedaction) => ({
-      missedRedaction,
-      redactionType: RedactionCategory.UnderRedacted,
-      returnedToInvestigativeAuthority: false,
-    }));
+    let redactions: any[] = [];
+    if (redactionLogType === RedactionLogTypes.UNDER) {
+      redactions = savedRedactionTypes.map((missedRedaction) => ({
+        missedRedaction,
+        redactionType: RedactionCategory.UnderRedacted,
+        returnedToInvestigativeAuthority: false,
+      }));
+    } else if (redactionLogType === RedactionLogTypes.UNDER_OVER) {
+      redactions = getUnderOrOverRedactionTypesRequestData(formData);
+    }
 
     const mappedData = {
       urn: caseUrn,
@@ -272,7 +345,25 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         originalFileName: redactString(additionalData.originalFileName),
       },
     };
+
     return mappedData;
+  };
+
+  const handleUnderOrOverRedactionTypeError = (name: string) => {
+    if (name.includes("underRedaction-type-")) {
+      return {
+        children: "Select an under-redaction type",
+        href: "#checkbox-underRedaction-type-1",
+        "data-testid": "checkbox-cps-urt-link",
+      };
+    }
+    if (name.includes("overRedaction-type-")) {
+      return {
+        children: "Select an over-redaction type",
+        href: "#checkbox-overRedaction-type-1",
+        "data-testid": "checkbox-cps-ort-link",
+      };
+    }
   };
 
   const errorSummaryProperties = (inputName: string) => {
@@ -307,11 +398,46 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           href: "#select-cps-cs",
           "data-testid": "select-cps-cs-link",
         };
+
+      case "overRedaction":
+      case "underRedaction":
+        return {
+          children: "Select a type of redaction",
+          href: "#checkbox-under-redaction",
+          "data-testid": "checkbox-cps-rt-link",
+        };
+
+      default:
+        return handleUnderOrOverRedactionTypeError(inputName);
     }
   };
 
   const getErrorSummaryList = (errors: FieldErrors<UnderRedactionFormData>) => {
-    const errorSummary = Object.keys(errors).map((error, index) => ({
+    let filteredErrorKeys: string[] = Object.keys(errors);
+    if (
+      filteredErrorKeys.some((key) => key === "underRedaction") &&
+      filteredErrorKeys.some((key) => key === "overRedaction")
+    ) {
+      filteredErrorKeys = filteredErrorKeys.filter(
+        (key) => key !== "underRedaction" && key !== "overRedaction"
+      );
+      filteredErrorKeys = [...filteredErrorKeys, "underRedaction"];
+    }
+    if (filteredErrorKeys.some((key) => key.includes("underRedaction-type-"))) {
+      filteredErrorKeys = filteredErrorKeys.filter(
+        (key) => !key.includes("underRedaction-type-")
+      );
+      filteredErrorKeys = [...filteredErrorKeys, "underRedaction-type-1"];
+    }
+
+    if (filteredErrorKeys.some((key) => key.includes("overRedaction-type-"))) {
+      filteredErrorKeys = filteredErrorKeys.filter(
+        (key) => !key.includes("overRedaction-type-")
+      );
+      filteredErrorKeys = [...filteredErrorKeys, "overRedaction-type-1"];
+    }
+
+    const errorSummary = filteredErrorKeys.map((error, index) => ({
       reactListKey: `${index}`,
       ...errorSummaryProperties(error)!,
     }));
@@ -321,7 +447,8 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
 
   const handleAppInsightReporting = (
     newValues: UnderRedactionFormData,
-    defaultValues: UnderRedactionFormData
+    defaultValues: UnderRedactionFormData,
+    redactionLogRequestData: RedactionLogRequestData
   ) => {
     const { notes, ...defaultValuesWithoutNotes } = defaultValues;
     const { notes: newNotes, ...newValuesWithoutNotes } = newValues;
@@ -334,9 +461,17 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         newValues: newValuesWithoutNotes,
       });
     }
-    trackEvent("Save Redaction Log", {
-      values: newValues,
-    });
+    if (redactionLogType === RedactionLogTypes.UNDER) {
+      trackEvent("Save Redaction Log", {
+        values: redactionLogRequestData,
+      });
+    }
+
+    if (redactionLogType === RedactionLogTypes.UNDER_OVER) {
+      trackEvent("Save Redaction Log Under Over", {
+        values: redactionLogRequestData,
+      });
+    }
   };
 
   return (
@@ -363,7 +498,13 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         </div>
       )}
       <div className={classes.modalHeadWrapper}>
-        <div className={classes.modalTitleWrapper}>
+        <div
+          className={`${classes.modalTitleWrapper} ${
+            redactionLogType === RedactionLogTypes.UNDER_OVER
+              ? classes.modalTitleWrapperTypeOver
+              : ""
+          }`}
+        >
           <h1 className={classes.modalContentHeading}>
             {`${caseUrn}`}
             <span className={classes.greyColor}> - Redaction Log</span>
@@ -381,7 +522,22 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
       <form
         className={classes.underRedactionForm}
         onSubmit={(event) => {
-          event.preventDefault();
+          handleSubmit(
+            (data) => {
+              event.preventDefault();
+              const redactionLogRequestData = getRedactionLogRequestData(data);
+              setSavingRedactionLog(true);
+              saveRedactionLog(redactionLogRequestData);
+              handleAppInsightReporting(
+                data,
+                defaultValues,
+                redactionLogRequestData
+              );
+            },
+            (errors) => {
+              console.log("error", errors);
+            }
+          )(event);
         }}
       >
         <div className={classes.selectInputWrapper}>
@@ -564,11 +720,35 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               errorList={getErrorSummaryList(errors)}
             />
           )}
+
           <section>
-            <UnderRedactionContent
-              documentName={documentName}
-              savedRedactionTypes={savedRedactionTypes}
-            />
+            <div className={classes.headingWrapper}>
+              <DocIcon className={classes.docIcon} />{" "}
+              <h2>
+                <span className={classes.greyColor}>
+                  Redaction details for:
+                </span>
+                {`"${documentName}"`}
+              </h2>
+            </div>
+
+            {redactionLogType === RedactionLogTypes.UNDER && (
+              <UnderRedactionContent
+                documentName={documentName}
+                savedRedactionTypes={savedRedactionTypes}
+              />
+            )}
+
+            {redactionLogType === RedactionLogTypes.UNDER_OVER && (
+              <UnderOverRedactionContent
+                redactionTypes={redactionLogLookUpsData.missedRedactions}
+                register={register}
+                getValues={getValues}
+                watch={watch}
+                trigger={trigger}
+                isSubmitted={isSubmitted}
+              />
+            )}
           </section>
           <section className={classes.textAreaSection}>
             <Guidance
@@ -607,26 +787,28 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             />
           </section>
         </div>
-      </form>
 
-      <div className={classes.btnWrapper}>
-        <Button
-          disabled={saveStatus === "saving" || savingRedactionLog}
-          type="submit"
-          className={classes.saveBtn}
-          onClick={handleSubmit((data) => {
-            const redactionLogRequestData = getRedactionLogRequestData({
-              ...data,
-            });
-            setSavingRedactionLog(true);
-            saveRedactionLog(redactionLogRequestData);
-            handleAppInsightReporting(data, defaultValues);
-          })}
-          data-testid="btn-save-redaction-log"
-        >
-          Save and Close
-        </Button>
-      </div>
+        <div className={classes.btnWrapper}>
+          <Button
+            disabled={saveStatus === "saving" || savingRedactionLog}
+            type="submit"
+            className={classes.saveBtn}
+            data-testid="btn-save-redaction-log"
+          >
+            Save and Close
+          </Button>
+
+          {handleCloseRedactionLog && (
+            <LinkButton
+              className={classes.cancelBtn}
+              onClick={handleCloseRedactionLog}
+              dataTestId="btn-redaction-log-cancel"
+            >
+              Cancel
+            </LinkButton>
+          )}
+        </div>
+      </form>
     </div>
   );
 };

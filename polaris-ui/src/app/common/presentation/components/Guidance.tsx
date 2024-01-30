@@ -58,6 +58,7 @@ export const Guidance: React.FC<GuidanceProps> = ({
     <div className={`${classes.guidanceButtonWrapper} ${className}`}>
       <div className={classes.helpButtonWrapper}>
         <LinkButton
+          type="button"
           dataTestId={dataTestId}
           ref={guidanceBtnRef}
           ariaLabel={ariaLabel}

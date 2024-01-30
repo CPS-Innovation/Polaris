@@ -1,0 +1,16 @@
+.redactionTypes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  :global(.govuk-checkboxes__item) {
+    padding-right: 2.5%;
+    width: 18%;
+  }
+}
+.underOverRedactionContent {
+  margin-bottom: 1.5625rem;
+  :global(.govuk-radios) {
+    margin-bottom: 1.5rem;
+  }
+}

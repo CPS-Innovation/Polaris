@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import classes from "./UnderRedactionContent.module.scss";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { getPresentationRedactionTypeNames } from "../utils/redactionLogUtils";
-import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
 type UnderRedactionContentProps = {
   documentName: string;
   savedRedactionTypes: RedactionTypeData[];
@@ -38,13 +37,6 @@ export const UnderRedactionContent: React.FC<UnderRedactionContentProps> = ({
   }, []);
   return (
     <div className={classes.underRedactionContent}>
-      <div className={classes.headingWrapper}>
-        <DocIcon className={classes.docIcon} />{" "}
-        <h2>
-          <span className={classes.greyColor}>Redaction details for:</span>
-          {`"${documentName}"`}
-        </h2>
-      </div>
       <ul
         className={classes.underRedactionContentList}
         data-testid="redaction-summary"

@@ -5,4 +5,7 @@ export type UnderRedactionFormData = {
   chargeStatus: string;
   documentType: string;
   notes: string;
-};
+  returnToIA?: string;
+  underRedaction?: string;
+  overRedaction?: string;
+} & Record<string, string>;
