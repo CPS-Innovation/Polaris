@@ -4,17 +4,21 @@ using Moq;
 using Xunit;
 using Moq.Protected;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System;
+using System.Net.Http;
+using System.Threading;
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Wrappers.Contracts;
 using Common.Constants;
 using Common.Factories.Contracts;
 using Common.Dto.Request;
 using Common.Dto.Response;
 
-namespace Common.Clients.Tests.Clients
+namespace coordinator.Clients.Tests.Clients
 {
     public class PdfGeneratorClientTests
     {

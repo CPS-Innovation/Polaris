@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
@@ -14,7 +14,7 @@ using Common.Factories.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 
-namespace Common.Clients
+namespace coordinator.Clients
 {
     public class PdfGeneratorClient : IPdfGeneratorClient
     {
