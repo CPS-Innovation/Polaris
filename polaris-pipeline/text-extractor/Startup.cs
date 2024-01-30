@@ -7,10 +7,14 @@ using text_extractor.Services.OcrService;
 using text_extractor.Health;
 using text_extractor.Factories;
 using text_extractor.Factories.Contracts;
+using text_extractor.Services.CaseSearchService;
+using text_extractor.Services.CaseSearchService.Contracts;
+using text_extractor.Mappers.Contracts;
+using text_extractor.Mappers;
 using System.Diagnostics.CodeAnalysis;
 using Common.Constants;
 using Common.Health;
-using Common.Services.Extensions;
+using Azure.Search.Documents;
 using Common.Wrappers.Contracts;
 using System.IO;
 using Common.Dto.Request;
@@ -52,7 +56,7 @@ namespace text_extractor
 
             services.AddSingleton<IConfiguration>(Configuration);
             BuildOcrService(services, Configuration);
-            services.AddSearchClient(Configuration);
+            AddSearchClient(services, Configuration);
 
             services.AddTransient<IExceptionHandler, ExceptionHandler>();
             services.AddTransient<IValidatorWrapper<ExtractTextRequestDto>, ValidatorWrapper<ExtractTextRequestDto>>();
@@ -64,6 +68,22 @@ namespace text_extractor
             services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
 
             BuildHealthChecks(services);
+        }
+
+        private static void AddSearchClient(IServiceCollection services, IConfigurationRoot configuration)
+        {
+            services.AddOptions<SearchClientOptions>().Configure<IConfiguration>((settings, _) =>
+            {
+                configuration.GetSection("searchClient").Bind(settings);
+            });
+
+            services.AddTransient<ISearchIndexService, SearchIndexService>();
+            services.AddTransient<IAzureSearchClientFactory, AzureSearchClientFactory>();
+            services.AddTransient<IStreamlinedSearchResultFactory, StreamlinedSearchResultFactory>();
+            services.AddTransient<IStreamlinedSearchLineMapper, StreamlinedSearchLineMapper>();
+            services.AddTransient<IStreamlinedSearchWordMapper, StreamlinedSearchWordMapper>();
+            services.AddTransient<ISearchLineFactory, SearchLineFactory>();
+            services.AddTransient<ISearchIndexingBufferedSenderFactory, SearchIndexingBufferedSenderFactory>();
         }
 
         private static void BuildOcrService(IServiceCollection services, IConfigurationRoot configuration)

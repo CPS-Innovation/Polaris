@@ -1,8 +1,8 @@
 ﻿using Common.Domain.SearchIndex;
-using Common.Factories.Contracts;
-using Common.Mappers.Contracts;
+using text_extractor.Factories.Contracts;
+using text_extractor.Mappers.Contracts;
 
-namespace Common.Factories
+namespace text_extractor.Factories
 {
     public class StreamlinedSearchResultFactory : IStreamlinedSearchResultFactory
     {

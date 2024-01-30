@@ -7,7 +7,7 @@ using Common.Domain.Exceptions;
 using Common.Dto.Request.Search;
 using Common.Extensions;
 using Common.Mappers.Contracts;
-using Common.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;
 using Microsoft.Azure.WebJobs;

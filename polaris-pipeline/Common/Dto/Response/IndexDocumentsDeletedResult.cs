@@ -1,4 +1,4 @@
-namespace Common.Services.CaseSearchService
+namespace Common.Dto.Response
 {
     public class IndexDocumentsDeletedResult
     {

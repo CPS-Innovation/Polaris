@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Search.Documents;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Common.Factories.Contracts;
+using text_extractor.Factories.Contracts;
 
-namespace Common.Health
+namespace text_extractor.Health
 {
     public class AzureSearchClientHealthCheck : IHealthCheck
     {
@@ -25,7 +25,7 @@ namespace Common.Health
                 var response = await _searchClient.GetDocumentCountAsync(cancellationToken);
                 return HealthCheckResult.Healthy($"{(long)response} documents");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return HealthCheckResult.Unhealthy(e.Message, e);
             }

@@ -2,12 +2,12 @@
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
 using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Common.Health
+namespace text_extractor.Health
 {
     public class SearchIndexServiceHealthCheck : IHealthCheck
     {

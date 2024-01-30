@@ -3,15 +3,15 @@ using Azure;
 using Azure.Core.Serialization;
 using Azure.Search.Documents;
 using Common.Constants;
-using Common.Factories.Contracts;
+using text_extractor.Factories.Contracts;
 using Microsoft.Extensions.Configuration;
 
-namespace Common.Factories;
+namespace text_extractor.Factories;
 
 public class AzureSearchClientFactory : IAzureSearchClientFactory
 {
     private readonly IConfiguration _configuration;
-    
+
     public AzureSearchClientFactory(IConfiguration configuration)
     {
         _configuration = configuration;
@@ -28,7 +28,7 @@ public class AzureSearchClientFactory : IAzureSearchClientFactory
             indexName,
             new AzureKeyCredential(searchClientAuthorizationKey),
             new SearchClientOptions { Serializer = new NewtonsoftJsonObjectSerializer() });
-        
+
         return sc;
     }
 }

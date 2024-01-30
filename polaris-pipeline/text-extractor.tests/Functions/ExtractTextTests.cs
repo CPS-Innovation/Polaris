@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Common.Domain.Exceptions;
-using Common.Services.CaseSearchService.Contracts;
+using Common.Dto.Response;
+using text_extractor.Services.CaseSearchService.Contracts;
 using FluentAssertions;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,6 @@ using Common.Telemetry.Contracts;
 using System.IO;
 using Common.Mappers.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
-using Common.Services.CaseSearchService;
 
 namespace text_extractor.tests.Functions
 {

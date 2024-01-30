@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Common.Services.CaseSearchService
+namespace Common.Dto.Response
 {
     public class IndexSettledResult
     {

@@ -1,8 +1,8 @@
 ﻿using Azure.Search.Documents;
 using Common.Domain.SearchIndex;
-using Common.Factories.Contracts;
+using text_extractor.Factories.Contracts;
 
-namespace Common.Factories;
+namespace text_extractor.Factories;
 
 public class SearchIndexingBufferedSenderFactory : ISearchIndexingBufferedSenderFactory
 {

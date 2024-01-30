@@ -1,11 +1,11 @@
 ﻿using Azure.Search.Documents;
 using Common.Domain.SearchIndex;
-using Common.Factories;
+using text_extractor.Factories;
 using FluentAssertions;
 using Moq;
 using Xunit;
 
-namespace Common.tests.Factories
+namespace text_extractor.tests.Factories
 {
 	public class SearchIndexingBufferedSenderFactoryTests
 	{

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text;
 using Common.Domain.SearchIndex;
-using Common.Factories.Contracts;
+using text_extractor.Factories.Contracts;
 using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace Common.Factories;
+namespace text_extractor.Factories;
 
 public class SearchLineFactory : ISearchLineFactory
 {

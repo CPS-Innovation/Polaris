@@ -10,7 +10,7 @@ using Common.Extensions;
 using Common.Handlers.Contracts;
 using Common.Logging;
 using Common.Mappers.Contracts;
-using Common.Services.CaseSearchService.Contracts;
+using text_extractor.Services.CaseSearchService.Contracts;
 using Common.Telemetry.Contracts;
 using Common.Telemetry.Wrappers.Contracts;
 using Common.Wrappers.Contracts;

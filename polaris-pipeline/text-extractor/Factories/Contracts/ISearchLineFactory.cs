@@ -2,7 +2,7 @@
 using Common.ValueObjects;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace Common.Factories.Contracts
+namespace text_extractor.Factories.Contracts
 {
     public interface ISearchLineFactory
     {

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Common.Domain.SearchIndex;
-using Common.Mappers.Contracts;
+using text_extractor.Mappers.Contracts;
 using FuzzySharp;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
-namespace Common.Mappers
+namespace text_extractor.Mappers
 {
     public class StreamlinedSearchWordMapper : IStreamlinedSearchWordMapper
     {
