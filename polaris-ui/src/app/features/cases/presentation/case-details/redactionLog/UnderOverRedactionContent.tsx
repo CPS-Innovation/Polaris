@@ -4,13 +4,8 @@ import { Radios } from "../../../../../common/presentation/components/Radios";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { UseFormRegister } from "react-hook-form";
 import { UnderRedactionFormData } from "../../../domain/redactionLog/RedactionLogFormData";
+import { ErrorState } from "./RedactionLogContent";
 import classes from "./UnderOverRedactionContent.module.scss";
-
-export type ErrorState = {
-  category: boolean;
-  underRedaction: boolean;
-  overRedaction: boolean;
-};
 
 type UnderOverRedactionContentProps = {
   redactionTypes: RedactionTypeData[];

@@ -227,17 +227,11 @@ describe("Redaction Log", () => {
       );
       cy.findByTestId("select-cps-dt-link").should("exist");
       cy.findByTestId("select-cps-area").select("1");
-      cy.get("#select-cps-area-error").should("not.exist");
-      cy.findByTestId("select-cps-area-link").should("not.exist");
       cy.findByTestId("select-cps-bu").select("1");
-      cy.get("#select-cps-bu-error").should("not.exist");
-      cy.findByTestId("select-cps-bu-link").should("not.exist");
       cy.findByTestId("select-cps-dt").select("1");
-      cy.get("#select-cps-dt-error").should("not.exist");
-      cy.findByTestId("select-cps-dt-link").should("not.exist");
-
-      cy.get("#error-summary-title").should("not.exist");
       cy.findByTestId("btn-save-redaction-log").click();
+      cy.get("#error-summary-title").should("not.exist");
+      cy.findByTestId("div-modal").should("not.exist");
     });
     it("Should hide RedactionLog modal and should show error message if the saving of redaction is failed", () => {
       cy.overrideRoute(
@@ -556,14 +550,8 @@ describe("Redaction Log", () => {
       );
       cy.findByTestId("select-cps-dt-link").should("exist");
       cy.findByTestId("select-cps-area").select("1");
-      cy.get("#select-cps-area-error").should("not.exist");
-      cy.findByTestId("select-cps-area-link").should("not.exist");
       cy.findByTestId("select-cps-bu").select("1");
-      cy.get("#select-cps-bu-error").should("not.exist");
-      cy.findByTestId("select-cps-bu-link").should("not.exist");
       cy.findByTestId("select-cps-dt").select("1");
-      cy.get("#select-cps-dt-error").should("not.exist");
-      cy.findByTestId("select-cps-dt-link").should("not.exist");
 
       //under redaction checkboxes error check
       cy.findByTestId("checkbox-cps-rt-link").should("exist");
