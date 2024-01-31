@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 using Common.Services.BlobStorageService.Contracts;
 using coordinator.Domain;
 using Microsoft.Azure.WebJobs;

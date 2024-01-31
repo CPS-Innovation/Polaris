@@ -1,13 +1,13 @@
 using AutoFixture;
 using Common.Constants;
 using Common.Dto.Response;
-using Common.Mappers;
-using Common.Mappers.Contracts;
+using DdeiClient.Mappers.Contract;
+using Ddei.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
 
-namespace Common.Tests.Mappers;
+namespace DdeiClient.tests.Mappers;
 
 public class DdeiCaseDocumentMapperTests
 {
@@ -37,12 +37,12 @@ public class DdeiCaseDocumentMapperTests
             result.CmsDocType.DocumentTypeId.Should().Be(_documentResponse.DocumentTypeId);
         }
     }
-    
+
     [Fact]
     public void When_OriginalFileNameIsNullInResponse_ReturnsCorrectValues()
     {
         _documentResponse.PresentationTitle = null;
-        
+
         var result = _mapper.Map(_documentResponse);
 
         using (new AssertionScope())
@@ -56,12 +56,12 @@ public class DdeiCaseDocumentMapperTests
             result.CmsDocType.DocumentTypeId.Should().Be(_documentResponse.DocumentTypeId);
         }
     }
-    
-    [Fact] 
+
+    [Fact]
     public void When_DocumentTypeIsNullInResponse_ReturnsCorrectValues()
     {
         _documentResponse.DocumentType = null;
-        
+
         var result = _mapper.Map(_documentResponse);
 
         using (new AssertionScope())
@@ -76,11 +76,11 @@ public class DdeiCaseDocumentMapperTests
         }
     }
 
-    [Fact] 
+    [Fact]
     public void When_DocumentTypeIdIsNullInResponse_ReturnsCorrectValues_AndUnknownAsDocumentType()
     {
         _documentResponse.DocumentTypeId = null;
-        
+
         var result = _mapper.Map(_documentResponse);
 
         using (new AssertionScope())

@@ -4,10 +4,10 @@ using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
 using Common.Dto.Response;
 using Common.Exceptions;
-using Common.Mappers;
 using Common.Wrappers.Contracts;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories.Contracts;
+using Ddei.Mappers;
 using DdeiClient.Mappers.Contract;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -17,7 +17,7 @@ using Moq;
 using Moq.Protected;
 using Xunit;
 
-namespace Common.tests.Services.DocumentExtractionService;
+namespace DdeiClient.tests.Services.DocumentExtractionService;
 
 public class DdeiDocumentExtractionServiceTests
 {

@@ -6,7 +6,7 @@ using Common.Domain.SearchIndex;
 using Common.Dto.Response;
 using Common.ValueObjects;
 
-namespace Common.Clients.Contracts
+namespace coordinator.Clients.Contracts
 {
     public interface ITextExtractorClient
     {

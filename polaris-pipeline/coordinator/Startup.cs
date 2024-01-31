@@ -19,8 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Health;
 using Common.Wrappers.Contracts;
-using Common.Clients.Contracts;
-using Common.Clients;
 using FluentValidation;
 using Common.Domain.Validators;
 using Common.Dto.Request;
@@ -71,7 +69,6 @@ namespace coordinator
             });
 
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();

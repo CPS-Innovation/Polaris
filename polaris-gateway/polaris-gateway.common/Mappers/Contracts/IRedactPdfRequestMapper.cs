@@ -1,8 +1,7 @@
 ﻿using Common.Dto.Request;
 using Common.ValueObjects;
-using System;
 
-namespace Common.Mappers.Contracts
+namespace PolarisGateway.common.Mappers.Contracts
 {
     public interface IRedactPdfRequestMapper
     {

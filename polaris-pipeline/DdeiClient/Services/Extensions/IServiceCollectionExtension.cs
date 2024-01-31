@@ -1,6 +1,4 @@
 ﻿using Common.Dto.Response;
-using Common.Mappers;
-using Common.Mappers.Contracts;
 using Ddei.Factories.Contracts;
 using Ddei.Factories;
 using Ddei.Mappers;

@@ -7,11 +7,11 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request.Search;
-using Common.Factories.Contracts;
 using Common.Wrappers.Contracts;
+using Common.Factories.Contracts;
 using Microsoft.Extensions.Configuration;
 
-namespace Common.Factories
+namespace coordinator.Factories
 {
     public class PipelineClientSearchRequestFactory : IPipelineClientSearchRequestFactory
     {
