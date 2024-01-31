@@ -16,7 +16,7 @@ import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
 
 import getBoundingRect from "../lib/get-bounding-rect";
-import getClientRects from "../lib/get-client-rects";
+import getClientRects, { PAGE_BORDER_WIDTH } from "../lib/get-client-rects";
 import getAreaAsPng from "../lib/get-area-as-png";
 
 import {
@@ -193,7 +193,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         eventBus: this.eventBus,
         // enhanceTextSelection: true, // deprecated. https://github.com/mozilla/pdf.js/issues/9943#issuecomment-409369485
         textLayerMode: 2,
-        removePageBorders: true,
         linkService: this.linkService,
         renderer: "canvas",
         l10n: null,
@@ -657,8 +656,12 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
                 const pageBoundingRect = {
                   ...boundingRect,
-                  top: boundingRect.top - page.node.offsetTop,
-                  left: boundingRect.left - page.node.offsetLeft,
+                  top:
+                    boundingRect.top - page.node.offsetTop - PAGE_BORDER_WIDTH,
+                  left:
+                    boundingRect.left -
+                    page.node.offsetLeft -
+                    PAGE_BORDER_WIDTH,
                   pageNumber: page.number,
                 };
 
