@@ -2,8 +2,8 @@
 using System.Net.Http.Headers;
 using Azure.Search.Documents;
 using System.Threading.Tasks;
-using Common.Clients;
-using Common.Clients.Contracts;
+using coordinator.Clients;
+using coordinator.Clients.Contracts;
 using Common.Configuration;
 using Common.Constants;
 using Common.Factories;

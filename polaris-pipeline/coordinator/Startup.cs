@@ -19,8 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Health;
 using Common.Wrappers.Contracts;
-using Common.Clients.Contracts;
-using Common.Clients;
 using FluentValidation;
 using Common.Domain.Validators;
 using Common.Dto.Request;

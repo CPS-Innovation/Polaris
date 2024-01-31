@@ -16,7 +16,7 @@ using Common.Services.BlobStorageService.Contracts;
 using Microsoft.Extensions.Configuration;
 using coordinator.Factories;
 using System.Text.RegularExpressions;
-using Common.Clients.Contracts;
+using coordinator.Clients.Contracts;
 
 namespace coordinator.Providers;
 
