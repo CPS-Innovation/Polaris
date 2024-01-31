@@ -92,6 +92,7 @@ namespace coordinator.Functions.ActivityFunctions.Document
                 pdfStream = await _pdfGeneratorClient.ConvertToPdfAsync(
                     payload.CorrelationId,
                     payload.CmsAuthValues,
+                    payload.CmsCaseUrn,
                     payload.CmsCaseId.ToString(),
                     payload.CmsDocumentId,
                     payload.CmsVersionId.ToString(),

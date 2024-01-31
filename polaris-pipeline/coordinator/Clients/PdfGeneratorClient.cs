@@ -34,17 +34,14 @@ namespace coordinator.Clients
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
+        public async Task<Stream> ConvertToPdfAsync(Guid correlationId, string cmsAuthValues, string caseUrn, string caseId, string documentId, string versionId, Stream documentStream, FileType fileType)
         {
             documentStream.Seek(0, SeekOrigin.Begin);
 
             var pdfStream = new MemoryStream();
 
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.ConvertToPdf}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(caseUrn, caseId, documentId, versionId)}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
-            request.Headers.Add(HttpHeaderKeys.CaseId, caseId);
-            request.Headers.Add(HttpHeaderKeys.DocumentId, documentId);
-            request.Headers.Add(HttpHeaderKeys.VersionId, versionId);
             request.Headers.Add(HttpHeaderKeys.Filetype, fileType.ToString());
 
             using (var requestContent = new StreamContent(documentStream))

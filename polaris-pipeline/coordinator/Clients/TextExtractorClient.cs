@@ -43,6 +43,7 @@ namespace coordinator.Clients
 
         public async Task ExtractTextAsync(
             PolarisDocumentId polarisDocumentId,
+            string cmsCaseUrn,
             long cmsCaseId,
             string cmsDocumentId,
             long versionId,
@@ -50,11 +51,11 @@ namespace coordinator.Clients
             Guid correlationId,
             Stream documentStream)
         {
-            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.Extract}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
+            var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetExtractPath(cmsCaseUrn, cmsCaseId, cmsDocumentId, versionId)}?code={_configuration[PipelineSettings.PipelineTextExtractorFunctionAppKey]}", correlationId);
             request.Headers.Add(HttpHeaderKeys.PolarisDocumentId, polarisDocumentId.ToString());
-            request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());
-            request.Headers.Add(HttpHeaderKeys.DocumentId, cmsDocumentId);
-            request.Headers.Add(HttpHeaderKeys.VersionId, versionId.ToString());
+            // request.Headers.Add(HttpHeaderKeys.CaseId, cmsCaseId.ToString());
+            // request.Headers.Add(HttpHeaderKeys.DocumentId, cmsDocumentId);
+            // request.Headers.Add(HttpHeaderKeys.VersionId, versionId.ToString());
             request.Headers.Add(HttpHeaderKeys.BlobName, blobName);
 
             using (var requestContent = new StreamContent(documentStream))

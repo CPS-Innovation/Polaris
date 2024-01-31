@@ -28,8 +28,8 @@ namespace Common.Configuration
 
         // Internal Pipeline
         public const string Search = "search";
-        public const string Extract = "extract";
-        public const string ConvertToPdf = "convert-to-pdf";
+        public const string Extract = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
+        public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
         public const string RedactPdf = "redact-pdf";
         public const string RemoveCaseIndexes = "remove-case-indexes";
         public const string WaitForCaseEmptyResults = "wait-for-case-empty-results";
@@ -84,6 +84,16 @@ namespace Common.Configuration
         public static string GetInstancesPath()
         {
             return "runtime/webhooks/durabletask/instances";
+        }
+
+        public static string GetConvertToPdfPath(string caseUrn, string caseId, string documentId, string versionId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
+        }
+
+        public static string GetExtractPath(string caseUrn, long caseId, string documentId, long versionId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
         }
     }
 }

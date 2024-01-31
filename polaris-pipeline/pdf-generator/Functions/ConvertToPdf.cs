@@ -38,15 +38,15 @@ namespace pdf_generator.Functions
         }
 
         [Function(nameof(ConvertToPdf))]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request, 
-            FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
+            string caseUrn, string caseId, string documentId, string versionId)
         {
             Guid currentCorrelationId = default;
             ConvertedDocumentEvent telemetryEvent = default;
             try
             {
                 #region Validate-Inputs
-                
+
                 currentCorrelationId = request.Headers.GetCorrelation();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
                 telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
@@ -56,18 +56,17 @@ namespace pdf_generator.Functions
 
                 var fileType = request.Headers.GetFileType();
                 telemetryEvent.FileType = fileType.ToString();
-                telemetryEvent.CaseId = request.Headers.GetCaseId();
+                telemetryEvent.CaseId = caseId;
+                telemetryEvent.CaseUrn = caseUrn;
 
-                var documentId = request.Headers.GetDocumentId();
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 telemetryEvent.DocumentId = documentId;
 
-                var versionId = request.Headers.GetVersionId();
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 telemetryEvent.VersionId = versionId;
 
                 #endregion
-                
+
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
 
@@ -78,7 +77,7 @@ namespace pdf_generator.Functions
                     telemetryEvent.OriginalBytes = originalBytes.Value;
 
                     request.Body.Seek(0, SeekOrigin.Begin);
-                    
+
                     var pdfStream = _pdfOrchestratorService.ReadToPdfStream(request.Body, fileType, documentId, currentCorrelationId);
                     var bytes = pdfStream.Length;
 

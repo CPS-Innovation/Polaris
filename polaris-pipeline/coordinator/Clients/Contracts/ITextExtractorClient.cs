@@ -10,7 +10,7 @@ namespace coordinator.Clients.Contracts
 {
     public interface ITextExtractorClient
     {
-        Task ExtractTextAsync(PolarisDocumentId polarisDocumentId, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream documentStream);
+        Task ExtractTextAsync(PolarisDocumentId polarisDocumentId, string cmsCaseUrn, long cmsCaseId, string cmsDocumentId, long versionId, string blobName, Guid correlationId, Stream documentStream);
         Task<IList<StreamlinedSearchLine>> SearchTextAsync(long cmsCaseId, string searchTerm, Guid correlationId, IEnumerable<SearchFilterDocument> documents);
         Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(long cmsCaseId, Guid correlationId);
         Task<IndexSettledResult> WaitForCaseEmptyResultsAsync(long cmsCaseId, Guid correlationId);
