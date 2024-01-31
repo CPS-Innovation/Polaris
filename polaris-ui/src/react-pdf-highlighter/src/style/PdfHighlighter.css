@@ -3,6 +3,7 @@
   overflow: auto;
   width: 100%;
   height: 100%;
+  background-color: #f3f2f1;
 }
 
 .PdfHighlighter__highlight-layer {
