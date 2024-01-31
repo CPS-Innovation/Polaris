@@ -69,7 +69,6 @@ namespace coordinator
             });
 
             services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
-            services.AddTransient<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
             services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
             services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();

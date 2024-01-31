@@ -1,6 +1,6 @@
 using Common.Dto.Document;
 
-namespace Common.Mappers.Contracts;
+namespace DdeiClient.Mappers.Contract;
 
 public interface ICaseDocumentMapper<T>
 {

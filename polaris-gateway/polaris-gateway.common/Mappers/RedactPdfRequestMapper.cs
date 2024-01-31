@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Common.Domain.Extensions;
+﻿using Common.Domain.Extensions;
 using Common.Dto.Request;
 using Common.Dto.Request.Redaction;
 using Common.Logging;
-using Common.Mappers.Contracts;
+using PolarisGateway.common.Mappers.Contracts;
 using Common.ValueObjects;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Mappers
+namespace PolarisGateway.Mappers
 {
     public class RedactPdfRequestMapper : IRedactPdfRequestMapper
     {

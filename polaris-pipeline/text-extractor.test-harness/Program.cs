@@ -14,7 +14,7 @@ using text_extractor.Services.CaseSearchService.Contracts;
 using text_extractor.Factories;
 using text_extractor.Mappers;
 using text_extractor.Mappers.Contracts;
-using Common.Services.Extensions;
+using coordinator.Factories;
 using Common.Wrappers;
 using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;

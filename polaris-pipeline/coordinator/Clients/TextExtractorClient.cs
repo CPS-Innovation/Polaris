@@ -10,6 +10,7 @@ using Common.Constants;
 using Common.Domain.SearchIndex;
 using Common.Dto.Request;
 using Common.Factories.Contracts;
+using coordinator.Factories;
 using Common.Dto.Response;
 using Common.ValueObjects;
 using Common.Wrappers.Contracts;

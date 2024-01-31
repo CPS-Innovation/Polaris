@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Common.Domain.SearchIndex;
 
-namespace Common.Factories.Contracts
+namespace coordinator.Factories
 {
     public interface IPipelineClientSearchRequestFactory
     {

@@ -1,8 +1,8 @@
 using Common.Dto.Document;
 using Common.Dto.Response;
-using Common.Mappers.Contracts;
+using DdeiClient.Mappers.Contract;
 
-namespace Common.Mappers;
+namespace Ddei.Mappers;
 
 public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
 {
