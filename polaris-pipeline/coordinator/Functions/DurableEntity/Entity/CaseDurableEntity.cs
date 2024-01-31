@@ -147,17 +147,10 @@ namespace coordinator.Functions.DurableEntity.Entity
                  (
                      cmsDocument != null &&
                      (
-                         // does need to go
-                         cmsDocument.Status != DocumentStatus.Indexed || // retry if it failed
-
-                         // handled already but crap
-                         cmsDocument.CmsVersionId != incomingDocument.VersionId || // happy path, I've done a redaction or in CMS an upversion has happened
-
-                         // does need to go
-                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed || // done a redaction, but need latest doc with OCR layer
-
-                         // no need to document pipeline    
-                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId // purely a "cosmetic" 
+                         cmsDocument.Status != DocumentStatus.Indexed ||
+                         cmsDocument.CmsVersionId != incomingDocument.VersionId ||
+                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
+                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId
                      )
                  )
                  select incomingDocument).ToList();

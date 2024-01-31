@@ -12,7 +12,7 @@ const {
 
 let routes: ApiRoutes
 
-describe("Attachments", { tags: '@ci' }, () => {
+describe("Attachments", { tags: "@ci" }, () => {
   beforeEach(() => {
     cy.getAuthHeaders().then((headers) => {
       routes = makeApiRoutes(headers)
@@ -52,7 +52,9 @@ describe("Attachments", { tags: '@ci' }, () => {
           documents.some(
             (document) =>
               document.cmsDocType.documentCategory === "Attachment" &&
-              document.polarisParentDocumentId == ATTACHMENT_PARENT_DOCUMENT_ID
+              document.polarisParentDocumentId ==
+                ATTACHMENT_PARENT_DOCUMENT_ID &&
+              document.presentationFlags.write == "AttachmentCategoryNotAllowed"
           )
         )
         expect(
