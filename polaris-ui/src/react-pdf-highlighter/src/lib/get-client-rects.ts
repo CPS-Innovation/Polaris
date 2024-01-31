@@ -64,8 +64,6 @@ const getClientRects = (
     }
   }
 
-  console.log("rects>>", rects);
-
   return shouldOptimize ? optimizeClientRects(rects) : rects;
 };
 
