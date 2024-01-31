@@ -1,3 +1,4 @@
+using System.Net.Mail;
 namespace Common.Dto.FeatureFlags
 {
     public enum WriteFlag
@@ -7,6 +8,7 @@ namespace Common.Dto.FeatureFlags
         DocTypeNotAllowed,
         OriginalFileTypeNotAllowed,
         IsDispatched,
-        IsNotOcrProcessed
+        IsNotOcrProcessed,
+        AttachmentCategoryNotAllowed,
     }
 }

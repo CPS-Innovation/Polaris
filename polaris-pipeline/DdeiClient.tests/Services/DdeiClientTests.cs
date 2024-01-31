@@ -17,9 +17,9 @@ using Moq;
 using Moq.Protected;
 using Xunit;
 
-namespace DdeiClient.tests.Services.DocumentExtractionService;
+namespace DdeiClient.tests.Services;
 
-public class DdeiDocumentExtractionServiceTests
+public class DdeiClientTests
 {
     private readonly Fixture _fixture;
     private readonly string _caseUrn;
@@ -31,9 +31,9 @@ public class DdeiDocumentExtractionServiceTests
     private readonly HttpResponseMessage _httpResponseMessage;
     private readonly List<DdeiCaseDocumentResponse> _content;
     private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapperMock;
-    private readonly Ddei.Services.DdeiClient _documentExtractionService;
+    private readonly Ddei.Services.DdeiClient _ddeiClient;
 
-    public DdeiDocumentExtractionServiceTests()
+    public DdeiClientTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
@@ -78,16 +78,19 @@ public class DdeiDocumentExtractionServiceTests
             .Returns(httpRequestMessage);
 
         var mockConfiguration = new Mock<IConfiguration>();
-        var caseDataArgFactory = new Mock<ICaseDataArgFactory>();
-        var caseDetailsMapper = new Mock<ICaseDetailsMapper>();
-
-        _documentExtractionService = new Ddei.Services.DdeiClient
+        var mockCaseDataArgFactory = new Mock<ICaseDataArgFactory>();
+        var mockCaseDetailsMapper = new Mock<ICaseDetailsMapper>();
+        var mockCaseIdentifiersMapper = new Mock<ICaseIdentifiersMapper>();
+        var mockCmsAuthValuesMapper = new Mock<ICmsAuthValuesMapper>();
+        _ddeiClient = new Ddei.Services.DdeiClient
             (
                 httpClient,
                 mockHttpRequestFactory.Object,
-                caseDataArgFactory.Object,
-                caseDetailsMapper.Object,
-                new DdeiCaseDocumentMapper(),
+                mockCaseDataArgFactory.Object,
+                mockCaseDetailsMapper.Object,
+                new CaseDocumentMapper(),
+                mockCaseIdentifiersMapper.Object,
+                mockCmsAuthValuesMapper.Object,
                 _jsonConvertWrapperMock.Object,
                 loggerMock.Object
             );
@@ -97,13 +100,13 @@ public class DdeiDocumentExtractionServiceTests
     public void Ctors_EnsureNotNullAndCorrectExceptionParameterName()
     {
         var assertion = new GuardClauseAssertion(_fixture);
-        assertion.Verify(_documentExtractionService.GetType().GetConstructors());
+        assertion.Verify(_ddeiClient.GetType().GetConstructors());
     }
 
     [Fact]
     public async Task GetDocumentAsync_ReturnsExpectedStream()
     {
-        var documentStream = await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
+        var documentStream = await _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
 
         documentStream.Should().NotBeNull();
     }
@@ -113,7 +116,7 @@ public class DdeiDocumentExtractionServiceTests
     {
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-        await Assert.ThrowsAsync<DdeiClientException>(() => _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId));
+        await Assert.ThrowsAsync<DdeiClientException>(() => _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId));
     }
 
     [Fact]
@@ -124,7 +127,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
+            await _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
         }
         catch (DdeiClientException exception)
         {
@@ -140,7 +143,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
+            await _ddeiClient.GetDocumentAsync(_caseUrn, _caseId, _documentCategory, _documentId, _cmsAuthValues, _correlationId);
         }
         catch (DdeiClientException exception)
         {
@@ -153,7 +156,7 @@ public class DdeiDocumentExtractionServiceTests
     {
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 
-        await Assert.ThrowsAsync<DdeiClientException>(() => _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId));
+        await Assert.ThrowsAsync<DdeiClientException>(() => _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId));
     }
 
     [Fact]
@@ -164,7 +167,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+            await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
         catch (DdeiClientException exception)
         {
@@ -180,7 +183,7 @@ public class DdeiDocumentExtractionServiceTests
 
         try
         {
-            await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+            await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
         }
         catch (DdeiClientException exception)
         {
@@ -191,7 +194,7 @@ public class DdeiDocumentExtractionServiceTests
     [Fact]
     public async Task ListDocumentsAsync_ReturnsMappedDocuments()
     {
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+        var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
 
         result.Length.Should().Be(_content.Count);
     }
@@ -203,7 +206,7 @@ public class DdeiDocumentExtractionServiceTests
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+        var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
 
         using (new AssertionScope())
         {
@@ -228,7 +231,7 @@ public class DdeiDocumentExtractionServiceTests
         _jsonConvertWrapperMock.Setup(x => x.DeserializeObject<IList<DdeiCaseDocumentResponse>>(It.IsAny<string>()))
             .Returns(searchResults);
 
-        var result = await _documentExtractionService.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
+        var result = await _ddeiClient.ListDocumentsAsync(_caseUrn, _caseId, _cmsAuthValues, _correlationId);
 
         using (new AssertionScope())
         {
