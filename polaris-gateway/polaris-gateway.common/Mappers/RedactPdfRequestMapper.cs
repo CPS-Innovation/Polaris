@@ -25,8 +25,6 @@ namespace PolarisGateway.Mappers
 
             var result = new RedactPdfRequestDto
             {
-                CaseId = caseId,
-                PolarisDocumentId = polarisDocumentId,
                 // FileName - not known yet, picked up later in the durable world
                 // VersionId - not passed in previous code, possibly get set as 0->1 in Bob metadata, but as not used this isn't a problem
                 RedactionDefinitions = new List<RedactionDefinitionDto>()

@@ -24,7 +24,6 @@ namespace text_extractor.tests.Functions
         private readonly Fixture _fixture;
         private readonly string _serializedExtractTextRequest;
         private readonly HttpRequestMessage _httpRequestMessage;
-        private readonly RemoveCaseIndexesRequestDto _removeCaseIndexesRequest;
         private HttpResponseMessage _errorHttpResponseMessage;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<ILogger<RemoveCaseIndexes>> _mockLogger;
@@ -32,6 +31,7 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
+        private readonly long _caseId;
         private readonly RemoveCaseIndexes _removeCaseIndexes;
 
         public RemoveCaseIndexesTests()
@@ -42,12 +42,12 @@ namespace text_extractor.tests.Functions
             {
                 Content = new StringContent(_serializedExtractTextRequest)
             };
-            _removeCaseIndexesRequest = _fixture.Create<RemoveCaseIndexesRequestDto>();
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
+            _caseId = _fixture.Create<long>();
             _mockLogger = new Mock<ILogger<RemoveCaseIndexes>>();
 
             _mockSearchIndexService
@@ -105,7 +105,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Content = new StringContent(" ");
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -118,7 +118,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", string.Empty);
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -131,7 +131,7 @@ namespace text_extractor.tests.Functions
                 .Returns(_errorHttpResponseMessage);
             _httpRequestMessage.Headers.Add("Correlation-Id", Guid.Empty.ToString());
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }
@@ -146,7 +146,7 @@ namespace text_extractor.tests.Functions
             _mockJsonConvertWrapper.Setup(wrapper => wrapper.SerializeObject(It.IsAny<IndexDocumentsDeletedResult>()))
                 .Returns(string.Empty);
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -159,7 +159,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler.Setup(handler => handler.HandleException(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), _mockLogger.Object))
                 .Returns(_errorHttpResponseMessage);
 
-            var response = await _removeCaseIndexes.Run(_httpRequestMessage);
+            var response = await _removeCaseIndexes.Run(_httpRequestMessage, _caseId);
 
             response.Should().Be(_errorHttpResponseMessage);
         }

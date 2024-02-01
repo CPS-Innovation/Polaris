@@ -26,15 +26,15 @@ namespace pdf_generator.Services.DocumentRedaction.Aspose
             _telemetryClient = telemetryClient;
         }
 
-        public Stream Redact(Stream stream, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        public Stream Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             RedactedDocumentEvent telemetryEvent = default;
             try
             {
                 var (providerType, providerDetails) = _redactionImplementation.GetProviderType();
                 telemetryEvent = new RedactedDocumentEvent(correlationId: correlationId,
-                    caseId: redactPdfRequest.CaseId.ToString(),
-                    documentId: redactPdfRequest.PolarisDocumentIdValue,
+                    caseId: caseId,
+                    documentId: documentId,
                     redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
                     providerType: providerType,
                     providerDetails: providerDetails,

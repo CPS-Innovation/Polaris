@@ -81,7 +81,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
                 #endregion
 
-                var redactionResult = await _redactionClient.RedactPdfAsync(redactPdfRequest, currentCorrelationId);
+                var redactionResult = await _redactionClient.RedactPdfAsync(caseUrn, caseId, polarisDocumentId, redactPdfRequest, currentCorrelationId);
                 if (!redactionResult.Succeeded)
                 {
                     string error = $"Error Saving redaction details to the document for {caseId}, polarisDocumentId {polarisDocumentId}";

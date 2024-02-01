@@ -6,6 +6,6 @@ namespace pdf_generator.Services.DocumentRedaction
 {
     public interface IRedactionProvider
     {
-        Stream Redact(Stream stream, RedactPdfRequestDto redactPdfRequest, Guid correlationId);
+        Stream Redact(Stream stream, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId);
     }
 }

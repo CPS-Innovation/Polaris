@@ -27,12 +27,12 @@ namespace Common.Configuration
         public const string GetHostName = "gethostname";
 
         // Internal Pipeline
-        public const string Search = "search";
+        public const string Search = "urns/{caseUrn}/cases/{caseId}/search";
         public const string Extract = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
-        public const string RedactPdf = "redact-pdf";
-        public const string RemoveCaseIndexes = "remove-case-indexes";
-        public const string WaitForCaseEmptyResults = "wait-for-case-empty-results";
+        public const string RedactPdf = "urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
+        public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
+        public const string WaitForCaseEmptyResults = "urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
 
 #if SCALABILITY_TEST
         public const string ScalabilityTest = "cases/{caseId}/documents/{documentCount}/scalability-test";
@@ -94,6 +94,26 @@ namespace Common.Configuration
         public static string GetExtractPath(string caseUrn, long caseId, string documentId, long versionId)
         {
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
+        }
+
+        public static string GetRemoveCaseIndexesPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
+        }
+
+        public static string GetWaitForCaseEmptyResultsPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/wait-for-case-empty-results";
+        }
+
+        public static string GetSearchPath(string caseUrn, long caseId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/search";
+        }
+
+        public static string GetRedactPdfPath(string caseUrn, string caseId, string documentId)
+        {
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
         }
     }
 }

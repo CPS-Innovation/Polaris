@@ -49,7 +49,7 @@ namespace pdf_generator.Functions
         }
 
         [Function(nameof(RedactPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequest request)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = RestApi.RedactPdf)] HttpRequest request, string caseUrn, string caseId, string documentId)
         {
             Guid currentCorrelationId = default;
             const string loggingName = "RedactPdf - Run";
@@ -58,12 +58,12 @@ namespace pdf_generator.Functions
             try
             {
                 #region Validate-Inputs
-                
+
                 currentCorrelationId = request.Headers.GetCorrelation();
                 _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 _logger.LogMethodEntry(currentCorrelationId, loggingName, string.Empty);
-                
+
                 request.EnableBuffering();
 
                 if (request.ContentLength == null || !request.Body.CanSeek)
@@ -80,19 +80,19 @@ namespace pdf_generator.Functions
                 {
                     throw new BadRequestException("Request body cannot be null or an empty JSON message", nameof(request));
                 }
-                
+
                 #endregion
 
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestDto>(content);
-                _telemetryAugmentationWrapper.RegisterDocumentId(redactions.PolarisDocumentId.ToString());
+                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 _telemetryAugmentationWrapper.RegisterDocumentVersionId(redactions.VersionId.ToString());
 
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
 
-                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{redactions.PolarisDocumentId}'");
-                redactPdfResponse = await _documentRedactionService.RedactPdfAsync(redactions, currentCorrelationId);
+                _logger.LogMethodFlow(currentCorrelationId, loggingName, $"Beginning to apply redactions for polarisDocumentId: '{documentId}'");
+                redactPdfResponse = await _documentRedactionService.RedactPdfAsync(caseId, documentId, redactions, currentCorrelationId);
 
                 return new OkObjectResult(_jsonConvertWrapper.SerializeObject(redactPdfResponse));
             }

@@ -59,14 +59,14 @@ namespace coordinator.Clients
             return pdfStream;
         }
 
-        public async Task<RedactPdfResponse> RedactPdfAsync(RedactPdfRequestDto redactPdfRequest, Guid correlationId)
+        public async Task<RedactPdfResponse> RedactPdfAsync(string caseUrn, string caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
         {
             HttpResponseMessage response;
             try
             {
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest, correlationId), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.RedactPdf}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, documentId)}?code={_configuration[PipelineSettings.PipelineRedactPdfFunctionAppKey]}", correlationId);
                 request.Content = requestMessage;
 
                 response = await _httpClient.SendAsync(request);
