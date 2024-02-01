@@ -106,7 +106,7 @@ namespace coordinator.Functions.DurableEntity.Client.Document
                     DocumentId = int.Parse(document.CmsDocumentId),
                     VersionId = document.CmsVersionId
                 };
-                await _ddeiClient.UploadPdf(arg, pdfStream);
+                await _ddeiClient.UploadPdfAsync(arg, pdfStream);
 
                 return new ObjectResult(redactionResult);
             }

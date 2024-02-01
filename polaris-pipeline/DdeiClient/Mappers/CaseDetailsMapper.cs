@@ -122,7 +122,7 @@ namespace Ddei.Mappers
         {
             return pcdRequests
                       .SelectMany(pcdRequest => pcdRequest.Suspects)
-                      // weaknes here:  because we screenscrape, we don't actually ever see a unique numerical id
+                      // weakness here:  because we screen-scrape, we don't actually ever see a unique numerical id
                       //  for a suspect.  When we want to join between defendants and suspect, all we have are 
                       //  the Dob etc fields to join on, and hope for the best that they all match
                       .Where(suspect => suspect.Dob == defendant.Dob

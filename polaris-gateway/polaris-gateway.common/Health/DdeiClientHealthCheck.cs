@@ -24,7 +24,7 @@ namespace Common.Health
             try
             {
                 var urnArg = _caseDataArgFactory.CreateUrnArg(CmsAuthValue, CorrelationId, _testCaseUrn);
-                var caseIds = (await _ddeiClient.ListCases(urnArg)).ToList();
+                var caseIds = (await _ddeiClient.ListCasesAsync(urnArg)).ToList();
 
                 return HealthCheckResult.Healthy($"{caseIds.Count} Case(s) for test URN");
             }

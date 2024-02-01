@@ -220,42 +220,42 @@ namespace coordinator.tests.Services.DocumentToggle
       ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"FileType  Read *
-            DocType   Read *",
+        DocType   Read *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
     [InlineData(
       @"FileType  ReadWrite *
-            DocType   Read      *",
+        DocType   Read      *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.DocTypeNotAllowed)]
     [InlineData(
       @"FileType  Read      *
-            DocType   ReadWrite *",
+        DocType   ReadWrite *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
     [InlineData(
       @"FileType  ReadWrite *
-            DocType   ReadWrite *",
+        DocType   ReadWrite *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
     [InlineData(
       @"FileType  ReadWrite .pdf
-            DocType   ReadWrite MG1",
+        DocType   ReadWrite MG1",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
     [InlineData(
       @"FileType  ReadWrite .doc
-            DocType   ReadWrite MG2",
+        DocType   ReadWrite MG2",
       ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"FileType  ReadWrite *
-            FileType  Deny      .pdf
-            DocType   ReadWrite *",
+        FileType  Deny      .pdf
+        DocType   ReadWrite *",
       ".pdf", "MG1", ReadFlag.OnlyAvailableInCms, WriteFlag.OnlyAvailableInCms)]
     [InlineData(
       @"FileType  ReadWrite *
-            FileType  Read      .pdf
-            DocType   ReadWrite *",
+        FileType  Read      .pdf
+        DocType   ReadWrite *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.OriginalFileTypeNotAllowed)]
     [InlineData(
       @"FileType  ReadWrite *
-            #FileType  Read      .pdf
-            DocType   ReadWrite *",
+        #FileType  Read      .pdf
+        DocType   ReadWrite *",
       ".pdf", "MG1", ReadFlag.Ok, WriteFlag.IsNotOcrProcessed)]
     public void SetDocumentPresentationFlags_ShouldObeyTheRules(string configContent,
                                                                    string inputDocumentExtension,

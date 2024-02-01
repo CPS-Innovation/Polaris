@@ -68,7 +68,7 @@ namespace coordinator.Functions.ActivityFunctions.Case
                 CmsAuthValues = payload.CmsAuthValues,
                 CorrelationId = payload.CorrelationId
             };
-            var @case = await _ddeiClient.GetCase(caseArgDto);
+            var @case = await _ddeiClient.GetCaseAsync(caseArgDto);
 
             var pcdRequests = @case.PreChargeDecisionRequests
                        .Select(MapPresentationFlags)

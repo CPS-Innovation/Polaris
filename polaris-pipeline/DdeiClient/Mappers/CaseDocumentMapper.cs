@@ -4,7 +4,7 @@ using DdeiClient.Mappers.Contract;
 
 namespace Ddei.Mappers;
 
-public class DdeiCaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
+public class CaseDocumentMapper : ICaseDocumentMapper<DdeiCaseDocumentResponse>
 {
     public CmsDocumentDto Map(DdeiCaseDocumentResponse ddeiResponse)
     {

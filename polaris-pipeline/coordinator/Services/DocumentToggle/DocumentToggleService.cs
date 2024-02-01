@@ -18,6 +18,8 @@ namespace coordinator.Services.DocumentToggle
     {
         private const string ConfigResourceName = "coordinator.document-toggle.config";
 
+        private const string AttachmentCategoryName = "Attachment";
+
         private static readonly PresentationFlagsDto ReadOnly = new PresentationFlagsDto
         {
             Read = ReadFlag.Ok,
@@ -86,6 +88,10 @@ namespace coordinator.Services.DocumentToggle
             else if (!document.IsOcrProcessed)
             {
                 write = WriteFlag.IsNotOcrProcessed;
+            }
+            else if (string.Equals(document.CmsDocType.DocumentCategory, AttachmentCategoryName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                write = WriteFlag.AttachmentCategoryNotAllowed;
             }
             else
             {

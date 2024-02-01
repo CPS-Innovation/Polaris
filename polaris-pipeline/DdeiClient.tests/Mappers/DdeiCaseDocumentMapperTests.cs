@@ -17,7 +17,7 @@ public class DdeiCaseDocumentMapperTests
     public DdeiCaseDocumentMapperTests()
     {
         var fixture = new Fixture();
-        _mapper = new DdeiCaseDocumentMapper();
+        _mapper = new CaseDocumentMapper();
         _documentResponse = fixture.Create<DdeiCaseDocumentResponse>();
     }
 
