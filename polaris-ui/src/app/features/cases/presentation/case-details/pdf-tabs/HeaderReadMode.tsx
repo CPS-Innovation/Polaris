@@ -6,7 +6,10 @@ import {
   DropdownButton,
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
-import { LinkButton } from "../../../../../common/presentation/components";
+import {
+  LinkButton,
+  Tooltip,
+} from "../../../../../common/presentation/components";
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
@@ -80,23 +83,35 @@ export const HeaderReadMode: React.FC<Props> = ({
 
   return (
     <div className={classes.content}>
-      <LinkButton
-        className={classes.areaModeBtn}
-        dataTestId="btn-area-mode"
-        ariaLabel={
-          !contextData.areaOnlyRedactionMode
-            ? "enable redaction area mode"
-            : "disable redaction area mode"
+      <Tooltip
+        text={
+          contextData.areaOnlyRedactionMode
+            ? "Redact area tool on"
+            : "Redact area tool off"
         }
-        onClick={() => {
-          handleAreaOnlyRedaction(
-            contextData.documentId,
-            !contextData.areaOnlyRedactionMode
-          );
-        }}
       >
-        <AreaIcon />
-      </LinkButton>
+        <LinkButton
+          className={
+            contextData.areaOnlyRedactionMode
+              ? `${classes.areaModeBtn} ${classes.areaModeBtnEnabled}`
+              : classes.areaModeBtn
+          }
+          dataTestId="btn-area-mode"
+          ariaLabel={
+            !contextData.areaOnlyRedactionMode
+              ? "enable redaction area mode"
+              : "disable redaction area mode"
+          }
+          onClick={() => {
+            handleAreaOnlyRedaction(
+              contextData.documentId,
+              !contextData.areaOnlyRedactionMode
+            );
+          }}
+        >
+          <AreaIcon />
+        </LinkButton>
+      </Tooltip>
       <DropdownButton
         name="Document actions"
         dropDownItems={dropDownItems}
