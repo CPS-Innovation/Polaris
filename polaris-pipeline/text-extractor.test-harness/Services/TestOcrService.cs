@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using text_extractor.Services.OcrService;
@@ -22,14 +23,14 @@ namespace TextExtractor.TestHarness.Services
 
             try
             {
-                AnalyzeResults results = default;
+                AnalyzeResults results;
 
                 using (var documentStream = File.Open(filePath, FileMode.Open))
                 {
                     results = await _ocrService.GetOcrResultsAsync(documentStream, Guid.NewGuid());
                 }
 
-                Console.WriteLine($"OCR result count: {results.ReadResults.Count}");
+                Console.WriteLine($"OCR result line count: {results.ReadResults.Sum(x => x.Lines.Count())}");
                 if (results.ReadResults.Count > 0)
                 {
                     Console.WriteLine(results.ReadResults[0].Lines[0].Text);
