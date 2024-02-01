@@ -13,6 +13,9 @@ using Common.Wrappers;
 using Common.Wrappers.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using text_extractor.Factories;
+using text_extractor.Factories.Contracts;
+using text_extractor.Services.OcrService;
 using TextExtractor.TestHarness.Constants;
 using TextExtractor.TestHarness.Services;
 
@@ -26,12 +29,14 @@ namespace TextExtractor.TestHarness
 
             var textExtractorService = ActivatorUtilities.CreateInstance<TextExtractorService>(serviceProvider);
             var searchIndexService = ActivatorUtilities.CreateInstance<SearchIndexService>(serviceProvider);
+            var testOcrService = ActivatorUtilities.CreateInstance<TestOcrService>(serviceProvider);
 
             Console.WriteLine();
             Console.WriteLine("Choose an option below:");
             Console.WriteLine("[1]: Insert a document index only");
             Console.WriteLine("[2]: Insert a document index then delete it");
             Console.WriteLine("[3]: Delete document indexes only");
+            Console.WriteLine("[4]: Generate OCR results only");
 
             var optionInput = Console.ReadLine();
 
@@ -75,6 +80,10 @@ namespace TextExtractor.TestHarness
                     await searchIndexService.RemoveCaseIndexEntriesAsync(TestProperties.CmsCaseId);
                     Console.WriteLine($"Document indexes for case {TestProperties.CmsCaseId} have been deleted.");
                     break;
+                case OperationOption.OcrOnly:
+                    await testOcrService.GetOcrResultsAsync(fileToExtract);
+                    Console.WriteLine($"OCR completed for {fileToExtract}");
+                    break;
                 default:
                     throw new Exception("Option input was not recognised.");
             }
@@ -94,6 +103,8 @@ namespace TextExtractor.TestHarness
             configuration["SearchClientEndpointUrl"] = configuration.GetSection("Values")[ConfigKeys.SharedKeys.SearchClientEndpointUrl];
             configuration["SearchClientIndexName"] = configuration.GetSection("Values")[ConfigKeys.SharedKeys.SearchClientIndexName];
             configuration["SearchClientAuthorizationKey"] = configuration.GetSection("Values")[ConfigKeys.SharedKeys.SearchClientAuthorizationKey];
+            configuration["ComputerVisionClientServiceKey"] = configuration.GetSection("Values")[ConfigKeys.TextExtractorKeys.ComputerVisionClientServiceKey];
+            configuration["ComputerVisionClientServiceUrl"] = configuration.GetSection("Values")[ConfigKeys.TextExtractorKeys.ComputerVisionClientServiceUrl];
 
             var services = new ServiceCollection();
 
@@ -102,6 +113,9 @@ namespace TextExtractor.TestHarness
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IPipelineClientRequestFactory, PipelineClientRequestFactory>();
             services.AddTransient<IPipelineClientSearchRequestFactory, PipelineClientSearchRequestFactory>();
+            services.AddSingleton<ITestOcrService, TestOcrService>();
+            services.AddTransient<IComputerVisionClientFactory, ComputerVisionClientFactory>();
+            services.AddSingleton<IOcrService, OcrService>();
             services.AddHttpClient<ITextExtractorClient, TextExtractorClient>(client =>
             {
                 client.BaseAddress = new Uri(configuration.GetSection("Values").GetValueFromConfig(PipelineSettings.PipelineTextExtractorBaseUrl));
