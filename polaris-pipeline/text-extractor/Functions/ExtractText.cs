@@ -110,7 +110,7 @@ namespace text_extractor.Functions
 
                 _log.LogMethodFlow(currentCorrelationId, loggingName, $"Search index update completed for blob {extractTextRequest.BlobName}");
 
-                await Task.Delay(2000);
+                await Task.Delay(1000);
                 var result = await _searchIndexService.WaitForStoreResultsAsync(extractTextRequest.CaseId,
                                                                                     extractTextRequest.DocumentId,
                                                                                     extractTextRequest.VersionId,
