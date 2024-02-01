@@ -78,6 +78,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
     handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
+    handleAreaOnlyRedaction,
   } = useCaseDetailsState(urn, +caseId);
 
   const {
@@ -366,6 +367,7 @@ export const Page: React.FC<Props> = ({ backLinkProps }) => {
                       FEATURE_FLAG_REDACTION_LOG_UNDER_OVER
                     : false
                 }
+                handleAreaOnlyRedaction={handleAreaOnlyRedaction}
               />
             )}
           </div>

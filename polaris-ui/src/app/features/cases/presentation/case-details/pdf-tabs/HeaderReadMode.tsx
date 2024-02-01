@@ -6,9 +6,11 @@ import {
   DropdownButton,
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
+import { LinkButton } from "../../../../../common/presentation/components";
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
+import { ReactComponent as AreaIcon } from "../../../../../common/presentation/svgs/areaIcon.svg";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
@@ -16,9 +18,11 @@ type Props = {
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "read" }>;
   handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
+  handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   contextData: {
     documentId: string;
     tabIndex: number;
+    areaOnlyRedactionMode: boolean;
   };
 };
 
@@ -27,8 +31,10 @@ export const HeaderReadMode: React.FC<Props> = ({
   caseDocumentViewModel: { sasUrl },
   handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
+  handleAreaOnlyRedaction,
   contextData,
 }) => {
+  console.log("areaOnlyRedactionMode>>>", contextData.areaOnlyRedactionMode);
   const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
 
@@ -74,6 +80,23 @@ export const HeaderReadMode: React.FC<Props> = ({
 
   return (
     <div className={classes.content}>
+      <LinkButton
+        className={classes.areaModeBtn}
+        dataTestId="btn-area-mode"
+        ariaLabel={
+          !contextData.areaOnlyRedactionMode
+            ? "enable redaction area mode"
+            : "disable redaction area mode"
+        }
+        onClick={() => {
+          handleAreaOnlyRedaction(
+            contextData.documentId,
+            !contextData.areaOnlyRedactionMode
+          );
+        }}
+      >
+        <AreaIcon />
+      </LinkButton>
       <DropdownButton
         name="Document actions"
         dropDownItems={dropDownItems}

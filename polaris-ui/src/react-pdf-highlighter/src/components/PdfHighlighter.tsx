@@ -627,6 +627,15 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   debouncedScaleValue: () => void = debounce(this.handleScaleValue, 500);
 
+  shouldStart = (event: MouseEvent) => {
+    const { enableAreaSelection } = this.props;
+    return (
+      enableAreaSelection(event) &&
+      isHTMLElement(event.target) &&
+      Boolean(asElement(event.target).closest(".page"))
+    );
+  };
+
   render() {
     const { onSelectionFinished, enableAreaSelection } = this.props;
 
@@ -642,11 +651,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
               onChange={(isVisible) =>
                 this.setState({ isAreaSelectionInProgress: isVisible })
               }
-              shouldStart={(event) =>
-                enableAreaSelection(event) &&
-                isHTMLElement(event.target) &&
-                Boolean(asElement(event.target).closest(".page"))
-              }
+              shouldStart={this.shouldStart}
               onSelection={(startTarget, boundingRect, resetSelection) => {
                 const page = getPageFromElement(startTarget);
 
